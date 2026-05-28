@@ -55,10 +55,11 @@ class _SearchPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppSurfaceSubtle,
-        border: Border(right: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border(right: BorderSide(color: palette.divider)),
       ),
       child: _SearchResultsList(
         type: type,
@@ -107,6 +108,7 @@ class _SearchPaneNoticeStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     if (error == null && queuedProviderIngests.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -127,7 +129,7 @@ class _SearchPaneNoticeStack extends StatelessWidget {
             ),
             child: AppErrorBanner(error!),
           ),
-        const Divider(height: 1, thickness: 1, color: kAppDivider),
+        Divider(height: 1, thickness: 1, color: palette.divider),
       ],
     );
   }
@@ -1075,6 +1077,7 @@ class _NoSearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
@@ -1088,8 +1091,8 @@ class _NoSearchResults extends StatelessWidget {
               child: Text(
                 _message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),

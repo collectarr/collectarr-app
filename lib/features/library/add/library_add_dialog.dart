@@ -260,8 +260,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
       !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
+    final palette = appPalette(context);
     return Theme(
-      data: _libraryAddDialogTheme(accent),
+      data: _libraryAddDialogTheme(accent, palette),
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(
           horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
@@ -1768,6 +1769,6 @@ ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
   );
 }
 
-ThemeData _libraryAddDialogTheme(Color accent) {
-  return libraryAddDialogTheme(accent);
+ThemeData _libraryAddDialogTheme(Color accent, AppThemePalette palette) {
+  return libraryAddDialogTheme(accent, palette: palette);
 }

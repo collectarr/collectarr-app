@@ -8,12 +8,14 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 34,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [kAppDivider, kAppSurfaceDim],
+          gradient: LinearGradient(
+            colors: [palette.panelRaised, palette.panel],
           ),
           border: Border(bottom: BorderSide(color: accent)),
         ),
@@ -25,8 +27,8 @@ class _DialogHeader extends StatelessWidget {
             Expanded(
               child: Text(
                 'Add ${type.pluralLabel} from Collectarr Core',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                 ),
@@ -145,10 +147,11 @@ class _LibraryAddModeBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isBusy = isSearching || isSearchingProvider;
     final searchLabels = libraryMediaSearchFieldLabels(type);
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppToolbar,
-        border: Border(bottom: BorderSide(color: kAppField)),
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
@@ -260,8 +263,8 @@ class _LibraryAddModeBar extends StatelessWidget {
                         'Start a manual draft here, then review the full editor before saving.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                         ),
@@ -308,21 +311,23 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: kAppSurfaceSubtle,
-        border: Border.all(color: accent.withValues(alpha: 0.72)),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Search by',
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: kAppTextBright,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(width: 8),
@@ -363,7 +368,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             onPressed: onScan,
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.menu, size: 26, color: kAppTextBright),
+          Icon(Icons.menu, size: 26, color: colorScheme.onSurfaceVariant),
         ],
       ),
     );
@@ -428,6 +433,8 @@ class _LibraryAddModeTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: _kLibraryAddModeControlHeight,
       child: _LibraryAddModeFieldFrame(
@@ -443,8 +450,8 @@ class _LibraryAddModeTextField extends StatelessWidget {
           textAlignVertical: TextAlignVertical.center,
           onChanged: onChanged,
           onSubmitted: (_) => onSubmitted(),
-          style: const TextStyle(
-            color: kAppTextBright,
+          style: TextStyle(
+            color: colorScheme.onSurface,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -455,7 +462,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
             border: InputBorder.none,
             semanticCounterText: label,
             hintText: hintText,
-            hintStyle: const TextStyle(color: kAppTextHint),
+            hintStyle: TextStyle(color: palette.textMuted),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
@@ -472,12 +479,13 @@ class _LibraryAddModeFieldFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       height: _kLibraryAddModeControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: kAppField,
-        border: Border.all(color: kAppBorderSubtle),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: child,

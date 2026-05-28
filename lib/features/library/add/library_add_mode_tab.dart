@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/theme/theme_palette.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAddModeTab extends StatelessWidget {
@@ -19,9 +19,11 @@ class LibraryAddModeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final selectedColor = Color.alphaBlend(
-      Colors.black.withValues(alpha: 0.48),
-      accent,
+      accent.withValues(alpha: 0.18),
+      palette.panelRaised,
     );
     return InkWell(
       onTap: onTap,
@@ -32,9 +34,9 @@ class LibraryAddModeTab extends StatelessWidget {
         margin: const EdgeInsets.only(right: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: selected ? selectedColor : const Color(0xFF2D2F31),
+          color: selected ? selectedColor : palette.panel,
           border: Border.all(
-            color: selected ? accent : const Color(0xFF55585B),
+            color: selected ? accent : palette.divider,
           ),
           borderRadius: BorderRadius.circular(3),
           boxShadow: selected
@@ -54,8 +56,8 @@ class LibraryAddModeTab extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
-                color: kAppTextBright,
+              style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
               ),

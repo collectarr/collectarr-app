@@ -78,6 +78,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     final selectedItem = item;
     final selectedCandidate = candidate;
     final selectedBundle =
@@ -86,12 +87,16 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         : null;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
-        color: const Color(0xFF060606),
+        color: palette.panel,
         child: Center(
           child: Text(
             searched
                 ? 'Select a result or search $providerLabel.'
                 : 'Search Collectarr Core to preview metadata.',
+            style: TextStyle(
+              color: palette.textMuted,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       );
@@ -144,9 +149,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF020202),
-            Color.alphaBlend(accent.withValues(alpha: 0.22), kAppCanvas),
-            const Color(0xFF050505),
+            palette.panelRaised,
+            Color.alphaBlend(accent.withValues(alpha: 0.12), palette.panel),
+            palette.panel,
           ],
         ),
       ),
