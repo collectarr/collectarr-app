@@ -372,7 +372,13 @@ void main() {
               'region': 'US',
               'release_date': '2026-05-11',
               'publisher': 'Marvel',
-              'external_ids': {'comicvine': '4000-1'},
+              'provider_links': [
+                {
+                  'provider': 'comicvine',
+                  'entity_type': 'bundle_release',
+                  'provider_item_id': '4000-1',
+                },
+              ],
             }
           ],
         }
