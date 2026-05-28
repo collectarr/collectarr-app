@@ -43,6 +43,7 @@ class InspectorCollectionFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final hasConditions = conditions.isNotEmpty;
     final hasGrades = grades.isNotEmpty;
     if (!hasConditions && !hasGrades) return const SizedBox.shrink();
@@ -55,7 +56,7 @@ class InspectorCollectionFields extends StatelessWidget {
               Expanded(
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
-                  dropdownColor: kAppPanelRaised,
+                  dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
                   initialValue:
                       conditions.contains(condition) ? condition : null,
@@ -75,7 +76,7 @@ class InspectorCollectionFields extends StatelessWidget {
               Expanded(
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
-                  dropdownColor: kAppPanelRaised,
+                  dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
                   initialValue: grades.contains(grade) ? grade : null,
                   decoration: const InputDecoration(
@@ -95,7 +96,7 @@ class InspectorCollectionFields extends StatelessWidget {
         Text(
           'Condition and grade save immediately.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kAppTextMuted,
+                color: palette.textMuted,
               ),
         ),
       ],
@@ -167,6 +168,7 @@ class _InspectorPersonalDetailsEditorState
   @override
   Widget build(BuildContext context) {
     final accent = widget.accent;
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: appPalette(context).surfaceSubtle,
@@ -195,7 +197,7 @@ class _InspectorPersonalDetailsEditorState
             Text(
               'This panel uses draft editing. Apply changes when you are ready to save.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: kAppTextMuted,
+                    color: palette.textMuted,
                   ),
             ),
             const SizedBox(height: 9),
@@ -266,7 +268,7 @@ class _InspectorPersonalDetailsEditorState
                   _selectedLocationLabel ?? 'No location selected',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color:
-                            _selectedLocationLabel == null ? kAppTextMuted : null,
+                        _selectedLocationLabel == null ? palette.textMuted : null,
                       ),
                 ),
               ),
@@ -540,6 +542,7 @@ class _InspectorTrackingDetailsEditorState
   @override
   Widget build(BuildContext context) {
     final accent = widget.accent;
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: appPalette(context).surfaceSubtle,
@@ -570,7 +573,7 @@ class _InspectorTrackingDetailsEditorState
                         ? Icons.keyboard_arrow_down
                         : Icons.keyboard_arrow_right,
                     size: 16,
-                    color: kAppTextMuted,
+                    color: palette.textMuted,
                   ),
                 ],
               ),
@@ -579,7 +582,7 @@ class _InspectorTrackingDetailsEditorState
             Text(
               'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: kAppTextMuted,
+                    color: palette.textMuted,
                   ),
             ),
             AnimatedCrossFade(
@@ -871,6 +874,7 @@ class _InspectorTrackingDetailsEditorState
     final title = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: appPalette(context).panel,
         title: const Text('New edition'),
         content: TextField(
           controller: controller,
@@ -940,6 +944,7 @@ class _InspectorTrackingDetailsEditorState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: appPalette(context).panel,
         title: const Text('Stop tracking'),
         content: const Text(
           'This will remove all tracking details for this item. Continue?',
@@ -1013,6 +1018,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final activeEdition = _activeEdition;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1020,7 +1026,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
         Text(
           'Releases',
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: kAppTextMuted,
+                color: palette.textMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -1066,7 +1072,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
           Text(
             'Variants',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: kAppTextMuted,
+                  color: palette.textMuted,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -1132,6 +1138,8 @@ class _EditionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1140,10 +1148,10 @@ class _EditionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? accent.withValues(alpha: 0.18)
-              : kAppPanel,
+              : palette.panel,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: isSelected ? accent : kAppDivider,
+            color: isSelected ? accent : palette.divider,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -1160,9 +1168,9 @@ class _EditionCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: double.infinity,
                         errorBuilder: (_, __, ___) =>
-                            _placeholderIcon(Icons.album),
+                            _placeholderIcon(context, Icons.album),
                       )
-                    : _placeholderIcon(Icons.album),
+                    : _placeholderIcon(context, Icons.album),
               ),
             ),
             Padding(
@@ -1176,7 +1184,7 @@ class _EditionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? accent : Colors.white,
+                      color: isSelected ? accent : onSurface,
                     ),
                   ),
                   if (subtitle.isNotEmpty)
@@ -1184,9 +1192,9 @@ class _EditionCard extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9,
-                        color: kAppTextMuted,
+                        color: palette.textMuted,
                       ),
                     ),
                 ],
@@ -1214,6 +1222,8 @@ class _VariantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1222,10 +1232,10 @@ class _VariantCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? accent.withValues(alpha: 0.18)
-              : kAppPanel,
+              : palette.panel,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: isSelected ? accent : kAppDivider,
+            color: isSelected ? accent : palette.divider,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -1242,9 +1252,9 @@ class _VariantCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: double.infinity,
                         errorBuilder: (_, __, ___) =>
-                            _placeholderIcon(Icons.image_outlined),
+                            _placeholderIcon(context, Icons.image_outlined),
                       )
-                    : _placeholderIcon(Icons.image_outlined),
+                    : _placeholderIcon(context, Icons.image_outlined),
               ),
             ),
             Padding(
@@ -1258,7 +1268,7 @@ class _VariantCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? accent : Colors.white,
+                      color: isSelected ? accent : onSurface,
                     ),
                   ),
                   if (variant.physicalFormatLabel != null)
@@ -1266,9 +1276,9 @@ class _VariantCard extends StatelessWidget {
                       variant.physicalFormatLabel!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9,
-                        color: kAppTextMuted,
+                        color: palette.textMuted,
                       ),
                     ),
                 ],
@@ -1281,8 +1291,8 @@ class _VariantCard extends StatelessWidget {
   }
 }
 
-Widget _placeholderIcon(IconData icon) {
+Widget _placeholderIcon(BuildContext context, IconData icon) {
   return Center(
-    child: Icon(icon, size: 22, color: kAppTextMuted),
+    child: Icon(icon, size: 22, color: appPalette(context).textMuted),
   );
 }

@@ -74,6 +74,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final trackingOptions = widget.type.trackingProfile.options;
     final conditions = _conditionOptions;
     final grades = _gradeOptions;
@@ -88,7 +89,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             if (conditions.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 initialValue: _condition,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Condition',
@@ -112,7 +113,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             if (grades.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 initialValue: _grade,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Grade',
@@ -144,7 +145,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _readStatus,
-              dropdownColor: kAppPanelRaised,
+              dropdownColor: palette.panelRaised,
               borderRadius: kAppMenuBorderRadius,
               decoration: const InputDecoration(
                 labelText: 'Tracking status',
@@ -166,7 +167,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
               initialValue: _rating,
-              dropdownColor: kAppPanelRaised,
+              dropdownColor: palette.panelRaised,
               borderRadius: kAppMenuBorderRadius,
               decoration: const InputDecoration(
                 labelText: 'Rating',
@@ -270,7 +271,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             child: Text(
               summary,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: !_applyLocation ? kAppTextMuted : null,
+                    color: !_applyLocation ? appPalette(context).textMuted : null,
                   ),
             ),
           ),

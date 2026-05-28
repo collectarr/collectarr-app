@@ -20,9 +20,10 @@ class LibraryMetaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xCC172E35),
+        color: palette.panel.withValues(alpha: 0.8),
         border: Border.all(color: accent.withValues(alpha: 0.4)),
         borderRadius: borderRadius,
       ),
@@ -36,7 +37,7 @@ class LibraryMetaChip extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                   ),
@@ -92,10 +93,11 @@ class LibraryStatPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanelRaised,
-        border: Border.all(color: kAppDivider),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -105,8 +107,8 @@ class LibraryStatPill extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: kAppTextMuted,
+              style: TextStyle(
+                color: palette.textMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -114,8 +116,8 @@ class LibraryStatPill extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
               ),

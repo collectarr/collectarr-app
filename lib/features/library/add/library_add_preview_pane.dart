@@ -7,6 +7,7 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       child: GestureDetector(
@@ -19,7 +20,7 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
           child: SizedBox(
             width: 10,
             child: Center(
-              child: Container(width: 2, color: kAppDivider),
+              child: Container(width: 2, color: palette.divider),
             ),
           ),
         ),
@@ -787,6 +788,7 @@ class _ReferenceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return ChoiceChip(
       label: Text(label),
       selected: selected,
@@ -795,10 +797,10 @@ class _ReferenceChip extends StatelessWidget {
       side: BorderSide(
         color: selected
             ? accent.withValues(alpha: 0.8)
-            : kAppDivider.withValues(alpha: enabled ? 1 : 0.5),
+            : palette.divider.withValues(alpha: enabled ? 1 : 0.5),
       ),
       labelStyle: TextStyle(
-        color: enabled ? null : kAppTextMuted,
+        color: enabled ? null : palette.textMuted,
         fontWeight: FontWeight.w700,
       ),
       backgroundColor: const Color(0x12000000),
@@ -821,6 +823,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final releaseDate = bundle.releaseDate;
     final subtitleParts = <String>[
       if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
@@ -847,7 +850,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
             border: Border.all(
               color: selected
                   ? accent.withValues(alpha: 0.85)
-                  : kAppDivider,
+                  : palette.divider,
             ),
           ),
           child: Padding(
@@ -1537,12 +1540,13 @@ class _ResizableDialogShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Stack(
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: kAppPanel,
-            border: Border.all(color: kAppDivider),
+            color: palette.panel,
+            border: Border.all(color: palette.divider),
             boxShadow: const [
               BoxShadow(
                 color: Color(0xCC000000),

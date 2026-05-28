@@ -18,9 +18,10 @@ class MediaTrackingStatusField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DropdownButtonFormField<String>(
       isExpanded: true,
-      dropdownColor: kAppPanelRaised,
+      dropdownColor: palette.panelRaised,
       borderRadius: kAppMenuBorderRadius,
       initialValue: profile.normalizeStorageValue(value),
       decoration: InputDecoration(

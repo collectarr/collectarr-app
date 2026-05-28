@@ -37,6 +37,7 @@ class _ManualPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final media = type.mediaFields;
     final release = type.releaseFields;
     final copyTypeLabel = ownedCopyTypeLabel(
@@ -46,8 +47,8 @@ class _ManualPane extends StatelessWidget {
       ),
     );
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppPanelRaised,
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
         border: Border(left: _kLibraryAddBorder),
       ),
       child: Padding(
@@ -58,8 +59,8 @@ class _ManualPane extends StatelessWidget {
             Expanded(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: kAppCanvas,
-                  border: Border.all(color: kAppDivider),
+                  color: palette.canvas,
+                  border: Border.all(color: palette.divider),
                 ),
                 child: ListView(
                   padding: const EdgeInsets.all(10),
@@ -128,7 +129,7 @@ class _ManualPane extends StatelessWidget {
                           labelText: 'Physical format',
                           prefixIcon: Icon(Icons.album_outlined),
                         ),
-                        dropdownColor: kAppPanelRaised,
+                        dropdownColor: palette.panelRaised,
                         borderRadius: kAppMenuBorderRadius,
                         items: [
                           const DropdownMenuItem<String>(
@@ -168,8 +169,8 @@ class _ManualPane extends StatelessWidget {
             const SizedBox(height: 8),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: kAppToolbar,
-                border: Border.all(color: kAppDivider),
+                color: palette.panel,
+                border: Border.all(color: palette.divider),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
@@ -184,8 +185,8 @@ class _ManualPane extends StatelessWidget {
                             'Start a local ${type.singularLabel.toLowerCase()} draft, then review full details',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: kAppTextMuted,
+                            style: TextStyle(
+                              color: palette.textMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                             ),
@@ -199,8 +200,8 @@ class _ManualPane extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Owned copies created from this draft will be saved as $copyTypeLabel.',
-                          style: const TextStyle(
-                            color: kAppTextMuted,
+                          style: TextStyle(
+                            color: palette.textMuted,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),

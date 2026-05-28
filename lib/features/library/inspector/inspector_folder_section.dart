@@ -73,6 +73,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox.shrink();
+    final palette = appPalette(context);
 
     return LibraryInspectorSection(
       title: 'Folders',
@@ -96,7 +97,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
             padding: const EdgeInsets.only(bottom: 4),
             child: Text(
               'Not in any folder',
-              style: TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
           ),
         ..._folders.map((folder) => Padding(
@@ -113,7 +114,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
                   ),
                   InkWell(
                     onTap: () => _removeFromFolder(folder.id),
-                    child: Icon(Icons.close, size: 14, color: kAppTextMuted),
+                    child: Icon(Icons.close, size: 14, color: palette.textMuted),
                   ),
                 ],
               ),
@@ -150,7 +151,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: const Text('New Folder'),
         content: TextField(
           controller: ctrl,
@@ -175,8 +176,9 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Expanded(child: Text('Add to Folder')),
@@ -195,7 +197,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
                 child: Text(
                   'No folders available.\nTap + to create one.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: kAppTextMuted),
+                  style: TextStyle(color: palette.textMuted),
                 ),
               )
             : ListView.builder(

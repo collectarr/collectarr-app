@@ -472,6 +472,10 @@ class _ProviderMixedNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final bannerTextColor = ThemeData.estimateBrightnessForColor(kAppBannerInfoBackground) == Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: const BoxDecoration(
@@ -480,13 +484,13 @@ class _ProviderMixedNotice extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.layers_outlined, size: 18, color: kAppTextMuted),
+          Icon(Icons.layers_outlined, size: 18, color: palette.textMuted),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               summary,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: bannerTextColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -505,16 +509,17 @@ class _ResultSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: const BoxDecoration(
-        color: kAppPanelRaised,
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
         border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: kAppTextMuted,
+        style: TextStyle(
+          color: palette.textMuted,
           fontSize: 12,
           fontWeight: FontWeight.w900,
         ),

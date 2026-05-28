@@ -86,10 +86,14 @@ class InspectorActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final ownedForeground = ThemeData.estimateBrightnessForColor(kAppHighlight) == Brightness.dark
+        ? Colors.white
+        : Colors.black87;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xD51D1D1D),
-        border: Border.all(color: kAppDivider),
+        color: palette.panel.withValues(alpha: 0.84),
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
@@ -154,7 +158,7 @@ class InspectorActionBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: entry.isOwned ? kAppHighlight : kAppSurfaceSubtle,
                 border: Border.all(
-                  color: entry.isOwned ? kAppHighlight : kAppDivider,
+                  color: entry.isOwned ? kAppHighlight : palette.divider,
                 ),
               ),
               child: Padding(
@@ -167,16 +171,16 @@ class InspectorActionBar extends StatelessWidget {
                           : Icons.check_box_outline_blank,
                       size: 15,
                       color: entry.isOwned
-                        ? kAppCanvas
-                          : kAppTextMuted,
+                        ? ownedForeground
+                          : palette.textMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       entry.isOwned ? 'OWNED' : 'CATALOG',
                       style: TextStyle(
                         color: entry.isOwned
-                            ? kAppCanvas
-                            : kAppTextMuted,
+                            ? ownedForeground
+                            : palette.textMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                       ),

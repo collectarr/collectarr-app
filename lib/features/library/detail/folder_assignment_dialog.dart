@@ -67,8 +67,9 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: const Row(
         children: [
           Icon(Icons.folder_outlined, size: 20),
@@ -88,7 +89,7 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
                       'Create folders from the toolbar menu\n'
                       'to organize items into shortlists.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: kAppTextMuted),
+                      style: TextStyle(color: palette.textMuted),
                     ),
                   )
                 : ListView.builder(

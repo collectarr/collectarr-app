@@ -77,6 +77,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final activeLoans = _loans.where((l) => l.isActive).toList();
     final pastLoans = _loans.where((l) => !l.isActive).toList();
 
@@ -108,11 +109,11 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
             ),
           )
         else if (_loans.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 4),
             child: Text(
               'Not currently lent out.',
-              style: TextStyle(color: kAppTextMuted, fontSize: 13),
+              style: TextStyle(color: palette.textMuted, fontSize: 13),
             ),
           )
         else ...[
@@ -163,6 +164,7 @@ class _LoanTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final isOverdue = loan.isOverdueAt(DateTime.now());
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -177,7 +179,7 @@ class _LoanTile extends StatelessWidget {
                 ? Colors.orange
                 : loan.isActive
                     ? accent
-                    : kAppTextMuted,
+                  : palette.textMuted,
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -194,8 +196,8 @@ class _LoanTile extends StatelessWidget {
                 ),
                 Text(
                   _subtitle,
-                  style: const TextStyle(
-                    color: kAppTextMuted,
+                  style: TextStyle(
+                    color: palette.textMuted,
                     fontSize: 11,
                   ),
                 ),
@@ -219,7 +221,7 @@ class _LoanTile extends StatelessWidget {
             onPressed: onDelete,
             visualDensity: VisualDensity.compact,
             style: IconButton.styleFrom(
-              foregroundColor: kAppTextMuted,
+              foregroundColor: palette.textMuted,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
@@ -272,8 +274,9 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Text('Lend Item', style: TextStyle(color: widget.accent)),
       content: SizedBox(
         width: 320,
