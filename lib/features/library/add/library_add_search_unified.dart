@@ -196,7 +196,6 @@ class _UnifiedGroupNode extends StatefulWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.checkedProviderIds,
     required this.ownedCatalogItemIds,
     required this.queuedProviderIngests,
     required this.providerLabel,
@@ -217,7 +216,6 @@ class _UnifiedGroupNode extends StatefulWidget {
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> checkedProviderIds;
   final Set<String> ownedCatalogItemIds;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final String Function(String providerId) providerLabel;

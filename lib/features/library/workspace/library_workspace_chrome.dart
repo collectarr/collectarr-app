@@ -216,82 +216,91 @@ class LibraryToolbarSearch extends StatelessWidget {
       palette.textMuted.withValues(alpha: 0.22),
       palette.divider,
     );
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: inputBackground,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: borderColor),
-            ),
-            child: SizedBox(
-              height: 36,
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 8),
-                    child: Icon(
-                      Icons.search,
-                      size: 18,
-                      color: palette.textMuted,
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final showFilterChip = selectedFilterLabel != null &&
+            constraints.maxWidth >= 340;
+        return Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: inputBackground,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: borderColor),
                   ),
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      onChanged: onChanged,
-                      onSubmitted: onSearch,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: hintText,
-                        hintStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: palette.textMuted),
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 10),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 36,
-                    decoration: BoxDecoration(
-                      border: Border(left: BorderSide(color: borderColor)),
-                    ),
-                    child: Tooltip(
-                      message: 'Search',
-                      child: IconButton(
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        onPressed: () => onSearch(controller.text),
-                        icon: Icon(
-                          Icons.search,
-                          size: 18,
-                          color: palette.textPrimary,
+                  child: SizedBox(
+                    height: 36,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 8),
+                          child: Icon(
+                            Icons.search,
+                            size: 18,
+                            color: palette.textMuted,
+                          ),
                         ),
-                      ),
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            onChanged: onChanged,
+                            onSubmitted: onSearch,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              hintText: hintText,
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(color: palette.textMuted),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 36,
+                          decoration: BoxDecoration(
+                            border:
+                                Border(left: BorderSide(color: borderColor)),
+                          ),
+                          child: Tooltip(
+                            message: 'Search',
+                            child: IconButton(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              onPressed: () => onSearch(controller.text),
+                              icon: Icon(
+                                Icons.search,
+                                size: 18,
+                                color: palette.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-        if (selectedFilterLabel != null) ...[
-          const SizedBox(width: 6),
-          InputChip(
-            visualDensity: VisualDensity.compact,
-            backgroundColor: selectionColor,
-            label: Text(selectedFilterLabel!),
-            onDeleted: onClearFilter,
-          ),
-        ],
-      ],
+            if (showFilterChip) ...[
+              const SizedBox(width: 6),
+              InputChip(
+                visualDensity: VisualDensity.compact,
+                backgroundColor: selectionColor,
+                label: Text(selectedFilterLabel!),
+                onDeleted: onClearFilter,
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }

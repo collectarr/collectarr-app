@@ -294,7 +294,6 @@ class _SearchResultsList extends StatelessWidget {
             selectedResultId: selectedResultId,
             selectedProviderCandidateId: selectedProviderCandidateId,
             checkedResultIds: checkedResultIds,
-            checkedProviderIds: checkedProviderIds,
             ownedCatalogItemIds: ownedCatalogItemIds,
             queuedProviderIngests: queuedProviderIngests,
             providerLabel: type.metadataProviderLabel,

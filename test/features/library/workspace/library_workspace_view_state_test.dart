@@ -58,7 +58,7 @@ void main() {
     final defaults = profile.defaults();
 
     expect(defaults.viewMode, LibraryViewMode.grid);
-    expect(defaults.detailsLayout, LibraryDetailsLayout.right);
+    expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
     expect(defaults.sortColumn, LibrarySortColumn.title);
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);

@@ -250,16 +250,21 @@ class LibraryToolbar extends StatelessWidget {
                                 onCollectionStatusScopeChanged!,
                           ),
                         ],
-                        const Spacer(),
-                        LibraryToolbarSearch(
-                          controller: searchController,
-                          hintText:
-                              'Search ${type.pluralLabel.toLowerCase()}...',
-                          selectedFilterLabel: selectedBucket,
-                          onSearch: onSearchChanged,
-                          onClearFilter: onClearBucket,
-                          onChanged: onSearchChanged,
-                          selectionColor: palette.selection,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: LibraryToolbarSearch(
+                              controller: searchController,
+                              hintText:
+                                  'Search ${type.pluralLabel.toLowerCase()}...',
+                              selectedFilterLabel: selectedBucket,
+                              onSearch: onSearchChanged,
+                              onClearFilter: onClearBucket,
+                              onChanged: onSearchChanged,
+                              selectionColor: palette.selection,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -406,7 +411,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Row(
           children: [
-            const Spacer(),
             LibraryWorkspaceControlStrip(
               children: [
                 LibraryViewModeDropdown(
@@ -1114,19 +1118,21 @@ double _measureDropdownWidth(
   required double horizontalPadding,
   required double minWidth,
 }) {
-  final textScaler = MediaQuery.textScalerOf(context);
+  final textDirection = Directionality.of(context);
+  final painter = TextPainter(
+    textDirection: textDirection,
+    maxLines: 1,
+  );
   var maxLabelWidth = 0.0;
+
   for (final label in labels) {
-    final painter = TextPainter(
-      text: TextSpan(text: label, style: textStyle),
-      maxLines: 1,
-      textDirection: Directionality.of(context),
-      textScaler: textScaler,
-    )..layout();
+    painter.text = TextSpan(text: label, style: textStyle);
+    painter.layout();
     if (painter.width > maxLabelWidth) {
       maxLabelWidth = painter.width;
     }
   }
+
   return (horizontalPadding +
           leadingWidth +
           leadingSpacing +

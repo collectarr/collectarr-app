@@ -65,6 +65,7 @@ class _LibraryEditDialogScaffoldState
         final check = List.of(order)..sort();
         if (check.length == widget.tabs.length &&
             check.indexed.every((e) => e.$2 == e.$1)) {
+          if (!mounted) return;
           setState(() => _tabOrder = order);
         }
       }

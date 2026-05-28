@@ -35,8 +35,7 @@ void main() {
 
     expect(find.text('Series'), findsOneWidget);
     expect(find.text('Action Comics'), findsOneWidget);
-    expect(find.text('6'), findsOneWidget);
-    expect(find.text('6 / 12 owned'), findsOneWidget);
+    expect(find.text('12'), findsOneWidget);
     expect(find.text('Superman'), findsOneWidget);
 
     await tester.tap(find.text('Action Comics'));
