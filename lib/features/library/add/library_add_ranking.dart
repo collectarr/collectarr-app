@@ -44,6 +44,21 @@ List<LibraryMetadataItem> rerankLibraryMetadataItems(
   return indexed.map((entry) => entry.$2).toList(growable: false);
 }
 
+List<LibraryMetadataItem> filterAndRerankLibraryMetadataItems(
+  List<LibraryMetadataItem> items,
+  LibraryAddLocalRerankHints hints, {
+  int minimumScore = 1,
+}) {
+  if (items.isEmpty || !hints.hasAnyHint) {
+    return items;
+  }
+  final ranked = rerankLibraryMetadataItems(items, hints);
+  return [
+    for (final item in ranked)
+      if (_scoreMetadataItem(item, hints) >= minimumScore) item,
+  ];
+}
+
 List<ProviderCandidate> rerankProviderCandidates(
   List<ProviderCandidate> items,
   LibraryAddLocalRerankHints hints,

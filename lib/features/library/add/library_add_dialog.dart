@@ -726,9 +726,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final mapped = [
         for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
       ];
+      final filtered = filterAndRerankLibraryMetadataItems(
+        mapped,
+        LibraryAddLocalRerankHints(query: query),
+      );
       setState(() {
-        _suggestions = mapped;
-        _showSuggestions = mapped.isNotEmpty;
+        _suggestions = filtered;
+        _showSuggestions = filtered.isNotEmpty;
       });
     } catch (_) {
       // Silently ignore autocomplete failures — the user can still press Search.
