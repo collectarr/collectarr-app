@@ -269,7 +269,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
-    this.maxWidth = 248,
+    this.maxWidth = 188,
   });
 
   final TextEditingController controller;
@@ -396,15 +396,15 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return SizedBox(
-      width: 28,
+      width: 30,
       child: Tooltip(
         message: tooltip,
         child: IconButton(
           visualDensity: VisualDensity.compact,
           padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+          constraints: const BoxConstraints.tightFor(width: 30, height: 30),
           onPressed: onPressed,
-          icon: Icon(icon, size: 17, color: palette.textPrimary),
+          icon: Icon(icon, size: 19, color: palette.textPrimary),
         ),
       ),
     );
