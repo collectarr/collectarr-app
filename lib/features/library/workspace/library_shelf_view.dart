@@ -95,7 +95,8 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfThickness = 8.0;
     const shelfShadow = 12.0;
     const shelfOverhang = 8.0;
-    final panelColor = appPalette(context).panel;
+    final palette = appPalette(context);
+    final panelColor = palette.panel;
     final shelfColor = HSLColor.fromColor(panelColor).withLightness(0.18).toColor();
     final shelfHighlight = HSLColor.fromColor(panelColor).withLightness(0.24).toColor();
     return SizedBox(
@@ -139,7 +140,7 @@ class _ShelfRow<T> extends StatelessWidget {
             height: 1,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: palette.divider.withValues(alpha: 0.72),
               ),
             ),
           ),
@@ -152,7 +153,7 @@ class _ShelfRow<T> extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                for (final book in books) _buildBook(book),
+                for (final book in books) _buildBook(context, book),
               ],
             ),
           ),
@@ -161,12 +162,13 @@ class _ShelfRow<T> extends StatelessWidget {
     );
   }
 
-  Widget _buildBook(T item) {
+  Widget _buildBook(BuildContext context, T item) {
     final entry = entryOf(item);
     final selected = isSelected(item);
     final coverUrl = entry.displayCoverUrl;
     final bookHeight = shelfHeight - 8;
     final bookW = bookWidth - 8;
+    final palette = appPalette(context);
     return GestureDetector(
       onTap: () => onTap(item),
       onDoubleTap: () => onDoubleTap(item),
@@ -206,7 +208,7 @@ class _ShelfRow<T> extends StatelessWidget {
                     ),
                     // Subtle inner glow on left (spine highlight)
                     BoxShadow(
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: palette.surfaceSubtle.withValues(alpha: 0.46),
                       blurRadius: 1,
                       offset: const Offset(-1, 0),
                     ),
@@ -225,7 +227,7 @@ class _ShelfRow<T> extends StatelessWidget {
                       )
                     else
                       Container(
-                        color: kAppPanelRaised,
+                        color: palette.panel,
                         alignment: Alignment.center,
                         padding: const EdgeInsets.all(4),
                         child: Text(
@@ -265,7 +267,7 @@ class _ShelfRow<T> extends StatelessWidget {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.white.withValues(alpha: 0.12),
+                              palette.surfaceSubtle.withValues(alpha: 0.82),
                               Colors.transparent,
                             ],
                           ),

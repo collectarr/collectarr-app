@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryCoverBadges extends StatelessWidget {
@@ -110,16 +111,17 @@ class LibraryCoverBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final palette = appPalette(context);
     return Tooltip(
       message: label,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: backgroundColor ?? colorScheme.primary,
           borderRadius: BorderRadius.circular(999),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
               blurRadius: 8,
-              color: Color(0x33000000),
+              color: palette.divider.withValues(alpha: 0.28),
               offset: Offset(0, 2),
             ),
           ],
