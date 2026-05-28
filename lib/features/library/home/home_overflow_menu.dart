@@ -21,18 +21,19 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return PopupMenuButton<CatalogMediaType>(
       tooltip: 'More libraries',
-      color: kAppGridCanvas,
+      color: palette.panelRaised,
       surfaceTintColor: Colors.transparent,
-      shadowColor: Colors.black.withValues(alpha: 0.54),
+      shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.32),
       elevation: 10,
       position: PopupMenuPosition.under,
       offset: const Offset(0, 5),
       constraints: const BoxConstraints(minWidth: 190, maxWidth: 250),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
-        side: const BorderSide(color: kAppDivider),
+        side: BorderSide(color: palette.divider),
       ),
       onSelected: onSelected,
       itemBuilder: (context) => [
@@ -54,8 +55,20 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
         padding: const EdgeInsets.only(right: 8),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.26),
-            border: Border.all(color: Colors.white38),
+            color: palette.isDark
+                ? Colors.black.withValues(alpha: 0.26)
+                : Color.alphaBlend(
+                    appPalette(context).accent.withValues(alpha: 0.08),
+                    palette.surfaceSubtle,
+                  ),
+            border: Border.all(
+              color: palette.isDark
+                  ? Colors.white38
+                  : Color.alphaBlend(
+                      appPalette(context).accent.withValues(alpha: 0.16),
+                      palette.divider,
+                    ),
+            ),
             borderRadius: BorderRadius.circular(3),
           ),
           child: Padding(
@@ -63,12 +76,16 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.more_horiz, color: Colors.white, size: 17),
+                Icon(
+                  Icons.more_horiz,
+                  color: palette.isDark ? Colors.white : palette.textPrimary,
+                  size: 17,
+                ),
                 const SizedBox(width: 5),
-                const Text(
+                Text(
                   'More',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: palette.isDark ? Colors.white : palette.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                   ),
@@ -77,7 +94,9 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
                 Text(
                   types.length.toString(),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.82),
+                    color: palette.isDark
+                        ? Colors.white.withValues(alpha: 0.82)
+                        : palette.textMuted,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),
@@ -105,6 +124,7 @@ class _OverflowMenuRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = libraryAccentForKind(type.kind);
+    final palette = appPalette(context);
     return SizedBox(
       height: 38,
       child: Row(
@@ -118,8 +138,8 @@ class _OverflowMenuRow extends StatelessWidget {
               type.pluralLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: palette.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
               ),
@@ -128,16 +148,22 @@ class _OverflowMenuRow extends StatelessWidget {
           const SizedBox(width: 10),
           DecoratedBox(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.10),
+              color: palette.isDark
+                  ? Colors.white.withValues(alpha: 0.10)
+                  : palette.surfaceSubtle,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white24),
+              border: Border.all(
+                color: palette.isDark ? Colors.white24 : palette.divider,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               child: Text(
                 count.toString(),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.86),
+                  color: palette.isDark
+                      ? Colors.white.withValues(alpha: 0.86)
+                      : palette.textMuted,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),

@@ -649,16 +649,26 @@ class _ScrollArrowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 20,
         height: 28,
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.45),
+          color: palette.isDark
+              ? Colors.black.withValues(alpha: 0.45)
+              : Color.alphaBlend(
+                  palette.accent.withValues(alpha: 0.12),
+                  palette.surfaceSubtle,
+                ),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Icon(icon, size: 16, color: Colors.white),
+        child: Icon(
+          icon,
+          size: 16,
+          color: palette.isDark ? Colors.white : palette.textPrimary,
+        ),
       ),
     );
   }
@@ -674,11 +684,13 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     return Container(
       height: 6,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -696,11 +708,16 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
               child: Container(
                 width: 42,
                 height: 6,
-                color: Colors.white.withValues(alpha: 0.18),
-                child: const Icon(
+                color: palette.isDark
+                    ? Colors.white.withValues(alpha: 0.18)
+                    : Color.alphaBlend(
+                        accent.withValues(alpha: 0.14),
+                        palette.surfaceSubtle,
+                      ),
+                child: Icon(
                   Icons.expand_more,
                   size: 6,
-                  color: Colors.white70,
+                  color: palette.isDark ? Colors.white70 : palette.textPrimary,
                 ),
               ),
             ),
@@ -721,11 +738,13 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     return Container(
       width: 10,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -743,11 +762,16 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
               child: Container(
                 width: 10,
                 height: 36,
-                color: Colors.white.withValues(alpha: 0.18),
-                child: const Icon(
+                color: palette.isDark
+                    ? Colors.white.withValues(alpha: 0.18)
+                    : Color.alphaBlend(
+                        accent.withValues(alpha: 0.14),
+                        palette.surfaceSubtle,
+                      ),
+                child: Icon(
                   Icons.chevron_right,
                   size: 14,
-                  color: Colors.white70,
+                  color: palette.isDark ? Colors.white70 : palette.textPrimary,
                 ),
               ),
             ),

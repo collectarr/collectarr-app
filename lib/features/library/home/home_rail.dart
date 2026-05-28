@@ -71,6 +71,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(widget.types, widget.selectedKind);
     final accent = libraryAccentForKind(selected.kind);
+    final palette = appPalette(context);
     final selectedIcon = widget.registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
     return TweenAnimationBuilder<Color?>(
@@ -84,14 +85,15 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
           decoration: BoxDecoration(
             gradient: libraryChromeGradient(
               animatedAccent,
+              brightness: palette.brightness,
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
             border: Border(
               right: BorderSide(
-                color: Color.alphaBlend(
-                  Colors.white.withValues(alpha: 0.14),
+                color: libraryChromeBorderColor(
                   animatedAccent,
+                  brightness: palette.brightness,
                 ),
               ),
             ),
@@ -103,7 +105,11 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                 SizedBox(
                   height: 42,
                   child: Center(
-                    child: Icon(selectedIcon, color: Colors.white, size: 22),
+                    child: Icon(
+                      selectedIcon,
+                      color: palette.isDark ? Colors.white : palette.textPrimary,
+                      size: 22,
+                    ),
                   ),
                 ),
                 const Divider(height: 1, color: kAppDivider),
@@ -131,12 +137,32 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                             child: DecoratedBox(
                               decoration: BoxDecoration(
                                 color: selectedType
-                                    ? typeAccent.withValues(alpha: 0.34)
-                                    : Colors.black.withValues(alpha: 0.20),
+                                    ? (palette.isDark
+                                        ? typeAccent.withValues(alpha: 0.34)
+                                        : Color.alphaBlend(
+                                            typeAccent.withValues(alpha: 0.16),
+                                            palette.surfaceSubtle,
+                                          ))
+                                    : (palette.isDark
+                                        ? Colors.black.withValues(alpha: 0.20)
+                                        : Color.alphaBlend(
+                                            typeAccent.withValues(alpha: 0.04),
+                                            palette.surfaceSubtle,
+                                          )),
                                 border: Border.all(
                                   color: selectedType
-                                      ? Colors.white70
-                                      : typeAccent,
+                                      ? (palette.isDark
+                                          ? Colors.white70
+                                          : Color.alphaBlend(
+                                              typeAccent.withValues(alpha: 0.18),
+                                              palette.divider,
+                                            ))
+                                      : (palette.isDark
+                                          ? typeAccent
+                                          : Color.alphaBlend(
+                                              typeAccent.withValues(alpha: 0.28),
+                                              palette.divider,
+                                            )),
                                 ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -153,15 +179,19 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                           libraryIconForKind(type.kind),
                                       size: 19,
                                       color: selectedType
-                                          ? Colors.white
+                                          ? (palette.isDark
+                                              ? Colors.white
+                                              : palette.textPrimary)
                                           : typeAccent,
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       (widget.counts[type.kind]?.total ?? 0)
                                           .toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: palette.isDark
+                                            ? Colors.white
+                                            : palette.textPrimary,
                                         fontSize: 10,
                                         fontWeight: FontWeight.w900,
                                       ),
@@ -187,10 +217,21 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                             width: 28,
                             height: 18,
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.45),
+                              color: palette.isDark
+                                  ? Colors.black.withValues(alpha: 0.45)
+                                  : Color.alphaBlend(
+                                      animatedAccent.withValues(alpha: 0.12),
+                                      palette.surfaceSubtle,
+                                    ),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(Icons.expand_less, size: 16, color: Colors.white),
+                            child: Icon(
+                              Icons.expand_less,
+                              size: 16,
+                              color: palette.isDark
+                                  ? Colors.white
+                                  : palette.textPrimary,
+                            ),
                           ),
                         ),
                       ),
@@ -207,10 +248,21 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                             width: 28,
                             height: 18,
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.45),
+                              color: palette.isDark
+                                  ? Colors.black.withValues(alpha: 0.45)
+                                  : Color.alphaBlend(
+                                      animatedAccent.withValues(alpha: 0.12),
+                                      palette.surfaceSubtle,
+                                    ),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(Icons.expand_more, size: 16, color: Colors.white),
+                            child: Icon(
+                              Icons.expand_more,
+                              size: 16,
+                              color: palette.isDark
+                                  ? Colors.white
+                                  : palette.textPrimary,
+                            ),
                           ),
                         ),
                       ),
@@ -227,13 +279,15 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                     onTap: () => ref
                         .read(libraryNavPreferencesProvider.notifier)
                         .toggleCollapsed(),
-                    child: const SizedBox(
+                    child: SizedBox(
                       height: 36,
                       child: Center(
                         child: Icon(
                           Icons.chevron_left,
                           size: 18,
-                          color: Colors.white,
+                          color: palette.isDark
+                              ? Colors.white
+                              : palette.textPrimary,
                         ),
                       ),
                     ),
@@ -254,6 +308,7 @@ class _RailSyncButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
+    final palette = appPalette(context);
     return Tooltip(
       message: sync.isSyncing
           ? 'Personal sync is running'
@@ -274,10 +329,14 @@ class _RailSyncButton extends ConsumerWidget {
                   sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
                   size: 18,
                   color: sync.isSyncing
-                      ? Colors.white54
+                    ? (palette.isDark ? Colors.white54 : palette.textMuted)
                       : sync.isOffline
-                          ? Colors.orange.shade200
-                          : Colors.white,
+                      ? (palette.isDark
+                        ? Colors.orange.shade200
+                        : Colors.orange.shade700)
+                      : (palette.isDark
+                        ? Colors.white
+                        : palette.textPrimary),
                 ),
                 if (!sync.isSyncing && sync.pendingCount > 0)
                   Positioned(
@@ -289,9 +348,13 @@ class _RailSyncButton extends ConsumerWidget {
                         vertical: 1,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: palette.isDark
+                            ? Colors.white.withValues(alpha: 0.18)
+                            : palette.selection,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.35),
+                          color: palette.isDark
+                              ? Colors.white.withValues(alpha: 0.35)
+                              : palette.divider,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -299,9 +362,11 @@ class _RailSyncButton extends ConsumerWidget {
                         sync.pendingCount > 99
                             ? '99+'
                             : sync.pendingCount.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 9,
-                          color: Colors.white,
+                          color: palette.isDark
+                              ? Colors.white
+                              : palette.textPrimary,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
