@@ -45,10 +45,11 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-      final cacheWidth = constraints.hasBoundedWidth &&
+      final resolvedCacheWidth = constraints.hasBoundedWidth &&
         constraints.maxWidth > 0
           ? (constraints.maxWidth * pixelRatio).ceil()
             : null;
+      final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
 
     // Prefer local offline bytes when available
     if (local != null && local.isNotEmpty) {
@@ -86,6 +87,7 @@ class LibraryCoverImage extends ConsumerWidget {
           key: ValueKey(url),
           fit: fit,
           cacheWidth: cacheWidth,
+          gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
           loadingBuilder: (context, child, loadingProgress) {
@@ -102,6 +104,7 @@ class LibraryCoverImage extends ConsumerWidget {
         imageUrl: url,
         fit: fit,
         memCacheWidth: cacheWidth,
+        useOldImageOnUrlChange: true,
         filterQuality: FilterQuality.medium,
         placeholder: (_, __) => placeholder,
         errorWidget: (_, __, ___) => placeholder,
