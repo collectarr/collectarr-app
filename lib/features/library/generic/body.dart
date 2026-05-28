@@ -326,7 +326,7 @@ class LibraryBody extends StatelessWidget {
                   rightWidth: viewState.detailsWidth,
                   maxRightWidth: maxDetailsWidth,
                   onRightWidthChanged: onDetailsWidthChanged,
-                  bottomHeight: compact ? 220 : 250,
+                  bottomHeight: compact ? 210 : 220,
                 ),
               ),
             ],

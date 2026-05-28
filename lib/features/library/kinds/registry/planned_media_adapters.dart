@@ -75,6 +75,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     maxCoverSize: kPlannedMediaMaxCoverSize,
     presetConfig: plannedMediaViewPresetConfig,
     clampColumnWidth: clampPlannedMediaTableColumnWidth,
+    defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: plannedMediaInitialSortAscending,
   );
 }
@@ -92,7 +93,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   return switch (preset) {
     LibraryWorkspacePreset.cover => const LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
-        detailsLayout: LibraryDetailsLayout.right,
+        detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: kPlannedMediaDefaultCoverSize,
         visibleColumns: {
           LibraryTableColumn.status,
@@ -132,7 +133,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
       ),
     LibraryWorkspacePreset.details => const LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
-        detailsLayout: LibraryDetailsLayout.right,
+        detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 144,
         visibleColumns: {
           LibraryTableColumn.status,

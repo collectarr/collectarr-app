@@ -40,7 +40,7 @@ class LibraryWorkspaceViewProfile {
     this.defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     this.defaultDetailsWidth = kLibraryDetailsDefaultWidth,
     this.defaultViewMode = LibraryViewMode.grid,
-    this.defaultDetailsLayout = LibraryDetailsLayout.right,
+    this.defaultDetailsLayout = LibraryDetailsLayout.bottom,
     this.defaultSidebarVisible = true,
     this.defaultSortAscending = true,
     this.sortAscendingForColumn,
