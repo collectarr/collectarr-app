@@ -245,11 +245,6 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     final scopeLabel = breadcrumbs.isNotEmpty
         ? breadcrumbs.last
         : (isRootScope ? 'All ${type.pluralLabel}' : selectedBucket);
-    final scopeTone = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: appPalette(context).textMuted,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.3,
-        );
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
       decoration: BoxDecoration(
@@ -259,38 +254,6 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Icon(Icons.folder_copy_outlined,
-                  size: 16, color: appPalette(context).textMuted),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Folders',
-                  style: scopeTone,
-                ),
-              ),
-              if (groupLoading) ...[
-                const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                const SizedBox(width: 4),
-              ],
-              if (onHideSidebar != null)
-                IconButton(
-                  tooltip: 'Hide folders panel',
-                  onPressed: onHideSidebar,
-                  icon: const Icon(Icons.menu_open, size: 16),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
           Row(
             children: [
               Expanded(
@@ -303,7 +266,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 6),
+                              horizontal: 2, vertical: 6),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -333,6 +296,24 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                   },
                 ),
               ),
+              if (groupLoading) ...[
+                const SizedBox(width: 4),
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ],
+              if (onHideSidebar != null)
+                IconButton(
+                  tooltip: 'Hide folders panel',
+                  onPressed: onHideSidebar,
+                  icon: const Icon(Icons.menu_open, size: 16),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                ),
               if (onNavigateBack != null)
                 IconButton(
                   tooltip: 'Back to previous scope',
