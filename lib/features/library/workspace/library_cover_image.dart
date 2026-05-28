@@ -333,8 +333,29 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
             (widget.ownedItemId?.trim().isNotEmpty ?? false));
   }
 
+  Future<void> _warmPreviewImage() async {
+    final imageUrl = _activeImageUrl?.trim();
+    if (imageUrl == null || imageUrl.isEmpty || !mounted) {
+      return;
+    }
+    try {
+      await precacheImage(NetworkImage(imageUrl), context);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_cover_image',
+        message: 'Failed to precache cover preview image.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
   Future<void> _openPreview() async {
     if (!_canPreview) {
+      return;
+    }
+    await _warmPreviewImage();
+    if (!mounted) {
       return;
     }
     final size = MediaQuery.sizeOf(context);
