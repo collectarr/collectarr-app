@@ -7,10 +7,9 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
+import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -249,24 +248,90 @@ class LibraryToolbar extends StatelessWidget {
                                 onCollectionStatusScopeChanged!,
                           ),
                         ],
-                        const SizedBox(width: 12),
-                        _ItemCountLabel(
-                          shown: counts.shown,
-                          total: counts.total,
-                          pluralLabel: type.pluralLabel,
+                        const Spacer(),
+                        LibraryToolbarSearch(
+                          controller: searchController,
+                          hintText:
+                              'Search ${type.pluralLabel.toLowerCase()}...',
+                          selectedFilterLabel: selectedBucket,
+                          onSearch: onSearchChanged,
+                          onClearFilter: onClearBucket,
+                          onChanged: onSearchChanged,
+                          selectionColor: palette.selection,
                         ),
-                        if (counts.totalPricePaidCents > 0) ...[
-                          const SizedBox(width: 8),
-                          _CollectionValueChip(
-                            totalPaidCents: counts.totalPricePaidCents,
-                            totalCoverCents: counts.totalCoverPriceCents,
-                            totalSellCents: counts.totalSellPriceCents,
-                            currency: counts.priceCurrency,
-                          ),
-                        ],
+                      ],
+                    ),
+                  ),
+                  const _ToolbarDividerLine(),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Row(
+                      children: [
                         const Spacer(),
                         LibraryWorkspaceControlStrip(
                           children: [
+                            LibraryViewModeDropdown(
+                              viewMode: viewState.viewMode,
+                              onChanged: onViewModeChanged,
+                            ),
+                            if (onEditSort != null)
+                              _ToolbarSortButton(
+                                onPressed: onEditSort!,
+                                sortFavorites: sortFavorites,
+                                activeSortFavoriteId: activeSortFavoriteId,
+                              ),
+                            _ItemCountLabel(
+                              shown: counts.shown,
+                              total: counts.total,
+                              pluralLabel: type.pluralLabel,
+                            ),
+                            if (counts.totalPricePaidCents > 0)
+                              _CollectionValueChip(
+                                totalPaidCents: counts.totalPricePaidCents,
+                                totalCoverCents: counts.totalCoverPriceCents,
+                                totalSellCents: counts.totalSellPriceCents,
+                                currency: counts.priceCurrency,
+                              ),
+                            LibraryDetailsLayoutDropdown(
+                              detailsLayout: viewState.detailsLayout,
+                              onChanged: onDetailsLayoutChanged,
+                            ),
+                            LibraryCoverSizeSlider(
+                              viewMode: viewState.viewMode,
+                              coverSize: viewState.coverSize,
+                              minCoverSize: adapter.viewProfile.minCoverSize,
+                              maxCoverSize: adapter.viewProfile.maxCoverSize,
+                              onChanged: onCoverSizeChanged,
+                            ),
+                            Tooltip(
+                              message: viewState.isSidebarVisible
+                                  ? 'Hide folders panel'
+                                  : 'Show folders panel',
+                              child: LibraryWorkspaceIconButton(
+                                onPressed: () => onSidebarVisibilityChanged(
+                                  !viewState.isSidebarVisible,
+                                ),
+                                icon: viewState.isSidebarVisible
+                                    ? Icons.menu_open
+                                    : Icons.menu,
+                              ),
+                            ),
+                            Tooltip(
+                              message: 'Select columns',
+                              child: LibraryWorkspaceIconButton(
+                                onPressed: viewState.viewMode ==
+                                        LibraryViewMode.list
+                                    ? onEditColumns
+                                    : null,
+                                icon: Icons.view_column,
+                              ),
+                            ),
+                            if (onEditFilters != null)
+                              _FilterButton(
+                                activeCount: activeFilterCount,
+                                onPressed: onEditFilters!,
+                              ),
                             LibraryToolsButton(
                               type: type,
                               counts: counts,
@@ -284,51 +349,12 @@ class LibraryToolbar extends StatelessWidget {
                               onEditConditionPickList: onEditConditionPickList,
                               onEditGradePickList: onEditGradePickList,
                               onEditTagPickList: onEditTagPickList,
-                              onEditSort: onEditSort,
                               onTransferFieldData: onTransferFieldData,
                               onReassignIndex: onReassignIndex,
                               onPrintReport: onPrintReport,
                               onShareCollection: onShareCollection,
                             ),
-                            if (onEditFilters != null)
-                              _FilterButton(
-                                activeCount: activeFilterCount,
-                                onPressed: onEditFilters!,
-                              ),
-                            LibraryViewTableControls(
-                              state: LibraryViewTableControlState(
-                                counts: LibraryWorkspaceCounts(
-                                  shown: counts.shown,
-                                  total: counts.total,
-                                ),
-                                viewMode: viewState.viewMode,
-                                detailsLayout: viewState.detailsLayout,
-                                isSidebarVisible: viewState.isSidebarVisible,
-                                coverSize: viewState.coverSize,
-                                minCoverSize: adapter.viewProfile.minCoverSize,
-                                maxCoverSize: adapter.viewProfile.maxCoverSize,
-                              ),
-                              callbacks: LibraryViewTableControlCallbacks(
-                                onEditColumns: onEditColumns,
-                                onSidebarVisibilityChanged:
-                                    onSidebarVisibilityChanged,
-                                onViewModeChanged: onViewModeChanged,
-                                onDetailsLayoutChanged: onDetailsLayoutChanged,
-                                onCoverSizeChanged: onCoverSizeChanged,
-                              ),
-                            ),
                           ],
-                        ),
-                        const SizedBox(width: 10),
-                        LibraryToolbarSearch(
-                          controller: searchController,
-                          hintText:
-                              'Search ${type.pluralLabel.toLowerCase()}...',
-                          selectedFilterLabel: selectedBucket,
-                          onSearch: onSearchChanged,
-                          onClearFilter: onClearBucket,
-                          onChanged: onSearchChanged,
-                          selectionColor: palette.selection,
                         ),
                       ],
                     ),
@@ -938,6 +964,38 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ToolbarSortButton extends StatelessWidget {
+  const _ToolbarSortButton({
+    required this.onPressed,
+    required this.sortFavorites,
+    required this.activeSortFavoriteId,
+  });
+
+  final VoidCallback onPressed;
+  final List<LibrarySortFavorite> sortFavorites;
+  final String? activeSortFavoriteId;
+
+  @override
+  Widget build(BuildContext context) {
+    LibrarySortFavorite? activeFavorite;
+    for (final favorite in sortFavorites) {
+      if (favorite.id == activeSortFavoriteId) {
+        activeFavorite = favorite;
+        break;
+      }
+    }
+    return Tooltip(
+      message: activeFavorite == null
+          ? 'Change sorting'
+          : 'Sorting: ${activeFavorite.label}',
+      child: LibraryWorkspaceIconButton(
+        onPressed: onPressed,
+        icon: activeFavorite?.icon ?? Icons.sort,
       ),
     );
   }

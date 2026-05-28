@@ -251,7 +251,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
           letterSpacing: 0.3,
         );
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
       decoration: BoxDecoration(
         color: appPalette(context).surface,
         border: Border(bottom: BorderSide(color: appPalette(context).divider)),
@@ -366,7 +366,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             ],
           ),
           if (breadcrumbs.length > 1) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -384,14 +384,20 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 2),
                       child: index == breadcrumbs.length - 1
-                          ? Chip(
-                              label: Text(breadcrumbs[index]),
-                              visualDensity: VisualDensity.compact,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                            )
+                          ? Text(
+                            breadcrumbs[index],
+                            style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                          )
                           : ActionChip(
-                              label: Text(breadcrumbs[index]),
+                            label: Text(
+                            breadcrumbs[index],
+                            style: Theme.of(context)
+                              .textTheme
+                              .bodySmall,
+                            ),
                               onPressed: onNavigateToBreadcrumb == null
                                   ? null
                                   : () => onNavigateToBreadcrumb!(index),
@@ -405,29 +411,17 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              Icon(
-                isRootScope ? Icons.public : Icons.subdirectory_arrow_right,
-                size: 14,
-                color: appPalette(context).textMuted,
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  scopeLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: appPalette(context).textMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
+          const SizedBox(height: 6),
+          Text(
+            scopeLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: appPalette(context).textMuted,
+                  fontWeight: FontWeight.w600,
                 ),
-              ),
-            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           _SidebarFilteringPanel(
             type: type,
             activeSmartListName: activeSmartListName,
@@ -444,7 +438,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
           ),
           if (seriesStatusSummary != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _SidebarSeriesStatusPanel(
               summary: seriesStatusSummary!,
               selectedScope: collectionStatusScope,
@@ -633,78 +627,63 @@ class _SidebarFilteringPanel extends StatelessWidget {
         ),
     ];
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: appPalette(context).panel.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: appPalette(context).divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.filter_alt_outlined,
-                size: 15,
-                color: appPalette(context).textMuted,
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Filtering',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ),
-              if (onEditFilters != null)
-                TextButton.icon(
-                  onPressed: onEditFilters,
-                  icon: const Icon(Icons.tune, size: 14),
-                  label: const Text('Edit'),
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          if (chips.isEmpty)
-            Text(
-              'No scoped filters yet. Use quick views, metadata links, alpha jump, or advanced filters to narrow ${type.pluralLabel.toLowerCase()}.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: appPalette(context).textMuted,
-                  ),
-            )
-          else
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: chips,
+    if (chips.isEmpty && !(hasActiveFilters && onClearFilters != null)) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.filter_alt_outlined,
+              size: 14,
+              color: appPalette(context).textMuted,
             ),
-          if (hasActiveFilters && onClearFilters != null) ...[
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: onClearFilters,
-                icon: const Icon(Icons.clear_all, size: 14),
-                label: const Text('Clear all'),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Filters',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+            ),
+            if (onEditFilters != null)
+              TextButton(
+                onPressed: onEditFilters,
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 ),
+                child: const Text('Edit'),
               ),
-            ),
           ],
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: chips,
+        ),
+        if (hasActiveFilters && onClearFilters != null) ...[
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: onClearFilters,
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              ),
+              child: const Text('Clear all'),
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -826,60 +805,43 @@ class _SidebarSeriesStatusPanel extends StatelessWidget {
         ),
     ];
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: appPalette(context).panel.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: appPalette(context).divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.monitor_heart_outlined,
-                size: 15,
-                color: appPalette(context).textMuted,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.monitor_heart_outlined,
+              size: 14,
+              color: appPalette(context).textMuted,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Status',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Series status',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            summary.title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: appPalette(context).textMuted,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: chips,
-          ),
-          if (summary.missingIssueSummary != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Missing issues: ${summary.missingIssueSummary}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: appPalette(context).textMuted,
-                  ),
             ),
           ],
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: chips,
+        ),
+        if (summary.missingIssueSummary != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            'Missing: ${summary.missingIssueSummary}',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: appPalette(context).textMuted,
+                ),
+          ),
         ],
-      ),
+      ],
     );
   }
 }

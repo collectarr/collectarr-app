@@ -8,27 +8,15 @@ const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
 const _viewModeDropdownHeight = 36.0;
 const _compactDropdownTriggerWidth = 44.0;
 
-class LibraryViewControls extends StatelessWidget {
-  const LibraryViewControls({
+class LibraryViewModeDropdown extends StatelessWidget {
+  const LibraryViewModeDropdown({
     super.key,
     required this.viewMode,
-    required this.detailsLayout,
-    required this.coverSize,
-    required this.minCoverSize,
-    required this.maxCoverSize,
-    required this.onViewModeChanged,
-    required this.onDetailsLayoutChanged,
-    required this.onCoverSizeChanged,
+    required this.onChanged,
   });
 
   final LibraryViewMode viewMode;
-  final LibraryDetailsLayout detailsLayout;
-  final double coverSize;
-  final double minCoverSize;
-  final double maxCoverSize;
-  final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<LibraryViewMode> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +31,235 @@ class LibraryViewControls extends StatelessWidget {
       context,
       textStyle: dropdownTextStyle,
     );
+    return SizedBox(
+      width: _compactDropdownTriggerWidth,
+      child: PopupMenuButton<LibraryViewMode>(
+        key: _viewModeDropdownKey,
+        tooltip: _viewModeTooltip(viewMode),
+        initialValue: viewMode,
+        onSelected: onChanged,
+        padding: EdgeInsets.zero,
+        color: palette.panelRaised,
+        surfaceTintColor: Colors.transparent,
+        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        position: PopupMenuPosition.under,
+        constraints: const BoxConstraints(
+          minWidth: 0,
+          maxWidth: double.infinity,
+        ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+          side: BorderSide(color: accent.withValues(alpha: 0.26)),
+        ),
+        itemBuilder: (context) => [
+          for (final mode in LibraryViewMode.values)
+            PopupMenuItem<LibraryViewMode>(
+              height: _viewModeDropdownHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              value: mode,
+              child: SizedBox(
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Icon(
+                      _viewModeIcon(mode),
+                      size: 17,
+                      color: mode == viewMode ? accent : palette.textMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _viewModeLabel(mode),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              height: 1,
+                              fontWeight: mode == viewMode
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: mode == viewMode
+                                  ? accent
+                                  : palette.textPrimary,
+                            ),
+                      ),
+                    ),
+                    if (mode == viewMode)
+                      Icon(Icons.check, size: 16, color: accent),
+                  ],
+                ),
+              ),
+            ),
+        ],
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: accent.withValues(alpha: 0.42)),
+          ),
+          child: SizedBox(
+            width: _compactDropdownTriggerWidth,
+            height: _viewModeDropdownHeight,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(_viewModeIcon(viewMode), size: 18, color: accent),
+                Positioned(
+                  right: 2,
+                  bottom: 2,
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    size: 16,
+                    color: accent,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LibraryDetailsLayoutDropdown extends StatelessWidget {
+  const LibraryDetailsLayoutDropdown({
+    super.key,
+    required this.detailsLayout,
+    required this.onChanged,
+  });
+
+  final LibraryDetailsLayout detailsLayout;
+  final ValueChanged<LibraryDetailsLayout> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context, fallback: palette.accent);
+    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          height: 1,
+          fontWeight: FontWeight.w700,
+          color: accent,
+        );
     final detailsMenuWidth = _measureDetailsDropdownWidth(
       context,
       textStyle: dropdownTextStyle,
     );
+    return SizedBox(
+      width: _compactDropdownTriggerWidth,
+      child: PopupMenuButton<LibraryDetailsLayout>(
+        key: _detailsLayoutDropdownKey,
+        tooltip: _detailsLayoutTooltip(detailsLayout),
+        initialValue: detailsLayout,
+        onSelected: onChanged,
+        padding: EdgeInsets.zero,
+        color: palette.panelRaised,
+        surfaceTintColor: Colors.transparent,
+        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        position: PopupMenuPosition.under,
+        constraints: const BoxConstraints(
+          minWidth: 0,
+          maxWidth: double.infinity,
+        ).copyWith(
+          minWidth: detailsMenuWidth,
+          maxWidth: detailsMenuWidth,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+          side: BorderSide(color: accent.withValues(alpha: 0.26)),
+        ),
+        itemBuilder: (context) => [
+          for (final layout in LibraryDetailsLayout.values)
+            PopupMenuItem<LibraryDetailsLayout>(
+              height: _viewModeDropdownHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              value: layout,
+              child: SizedBox(
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Icon(
+                      _detailsLayoutIcon(layout),
+                      size: 17,
+                      color:
+                          layout == detailsLayout ? accent : palette.textMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _detailsLayoutLabel(layout),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              height: 1,
+                              fontWeight: layout == detailsLayout
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: layout == detailsLayout
+                                  ? accent
+                                  : palette.textPrimary,
+                            ),
+                      ),
+                    ),
+                    if (layout == detailsLayout)
+                      Icon(Icons.check, size: 16, color: accent),
+                  ],
+                ),
+              ),
+            ),
+        ],
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: accent.withValues(alpha: 0.42)),
+          ),
+          child: SizedBox(
+            width: _compactDropdownTriggerWidth,
+            height: _viewModeDropdownHeight,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  _detailsLayoutIcon(detailsLayout),
+                  size: 18,
+                  color: accent,
+                ),
+                Positioned(
+                  right: 2,
+                  bottom: 2,
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    size: 16,
+                    color: accent,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LibraryCoverSizeSlider extends StatelessWidget {
+  const LibraryCoverSizeSlider({
+    super.key,
+    required this.viewMode,
+    required this.coverSize,
+    required this.minCoverSize,
+    required this.maxCoverSize,
+    required this.onChanged,
+  });
+
+  final LibraryViewMode viewMode;
+  final double coverSize;
+  final double minCoverSize;
+  final double maxCoverSize;
+  final ValueChanged<double> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
     final coverSizeEnabled = viewMode.supportsCoverSize;
     final iconColor = coverSizeEnabled
         ? Theme.of(context).colorScheme.onSurfaceVariant
@@ -54,195 +267,6 @@ class LibraryViewControls extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: _compactDropdownTriggerWidth,
-          child: PopupMenuButton<LibraryViewMode>(
-            key: _viewModeDropdownKey,
-            tooltip: _viewModeTooltip(viewMode),
-            initialValue: viewMode,
-            onSelected: onViewModeChanged,
-            padding: EdgeInsets.zero,
-            color: palette.panelRaised,
-            surfaceTintColor: Colors.transparent,
-            menuPadding: const EdgeInsets.symmetric(vertical: 4),
-            position: PopupMenuPosition.under,
-            constraints: const BoxConstraints(
-              minWidth: 0,
-              maxWidth: double.infinity,
-            ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-              side: BorderSide(color: accent.withValues(alpha: 0.26)),
-            ),
-            itemBuilder: (context) => [
-              for (final mode in LibraryViewMode.values)
-                PopupMenuItem<LibraryViewMode>(
-                  height: _viewModeDropdownHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  value: mode,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Row(
-                      children: [
-                        Icon(
-                          _viewModeIcon(mode),
-                          size: 17,
-                          color: mode == viewMode
-                              ? accent
-                              : palette.textMuted,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _viewModeLabel(mode),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  height: 1,
-                                  fontWeight: mode == viewMode
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                  color: mode == viewMode
-                                      ? accent
-                                      : palette.textPrimary,
-                                ),
-                          ),
-                        ),
-                        if (mode == viewMode)
-                          Icon(Icons.check, size: 16, color: accent),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: accent.withValues(alpha: 0.42)),
-              ),
-              child: SizedBox(
-                width: _compactDropdownTriggerWidth,
-                height: _viewModeDropdownHeight,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Icon(_viewModeIcon(viewMode), size: 18, color: accent),
-                    Positioned(
-                      right: 2,
-                      bottom: 2,
-                      child: Icon(
-                        Icons.arrow_drop_down,
-                        size: 16,
-                        color: accent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: _compactDropdownTriggerWidth,
-          child: PopupMenuButton<LibraryDetailsLayout>(
-            key: _detailsLayoutDropdownKey,
-            tooltip: _detailsLayoutTooltip(detailsLayout),
-            initialValue: detailsLayout,
-            onSelected: onDetailsLayoutChanged,
-            padding: EdgeInsets.zero,
-            color: palette.panelRaised,
-            surfaceTintColor: Colors.transparent,
-            menuPadding: const EdgeInsets.symmetric(vertical: 4),
-            position: PopupMenuPosition.under,
-            constraints: const BoxConstraints(
-              minWidth: 0,
-              maxWidth: double.infinity,
-            ).copyWith(
-              minWidth: detailsMenuWidth,
-              maxWidth: detailsMenuWidth,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-              side: BorderSide(color: accent.withValues(alpha: 0.26)),
-            ),
-            itemBuilder: (context) => [
-              for (final layout in LibraryDetailsLayout.values)
-                PopupMenuItem<LibraryDetailsLayout>(
-                  height: _viewModeDropdownHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  value: layout,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Row(
-                      children: [
-                        Icon(
-                          _detailsLayoutIcon(layout),
-                          size: 17,
-                          color: layout == detailsLayout
-                              ? accent
-                              : palette.textMuted,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _detailsLayoutLabel(layout),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  height: 1,
-                                  fontWeight: layout == detailsLayout
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                  color: layout == detailsLayout
-                                      ? accent
-                                      : palette.textPrimary,
-                                ),
-                          ),
-                        ),
-                        if (layout == detailsLayout)
-                          Icon(Icons.check, size: 16, color: accent),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: accent.withValues(alpha: 0.42)),
-              ),
-              child: SizedBox(
-                width: _compactDropdownTriggerWidth,
-                height: _viewModeDropdownHeight,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Icon(
-                      _detailsLayoutIcon(detailsLayout),
-                      size: 18,
-                      color: accent,
-                    ),
-                    Positioned(
-                      right: 2,
-                      bottom: 2,
-                      child: Icon(
-                        Icons.arrow_drop_down,
-                        size: 16,
-                        color: accent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
         Tooltip(
           message: coverSizeEnabled
               ? 'Cover size'
@@ -271,11 +295,60 @@ class LibraryViewControls extends StatelessWidget {
                   value: coverSize.clamp(minCoverSize, maxCoverSize),
                   min: minCoverSize,
                   max: maxCoverSize,
-                  onChanged: coverSizeEnabled ? onCoverSizeChanged : null,
+                  onChanged: coverSizeEnabled ? onChanged : null,
                 ),
               ),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class LibraryViewControls extends StatelessWidget {
+  const LibraryViewControls({
+    super.key,
+    required this.viewMode,
+    required this.detailsLayout,
+    required this.coverSize,
+    required this.minCoverSize,
+    required this.maxCoverSize,
+    required this.onViewModeChanged,
+    required this.onDetailsLayoutChanged,
+    required this.onCoverSizeChanged,
+  });
+
+  final LibraryViewMode viewMode;
+  final LibraryDetailsLayout detailsLayout;
+  final double coverSize;
+  final double minCoverSize;
+  final double maxCoverSize;
+  final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<double> onCoverSizeChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LibraryViewModeDropdown(
+          viewMode: viewMode,
+          onChanged: onViewModeChanged,
+        ),
+        const SizedBox(width: 8),
+        LibraryDetailsLayoutDropdown(
+          detailsLayout: detailsLayout,
+          onChanged: onDetailsLayoutChanged,
+        ),
+        const SizedBox(width: 12),
+        LibraryCoverSizeSlider(
+          viewMode: viewMode,
+          coverSize: coverSize,
+          minCoverSize: minCoverSize,
+          maxCoverSize: maxCoverSize,
+          onChanged: onCoverSizeChanged,
         ),
       ],
     );

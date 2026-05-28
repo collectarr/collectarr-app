@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -220,8 +219,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 34,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: dividerColor)),
       ),
@@ -246,7 +245,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
                             controller.clear();
                             onChanged();
                           },
-                      child: Icon(Icons.close, size: 14, color: mutedTextColor),
+                          child:
+                              Icon(Icons.close, size: 14, color: mutedTextColor),
                         )
                       : null,
                   suffixIconConstraints:
@@ -307,11 +307,12 @@ class _LibrarySeriesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedTextColor =
-        ThemeData.estimateBrightnessForColor(selectionColor) == Brightness.dark
-            ? Colors.white
-            : Theme.of(context).colorScheme.onSurface;
-    final selectedMutedTextColor = selectedTextColor.withValues(alpha: 0.72);
+    final selectedTextColor = ThemeData.estimateBrightnessForColor(
+              selectionColor,
+            ) ==
+            Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     final selectedBadgeTextColor = ThemeData.estimateBrightnessForColor(
               selectedBadgeColor,
             ) ==
@@ -322,17 +323,6 @@ class _LibrarySeriesRow extends StatelessWidget {
         Brightness.dark
       ? Colors.white
       : Theme.of(context).colorScheme.onSurface;
-    final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
-    final owned = bucket.ownedCount;
-    final total = bucket.count;
-    final pct = bucket.completionPercent;
-    final subtitleParts = <String>[
-      if (bucket.startYear != null) bucket.startYear.toString(),
-      if (owned != null) '$owned / $total owned',
-      if (bucket.missingNumbers.isNotEmpty)
-        '${bucket.missingNumbers.length} gaps',
-    ];
-    final hasSubtitle = subtitleParts.isNotEmpty;
     final gapTooltip = bucket.missingNumbers.isNotEmpty
         ? 'Missing: ${_formatMissingNumbers(bucket.missingNumbers)}'
         : null;
@@ -342,74 +332,35 @@ class _LibrarySeriesRow extends StatelessWidget {
         onTap: onTap,
         hoverColor: selectionColor.withValues(alpha: 0.35),
         child: SizedBox(
-          height: (hasSubtitle
-              ? (hasCover ? 50 : 46)
-              : (hasCover ? 40 : 36)) + extraVerticalPadding * 2,
+          height: 34 + extraVerticalPadding * 2,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               children: [
-                if (hasCover) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(3),
-                    child: SizedBox(
-                      width: 22,
-                      height: 28,
-                      child: CachedNetworkImage(
-                        imageUrl: bucket.coverUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => ColoredBox(
-                          color: appPalette(context).surface,
-                        ),
-                        errorWidget: (_, __, ___) => ColoredBox(
-                          color: appPalette(context).surface,
-                        ),
-                      ),
-                    ),
+                Container(
+                  width: 3,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: selected ? selectedBadgeColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(99),
                   ),
-                  const SizedBox(width: 6),
-                ],
+                ),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        bucket.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: selected ? selectedTextColor : mutedTextColor,
-                              fontWeight:
-                                  selected ? FontWeight.w800 : FontWeight.w500,
-                            ),
-                      ),
-                      if (hasSubtitle)
-                        Text(
-                          subtitleParts.join(' | '),
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: selected
-                                    ? selectedMutedTextColor
-                                    : mutedTextColor.withValues(alpha: 0.6),
-                                fontSize: 10,
-                              ),
+                  child: Text(
+                    bucket.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: selected ? selectedTextColor : null,
+                          fontWeight:
+                              selected ? FontWeight.w800 : FontWeight.w500,
                         ),
-                      if (pct != null) ...[                        
-                        const SizedBox(height: 2),
-                        _SeriesCompletionBar(
-                          percent: pct,
-                          selected: selected,
-                          badgeColor: badgeColor,
-                          selectedBadgeColor: selectedBadgeColor,
-                        ),
-                      ],
-                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 Badge(
-                  label: Text(owned != null ? '$owned' : total.toString()),
+                  label: Text(bucket.count.toString()),
                   backgroundColor: selected ? selectedBadgeColor : badgeColor,
                   textColor: selected ? selectedBadgeTextColor : badgeTextColor,
                 ),
@@ -436,42 +387,6 @@ String libraryBucketLabel(LibrarySeriesBucket bucket) {
     return '${bucket.title} ${bucket.count}';
   }
   return '${bucket.title} ${bucket.count} ($completionPercent%)';
-}
-
-class _SeriesCompletionBar extends StatelessWidget {
-  const _SeriesCompletionBar({
-    required this.percent,
-    required this.selected,
-    required this.badgeColor,
-    required this.selectedBadgeColor,
-  });
-
-  final int percent;
-  final bool selected;
-  final Color badgeColor;
-  final Color selectedBadgeColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final barColor = percent >= 100
-        ? const Color(0xFF4CAF50)
-        : selected
-            ? selectedBadgeColor
-            : badgeColor;
-    return SizedBox(
-      height: 4,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(2),
-        child: LinearProgressIndicator(
-          value: percent / 100,
-          backgroundColor: palette.divider,
-          valueColor: AlwaysStoppedAnimation(barColor),
-          minHeight: 4,
-        ),
-      ),
-    );
-  }
 }
 
 /// Formats a list of missing issue numbers into compact ranges.
