@@ -273,6 +273,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final group = widget.group;
 
     // Singleton groups (one item, no series candidate) — show inline.
@@ -360,9 +361,9 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
         color: highlighted
             ? Color.alphaBlend(
                 widget.accent.withValues(alpha: 0.38),
-                kAppSelection,
+                palette.selection,
               )
-            : kAppTableEvenRow,
+            : palette.tableEvenRow,
         border: Border(
           left: BorderSide(
             color: highlighted ? widget.accent : Colors.transparent,
@@ -402,8 +403,8 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
                           group.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: palette.textPrimary,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -413,8 +414,8 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
                             subtitleParts.join(' · '),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: kAppTextMuted,
+                            style: TextStyle(
+                              color: palette.textMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -426,7 +427,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
                   const SizedBox(width: 8),
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: kAppTextMuted,
+                    color: palette.textMuted,
                     size: 20,
                   ),
                 ],
@@ -441,6 +442,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
   }
 
   Widget _buildChildren() {
+    final palette = appPalette(context);
     final group = widget.group;
     return Padding(
       padding: const EdgeInsets.fromLTRB(46, 0, 0, 6),
@@ -460,7 +462,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
                 group.seriesCandidate!.localCatalogId,
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: kAppDivider),
+            Divider(height: 1, thickness: 1, color: palette.divider),
           ],
           // Core items.
           for (var i = 0; i < group.coreItems.length; i++) ...[
@@ -480,7 +482,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
             ),
             if (i < group.coreItems.length - 1 ||
                 group.providerItems.isNotEmpty)
-              const Divider(height: 1, thickness: 1, color: kAppDivider),
+              Divider(height: 1, thickness: 1, color: palette.divider),
           ],
           // Provider items.
           for (var i = 0; i < group.providerItems.length; i++) ...[
@@ -498,7 +500,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
               ),
             ),
             if (i < group.providerItems.length - 1)
-              const Divider(height: 1, thickness: 1, color: kAppDivider),
+              Divider(height: 1, thickness: 1, color: palette.divider),
           ],
         ],
       ),
@@ -529,8 +531,9 @@ class _UnifiedChildTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Material(
-      color: selected ? kAppSelection : Colors.transparent,
+      color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -555,7 +558,7 @@ class _UnifiedChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? Colors.white : kAppTextBright,
+                        color: selected ? Colors.white : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -574,7 +577,7 @@ class _UnifiedChildTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color:
-                                  selected ? Colors.white70 : kAppTextMuted,
+                                  selected ? Colors.white70 : palette.textMuted,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -618,6 +621,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final displayTitle = _coreChildDisplayTitle(item);
     final subtitleParts = <String>[
       if (item.publisher != null) item.publisher!,
@@ -626,7 +630,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
       if (item.variant != null) item.variant!,
     ];
     return Material(
-      color: selected ? kAppSelection : Colors.transparent,
+      color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
         onTap: onSelect,
         child: Padding(
@@ -662,7 +666,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? Colors.white : kAppTextBright,
+                        color: selected ? Colors.white : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -686,7 +690,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                               style: TextStyle(
                                 color: selected
                                     ? Colors.white70
-                                    : kAppTextMuted,
+                                    : palette.textMuted,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -734,6 +738,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final displayTitle = _providerChildDisplayTitle(candidate);
     final subtitleParts = <String>[
       providerLabel,
@@ -745,7 +750,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
         candidate.variantName!,
     ];
     return Material(
-      color: selected ? kAppSelection : Colors.transparent,
+      color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
         onTap: onSelect,
         child: Padding(
@@ -770,7 +775,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? Colors.white : kAppTextBright,
+                        color: selected ? Colors.white : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -794,7 +799,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color:
-                                selected ? Colors.white70 : kAppTextMuted,
+                                selected ? Colors.white70 : palette.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
