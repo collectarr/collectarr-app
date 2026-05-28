@@ -1039,6 +1039,8 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
@@ -1064,7 +1066,7 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
         padding: EdgeInsets.zero,
         menuPadding: const EdgeInsets.symmetric(vertical: 4),
         position: PopupMenuPosition.under,
-        color: palette.panelRaised,
+        color: libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
         constraints: const BoxConstraints(
           minWidth: 0,
@@ -1081,8 +1083,8 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
                 scope: scope,
                 isSelected: scope == collectionStatusScope,
                 accent: accent,
-                muted: palette.textMuted,
-                textColor: palette.textPrimary,
+                muted: menuMuted,
+                textColor: menuText,
               ),
             ),
         ],
@@ -1150,7 +1152,7 @@ class _ToolbarSortButton extends StatelessWidget {
           : 'Sorting: ${activeFavorite.label}',
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.zero,
         child: LibraryToolbarCompactDropdownTrigger(
           icon: activeFavorite?.icon ?? Icons.sort,
         ),
@@ -1211,7 +1213,6 @@ class _CollectionStatusScopeMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _collectionStatusScopeColor(scope, accent, muted);
     return SizedBox(
       width: double.infinity,
       child: Row(
@@ -1230,11 +1231,11 @@ class _CollectionStatusScopeMenuItem extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     height: 1,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? color : textColor,
+                    color: textColor,
                   ),
             ),
           ),
-          if (isSelected) Icon(Icons.check, size: 16, color: color),
+            if (isSelected) Icon(Icons.check, size: 16, color: textColor),
         ],
       ),
     );

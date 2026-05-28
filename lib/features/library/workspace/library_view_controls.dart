@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
@@ -20,13 +18,12 @@ class LibraryViewModeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final accent =
-        LibraryAccentScope.accentOf(context, fallback: palette.accent);
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
-          color: accent,
+          color: menuText,
         );
     final menuWidth = _measureViewDropdownWidth(
       context,
@@ -40,7 +37,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
         initialValue: viewMode,
         onSelected: onChanged,
         padding: EdgeInsets.zero,
-        color: palette.panelRaised,
+        color: libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
         menuPadding: const EdgeInsets.symmetric(vertical: 4),
         position: PopupMenuPosition.under,
@@ -62,7 +59,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
                     Icon(
                       _viewModeIcon(mode),
                       size: 17,
-                      color: mode == viewMode ? accent : palette.textMuted,
+                      color: mode == viewMode ? menuText : menuMuted,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -75,14 +72,12 @@ class LibraryViewModeDropdown extends StatelessWidget {
                               fontWeight: mode == viewMode
                                   ? FontWeight.w700
                                   : FontWeight.w500,
-                              color: mode == viewMode
-                                  ? accent
-                                  : palette.textPrimary,
+                              color: menuText,
                             ),
                       ),
                     ),
                     if (mode == viewMode)
-                      Icon(Icons.check, size: 16, color: accent),
+                      Icon(Icons.check, size: 16, color: menuText),
                   ],
                 ),
               ),
@@ -108,13 +103,12 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final accent =
-        LibraryAccentScope.accentOf(context, fallback: palette.accent);
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
-          color: accent,
+          color: menuText,
         );
     final detailsMenuWidth = _measureDetailsDropdownWidth(
       context,
@@ -128,7 +122,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
         initialValue: detailsLayout,
         onSelected: onChanged,
         padding: EdgeInsets.zero,
-        color: palette.panelRaised,
+        color: libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
         menuPadding: const EdgeInsets.symmetric(vertical: 4),
         position: PopupMenuPosition.under,
@@ -153,8 +147,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                     Icon(
                       _detailsLayoutIcon(layout),
                       size: 17,
-                      color:
-                          layout == detailsLayout ? accent : palette.textMuted,
+                      color: layout == detailsLayout ? menuText : menuMuted,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -167,14 +160,12 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                               fontWeight: layout == detailsLayout
                                   ? FontWeight.w700
                                   : FontWeight.w500,
-                              color: layout == detailsLayout
-                                  ? accent
-                                  : palette.textPrimary,
+                              color: menuText,
                             ),
                       ),
                     ),
                     if (layout == detailsLayout)
-                      Icon(Icons.check, size: 16, color: accent),
+                      Icon(Icons.check, size: 16, color: menuText),
                   ],
                 ),
               ),

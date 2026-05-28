@@ -946,18 +946,7 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
     return Material(
       color: Colors.transparent,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: palette.panel,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: palette.divider),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.22),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
+        decoration: libraryToolbarMenuPanelDecoration(context),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 420),
           child: SingleChildScrollView(
@@ -1051,8 +1040,10 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
     required List<LibraryGroupMode> modes,
     bool accentLabel = false,
   }) {
-    final palette = appPalette(context);
     final expanded = _expandedSections[label] ?? false;
+    final hasSelectedMode = modes.contains(widget.selectedMode);
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1062,25 +1053,42 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
               _expandedSections[label] = !expanded;
             });
           },
+          borderRadius: BorderRadius.zero,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: accentLabel ? kAppHighlight : null,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: hasSelectedMode
+                    ? libraryToolbarMenuHover(context)
+                    : Colors.transparent,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      child: hasSelectedMode
+                          ? Icon(Icons.check, size: 16, color: menuText)
+                          : null,
+                    ),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: menuText,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ),
+                    Icon(
+                      expanded ? Icons.expand_less : Icons.expand_more,
+                      size: 18,
+                      color: menuMuted,
+                    ),
+                  ],
                 ),
-                Icon(
-                  expanded ? Icons.expand_less : Icons.expand_more,
-                  size: 18,
-                  color: palette.textMuted,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -1094,24 +1102,25 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
     BuildContext context, {
     required String label,
   }) {
-    final palette = appPalette(context);
+    final menuBorder = libraryToolbarMenuBorder(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
       child: Row(
         children: [
-          Expanded(child: Divider(height: 1, color: palette.divider)),
+          Expanded(child: Divider(height: 1, color: menuBorder)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: palette.textMuted,
+                    color: menuMuted,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.4,
                   ),
             ),
           ),
-          Expanded(child: Divider(height: 1, color: palette.divider)),
+          Expanded(child: Divider(height: 1, color: menuBorder)),
         ],
       ),
     );
@@ -1123,23 +1132,24 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
     required String label,
     required VoidCallback onTap,
   }) {
-    final palette = appPalette(context);
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
           child: Row(
             children: [
-              Icon(icon, size: 16, color: palette.textMuted),
+              Icon(icon, size: 16, color: menuMuted),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: palette.textPrimary,
+                    color: menuText,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1152,25 +1162,27 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
   }
 
   Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
-    final palette = appPalette(context);
     final isPinned = _pinnedModes.contains(mode);
     final isSelected = mode == widget.selectedMode;
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       child: Row(
         children: [
           Expanded(
             child: InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.zero,
               onTap: () => Navigator.of(context).pop(mode),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: const EdgeInsets.fromLTRB(24, 8, 8, 8),
                 child: Row(
                   children: [
-                    Icon(
-                      genericGroupModeIcon(mode),
-                      size: 16,
-                      color: isSelected ? widget.accent : palette.textMuted,
+                    SizedBox(
+                      width: 16,
+                      child: isSelected
+                          ? Icon(Icons.check, size: 16, color: menuText)
+                          : null,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -1179,13 +1191,10 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
                         style: TextStyle(
                           fontWeight:
                               isSelected ? FontWeight.w800 : FontWeight.w500,
-                          color:
-                              isSelected ? widget.accent : palette.textPrimary,
+                          color: menuText,
                         ),
                       ),
                     ),
-                    if (isSelected)
-                      Icon(Icons.check, size: 16, color: widget.accent),
                   ],
                 ),
               ),
@@ -1213,7 +1222,7 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
                 child: Icon(
                   isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   size: 15,
-                  color: isPinned ? kAppHighlight : palette.textMuted,
+                  color: isPinned ? menuText : menuMuted,
                 ),
               ),
             ),

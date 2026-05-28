@@ -11,16 +11,44 @@ const kLibraryToolbarCompactDropdownSize = 30.0;
 const kLibraryToolbarCompactDropdownWidth = 40.0;
 const kLibraryToolbarTextDropdownHeight = 36.0;
 
+Color libraryToolbarMenuSurface(BuildContext context) =>
+    const Color(0xFFF5F5F5);
+
+Color libraryToolbarMenuBorder(BuildContext context) =>
+    const Color(0xFFD5D5D5);
+
+Color libraryToolbarMenuText(BuildContext context) =>
+    const Color(0xFF2F2F2F);
+
+Color libraryToolbarMenuMutedText(BuildContext context) =>
+    const Color(0xFF9A9A9A);
+
+Color libraryToolbarMenuHover(BuildContext context) =>
+    const Color(0xFFECECEC);
+
+BoxDecoration libraryToolbarMenuPanelDecoration(BuildContext context) {
+  return BoxDecoration(
+    color: libraryToolbarMenuSurface(context),
+    border: Border.all(color: libraryToolbarMenuBorder(context)),
+    boxShadow: const [
+      BoxShadow(
+        color: Color(0x26000000),
+        blurRadius: 10,
+        offset: Offset(0, 3),
+      ),
+    ],
+  );
+}
+
 BoxDecoration libraryToolbarDropdownDecoration(
   BuildContext context, {
   Color? backgroundColor,
   Color? borderColor,
 }) {
-  final palette = appPalette(context);
   return BoxDecoration(
-    color: backgroundColor ?? palette.surfaceSubtle.withValues(alpha: 0.24),
+    color: backgroundColor ?? const Color(0xFF333333),
     border: Border.all(
-      color: borderColor ?? palette.divider.withValues(alpha: 0.7),
+      color: borderColor ?? const Color(0xFF4C4C4C),
     ),
   );
 }
@@ -29,10 +57,9 @@ RoundedRectangleBorder libraryToolbarDropdownMenuShape(
   BuildContext context, {
   Color? borderColor,
 }) {
-  final palette = appPalette(context);
   return RoundedRectangleBorder(
     side: BorderSide(
-      color: borderColor ?? palette.divider.withValues(alpha: 0.7),
+      color: borderColor ?? libraryToolbarMenuBorder(context),
     ),
   );
 }
