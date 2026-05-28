@@ -288,6 +288,8 @@ class LibraryToolbar extends StatelessWidget {
                                       controller: searchController,
                                       hintText:
                                           'Search ${type.pluralLabel.toLowerCase()}...',
+                                      onScanBarcode: onScan,
+                                      onScanCover: onScanCover,
                                       selectedFilterLabel: selectedBucket,
                                       onSearch: onSearchChanged,
                                       onClearFilter: onClearBucket,

@@ -222,6 +222,8 @@ class LibraryToolbarSearch extends StatelessWidget {
     required this.hintText,
     required this.onSearch,
     required this.selectionColor,
+    this.onScanBarcode,
+    this.onScanCover,
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
@@ -232,6 +234,8 @@ class LibraryToolbarSearch extends StatelessWidget {
   final String hintText;
   final String? selectedFilterLabel;
   final ValueChanged<String> onSearch;
+  final VoidCallback? onScanBarcode;
+  final VoidCallback? onScanCover;
   final VoidCallback? onClearFilter;
   final ValueChanged<String>? onChanged;
   final Color selectionColor;
@@ -247,10 +251,6 @@ class LibraryToolbarSearch extends StatelessWidget {
     final borderColor = Color.alphaBlend(
       palette.textMuted.withValues(alpha: 0.18),
       palette.divider,
-    );
-    final actionBackground = Color.alphaBlend(
-      Colors.black.withValues(alpha: 0.18),
-      palette.surfaceSubtle,
     );
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -286,30 +286,26 @@ class LibraryToolbarSearch extends StatelessWidget {
                                   .bodyMedium
                                   ?.copyWith(color: palette.textMuted),
                               border: InputBorder.none,
+                                suffixIconConstraints: const BoxConstraints(
+                                  minWidth: 34,
+                                  minHeight: 34,
+                                ),
+                                suffixIcon: Tooltip(
+                                  message: 'Search',
+                                  child: IconButton(
+                                    visualDensity: VisualDensity.compact,
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () => onSearch(controller.text),
+                                    icon: Icon(
+                                      Icons.search,
+                                      size: 18,
+                                      color: palette.textPrimary,
+                                    ),
+                                  ),
+                                ),
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 10,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 38,
-                          decoration: BoxDecoration(
-                            color: actionBackground,
-                            border:
-                                Border(left: BorderSide(color: borderColor)),
-                          ),
-                          child: Tooltip(
-                            message: 'Search',
-                            child: IconButton(
-                              visualDensity: VisualDensity.compact,
-                              padding: EdgeInsets.zero,
-                              onPressed: () => onSearch(controller.text),
-                              icon: Icon(
-                                Icons.search,
-                                size: 18,
-                                color: palette.textPrimary,
                               ),
                             ),
                           ),
@@ -320,6 +316,26 @@ class LibraryToolbarSearch extends StatelessWidget {
                 ),
               ),
             ),
+              if (onScanBarcode != null) ...[
+                const SizedBox(width: 6),
+                Tooltip(
+                  message: 'Scan barcode',
+                  child: LibraryWorkspaceIconButton(
+                    icon: Icons.qr_code_2,
+                    onPressed: onScanBarcode,
+                  ),
+                ),
+              ],
+              if (onScanCover != null) ...[
+                const SizedBox(width: 6),
+                Tooltip(
+                  message: 'Search by cover',
+                  child: LibraryWorkspaceIconButton(
+                    icon: Icons.image_search,
+                    onPressed: onScanCover,
+                  ),
+                ),
+              ],
             if (showFilterChip) ...[
               const SizedBox(width: 6),
               InputChip(
