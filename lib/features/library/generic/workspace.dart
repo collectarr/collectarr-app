@@ -132,7 +132,13 @@ class LibraryWorkspace extends ConsumerWidget {
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final cardCoverWidth = uiPrefs.cardCoverWidth;
+    final cardScale = (viewState.coverSize / adapter.viewProfile.defaultCoverSize)
+        .clamp(0.78, 1.48);
+    final cardCoverWidth = (uiPrefs.cardCoverWidth * cardScale)
+        .clamp(60.0, 164.0)
+        .toDouble();
+    final cardTileWidth = (430.0 * cardScale).clamp(336.0, 620.0).toDouble();
+    final cardTileHeight = (156.0 * cardScale).clamp(132.0, 228.0).toDouble();
     if (_showGrouped && items.isNotEmpty) {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
@@ -169,9 +175,8 @@ class LibraryWorkspace extends ConsumerWidget {
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
             accent: accent,
-            maxCrossAxisExtent: 430,
-            mainAxisExtent:
-                (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+            maxCrossAxisExtent: cardTileWidth,
+            mainAxisExtent: cardTileHeight,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               key: ValueKey(item.entry.id),
@@ -240,9 +245,8 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
           emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent: 430,
-          mainAxisExtent:
-              (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+          maxCrossAxisExtent: cardTileWidth,
+          mainAxisExtent: cardTileHeight,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
           padding: gridPadding,
