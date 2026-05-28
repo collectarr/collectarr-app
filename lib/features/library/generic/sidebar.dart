@@ -266,7 +266,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
           );
 
     return Tooltip(
-      message: iconOnly ? 'Group by: $label' : 'Group by',
+      message: 'Group by',
       child: InkWell(
         onTap: () => _showGroupModeMenu(context),
         borderRadius: BorderRadius.circular(6),
@@ -1004,7 +1004,6 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
                       _GroupModeMenuAction.toggleSidebar,
                     ),
                   ),
-                  const Divider(height: 1),
                 ],
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
