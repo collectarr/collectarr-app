@@ -145,6 +145,7 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final useFab = ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
+    final showTrailingActions = onRandomPick != null;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -166,36 +167,14 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
             label: Text(addLabel),
           ),
         ),
-        const SizedBox(width: 6),
+        if (showTrailingActions) const SizedBox(width: 6),
         ],
-        Tooltip(
-          message: 'Scan barcode',
-          child: LibraryWorkspaceIconButton(
-            icon: Icons.qr_code_scanner,
-            onPressed: onScanBarcode,
-          ),
-        ),
-        Tooltip(
-          message: 'Refresh metadata',
-          child: LibraryWorkspaceIconButton(
-            icon: Icons.sync,
-            onPressed: onRefreshMetadata,
-          ),
-        ),
         if (onRandomPick != null)
           Tooltip(
             message: 'Random pick',
             child: LibraryWorkspaceIconButton(
               icon: Icons.casino_outlined,
               onPressed: onRandomPick!,
-            ),
-          ),
-        if (onScanCover != null)
-          Tooltip(
-            message: 'Scan cover',
-            child: LibraryWorkspaceIconButton(
-              icon: Icons.image_search_outlined,
-              onPressed: onScanCover!,
             ),
           ),
       ],

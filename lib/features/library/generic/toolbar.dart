@@ -637,20 +637,6 @@ class _CompactLibraryToolbarContent extends StatelessWidget {
                         activeCount: activeFilterCount,
                         onPressed: onEditFilters!,
                       ),
-                    Tooltip(
-                      message: 'Scan barcode',
-                      child: IconButton.filledTonal(
-                        onPressed: onScan,
-                        icon: const Icon(Icons.qr_code_scanner),
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Refresh metadata',
-                      child: IconButton.filledTonal(
-                        onPressed: onRefreshMetadata,
-                        icon: const Icon(Icons.sync),
-                      ),
-                    ),
                     _ItemCountLabel(
                       shown: counts.shown,
                       total: counts.total,

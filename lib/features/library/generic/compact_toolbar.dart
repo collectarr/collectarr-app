@@ -114,20 +114,6 @@ class CompactLibraryToolbar extends StatelessWidget {
               icon: const Icon(Icons.photo_size_select_large_outlined),
             ),
           ),
-          Tooltip(
-            message: 'Scan barcode',
-            child: IconButton.filledTonal(
-              onPressed: onScan,
-              icon: const Icon(Icons.qr_code_scanner),
-            ),
-          ),
-          Tooltip(
-            message: 'Refresh metadata',
-            child: IconButton.filledTonal(
-              onPressed: onRefreshMetadata,
-              icon: const Icon(Icons.sync),
-            ),
-          ),
         ],
       ),
     );
