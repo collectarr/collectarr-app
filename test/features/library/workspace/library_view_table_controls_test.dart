@@ -4,8 +4,6 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_cont
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
-
 void main() {
   testWidgets('renders counts and enables column chooser in list mode',
       (tester) async {
@@ -43,19 +41,52 @@ void main() {
     );
 
     expect(find.byTooltip('Select columns'), findsOneWidget);
-    expect(find.byTooltip('Grid view'), findsOneWidget);
-    expect(find.byTooltip('Cards view'), findsOneWidget);
-    expect(find.byTooltip('List view'), findsOneWidget);
+    expect(find.byTooltip('Views'), findsOneWidget);
     expect(find.byTooltip('Cover size'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();
     expect(editColumnsCount, 0);
 
-    await tester.tap(find.byTooltip('List view'));
-    await pumpUntilSettled(tester);
+    final dropdown = tester.widget<DropdownButton<LibraryViewMode>>(
+      find.byKey(const Key('library-view-mode-dropdown')),
+    );
+    expect(
+      _dropdownItemLabels(dropdown.items!),
+      ['List', 'Cards', 'Flow', 'Grid', 'Shelves'],
+    );
+
+    dropdown.onChanged!(LibraryViewMode.list);
+    await tester.pump();
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();
     expect(editColumnsCount, 1);
   });
+}
+
+List<String> _dropdownItemLabels(
+  List<DropdownMenuItem<LibraryViewMode>> items,
+) {
+  return [for (final item in items) _extractText(item.child)];
+}
+
+String _extractText(Widget? widget) {
+  if (widget == null) {
+    return '';
+  }
+  if (widget is Text) {
+    return widget.data ?? '';
+  }
+  if (widget is Expanded) {
+    return _extractText(widget.child);
+  }
+  if (widget is Row) {
+    for (final child in widget.children) {
+      final text = _extractText(child);
+      if (text.isNotEmpty) {
+        return text;
+      }
+    }
+  }
+  return '';
 }
