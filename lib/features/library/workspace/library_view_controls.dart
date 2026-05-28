@@ -4,7 +4,6 @@ import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
-const _viewModeDropdownWidth = 120.0;
 const _viewModeDropdownHeight = 36.0;
 
 class LibraryViewControls extends StatelessWidget {
@@ -33,6 +32,15 @@ class LibraryViewControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = LibraryAccentScope.accentOf(context, fallback: palette.accent);
+    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          height: 1,
+          fontWeight: FontWeight.w700,
+          color: accent,
+        );
+    final dropdownWidth = _measureViewDropdownWidth(
+      context,
+      textStyle: dropdownTextStyle,
+    );
     final coverSizeEnabled = viewMode.supportsCoverSize;
     final iconColor = coverSizeEnabled
         ? Theme.of(context).colorScheme.onSurfaceVariant
@@ -41,7 +49,7 @@ class LibraryViewControls extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: _viewModeDropdownWidth,
+          width: dropdownWidth,
           child: PopupMenuButton<LibraryViewMode>(
             key: _viewModeDropdownKey,
             tooltip: 'View mode',
@@ -53,9 +61,9 @@ class LibraryViewControls extends StatelessWidget {
             menuPadding: const EdgeInsets.symmetric(vertical: 4),
             position: PopupMenuPosition.under,
             constraints: const BoxConstraints(
-              minWidth: _viewModeDropdownWidth,
-              maxWidth: _viewModeDropdownWidth,
-            ),
+              minWidth: 0,
+              maxWidth: double.infinity,
+            ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
               side: BorderSide(color: accent.withValues(alpha: 0.26)),
@@ -121,12 +129,7 @@ class LibraryViewControls extends StatelessWidget {
                           _viewModeLabel(viewMode),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    height: 1,
-                                    fontWeight: FontWeight.w700,
-                                    color: accent,
-                                  ),
+                          style: dropdownTextStyle,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -206,6 +209,26 @@ class LibraryViewControls extends StatelessWidget {
       ],
     );
   }
+}
+
+double _measureViewDropdownWidth(
+  BuildContext context, {
+  required TextStyle? textStyle,
+}) {
+  final textScaler = MediaQuery.textScalerOf(context);
+  var maxLabelWidth = 0.0;
+  for (final mode in LibraryViewMode.values) {
+    final painter = TextPainter(
+      text: TextSpan(text: _viewModeLabel(mode), style: textStyle),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: textScaler,
+    )..layout();
+    if (painter.width > maxLabelWidth) {
+      maxLabelWidth = painter.width;
+    }
+  }
+  return (24 + 17 + 8 + maxLabelWidth + 28).clamp(108, double.infinity);
 }
 
 String _viewModeLabel(LibraryViewMode mode) {

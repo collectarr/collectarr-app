@@ -749,13 +749,27 @@ class _ToolbarChromeRow extends StatelessWidget {
   final VoidCallback onManageColumns;
   final bool canJumpToIssue;
   final ValueChanged<String>? onJumpToIssueSubmitted;
-  static const double _statusScopeDropdownWidth = 164;
   static const double _statusScopeDropdownHeight = 36;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
+    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          height: 1,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        );
+    final dropdownWidth = _measureDropdownWidth(
+      context,
+      labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
+      textStyle: dropdownTextStyle,
+      leadingWidth: 20,
+      leadingSpacing: 8,
+      trailingWidth: 24,
+      horizontalPadding: 24,
+      minWidth: 132,
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: onCollectionStatusScopeChanged == null
@@ -763,7 +777,7 @@ class _ToolbarChromeRow extends StatelessWidget {
           : Align(
               alignment: Alignment.centerLeft,
               child: SizedBox(
-                width: _statusScopeDropdownWidth,
+                width: dropdownWidth,
                 child: PopupMenuButton<LibraryCollectionStatusScope>(
                   key: const Key('collection-status-scope-dropdown'),
                   tooltip: 'Collection status scope',
@@ -775,9 +789,9 @@ class _ToolbarChromeRow extends StatelessWidget {
                   color: palette.panelRaised,
                   surfaceTintColor: Colors.transparent,
                   constraints: const BoxConstraints(
-                    minWidth: _statusScopeDropdownWidth,
-                    maxWidth: _statusScopeDropdownWidth,
-                  ),
+                    minWidth: 0,
+                    maxWidth: double.infinity,
+                  ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                     side: BorderSide(color: palette.divider),
@@ -826,14 +840,7 @@ class _ToolbarChromeRow extends StatelessWidget {
                                 collectionStatusScope.label,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      height: 1,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
+                                style: dropdownTextStyle,
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -852,6 +859,37 @@ class _ToolbarChromeRow extends StatelessWidget {
             ),
     );
   }
+}
+
+double _measureDropdownWidth(
+  BuildContext context, {
+  required Iterable<String> labels,
+  required TextStyle? textStyle,
+  required double leadingWidth,
+  required double leadingSpacing,
+  required double trailingWidth,
+  required double horizontalPadding,
+  required double minWidth,
+}) {
+  final textScaler = MediaQuery.textScalerOf(context);
+  var maxLabelWidth = 0.0;
+  for (final label in labels) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: textStyle),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: textScaler,
+    )..layout();
+    if (painter.width > maxLabelWidth) {
+      maxLabelWidth = painter.width;
+    }
+  }
+  return (horizontalPadding +
+          leadingWidth +
+          leadingSpacing +
+          maxLabelWidth +
+          trailingWidth)
+      .clamp(minWidth, double.infinity);
 }
 
 class _CollectionStatusScopeMenuItem extends StatelessWidget {
