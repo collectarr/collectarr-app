@@ -22,6 +22,7 @@ class MetadataCorrectionsSection extends ConsumerWidget {
     final overrides = ref
             .watch(metadataOverridesByItemProvider)[itemId] ??
         const <UserMetadataOverride>[];
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: appPalette(context).surfaceSubtle,
@@ -58,7 +59,7 @@ class MetadataCorrectionsSection extends ConsumerWidget {
                 child: Text(
                   'No corrections — tap + to override a field',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: kAppTextMuted,
+                        color: palette.textMuted,
                       ),
                 ),
               ),
@@ -92,10 +93,11 @@ class _OverrideTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Material(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: accent.withValues(alpha: 0.15)),
@@ -126,7 +128,7 @@ class _OverrideTile extends ConsumerWidget {
                       child: _DiffColumn(
                         label: 'Original',
                         value: entry.originalValue ?? '—',
-                        color: kAppTextMuted,
+                        color: palette.textMuted,
                         decoration: TextDecoration.lineThrough,
                       ),
                     ),
@@ -138,7 +140,7 @@ class _OverrideTile extends ConsumerWidget {
                       child: _DiffColumn(
                         label: 'Corrected',
                         value: entry.overrideValue,
-                        color: kAppTextBright,
+                        color: palette.textPrimary,
                       ),
                     ),
                   ],
@@ -197,13 +199,14 @@ class _DiffColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: kAppTextMuted,
+                color: palette.textMuted,
                 fontSize: 10,
               ),
         ),

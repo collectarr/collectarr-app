@@ -70,6 +70,7 @@ class _BundleReleaseContentsSectionState
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final detail = _detail;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -104,7 +105,7 @@ class _BundleReleaseContentsSectionState
               detail == null
                   ? 'Expand to load bundle members'
                   : _bundleSummary(detail),
-              style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             children: [
               if (_loading)
@@ -120,7 +121,7 @@ class _BundleReleaseContentsSectionState
                     children: [
                       Text(
                         'Could not load bundle contents: $_error',
-                        style: const TextStyle(color: kAppTextMuted),
+                        style: TextStyle(color: palette.textMuted),
                       ),
                       const SizedBox(height: 8),
                       OutlinedButton.icon(
@@ -167,6 +168,7 @@ class BundleReleaseContentsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final groupedMembers = _groupBundleMembers(detail.members);
     final summaryParts = <String>[
       if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
@@ -179,7 +181,7 @@ class BundleReleaseContentsCard extends StatelessWidget {
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x12000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: accent.withValues(alpha: 0.24)),
       ),
@@ -196,8 +198,8 @@ class BundleReleaseContentsCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 summaryParts.join(' • '),
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 12,
                 ),
               ),
@@ -251,9 +253,10 @@ class _BundleReleaseDiscSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: accent.withValues(alpha: 0.16)),
       ),
@@ -280,8 +283,8 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                       width: 28,
                       child: Text(
                         member.sequenceNumber?.toString() ?? '•',
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -306,8 +309,8 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                           ),
                           Text(
                             _bundleMemberSubtitle(member),
-                            style: const TextStyle(
-                              color: kAppTextMuted,
+                            style: TextStyle(
+                              color: palette.textMuted,
                               fontSize: 12,
                             ),
                           ),
