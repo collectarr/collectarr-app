@@ -94,6 +94,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     if (widget.items.isEmpty) {
       return widget.emptyBuilder(context);
     }
+    final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         _syncViewportFraction(constraints.maxWidth);
@@ -112,9 +113,9 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    const Color(0xFF1A2233),
-                    appPalette(context).gridCanvas,
-                    const Color(0xFF101620),
+                    palette.surfaceSubtle,
+                    palette.gridCanvas,
+                    palette.surface,
                   ],
                 ),
               ),
@@ -409,6 +410,7 @@ class _FlowBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = item.entry;
+    final palette = appPalette(context);
     return IgnorePointer(
       child: AnimatedSwitcher(
         duration: kAppAnimNormal,
@@ -441,10 +443,10 @@ class _FlowBackdrop extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    const Color(0xF0101620),
+                    palette.surface.withValues(alpha: 0.94),
                     accent.withValues(alpha: 0.12),
-                    const Color(0xE6101620),
-                    const Color(0xFF0D131C),
+                    palette.surfaceSubtle.withValues(alpha: 0.92),
+                    palette.surface.withValues(alpha: 0.98),
                   ],
                 ),
               ),
@@ -457,7 +459,7 @@ class _FlowBackdrop extends StatelessWidget {
                   colors: [
                     accent.withValues(alpha: 0.18),
                     Colors.transparent,
-                    const Color(0xAA05080C),
+                    palette.surface.withValues(alpha: 0.72),
                   ],
                 ),
               ),
@@ -482,6 +484,7 @@ class _FlowShelfToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Tooltip(
       message: active ? 'Hide shelf backdrop' : 'Show shelf backdrop',
       child: Material(
@@ -497,17 +500,17 @@ class _FlowShelfToggle extends StatelessWidget {
               shape: BoxShape.circle,
               color: active
                   ? accent.withValues(alpha: 0.22)
-                  : Colors.white.withValues(alpha: 0.06),
+                  : palette.surfaceSubtle.withValues(alpha: 0.82),
               border: Border.all(
                 color: active
                     ? accent.withValues(alpha: 0.5)
-                    : Colors.white.withValues(alpha: 0.12),
+                    : palette.divider.withValues(alpha: 0.72),
               ),
             ),
             child: Icon(
               Icons.auto_awesome,
               size: 16,
-              color: active ? accent : Colors.white.withValues(alpha: 0.4),
+              color: active ? accent : palette.textMuted,
             ),
           ),
         ),
@@ -538,6 +541,7 @@ class _FlowCarouselCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = item.entry;
+    final palette = appPalette(context);
     final title = entry.resolvedTitle;
     final subtitle = [
       if (entry.itemNumber != null && entry.itemNumber!.trim().isNotEmpty)
@@ -546,6 +550,13 @@ class _FlowCarouselCard extends StatelessWidget {
         entry.publisher,
       if (entry.releaseYear != null) entry.releaseYear.toString(),
     ].join('  ·  ');
+      final cardColor = focused
+        ? Color.alphaBlend(accent.withValues(alpha: 0.12), palette.cardBackground)
+        : palette.panel;
+      final selectedCheckColor =
+        ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
+          ? Colors.white
+          : Colors.black87;
     return SizedBox(
       width: 260,
       child: Material(
@@ -560,14 +571,14 @@ class _FlowCarouselCard extends StatelessWidget {
             curve: Curves.easeOutCubic,
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
             decoration: BoxDecoration(
-              color: focused ? const Color(0xFF162033) : const Color(0xFF111923),
+              color: cardColor,
               borderRadius: kAppRadiusLarge,
               border: Border.all(
                 color: selected
                     ? accent
                     : focused
                         ? accent.withValues(alpha: 0.55)
-                        : Colors.white.withValues(alpha: 0.08),
+                        : palette.cardBorder,
                 width: selected ? 2.2 : 1.1,
               ),
               boxShadow: [
@@ -623,9 +634,13 @@ class _FlowCarouselCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: const Padding(
+                            child: Padding(
                               padding: EdgeInsets.all(4),
-                              child: Icon(Icons.check, size: 14, color: Colors.white),
+                              child: Icon(
+                                Icons.check,
+                                size: 14,
+                                color: selectedCheckColor,
+                              ),
                             ),
                           ),
                         ),
@@ -640,7 +655,7 @@ class _FlowCarouselCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                        color: palette.textPrimary,
                         height: 1.2,
                       ),
                 ),
@@ -697,6 +712,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   @override
   Widget build(BuildContext context) {
     final entry = widget.item.entry;
+    final palette = appPalette(context);
     final meta = [
       if (entry.series?.seriesTitle != null && entry.series!.seriesTitle!.trim().isNotEmpty)
         entry.series!.seriesTitle,
@@ -714,9 +730,9 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF131C28),
+        color: palette.panel,
         borderRadius: kAppRadiusLarge,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: palette.cardBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -745,7 +761,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
+                              color: palette.textPrimary,
                               fontWeight: FontWeight.w900,
                             ),
                       ),
@@ -774,7 +790,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     child: Text(
                       '#${entry.itemNumber}',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: Colors.white,
+                            color: palette.textPrimary,
                             fontWeight: FontWeight.w800,
                           ),
                     ),
@@ -897,15 +913,16 @@ class _FlowNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Material(
-        color: const Color(0xB3111923),
+        color: palette.surface.withValues(alpha: 0.88),
         shape: const CircleBorder(),
         child: IconButton(
           onPressed: onPressed,
           icon: Icon(icon),
-          color: Colors.white,
+          color: palette.textPrimary,
           iconSize: 28,
           tooltip: icon == Icons.chevron_left ? 'Previous item' : 'Next item',
         ),
