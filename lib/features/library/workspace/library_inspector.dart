@@ -370,6 +370,7 @@ class LibraryEmptyInspector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final content = Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -379,8 +380,8 @@ class LibraryEmptyInspector extends StatelessWidget {
           Text(
             'No $label selected',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w900,
             ),
           ),
