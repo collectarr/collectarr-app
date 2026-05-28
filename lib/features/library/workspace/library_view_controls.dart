@@ -4,7 +4,7 @@ import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
-const _viewModeDropdownWidth = 168.0;
+const _viewModeDropdownWidth = 132.0;
 const _viewModeDropdownHeight = 36.0;
 
 class LibraryViewControls extends StatelessWidget {
