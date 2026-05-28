@@ -218,7 +218,7 @@ class LibraryToolbar extends StatelessWidget {
                 );
               }
 
-                final showChromeRow = onCollectionStatusScopeChanged != null;
+              final showChromeRow = onCollectionStatusScopeChanged != null;
               final showAlphabetRow =
                   availableLetters.isNotEmpty && onLetterSelected != null;
 
@@ -241,18 +241,15 @@ class LibraryToolbar extends StatelessWidget {
                           addForegroundColor:
                               _toolbarForegroundForAccent(accent),
                         ),
-                        LibraryWorkspaceSeparator(color: palette.divider),
-                        LibraryToolbarSearch(
-                          controller: searchController,
-                          hintText:
-                              'Search ${type.pluralLabel.toLowerCase()}...',
-                          selectedFilterLabel: selectedBucket,
-                          onSearch: onSearchChanged,
-                          onClearFilter: onClearBucket,
-                          onChanged: onSearchChanged,
-                          selectionColor: palette.selection,
-                        ),
-                        const SizedBox(width: 8),
+                        if (showChromeRow) ...[
+                          const SizedBox(width: 8),
+                          _CollectionStatusScopeDropdown(
+                            collectionStatusScope: collectionStatusScope,
+                            onCollectionStatusScopeChanged:
+                                onCollectionStatusScopeChanged!,
+                          ),
+                        ],
+                        const SizedBox(width: 12),
                         _ItemCountLabel(
                           shown: counts.shown,
                           total: counts.total,
@@ -322,6 +319,17 @@ class LibraryToolbar extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(width: 10),
+                        LibraryToolbarSearch(
+                          controller: searchController,
+                          hintText:
+                              'Search ${type.pluralLabel.toLowerCase()}...',
+                          selectedFilterLabel: selectedBucket,
+                          onSearch: onSearchChanged,
+                          onClearFilter: onClearBucket,
+                          onChanged: onSearchChanged,
+                          selectionColor: palette.selection,
+                        ),
                       ],
                     ),
                   ),
@@ -330,32 +338,6 @@ class LibraryToolbar extends StatelessWidget {
                     _SelectionToolbarBand(
                       selectedCount: selectedCount,
                       callbacks: selectionCallbacks!,
-                    ),
-                  ],
-                  if (showChromeRow) ...[
-                    const _ToolbarDividerLine(),
-                    _ToolbarChromeRow(
-                      collectionStatusScope: collectionStatusScope,
-                      onCollectionStatusScopeChanged:
-                          onCollectionStatusScopeChanged,
-                      activeViewPreset: activeViewPreset,
-                      onViewPresetSelected: onViewPresetSelected,
-                      pinnedViewPresets: pinnedViewPresets,
-                      onTogglePinnedViewPreset: onTogglePinnedViewPreset,
-                      sortFavorites: sortFavorites,
-                      activeSortFavoriteId: activeSortFavoriteId,
-                      onSortFavoriteSelected: onSortFavoriteSelected,
-                      pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                      onTogglePinnedSortFavorite: onTogglePinnedSortFavorite,
-                      columnFavoritePresets: columnFavoritePresets,
-                      activeColumnFavoriteLabel: activeColumnFavoriteLabel,
-                      onColumnFavoriteSelected: onColumnFavoriteSelected,
-                      pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
-                      onTogglePinnedColumnFavorite:
-                          onTogglePinnedColumnFavorite,
-                      onManageColumns: onEditColumns,
-                      canJumpToIssue: canJumpToIssue,
-                      onJumpToIssueSubmitted: onJumpToIssueSubmitted,
                     ),
                   ],
                   if (showAlphabetRow) ...[
@@ -843,6 +825,120 @@ class _ToolbarChromeRow extends StatelessWidget {
                 ),
               ),
             ),
+    );
+  }
+}
+
+class _CollectionStatusScopeDropdown extends StatelessWidget {
+  const _CollectionStatusScopeDropdown({
+    required this.collectionStatusScope,
+    required this.onCollectionStatusScopeChanged,
+  });
+
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final ValueChanged<LibraryCollectionStatusScope>
+      onCollectionStatusScopeChanged;
+
+  static const double _statusScopeDropdownHeight = 36;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final accent = Theme.of(context).colorScheme.primary;
+    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          height: 1,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        );
+    final dropdownWidth = _measureDropdownWidth(
+      context,
+      labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
+      textStyle: dropdownTextStyle,
+      leadingWidth: 20,
+      leadingSpacing: 8,
+      trailingWidth: 24,
+      horizontalPadding: 24,
+      minWidth: 132,
+    );
+    return SizedBox(
+      width: dropdownWidth,
+      child: PopupMenuButton<LibraryCollectionStatusScope>(
+        key: const Key('collection-status-scope-dropdown'),
+        tooltip: 'Collection status scope',
+        initialValue: collectionStatusScope,
+        onSelected: onCollectionStatusScopeChanged,
+        padding: EdgeInsets.zero,
+        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        position: PopupMenuPosition.under,
+        color: palette.panelRaised,
+        surfaceTintColor: Colors.transparent,
+        constraints: const BoxConstraints(
+          minWidth: 0,
+          maxWidth: double.infinity,
+        ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: BorderSide(color: palette.divider),
+        ),
+        itemBuilder: (context) => [
+          for (final scope in LibraryCollectionStatusScope.values)
+            PopupMenuItem<LibraryCollectionStatusScope>(
+              value: scope,
+              height: _statusScopeDropdownHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: _CollectionStatusScopeMenuItem(
+                scope: scope,
+                isSelected: scope == collectionStatusScope,
+                accent: accent,
+                muted: palette.textMuted,
+                textColor: palette.textPrimary,
+              ),
+            ),
+        ],
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.panelRaised,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: _collectionStatusScopeColor(
+                collectionStatusScope,
+                accent,
+                palette.textMuted,
+              ).withValues(alpha: 0.45),
+            ),
+          ),
+          child: SizedBox(
+            height: _statusScopeDropdownHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  _CollectionStatusScopeBadge(
+                    scope: collectionStatusScope,
+                    accent: accent,
+                    muted: palette.textMuted,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      collectionStatusScope.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: dropdownTextStyle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
