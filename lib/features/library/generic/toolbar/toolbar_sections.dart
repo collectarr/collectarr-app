@@ -126,10 +126,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                   ],
-                  LibraryViewModeDropdown(
-                    viewMode: viewState.viewMode,
-                    onChanged: onViewModeChanged,
-                  ),
                   if (onEditSort != null) const SizedBox(width: 6),
                   if (onEditSort != null)
                     LibraryToolbarSortButton(
@@ -137,6 +133,21 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       sortFavorites: sortFavorites,
                       activeSortFavoriteId: activeSortFavoriteId,
                     ),
+                  if (onEditSort != null) const SizedBox(width: 6),
+                  LibraryViewModeDropdown(
+                    viewMode: viewState.viewMode,
+                    onChanged: onViewModeChanged,
+                  ),
+                  if (viewState.viewMode.supportsCoverSize) ...[
+                    const SizedBox(width: 6),
+                    LibraryCoverSizeSlider(
+                      viewMode: viewState.viewMode,
+                      coverSize: viewState.coverSize,
+                      minCoverSize: adapter.viewProfile.minCoverSize,
+                      maxCoverSize: adapter.viewProfile.maxCoverSize,
+                      onChanged: onCoverSizeChanged,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -158,13 +169,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                 LibraryDetailsLayoutDropdown(
                   detailsLayout: viewState.detailsLayout,
                   onChanged: onDetailsLayoutChanged,
-                ),
-                LibraryCoverSizeSlider(
-                  viewMode: viewState.viewMode,
-                  coverSize: viewState.coverSize,
-                  minCoverSize: adapter.viewProfile.minCoverSize,
-                  maxCoverSize: adapter.viewProfile.maxCoverSize,
-                  onChanged: onCoverSizeChanged,
                 ),
                 Tooltip(
                   message: 'Select columns',
