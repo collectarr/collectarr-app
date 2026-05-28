@@ -32,7 +32,7 @@ class LibraryDetailHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
-    final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
+    final resolvedIsOwned = isOwned ?? (ownedItem != null || entry.isOwned);
     final referenceLabel =
         libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
             entry.primaryReferenceLabel;
@@ -85,9 +85,12 @@ class LibraryDetailHero extends StatelessWidget {
                         .value;
                 return SizedBox(
                   width: wide ? 180 : 150,
-                  child: _maybeSlabDetail(
-                    ownedItem,
-                    LibraryInteractiveCover(
+                  child: SlabFrameOverlay.maybeWrap(
+                    rawOrSlabbed: ownedItem?.rawOrSlabbed,
+                    gradingCompany: ownedItem?.gradingCompany,
+                    grade: ownedItem?.grade,
+                    labelType: ownedItem?.labelType,
+                    child: LibraryInteractiveCover(
                       title: entry.resolvedTitle,
                       itemNumber: entry.itemNumber,
                       imageUrl: entry.displayCoverUrl,
@@ -96,25 +99,25 @@ class LibraryDetailHero extends StatelessWidget {
                       ownedItemId: ownedItemId,
                       accentColor: accent,
                       onMissingSecondaryPressed: ownedItemId == null
-                        ? null
-                        : () async {
-                            final savedType = await pickAndStoreOwnedItemImage(
-                              context: context,
-                              db: db,
-                              ownedItemId: ownedItemId,
-                              imageType: 'back_cover',
-                            );
-                            if (savedType == 'back_cover') {
-                              ref.invalidate(
-                                localItemImageProvider((
-                                  ownedItemId: ownedItemId,
-                                  imageType: 'back_cover',
-                                )),
+                          ? null
+                          : () async {
+                              final savedType = await pickAndStoreOwnedItemImage(
+                                context: context,
+                                db: db,
+                                ownedItemId: ownedItemId,
+                                imageType: 'back_cover',
                               );
-                            }
-                          },
+                              if (savedType == 'back_cover') {
+                                ref.invalidate(
+                                  localItemImageProvider((
+                                    ownedItemId: ownedItemId,
+                                    imageType: 'back_cover',
+                                  )),
+                                );
+                              }
+                            },
+                      ),
                     ),
-                  ),
                 );
               },
             );
@@ -376,15 +379,4 @@ class _DetailHeaderChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     );
   }
-}
-
-Widget _maybeSlabDetail(OwnedItem? ownedItem, Widget child) {
-  if (ownedItem == null) return child;
-  return SlabFrameOverlay.maybeWrap(
-    rawOrSlabbed: ownedItem.rawOrSlabbed,
-    gradingCompany: ownedItem.gradingCompany,
-    grade: ownedItem.grade,
-    labelType: ownedItem.labelType,
-    child: child,
-  );
 }

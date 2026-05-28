@@ -337,18 +337,14 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
     final bytes = await picked.readAsBytes();
     if (!mounted) return;
 
-    // Show a loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
+    _rebuild(() => _isScanningCover = true);
 
     try {
       final api = ref.read(apiClientProvider);
       final response = await api.searchByCoverUpload(bytes);
       if (!mounted) return;
-      Navigator.of(context).pop(); // dismiss loading
+
+      _rebuild(() => _isScanningCover = false);
 
       final results = (response['results'] as List?)?.cast<Map<String, dynamic>>() ?? [];
       final queryPhash = response['query_phash'] as String? ?? '';
@@ -366,7 +362,7 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
       );
     } catch (e) {
       if (mounted) {
-        Navigator.of(context).pop(); // dismiss loading
+        _rebuild(() => _isScanningCover = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Cover scan failed: $e')),
         );

@@ -132,6 +132,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Set<String> _pinnedColumnFavoriteKeys = const {};
   List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
   List<_LibrarySidebarScopeSnapshot> _scopeHistory = const [];
+  bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
 
@@ -326,7 +327,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onDelete:
           projection == null ? null : () => _removeVisibleSelection(projection),
       child: Scaffold(
-      backgroundColor: appPalette(context).canvas,
+        backgroundColor: appPalette(context).canvas,
         floatingActionButton: useFab
             ? FloatingActionButton(
                 onPressed: () => showAddDialogFlow(),
@@ -336,158 +337,171 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             : null,
         body: SafeArea(
           bottom: false,
-          child: Column(
+          child: Stack(
             children: [
-              widget.topBar,
-              LibraryToolbar(
-                type: widget.type,
-                searchController: _searchController,
-                viewState: viewState,
-                adapter: _adapter,
-                onAdd: () => showAddDialogFlow(),
-                onScan: scanBarcodeFlow,
-                onSearchChanged: (value) => _mutateSidebarScope(() {
-                  _activeSmartListId = null;
-                  _activeSmartListName = null;
-                }),
-                onEditColumns: showColumnChooserFlow,
-                onSortChanged: (column) => _updateViewState(
-                  (state) => state.withSortColumn(column, _adapter.viewProfile),
-                ),
-                onEditSort: showSortDialogFlow,
-                onSidebarVisibilityChanged: (isVisible) => _updateViewState(
-                  (state) => state.copyWith(isSidebarVisible: isVisible),
-                ),
-                onViewModeChanged: (mode) => _updateViewState(
-                  (state) => state.copyWith(viewMode: mode),
-                ),
-                onDetailsLayoutChanged: (layout) => _updateViewState(
-                  (state) => state.copyWith(detailsLayout: layout),
-                ),
-                onCoverSizeChanged: (size) => _updateViewState(
-                  (state) => state.copyWith(coverSize: size),
-                ),
-                selectedBucket:
-                    _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
-                onClearBucket: _clearToolbarSearchChip,
-                onRefreshMetadata: () => showMetadataRefreshFlow(
-                  projection,
-                ),
-                collectionStatusScope: _collectionStatusScope,
-                onCollectionStatusScopeChanged: _setCollectionStatusScope,
-                quickView: _quickView,
-                onQuickViewSelected: (view) {
-                  final next = _quickView == view ? null : view;
-                  _mutateSidebarScope(() {
-                    _quickView = next;
-                    _activeSmartListId = null;
-                    _activeSmartListName = null;
-                  });
-                  unawaited(_viewPrefs.writeQuickView(next));
-                },
-                availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-                  (projection?.filteredItems ?? const <LibraryProjectionItem>[])
-                      .map((i) => i.entry.resolvedTitle),
-                ),
-                selectedLetter: _selectedLetter,
-                onLetterSelected: _setSelectedLetter,
-                activeViewPreset: _activeViewPreset,
-                onViewPresetSelected: _applyViewPreset,
-                sortFavorites: _sortFavorites,
-                activeSortFavoriteId: _activeSortFavorite?.id,
-                onSortFavoriteSelected: _applySortFavorite,
-                pinnedViewPresets: _pinnedViewPresets,
-                onTogglePinnedViewPreset: _togglePinnedViewPreset,
-                pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
-                onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
-                columnFavoritePresets: _columnFavoritePresets,
-                activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
-                onColumnFavoriteSelected: _applyColumnFavorite,
-                pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
-                onTogglePinnedColumnFavorite: _togglePinnedColumnFavorite,
-                canJumpToIssue: _canJumpToIssue(projection),
-                onJumpToIssueSubmitted: projection == null
-                    ? null
-                    : (value) => _jumpToIssue(projection, value),
-                hasActiveFilters: _hasActiveFilter,
-                onClearFilters: _clearFilters,
-                onEditFilters: () => showFilterDialogFlow(projection),
-                activeFilterCount: _filterSelection.activeFilterCount,
-                onRandomPick:
-                    projection != null && projection.filteredItems.isNotEmpty
-                        ? () => pickRandomItemFlow(projection)
+              Column(
+                children: [
+                  widget.topBar,
+                  LibraryToolbar(
+                    type: widget.type,
+                    searchController: _searchController,
+                    viewState: viewState,
+                    adapter: _adapter,
+                    onAdd: () => showAddDialogFlow(),
+                    onScan: scanBarcodeFlow,
+                    onSearchChanged: (value) => _mutateSidebarScope(() {
+                      _activeSmartListId = null;
+                      _activeSmartListName = null;
+                    }),
+                    onEditColumns: showColumnChooserFlow,
+                    onSortChanged: (column) => _updateViewState(
+                      (state) => state.withSortColumn(column, _adapter.viewProfile),
+                    ),
+                    onEditSort: showSortDialogFlow,
+                    onSidebarVisibilityChanged: (isVisible) => _updateViewState(
+                      (state) => state.copyWith(isSidebarVisible: isVisible),
+                    ),
+                    onViewModeChanged: (mode) => _updateViewState(
+                      (state) => state.copyWith(viewMode: mode),
+                    ),
+                    onDetailsLayoutChanged: (layout) => _updateViewState(
+                      (state) => state.copyWith(detailsLayout: layout),
+                    ),
+                    onCoverSizeChanged: (size) => _updateViewState(
+                      (state) => state.copyWith(coverSize: size),
+                    ),
+                    selectedBucket:
+                        _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+                    onClearBucket: _clearToolbarSearchChip,
+                    onRefreshMetadata: () => showMetadataRefreshFlow(
+                      projection,
+                    ),
+                    collectionStatusScope: _collectionStatusScope,
+                    onCollectionStatusScopeChanged: _setCollectionStatusScope,
+                    quickView: _quickView,
+                    onQuickViewSelected: (view) {
+                      final next = _quickView == view ? null : view;
+                      _mutateSidebarScope(() {
+                        _quickView = next;
+                        _activeSmartListId = null;
+                        _activeSmartListName = null;
+                      });
+                      unawaited(_viewPrefs.writeQuickView(next));
+                    },
+                    availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
+                      (projection?.filteredItems ?? const <LibraryProjectionItem>[])
+                          .map((i) => i.entry.resolvedTitle),
+                    ),
+                    selectedLetter: _selectedLetter,
+                    onLetterSelected: _setSelectedLetter,
+                    activeViewPreset: _activeViewPreset,
+                    onViewPresetSelected: _applyViewPreset,
+                    sortFavorites: _sortFavorites,
+                    activeSortFavoriteId: _activeSortFavorite?.id,
+                    onSortFavoriteSelected: _applySortFavorite,
+                    pinnedViewPresets: _pinnedViewPresets,
+                    onTogglePinnedViewPreset: _togglePinnedViewPreset,
+                    pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
+                    onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
+                    columnFavoritePresets: _columnFavoritePresets,
+                    activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
+                    onColumnFavoriteSelected: _applyColumnFavorite,
+                    pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
+                    onTogglePinnedColumnFavorite: _togglePinnedColumnFavorite,
+                    canJumpToIssue: _canJumpToIssue(projection),
+                    onJumpToIssueSubmitted: projection == null
+                        ? null
+                        : (value) => _jumpToIssue(projection, value),
+                    hasActiveFilters: _hasActiveFilter,
+                    onClearFilters: _clearFilters,
+                    onEditFilters: () => showFilterDialogFlow(projection),
+                    activeFilterCount: _filterSelection.activeFilterCount,
+                    onRandomPick:
+                        projection != null && projection.filteredItems.isNotEmpty
+                            ? () => pickRandomItemFlow(projection)
+                            : null,
+                    onScanCover: () => scanCoverFlow(),
+                    onDownloadAllCovers: shelfState != null
+                        ? () => downloadAllCoversFlow(shelfState)
                         : null,
-                onScanCover: () => scanCoverFlow(),
-                onDownloadAllCovers: shelfState != null
-                    ? () => downloadAllCoversFlow(shelfState)
-                    : null,
-                counts: projection?.counts ?? const LibraryToolbarCounts(),
-                shelfState: shelfState,
-                onEditConditionPickList: widget.type.conditions.isNotEmpty
-                    ? showConditionPickListEditorFlow
-                    : null,
-                onEditGradePickList: widget.type.grades.isNotEmpty
-                    ? showGradePickListEditorFlow
-                    : null,
-                onEditTagPickList: showTagPickListEditorFlow,
-                onSmartLists: () => showSmartListsFlow(shelfState),
-                onFolders: showUserFoldersFlow,
-                onReadingQueue:
-                    libraryShowsReadingQueue(widget.type.workspace.kind)
-                        ? showReadingQueueFlow
+                    counts: projection?.counts ?? const LibraryToolbarCounts(),
+                    shelfState: shelfState,
+                    onEditConditionPickList: widget.type.conditions.isNotEmpty
+                        ? showConditionPickListEditorFlow
                         : null,
-                onTransferFieldData:
-                    projection != null && projection.filteredItems.isNotEmpty
-                        ? () => showTransferFieldDataFlow(projection)
+                    onEditGradePickList: widget.type.grades.isNotEmpty
+                        ? showGradePickListEditorFlow
                         : null,
-                onReassignIndex:
-                    projection != null && projection.filteredItems.isNotEmpty
-                        ? () => reassignIndexFlow(projection)
-                        : null,
-                onPrintReport:
-                    projection != null && projection.filteredItems.isNotEmpty
-                        ? () => printReportFlow(projection)
-                        : null,
-                onShareCollection:
-                    projection != null && projection.filteredItems.isNotEmpty
-                        ? () => shareCollectionFlow(projection)
-                        : null,
-                selectionEnabled: _selection.enabled,
-                selectedCount: _selection.selectedCount,
-                selectionCallbacks: (
-                  onClearSelection: () => setState(() {
-                        _selection = _selection.clear();
-                        _selectionAnchorId = null;
-                      }),
-                  onBulkEdit: () => bulkEditFlow(projection),
-                  onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
-                  onBulkMoveToWishlist: () =>
-                      bulkMoveToWishlistFlow(projection),
-                  onBulkRemove: () => bulkRemoveFlow(projection),
-                  onBulkRefreshMetadata: () =>
-                      bulkRefreshMetadataFlow(projection),
-                ),
-              ),
-              Expanded(
-                child: shelf.when(
-                  data: (state) => _buildBody(
-                    projection ?? _projectionForShelf(state, viewState),
-                    viewState,
-                    allOwnedCopies: allOwnedCopies,
-                    allWishlistItems: allWishlistItems,
+                    onEditTagPickList: showTagPickListEditorFlow,
+                    onSmartLists: () => showSmartListsFlow(shelfState),
+                    onFolders: showUserFoldersFlow,
+                    onReadingQueue:
+                        libraryShowsReadingQueue(widget.type.workspace.kind)
+                            ? showReadingQueueFlow
+                            : null,
+                    onTransferFieldData:
+                        projection != null && projection.filteredItems.isNotEmpty
+                            ? () => showTransferFieldDataFlow(projection)
+                            : null,
+                    onReassignIndex:
+                        projection != null && projection.filteredItems.isNotEmpty
+                            ? () => reassignIndexFlow(projection)
+                            : null,
+                    onPrintReport:
+                        projection != null && projection.filteredItems.isNotEmpty
+                            ? () => printReportFlow(projection)
+                            : null,
+                    onShareCollection:
+                        projection != null && projection.filteredItems.isNotEmpty
+                            ? () => shareCollectionFlow(projection)
+                            : null,
+                    selectionEnabled: _selection.enabled,
+                    selectedCount: _selection.selectedCount,
+                    selectionCallbacks: (
+                      onClearSelection: () => setState(() {
+                            _selection = _selection.clear();
+                            _selectionAnchorId = null;
+                          }),
+                      onBulkEdit: () => bulkEditFlow(projection),
+                      onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
+                      onBulkMoveToWishlist: () =>
+                          bulkMoveToWishlistFlow(projection),
+                      onBulkRemove: () => bulkRemoveFlow(projection),
+                      onBulkRefreshMetadata: () =>
+                          bulkRefreshMetadataFlow(projection),
+                    ),
                   ),
-                  error: (error, _) => AppErrorCard(
-                    message: error.toString(),
+                  Expanded(
+                    child: shelf.when(
+                      data: (state) => _buildBody(
+                        projection ?? _projectionForShelf(state, viewState),
+                        viewState,
+                        allOwnedCopies: allOwnedCopies,
+                        allWishlistItems: allWishlistItems,
+                      ),
+                      error: (error, _) => AppErrorCard(
+                        message: error.toString(),
+                      ),
+                      loading: () => const SkeletonGrid(),
+                    ),
                   ),
-                  loading: () => const SkeletonGrid(),
+                  _CollectionTabBar(
+                    mediaKind: widget.type.workspace.kind.apiValue,
+                    activeSmartListId: _activeSmartListId,
+                    onSmartListSelected: _applySmartList,
+                    onAllSelected: _clearSmartList,
+                  ),
+                ],
+              ),
+              if (_isScanningCover)
+                Positioned.fill(
+                  child: AbsorbPointer(
+                    child: ColoredBox(
+                      color: appPalette(context).panel.withValues(alpha: 0.48),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
                 ),
-              ),
-              _CollectionTabBar(
-                mediaKind: widget.type.workspace.kind.apiValue,
-                activeSmartListId: _activeSmartListId,
-                onSmartListSelected: _applySmartList,
-                onAllSelected: _clearSmartList,
-              ),
             ],
           ),
         ),
@@ -1132,12 +1146,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   void _mutateSidebarScope(VoidCallback mutate) {
     final previous = _captureSidebarScope();
+    mutate();
+    final next = _captureSidebarScope();
+    if (next == previous) {
+      return;
+    }
     setState(() {
-      mutate();
-      final next = _captureSidebarScope();
-      if (next == previous) {
-        return;
-      }
       if (next.isRootScope) {
         _scopeHistory = const [];
         return;

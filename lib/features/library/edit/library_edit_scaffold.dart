@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LibraryEditDialogScaffold extends StatefulWidget {
   const LibraryEditDialogScaffold({
@@ -350,13 +350,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
   Future<void> _searchOnEbay() async {
     final query = ebaySearchQuery;
     if (query == null) return;
-    final encoded = Uri.encodeComponent(query);
-    final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encoded');
-    try {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      // Platform cannot handle URL — ignore gracefully
-    }
+    await launchEbaySearch(query);
   }
 
   @override

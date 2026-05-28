@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_collection
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
@@ -21,7 +22,6 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LibraryDetailPage extends ConsumerStatefulWidget {
   const LibraryDetailPage({
@@ -326,13 +326,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final query = entry.itemNumber != null
         ? '${entry.resolvedTitle} #${entry.itemNumber}'
         : entry.resolvedTitle;
-    final encoded = Uri.encodeComponent(query);
-    final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encoded');
-    try {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      // Platform cannot handle URL — ignore gracefully
-    }
+    await launchEbaySearch(query);
   }
 
   Future<void> _addOwnedCopy(

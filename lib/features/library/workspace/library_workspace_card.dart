@@ -85,9 +85,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      _maybeSlab(
-                        entry,
-                        LibraryInteractiveCover(
+                      SlabFrameOverlay.maybeWrap(
+                        rawOrSlabbed: entry.rawOrSlabbed,
+                        gradingCompany: entry.gradingCompany,
+                        grade: entry.grade,
+                        labelType: entry.labelType,
+                        child: LibraryInteractiveCover(
                           title: entry.resolvedTitle,
                           itemNumber: entry.itemNumber,
                           imageUrl: entry.displayCoverUrl,
@@ -399,14 +402,4 @@ class _LibraryCompactMetaPill extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _maybeSlab(LibraryWorkspaceEntry entry, Widget child) {
-  return SlabFrameOverlay.maybeWrap(
-    rawOrSlabbed: entry.rawOrSlabbed,
-    gradingCompany: entry.gradingCompany,
-    grade: entry.grade,
-    labelType: entry.labelType,
-    child: child,
-  );
 }

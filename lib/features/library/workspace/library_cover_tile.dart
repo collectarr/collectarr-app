@@ -94,9 +94,12 @@ class LibraryCoverTile extends ConsumerWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    _maybeSlab(
-                      entry,
-                      LibraryInteractiveCover(
+                    SlabFrameOverlay.maybeWrap(
+                      rawOrSlabbed: entry.rawOrSlabbed,
+                      gradingCompany: entry.gradingCompany,
+                      grade: entry.grade,
+                      labelType: entry.labelType,
+                      child: LibraryInteractiveCover(
                         title: entry.resolvedTitle,
                         itemNumber: entry.itemNumber,
                         imageUrl: entry.displayCoverUrl,
@@ -201,15 +204,5 @@ class LibraryCoverTile extends ConsumerWidget {
       if (edition.physicalFormat != null) return edition.physicalFormat;
     }
     return null;
-  }
-
-  static Widget _maybeSlab(LibraryWorkspaceEntry entry, Widget child) {
-    return SlabFrameOverlay.maybeWrap(
-      rawOrSlabbed: entry.rawOrSlabbed,
-      gradingCompany: entry.gradingCompany,
-      grade: entry.grade,
-      labelType: entry.labelType,
-      child: child,
-    );
   }
 }
