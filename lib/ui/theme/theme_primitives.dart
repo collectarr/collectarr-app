@@ -147,9 +147,12 @@ IconButtonThemeData buildAppIconButtonTheme(
   return IconButtonThemeData(
     style: IconButton.styleFrom(
       foregroundColor: palette.textPrimary,
-      backgroundColor: palette.isDark ? const Color(0xFF343434) : const Color(0xFFE0E0E0),
-      disabledForegroundColor: palette.isDark ? const Color(0xFF777777) : const Color(0xFFAAAAAA),
-      disabledBackgroundColor: palette.isDark ? const Color(0xFF252525) : const Color(0xFFF0F0F0),
+      backgroundColor: palette.isDark ? const Color(0xFF343434) : palette.surfaceSubtle,
+      disabledForegroundColor: palette.isDark
+          ? const Color(0xFF777777)
+          : palette.textMuted.withValues(alpha: 0.7),
+      disabledBackgroundColor:
+          palette.isDark ? const Color(0xFF252525) : palette.toolbar,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       visualDensity: compact ? VisualDensity.compact : null,
     ),
@@ -178,7 +181,8 @@ SearchBarThemeData buildAppSearchBarTheme(AppThemePalette palette) {
 
 ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
   return base.chipTheme.copyWith(
-    backgroundColor: palette.isDark ? const Color(0xFF343434) : const Color(0xFFE0E0E0),
+    backgroundColor:
+        palette.isDark ? const Color(0xFF343434) : palette.surfaceSubtle,
     selectedColor: palette.selection,
     labelStyle: TextStyle(color: palette.textPrimary),
     side: BorderSide(color: palette.divider),

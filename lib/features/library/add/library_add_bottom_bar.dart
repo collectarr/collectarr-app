@@ -343,17 +343,18 @@ class _LibraryAddTargetMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return PopupMenuButton<LibraryAddTarget>(
       initialValue: value,
       enabled: enabled,
       tooltip: 'Add target',
       position: PopupMenuPosition.under,
-      color: compactMenuBackgroundFor(accent),
+      color: compactMenuBackgroundFor(accent, palette),
       elevation: 10,
       constraints: const BoxConstraints(minWidth: 158, maxWidth: 210),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: accent.withValues(alpha: 0.74)),
+        side: BorderSide(color: compactMenuBorderFor(accent, palette)),
       ),
       padding: EdgeInsets.zero,
       onSelected: onChanged,
