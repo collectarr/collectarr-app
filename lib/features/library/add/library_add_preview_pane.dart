@@ -328,7 +328,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                     width: 200,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: const Color(0x12000000),
+                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.74),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
@@ -380,7 +380,7 @@ class _BundleReleaseDetailCard extends StatelessWidget {
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x12000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.74),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: accent.withValues(alpha: 0.24)),
       ),
@@ -455,7 +455,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: accent.withValues(alpha: 0.16)),
       ),
@@ -632,7 +632,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     };
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: accent.withValues(alpha: 0.24)),
       ),

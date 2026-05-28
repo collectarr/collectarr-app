@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +23,7 @@ class BookAuthorSpotlight extends StatelessWidget {
     }
 
     final theme = Theme.of(context);
+    final palette = appPalette(context);
     final description = [
       if (spotlight.roleLabel != null) spotlight.roleLabel,
       if (spotlight.supportingLabel != null) spotlight.supportingLabel,
@@ -42,9 +44,9 @@ class BookAuthorSpotlight extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withValues(alpha: 0.05),
+                palette.surfaceSubtle.withValues(alpha: 0.7),
                 accent.withValues(alpha: 0.12),
-                Colors.black.withValues(alpha: 0.12),
+                palette.surface.withValues(alpha: 0.82),
               ],
             ),
           ),
@@ -79,7 +81,7 @@ class BookAuthorSpotlight extends StatelessWidget {
                         spotlight.name,
                         textAlign: centered ? TextAlign.center : TextAlign.start,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
+                          color: palette.textPrimary,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -89,7 +91,7 @@ class BookAuthorSpotlight extends StatelessWidget {
                           description,
                           textAlign: centered ? TextAlign.center : TextAlign.start,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white70,
+                            color: palette.textMuted,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -126,6 +128,7 @@ class _AuthorAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final trimmedUrl = imageUrl?.trim();
+    final palette = appPalette(context);
     return Container(
       width: 56,
       height: 56,
@@ -137,7 +140,7 @@ class _AuthorAvatar extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             accent.withValues(alpha: 0.22),
-            Colors.white.withValues(alpha: 0.05),
+            palette.surfaceSubtle.withValues(alpha: 0.7),
           ],
         ),
       ),
@@ -149,7 +152,7 @@ class _AuthorAvatar extends StatelessWidget {
                   child: Text(
                     initials,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
+                          color: palette.textPrimary,
                           fontWeight: FontWeight.w900,
                         ),
                   ),
@@ -168,7 +171,7 @@ class _AuthorAvatar extends StatelessWidget {
                     child: Text(
                       initials,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
+                            color: palette.textPrimary,
                             fontWeight: FontWeight.w900,
                           ),
                     ),

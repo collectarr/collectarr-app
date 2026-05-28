@@ -532,6 +532,11 @@ class _UnifiedChildTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final selectedForeground =
+        ThemeData.estimateBrightnessForColor(palette.selection) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     return Material(
       color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
@@ -558,7 +563,7 @@ class _UnifiedChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? Colors.white : palette.textPrimary,
+                        color: selected ? selectedForeground : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -576,8 +581,7 @@ class _UnifiedChildTile extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color:
-                                  selected ? Colors.white70 : palette.textMuted,
+                              color: selected ? selectedSecondary : palette.textMuted,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -622,6 +626,11 @@ class _UnifiedCoreChildTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final selectedForeground =
+        ThemeData.estimateBrightnessForColor(palette.selection) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     final displayTitle = _coreChildDisplayTitle(item);
     final subtitleParts = <String>[
       if (item.publisher != null) item.publisher!,
@@ -666,7 +675,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? Colors.white : palette.textPrimary,
+                        color: selected ? selectedForeground : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -688,9 +697,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: selected
-                                    ? Colors.white70
-                                    : palette.textMuted,
+                                color: selected ? selectedSecondary : palette.textMuted,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -739,6 +746,11 @@ class _UnifiedProviderChildTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final selectedForeground =
+        ThemeData.estimateBrightnessForColor(palette.selection) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     final displayTitle = _providerChildDisplayTitle(candidate);
     final subtitleParts = <String>[
       providerLabel,
@@ -775,7 +787,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? Colors.white : palette.textPrimary,
+                        color: selected ? selectedForeground : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -798,8 +810,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color:
-                                selected ? Colors.white70 : palette.textMuted,
+                            color: selected ? selectedSecondary : palette.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),

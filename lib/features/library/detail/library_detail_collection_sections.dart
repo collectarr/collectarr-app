@@ -234,7 +234,7 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
             'updated_at: ${entry.updatedAt.toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -261,10 +261,10 @@ class _DetailStarRating extends StatelessWidget {
     final filledStars = (rating * starCount / maxRating).round().clamp(0, starCount);
     return Row(
       children: [
-        const Text(
+        Text(
           'Rating  ',
           style: TextStyle(
-            color: kAppTextMuted,
+            color: appPalette(context).textMuted,
             fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
@@ -272,14 +272,14 @@ class _DetailStarRating extends StatelessWidget {
         for (var i = 0; i < starCount; i++)
           Icon(
             i < filledStars ? Icons.star_rounded : Icons.star_outline_rounded,
-            color: i < filledStars ? accent : kAppTextMuted,
+            color: i < filledStars ? accent : appPalette(context).textMuted,
             size: 20,
           ),
         const SizedBox(width: 6),
         Text(
           '$rating/$maxRating',
-          style: const TextStyle(
-            color: kAppTextMuted,
+          style: TextStyle(
+            color: appPalette(context).textMuted,
             fontSize: 12,
             fontWeight: FontWeight.w700,
           ),

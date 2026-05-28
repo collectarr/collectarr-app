@@ -162,12 +162,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                 color: tileFill,
                                 border: Border.all(
                                   color: selectedType
-                                      ? (palette.isDark
-                                          ? Colors.white70
-                                          : Color.alphaBlend(
-                                              typeAccent.withValues(alpha: 0.18),
-                                              palette.divider,
-                                            ))
+                                      ? selectedTileForeground.withValues(alpha: 0.72)
                                       : (palette.isDark
                                           ? typeAccent
                                           : Color.alphaBlend(

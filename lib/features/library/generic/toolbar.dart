@@ -1278,7 +1278,7 @@ class _ToolbarSheetSectionTitle extends StatelessWidget {
         label,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w800,
-              color: kAppTextMuted,
+              color: appPalette(context).textMuted,
             ),
       ),
     );
@@ -1429,9 +1429,9 @@ class _ItemCountLabel extends StatelessWidget {
         : '$shown of $total ${pluralLabel.toLowerCase()}';
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
-        color: kAppTextMuted,
+        color: appPalette(context).textMuted,
       ),
     );
   }

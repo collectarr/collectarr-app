@@ -254,8 +254,11 @@ class SlabFrameOverlay extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     labelType!.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    style: TextStyle(
+                      color: ThemeData.estimateBrightnessForColor(_labelColor) ==
+                              Brightness.dark
+                          ? Colors.white
+                          : Colors.black87,
                       fontSize: 7,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.3,

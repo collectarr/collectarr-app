@@ -188,7 +188,7 @@ class _SeriesDetailBody extends ConsumerWidget {
                     fontSize: 12,
                     color: ownedCount == data.items.length
                         ? kAppAccent
-                        : kAppTextMuted,
+                        : appPalette(context).textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 );
@@ -315,19 +315,19 @@ class _SeriesItemTile extends StatelessWidget {
             width: 42,
             height: 56,
             child: coverUrl == null || coverUrl.trim().isEmpty
-                ? const ColoredBox(
-                    color: Color(0x22000000),
-                    child: Icon(Icons.image_not_supported_outlined, size: 18),
+                ? ColoredBox(
+                    color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                    child: const Icon(Icons.image_not_supported_outlined, size: 18),
                   )
                 : CachedNetworkImage(
                     imageUrl: coverUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => const ColoredBox(
-                      color: Color(0x22000000),
+                    placeholder: (_, __) => ColoredBox(
+                      color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
                     ),
-                    errorWidget: (_, __, ___) => const ColoredBox(
-                      color: Color(0x22000000),
-                      child: Icon(Icons.broken_image_outlined, size: 18),
+                    errorWidget: (_, __, ___) => ColoredBox(
+                      color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                      child: const Icon(Icons.broken_image_outlined, size: 18),
                     ),
                   ),
           ),
@@ -340,7 +340,11 @@ class _SeriesItemTile extends StatelessWidget {
         ),
         trailing: isOwned
             ? const Icon(Icons.check_circle, color: kAppAccent, size: 20)
-            : const Icon(Icons.circle_outlined, color: kAppTextMuted, size: 20),
+            : Icon(
+                Icons.circle_outlined,
+                color: appPalette(context).textMuted,
+                size: 20,
+              ),
       ),
     );
   }
@@ -366,18 +370,18 @@ class _SeriesRelationCard extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: relation.imageUrl!,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => const ColoredBox(
-                        color: Color(0x22000000),
-                        child: Icon(Icons.image, size: 30),
+                      placeholder: (_, __) => ColoredBox(
+                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                        child: const Icon(Icons.image, size: 30),
                       ),
-                      errorWidget: (_, __, ___) => const ColoredBox(
-                        color: Color(0x22000000),
-                        child: Icon(Icons.broken_image_outlined, size: 30),
+                      errorWidget: (_, __, ___) => ColoredBox(
+                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                        child: const Icon(Icons.broken_image_outlined, size: 30),
                       ),
                     )
-                  : const ColoredBox(
-                      color: Color(0x22000000),
-                      child: Icon(Icons.collections_bookmark_outlined, size: 30),
+                  : ColoredBox(
+                      color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                      child: const Icon(Icons.collections_bookmark_outlined, size: 30),
                     ),
             ),
           ),

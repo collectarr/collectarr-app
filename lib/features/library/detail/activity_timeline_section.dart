@@ -63,6 +63,7 @@ class _ActivityTimelineSectionState
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final ownedItems = ref.watch(collectionProvider).maybeWhen(
           data: (items) =>
               items.where((i) => i.itemId == widget.itemId).toList(),
@@ -88,7 +89,7 @@ class _ActivityTimelineSectionState
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xD51C1F21),
+        color: palette.surfaceSubtle.withValues(alpha: 0.92),
         border: Border.all(color: widget.accent.withValues(alpha: 0.33)),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -106,11 +107,11 @@ class _ActivityTimelineSectionState
                   ),
             ),
             if (events.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
                   'No activity recorded yet.',
-                  style: TextStyle(color: kAppTextMuted, fontSize: 12),
+                  style: TextStyle(color: palette.textMuted, fontSize: 12),
                 ),
               )
             else ...[
@@ -157,6 +158,7 @@ class _ActivityEventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,8 +198,8 @@ class _ActivityEventTile extends StatelessWidget {
                 children: [
                   Text(
                     event.label,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: palette.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -205,8 +207,8 @@ class _ActivityEventTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${_fmtDate(event.timestamp)} · ${_fmtTime(event.timestamp)}',
-                    style: const TextStyle(
-                      color: kAppTextMuted,
+                    style: TextStyle(
+                      color: palette.textMuted,
                       fontSize: 11,
                     ),
                   ),
@@ -223,8 +225,8 @@ class _ActivityEventTile extends StatelessWidget {
                   if (event.secondaryDetail != null)
                     Text(
                       event.secondaryDetail!,
-                      style: const TextStyle(
-                        color: kAppTextMuted,
+                      style: TextStyle(
+                        color: palette.textMuted,
                         fontSize: 11,
                       ),
                     ),
@@ -240,7 +242,7 @@ class _ActivityEventTile extends StatelessWidget {
                             size: 14,
                             color: i < event.rating!
                                 ? Colors.amber
-                                : kAppTextMuted,
+                                : palette.textMuted,
                           ),
                         ),
                       ),

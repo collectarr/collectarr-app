@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryMetadataCreditsList extends StatelessWidget {
@@ -15,12 +16,13 @@ class LibraryMetadataCreditsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: textTheme.labelSmall?.copyWith(color: Colors.white70),
+          style: textTheme.labelSmall?.copyWith(color: palette.textMuted),
         ),
         const SizedBox(height: 4),
         for (final credit in credits)
@@ -48,6 +50,7 @@ class _LibraryMetadataCreditRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final palette = appPalette(context);
     final content = Text.rich(
       TextSpan(
         children: [
@@ -56,14 +59,14 @@ class _LibraryMetadataCreditRow extends StatelessWidget {
             style: textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
               decoration: onTap == null ? null : TextDecoration.underline,
-              decorationColor: Colors.white.withValues(alpha: 0.4),
+              decorationColor: palette.textMuted.withValues(alpha: 0.5),
             ),
           ),
           if (credit['role'] != null)
             TextSpan(
               text: '  ${credit['role']}',
               style: textTheme.bodySmall?.copyWith(
-                color: Colors.white54,
+                color: palette.textMuted,
               ),
             ),
         ],

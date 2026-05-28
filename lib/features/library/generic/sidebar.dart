@@ -481,7 +481,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ),
           ),
-          for (final mode in pinned) _buildGroupModeItem(mode),
+          for (final mode in pinned) _buildGroupModeItem(context, mode),
           const PopupMenuDivider(height: 8),
         ],
         for (final category in categories) ...[
@@ -498,7 +498,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ),
           ),
-          for (final mode in category.modes) _buildGroupModeItem(mode),
+          for (final mode in category.modes) _buildGroupModeItem(context, mode),
         ],
       ],
     ).then((value) {
@@ -506,7 +506,10 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     });
   }
 
-  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(LibraryGroupMode mode) {
+  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(
+    BuildContext context,
+    LibraryGroupMode mode,
+  ) {
     final isPinned = pinnedGroupModes.contains(mode);
     return PopupMenuItem<LibraryGroupMode>(
       value: mode,
@@ -540,7 +543,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                 child: Icon(
                   isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   size: 14,
-                  color: isPinned ? kAppHighlight : kAppTextMuted,
+                  color: isPinned ? kAppHighlight : appPalette(context).textMuted,
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class InspectorTrackList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final textTheme = Theme.of(context).textTheme;
     final count = trackCount ?? tracks.length;
     final duration = _totalDuration;
@@ -67,7 +69,7 @@ class InspectorTrackList extends StatelessWidget {
                   child: Text(
                     '${track.position ?? '-'}',
                     style: textTheme.bodySmall?.copyWith(
-                      color: Colors.white54,
+                      color: palette.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
                     textAlign: TextAlign.right,
@@ -91,7 +93,7 @@ class InspectorTrackList extends StatelessWidget {
                     child: Text(
                       _formatDuration(track.durationSeconds!),
                       style: textTheme.bodySmall?.copyWith(
-                        color: Colors.white54,
+                        color: palette.textMuted,
                       ),
                     ),
                   ),
@@ -156,7 +158,7 @@ class InspectorTrackListUnavailable extends StatelessWidget {
         Text(
           'Refresh metadata after re-matching the album to load individual tracks.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white70,
+                color: appPalette(context).textMuted,
               ),
         ),
       ],

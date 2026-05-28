@@ -662,7 +662,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
           Text(
             '${copies.length} copies in collection',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
+                  color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w600,
                 ),
           ),

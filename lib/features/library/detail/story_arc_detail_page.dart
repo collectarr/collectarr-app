@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -132,6 +133,7 @@ class _StoryArcItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final title = item['title']?.toString() ?? 'Untitled';
     final series = item['series_title']?.toString();
     final volume = item['volume_name']?.toString();
@@ -151,19 +153,19 @@ class _StoryArcItemTile extends StatelessWidget {
             width: 42,
             height: 56,
             child: coverUrl == null || coverUrl.trim().isEmpty
-                ? const ColoredBox(
-                    color: Color(0x22000000),
-                    child: Icon(Icons.image_not_supported_outlined, size: 18),
+                ? ColoredBox(
+                    color: palette.surfaceSubtle.withValues(alpha: 0.82),
+                    child: const Icon(Icons.image_not_supported_outlined, size: 18),
                   )
                 : CachedNetworkImage(
                     imageUrl: coverUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => const ColoredBox(
-                      color: Color(0x22000000),
+                    placeholder: (_, __) => ColoredBox(
+                      color: palette.surfaceSubtle.withValues(alpha: 0.82),
                     ),
-                    errorWidget: (_, __, ___) => const ColoredBox(
-                      color: Color(0x22000000),
-                      child: Icon(Icons.broken_image_outlined, size: 18),
+                    errorWidget: (_, __, ___) => ColoredBox(
+                      color: palette.surfaceSubtle.withValues(alpha: 0.82),
+                      child: const Icon(Icons.broken_image_outlined, size: 18),
                     ),
                   ),
           ),

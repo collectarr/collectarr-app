@@ -143,7 +143,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
         Text(
           sourceKind.helpText,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -183,7 +183,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
         Text(
           health.summary,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -242,7 +242,7 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
                 'thumb: ${entry.thumbnailImageUrl}',
             ].join('\n'),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kAppTextMuted,
+              color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -308,7 +308,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
           Text(
             'Provider search depends on Collectarr Core being reachable. Local collection data remains available offline.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kAppTextMuted,
+                  color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -318,7 +318,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
               Text(
                 '${provider.label}: ${provider.usagePolicy!.summary}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: kAppTextMuted,
+                      color: appPalette(context).textMuted,
                       fontWeight: FontWeight.w700,
                     ),
               ),

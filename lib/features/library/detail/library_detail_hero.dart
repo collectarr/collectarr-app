@@ -299,7 +299,7 @@ class LibraryDetailHero extends StatelessWidget {
                     maxLines: wide ? 5 : 4,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: kAppTextMuted,
+                          color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
