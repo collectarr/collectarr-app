@@ -19,7 +19,6 @@ BoxDecoration libraryToolbarDropdownDecoration(
   final palette = appPalette(context);
   return BoxDecoration(
     color: backgroundColor ?? palette.surfaceSubtle.withValues(alpha: 0.24),
-    borderRadius: BorderRadius.circular(6),
     border: Border.all(
       color: borderColor ?? palette.divider.withValues(alpha: 0.7),
     ),
@@ -32,7 +31,6 @@ RoundedRectangleBorder libraryToolbarDropdownMenuShape(
 }) {
   final palette = appPalette(context);
   return RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(6),
     side: BorderSide(
       color: borderColor ?? palette.divider.withValues(alpha: 0.7),
     ),
@@ -269,7 +267,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
-    this.maxWidth = 150,
+    this.maxWidth = 300,
   });
 
   final TextEditingController controller;
