@@ -269,7 +269,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
-    this.maxWidth = 188,
+    this.maxWidth = 150,
   });
 
   final TextEditingController controller;
@@ -287,6 +287,9 @@ class LibraryToolbarSearch extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final colorScheme = Theme.of(context).colorScheme;
+    final inlineActionCount =
+        1 + (onScanBarcode != null ? 1 : 0) + (onScanCover != null ? 1 : 0);
+    final inlineActionsWidth = inlineActionCount * 30.0 + 8;
     final inputBackground = colorScheme.brightness == Brightness.dark
         ? const Color(0xFF34383D)
         : const Color(0xFFF4F6F8);
@@ -298,65 +301,65 @@ class LibraryToolbarSearch extends StatelessWidget {
         final showFilterChip =
             selectedFilterLabel != null && constraints.maxWidth >= 340;
         return Row(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxWidth),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: inputBackground,
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: SizedBox(
-                      height: 38,
-                      child: TextField(
-                        controller: controller,
-                        onChanged: onChanged,
-                        onSubmitted: onSearch,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: hintText,
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: palette.textMuted),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          suffixIconConstraints: const BoxConstraints(
-                            minWidth: 0,
-                            minHeight: 38,
-                          ),
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: inputBackground,
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: SizedBox(
+                    height: 38,
+                    child: TextField(
+                      controller: controller,
+                      onChanged: onChanged,
+                      onSubmitted: onSearch,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: hintText,
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: palette.textMuted),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        suffixIconConstraints: BoxConstraints(
+                          minWidth: inlineActionsWidth,
+                          maxWidth: inlineActionsWidth,
+                          minHeight: 38,
+                          maxHeight: 38,
+                        ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _ToolbarSearchInlineAction(
+                                tooltip: 'Search',
+                                icon: Icons.search,
+                                onPressed: () => onSearch(controller.text),
+                              ),
+                              if (onScanBarcode != null)
                                 _ToolbarSearchInlineAction(
-                                  tooltip: 'Search',
-                                  icon: Icons.search,
-                                  onPressed: () => onSearch(controller.text),
+                                  tooltip: 'Scan barcode',
+                                  icon: Icons.qr_code_2,
+                                  onPressed: onScanBarcode!,
                                 ),
-                                if (onScanBarcode != null)
-                                  _ToolbarSearchInlineAction(
-                                    tooltip: 'Scan barcode',
-                                    icon: Icons.qr_code_2,
-                                    onPressed: onScanBarcode!,
-                                  ),
-                                if (onScanCover != null)
-                                  _ToolbarSearchInlineAction(
-                                    tooltip: 'Search by cover',
-                                    icon: Icons.image_search,
-                                    onPressed: onScanCover!,
-                                  ),
-                              ],
-                            ),
+                              if (onScanCover != null)
+                                _ToolbarSearchInlineAction(
+                                  tooltip: 'Search by cover',
+                                  icon: Icons.image_search,
+                                  onPressed: onScanCover!,
+                                ),
+                            ],
                           ),
                         ),
                       ),
@@ -402,6 +405,12 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
         child: IconButton(
           visualDensity: VisualDensity.compact,
           padding: EdgeInsets.zero,
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
           constraints: const BoxConstraints.tightFor(width: 30, height: 30),
           onPressed: onPressed,
           icon: Icon(icon, size: 19, color: palette.textPrimary),
