@@ -52,34 +52,22 @@ class LibraryViewModeDropdown extends StatelessWidget {
               height: _viewModeDropdownHeight,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               value: mode,
-              child: SizedBox(
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    Icon(
-                      _viewModeIcon(mode),
-                      size: 17,
-                      color: mode == viewMode ? menuText : menuMuted,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _viewModeLabel(mode),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              height: 1,
-                              fontWeight: mode == viewMode
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: menuText,
-                            ),
-                      ),
-                    ),
-                    if (mode == viewMode)
-                      Icon(Icons.check, size: 16, color: menuText),
-                  ],
+              child: LibraryWorkspaceMenuRow(
+                label: _viewModeLabel(mode),
+                leading: Icon(
+                  _viewModeIcon(mode),
+                  size: 17,
+                  color: mode == viewMode ? menuText : menuMuted,
                 ),
+                trailing: mode == viewMode
+                    ? Icon(Icons.check, size: 16, color: menuText)
+                    : null,
+                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      height: 1,
+                      fontWeight:
+                          mode == viewMode ? FontWeight.w700 : FontWeight.w500,
+                      color: menuText,
+                    ),
               ),
             ),
         ],
@@ -140,34 +128,23 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
               height: _viewModeDropdownHeight,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               value: layout,
-              child: SizedBox(
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    Icon(
-                      _detailsLayoutIcon(layout),
-                      size: 17,
-                      color: layout == detailsLayout ? menuText : menuMuted,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _detailsLayoutLabel(layout),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              height: 1,
-                              fontWeight: layout == detailsLayout
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: menuText,
-                            ),
-                      ),
-                    ),
-                    if (layout == detailsLayout)
-                      Icon(Icons.check, size: 16, color: menuText),
-                  ],
+              child: LibraryWorkspaceMenuRow(
+                label: _detailsLayoutLabel(layout),
+                leading: Icon(
+                  _detailsLayoutIcon(layout),
+                  size: 17,
+                  color: layout == detailsLayout ? menuText : menuMuted,
                 ),
+                trailing: layout == detailsLayout
+                    ? Icon(Icons.check, size: 16, color: menuText)
+                    : null,
+                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      height: 1,
+                      fontWeight: layout == detailsLayout
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: menuText,
+                    ),
               ),
             ),
         ],

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -1215,28 +1215,19 @@ class _CollectionStatusScopeMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: Row(
-        children: [
-          _CollectionStatusScopeBadge(
-            scope: scope,
-            accent: accent,
-            muted: muted,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              scope.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    height: 1,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: textColor,
-                  ),
+      child: LibraryWorkspaceMenuRow(
+        label: scope.label,
+        leading: _CollectionStatusScopeBadge(
+          scope: scope,
+          accent: accent,
+          muted: muted,
+        ),
+        trailing: isSelected ? Icon(Icons.check, size: 16, color: textColor) : null,
+        textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              height: 1,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: textColor,
             ),
-          ),
-            if (isSelected) Icon(Icons.check, size: 16, color: textColor),
-        ],
       ),
     );
   }

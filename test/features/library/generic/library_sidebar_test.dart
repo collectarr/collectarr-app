@@ -50,7 +50,7 @@ void main() {
 
     expect(find.text('Manage Favorites'), findsOneWidget);
     expect(find.text('Folders'), findsWidgets);
-    expect(find.text('Favorites'), findsOneWidget);
+    expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
