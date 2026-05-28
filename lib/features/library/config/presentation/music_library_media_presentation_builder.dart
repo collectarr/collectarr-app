@@ -225,6 +225,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final totalDuration = _musicTotalDurationLabel(tracks);
     final headingCount = trackCount ?? tracks.length;
     final trackGroups = _groupTracksByDisc(tracks);
@@ -252,8 +253,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
         albumTitle,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: palette.textPrimary,
           fontSize: 16,
           fontWeight: FontWeight.w500,
           height: 1.15,
@@ -265,8 +266,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
           albumSubtitle!,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: kAppTextMuted,
+          style: TextStyle(
+            color: palette.textMuted,
             fontSize: 13,
             fontWeight: FontWeight.w700,
             height: 1.2,
@@ -274,7 +275,11 @@ class _MusicAddPreviewPane extends StatelessWidget {
         ),
       ],
       const SizedBox(height: 8),
-      Divider(height: 1, thickness: 1, color: Colors.white.withValues(alpha: 0.86)),
+      Divider(
+        height: 1,
+        thickness: 1,
+        color: palette.divider.withValues(alpha: 0.86),
+      ),
       const SizedBox(height: 10),
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,8 +291,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
                 if (releaseLine != null && releaseLine!.trim().isNotEmpty)
                   Text(
                     releaseLine!,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: palette.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -308,8 +313,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     subLine!,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: palette.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       height: 1.3,
@@ -325,8 +330,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
             child: Text(
               labelCatalogLine ?? providerLabel,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: palette.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
               ),
@@ -335,7 +340,11 @@ class _MusicAddPreviewPane extends StatelessWidget {
         ],
       ),
       const SizedBox(height: 12),
-      Divider(height: 1, thickness: 1, color: Colors.white.withValues(alpha: 0.86)),
+      Divider(
+        height: 1,
+        thickness: 1,
+        color: palette.divider.withValues(alpha: 0.86),
+      ),
       const SizedBox(height: 12),
     ];
     return DecoratedBox(
@@ -344,9 +353,9 @@ class _MusicAddPreviewPane extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            kAppCanvas,
-            Color.alphaBlend(accent.withValues(alpha: 0.18), kAppCanvas),
-            kAppCanvas,
+            palette.canvas,
+            Color.alphaBlend(accent.withValues(alpha: 0.18), palette.canvas),
+            palette.canvas,
           ],
         ),
       ),
@@ -362,6 +371,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
                 children: [
                   ...headerChildren,
                   _buildCompactTrackSection(
+                    context: context,
                     maxWidth: paneConstraints.maxWidth - 38,
                     trackHeading: trackHeading,
                   ),
@@ -407,8 +417,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
                           if (trackHeading != null)
                             Text(
                               trackHeading,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: palette.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -428,8 +438,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                     _trackListPlaceholder(),
-                                  style: const TextStyle(
-                                    color: kAppTextMuted,
+                                  style: TextStyle(
+                                    color: palette.textMuted,
                                     fontWeight: FontWeight.w600,
                                   ),
                                   textAlign: TextAlign.center,
@@ -476,9 +486,11 @@ class _MusicAddPreviewPane extends StatelessWidget {
   }
 
   Widget _buildCompactTrackSection({
+    required BuildContext context,
     required double maxWidth,
     required String? trackHeading,
   }) {
+    final palette = appPalette(context);
     final stacked = maxWidth < 560;
     final coverSize = math.min(stacked ? 160.0 : 180.0, math.max(0.0, maxWidth));
     final showCover = coverSize >= 72;
@@ -489,8 +501,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
         if (trackHeading != null)
           Text(
             trackHeading,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: palette.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
@@ -503,8 +515,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
               _trackListPlaceholder(),
-              style: const TextStyle(
-                color: kAppTextMuted,
+              style: TextStyle(
+                color: palette.textMuted,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -593,6 +605,7 @@ class _MusicAddPreviewTrackRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
@@ -601,8 +614,8 @@ class _MusicAddPreviewTrackRow extends StatelessWidget {
             width: 24,
             child: Text(
               '${track.position ?? index}',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: palette.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -631,8 +644,8 @@ class _MusicAddPreviewTrackRow extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 6),
                       child: Text(
                         track.durationLabel!,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: palette.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
