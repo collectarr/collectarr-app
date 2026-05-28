@@ -457,6 +457,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                             : null,
                     selectionEnabled: _selection.enabled,
                     selectedCount: _selection.selectedCount,
+                    includeDesktopSecondaryBand: false,
                     selectionCallbacks: (
                       onClearSelection: () => setState(() {
                             _selection = _selection.clear();
@@ -645,6 +646,73 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         setState(() => _pinnedGroupModes = updated);
         unawaited(_viewPrefs.writePinnedGroupModes(updated));
       },
+      desktopToolbarBand: LibraryDesktopSecondaryToolbar(
+        type: widget.type,
+        viewState: viewState,
+        adapter: _adapter,
+        counts: projection.counts,
+        onEditColumns: showColumnChooserFlow,
+        onEditSort: showSortDialogFlow,
+        onSidebarVisibilityChanged: (isVisible) => _updateViewState(
+          (state) => state.copyWith(isSidebarVisible: isVisible),
+        ),
+        onViewModeChanged: (mode) => _updateViewState(
+          (state) => state.copyWith(viewMode: mode),
+        ),
+        onDetailsLayoutChanged: (layout) => _updateViewState(
+          (state) => state.copyWith(detailsLayout: layout),
+        ),
+        onCoverSizeChanged: (size) => _updateViewState(
+          (state) => state.copyWith(coverSize: size),
+        ),
+        selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+        quickView: _quickView,
+        hasActiveFilters: _hasActiveFilter,
+        onQuickViewSelected: (view) {
+          final next = _quickView == view ? null : view;
+          _mutateSidebarScope(() {
+            _quickView = next;
+            _activeSmartListId = null;
+            _activeSmartListName = null;
+          });
+          unawaited(_viewPrefs.writeQuickView(next));
+        },
+        onClearFilters: _clearFilters,
+        onEditFilters: () => showFilterDialogFlow(projection),
+        activeFilterCount: _filterSelection.activeFilterCount,
+        activeSortFavoriteId: _activeSortFavorite?.id,
+        sortFavorites: _sortFavorites,
+        onRandomPick:
+            projection.filteredItems.isNotEmpty ? () => pickRandomItemFlow(projection) : null,
+        onDownloadAllCovers: ref.read(shelfProvider).asData?.value != null
+            ? () => downloadAllCoversFlow(ref.read(shelfProvider).asData!.value)
+            : null,
+        shelfState: ref.read(shelfProvider).asData?.value,
+        onSmartLists: () => showSmartListsFlow(ref.read(shelfProvider).asData?.value),
+        onFolders: showUserFoldersFlow,
+        onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
+            ? showReadingQueueFlow
+            : null,
+        onEditConditionPickList: widget.type.conditions.isNotEmpty
+            ? showConditionPickListEditorFlow
+            : null,
+        onEditGradePickList: widget.type.grades.isNotEmpty
+            ? showGradePickListEditorFlow
+            : null,
+        onEditTagPickList: showTagPickListEditorFlow,
+        onTransferFieldData: projection.filteredItems.isNotEmpty
+            ? () => showTransferFieldDataFlow(projection)
+            : null,
+        onReassignIndex: projection.filteredItems.isNotEmpty
+            ? () => reassignIndexFlow(projection)
+            : null,
+        onPrintReport: projection.filteredItems.isNotEmpty
+            ? () => printReportFlow(projection)
+            : null,
+        onShareCollection: projection.filteredItems.isNotEmpty
+            ? () => shareCollectionFlow(projection)
+            : null,
+      ),
     );
   }
 

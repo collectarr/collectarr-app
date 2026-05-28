@@ -78,6 +78,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
+    this.includeDesktopSecondaryBand = true,
   });
 
   final LibraryTypeConfig type;
@@ -143,6 +144,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final bool includeDesktopSecondaryBand;
 
   @override
   Widget build(BuildContext context) {
@@ -262,103 +264,41 @@ class LibraryToolbar extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const _ToolbarDividerLine(),
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        LibraryWorkspaceControlStrip(
-                          children: [
-                            LibraryViewModeDropdown(
-                              viewMode: viewState.viewMode,
-                              onChanged: onViewModeChanged,
-                            ),
-                            if (onEditSort != null)
-                              _ToolbarSortButton(
-                                onPressed: onEditSort!,
-                                sortFavorites: sortFavorites,
-                                activeSortFavoriteId: activeSortFavoriteId,
-                              ),
-                            _ItemCountLabel(
-                              shown: counts.shown,
-                              total: counts.total,
-                              pluralLabel: type.pluralLabel,
-                            ),
-                            if (counts.totalPricePaidCents > 0)
-                              _CollectionValueChip(
-                                totalPaidCents: counts.totalPricePaidCents,
-                                totalCoverCents: counts.totalCoverPriceCents,
-                                totalSellCents: counts.totalSellPriceCents,
-                                currency: counts.priceCurrency,
-                              ),
-                            LibraryDetailsLayoutDropdown(
-                              detailsLayout: viewState.detailsLayout,
-                              onChanged: onDetailsLayoutChanged,
-                            ),
-                            LibraryCoverSizeSlider(
-                              viewMode: viewState.viewMode,
-                              coverSize: viewState.coverSize,
-                              minCoverSize: adapter.viewProfile.minCoverSize,
-                              maxCoverSize: adapter.viewProfile.maxCoverSize,
-                              onChanged: onCoverSizeChanged,
-                            ),
-                            Tooltip(
-                              message: viewState.isSidebarVisible
-                                  ? 'Hide folders panel'
-                                  : 'Show folders panel',
-                              child: LibraryWorkspaceIconButton(
-                                onPressed: () => onSidebarVisibilityChanged(
-                                  !viewState.isSidebarVisible,
-                                ),
-                                icon: viewState.isSidebarVisible
-                                    ? Icons.menu_open
-                                    : Icons.menu,
-                              ),
-                            ),
-                            Tooltip(
-                              message: 'Select columns',
-                              child: LibraryWorkspaceIconButton(
-                                onPressed: viewState.viewMode ==
-                                        LibraryViewMode.list
-                                    ? onEditColumns
-                                    : null,
-                                icon: Icons.view_column,
-                              ),
-                            ),
-                            if (onEditFilters != null)
-                              _FilterButton(
-                                activeCount: activeFilterCount,
-                                onPressed: onEditFilters!,
-                              ),
-                            LibraryToolsButton(
-                              type: type,
-                              counts: counts,
-                              selectedBucket: selectedBucket,
-                              quickView: quickView,
-                              hasActiveFilters: hasActiveFilters,
-                              onQuickViewSelected: onQuickViewSelected,
-                              onClearFilters: onClearFilters,
-                              onRandomPick: onRandomPick,
-                              onDownloadAllCovers: onDownloadAllCovers,
-                              shelfState: shelfState,
-                              onSmartLists: onSmartLists,
-                              onFolders: onFolders,
-                              onReadingQueue: onReadingQueue,
-                              onEditConditionPickList: onEditConditionPickList,
-                              onEditGradePickList: onEditGradePickList,
-                              onEditTagPickList: onEditTagPickList,
-                              onTransferFieldData: onTransferFieldData,
-                              onReassignIndex: onReassignIndex,
-                              onPrintReport: onPrintReport,
-                              onShareCollection: onShareCollection,
-                            ),
-                          ],
-                        ),
-                      ],
+                  if (includeDesktopSecondaryBand)
+                    LibraryDesktopSecondaryToolbar(
+                      type: type,
+                      viewState: viewState,
+                      adapter: adapter,
+                      counts: counts,
+                      onEditColumns: onEditColumns,
+                      onEditSort: onEditSort,
+                      onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                      onViewModeChanged: onViewModeChanged,
+                      onDetailsLayoutChanged: onDetailsLayoutChanged,
+                      onCoverSizeChanged: onCoverSizeChanged,
+                      selectedBucket: selectedBucket,
+                      quickView: quickView,
+                      activeSortFavoriteId: activeSortFavoriteId,
+                      sortFavorites: sortFavorites,
+                      hasActiveFilters: hasActiveFilters,
+                      onQuickViewSelected: onQuickViewSelected,
+                      onClearFilters: onClearFilters,
+                      onEditFilters: onEditFilters,
+                      activeFilterCount: activeFilterCount,
+                      onRandomPick: onRandomPick,
+                      onDownloadAllCovers: onDownloadAllCovers,
+                      shelfState: shelfState,
+                      onSmartLists: onSmartLists,
+                      onFolders: onFolders,
+                      onReadingQueue: onReadingQueue,
+                      onEditConditionPickList: onEditConditionPickList,
+                      onEditGradePickList: onEditGradePickList,
+                      onEditTagPickList: onEditTagPickList,
+                      onTransferFieldData: onTransferFieldData,
+                      onReassignIndex: onReassignIndex,
+                      onPrintReport: onPrintReport,
+                      onShareCollection: onShareCollection,
                     ),
-                  ),
                   if (selectionCallbacks != null && selectedCount > 0) ...[
                     const _ToolbarDividerLine(),
                     _SelectionToolbarBand(
@@ -380,6 +320,182 @@ class LibraryToolbar extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class LibraryDesktopSecondaryToolbar extends StatelessWidget {
+  const LibraryDesktopSecondaryToolbar({
+    super.key,
+    required this.type,
+    required this.viewState,
+    required this.adapter,
+    required this.counts,
+    required this.onEditColumns,
+    required this.onSidebarVisibilityChanged,
+    required this.onViewModeChanged,
+    required this.onDetailsLayoutChanged,
+    required this.onCoverSizeChanged,
+    required this.selectedBucket,
+    required this.quickView,
+    required this.hasActiveFilters,
+    required this.onQuickViewSelected,
+    required this.onClearFilters,
+    this.onEditFilters,
+    this.activeFilterCount = 0,
+    this.onEditSort,
+    this.activeSortFavoriteId,
+    this.sortFavorites = const [],
+    this.onRandomPick,
+    this.onDownloadAllCovers,
+    this.shelfState,
+    this.onSmartLists,
+    this.onFolders,
+    this.onReadingQueue,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
+    this.onTransferFieldData,
+    this.onReassignIndex,
+    this.onPrintReport,
+    this.onShareCollection,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceViewState viewState;
+  final LibraryMediaAdapter adapter;
+  final LibraryToolbarCounts counts;
+  final VoidCallback onEditColumns;
+  final ValueChanged<bool> onSidebarVisibilityChanged;
+  final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<double> onCoverSizeChanged;
+  final VoidCallback? onEditSort;
+  final String? selectedBucket;
+  final LibraryQuickView? quickView;
+  final bool hasActiveFilters;
+  final ValueChanged<LibraryQuickView> onQuickViewSelected;
+  final VoidCallback onClearFilters;
+  final VoidCallback? onEditFilters;
+  final int activeFilterCount;
+  final String? activeSortFavoriteId;
+  final List<LibrarySortFavorite> sortFavorites;
+  final VoidCallback? onRandomPick;
+  final VoidCallback? onDownloadAllCovers;
+  final ShelfState? shelfState;
+  final VoidCallback? onSmartLists;
+  final VoidCallback? onFolders;
+  final VoidCallback? onReadingQueue;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
+  final VoidCallback? onTransferFieldData;
+  final VoidCallback? onReassignIndex;
+  final VoidCallback? onPrintReport;
+  final VoidCallback? onShareCollection;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.toolbar,
+        border: Border(bottom: BorderSide(color: palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Row(
+          children: [
+            const Spacer(),
+            LibraryWorkspaceControlStrip(
+              children: [
+                LibraryViewModeDropdown(
+                  viewMode: viewState.viewMode,
+                  onChanged: onViewModeChanged,
+                ),
+                if (onEditSort != null)
+                  _ToolbarSortButton(
+                    onPressed: onEditSort!,
+                    sortFavorites: sortFavorites,
+                    activeSortFavoriteId: activeSortFavoriteId,
+                  ),
+                _ItemCountLabel(
+                  shown: counts.shown,
+                  total: counts.total,
+                  pluralLabel: type.pluralLabel,
+                ),
+                if (counts.totalPricePaidCents > 0)
+                  _CollectionValueChip(
+                    totalPaidCents: counts.totalPricePaidCents,
+                    totalCoverCents: counts.totalCoverPriceCents,
+                    totalSellCents: counts.totalSellPriceCents,
+                    currency: counts.priceCurrency,
+                  ),
+                LibraryDetailsLayoutDropdown(
+                  detailsLayout: viewState.detailsLayout,
+                  onChanged: onDetailsLayoutChanged,
+                ),
+                LibraryCoverSizeSlider(
+                  viewMode: viewState.viewMode,
+                  coverSize: viewState.coverSize,
+                  minCoverSize: adapter.viewProfile.minCoverSize,
+                  maxCoverSize: adapter.viewProfile.maxCoverSize,
+                  onChanged: onCoverSizeChanged,
+                ),
+                Tooltip(
+                  message: viewState.isSidebarVisible
+                      ? 'Hide folders panel'
+                      : 'Show folders panel',
+                  child: LibraryWorkspaceIconButton(
+                    onPressed: () => onSidebarVisibilityChanged(
+                      !viewState.isSidebarVisible,
+                    ),
+                    icon: viewState.isSidebarVisible
+                        ? Icons.menu_open
+                        : Icons.menu,
+                  ),
+                ),
+                Tooltip(
+                  message: 'Select columns',
+                  child: LibraryWorkspaceIconButton(
+                    onPressed: viewState.viewMode == LibraryViewMode.list
+                        ? onEditColumns
+                        : null,
+                    icon: Icons.view_column,
+                  ),
+                ),
+                if (onEditFilters != null)
+                  _FilterButton(
+                    activeCount: activeFilterCount,
+                    onPressed: onEditFilters!,
+                  ),
+                LibraryToolsButton(
+                  type: type,
+                  counts: counts,
+                  selectedBucket: selectedBucket,
+                  quickView: quickView,
+                  hasActiveFilters: hasActiveFilters,
+                  onQuickViewSelected: onQuickViewSelected,
+                  onClearFilters: onClearFilters,
+                  onRandomPick: onRandomPick,
+                  onDownloadAllCovers: onDownloadAllCovers,
+                  shelfState: shelfState,
+                  onSmartLists: onSmartLists,
+                  onFolders: onFolders,
+                  onReadingQueue: onReadingQueue,
+                  onEditConditionPickList: onEditConditionPickList,
+                  onEditGradePickList: onEditGradePickList,
+                  onEditTagPickList: onEditTagPickList,
+                  onTransferFieldData: onTransferFieldData,
+                  onReassignIndex: onReassignIndex,
+                  onPrintReport: onPrintReport,
+                  onShareCollection: onShareCollection,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

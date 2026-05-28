@@ -79,6 +79,7 @@ class LibraryBody extends StatelessWidget {
     this.db,
     this.pinnedGroupModes = const {},
     this.onTogglePinGroupMode,
+    this.desktopToolbarBand,
   });
 
   final LibraryTypeConfig type;
@@ -144,6 +145,7 @@ class LibraryBody extends StatelessWidget {
   final LocalDatabase? db;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final Widget? desktopToolbarBand;
 
   @override
   Widget build(BuildContext context) {
@@ -237,6 +239,7 @@ class LibraryBody extends StatelessWidget {
 
         final workspaceContent = Column(
           children: [
+            if (!compact && desktopToolbarBand != null) desktopToolbarBand!,
             if (workspaceOverride == null &&
                 !showSidebar &&
                 projection.buckets.length > 1)
