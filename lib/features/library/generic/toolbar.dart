@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -389,6 +390,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
+    this.groupMode,
+    this.pinnedGroupModes = const {},
+    this.onTogglePinGroupMode,
+    this.onGroupModeChanged,
   });
 
   final LibraryTypeConfig type;
@@ -423,6 +428,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final LibraryGroupMode? groupMode;
+  final Set<LibraryGroupMode> pinnedGroupModes;
+  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final ValueChanged<LibraryGroupMode>? onGroupModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -440,6 +449,23 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
+                  if (!viewState.isSidebarVisible &&
+                      groupMode != null &&
+                      onGroupModeChanged != null) ...[
+                    LibraryGroupModeMenuButton(
+                      type: type,
+                      groupMode: groupMode!,
+                      accent: libraryAccentForKind(type.workspace.kind),
+                      icon: genericGroupModeIcon(groupMode!),
+                      onChanged: onGroupModeChanged!,
+                      sidebarVisible: false,
+                      onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                      pinnedGroupModes: pinnedGroupModes,
+                      onTogglePin: onTogglePinGroupMode,
+                      iconOnly: true,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
                   LibraryViewModeDropdown(
                     viewMode: viewState.viewMode,
                     onChanged: onViewModeChanged,

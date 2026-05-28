@@ -355,7 +355,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     }),
                     onEditColumns: showColumnChooserFlow,
                     onSortChanged: (column) => _updateViewState(
-                      (state) => state.withSortColumn(column, _adapter.viewProfile),
+                      (state) =>
+                          state.withSortColumn(column, _adapter.viewProfile),
                     ),
                     onEditSort: showSortDialogFlow,
                     onSidebarVisibilityChanged: (isVisible) => _updateViewState(
@@ -389,7 +390,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                       unawaited(_viewPrefs.writeQuickView(next));
                     },
                     availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-                      (projection?.filteredItems ?? const <LibraryProjectionItem>[])
+                      (projection?.filteredItems ??
+                              const <LibraryProjectionItem>[])
                           .map((i) => i.entry.resolvedTitle),
                     ),
                     selectedLetter: _selectedLetter,
@@ -416,10 +418,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     onClearFilters: _clearFilters,
                     onEditFilters: () => showFilterDialogFlow(projection),
                     activeFilterCount: _filterSelection.activeFilterCount,
-                    onRandomPick:
-                        projection != null && projection.filteredItems.isNotEmpty
-                            ? () => pickRandomItemFlow(projection)
-                            : null,
+                    onRandomPick: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => pickRandomItemFlow(projection)
+                        : null,
                     onScanCover: () => scanCoverFlow(),
                     onDownloadAllCovers: shelfState != null
                         ? () => downloadAllCoversFlow(shelfState)
@@ -439,22 +441,22 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                         libraryShowsReadingQueue(widget.type.workspace.kind)
                             ? showReadingQueueFlow
                             : null,
-                    onTransferFieldData:
-                        projection != null && projection.filteredItems.isNotEmpty
-                            ? () => showTransferFieldDataFlow(projection)
-                            : null,
-                    onReassignIndex:
-                        projection != null && projection.filteredItems.isNotEmpty
-                            ? () => reassignIndexFlow(projection)
-                            : null,
-                    onPrintReport:
-                        projection != null && projection.filteredItems.isNotEmpty
-                            ? () => printReportFlow(projection)
-                            : null,
-                    onShareCollection:
-                        projection != null && projection.filteredItems.isNotEmpty
-                            ? () => shareCollectionFlow(projection)
-                            : null,
+                    onTransferFieldData: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => showTransferFieldDataFlow(projection)
+                        : null,
+                    onReassignIndex: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => reassignIndexFlow(projection)
+                        : null,
+                    onPrintReport: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => printReportFlow(projection)
+                        : null,
+                    onShareCollection: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => shareCollectionFlow(projection)
+                        : null,
                     selectionEnabled: _selection.enabled,
                     selectedCount: _selection.selectedCount,
                     includeDesktopSecondaryBand: false,
@@ -682,13 +684,15 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         activeFilterCount: _filterSelection.activeFilterCount,
         activeSortFavoriteId: _activeSortFavorite?.id,
         sortFavorites: _sortFavorites,
-        onRandomPick:
-            projection.filteredItems.isNotEmpty ? () => pickRandomItemFlow(projection) : null,
+        onRandomPick: projection.filteredItems.isNotEmpty
+            ? () => pickRandomItemFlow(projection)
+            : null,
         onDownloadAllCovers: ref.read(shelfProvider).asData?.value != null
             ? () => downloadAllCoversFlow(ref.read(shelfProvider).asData!.value)
             : null,
         shelfState: ref.read(shelfProvider).asData?.value,
-        onSmartLists: () => showSmartListsFlow(ref.read(shelfProvider).asData?.value),
+        onSmartLists: () =>
+            showSmartListsFlow(ref.read(shelfProvider).asData?.value),
         onFolders: showUserFoldersFlow,
         onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
             ? showReadingQueueFlow
@@ -696,9 +700,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         onEditConditionPickList: widget.type.conditions.isNotEmpty
             ? showConditionPickListEditorFlow
             : null,
-        onEditGradePickList: widget.type.grades.isNotEmpty
-            ? showGradePickListEditorFlow
-            : null,
+        onEditGradePickList:
+            widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
         onEditTagPickList: showTagPickListEditorFlow,
         onTransferFieldData: projection.filteredItems.isNotEmpty
             ? () => showTransferFieldDataFlow(projection)
@@ -712,6 +715,30 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => shareCollectionFlow(projection)
             : null,
+        groupMode: _activeGroupMode,
+        pinnedGroupModes: _pinnedGroupModes,
+        onTogglePinGroupMode: (mode) {
+          final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
+          if (updated.contains(mode)) {
+            updated.remove(mode);
+          } else {
+            updated.add(mode);
+          }
+          setState(() => _pinnedGroupModes = updated);
+          unawaited(_viewPrefs.writePinnedGroupModes(updated));
+        },
+        onGroupModeChanged: (mode) {
+          setState(() {
+            _groupMode = mode;
+            _selectedBucket = null;
+            _scopeHistory = const [];
+            final shelfState = ref.read(shelfProvider).asData?.value;
+            if (shelfState != null) {
+              _ensureFacetBucketsLoaded(shelfState, mode);
+            }
+          });
+          unawaited(_viewPrefs.writeGroupMode(mode));
+        },
       ),
     );
   }

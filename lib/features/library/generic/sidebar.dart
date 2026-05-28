@@ -36,6 +36,7 @@ class LibrarySidebar extends StatelessWidget {
     this.onCollectionStatusScopeChanged,
     required this.onClearFilter,
     this.onHideSidebar,
+    this.onSidebarVisibilityChanged,
     this.pinnedGroupModes = const {},
     this.onTogglePinGroupMode,
   });
@@ -67,6 +68,7 @@ class LibrarySidebar extends StatelessWidget {
       onCollectionStatusScopeChanged;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
+  final ValueChanged<bool>? onSidebarVisibilityChanged;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
 
@@ -111,6 +113,7 @@ class LibrarySidebar extends StatelessWidget {
         onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
         onClearFilter: onClearFilter,
         onHideSidebar: onHideSidebar,
+        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
         pinnedGroupModes: pinnedGroupModes,
         onTogglePin: onTogglePinGroupMode,
       ),
@@ -178,6 +181,165 @@ IconData genericLibrarySidebarIcon(LibraryTypeConfig type) {
   };
 }
 
+enum _GroupModeMenuAction { toggleSidebar }
+
+class LibraryGroupModeMenuButton extends StatelessWidget {
+  const LibraryGroupModeMenuButton({
+    super.key,
+    required this.type,
+    required this.groupMode,
+    required this.accent,
+    required this.icon,
+    required this.onChanged,
+    this.sidebarVisible = true,
+    this.onSidebarVisibilityChanged,
+    this.pinnedGroupModes = const {},
+    this.onTogglePin,
+    this.iconOnly = false,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryGroupMode groupMode;
+  final Color accent;
+  final IconData icon;
+  final ValueChanged<LibraryGroupMode> onChanged;
+  final bool sidebarVisible;
+  final ValueChanged<bool>? onSidebarVisibilityChanged;
+  final Set<LibraryGroupMode> pinnedGroupModes;
+  final ValueChanged<LibraryGroupMode>? onTogglePin;
+  final bool iconOnly;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final label = genericGroupModeSidebarTitle(groupMode, type);
+    final child = iconOnly
+        ? DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.surfaceSubtle.withValues(alpha: 0.24),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: palette.divider.withValues(alpha: 0.7),
+              ),
+            ),
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(icon, size: 17, color: palette.textPrimary),
+                  Positioned(
+                    right: 1,
+                    bottom: 1,
+                    child: Icon(
+                      Icons.arrow_drop_down,
+                      size: 14,
+                      color: palette.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 16, color: accent),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: accent,
+                        ),
+                  ),
+                ),
+                Icon(Icons.arrow_drop_down, size: 18, color: accent),
+              ],
+            ),
+          );
+
+    return Tooltip(
+      message: iconOnly ? 'Group by: $label' : 'Group by',
+      child: InkWell(
+        onTap: () => _showGroupModeMenu(context),
+        borderRadius: BorderRadius.circular(6),
+        child: child,
+      ),
+    );
+  }
+
+  void _showGroupModeMenu(BuildContext context) {
+    final modes = libraryGroupModesForType(type);
+    final categories = _SidebarGroupDropdownHeader._categorizeGroupModes(modes);
+    final overlay = Overlay.of(context, rootOverlay: true)
+        .context
+        .findRenderObject() as RenderBox;
+    final box = context.findRenderObject() as RenderBox;
+    final target = box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
+    final selection = showGeneralDialog<Object?>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss group mode menu',
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 140),
+      pageBuilder: (dialogContext, _, __) {
+        const menuWidth = 280.0;
+        final screenSize = overlay.size;
+        final left = target.left.clamp(8.0, screenSize.width - menuWidth - 8.0);
+        final top = (target.bottom + 4).clamp(8.0, screenSize.height - 420.0);
+        return Stack(
+          children: [
+            Positioned(
+              left: left,
+              top: top,
+              width: menuWidth,
+              child: _GroupModeDropdownMenu(
+                type: type,
+                accent: accent,
+                selectedMode: groupMode,
+                categories: categories,
+                initialPinnedModes: pinnedGroupModes,
+                onTogglePin: onTogglePin,
+                sidebarVisible: sidebarVisible,
+                hasSidebarVisibilityToggle: onSidebarVisibilityChanged != null,
+              ),
+            ),
+          ],
+        );
+      },
+      transitionBuilder: (context, animation, _, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.97, end: 1).animate(curved),
+            alignment: Alignment.topLeft,
+            child: child,
+          ),
+        );
+      },
+    );
+    selection.then((value) {
+      if (value is LibraryGroupMode) {
+        onChanged(value);
+      } else if (value == _GroupModeMenuAction.toggleSidebar &&
+          onSidebarVisibilityChanged != null) {
+        onSidebarVisibilityChanged!(!sidebarVisible);
+      }
+    });
+  }
+}
+
 class _SidebarGroupDropdownHeader extends StatelessWidget {
   const _SidebarGroupDropdownHeader({
     required this.type,
@@ -205,6 +367,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     this.groupLoading = false,
     this.onClearFilter,
     this.onHideSidebar,
+    this.onSidebarVisibilityChanged,
     this.pinnedGroupModes = const {},
     this.onTogglePin,
   });
@@ -235,12 +398,12 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   final bool groupLoading;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
+  final ValueChanged<bool>? onSidebarVisibilityChanged;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePin;
 
   @override
   Widget build(BuildContext context) {
-    final label = genericGroupModeSidebarTitle(groupMode, type);
     final isRootScope = onClearFilter == null;
     final scopeLabel = breadcrumbs.isNotEmpty
         ? breadcrumbs.last
@@ -264,43 +427,17 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                       child: ConstrainedBox(
                         constraints:
                             BoxConstraints(maxWidth: constraints.maxWidth),
-                        child: Builder(
-                          builder: (menuContext) {
-                            return Tooltip(
-                              message: 'Group by',
-                              child: InkWell(
-                                onTap: () => _showGroupModeMenu(menuContext),
-                                borderRadius: BorderRadius.circular(4),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 2, vertical: 6),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(icon, size: 16, color: accent),
-                                      const SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          label,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w800,
-                                                color: accent,
-                                              ),
-                                        ),
-                                      ),
-                                      Icon(Icons.arrow_drop_down,
-                                          size: 18, color: accent),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
+                        child: LibraryGroupModeMenuButton(
+                          type: type,
+                          groupMode: groupMode,
+                          accent: accent,
+                          icon: icon,
+                          onChanged: onChanged,
+                          sidebarVisible: true,
+                          onSidebarVisibilityChanged:
+                              onSidebarVisibilityChanged,
+                          pinnedGroupModes: pinnedGroupModes,
+                          onTogglePin: onTogglePin,
                         ),
                       ),
                     );
@@ -377,19 +514,17 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 2),
                       child: index == breadcrumbs.length - 1
                           ? Text(
-                            breadcrumbs[index],
-                            style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                          )
+                              breadcrumbs[index],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            )
                           : ActionChip(
-                            label: Text(
-                            breadcrumbs[index],
-                            style: Theme.of(context)
-                              .textTheme
-                              .bodySmall,
-                            ),
+                              label: Text(
+                                breadcrumbs[index],
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
                               onPressed: onNavigateToBreadcrumb == null
                                   ? null
                                   : () => onNavigateToBreadcrumb!(index),
@@ -440,64 +575,6 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _showGroupModeMenu(BuildContext context) {
-    final modes = libraryGroupModesForType(type);
-    final categories = _categorizeGroupModes(modes);
-    final overlay = Overlay.of(context, rootOverlay: true).context
-        .findRenderObject() as RenderBox;
-    final box = context.findRenderObject() as RenderBox;
-    final target = box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
-    final selection = showGeneralDialog<LibraryGroupMode>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Dismiss group mode menu',
-      barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 140),
-      pageBuilder: (dialogContext, _, __) {
-        const menuWidth = 280.0;
-        final screenSize = overlay.size;
-        final left = target.left.clamp(8.0, screenSize.width - menuWidth - 8.0);
-        final top = (target.bottom + 4).clamp(8.0, screenSize.height - 420.0);
-        return Stack(
-          children: [
-            Positioned(
-              left: left,
-              top: top,
-              width: menuWidth,
-              child: _GroupModeDropdownMenu(
-                type: type,
-                accent: accent,
-                selectedMode: groupMode,
-                categories: categories,
-                initialPinnedModes: pinnedGroupModes,
-                onTogglePin: onTogglePin,
-              ),
-            ),
-          ],
-        );
-      },
-      transitionBuilder: (context, animation, _, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.97, end: 1).animate(curved),
-            alignment: Alignment.topLeft,
-            child: child,
-          ),
-        );
-      },
-    );
-    selection.then((value) {
-      if (value != null) {
-        onChanged(value);
-      }
-    });
   }
 
   static List<_GroupModeCategory> _categorizeGroupModes(
@@ -668,8 +745,7 @@ class _SidebarFilteringPanel extends StatelessWidget {
               onPressed: onClearFilters,
               style: TextButton.styleFrom(
                 visualDensity: VisualDensity.compact,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               ),
               child: const Text('Clear all'),
             ),
@@ -851,6 +927,8 @@ class _GroupModeDropdownMenu extends StatefulWidget {
     required this.selectedMode,
     required this.categories,
     required this.initialPinnedModes,
+    this.sidebarVisible = true,
+    this.hasSidebarVisibilityToggle = false,
     this.onTogglePin,
   });
 
@@ -859,6 +937,8 @@ class _GroupModeDropdownMenu extends StatefulWidget {
   final LibraryGroupMode selectedMode;
   final List<_GroupModeCategory> categories;
   final Set<LibraryGroupMode> initialPinnedModes;
+  final bool sidebarVisible;
+  final bool hasSidebarVisibilityToggle;
   final ValueChanged<LibraryGroupMode>? onTogglePin;
 
   @override
@@ -912,6 +992,20 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (widget.hasSidebarVisibilityToggle) ...[
+                  _buildActionItem(
+                    context,
+                    icon: widget.sidebarVisible
+                        ? Icons.folder_off_outlined
+                        : Icons.folder_open_outlined,
+                    label:
+                        widget.sidebarVisible ? 'No folders' : 'Show folders',
+                    onTap: () => Navigator.of(context).pop(
+                      _GroupModeMenuAction.toggleSidebar,
+                    ),
+                  ),
+                  const Divider(height: 1),
+                ],
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
                   child: Row(
@@ -919,9 +1013,10 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
                       Expanded(
                         child: Text(
                           'Manage Favorites',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
                         ),
                       ),
                       Icon(
@@ -1021,6 +1116,40 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
     );
   }
 
+  Widget _buildActionItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: palette.textMuted),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
     final palette = appPalette(context);
     final isPinned = _pinnedModes.contains(mode);
@@ -1049,7 +1178,8 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
                         style: TextStyle(
                           fontWeight:
                               isSelected ? FontWeight.w800 : FontWeight.w500,
-                          color: isSelected ? widget.accent : palette.textPrimary,
+                          color:
+                              isSelected ? widget.accent : palette.textPrimary,
                         ),
                       ),
                     ),
