@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -72,10 +74,12 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
       builder: (context, constraints) {
         final padding = widget.padding.resolve(Directionality.of(context));
         final gridWidth = constraints.maxWidth - padding.left - padding.right;
-        final crossAxisCount = ((gridWidth + widget.crossAxisSpacing) /
-                (widget.maxCrossAxisExtent + widget.crossAxisSpacing))
-            .ceil()
-            .clamp(1, widget.items.length);
+        final crossAxisCount = math.max(
+          1,
+          ((gridWidth + widget.crossAxisSpacing) /
+                  (widget.maxCrossAxisExtent + widget.crossAxisSpacing))
+              .ceil(),
+        );
         final tileWidth =
             (gridWidth - ((crossAxisCount - 1) * widget.crossAxisSpacing)) /
                 crossAxisCount;
