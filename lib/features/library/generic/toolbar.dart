@@ -220,8 +220,7 @@ class LibraryToolbar extends StatelessWidget {
               }
 
               final showChromeRow = onCollectionStatusScopeChanged != null;
-              final showAlphabetRow =
-                  availableLetters.isNotEmpty && onLetterSelected != null;
+              final showAlphabetRow = onLetterSelected != null;
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
@@ -252,18 +251,52 @@ class LibraryToolbar extends StatelessWidget {
                         ],
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: LibraryToolbarSearch(
-                              controller: searchController,
-                              hintText:
-                                  'Search ${type.pluralLabel.toLowerCase()}...',
-                              selectedFilterLabel: selectedBucket,
-                              onSearch: onSearchChanged,
-                              onClearFilter: onClearBucket,
-                              onChanged: onSearchChanged,
-                              selectionColor: palette.selection,
-                            ),
+                          child: Row(
+                            children: [
+                              if (showAlphabetRow)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 520,
+                                        ),
+                                        child: _ToolbarAlphabetRow(
+                                          letters: availableLetters,
+                                          selectedLetter: selectedLetter,
+                                          onLetterSelected: onLetterSelected!,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Spacer(),
+                              Flexible(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 760,
+                                    ),
+                                    child: LibraryToolbarSearch(
+                                      controller: searchController,
+                                      hintText:
+                                          'Search ${type.pluralLabel.toLowerCase()}...',
+                                      selectedFilterLabel: selectedBucket,
+                                      onSearch: onSearchChanged,
+                                      onClearFilter: onClearBucket,
+                                      onChanged: onSearchChanged,
+                                      selectionColor: palette.selection,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -309,14 +342,6 @@ class LibraryToolbar extends StatelessWidget {
                     _SelectionToolbarBand(
                       selectedCount: selectedCount,
                       callbacks: selectionCallbacks!,
-                    ),
-                  ],
-                  if (showAlphabetRow) ...[
-                    const _ToolbarDividerLine(),
-                    _ToolbarAlphabetRow(
-                      letters: availableLetters,
-                      selectedLetter: selectedLetter,
-                      onLetterSelected: onLetterSelected!,
                     ),
                   ],
                 ],
@@ -411,6 +436,26 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Row(
           children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  if (onEditSort != null) ...[
+                    _ToolbarSortButton(
+                      onPressed: onEditSort!,
+                      sortFavorites: sortFavorites,
+                      activeSortFavoriteId: activeSortFavoriteId,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  LibraryViewModeDropdown(
+                    viewMode: viewState.viewMode,
+                    onChanged: onViewModeChanged,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
             LibraryWorkspaceControlStrip(
               children: [
                 _ItemCountLabel(
@@ -425,16 +470,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     totalSellCents: counts.totalSellPriceCents,
                     currency: counts.priceCurrency,
                   ),
-                if (onEditSort != null)
-                  _ToolbarSortButton(
-                    onPressed: onEditSort!,
-                    sortFavorites: sortFavorites,
-                    activeSortFavoriteId: activeSortFavoriteId,
-                  ),
-                LibraryViewModeDropdown(
-                  viewMode: viewState.viewMode,
-                  onChanged: onViewModeChanged,
-                ),
                 LibraryDetailsLayoutDropdown(
                   detailsLayout: viewState.detailsLayout,
                   onChanged: onDetailsLayoutChanged,
@@ -1244,40 +1279,101 @@ class _ToolbarAlphabetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sortedLetters = letters.toList()..sort();
+    final palette = appPalette(context);
+    final availableLetters = letters
+        .map((letter) => letter.trim().toUpperCase())
+        .where((letter) => letter.length == 1)
+        .toSet();
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    Widget buildLetterButton({
+      required String label,
+      required bool selected,
+      required bool enabled,
+      required VoidCallback? onTap,
+    }) {
+      final foreground = selected
+          ? Colors.white
+          : enabled
+              ? palette.textPrimary
+              : palette.textMuted.withValues(alpha: 0.38);
+      final background = selected
+          ? palette.selection
+          : enabled
+              ? palette.surfaceSubtle.withValues(alpha: 0.42)
+              : Colors.transparent;
+      final borderColor = selected
+          ? palette.selection.withValues(alpha: 0.9)
+          : enabled
+              ? palette.divider.withValues(alpha: 0.7)
+              : palette.divider.withValues(alpha: 0.24);
+
+      return Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: Material(
+          color: background,
+          borderRadius: BorderRadius.circular(6),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              constraints: BoxConstraints(
+                minWidth: label == 'All' ? 34 : 22,
+                minHeight: 24,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: label == 'All' ? 8 : 0,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: borderColor),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                  color: foreground,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
       width: double.infinity,
-      height: 38,
+      height: 28,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            FilterChip(
-              label: const Text('All'),
+            buildLetterButton(
+              label: 'All',
               selected: selectedLetter == null,
-              onSelected: (_) => onLetterSelected(null),
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              enabled: true,
+              onTap: () => onLetterSelected(null),
             ),
-            const SizedBox(width: 6),
-            for (final letter in sortedLetters) ...[
-              FilterChip(
-                label: Text(letter),
+            for (final letter in alphabet.split(''))
+              buildLetterButton(
+                label: letter,
                 selected: selectedLetter == letter,
-                onSelected: (_) =>
-                    onLetterSelected(selectedLetter == letter ? null : letter),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                enabled: availableLetters.contains(letter),
+                onTap: availableLetters.contains(letter)
+                    ? () => onLetterSelected(
+                          selectedLetter == letter ? null : letter,
+                        )
+                    : null,
               ),
-              const SizedBox(width: 6),
-            ],
           ],
         ),
       ),
     );
   }
 }
-
 
 class _InlineIssueJumpField extends StatefulWidget {
   const _InlineIssueJumpField({required this.onSubmitted});
@@ -1327,7 +1423,6 @@ class _InlineIssueJumpFieldState extends State<_InlineIssueJumpField> {
     );
   }
 }
-
 
 void _showCompactCoverSizeSheet(
   BuildContext context,
@@ -1525,9 +1620,7 @@ class _CollectionValueChip extends StatelessWidget {
               _fmt(
                 totalPaidCents > 0
                     ? totalPaidCents
-                    : (totalCoverCents > 0
-                        ? totalCoverCents
-                        : totalSellCents),
+                    : (totalCoverCents > 0 ? totalCoverCents : totalSellCents),
               ),
               style: TextStyle(
                 fontSize: 11,
