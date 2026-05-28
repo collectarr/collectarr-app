@@ -1,7 +1,11 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
+const _viewModeDropdownWidth = 168.0;
+const _viewModeDropdownHeight = 36.0;
 
 class LibraryViewControls extends StatelessWidget {
   const LibraryViewControls({
@@ -27,6 +31,8 @@ class LibraryViewControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context, fallback: palette.accent);
     final coverSizeEnabled = viewMode.supportsCoverSize;
     final iconColor = coverSizeEnabled
         ? Theme.of(context).colorScheme.onSurfaceVariant
@@ -35,43 +41,99 @@ class LibraryViewControls extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: 168,
+          width: _viewModeDropdownWidth,
           child: PopupMenuButton<LibraryViewMode>(
             key: _viewModeDropdownKey,
             tooltip: 'View mode',
             initialValue: viewMode,
             onSelected: onViewModeChanged,
+            padding: EdgeInsets.zero,
+            color: palette.panelRaised,
+            surfaceTintColor: Colors.transparent,
+            menuPadding: const EdgeInsets.symmetric(vertical: 4),
+            position: PopupMenuPosition.under,
+            constraints: const BoxConstraints(
+              minWidth: _viewModeDropdownWidth,
+              maxWidth: _viewModeDropdownWidth,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(color: accent.withValues(alpha: 0.26)),
+            ),
             itemBuilder: (context) => [
               for (final mode in LibraryViewMode.values)
                 PopupMenuItem<LibraryViewMode>(
+                  height: _viewModeDropdownHeight,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   value: mode,
-                  child: Row(
-                    children: [
-                      Icon(_viewModeIcon(mode), size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(_viewModeLabel(mode))),
-                      if (mode == viewMode)
-                        const Icon(Icons.check, size: 18),
-                    ],
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      children: [
+                        Icon(
+                          _viewModeIcon(mode),
+                          size: 17,
+                          color: mode == viewMode
+                              ? accent
+                              : palette.textMuted,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _viewModeLabel(mode),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  height: 1,
+                                  fontWeight: mode == viewMode
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: mode == viewMode
+                                      ? accent
+                                      : palette.textPrimary,
+                                ),
+                          ),
+                        ),
+                        if (mode == viewMode)
+                          Icon(Icons.check, size: 16, color: accent),
+                      ],
+                    ),
                   ),
                 ),
             ],
-            child: InputDecorator(
-              decoration: const InputDecoration(
-                labelText: 'View',
-                isDense: true,
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: accent.withValues(alpha: 0.42)),
               ),
-              child: Row(
-                children: [
-                  Icon(_viewModeIcon(viewMode), size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_viewModeLabel(viewMode))),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_drop_down),
-                ],
+              child: SizedBox(
+                height: _viewModeDropdownHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    children: [
+                      Icon(_viewModeIcon(viewMode), size: 17, color: accent),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _viewModeLabel(viewMode),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    height: 1,
+                                    fontWeight: FontWeight.w700,
+                                    color: accent,
+                                  ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(Icons.arrow_drop_down, size: 20, color: accent),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
