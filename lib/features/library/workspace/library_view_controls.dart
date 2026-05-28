@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const _viewModeDropdownKey = Key('library-view-mode-dropdown');
+
 class LibraryViewControls extends StatelessWidget {
   const LibraryViewControls({
     super.key,
@@ -32,47 +34,47 @@ class LibraryViewControls extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SegmentedButton<LibraryViewMode>(
-          segments: const [
-            ButtonSegment(
-              value: LibraryViewMode.grid,
-              icon: Tooltip(
-                message: 'Grid view',
-                child: Icon(Icons.grid_view),
+        SizedBox(
+          width: 168,
+          child: PopupMenuButton<LibraryViewMode>(
+            key: _viewModeDropdownKey,
+            tooltip: 'View mode',
+            initialValue: viewMode,
+            onSelected: onViewModeChanged,
+            itemBuilder: (context) => [
+              for (final mode in LibraryViewMode.values)
+                PopupMenuItem<LibraryViewMode>(
+                  value: mode,
+                  child: Row(
+                    children: [
+                      Icon(_viewModeIcon(mode), size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(_viewModeLabel(mode))),
+                      if (mode == viewMode)
+                        const Icon(Icons.check, size: 18),
+                    ],
+                  ),
+                ),
+            ],
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'View',
+                isDense: true,
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              child: Row(
+                children: [
+                  Icon(_viewModeIcon(viewMode), size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_viewModeLabel(viewMode))),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_drop_down),
+                ],
               ),
             ),
-            ButtonSegment(
-              value: LibraryViewMode.card,
-              icon: Tooltip(
-                message: 'Cards view',
-                child: Icon(Icons.view_module),
-              ),
-            ),
-            ButtonSegment(
-              value: LibraryViewMode.cardFlow,
-              icon: Tooltip(
-                message: 'Flow view',
-                child: Icon(Icons.view_agenda),
-              ),
-            ),
-            ButtonSegment(
-              value: LibraryViewMode.list,
-              icon: Tooltip(
-                message: 'List view',
-                child: Icon(Icons.view_list),
-              ),
-            ),
-            ButtonSegment(
-              value: LibraryViewMode.shelves,
-              icon: Tooltip(
-                message: 'Shelves view',
-                child: Icon(Icons.shelves),
-              ),
-            ),
-          ],
-          selected: {viewMode},
-          onSelectionChanged: (selection) => onViewModeChanged(selection.first),
-          showSelectedIcon: false,
+          ),
         ),
         const SizedBox(width: 8),
         SegmentedButton<LibraryDetailsLayout>(
@@ -142,4 +144,24 @@ class LibraryViewControls extends StatelessWidget {
       ],
     );
   }
+}
+
+String _viewModeLabel(LibraryViewMode mode) {
+  return switch (mode) {
+    LibraryViewMode.grid => 'Grid',
+    LibraryViewMode.card => 'Cards',
+    LibraryViewMode.cardFlow => 'Flow',
+    LibraryViewMode.list => 'List',
+    LibraryViewMode.shelves => 'Shelves',
+  };
+}
+
+IconData _viewModeIcon(LibraryViewMode mode) {
+  return switch (mode) {
+    LibraryViewMode.grid => Icons.grid_view,
+    LibraryViewMode.card => Icons.view_module,
+    LibraryViewMode.cardFlow => Icons.view_agenda,
+    LibraryViewMode.list => Icons.view_list,
+    LibraryViewMode.shelves => Icons.shelves,
+  };
 }
