@@ -1033,8 +1033,6 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
   final ValueChanged<LibraryCollectionStatusScope>
       onCollectionStatusScopeChanged;
 
-  static const double _statusScopeDropdownHeight = 36;
-
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
@@ -1042,7 +1040,7 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: palette.textPrimary,
         );
     final dropdownWidth = _measureDropdownWidth(
       context,
@@ -1070,15 +1068,12 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
           minWidth: 0,
           maxWidth: double.infinity,
         ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-          side: BorderSide(color: palette.divider),
-        ),
+        shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
           for (final scope in LibraryCollectionStatusScope.values)
             PopupMenuItem<LibraryCollectionStatusScope>(
               value: scope,
-              height: _statusScopeDropdownHeight,
+              height: kLibraryToolbarTextDropdownHeight,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: _CollectionStatusScopeMenuItem(
                 scope: scope,
@@ -1090,19 +1085,9 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
             ),
         ],
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.panelRaised,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: _collectionStatusScopeColor(
-                collectionStatusScope,
-                accent,
-                palette.textMuted,
-              ).withValues(alpha: 0.45),
-            ),
-          ),
+          decoration: libraryToolbarDropdownDecoration(context),
           child: SizedBox(
-            height: _statusScopeDropdownHeight,
+            height: kLibraryToolbarTextDropdownHeight,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
@@ -1122,10 +1107,10 @@ class _CollectionStatusScopeDropdown extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Icon(
+                  Icon(
                     Icons.arrow_drop_down,
                     size: 18,
-                    color: Colors.white,
+                    color: palette.textMuted,
                   ),
                 ],
               ),

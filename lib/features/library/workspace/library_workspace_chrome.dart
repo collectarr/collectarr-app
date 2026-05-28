@@ -7,6 +7,37 @@ import 'library_pane_widths.dart';
 import 'library_resizable_pane.dart';
 import 'library_workspace_config.dart';
 
+const kLibraryToolbarCompactDropdownSize = 30.0;
+const kLibraryToolbarTextDropdownHeight = 36.0;
+
+BoxDecoration libraryToolbarDropdownDecoration(
+  BuildContext context, {
+  Color? backgroundColor,
+  Color? borderColor,
+}) {
+  final palette = appPalette(context);
+  return BoxDecoration(
+    color: backgroundColor ?? palette.surfaceSubtle.withValues(alpha: 0.24),
+    borderRadius: BorderRadius.circular(6),
+    border: Border.all(
+      color: borderColor ?? palette.divider.withValues(alpha: 0.7),
+    ),
+  );
+}
+
+RoundedRectangleBorder libraryToolbarDropdownMenuShape(
+  BuildContext context, {
+  Color? borderColor,
+}) {
+  final palette = appPalette(context);
+  return RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(6),
+    side: BorderSide(
+      color: borderColor ?? palette.divider.withValues(alpha: 0.7),
+    ),
+  );
+}
+
 class LibraryToolbarFrame extends StatelessWidget {
   const LibraryToolbarFrame({
     super.key,
@@ -145,30 +176,31 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final useFab = ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
+    final useFab =
+        ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     final showTrailingActions = onRandomPick != null;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (!useFab) ...[
-        SizedBox(
-          height: 30,
-          child: FilledButton.icon(
-            onPressed: onAdd,
-            style: FilledButton.styleFrom(
-              backgroundColor: addBackgroundColor,
-              foregroundColor: addForegroundColor,
-              padding: const EdgeInsets.symmetric(horizontal: 9),
-              textStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
+          SizedBox(
+            height: 30,
+            child: FilledButton.icon(
+              onPressed: onAdd,
+              style: FilledButton.styleFrom(
+                backgroundColor: addBackgroundColor,
+                foregroundColor: addForegroundColor,
+                padding: const EdgeInsets.symmetric(horizontal: 9),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
+              icon: const Icon(Icons.add, size: 17),
+              label: Text(addLabel),
             ),
-            icon: const Icon(Icons.add, size: 17),
-            label: Text(addLabel),
           ),
-        ),
-        if (showTrailingActions) const SizedBox(width: 6),
+          if (showTrailingActions) const SizedBox(width: 6),
         ],
         if (onRandomPick != null)
           Tooltip(
@@ -222,8 +254,8 @@ class LibraryToolbarSearch extends StatelessWidget {
     );
     return LayoutBuilder(
       builder: (context, constraints) {
-        final showFilterChip = selectedFilterLabel != null &&
-            constraints.maxWidth >= 340;
+        final showFilterChip =
+            selectedFilterLabel != null && constraints.maxWidth >= 340;
         return Row(
           mainAxisSize: MainAxisSize.max,
           children: [

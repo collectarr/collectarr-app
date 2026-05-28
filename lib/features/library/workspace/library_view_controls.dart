@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,6 @@ import 'package:flutter/material.dart';
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
 const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
 const _viewModeDropdownHeight = 36.0;
-const _compactDropdownTriggerWidth = 30.0;
-const _compactDropdownTriggerHeight = 30.0;
 
 class LibraryViewModeDropdown extends StatelessWidget {
   const LibraryViewModeDropdown({
@@ -22,7 +21,8 @@ class LibraryViewModeDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = LibraryAccentScope.accentOf(context, fallback: palette.accent);
+    final accent =
+        LibraryAccentScope.accentOf(context, fallback: palette.accent);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
@@ -33,7 +33,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
       textStyle: dropdownTextStyle,
     );
     return SizedBox(
-      width: _compactDropdownTriggerWidth,
+      width: kLibraryToolbarCompactDropdownSize,
       child: PopupMenuButton<LibraryViewMode>(
         key: _viewModeDropdownKey,
         tooltip: _viewModeTooltip(viewMode),
@@ -48,10 +48,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
           minWidth: 0,
           maxWidth: double.infinity,
         ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-          side: BorderSide(color: accent.withValues(alpha: 0.26)),
-        ),
+        shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
           for (final mode in LibraryViewMode.values)
             PopupMenuItem<LibraryViewMode>(
@@ -92,14 +89,10 @@ class LibraryViewModeDropdown extends StatelessWidget {
             ),
         ],
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.surfaceSubtle.withValues(alpha: 0.24),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
-          ),
+          decoration: libraryToolbarDropdownDecoration(context),
           child: SizedBox(
-            width: _compactDropdownTriggerWidth,
-            height: _compactDropdownTriggerHeight,
+            width: kLibraryToolbarCompactDropdownSize,
+            height: kLibraryToolbarCompactDropdownSize,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -139,7 +132,8 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = LibraryAccentScope.accentOf(context, fallback: palette.accent);
+    final accent =
+        LibraryAccentScope.accentOf(context, fallback: palette.accent);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
@@ -150,7 +144,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       textStyle: dropdownTextStyle,
     );
     return SizedBox(
-      width: _compactDropdownTriggerWidth,
+      width: kLibraryToolbarCompactDropdownSize,
       child: PopupMenuButton<LibraryDetailsLayout>(
         key: _detailsLayoutDropdownKey,
         tooltip: _detailsLayoutTooltip(detailsLayout),
@@ -168,10 +162,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
           minWidth: detailsMenuWidth,
           maxWidth: detailsMenuWidth,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-          side: BorderSide(color: accent.withValues(alpha: 0.26)),
-        ),
+        shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
           for (final layout in LibraryDetailsLayout.values)
             PopupMenuItem<LibraryDetailsLayout>(
@@ -213,29 +204,25 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
             ),
         ],
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: accent.withValues(alpha: 0.42)),
-          ),
+          decoration: libraryToolbarDropdownDecoration(context),
           child: SizedBox(
-            width: _compactDropdownTriggerWidth,
-            height: _viewModeDropdownHeight,
+            width: kLibraryToolbarCompactDropdownSize,
+            height: kLibraryToolbarCompactDropdownSize,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 Icon(
                   _detailsLayoutIcon(detailsLayout),
-                  size: 18,
-                  color: accent,
+                  size: 17,
+                  color: palette.textPrimary,
                 ),
                 Positioned(
-                  right: 2,
-                  bottom: 2,
+                  right: 1,
+                  bottom: 1,
                   child: Icon(
                     Icons.arrow_drop_down,
-                    size: 16,
-                    color: accent,
+                    size: 14,
+                    color: palette.textMuted,
                   ),
                 ),
               ],

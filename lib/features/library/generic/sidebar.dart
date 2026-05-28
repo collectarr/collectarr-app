@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
 
@@ -215,16 +216,10 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
     final label = genericGroupModeSidebarTitle(groupMode, type);
     final child = iconOnly
         ? DecoratedBox(
-            decoration: BoxDecoration(
-              color: palette.surfaceSubtle.withValues(alpha: 0.24),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: palette.divider.withValues(alpha: 0.7),
-              ),
-            ),
+            decoration: libraryToolbarDropdownDecoration(context),
             child: SizedBox(
-              width: 30,
-              height: 30,
+              width: kLibraryToolbarCompactDropdownSize,
+              height: kLibraryToolbarCompactDropdownSize,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
