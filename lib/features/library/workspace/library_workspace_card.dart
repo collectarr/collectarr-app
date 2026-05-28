@@ -40,8 +40,17 @@ class LibraryWorkspaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final resolvedSelectedColor = selectedColor == kAppSelection
+        ? palette.selection
+        : selectedColor;
     final resolvedMutedTextColor =
         mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
+    final selectedTitleColor = ThemeData.estimateBrightnessForColor(
+              resolvedSelectedColor,
+            ) ==
+            Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: entry.mediaType,
       editions: entry.editions,
@@ -54,7 +63,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? selectedColor : palette.cardBackground,
+        color: selected ? resolvedSelectedColor : palette.cardBackground,
         border: Border.all(
           color: selected ? accentColor : palette.cardBorder,
           width: selected ? 2 : 1,
@@ -128,7 +137,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   .titleSmall
                                   ?.copyWith(
                                     color: selected
-                                        ? Colors.white
+                                        ? selectedTitleColor
                                         : (palette.isDark
                                             ? kAppAccentLight
                                             : accentColor),

@@ -48,25 +48,27 @@ class LibraryAlphaJumpBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       height: 26,
       decoration: BoxDecoration(
-        color: kAppPanel,
+        color: palette.panel,
         border: Border(
-          bottom: BorderSide(color: kAppDivider),
+          bottom: BorderSide(color: palette.divider),
         ),
       ),
       child: Row(
         children: [
           const SizedBox(width: 6),
-          for (final letter in _letters) _buildLetterChip(letter),
+          for (final letter in _letters) _buildLetterChip(context, letter),
           const SizedBox(width: 6),
         ],
       ),
     );
   }
 
-  Widget _buildLetterChip(String letter) {
+  Widget _buildLetterChip(BuildContext context, String letter) {
+    final palette = appPalette(context);
     final isAll = letter == 'All';
     final isSelected = isAll
         ? selectedLetter == null
@@ -96,10 +98,10 @@ class LibraryAlphaJumpBar extends StatelessWidget {
               fontSize: isAll ? 10 : 11,
               fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               color: isSelected
-                  ? Colors.white
+                  ? accent
                   : isAvailable
-                      ? Colors.white60
-                      : Colors.white12,
+                      ? palette.textMuted.withValues(alpha: 0.85)
+                      : palette.textMuted.withValues(alpha: 0.35),
               letterSpacing: 0.5,
             ),
           ),

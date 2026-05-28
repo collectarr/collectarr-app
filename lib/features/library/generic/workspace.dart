@@ -164,10 +164,10 @@ class LibraryWorkspace extends ConsumerWidget {
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
-              selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+              selectedColor: palette.selection,
               accentColor: accent,
               selectionColor: accent,
-              mutedTextColor: kAppTextMuted,
+              mutedTextColor: palette.textMuted,
             ),
           ),
         LibraryViewMode.card => _GroupedGrid(
@@ -192,9 +192,9 @@ class LibraryWorkspace extends ConsumerWidget {
                   : (d) => onItemContextMenu!(item, d.globalPosition),
               dateFormatter: formatDate,
               moneyFormatter: formatMoney,
-              selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+              selectedColor: palette.selection,
               accentColor: accent,
-              mutedTextColor: kAppTextMuted,
+              mutedTextColor: palette.textMuted,
               coverWidth: cardCoverWidth,
             ),
           ),
@@ -239,7 +239,7 @@ class LibraryWorkspace extends ConsumerWidget {
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
-            selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+            selectedColor: palette.selection,
             accentColor: accent,
             selectionColor: accent,
             mutedTextColor: palette.textMuted,
@@ -269,7 +269,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             dateFormatter: formatDate,
             moneyFormatter: formatMoney,
-            selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+            selectedColor: palette.selection,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
             coverWidth: cardCoverWidth,

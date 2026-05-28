@@ -42,6 +42,18 @@ class LibraryCardFlowTile extends StatelessWidget {
       entry.mediaType,
     );
     final theme = Theme.of(context);
+    final palette = appPalette(context);
+    final resolvedSelectedColor = selectedColor == kAppSelection
+        ? palette.selection
+        : selectedColor;
+    final resolvedMutedTextColor =
+        mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
+    final selectedTitleColor = ThemeData.estimateBrightnessForColor(
+              resolvedSelectedColor,
+            ) ==
+            Brightness.dark
+        ? Colors.white
+        : theme.colorScheme.onSurface;
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: entry.mediaType,
       editions: entry.editions,
@@ -54,9 +66,9 @@ class LibraryCardFlowTile extends StatelessWidget {
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? selectedColor : kAppCardBackground,
+        color: selected ? resolvedSelectedColor : palette.cardBackground,
         border: Border.all(
-          color: selected ? accentColor : kAppCardBorder,
+          color: selected ? accentColor : palette.cardBorder,
           width: selected ? 2 : 1,
         ),
         borderRadius: kAppRadiusMedium,
@@ -130,7 +142,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.titleSmall?.copyWith(
                                 color: selected
-                                    ? Colors.white
+                                    ? selectedTitleColor
                                     : kAppAccentLight,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 14,
@@ -175,7 +187,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: mutedTextColor,
+                          color: resolvedMutedTextColor,
                           fontSize: 12,
                         ),
                       ),
@@ -310,7 +322,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: mutedTextColor.withValues(alpha: 0.7),
+                            color: resolvedMutedTextColor.withValues(alpha: 0.7),
                             fontSize: 11,
                             height: 1.4,
                           ),

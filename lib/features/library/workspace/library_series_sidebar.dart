@@ -107,9 +107,28 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final filtered = _filteredSorted;
+    final resolvedBackgroundColor = widget.backgroundColor == kAppPanel
+      ? palette.panel
+      : widget.backgroundColor;
+    final resolvedHeaderColor = widget.headerColor == kAppSurface
+      ? palette.surface
+      : widget.headerColor;
+    final resolvedDividerColor = widget.dividerColor == kAppDivider
+      ? palette.divider
+      : widget.dividerColor;
+    final resolvedSelectionColor = widget.selectionColor == kAppSelection
+      ? palette.selection
+      : widget.selectionColor;
+    final resolvedBadgeColor = widget.badgeColor == kAppBadgeBackground
+      ? palette.badgeBackground
+      : widget.badgeColor;
+    final resolvedMutedTextColor = widget.mutedTextColor == kAppTextMuted
+      ? palette.textMuted
+      : widget.mutedTextColor;
     return DecoratedBox(
-      decoration: BoxDecoration(color: widget.backgroundColor),
+      decoration: BoxDecoration(color: resolvedBackgroundColor),
       child: Column(
         children: [
           widget.headerOverride ??
@@ -118,9 +137,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: widget.headerColor,
+                  color: resolvedHeaderColor,
                   border:
-                      Border(bottom: BorderSide(color: widget.dividerColor)),
+                      Border(bottom: BorderSide(color: resolvedDividerColor)),
                 ),
                 child: Row(
                   children: [
@@ -144,7 +163,8 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
           _SidebarSearchAndSort(
             controller: _searchController,
             sortMode: _sortMode,
-            dividerColor: widget.dividerColor,
+            dividerColor: resolvedDividerColor,
+            mutedTextColor: resolvedMutedTextColor,
             onChanged: () => setState(() {}),
             onToggleSort: () => setState(() {
               _sortMode = _sortMode == _SidebarSortMode.alphabetical
@@ -165,10 +185,10 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                   bucket: bucket,
                   selected: selected,
                   onTap: () => widget.onSelectSeries(bucket.title),
-                  selectionColor: widget.selectionColor,
+                  selectionColor: resolvedSelectionColor,
                   selectedBadgeColor: widget.selectedBadgeColor,
-                  badgeColor: widget.badgeColor,
-                  mutedTextColor: widget.mutedTextColor,
+                  badgeColor: resolvedBadgeColor,
+                  mutedTextColor: resolvedMutedTextColor,
                   extraVerticalPadding: rowPadding,
                 );
               },
@@ -185,6 +205,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
     required this.controller,
     required this.sortMode,
     required this.dividerColor,
+    required this.mutedTextColor,
     required this.onChanged,
     required this.onToggleSort,
   });
@@ -192,6 +213,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
   final TextEditingController controller;
   final _SidebarSortMode sortMode;
   final Color dividerColor;
+  final Color mutedTextColor;
   final VoidCallback onChanged;
   final VoidCallback onToggleSort;
 
@@ -214,10 +236,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
                 style: const TextStyle(fontSize: 12),
                 decoration: InputDecoration(
                   hintText: 'Filter…',
-                  hintStyle:
-                      const TextStyle(fontSize: 12, color: kAppTextMuted),
-                  prefixIcon:
-                      const Icon(Icons.search, size: 14, color: kAppTextMuted),
+                  hintStyle: TextStyle(fontSize: 12, color: mutedTextColor),
+                  prefixIcon: Icon(Icons.search, size: 14, color: mutedTextColor),
                   prefixIconConstraints:
                       const BoxConstraints(minWidth: 28, maxHeight: 26),
                   suffixIcon: controller.text.isNotEmpty
@@ -226,8 +246,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                             controller.clear();
                             onChanged();
                           },
-                          child: const Icon(Icons.close, size: 14,
-                              color: kAppTextMuted),
+                      child: Icon(Icons.close, size: 14, color: mutedTextColor),
                         )
                       : null,
                   suffixIconConstraints:
@@ -254,7 +273,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                       ? Icons.sort_by_alpha
                       : Icons.tag,
                   size: 16,
-                  color: kAppTextMuted,
+                  color: mutedTextColor,
                 ),
               ),
             ),
@@ -288,6 +307,17 @@ class _LibrarySeriesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedTextColor =
+        ThemeData.estimateBrightnessForColor(selectionColor) == Brightness.dark
+            ? Colors.white
+            : Theme.of(context).colorScheme.onSurface;
+    final selectedMutedTextColor = selectedTextColor.withValues(alpha: 0.72);
+    final selectedBadgeTextColor = ThemeData.estimateBrightnessForColor(
+              selectedBadgeColor,
+            ) ==
+            Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
     final owned = bucket.ownedCount;
     final total = bucket.count;
@@ -345,7 +375,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: selected ? Colors.white : mutedTextColor,
+                          color: selected ? selectedTextColor : mutedTextColor,
                               fontWeight:
                                   selected ? FontWeight.w800 : FontWeight.w500,
                             ),
@@ -356,7 +386,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                           maxLines: 1,
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: selected
-                                    ? Colors.white70
+                                    ? selectedMutedTextColor
                                     : mutedTextColor.withValues(alpha: 0.6),
                                 fontSize: 10,
                               ),
@@ -377,7 +407,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                 Badge(
                   label: Text(owned != null ? '$owned' : total.toString()),
                   backgroundColor: selected ? selectedBadgeColor : badgeColor,
-                  textColor: selected ? kAppSurfaceDim : Colors.white,
+                  textColor: selected ? selectedBadgeTextColor : Colors.white,
                 ),
               ],
             ),
@@ -419,6 +449,7 @@ class _SeriesCompletionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final barColor = percent >= 100
         ? const Color(0xFF4CAF50)
         : selected
@@ -430,7 +461,7 @@ class _SeriesCompletionBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(2),
         child: LinearProgressIndicator(
           value: percent / 100,
-          backgroundColor: kAppDivider,
+          backgroundColor: palette.divider,
           valueColor: AlwaysStoppedAnimation(barColor),
           minHeight: 4,
         ),

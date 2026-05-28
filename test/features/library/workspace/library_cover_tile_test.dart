@@ -36,7 +36,7 @@ void main() {
     await tester.tap(find.text('Superman, Vol. 4 #8A'));
 
     expect(tapped, isTrue);
-    expect(find.byIcon(Icons.inventory_2), findsOneWidget);
+    expect(find.byIcon(Icons.check_box), findsOneWidget);
     expect(find.byIcon(Icons.star), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
   });
