@@ -749,7 +749,7 @@ class _ToolbarChromeRow extends StatelessWidget {
   final VoidCallback onManageColumns;
   final bool canJumpToIssue;
   final ValueChanged<String>? onJumpToIssueSubmitted;
-  static const double _statusScopeDropdownWidth = 176;
+  static const double _statusScopeDropdownWidth = 164;
   static const double _statusScopeDropdownHeight = 36;
 
   @override
