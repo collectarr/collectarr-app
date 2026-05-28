@@ -29,6 +29,7 @@ class InspectorHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -103,12 +104,18 @@ class InspectorHero extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xD70A0A0A),
+                Color.alphaBlend(
+                  accent.withValues(alpha: 0.08),
+                  palette.surface.withValues(alpha: 0.94),
+                ),
                 Color.alphaBlend(
                   accent.withValues(alpha: 0.18),
-                  const Color(0xB3132830),
+                  palette.cardBackground.withValues(alpha: 0.96),
                 ),
-                const Color(0xE80A0A0A),
+                Color.alphaBlend(
+                  accent.withValues(alpha: 0.1),
+                  palette.surfaceSubtle.withValues(alpha: 0.98),
+                ),
               ],
             ),
           ),

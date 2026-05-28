@@ -18,6 +18,7 @@ class InspectorBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return Stack(
       fit: StackFit.expand,
@@ -31,28 +32,28 @@ class InspectorBackdrop extends StatelessWidget {
             ownedItemId: ownedItemId,
           ),
         ),
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0x66111111),
-                Color(0xE0121212),
-                Color(0xFA111111),
+                palette.surface.withValues(alpha: 0.4),
+                palette.panel.withValues(alpha: 0.82),
+                palette.panel.withValues(alpha: 0.94),
               ],
             ),
           ),
         ),
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                Color(0xF0101010),
-                Color(0xC0101010),
-                Color(0xE8101010),
+                palette.panel.withValues(alpha: 0.94),
+                palette.surfaceSubtle.withValues(alpha: 0.72),
+                palette.panel.withValues(alpha: 0.9),
               ],
             ),
           ),
