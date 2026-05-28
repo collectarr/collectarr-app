@@ -92,9 +92,9 @@ class LibraryViewModeDropdown extends StatelessWidget {
         ],
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.12),
+            color: palette.surfaceSubtle.withValues(alpha: 0.24),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: accent.withValues(alpha: 0.42)),
+            border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
           ),
           child: SizedBox(
             width: _compactDropdownTriggerWidth,
@@ -102,14 +102,18 @@ class LibraryViewModeDropdown extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(_viewModeIcon(viewMode), size: 18, color: accent),
+                Icon(
+                  _viewModeIcon(viewMode),
+                  size: 18,
+                  color: palette.textPrimary,
+                ),
                 Positioned(
                   right: 2,
                   bottom: 2,
                   child: Icon(
                     Icons.arrow_drop_down,
                     size: 16,
-                    color: accent,
+                    color: palette.textMuted,
                   ),
                 ),
               ],

@@ -440,18 +440,18 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
+                  LibraryViewModeDropdown(
+                    viewMode: viewState.viewMode,
+                    onChanged: onViewModeChanged,
+                  ),
+                  if (onEditSort != null) const SizedBox(width: 6),
                   if (onEditSort != null) ...[
                     _ToolbarSortButton(
                       onPressed: onEditSort!,
                       sortFavorites: sortFavorites,
                       activeSortFavoriteId: activeSortFavoriteId,
                     ),
-                    const SizedBox(width: 6),
                   ],
-                  LibraryViewModeDropdown(
-                    viewMode: viewState.viewMode,
-                    onChanged: onViewModeChanged,
-                  ),
                 ],
               ),
             ),
