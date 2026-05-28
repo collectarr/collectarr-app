@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
 const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
 const _viewModeDropdownHeight = 36.0;
-const _compactDropdownTriggerWidth = 44.0;
+const _compactDropdownTriggerWidth = 30.0;
+const _compactDropdownTriggerHeight = 30.0;
 
 class LibraryViewModeDropdown extends StatelessWidget {
   const LibraryViewModeDropdown({
@@ -98,21 +99,21 @@ class LibraryViewModeDropdown extends StatelessWidget {
           ),
           child: SizedBox(
             width: _compactDropdownTriggerWidth,
-            height: _viewModeDropdownHeight,
+            height: _compactDropdownTriggerHeight,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 Icon(
                   _viewModeIcon(viewMode),
-                  size: 18,
+                  size: 17,
                   color: palette.textPrimary,
                 ),
                 Positioned(
-                  right: 2,
-                  bottom: 2,
+                  right: 1,
+                  bottom: 1,
                   child: Icon(
                     Icons.arrow_drop_down,
-                    size: 16,
+                    size: 14,
                     color: palette.textMuted,
                   ),
                 ),
