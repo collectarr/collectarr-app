@@ -24,6 +24,7 @@ class LibrarySidebar extends StatelessWidget {
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
@@ -32,6 +33,7 @@ class LibrarySidebar extends StatelessWidget {
     this.hasActiveFilters = false,
     this.onEditFilters,
     this.onClearFilters,
+    this.onCollectionStatusScopeChanged,
     required this.onClearFilter,
     this.onHideSidebar,
     this.pinnedGroupModes = const {},
@@ -52,6 +54,7 @@ class LibrarySidebar extends StatelessWidget {
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final LibraryCollectionStatusScope collectionStatusScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
@@ -60,6 +63,8 @@ class LibrarySidebar extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;
   final VoidCallback? onClearFilters;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final Set<LibraryGroupMode> pinnedGroupModes;
@@ -94,6 +99,7 @@ class LibrarySidebar extends StatelessWidget {
         searchQuery: searchQuery,
         activeSmartListName: activeSmartListName,
         quickView: quickView,
+        collectionStatusScope: collectionStatusScope,
         collectionStatusScopeLabel: collectionStatusScopeLabel,
         linkedMetadataFilterLabel: linkedMetadataFilterLabel,
         selectedLetter: selectedLetter,
@@ -102,6 +108,7 @@ class LibrarySidebar extends StatelessWidget {
         hasActiveFilters: hasActiveFilters,
         onEditFilters: onEditFilters,
         onClearFilters: onClearFilters,
+        onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
         onClearFilter: onClearFilter,
         onHideSidebar: onHideSidebar,
         pinnedGroupModes: pinnedGroupModes,
@@ -185,6 +192,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
@@ -193,6 +201,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     this.hasActiveFilters = false,
     this.onEditFilters,
     this.onClearFilters,
+    this.onCollectionStatusScopeChanged,
     this.groupLoading = false,
     this.onClearFilter,
     this.onHideSidebar,
@@ -212,6 +221,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final LibraryCollectionStatusScope collectionStatusScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
@@ -220,6 +230,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;
   final VoidCallback? onClearFilters;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
   final bool groupLoading;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
@@ -415,6 +427,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             type: type,
             activeSmartListName: activeSmartListName,
             quickView: quickView,
+            collectionStatusScope: collectionStatusScope,
             collectionStatusScopeLabel: collectionStatusScopeLabel,
             searchQuery: searchQuery,
             linkedMetadataFilterLabel: linkedMetadataFilterLabel,
@@ -423,10 +436,15 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             hasActiveFilters: hasActiveFilters,
             onEditFilters: onEditFilters,
             onClearFilters: onClearFilters,
+            onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
           ),
           if (seriesStatusSummary != null) ...[
             const SizedBox(height: 8),
-            _SidebarSeriesStatusPanel(summary: seriesStatusSummary!),
+            _SidebarSeriesStatusPanel(
+              summary: seriesStatusSummary!,
+              selectedScope: collectionStatusScope,
+              onScopeSelected: onCollectionStatusScopeChanged,
+            ),
           ],
         ],
       ),
@@ -578,6 +596,7 @@ class _SidebarFilteringPanel extends StatelessWidget {
     required this.type,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.collectionStatusScopeLabel,
     this.searchQuery,
     this.linkedMetadataFilterLabel,
@@ -586,11 +605,13 @@ class _SidebarFilteringPanel extends StatelessWidget {
     this.hasActiveFilters = false,
     this.onEditFilters,
     this.onClearFilters,
+    this.onCollectionStatusScopeChanged,
   });
 
   final LibraryTypeConfig type;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final LibraryCollectionStatusScope collectionStatusScope;
   final String? collectionStatusScopeLabel;
   final String? searchQuery;
   final String? linkedMetadataFilterLabel;
@@ -599,6 +620,8 @@ class _SidebarFilteringPanel extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;
   final VoidCallback? onClearFilters;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -617,6 +640,12 @@ class _SidebarFilteringPanel extends StatelessWidget {
         _SidebarFilterChip(
           icon: Icons.inventory_2_outlined,
           label: collectionStatusScopeLabel!,
+          selected: collectionStatusScope != LibraryCollectionStatusScope.all,
+          onPressed: onCollectionStatusScopeChanged == null
+              ? null
+              : () => onCollectionStatusScopeChanged!(
+                    LibraryCollectionStatusScope.all,
+                  ),
         ),
       if (searchQuery != null && searchQuery!.trim().isNotEmpty)
         _SidebarFilterChip(
@@ -720,16 +749,30 @@ class _SidebarFilterChip extends StatelessWidget {
   const _SidebarFilterChip({
     required this.icon,
     required this.label,
+    this.selected = false,
+    this.onPressed,
   });
 
   final IconData icon;
   final String label;
+  final bool selected;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
+    if (onPressed == null) {
+      return Chip(
+        avatar: Icon(icon, size: 14, color: appPalette(context).textMuted),
+        label: Text(label),
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      );
+    }
+    return FilterChip(
       avatar: Icon(icon, size: 14, color: appPalette(context).textMuted),
       label: Text(label),
+      selected: selected,
+      onSelected: (_) => onPressed!(),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
@@ -737,9 +780,15 @@ class _SidebarFilterChip extends StatelessWidget {
 }
 
 class _SidebarSeriesStatusPanel extends StatelessWidget {
-  const _SidebarSeriesStatusPanel({required this.summary});
+  const _SidebarSeriesStatusPanel({
+    required this.summary,
+    this.selectedScope = LibraryCollectionStatusScope.all,
+    this.onScopeSelected,
+  });
 
   final LibrarySeriesStatusSummary summary;
+  final LibraryCollectionStatusScope selectedScope;
+  final ValueChanged<LibraryCollectionStatusScope>? onScopeSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -747,36 +796,69 @@ class _SidebarSeriesStatusPanel extends StatelessWidget {
       _SidebarFilterChip(
         icon: Icons.library_books_outlined,
         label: '${summary.totalCount} total',
+        selected: selectedScope == LibraryCollectionStatusScope.all,
+        onPressed: onScopeSelected == null
+            ? null
+            : () => onScopeSelected!(LibraryCollectionStatusScope.all),
       ),
       if (summary.ownedCount > 0)
         _SidebarFilterChip(
           icon: Icons.inventory_2_outlined,
           label: '${summary.ownedCount} owned',
+          selected: selectedScope == LibraryCollectionStatusScope.inCollection,
+          onPressed: onScopeSelected == null
+              ? null
+              : () => onScopeSelected!(
+                    LibraryCollectionStatusScope.inCollection,
+                  ),
         ),
       if (summary.wishlistCount > 0)
         _SidebarFilterChip(
           icon: Icons.star_border,
           label: '${summary.wishlistCount} wish list',
+          selected: selectedScope == LibraryCollectionStatusScope.wishList,
+          onPressed: onScopeSelected == null
+              ? null
+              : () => onScopeSelected!(LibraryCollectionStatusScope.wishList),
         ),
       if (summary.forSaleCount > 0)
         _SidebarFilterChip(
           icon: Icons.sell_outlined,
           label: '${summary.forSaleCount} for sale',
+          selected: selectedScope == LibraryCollectionStatusScope.forSale,
+          onPressed: onScopeSelected == null
+              ? null
+              : () => onScopeSelected!(LibraryCollectionStatusScope.forSale),
         ),
       if (summary.onOrderCount > 0)
         _SidebarFilterChip(
           icon: Icons.local_shipping_outlined,
           label: '${summary.onOrderCount} on order',
+          selected: selectedScope == LibraryCollectionStatusScope.onOrder,
+          onPressed: onScopeSelected == null
+              ? null
+              : () => onScopeSelected!(LibraryCollectionStatusScope.onOrder),
         ),
       if (summary.soldCount > 0)
         _SidebarFilterChip(
           icon: Icons.paid_outlined,
           label: '${summary.soldCount} sold',
+          selected: selectedScope == LibraryCollectionStatusScope.sold,
+          onPressed: onScopeSelected == null
+              ? null
+              : () => onScopeSelected!(LibraryCollectionStatusScope.sold),
         ),
       if (summary.catalogOnlyCount > 0)
         _SidebarFilterChip(
           icon: Icons.hide_source_outlined,
           label: '${summary.catalogOnlyCount} not in collection',
+          selected:
+              selectedScope == LibraryCollectionStatusScope.notInCollection,
+          onPressed: onScopeSelected == null
+              ? null
+              : () => onScopeSelected!(
+                    LibraryCollectionStatusScope.notInCollection,
+                  ),
         ),
     ];
 

@@ -50,12 +50,14 @@ class LibraryBody extends StatelessWidget {
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.sidebarSelectedLetter,
     this.seriesStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.preferToolbarAlphabet = false,
+    this.onCollectionStatusScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
@@ -108,12 +110,15 @@ class LibraryBody extends StatelessWidget {
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final LibraryCollectionStatusScope collectionStatusScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? sidebarSelectedLetter;
   final LibrarySeriesStatusSummary? seriesStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool preferToolbarAlphabet;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -280,6 +285,7 @@ class LibraryBody extends StatelessWidget {
                     searchQuery: searchQuery,
                     activeSmartListName: activeSmartListName,
                     quickView: quickView,
+                    collectionStatusScope: collectionStatusScope,
                     collectionStatusScopeLabel: collectionStatusScopeLabel,
                     linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                     selectedLetter: sidebarSelectedLetter,
@@ -288,6 +294,8 @@ class LibraryBody extends StatelessWidget {
                     hasActiveFilters: hasActiveFilter,
                     onEditFilters: onEditFilters,
                     onClearFilters: onClearFilters,
+                    onCollectionStatusScopeChanged:
+                        onCollectionStatusScopeChanged,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists the quick-view filter, group mode, and pinned group modes
@@ -10,6 +11,10 @@ class LibraryViewPreferenceStore {
   static final _cachedQuickViews = <String, LibraryQuickView>{};
   static final _cachedGroupModes = <String, LibraryGroupMode>{};
   static final _cachedPinnedGroupModes = <String, Set<LibraryGroupMode>>{};
+  static final _cachedPinnedViewPresets =
+      <String, Set<LibraryWorkspacePreset>>{};
+  static final _cachedPinnedSortFavoriteIds = <String, Set<String>>{};
+  static final _cachedPinnedColumnFavoriteKeys = <String, Set<String>>{};
 
   final Object? kind;
 
@@ -26,6 +31,9 @@ class LibraryViewPreferenceStore {
     _cachedQuickViews.clear();
     _cachedGroupModes.clear();
     _cachedPinnedGroupModes.clear();
+    _cachedPinnedViewPresets.clear();
+    _cachedPinnedSortFavoriteIds.clear();
+    _cachedPinnedColumnFavoriteKeys.clear();
   }
 
   Future<LibraryQuickView?> readQuickView() async {
@@ -93,6 +101,15 @@ class LibraryViewPreferenceStore {
   Set<LibraryGroupMode> get cachedPinnedGroupModes =>
       _cachedPinnedGroupModes[_cacheKey] ?? const {};
 
+  Set<LibraryWorkspacePreset> get cachedPinnedViewPresets =>
+      _cachedPinnedViewPresets[_cacheKey] ?? const {};
+
+  Set<String> get cachedPinnedSortFavoriteIds =>
+      _cachedPinnedSortFavoriteIds[_cacheKey] ?? const {};
+
+  Set<String> get cachedPinnedColumnFavoriteKeys =>
+      _cachedPinnedColumnFavoriteKeys[_cacheKey] ?? const {};
+
   Future<Set<LibraryGroupMode>> readPinnedGroupModes() async {
     final prefs = await SharedPreferences.getInstance();
     final names = prefs.getStringList(_key('pinnedGroupModes'));
@@ -124,5 +141,90 @@ class LibraryViewPreferenceStore {
         modes.map((m) => m.name).toList(),
       );
     }
+  }
+
+  Future<Set<LibraryWorkspacePreset>> readPinnedViewPresets({
+    Set<LibraryWorkspacePreset> fallback = const {},
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final names = prefs.getStringList(_key('pinnedViewPresets'));
+    if (names == null) {
+      _cachedPinnedViewPresets[_cacheKey] = fallback;
+      return fallback;
+    }
+    final presets = <LibraryWorkspacePreset>{};
+    for (final name in names) {
+      for (final preset in LibraryWorkspacePreset.values) {
+        if (preset.name == name) {
+          presets.add(preset);
+          break;
+        }
+      }
+    }
+    _cachedPinnedViewPresets[_cacheKey] = presets;
+    return presets;
+  }
+
+  Future<void> writePinnedViewPresets(
+    Set<LibraryWorkspacePreset> presets,
+  ) async {
+    _cachedPinnedViewPresets[_cacheKey] = presets;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _key('pinnedViewPresets'),
+      presets.map((preset) => preset.name).toList(),
+    );
+  }
+
+  Future<Set<String>> readPinnedSortFavoriteIds({
+    Set<String> fallback = const {},
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final values = prefs.getStringList(_key('pinnedSortFavoriteIds'));
+    if (values == null) {
+      _cachedPinnedSortFavoriteIds[_cacheKey] = fallback;
+      return fallback;
+    }
+    final ids = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toSet();
+    _cachedPinnedSortFavoriteIds[_cacheKey] = ids;
+    return ids;
+  }
+
+  Future<void> writePinnedSortFavoriteIds(Set<String> ids) async {
+    _cachedPinnedSortFavoriteIds[_cacheKey] = ids;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _key('pinnedSortFavoriteIds'),
+      ids.toList(growable: false),
+    );
+  }
+
+  Future<Set<String>> readPinnedColumnFavoriteKeys({
+    Set<String> fallback = const {},
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final values = prefs.getStringList(_key('pinnedColumnFavoriteKeys'));
+    if (values == null) {
+      _cachedPinnedColumnFavoriteKeys[_cacheKey] = fallback;
+      return fallback;
+    }
+    final keys = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toSet();
+    _cachedPinnedColumnFavoriteKeys[_cacheKey] = keys;
+    return keys;
+  }
+
+  Future<void> writePinnedColumnFavoriteKeys(Set<String> keys) async {
+    _cachedPinnedColumnFavoriteKeys[_cacheKey] = keys;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _key('pinnedColumnFavoriteKeys'),
+      keys.toList(growable: false),
+    );
   }
 }

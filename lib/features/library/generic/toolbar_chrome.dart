@@ -79,6 +79,21 @@ class LibrarySeriesStatusSummary {
   final String? missingIssueSummary;
 }
 
+String libraryColumnFavoriteKey(LibraryTableColumnPreset preset) {
+  final rawKey = preset.id ?? preset.label;
+  final normalized = rawKey.trim().toLowerCase().replaceAll(' ', '_');
+  return preset.isSaved ? 'saved:$normalized' : 'builtin:$normalized';
+}
+
+Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
+  LibraryTypeConfig type,
+) {
+  return const {
+    LibraryWorkspacePreset.cover,
+    LibraryWorkspacePreset.list,
+  };
+}
+
 List<LibrarySortFavorite> librarySortFavoritesForType(
   LibraryTypeConfig type,
 ) {
@@ -168,6 +183,15 @@ List<LibrarySortFavorite> librarySortFavoritesForType(
   };
 }
 
+Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
+  LibraryTypeConfig type,
+) {
+  final favorites = librarySortFavoritesForType(type);
+  return {
+    for (final favorite in favorites.take(2)) favorite.id,
+  };
+}
+
 List<LibraryTableColumnPreset> libraryColumnFavoritesForType(
   LibraryTypeConfig type,
 ) {
@@ -209,5 +233,14 @@ List<LibraryTableColumnPreset> libraryColumnFavoritesForType(
           },
         ),
       ],
+  };
+}
+
+Set<String> libraryDefaultPinnedColumnFavoriteKeysForType(
+  LibraryTypeConfig type,
+) {
+  final presets = libraryColumnFavoritesForType(type);
+  return {
+    for (final preset in presets.take(2)) libraryColumnFavoriteKey(preset),
   };
 }

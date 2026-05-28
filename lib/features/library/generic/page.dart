@@ -127,6 +127,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   String? _videoShelfDrilldownReleaseId;
   String? _activeSmartListId;
   String? _activeSmartListName;
+  Set<LibraryWorkspacePreset> _pinnedViewPresets = const {};
+  Set<String> _pinnedSortFavoriteIds = const {};
+  Set<String> _pinnedColumnFavoriteKeys = const {};
   List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
   List<_LibrarySidebarScopeSnapshot> _scopeHistory = const [];
   int _viewStateLoadToken = 0;
@@ -160,6 +163,16 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       final quickView = await _viewPrefs.readQuickView();
       final groupMode = await _viewPrefs.readGroupMode();
       final pinnedModes = await _viewPrefs.readPinnedGroupModes();
+      final pinnedViewPresets = await _viewPrefs.readPinnedViewPresets(
+        fallback: libraryDefaultPinnedViewPresetsForType(widget.type),
+      );
+      final pinnedSortFavoriteIds = await _viewPrefs.readPinnedSortFavoriteIds(
+        fallback: libraryDefaultPinnedSortFavoriteIdsForType(widget.type),
+      );
+      final pinnedColumnFavoriteKeys =
+          await _viewPrefs.readPinnedColumnFavoriteKeys(
+        fallback: libraryDefaultPinnedColumnFavoriteKeysForType(widget.type),
+      );
       if (!mounted ||
           loadToken != _viewPreferenceLoadToken ||
           widget.type.workspace.kind != expectedKind) {
@@ -169,6 +182,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         _quickView = quickView;
         _groupMode = groupMode;
         _pinnedGroupModes = pinnedModes;
+        _pinnedViewPresets = pinnedViewPresets;
+        _pinnedSortFavoriteIds = pinnedSortFavoriteIds;
+        _pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
       });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -184,6 +200,16 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     _quickView = _viewPrefs.cachedQuickView;
     _groupMode = _viewPrefs.cachedGroupMode;
     _pinnedGroupModes = _viewPrefs.cachedPinnedGroupModes;
+    _pinnedViewPresets = _viewPrefs.cachedPinnedViewPresets.isNotEmpty
+        ? _viewPrefs.cachedPinnedViewPresets
+        : libraryDefaultPinnedViewPresetsForType(widget.type);
+    _pinnedSortFavoriteIds = _viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
+        ? _viewPrefs.cachedPinnedSortFavoriteIds
+        : libraryDefaultPinnedSortFavoriteIdsForType(widget.type);
+    _pinnedColumnFavoriteKeys =
+        _viewPrefs.cachedPinnedColumnFavoriteKeys.isNotEmpty
+            ? _viewPrefs.cachedPinnedColumnFavoriteKeys
+            : libraryDefaultPinnedColumnFavoriteKeysForType(widget.type);
   }
 
   @override
@@ -197,6 +223,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _collectionStatusScope = LibraryCollectionStatusScope.all;
       _activeSmartListId = null;
       _activeSmartListName = null;
+      _pinnedViewPresets = const {};
+      _pinnedSortFavoriteIds = const {};
+      _pinnedColumnFavoriteKeys = const {};
       _savedColumnFavoritePresets = const [];
       _scopeHistory = const [];
       _selectionAnchorId = null;
@@ -367,13 +396,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 sortFavorites: _sortFavorites,
                 activeSortFavoriteId: _activeSortFavorite?.id,
                 onSortFavoriteSelected: _applySortFavorite,
+                pinnedViewPresets: _pinnedViewPresets,
+                onTogglePinnedViewPreset: _togglePinnedViewPreset,
+                pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
+                onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
                 columnFavoritePresets: _columnFavoritePresets,
                 activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
                 onColumnFavoriteSelected: _applyColumnFavorite,
+                pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
+                onTogglePinnedColumnFavorite: _togglePinnedColumnFavorite,
                 canJumpToIssue: _canJumpToIssue(projection),
-                onJumpToIssue: projection == null
+                onJumpToIssueSubmitted: projection == null
                     ? null
-                    : () => _showIssueJumpFlow(projection),
+                    : (value) => _jumpToIssue(projection, value),
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
                 onEditFilters: () => showFilterDialogFlow(projection),
@@ -567,6 +602,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
       activeSmartListName: _activeSmartListName,
       quickView: _quickView,
+      collectionStatusScope: _collectionStatusScope,
       collectionStatusScopeLabel:
           _collectionStatusScope == LibraryCollectionStatusScope.all
               ? null
@@ -576,6 +612,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       seriesStatusSummary: seriesStatusSummary,
       filterSelection: _filterSelection,
       preferToolbarAlphabet: true,
+      onCollectionStatusScopeChanged: _toggleCollectionStatusScope,
       onFilterByValue: _toggleLinkedMetadataFilter,
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -822,14 +859,42 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     _updateViewState((state) => state.withPreset(preset, _adapter.viewProfile));
   }
 
+  void _togglePinnedViewPreset(LibraryWorkspacePreset preset) {
+    final next = Set<LibraryWorkspacePreset>.from(_pinnedViewPresets);
+    if (!next.add(preset)) {
+      next.remove(preset);
+    }
+    setState(() => _pinnedViewPresets = next);
+    unawaited(_viewPrefs.writePinnedViewPresets(next));
+  }
+
   void _applySortFavorite(LibrarySortFavorite favorite) {
     _updateViewState(
       (state) => state.withSortRules(favorite.rules, _adapter.viewProfile),
     );
   }
 
+  void _togglePinnedSortFavorite(LibrarySortFavorite favorite) {
+    final next = Set<String>.from(_pinnedSortFavoriteIds);
+    if (!next.add(favorite.id)) {
+      next.remove(favorite.id);
+    }
+    setState(() => _pinnedSortFavoriteIds = next);
+    unawaited(_viewPrefs.writePinnedSortFavoriteIds(next));
+  }
+
   void _applyColumnFavorite(LibraryTableColumnPreset preset) {
     _updateViewState((state) => state.copyWith(visibleColumns: preset.columns));
+  }
+
+  void _togglePinnedColumnFavorite(LibraryTableColumnPreset preset) {
+    final key = libraryColumnFavoriteKey(preset);
+    final next = Set<String>.from(_pinnedColumnFavoriteKeys);
+    if (!next.add(key)) {
+      next.remove(key);
+    }
+    setState(() => _pinnedColumnFavoriteKeys = next);
+    unawaited(_viewPrefs.writePinnedColumnFavoriteKeys(next));
   }
 
   void _setCollectionStatusScope(LibraryCollectionStatusScope scope) {
@@ -838,6 +903,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _activeSmartListId = null;
       _activeSmartListName = null;
     });
+  }
+
+  void _toggleCollectionStatusScope(LibraryCollectionStatusScope scope) {
+    _setCollectionStatusScope(
+      _collectionStatusScope == scope
+          ? LibraryCollectionStatusScope.all
+          : scope,
+    );
   }
 
   bool _canJumpToIssue(LibraryProjection? projection) {
@@ -852,45 +925,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
-  Future<void> _showIssueJumpFlow(LibraryProjection projection) async {
-    final selectedBucket = _selectedBucket;
-    if (selectedBucket == null) {
+  Future<void> _jumpToIssue(
+    LibraryProjection projection,
+    String rawIssue,
+  ) async {
+    final normalizedIssue = rawIssue.trim();
+    if (normalizedIssue.isEmpty) {
       return;
     }
-    final controller = TextEditingController();
-    final issue = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Jump to issue'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: 'Enter an issue number in $selectedBucket',
-            labelText: 'Issue number',
-          ),
-          keyboardType: TextInputType.number,
-          onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Jump'),
-          ),
-        ],
-      ),
-    );
-    if (!mounted || issue == null || issue.trim().isEmpty) {
-      return;
-    }
-    final match = _matchIssueInProjection(projection, issue);
+    final match = _matchIssueInProjection(projection, normalizedIssue);
     if (match == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Issue #${issue.trim()} was not found.')),
+        SnackBar(content: Text('Issue #$normalizedIssue was not found.')),
       );
       return;
     }
