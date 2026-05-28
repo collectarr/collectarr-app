@@ -318,6 +318,10 @@ class _LibrarySeriesRow extends StatelessWidget {
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
+    final badgeTextColor = ThemeData.estimateBrightnessForColor(badgeColor) ==
+        Brightness.dark
+      ? Colors.white
+      : Theme.of(context).colorScheme.onSurface;
     final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
     final owned = bucket.ownedCount;
     final total = bucket.count;
@@ -407,7 +411,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                 Badge(
                   label: Text(owned != null ? '$owned' : total.toString()),
                   backgroundColor: selected ? selectedBadgeColor : badgeColor,
-                  textColor: selected ? selectedBadgeTextColor : Colors.white,
+                  textColor: selected ? selectedBadgeTextColor : badgeTextColor,
                 ),
               ],
             ),
