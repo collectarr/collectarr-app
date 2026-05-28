@@ -149,6 +149,7 @@ class _QueuedIngestNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final jobLabel = count == 1 ? 'job' : 'jobs';
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: kAppBannerInfoBackground,
@@ -163,8 +164,8 @@ class _QueuedIngestNotice extends StatelessWidget {
             Expanded(
               child: Text(
                 '$count Core ingest $jobLabel queued. Run or retry them in Admin, then search Core again.',
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -239,6 +240,7 @@ class _SearchResultsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final notice = _SearchPaneNoticeStack(
       error: error,
       queuedProviderIngests: queuedProviderIngests,
@@ -307,7 +309,7 @@ class _SearchResultsList extends StatelessWidget {
             yearText: providerYearText,
           ),
           if (i < groups.length - 1)
-            const Divider(height: 1, thickness: 1, color: kAppDivider),
+            Divider(height: 1, thickness: 1, color: palette.divider),
         ],
       ],
     );
@@ -366,6 +368,7 @@ class _SearchSkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -380,8 +383,10 @@ class _SearchSkeletonList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: index.isEven ? kAppTableEvenRow : kAppTableOddRow,
-                border: Border.all(color: kAppTableBottomBorder),
+                color: index.isEven
+                    ? palette.tableEvenRow
+                    : palette.tableOddRow,
+                border: Border.all(color: palette.tableBottomBorder),
               ),
               child: const Padding(
                 padding: EdgeInsets.all(8),
@@ -419,11 +424,12 @@ class _SkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: kAppSurfaceBright,
+        color: palette.surfaceBright,
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -441,11 +447,12 @@ class _ProviderFallbackNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: kAppBannerWarningBackground,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Row(
         children: [
@@ -480,9 +487,9 @@ class _ProviderMixedNotice extends StatelessWidget {
         : Theme.of(context).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: kAppBannerInfoBackground,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Row(
         children: [
@@ -516,7 +523,7 @@ class _ResultSectionHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: palette.panelRaised,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Text(
         label,
@@ -563,6 +570,7 @@ class _SearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final matchSummary = _metadataItemMatchSummary(
       type: type,
       item: item,
@@ -587,8 +595,8 @@ class _SearchResultTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kAppSelection)
-              : kAppTableEvenRow,
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected ? accent : Colors.transparent,
@@ -631,8 +639,8 @@ class _SearchResultTile extends StatelessWidget {
                               : '${item.title} #${item.itemNumber}'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: palette.textPrimary,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -642,8 +650,8 @@ class _SearchResultTile extends StatelessWidget {
                         subtitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -655,8 +663,8 @@ class _SearchResultTile extends StatelessWidget {
                         detailLine,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -892,6 +900,7 @@ class _ProviderCandidateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final matchSummary = _providerCandidateMatchSummary(
       type: type,
       candidate: candidate,
@@ -912,8 +921,8 @@ class _ProviderCandidateTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kAppSelection)
-              : kAppTableEvenRow,
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected ? accent : Colors.transparent,
@@ -942,8 +951,8 @@ class _ProviderCandidateTile extends StatelessWidget {
                       candidate.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: palette.textPrimary,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -953,8 +962,8 @@ class _ProviderCandidateTile extends StatelessWidget {
                         subtitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -993,7 +1002,7 @@ class _ProviderCandidateTile extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 selected ? Icons.check_circle : Icons.chevron_right,
-                color: selected ? accent : kAppTextMuted,
+                color: selected ? accent : palette.textMuted,
                 size: 20,
               ),
             ],

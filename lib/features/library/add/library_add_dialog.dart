@@ -1721,10 +1721,11 @@ class _CoverScanPrefillBanner extends StatelessWidget {
     ];
     final confidence = result.confidenceLabel?.trim();
     final reviewSummary = result.reviewSummary?.trim();
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Color(0xFF243926),
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -1755,7 +1756,6 @@ class _CoverScanPrefillBanner extends StatelessWidget {
 
 const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
-const BorderSide _kLibraryAddBorder = BorderSide(color: kAppDivider);
 
 ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
   return OutlinedButton.styleFrom(

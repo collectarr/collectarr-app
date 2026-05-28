@@ -58,10 +58,11 @@ class _BarcodePrefillBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: kAppBannerInfoBackground,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -668,6 +669,7 @@ class _AdvancedField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return SizedBox(
       height: 30,
       child: _LibraryAddModeFieldFrame(
@@ -679,8 +681,8 @@ class _AdvancedField extends StatelessWidget {
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
-          style: const TextStyle(
-            color: kAppTextBright,
+          style: TextStyle(
+            color: palette.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -689,8 +691,8 @@ class _AdvancedField extends StatelessWidget {
             filled: false,
             border: InputBorder.none,
             hintText: hint,
-            hintStyle: const TextStyle(
-              color: kAppTextHint,
+            hintStyle: TextStyle(
+              color: palette.textMuted,
               fontSize: 13,
             ),
             contentPadding:
@@ -717,11 +719,12 @@ class _SuggestionDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       constraints: const BoxConstraints(maxHeight: 260),
       decoration: BoxDecoration(
-        color: kAppField,
+        color: palette.field,
         border: Border.all(color: accent.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -730,7 +733,7 @@ class _SuggestionDropdown extends StatelessWidget {
         shrinkWrap: true,
         itemCount: suggestions.length,
         separatorBuilder: (_, __) =>
-            const Divider(height: 1, color: kAppBorderSubtle),
+            Divider(height: 1, color: palette.divider),
         itemBuilder: (context, index) {
           final item = suggestions[index];
           return _SuggestionTile(
@@ -757,6 +760,7 @@ class _SuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final year = item.releaseDate?.year;
     final subtitle = [
       if (year != null) year.toString(),
@@ -791,8 +795,8 @@ class _SuggestionTile extends StatelessWidget {
                     item.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: kAppTextBright,
+                    style: TextStyle(
+                      color: palette.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -802,8 +806,8 @@ class _SuggestionTile extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: kAppTextMuted,
+                      style: TextStyle(
+                        color: palette.textMuted,
                         fontSize: 11,
                       ),
                     ),

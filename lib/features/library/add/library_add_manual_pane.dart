@@ -49,7 +49,7 @@ class _ManualPane extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panelRaised,
-        border: Border(left: _kLibraryAddBorder),
+        border: Border(left: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
