@@ -294,38 +294,43 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Tooltip(
-                  message: 'Group by',
-                  child: InkWell(
-                    onTap: () => _showGroupModeMenu(context),
-                    borderRadius: BorderRadius.circular(4),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 6),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(icon, size: 16, color: accent),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: accent,
-                                  ),
-                            ),
+                child: Builder(
+                  builder: (menuContext) {
+                    return Tooltip(
+                      message: 'Group by',
+                      child: InkWell(
+                        onTap: () => _showGroupModeMenu(menuContext),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 6),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(icon, size: 16, color: accent),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        color: accent,
+                                      ),
+                                ),
+                              ),
+                              Icon(Icons.arrow_drop_down,
+                                  size: 18, color: accent),
+                            ],
                           ),
-                          Icon(Icons.arrow_drop_down, size: 18, color: accent),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
               if (onNavigateBack != null)
@@ -454,103 +459,59 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   void _showGroupModeMenu(BuildContext context) {
     final modes = libraryGroupModesForType(type);
     final categories = _categorizeGroupModes(modes);
-    final pinned = modes.where(pinnedGroupModes.contains).toList();
+    final overlay = Overlay.of(context, rootOverlay: true).context
+        .findRenderObject() as RenderBox;
     final box = context.findRenderObject() as RenderBox;
-    final offset = box.localToGlobal(Offset(0, box.size.height));
-    showMenu<LibraryGroupMode>(
+    final target = box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
+    final selection = showGeneralDialog<LibraryGroupMode>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        offset.dx,
-        offset.dy,
-        offset.dx + box.size.width,
-        offset.dy,
-      ),
-      constraints: const BoxConstraints(maxWidth: 240),
-      items: [
-        if (pinned.isNotEmpty) ...[
-          PopupMenuItem<LibraryGroupMode>(
-            enabled: false,
-            height: 28,
-            child: Text(
-              'Favorites',
-              style: TextStyle(
-                color: kAppHighlight,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-          for (final mode in pinned) _buildGroupModeItem(context, mode),
-          const PopupMenuDivider(height: 8),
-        ],
-        for (final category in categories) ...[
-          PopupMenuItem<LibraryGroupMode>(
-            enabled: false,
-            height: 28,
-            child: Text(
-              category.label,
-              style: TextStyle(
-                color: appPalette(context).textMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-          for (final mode in category.modes) _buildGroupModeItem(context, mode),
-        ],
-      ],
-    ).then((value) {
-      if (value != null) onChanged(value);
-    });
-  }
-
-  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(
-    BuildContext context,
-    LibraryGroupMode mode,
-  ) {
-    final isPinned = pinnedGroupModes.contains(mode);
-    return PopupMenuItem<LibraryGroupMode>(
-      value: mode,
-      height: 36,
-      child: Row(
-        children: [
-          Icon(
-            genericGroupModeIcon(mode),
-            size: 16,
-            color: mode == groupMode ? accent : kAppTextSecondary,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              genericGroupModeLabel(mode, type),
-              style: TextStyle(
-                fontWeight:
-                    mode == groupMode ? FontWeight.w800 : FontWeight.w500,
-                color: mode == groupMode ? accent : null,
-              ),
-            ),
-          ),
-          if (mode == groupMode) Icon(Icons.check, size: 16, color: accent),
-          if (onTogglePin != null) ...[
-            const SizedBox(width: 4),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => onTogglePin!(mode),
-              child: Padding(
-                padding: const EdgeInsets.all(2),
-                child: Icon(
-                  isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                  size: 14,
-                  color: isPinned ? kAppHighlight : appPalette(context).textMuted,
-                ),
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss group mode menu',
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 140),
+      pageBuilder: (dialogContext, _, __) {
+        const menuWidth = 280.0;
+        final screenSize = overlay.size;
+        final left = target.left.clamp(8.0, screenSize.width - menuWidth - 8.0);
+        final top = (target.bottom + 4).clamp(8.0, screenSize.height - 420.0);
+        return Stack(
+          children: [
+            Positioned(
+              left: left,
+              top: top,
+              width: menuWidth,
+              child: _GroupModeDropdownMenu(
+                type: type,
+                accent: accent,
+                selectedMode: groupMode,
+                categories: categories,
+                initialPinnedModes: pinnedGroupModes,
+                onTogglePin: onTogglePin,
               ),
             ),
           ],
-        ],
-      ),
+        );
+      },
+      transitionBuilder: (context, animation, _, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.97, end: 1).animate(curved),
+            alignment: Alignment.topLeft,
+            child: child,
+          ),
+        );
+      },
     );
+    selection.then((value) {
+      if (value != null) {
+        onChanged(value);
+      }
+    });
   }
 
   static List<_GroupModeCategory> _categorizeGroupModes(
@@ -927,4 +888,252 @@ class _GroupModeCategory {
   const _GroupModeCategory(this.label, this.modes);
   final String label;
   final List<LibraryGroupMode> modes;
+}
+
+class _GroupModeDropdownMenu extends StatefulWidget {
+  const _GroupModeDropdownMenu({
+    required this.type,
+    required this.accent,
+    required this.selectedMode,
+    required this.categories,
+    required this.initialPinnedModes,
+    this.onTogglePin,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final LibraryGroupMode selectedMode;
+  final List<_GroupModeCategory> categories;
+  final Set<LibraryGroupMode> initialPinnedModes;
+  final ValueChanged<LibraryGroupMode>? onTogglePin;
+
+  @override
+  State<_GroupModeDropdownMenu> createState() => _GroupModeDropdownMenuState();
+}
+
+class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
+  late Set<LibraryGroupMode> _pinnedModes;
+  late Map<String, bool> _expandedSections;
+
+  @override
+  void initState() {
+    super.initState();
+    _pinnedModes = Set<LibraryGroupMode>.from(widget.initialPinnedModes);
+    _expandedSections = {
+      if (_pinnedModes.isNotEmpty) 'Favorites': true,
+      for (final category in widget.categories)
+        category.label: category.modes.any(
+          (mode) => mode == widget.selectedMode || _pinnedModes.contains(mode),
+        ),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final allModes = [
+      for (final category in widget.categories) ...category.modes,
+    ];
+    final favoriteModes =
+        allModes.where(_pinnedModes.contains).toList(growable: false);
+    return Material(
+      color: Colors.transparent,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.panel,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: palette.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.22),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 420),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Manage Favorites',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.settings_outlined,
+                        size: 16,
+                        color: palette.textMuted,
+                      ),
+                    ],
+                  ),
+                ),
+                if (favoriteModes.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                    child: Text(
+                      'No favorites',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: palette.textMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  )
+                else
+                  _buildSection(
+                    context,
+                    label: 'Favorites',
+                    modes: favoriteModes,
+                    accentLabel: true,
+                  ),
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                  child: Text(
+                    'Folders',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: palette.textMuted,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                        ),
+                  ),
+                ),
+                for (final category in widget.categories)
+                  _buildSection(
+                    context,
+                    label: category.label,
+                    modes: category.modes,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSection(
+    BuildContext context, {
+    required String label,
+    required List<LibraryGroupMode> modes,
+    bool accentLabel = false,
+  }) {
+    final palette = appPalette(context);
+    final expanded = _expandedSections[label] ?? false;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          onTap: () {
+            setState(() {
+              _expandedSections[label] = !expanded;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: accentLabel ? kAppHighlight : null,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+                Icon(
+                  expanded ? Icons.expand_less : Icons.expand_more,
+                  size: 18,
+                  color: palette.textMuted,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (expanded)
+          for (final mode in modes) _buildModeItem(context, mode),
+      ],
+    );
+  }
+
+  Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
+    final palette = appPalette(context);
+    final isPinned = _pinnedModes.contains(mode);
+    final isSelected = mode == widget.selectedMode;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => Navigator.of(context).pop(mode),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      genericGroupModeIcon(mode),
+                      size: 16,
+                      color: isSelected ? widget.accent : palette.textMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        genericGroupModeLabel(mode, widget.type),
+                        style: TextStyle(
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w500,
+                          color: isSelected ? widget.accent : palette.textPrimary,
+                        ),
+                      ),
+                    ),
+                    if (isSelected)
+                      Icon(Icons.check, size: 16, color: widget.accent),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (widget.onTogglePin != null)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() {
+                  if (!isPinned) {
+                    _pinnedModes.add(mode);
+                    _expandedSections['Favorites'] = true;
+                  } else {
+                    _pinnedModes.remove(mode);
+                    if (_pinnedModes.isEmpty) {
+                      _expandedSections.remove('Favorites');
+                    }
+                  }
+                });
+                widget.onTogglePin!(mode);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(
+                  isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                  size: 15,
+                  color: isPinned ? kAppHighlight : palette.textMuted,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

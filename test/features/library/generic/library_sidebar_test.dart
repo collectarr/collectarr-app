@@ -1,0 +1,73 @@
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/sidebar.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('group mode dropdown shows expandable folders sections',
+      (tester) async {
+    var selectedMode = LibraryGroupMode.year;
+    final pinnedModes = <LibraryGroupMode>{LibraryGroupMode.director};
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              height: 420,
+              child: LibrarySidebar(
+                type: moviesLibraryConfig,
+                accent: Colors.cyan,
+                buckets: const [
+                  LibrarySeriesBucket(title: 'All Movies', count: 12),
+                ],
+                groupMode: selectedMode,
+                selectedBucket: 'All Movies',
+                onSelected: (_) {},
+                onGroupModeChanged: (value) => selectedMode = value,
+                collectionStatusScope: LibraryCollectionStatusScope.all,
+                onClearFilter: () {},
+                pinnedGroupModes: pinnedModes,
+                onTogglePinGroupMode: (mode) {
+                  if (!pinnedModes.add(mode)) {
+                    pinnedModes.remove(mode);
+                  }
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Manage Favorites'), findsOneWidget);
+    expect(find.text('Folders'), findsWidgets);
+    expect(find.text('Favorites'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Edition'), findsOneWidget);
+    expect(find.text('Cast & Crew'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Director'), findsWidgets);
+    expect(find.text('Format'), findsNothing);
+
+    final editionHeader = find.widgetWithText(InkWell, 'Edition');
+    await tester.ensureVisible(editionHeader);
+    await tester.tap(editionHeader);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Format'), findsOneWidget);
+
+    await tester.tap(editionHeader);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Format'), findsNothing);
+  });
+}
