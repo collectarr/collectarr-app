@@ -128,9 +128,10 @@ class _HeaderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final style = headerStyle ??
         TextStyle(
-          color: kAppTextMuted,
+          color: palette.textMuted,
           fontSize: fontSize,
           fontWeight: FontWeight.w800,
         );
@@ -175,6 +176,7 @@ class _EpisodeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -188,7 +190,7 @@ class _EpisodeRow extends StatelessWidget {
               child: Text(
                 'E$episodeNumber',
                 style: TextStyle(
-                  color: kAppTextMuted,
+                  color: palette.textMuted,
                   fontSize: fontSize,
                   fontWeight: FontWeight.w800,
                 ),
@@ -232,6 +234,7 @@ class _RatingCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     if (!hasEpisode) {
       return SizedBox(width: size, height: size);
     }
@@ -241,12 +244,12 @@ class _RatingCell extends StatelessWidget {
         ? (ThemeData.estimateBrightnessForColor(color!) == Brightness.dark
             ? Colors.white
             : Colors.black87)
-        : kAppTextMuted;
+      : palette.textMuted;
 
     return Padding(
       padding: const EdgeInsets.all(1),
       child: Material(
-        color: color ?? Colors.white.withValues(alpha: 0.04),
+      color: color ?? palette.surfaceSubtle.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(4),
         child: InkWell(
           borderRadius: BorderRadius.circular(4),
@@ -292,6 +295,7 @@ class _AverageRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -305,7 +309,7 @@ class _AverageRow extends StatelessWidget {
               child: Text(
                 'Avg',
                 style: TextStyle(
-                  color: kAppTextMuted,
+                  color: palette.textMuted,
                   fontSize: fontSize,
                   fontWeight: FontWeight.w900,
                 ),
@@ -313,12 +317,13 @@ class _AverageRow extends StatelessWidget {
             ),
           ),
         ),
-        for (final season in seasons) _averageCell(season),
+        for (final season in seasons) _averageCell(context, season),
       ],
     );
   }
 
-  Widget _averageCell(Season season) {
+  Widget _averageCell(BuildContext context, Season season) {
+    final palette = appPalette(context);
     final seasonRatings = <int>[];
     for (var ep = 1; ep <= season.episodes.length; ep++) {
       final r = ratings[episodeRatingKey(season.seasonNumber, ep)];
@@ -342,7 +347,7 @@ class _AverageRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+          border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
         ),
         child: SizedBox(
           width: cellSize - 2,

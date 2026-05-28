@@ -62,8 +62,8 @@ class VideoEpisodeRatingSection extends ConsumerWidget {
                     if (ratings.isNotEmpty)
                       Text(
                         '${ratings.length} rated',
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: appPalette(context).textMuted,
                           fontSize: 11,
                         ),
                       ),
@@ -131,7 +131,7 @@ class VideoEpisodeRatingDisplaySection extends ConsumerWidget {
         if (seasons.isEmpty) return const SizedBox.shrink();
         return DecoratedBox(
           decoration: BoxDecoration(
-            color: const Color(0xD51C1F21),
+            color: appPalette(context).surfaceSubtle.withValues(alpha: 0.92),
             border: Border.all(color: accent.withValues(alpha: 0.33)),
             borderRadius: BorderRadius.circular(12),
           ),
