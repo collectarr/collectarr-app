@@ -1,0 +1,121 @@
+import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  Widget buildResponsiveFields(List<Widget> children) => Wrap(children: children);
+
+  Widget buildField({
+    required TextEditingController controller,
+    required String label,
+    String? hint,
+    String? Function(String?)? validator,
+  }) {
+    return SizedBox(
+      width: 180,
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        decoration: InputDecoration(labelText: label, hintText: hint),
+      ),
+    );
+  }
+
+  Widget buildDatePickerField({
+    required String label,
+    required DateTime? value,
+    required ValueChanged<DateTime?> onChanged,
+  }) {
+    return Text(label);
+  }
+
+  testWidgets('value tab renders purchase and value summary sections', (
+    tester,
+  ) async {
+    final priceController = TextEditingController(text: '12.50');
+    final currencyController = TextEditingController(text: 'USD');
+    final purchaseDateController = TextEditingController(text: '2024-01-02');
+    final purchaseStoreController = TextEditingController(text: 'Shop');
+    final marketValueController = TextEditingController(text: '20.00');
+    final sellPriceController = TextEditingController(text: '25.00');
+
+    addTearDown(priceController.dispose);
+    addTearDown(currencyController.dispose);
+    addTearDown(purchaseDateController.dispose);
+    addTearDown(purchaseStoreController.dispose);
+    addTearDown(marketValueController.dispose);
+    addTearDown(sellPriceController.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => buildLibraryEditValueTab(
+              context: context,
+              accent: Colors.blue,
+              buildResponsiveFields: buildResponsiveFields,
+              buildField: buildField,
+              buildDatePickerField: buildDatePickerField,
+              priceController: priceController,
+              currencyController: currencyController,
+              purchaseDateController: purchaseDateController,
+              purchaseStoreController: purchaseStoreController,
+              marketValueController: marketValueController,
+              sellPriceController: sellPriceController,
+              onPickPurchaseDate: () {},
+              collectionStatus: null,
+              onCollectionStatusChanged: (_) {},
+              lastBagBoardDate: null,
+              onLastBagBoardDateChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Purchase'), findsOneWidget);
+    expect(find.text('Collection status'), findsOneWidget);
+    expect(find.text('Value summary'), findsOneWidget);
+    expect(find.text('Purchase date: 2024-01-02'), findsOneWidget);
+  });
+
+  testWidgets('sold tab renders sold summary when sold date exists', (
+    tester,
+  ) async {
+    final sellPriceController = TextEditingController(text: '25.00');
+    final soldToController = TextEditingController(text: 'Alex');
+    final priceController = TextEditingController(text: '12.50');
+    final currencyController = TextEditingController(text: 'USD');
+
+    addTearDown(sellPriceController.dispose);
+    addTearDown(soldToController.dispose);
+    addTearDown(priceController.dispose);
+    addTearDown(currencyController.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => buildLibraryEditSoldTab(
+              context: context,
+              accent: Colors.blue,
+              buildResponsiveFields: buildResponsiveFields,
+              buildField: buildField,
+              soldAt: DateTime(2024, 1, 2),
+              onSoldChanged: (_) {},
+              onPickSoldDate: () {},
+              sellPriceController: sellPriceController,
+              soldToController: soldToController,
+              priceController: priceController,
+              currencyController: currencyController,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Sold Status'), findsOneWidget);
+    expect(find.text('Profit / Loss'), findsOneWidget);
+    expect(find.textContaining('Sold on 2024-01-02'), findsOneWidget);
+  });
+}

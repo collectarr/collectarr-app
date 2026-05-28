@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/generic/collection_actions.dart'
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
+import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
@@ -1201,14 +1202,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   List<String> get _sidebarBreadcrumbs {
-    final rootLabel = 'All ${widget.type.pluralLabel}';
-    final breadcrumbs = <String>[rootLabel];
-    breadcrumbs.addAll(_scopeHistory.map(_sidebarScopeLabel));
-    final currentLabel = _sidebarScopeLabel(_captureSidebarScope());
-    if (breadcrumbs.last != currentLabel) {
-      breadcrumbs.add(currentLabel);
-    }
-    return breadcrumbs;
+    return buildLibrarySidebarBreadcrumbs(
+      rootLabel: 'All ${widget.type.pluralLabel}',
+      history: _scopeHistory,
+      current: _captureSidebarScope(),
+      labelForScope: _sidebarScopeLabel,
+    );
   }
 
   void _setSelectedBucket(String? bucket) {
@@ -1251,21 +1250,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       return;
     }
     setState(() {
-      if (next.isRootScope) {
-        _scopeHistory = const [];
-        return;
-      }
-      final history = List<LibrarySidebarScopeSnapshot>.from(_scopeHistory);
-      final existingIndex = history.lastIndexOf(next);
-      if (existingIndex != -1) {
-        _scopeHistory = history.sublist(0, existingIndex);
-        return;
-      }
-      if (!previous.isRootScope &&
-          (history.isEmpty || history.last != previous)) {
-        history.add(previous);
-      }
-      _scopeHistory = history;
+      _scopeHistory = updateLibrarySidebarScopeHistory(
+        history: _scopeHistory,
+        previous: previous,
+        next: next,
+      );
     });
   }
 
@@ -1302,34 +1291,28 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _navigateSidebarBack() {
-    if (_scopeHistory.isEmpty) {
+    final navigation = popLibrarySidebarScopeHistory(_scopeHistory);
+    if (navigation == null) {
       return;
     }
     setState(() {
-      final history = List<LibrarySidebarScopeSnapshot>.from(_scopeHistory);
-      final target = history.removeLast();
-      _scopeHistory = history;
-      _applySidebarScopeSnapshot(target);
+      _scopeHistory = navigation.history;
+      _applySidebarScopeSnapshot(navigation.target);
     });
   }
 
   void _navigateSidebarToBreadcrumb(int index) {
-    if (index <= 0) {
-      setState(() {
-        _scopeHistory = const [];
-        _applySidebarScopeSnapshot(
-          LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
-        );
-      });
-      return;
-    }
-    if (index > _scopeHistory.length) {
+    final navigation = navigateLibrarySidebarScopeHistoryToBreadcrumb(
+      history: _scopeHistory,
+      index: index,
+      rootScope: LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
+    );
+    if (navigation == null) {
       return;
     }
     setState(() {
-      final target = _scopeHistory[index - 1];
-      _scopeHistory = _scopeHistory.sublist(0, index - 1);
-      _applySidebarScopeSnapshot(target);
+      _scopeHistory = navigation.history;
+      _applySidebarScopeSnapshot(navigation.target);
     });
   }
 

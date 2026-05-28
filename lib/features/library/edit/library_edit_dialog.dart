@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
@@ -1351,117 +1352,47 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   Widget _valueTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Purchase',
-          accent: widget.accent,
-          child: Column(
-            children: [
-              _responsiveFields([
-                _field(
-                  controller: _priceController,
-                  label: 'Price paid',
-                  validator: optionalMoneyValidator,
-                ),
-                _field(controller: _currencyController, label: 'Currency'),
-              ]),
-              const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: _pickPurchaseDate,
-                icon: const Icon(Icons.event),
-                label: Text(
-                  _purchaseDateController.text.isEmpty
-                      ? 'Set purchase date'
-                      : 'Purchase date: ${_purchaseDateController.text}',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _purchaseStoreController,
-                decoration: const InputDecoration(
-                  labelText: 'Purchase Store',
-                  hintText: 'Where you bought it',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              _field(
-                controller: _marketValueController,
-                label: 'Estimated market value',
-                validator: optionalMoneyValidator,
-              ),
-            ],
-          ),
-        ),
-        EditSection(
-          title: 'Collection status',
-          accent: widget.accent,
-          child: Column(
-            children: [
-              DropdownButtonFormField<String>(
-                initialValue: _collectionStatus,
-                isExpanded: true,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kEditMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Status',
-                ),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('In collection')),
-                  DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
-                  DropdownMenuItem(value: 'on_order', child: Text('On order')),
-                ],
-                onChanged: (value) => setState(() => _collectionStatus = value),
-              ),
-              const SizedBox(height: 10),
-              _datePickerField(
-                label: 'Last bag & board date',
-                value: _lastBagBoardDate,
-                onChanged: (v) => setState(() => _lastBagBoardDate = v),
-              ),
-            ],
-          ),
-        ),
-        EditSection(
-          title: 'Value summary',
-          accent: widget.accent,
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              ValueContextChip(
-                icon: Icons.payments_outlined,
-                label: 'Paid',
-                value: _priceController.text.isEmpty
-                    ? '—'
-                    : '\$${_priceController.text}',
-              ),
-              ValueContextChip(
-                icon: Icons.sell_outlined,
-                label: 'Sell',
-                value: _sellPriceController.text.isEmpty
-                    ? '—'
-                    : '\$${_sellPriceController.text}',
-              ),
-              ValueContextChip(
-                icon: Icons.calendar_month_outlined,
-                label: 'Purchased',
-                value: _purchaseDateController.text.isEmpty
-                    ? '—'
-                    : _purchaseDateController.text,
-              ),
-              ValueContextChip(
-                icon: Icons.trending_up_outlined,
-                label: 'Market value',
-                value: _marketValueController.text.isEmpty
-                    ? '—'
-                    : '\$${_marketValueController.text}',
-              ),
-            ],
-          ),
-        ),
-      ],
+    return buildLibraryEditValueTab(
+      context: context,
+      accent: widget.accent,
+      buildResponsiveFields: _responsiveFields,
+      buildField: _field,
+      buildDatePickerField: _datePickerField,
+      priceController: _priceController,
+      currencyController: _currencyController,
+      purchaseDateController: _purchaseDateController,
+      purchaseStoreController: _purchaseStoreController,
+      marketValueController: _marketValueController,
+      sellPriceController: _sellPriceController,
+      onPickPurchaseDate: _pickPurchaseDate,
+      collectionStatus: _collectionStatus,
+      onCollectionStatusChanged: (value) => setState(() => _collectionStatus = value),
+      lastBagBoardDate: _lastBagBoardDate,
+      onLastBagBoardDateChanged: (value) => setState(() => _lastBagBoardDate = value),
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Sold
+  // -------------------------------------------------------------------------
+
+  Widget _soldTab() {
+    return buildLibraryEditSoldTab(
+      context: context,
+      accent: widget.accent,
+      buildResponsiveFields: _responsiveFields,
+      buildField: _field,
+      soldAt: _soldAt,
+      onSoldChanged: (value) {
+        setState(() {
+          _soldAt = value ? DateTime.now() : null;
+        });
+      },
+      onPickSoldDate: _pickSoldDate,
+      sellPriceController: _sellPriceController,
+      soldToController: _soldToController,
+      priceController: _priceController,
+      currencyController: _currencyController,
     );
   }
 
@@ -1762,68 +1693,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   ),
                 ),
               ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Tab: Sold
-  // -------------------------------------------------------------------------
-
-  Widget _soldTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Sold Status',
-          accent: widget.accent,
-          child: Column(
-            children: [
-              SwitchListTile(
-                value: _soldAt != null,
-                onChanged: (value) {
-                  setState(() {
-                    _soldAt = value ? DateTime.now() : null;
-                  });
-                },
-                title: const Text('Mark as sold'),
-                subtitle: _soldAt != null
-                    ? Text(
-                        'Sold on ${formatDate(_soldAt!)}',
-                        style: TextStyle(color: appPalette(context).textMuted),
-                      )
-                    : null,
-                contentPadding: EdgeInsets.zero,
-              ),
-              if (_soldAt != null) ...[
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _pickSoldDate,
-                  icon: const Icon(Icons.event),
-                  label: Text('Sold date: ${formatDate(_soldAt!)}'),
-                ),
-                const SizedBox(height: 12),
-                _responsiveFields([
-                  _field(
-                    controller: _sellPriceController,
-                    label: 'Sell price',
-                    validator: optionalMoneyValidator,
-                  ),
-                  _field(controller: _soldToController, label: 'Sold to'),
-                ]),
-              ],
-            ],
-          ),
-        ),
-        if (_soldAt != null)
-          EditSection(
-            title: 'Profit / Loss',
-            accent: widget.accent,
-            child: SoldSummaryPanel(
-              pricePaidCents: parseMoneyCents(_priceController.text),
-              sellPriceCents: parseMoneyCents(_sellPriceController.text),
-              currency: _currencyController.text,
             ),
           ),
       ],

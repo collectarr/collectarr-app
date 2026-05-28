@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/add/library_cover_scan_service.d
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -38,7 +39,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart'
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -634,7 +634,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final year = yearText.isNotEmpty ? int.tryParse(yearText) : null;
     try {
       final api = ref.read(apiClientProvider);
-      final items = await searchAndCacheLibraryMetadata(
+      final searchResult = await runLibraryAddCoreSearch(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
@@ -646,31 +646,24 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           year: year,
           limit: 20,
         ),
-      ).timeout(_coreSearchTimeout);
-      final mappedItems = [
-        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-      ];
-      final rerankHints = _currentLocalRerankHints();
-      final rankedItems = rerankLibraryMetadataItems(mappedItems, rerankHints);
-      final shouldSearchProvider =
-          shouldSearchProviderForCoreResults(
-            rankedItems,
-            rerankHints,
-          ) &&
-          widget.type.supportedMetadataProviders.isNotEmpty;
+        timeout: _coreSearchTimeout,
+        rerankHints: _currentLocalRerankHints(),
+        providerSearchAvailable:
+            widget.type.supportedMetadataProviders.isNotEmpty,
+      );
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
-          _results = rankedItems;
+          _results = searchResult.items;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _resetReferenceSelection();
           _clearSelectionCaches();
         });
-        _precacheMetadataCovers(rankedItems);
+        _precacheMetadataCovers(searchResult.items);
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
-          shouldSearchProvider) {
+          searchResult.shouldSearchProvider) {
         await _searchProvider(
           queryOverride: query,
           bypassDebounce: true,
@@ -715,23 +708,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _fetchSuggestions(String query) async {
     try {
       final api = ref.read(apiClientProvider);
-      final items = await searchAndCacheLibraryMetadata(
+      final filtered = await fetchLibraryAddSuggestions(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-        input: LibraryMetadataSearchInput(
-          query: query,
-          limit: _autocompleteLimit,
-        ),
-      ).timeout(const Duration(seconds: 5));
-      if (!mounted) return;
-      final mapped = [
-        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-      ];
-      final filtered = filterAndRerankLibraryMetadataItems(
-        mapped,
-        LibraryAddLocalRerankHints(query: query),
+        query: query,
+        limit: _autocompleteLimit,
       );
+      if (!mounted) return;
       setState(() {
         _suggestions = filtered;
         _showSuggestions = filtered.isNotEmpty;
@@ -829,37 +813,33 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final results = await lookupAndCacheLibraryBarcodes(
+      final lookupResult = await runLibraryAddBarcodeLookup(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-        barcodes: [barcode],
-      ).timeout(_coreSearchTimeout);
-      final found = [
-        for (final result in results)
-          if (result.item != null)
-            LibraryMetadataItem.fromCatalogItem(result.item!),
-      ];
-      final shouldSearchProvider =
-          found.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty;
+        barcode: barcode,
+        timeout: _coreSearchTimeout,
+        providerSearchAvailable:
+            widget.type.supportedMetadataProviders.isNotEmpty,
+      );
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
-          _results = found;
+          _results = lookupResult.items;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _resetReferenceSelection();
           _clearSelectionCaches();
           _error =
-              found.isEmpty &&
+              lookupResult.items.isEmpty &&
                       widget.type.supportedMetadataProviders.isEmpty
                   ? 'No item found for barcode $barcode.'
                   : null;
         });
-        _precacheMetadataCovers(found);
+        _precacheMetadataCovers(lookupResult.items);
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
-          shouldSearchProvider) {
+          lookupResult.shouldSearchProvider) {
         await _searchProvider(queryOverride: barcode);
       }
     } catch (error) {
@@ -1043,8 +1023,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final provider = _activeProvider;
     ++_providerSearchGeneration;
+    final debounceDecision = evaluateLibraryAddProviderSearchDebounce(
+      provider: provider,
+      query: query,
+      debounce: _providerSearchDebounce,
+      now: DateTime.now(),
+      previousSignature: _lastProviderSearchSignature,
+      previousAt: _lastProviderSearchAt,
+    );
+    _lastProviderSearchSignature = debounceDecision.signature;
+    _lastProviderSearchAt = debounceDecision.at;
     if (_isSearchingProvider ||
-        (!bypassDebounce && _shouldDebounceProviderSearch(provider, query))) {
+        (!bypassDebounce && debounceDecision.shouldSkip)) {
       return;
     }
     setState(() {
@@ -1058,11 +1048,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final rawResults = await searchLibraryProviderCandidates(
-        api,
-        widget.type,
+      final results = await runLibraryAddProviderSearch(
+        api: api,
+        type: widget.type,
         provider: provider,
         query: query,
+        rerankHints: _currentLocalRerankHints(),
         series: _searchSeriesController.text.trim().isNotEmpty
             ? _searchSeriesController.text.trim()
             : null,
@@ -1072,10 +1063,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         year: _searchYearController.text.trim().isNotEmpty
             ? int.tryParse(_searchYearController.text.trim())
             : null,
-      );
-      final results = rerankProviderCandidates(
-        rawResults,
-        _currentLocalRerankHints(),
       );
       if (!mounted) {
         return;
@@ -1336,18 +1323,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     ]);
   }
 
-  bool _shouldDebounceProviderSearch(String provider, String query) {
-    final now = DateTime.now();
-    final signature = '$provider|${query.trim().toLowerCase()}';
-    final lastAt = _lastProviderSearchAt;
-    final shouldSkip = _lastProviderSearchSignature == signature &&
-        lastAt != null &&
-        now.difference(lastAt) < _providerSearchDebounce;
-    _lastProviderSearchSignature = signature;
-    _lastProviderSearchAt = now;
-    return shouldSkip;
-  }
-
   Future<bool> _clearRejectedMetadataSession(
     Object error,
     String action,
@@ -1450,20 +1425,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   String get _providerQuery {
-    final seen = <String>{};
-    return [
+    return buildLibraryAddProviderQuery([
       _queryController.text,
       _searchSeriesController.text,
       _searchNumberController.text,
       _searchPublisherController.text,
       _searchYearController.text,
       _barcodeController.text,
-    ].map((part) => part.trim()).where((part) {
-      if (part.isEmpty) {
-        return false;
-      }
-      return seen.add(part.toLowerCase());
-    }).join(' ');
+    ]);
   }
 
   Future<void> _addItems(
