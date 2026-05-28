@@ -1180,8 +1180,10 @@ double _measureDropdownWidth(
   required double minWidth,
 }) {
   final textDirection = Directionality.of(context);
+  final textScaler = MediaQuery.textScalerOf(context);
   final painter = TextPainter(
     textDirection: textDirection,
+    textScaler: textScaler,
     maxLines: 1,
   );
   var maxLabelWidth = 0.0;

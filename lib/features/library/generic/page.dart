@@ -1178,6 +1178,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   String _formatIssueRanges(List<int> numbers) {
+    if (numbers.isEmpty) {
+      return '';
+    }
     final sorted = numbers.toList(growable: false)..sort();
     final labels = <String>[];
     var start = sorted.first;

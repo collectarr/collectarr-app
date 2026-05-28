@@ -258,7 +258,9 @@ class _DetailStarRating extends StatelessWidget {
   Widget build(BuildContext context) {
     // Convert rating to 5-star scale for display
     const starCount = 5;
-    final filledStars = (rating * starCount / maxRating).round().clamp(0, starCount);
+    final filledStars = maxRating > 0
+        ? (rating * starCount / maxRating).round().clamp(0, starCount)
+        : 0;
     return Row(
       children: [
         Text(
