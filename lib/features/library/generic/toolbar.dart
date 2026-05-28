@@ -749,39 +749,199 @@ class _ToolbarChromeRow extends StatelessWidget {
   final VoidCallback onManageColumns;
   final bool canJumpToIssue;
   final ValueChanged<String>? onJumpToIssueSubmitted;
+  static const double _statusScopeDropdownWidth = 188;
+  static const double _statusScopeDropdownHeight = 36;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final accent = Theme.of(context).colorScheme.primary;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: onCollectionStatusScopeChanged == null
           ? const SizedBox.shrink()
-          : SizedBox(
-              width: double.infinity,
-              height: 38,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final scope
-                        in LibraryCollectionStatusScope.values) ...[
-                      FilterChip(
-                        avatar: Icon(scope.icon, size: 14),
-                        label: Text(scope.label),
-                        selected: collectionStatusScope == scope,
-                        onSelected: (_) =>
-                            onCollectionStatusScopeChanged!(scope),
-                        visualDensity: VisualDensity.compact,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          : Align(
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                width: _statusScopeDropdownWidth,
+                child: PopupMenuButton<LibraryCollectionStatusScope>(
+                  key: const Key('collection-status-scope-dropdown'),
+                  tooltip: 'Collection status scope',
+                  initialValue: collectionStatusScope,
+                  onSelected: onCollectionStatusScopeChanged!,
+                  padding: EdgeInsets.zero,
+                  menuPadding: const EdgeInsets.symmetric(vertical: 4),
+                  position: PopupMenuPosition.under,
+                  color: palette.panelRaised,
+                  surfaceTintColor: Colors.transparent,
+                  constraints: const BoxConstraints(
+                    minWidth: _statusScopeDropdownWidth,
+                    maxWidth: _statusScopeDropdownWidth,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    side: BorderSide(color: palette.divider),
+                  ),
+                  itemBuilder: (context) => [
+                    for (final scope in LibraryCollectionStatusScope.values)
+                      PopupMenuItem<LibraryCollectionStatusScope>(
+                        value: scope,
+                        height: _statusScopeDropdownHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: _CollectionStatusScopeMenuItem(
+                          scope: scope,
+                          isSelected: scope == collectionStatusScope,
+                          accent: accent,
+                          muted: palette.textMuted,
+                          textColor: palette.textPrimary,
+                        ),
                       ),
-                      const SizedBox(width: 6),
-                    ],
                   ],
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: palette.panelRaised,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: _collectionStatusScopeColor(
+                          collectionStatusScope,
+                          accent,
+                          palette.textMuted,
+                        ).withValues(alpha: 0.45),
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: _statusScopeDropdownHeight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            _CollectionStatusScopeBadge(
+                              scope: collectionStatusScope,
+                              accent: accent,
+                              muted: palette.textMuted,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                collectionStatusScope.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      height: 1,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
     );
   }
+}
+
+class _CollectionStatusScopeMenuItem extends StatelessWidget {
+  const _CollectionStatusScopeMenuItem({
+    required this.scope,
+    required this.isSelected,
+    required this.accent,
+    required this.muted,
+    required this.textColor,
+  });
+
+  final LibraryCollectionStatusScope scope;
+  final bool isSelected;
+  final Color accent;
+  final Color muted;
+  final Color textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _collectionStatusScopeColor(scope, accent, muted);
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        children: [
+          _CollectionStatusScopeBadge(
+            scope: scope,
+            accent: accent,
+            muted: muted,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              scope.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    height: 1,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? color : textColor,
+                  ),
+            ),
+          ),
+          if (isSelected) Icon(Icons.check, size: 16, color: color),
+        ],
+      ),
+    );
+  }
+}
+
+class _CollectionStatusScopeBadge extends StatelessWidget {
+  const _CollectionStatusScopeBadge({
+    required this.scope,
+    required this.accent,
+    required this.muted,
+  });
+
+  final LibraryCollectionStatusScope scope;
+  final Color accent;
+  final Color muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _collectionStatusScopeColor(scope, accent, muted);
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      alignment: Alignment.center,
+      child: Icon(scope.icon, size: 13, color: Colors.white),
+    );
+  }
+}
+
+Color _collectionStatusScopeColor(
+  LibraryCollectionStatusScope scope,
+  Color accent,
+  Color muted,
+) {
+  return switch (scope) {
+    LibraryCollectionStatusScope.all => muted,
+    LibraryCollectionStatusScope.inCollection => accent,
+    LibraryCollectionStatusScope.forSale => const Color(0xFF2E7D32),
+    LibraryCollectionStatusScope.wishList => const Color(0xFFFF9800),
+    LibraryCollectionStatusScope.onOrder => const Color(0xFF0EA5E9),
+    LibraryCollectionStatusScope.sold => const Color(0xFFC44B4F),
+    LibraryCollectionStatusScope.notInCollection => const Color(0xFF9E9E9E),
+  };
 }
 
 class _ToolbarAlphabetRow extends StatelessWidget {
