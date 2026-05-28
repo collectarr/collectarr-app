@@ -209,12 +209,16 @@ class LibraryToolbarSearch extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final inputBackground = Color.alphaBlend(
-      Colors.black.withValues(alpha: 0.42),
+      Colors.black.withValues(alpha: 0.58),
       palette.surface,
     );
     final borderColor = Color.alphaBlend(
-      palette.textMuted.withValues(alpha: 0.22),
+      palette.textMuted.withValues(alpha: 0.18),
       palette.divider,
+    );
+    final actionBackground = Color.alphaBlend(
+      Colors.black.withValues(alpha: 0.18),
+      palette.surfaceSubtle,
     );
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -229,21 +233,13 @@ class LibraryToolbarSearch extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: inputBackground,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(2),
                     border: Border.all(color: borderColor),
                   ),
                   child: SizedBox(
-                    height: 36,
+                    height: 38,
                     child: Row(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10, right: 8),
-                          child: Icon(
-                            Icons.search,
-                            size: 18,
-                            color: palette.textMuted,
-                          ),
-                        ),
                         Expanded(
                           child: TextField(
                             controller: controller,
@@ -258,14 +254,17 @@ class LibraryToolbarSearch extends StatelessWidget {
                                   .bodyMedium
                                   ?.copyWith(color: palette.textMuted),
                               border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 10),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
                             ),
                           ),
                         ),
                         Container(
-                          width: 36,
+                          width: 38,
                           decoration: BoxDecoration(
+                            color: actionBackground,
                             border:
                                 Border(left: BorderSide(color: borderColor)),
                           ),
