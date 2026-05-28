@@ -88,9 +88,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final accent = libraryAccentForKind(selected.kind);
     final Widget resolvedTopBar;
     if (navPreferences.placement == LibraryNavPlacement.top) {
-      resolvedTopBar = collapsed
-          ? MediaLibraryCollapsedStrip(accent: accent)
-          : topBar;
+      resolvedTopBar = topBar;
     } else {
       // Left-rail mode owns the whole library chrome, so no top bar.
       resolvedTopBar = const SizedBox.shrink();

@@ -86,16 +86,7 @@ class MediaLibraryNav extends ConsumerWidget {
                   ),
                 ),
               ),
-              Expanded(
-                child: MediaLibraryNavStrip(
-                  types: types,
-                  counts: counts,
-                  registry: registry,
-                  selectedKind: selected.kind,
-                  onSelected: onSelected,
-                  animationDuration: animationDuration,
-                ),
-              ),
+              const Spacer(),
               Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: _MediaLibraryHeaderActions(
@@ -103,6 +94,11 @@ class MediaLibraryNav extends ConsumerWidget {
                   overdueLoanCount: overdueLoanCount,
                   selectedOverdueLoanCount: selectedOverdueLoanCount,
                   selectedLabel: selectedLabel,
+                  types: types,
+                  counts: counts,
+                  registry: registry,
+                  selectedType: selected,
+                  onSelected: onSelected,
                 ),
               ),
             ],
@@ -235,22 +231,41 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
     required this.overdueLoanCount,
     required this.selectedOverdueLoanCount,
     required this.selectedLabel,
+    this.types = const [],
+    this.counts = const {},
+    this.registry,
+    this.selectedType,
+    this.onSelected,
   });
 
   final Color accent;
   final int overdueLoanCount;
   final int selectedOverdueLoanCount;
   final String selectedLabel;
+  final List<CatalogMediaType> types;
+  final Map<String, LibraryKindCount> counts;
+  final LibraryTypeRegistry? registry;
+  final CatalogMediaType? selectedType;
+  final ValueChanged<CatalogMediaType>? onSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final navPrefs = ref.watch(libraryNavPreferencesProvider);
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (selectedType != null && onSelected != null && registry != null) ...[
+            _LibrarySelectorDropdown(
+              types: types,
+              counts: counts,
+              registry: registry!,
+              selectedType: selectedType!,
+              onSelected: onSelected!,
+            ),
+            const SizedBox(width: 6),
+          ],
           if (overdueLoanCount > 0) ...[
             _OverdueLoanChip(
               overdueLoanCount: overdueLoanCount,
@@ -261,18 +276,121 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
             const SizedBox(width: 6),
           ],
           const _TopBarSyncButton(),
-          const SizedBox(width: 2),
-          _HeaderActionButton(
-            tooltip: navPrefs.collapsed
-                ? 'Show library selector'
-                : 'Hide library selector',
-            label: '',
-            icon: navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
-            onPressed: () => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .toggleCollapsed(),
-          ),
         ],
+      ),
+    );
+  }
+}
+
+class _LibrarySelectorDropdown extends StatelessWidget {
+  const _LibrarySelectorDropdown({
+    required this.types,
+    required this.counts,
+    required this.registry,
+    required this.selectedType,
+    required this.onSelected,
+  });
+
+  final List<CatalogMediaType> types;
+  final Map<String, LibraryKindCount> counts;
+  final LibraryTypeRegistry registry;
+  final CatalogMediaType selectedType;
+  final ValueChanged<CatalogMediaType> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final controlBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
+    );
+    final controlBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
+      palette.divider,
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final selectedIcon = registry.byKind(selectedType.kind)?.workspace.icon ??
+        libraryIconForKind(selectedType.kind);
+    return PopupMenuButton<CatalogMediaType>(
+      tooltip: 'Select library',
+      initialValue: selectedType,
+      onSelected: onSelected,
+      color: palette.panelRaised,
+      surfaceTintColor: Colors.transparent,
+      menuPadding: const EdgeInsets.symmetric(vertical: 4),
+      position: PopupMenuPosition.under,
+      constraints: const BoxConstraints(minWidth: 220, maxWidth: 260),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(color: controlBorder),
+      ),
+      itemBuilder: (context) => [
+        for (final type in types)
+          PopupMenuItem<CatalogMediaType>(
+            value: type,
+            child: Row(
+              children: [
+                Icon(
+                  registry.byKind(type.kind)?.workspace.icon ??
+                      libraryIconForKind(type.kind),
+                  size: 16,
+                  color: libraryAccentForKind(type.kind),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    type.pluralLabel,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: type.kind == selectedType.kind
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: type.kind == selectedType.kind
+                              ? libraryAccentForKind(type.kind)
+                              : palette.textPrimary,
+                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  (counts[type.kind]?.total ?? 0).toString(),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: palette.textMuted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ],
+            ),
+          ),
+      ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: controlBackground,
+          border: Border.all(color: controlBorder),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(selectedIcon, size: 16, color: controlForeground),
+            const SizedBox(width: 6),
+            Text(
+              selectedType.pluralLabel,
+              style: TextStyle(
+                color: controlForeground,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(Icons.arrow_drop_down, size: 16, color: controlForeground),
+          ],
+        ),
       ),
     );
   }
@@ -442,55 +560,6 @@ class _OverdueLoanChip extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _HeaderActionButton extends StatelessWidget {
-  const _HeaderActionButton({
-    required this.tooltip,
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final String label;
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final controlBackground = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
-      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
-    );
-    final controlForeground =
-        ThemeData.estimateBrightnessForColor(controlBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    return Tooltip(
-      message: tooltip,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          visualDensity: VisualDensity.compact,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          foregroundColor: controlForeground,
-          side: BorderSide(
-            color: Color.alphaBlend(
-              palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
-              palette.divider,
-            ),
-          ),
-          backgroundColor: controlBackground,
-          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-        ),
-        icon: Icon(icon, size: 16),
-        label: Text(label),
       ),
     );
   }
