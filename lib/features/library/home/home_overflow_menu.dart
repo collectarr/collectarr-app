@@ -22,6 +22,19 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final buttonBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.08),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final buttonBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.16),
+      palette.divider,
+    );
+    final buttonForeground =
+        ThemeData.estimateBrightnessForColor(buttonBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return PopupMenuButton<CatalogMediaType>(
       tooltip: 'More libraries',
       color: palette.panelRaised,
@@ -55,20 +68,8 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
         padding: const EdgeInsets.only(right: 8),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: palette.isDark
-                ? Colors.black.withValues(alpha: 0.26)
-                : Color.alphaBlend(
-                    appPalette(context).accent.withValues(alpha: 0.08),
-                    palette.surfaceSubtle,
-                  ),
-            border: Border.all(
-              color: palette.isDark
-                  ? Colors.white38
-                  : Color.alphaBlend(
-                      appPalette(context).accent.withValues(alpha: 0.16),
-                      palette.divider,
-                    ),
-            ),
+            color: buttonBackground,
+            border: Border.all(color: buttonBorder),
             borderRadius: BorderRadius.circular(3),
           ),
           child: Padding(
@@ -78,14 +79,14 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.more_horiz,
-                  color: palette.isDark ? Colors.white : palette.textPrimary,
+                  color: buttonForeground,
                   size: 17,
                 ),
                 const SizedBox(width: 5),
                 Text(
                   'More',
                   style: TextStyle(
-                    color: palette.isDark ? Colors.white : palette.textPrimary,
+                    color: buttonForeground,
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                   ),
@@ -94,9 +95,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
                 Text(
                   types.length.toString(),
                   style: TextStyle(
-                    color: palette.isDark
-                        ? Colors.white.withValues(alpha: 0.82)
-                        : palette.textMuted,
+                    color: buttonForeground.withValues(alpha: 0.82),
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),
@@ -148,22 +147,16 @@ class _OverflowMenuRow extends StatelessWidget {
           const SizedBox(width: 10),
           DecoratedBox(
             decoration: BoxDecoration(
-              color: palette.isDark
-                  ? Colors.white.withValues(alpha: 0.10)
-                  : palette.surfaceSubtle,
+              color: palette.surfaceSubtle,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: palette.isDark ? Colors.white24 : palette.divider,
-              ),
+              border: Border.all(color: palette.divider),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               child: Text(
                 count.toString(),
                 style: TextStyle(
-                  color: palette.isDark
-                      ? Colors.white.withValues(alpha: 0.86)
-                      : palette.textMuted,
+                  color: palette.textMuted,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),

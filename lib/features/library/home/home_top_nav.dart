@@ -205,7 +205,7 @@ class _MediaLibraryTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final titleColor = palette.isDark ? Colors.white : palette.textPrimary;
+    final titleColor = palette.textPrimary;
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
@@ -285,19 +285,33 @@ class _TopBarSyncButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
     final palette = appPalette(context);
-    final controlBackground = palette.isDark
-        ? Colors.black.withValues(alpha: 0.12)
-        : Color.alphaBlend(
-            palette.accent.withValues(alpha: 0.08),
-            palette.surfaceSubtle,
-          );
-    final controlBorder = palette.isDark
-        ? Colors.white24
-        : Color.alphaBlend(
-            palette.accent.withValues(alpha: 0.16),
-            palette.divider,
-          );
-    final iconColor = palette.isDark ? Colors.white : palette.textPrimary;
+    final controlBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
+    );
+    final controlBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
+      palette.divider,
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final controlMutedForeground = controlForeground.withValues(alpha: 0.72);
+    final pendingBadgeBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.12),
+      palette.selection,
+    );
+    final pendingBadgeBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+      palette.divider,
+    );
+    final pendingBadgeForeground =
+        ThemeData.estimateBrightnessForColor(pendingBadgeBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Tooltip(
       message: sync.isSyncing
           ? 'Personal sync is running'
@@ -327,12 +341,12 @@ class _TopBarSyncButton extends ConsumerWidget {
                       : Icons.sync_outlined,
                   size: 18,
                   color: sync.isSyncing
-                      ? (palette.isDark ? Colors.white54 : palette.textMuted)
+                      ? controlMutedForeground
                       : sync.isOffline
                         ? (palette.isDark
                           ? Colors.orange.shade200
                           : Colors.orange.shade700)
-                        : iconColor,
+                        : controlForeground,
                 ),
                 if (!sync.isSyncing && sync.pendingCount > 0)
                   Positioned(
@@ -344,13 +358,9 @@ class _TopBarSyncButton extends ConsumerWidget {
                         vertical: 1,
                       ),
                       decoration: BoxDecoration(
-                        color: palette.isDark
-                            ? Colors.white.withValues(alpha: 0.18)
-                            : palette.selection,
+                        color: pendingBadgeBackground,
                         border: Border.all(
-                          color: palette.isDark
-                              ? Colors.white.withValues(alpha: 0.35)
-                              : palette.divider,
+                          color: pendingBadgeBorder,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -360,7 +370,7 @@ class _TopBarSyncButton extends ConsumerWidget {
                             : sync.pendingCount.toString(),
                         style: TextStyle(
                           fontSize: 9,
-                          color: iconColor,
+                          color: pendingBadgeForeground,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -453,6 +463,15 @@ class _HeaderActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final controlBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Tooltip(
       message: tooltip,
       child: OutlinedButton.icon(
@@ -460,22 +479,14 @@ class _HeaderActionButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          foregroundColor:
-              palette.isDark ? Colors.white : palette.textPrimary,
+          foregroundColor: controlForeground,
           side: BorderSide(
-            color: palette.isDark
-                ? Colors.white24
-                : Color.alphaBlend(
-                    palette.accent.withValues(alpha: 0.16),
-                    palette.divider,
-                  ),
+            color: Color.alphaBlend(
+              palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
+              palette.divider,
+            ),
           ),
-          backgroundColor: palette.isDark
-              ? Colors.black.withValues(alpha: 0.12)
-              : Color.alphaBlend(
-                  palette.accent.withValues(alpha: 0.08),
-                  palette.surfaceSubtle,
-                ),
+          backgroundColor: controlBackground,
           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
         icon: Icon(icon, size: 16),
@@ -650,24 +661,28 @@ class _ScrollArrowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final buttonBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.16 : 0.12),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final buttonForeground =
+        ThemeData.estimateBrightnessForColor(buttonBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 20,
         height: 28,
         decoration: BoxDecoration(
-          color: palette.isDark
-              ? Colors.black.withValues(alpha: 0.45)
-              : Color.alphaBlend(
-                  palette.accent.withValues(alpha: 0.12),
-                  palette.surfaceSubtle,
-                ),
+          color: buttonBackground,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Icon(
           icon,
           size: 16,
-          color: palette.isDark ? Colors.white : palette.textPrimary,
+          color: buttonForeground,
         ),
       ),
     );
@@ -685,6 +700,15 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
+    final handleBackground = Color.alphaBlend(
+      accent.withValues(alpha: 0.14),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final handleForeground =
+        ThemeData.estimateBrightnessForColor(handleBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Container(
       height: 6,
       decoration: BoxDecoration(
@@ -708,16 +732,11 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
               child: Container(
                 width: 42,
                 height: 6,
-                color: palette.isDark
-                    ? Colors.white.withValues(alpha: 0.18)
-                    : Color.alphaBlend(
-                        accent.withValues(alpha: 0.14),
-                        palette.surfaceSubtle,
-                      ),
+                color: handleBackground,
                 child: Icon(
                   Icons.expand_more,
                   size: 6,
-                  color: palette.isDark ? Colors.white70 : palette.textPrimary,
+                  color: handleForeground,
                 ),
               ),
             ),
@@ -739,6 +758,15 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
+    final handleBackground = Color.alphaBlend(
+      accent.withValues(alpha: 0.14),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final handleForeground =
+        ThemeData.estimateBrightnessForColor(handleBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Container(
       width: 10,
       decoration: BoxDecoration(
@@ -762,16 +790,11 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
               child: Container(
                 width: 10,
                 height: 36,
-                color: palette.isDark
-                    ? Colors.white.withValues(alpha: 0.18)
-                    : Color.alphaBlend(
-                        accent.withValues(alpha: 0.14),
-                        palette.surfaceSubtle,
-                      ),
+                color: handleBackground,
                 child: Icon(
                   Icons.chevron_right,
                   size: 14,
-                  color: palette.isDark ? Colors.white70 : palette.textPrimary,
+                  color: handleForeground,
                 ),
               ),
             ),

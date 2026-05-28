@@ -26,9 +26,6 @@ class MediaLibraryNavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final textColor = palette.isDark ? Colors.white : palette.textPrimary;
-    final countColor =
-      palette.isDark ? Colors.white.withValues(alpha: 0.84) : palette.textMuted;
     final borderColor = selected
       ? (palette.isDark
         ? Colors.white.withValues(alpha: 0.72)
@@ -45,6 +42,19 @@ class MediaLibraryNavButton extends StatelessWidget {
     final unselectedFill = palette.isDark
       ? Colors.black.withValues(alpha: 0.28)
       : Color.alphaBlend(color.withValues(alpha: 0.04), palette.surfaceSubtle);
+    final selectedSurface = Color.lerp(selectedStart, selectedEnd, 0.5)!;
+    final selectedTextColor =
+        ThemeData.estimateBrightnessForColor(selectedSurface) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final selectedCountColor = selectedTextColor.withValues(alpha: 0.84);
+    final unselectedTextColor =
+        ThemeData.estimateBrightnessForColor(unselectedFill) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final unselectedCountColor = palette.isDark
+        ? unselectedTextColor.withValues(alpha: 0.84)
+        : palette.textMuted;
     return Tooltip(
       message: type.pluralLabel,
       child: Material(
@@ -78,12 +88,16 @@ class MediaLibraryNavButton extends StatelessWidget {
               children: [
                 Container(width: 4, height: double.infinity, color: color),
                 const SizedBox(width: 8),
-                Icon(icon, size: 17, color: selected ? textColor : color),
+                Icon(
+                  icon,
+                  size: 17,
+                  color: selected ? selectedTextColor : color,
+                ),
                 const SizedBox(width: 7),
                 Text(
                   libraryNavLabel(type),
                   style: TextStyle(
-                    color: textColor,
+                    color: selected ? selectedTextColor : unselectedTextColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                   ),
@@ -92,7 +106,7 @@ class MediaLibraryNavButton extends StatelessWidget {
                 Text(
                   count.toString(),
                   style: TextStyle(
-                    color: countColor,
+                    color: selected ? selectedCountColor : unselectedCountColor,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),
