@@ -23,20 +23,38 @@ LinearGradient libraryChromeGradient(
   Color accent, {
   AlignmentGeometry begin = Alignment.topLeft,
   AlignmentGeometry end = Alignment.bottomRight,
+  Brightness brightness = Brightness.dark,
 }) {
+  final isDark = brightness == Brightness.dark;
   return LinearGradient(
     begin: begin,
     end: end,
     colors: [
       Color.alphaBlend(
-        Colors.black.withValues(alpha: 0.34),
+        isDark
+            ? Colors.black.withValues(alpha: 0.34)
+            : Colors.white.withValues(alpha: 0.42),
         accent,
       ),
       Color.alphaBlend(
-        Colors.black.withValues(alpha: 0.62),
+        isDark
+            ? Colors.black.withValues(alpha: 0.62)
+            : Colors.white.withValues(alpha: 0.20),
         accent,
       ),
     ],
+  );
+}
+
+Color libraryChromeBorderColor(
+  Color accent, {
+  Brightness brightness = Brightness.dark,
+}) {
+  return Color.alphaBlend(
+    brightness == Brightness.dark
+        ? Colors.black.withValues(alpha: 0.24)
+        : Colors.white.withValues(alpha: 0.46),
+    accent,
   );
 }
 

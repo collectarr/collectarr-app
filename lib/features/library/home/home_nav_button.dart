@@ -25,7 +25,26 @@ class MediaLibraryNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = selected ? Colors.white.withValues(alpha: 0.72) : color;
+    final palette = appPalette(context);
+    final textColor = palette.isDark ? Colors.white : palette.textPrimary;
+    final countColor =
+      palette.isDark ? Colors.white.withValues(alpha: 0.84) : palette.textMuted;
+    final borderColor = selected
+      ? (palette.isDark
+        ? Colors.white.withValues(alpha: 0.72)
+        : Color.alphaBlend(color.withValues(alpha: 0.18), palette.divider))
+      : (palette.isDark
+        ? color
+        : Color.alphaBlend(color.withValues(alpha: 0.28), palette.divider));
+    final selectedStart = palette.isDark
+      ? color.withValues(alpha: 0.38)
+      : Color.alphaBlend(color.withValues(alpha: 0.16), palette.surfaceSubtle);
+    final selectedEnd = palette.isDark
+      ? color.withValues(alpha: 0.14)
+      : Color.alphaBlend(color.withValues(alpha: 0.06), palette.panel);
+    final unselectedFill = palette.isDark
+      ? Colors.black.withValues(alpha: 0.28)
+      : Color.alphaBlend(color.withValues(alpha: 0.04), palette.surfaceSubtle);
     return Tooltip(
       message: type.pluralLabel,
       child: Material(
@@ -41,14 +60,14 @@ class MediaLibraryNavButton extends StatelessWidget {
               gradient: selected
                   ? LinearGradient(
                       colors: [
-                        color.withValues(alpha: 0.38),
-                        color.withValues(alpha: 0.14),
+                        selectedStart,
+                        selectedEnd,
                       ],
                     )
                   : LinearGradient(
                       colors: [
-                        Colors.black.withValues(alpha: 0.28),
-                        Colors.black.withValues(alpha: 0.28),
+                        unselectedFill,
+                        unselectedFill,
                       ],
                     ),
               borderRadius: BorderRadius.circular(3),
@@ -59,12 +78,12 @@ class MediaLibraryNavButton extends StatelessWidget {
               children: [
                 Container(width: 4, height: double.infinity, color: color),
                 const SizedBox(width: 8),
-                Icon(icon, size: 17, color: selected ? Colors.white : color),
+                Icon(icon, size: 17, color: selected ? textColor : color),
                 const SizedBox(width: 7),
                 Text(
                   libraryNavLabel(type),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: textColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                   ),
@@ -73,7 +92,7 @@ class MediaLibraryNavButton extends StatelessWidget {
                 Text(
                   count.toString(),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.84),
+                    color: countColor,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),

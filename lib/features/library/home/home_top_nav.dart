@@ -41,6 +41,7 @@ class MediaLibraryNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selected.kind);
+    final palette = appPalette(context);
     final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
 
@@ -51,13 +52,16 @@ class MediaLibraryNav extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         border: Border(
           bottom: BorderSide(
-            color:
-                Color.alphaBlend(Colors.black.withValues(alpha: 0.24), accent),
+            color: libraryChromeBorderColor(
+              accent,
+              brightness: palette.brightness,
+            ),
           ),
         ),
       ),
@@ -130,6 +134,7 @@ class MediaLibraryTitleBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accent = libraryAccentForKind(type.kind);
+    final palette = appPalette(context);
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
     return AnimatedContainer(
@@ -139,14 +144,15 @@ class MediaLibraryTitleBar extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         border: Border(
           bottom: BorderSide(
-            color: Color.alphaBlend(
-              Colors.black.withValues(alpha: 0.24),
+            color: libraryChromeBorderColor(
               accent,
+              brightness: palette.brightness,
             ),
           ),
         ),
@@ -198,10 +204,12 @@ class _MediaLibraryTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final titleColor = palette.isDark ? Colors.white : palette.textPrimary;
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Icon(icon, size: 20, color: Colors.white),
+        Icon(icon, size: 20, color: titleColor),
         const SizedBox(width: 7),
         Expanded(
           child: Text(
@@ -209,8 +217,8 @@ class _MediaLibraryTitle extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: titleColor,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
@@ -276,6 +284,20 @@ class _TopBarSyncButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
+    final palette = appPalette(context);
+    final controlBackground = palette.isDark
+        ? Colors.black.withValues(alpha: 0.12)
+        : Color.alphaBlend(
+            palette.accent.withValues(alpha: 0.08),
+            palette.surfaceSubtle,
+          );
+    final controlBorder = palette.isDark
+        ? Colors.white24
+        : Color.alphaBlend(
+            palette.accent.withValues(alpha: 0.16),
+            palette.divider,
+          );
+    final iconColor = palette.isDark ? Colors.white : palette.textPrimary;
     return Tooltip(
       message: sync.isSyncing
           ? 'Personal sync is running'
@@ -292,8 +314,8 @@ class _TopBarSyncButton extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.12),
-              border: Border.all(color: Colors.white24),
+              color: controlBackground,
+              border: Border.all(color: controlBorder),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Stack(
@@ -305,10 +327,12 @@ class _TopBarSyncButton extends ConsumerWidget {
                       : Icons.sync_outlined,
                   size: 18,
                   color: sync.isSyncing
-                      ? Colors.white54
+                      ? (palette.isDark ? Colors.white54 : palette.textMuted)
                       : sync.isOffline
+                        ? (palette.isDark
                           ? Colors.orange.shade200
-                          : Colors.white,
+                          : Colors.orange.shade700)
+                        : iconColor,
                 ),
                 if (!sync.isSyncing && sync.pendingCount > 0)
                   Positioned(
@@ -320,9 +344,13 @@ class _TopBarSyncButton extends ConsumerWidget {
                         vertical: 1,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: palette.isDark
+                            ? Colors.white.withValues(alpha: 0.18)
+                            : palette.selection,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.35),
+                          color: palette.isDark
+                              ? Colors.white.withValues(alpha: 0.35)
+                              : palette.divider,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -330,9 +358,9 @@ class _TopBarSyncButton extends ConsumerWidget {
                         sync.pendingCount > 99
                             ? '99+'
                             : sync.pendingCount.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 9,
-                          color: Colors.white,
+                          color: iconColor,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -424,6 +452,7 @@ class _HeaderActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Tooltip(
       message: tooltip,
       child: OutlinedButton.icon(
@@ -431,9 +460,22 @@ class _HeaderActionButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Colors.white24),
-          backgroundColor: Colors.black.withValues(alpha: 0.12),
+          foregroundColor:
+              palette.isDark ? Colors.white : palette.textPrimary,
+          side: BorderSide(
+            color: palette.isDark
+                ? Colors.white24
+                : Color.alphaBlend(
+                    palette.accent.withValues(alpha: 0.16),
+                    palette.divider,
+                  ),
+          ),
+          backgroundColor: palette.isDark
+              ? Colors.black.withValues(alpha: 0.12)
+              : Color.alphaBlend(
+                  palette.accent.withValues(alpha: 0.08),
+                  palette.surfaceSubtle,
+                ),
           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
         icon: Icon(icon, size: 16),
