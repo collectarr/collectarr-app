@@ -165,6 +165,7 @@ class LibraryToolbar extends StatelessWidget {
                   searchController: searchController,
                   accent: accent,
                   counts: counts,
+                  viewMode: viewState.viewMode,
                   selectedBucket: selectedBucket,
                   onAdd: onAdd,
                   onScan: onScan,
@@ -434,6 +435,7 @@ class _CompactLibraryToolbarContent extends StatelessWidget {
     required this.searchController,
     required this.accent,
     required this.counts,
+    required this.viewMode,
     required this.selectedBucket,
     required this.onAdd,
     required this.onScan,
@@ -487,6 +489,7 @@ class _CompactLibraryToolbarContent extends StatelessWidget {
   final TextEditingController searchController;
   final Color accent;
   final LibraryToolbarCounts counts;
+  final LibraryViewMode viewMode;
   final String? selectedBucket;
   final VoidCallback onAdd;
   final VoidCallback onScan;
@@ -616,10 +619,13 @@ class _CompactLibraryToolbarContent extends StatelessWidget {
                   alignment: WrapAlignment.start,
                   children: [
                     Tooltip(
-                      message: 'Views and cover size',
+                      message: viewMode.supportsCoverSize
+                          ? 'Views and cover size'
+                          : 'Views (cover size unavailable in this view)',
                       child: IconButton.filledTonal(
                         onPressed: () => _showCompactCoverSizeSheet(
                           context,
+                          viewMode,
                           onViewModeChanged,
                           onDetailsLayoutChanged,
                           onCoverSizeChanged,
@@ -1272,10 +1278,12 @@ class _ToolbarSheetSectionTitle extends StatelessWidget {
 
 void _showCompactCoverSizeSheet(
   BuildContext context,
+  LibraryViewMode viewMode,
   ValueChanged<LibraryViewMode> onViewModeChanged,
   ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged,
   ValueChanged<double> onCoverSizeChanged,
 ) {
+  final coverSizeEnabled = viewMode.supportsCoverSize;
   showModalBottomSheet<void>(
     context: context,
     builder: (context) => SafeArea(
@@ -1343,18 +1351,24 @@ void _showCompactCoverSizeSheet(
           ListTile(
             leading: const Icon(Icons.photo_size_select_small),
             title: const Text('Small covers'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onCoverSizeChanged(96);
-            },
+            enabled: coverSizeEnabled,
+            onTap: coverSizeEnabled
+                ? () {
+                    Navigator.of(context).pop();
+                    onCoverSizeChanged(96);
+                  }
+                : null,
           ),
           ListTile(
             leading: const Icon(Icons.photo_size_select_large),
             title: const Text('Large covers'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onCoverSizeChanged(188);
-            },
+            enabled: coverSizeEnabled,
+            onTap: coverSizeEnabled
+                ? () {
+                    Navigator.of(context).pop();
+                    onCoverSizeChanged(188);
+                  }
+                : null,
           ),
         ],
       ),

@@ -3,6 +3,17 @@ import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, cardFlow, list, shelves }
 
+extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
+  bool get supportsCoverSize {
+    return switch (this) {
+      LibraryViewMode.grid ||
+      LibraryViewMode.card ||
+      LibraryViewMode.shelves => true,
+      LibraryViewMode.cardFlow || LibraryViewMode.list => false,
+    };
+  }
+}
+
 enum LibraryDetailsLayout { right, bottom, hidden }
 
 enum LibraryGroupMode {

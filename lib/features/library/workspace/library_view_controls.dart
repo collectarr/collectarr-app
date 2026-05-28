@@ -25,6 +25,10 @@ class LibraryViewControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final coverSizeEnabled = viewMode.supportsCoverSize;
+    final iconColor = coverSizeEnabled
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : Theme.of(context).disabledColor;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -102,23 +106,36 @@ class LibraryViewControls extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Tooltip(
-          message: 'Cover size',
-          child: Icon(Icons.photo_size_select_small, size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
+          message: coverSizeEnabled
+              ? 'Cover size'
+              : 'Cover size is unavailable in this view',
+          child: Icon(
+            Icons.photo_size_select_small,
+            size: 18,
+            color: iconColor,
+          ),
         ),
-        SizedBox(
-          width: 120,
-          child: SliderTheme(
-            data: SliderThemeData(
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-              trackHeight: 3,
-            ),
-            child: Slider(
-              value: coverSize.clamp(minCoverSize, maxCoverSize),
-              min: minCoverSize,
-              max: maxCoverSize,
-              onChanged: onCoverSizeChanged,
+        Opacity(
+          opacity: coverSizeEnabled ? 1 : 0.45,
+          child: SizedBox(
+            width: 120,
+            child: IgnorePointer(
+              ignoring: !coverSizeEnabled,
+              child: SliderTheme(
+                data: SliderThemeData(
+                  overlayShape:
+                      const RoundSliderOverlayShape(overlayRadius: 14),
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 6),
+                  trackHeight: 3,
+                ),
+                child: Slider(
+                  value: coverSize.clamp(minCoverSize, maxCoverSize),
+                  min: minCoverSize,
+                  max: maxCoverSize,
+                  onChanged: coverSizeEnabled ? onCoverSizeChanged : null,
+                ),
+              ),
             ),
           ),
         ),

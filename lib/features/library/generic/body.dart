@@ -182,6 +182,7 @@ class LibraryBody extends StatelessWidget {
                 .toList();
         final workspace = workspaceOverride ??
             LibraryCtrlScrollZoom(
+              viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
               minCoverSize: adapter.viewProfile.minCoverSize,
               maxCoverSize: adapter.viewProfile.maxCoverSize,
