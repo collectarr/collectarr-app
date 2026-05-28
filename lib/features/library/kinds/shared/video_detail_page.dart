@@ -146,13 +146,17 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
     final selectedOwnedCopy = selectedRelease == null
         ? null
         : _selectedOwnedCopyFor(selectedRelease);
+    final appBarForeground =
+        ThemeData.estimateBrightnessForColor(request.accent) == Brightness.dark
+            ? Colors.white
+            : Colors.black87;
     return Theme(
       data: buildLibraryTheme(palette: appPalette(context)),
       child: Scaffold(
         backgroundColor: appPalette(context).canvas,
         appBar: AppBar(
           backgroundColor: request.accent,
-          foregroundColor: Colors.white,
+          foregroundColor: appBarForeground,
           title: Text(request.entry.resolvedTitle),
           actions: [
             IconButton(
@@ -594,6 +598,15 @@ class _VideoReleaseSourceNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final noticeColor = Color.alphaBlend(
+      accent.withValues(alpha: 0.12),
+      palette.surfaceSubtle.withValues(alpha: 0.96),
+    );
+    final noticeTextColor =
+        ThemeData.estimateBrightnessForColor(noticeColor) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     final hasSnapshotFallback = releases.any(
       (release) => isTitleSnapshotVideoRelease(release.edition),
     );
@@ -602,7 +615,7 @@ class _VideoReleaseSourceNotice extends StatelessWidget {
         : 'Core has not returned release records for this title yet. These releases were reconstructed from your local owned and wishlist anchors.';
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
+        color: noticeColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: accent.withValues(alpha: 0.28)),
       ),
@@ -617,7 +630,7 @@ class _VideoReleaseSourceNotice extends StatelessWidget {
               child: Text(
                 message,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white,
+                      color: noticeTextColor,
                     ),
               ),
             ),
@@ -644,9 +657,10 @@ class _VideoReleaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderColor = selected ? accent.withValues(alpha: 0.85) : appPalette(context).divider;
+    final palette = appPalette(context);
+    final borderColor = selected ? accent.withValues(alpha: 0.85) : palette.divider;
     return Material(
-      color: selected ? accent.withValues(alpha: 0.16) : appPalette(context).panel,
+      color: selected ? accent.withValues(alpha: 0.16) : palette.panel,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -679,7 +693,7 @@ class _VideoReleaseTile extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
+                  color: palette.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -689,7 +703,7 @@ class _VideoReleaseTile extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
+                  color: palette.textMuted,
                 ),
               ),
               const SizedBox(height: 4),
@@ -701,7 +715,7 @@ class _VideoReleaseTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: appPalette(context).textMuted,
+                        color: palette.textMuted,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -743,9 +757,10 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: appPalette(context).panel,
+        color: palette.panel,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: accent.withValues(alpha: 0.28)),
       ),
@@ -757,7 +772,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
             Text(
               '${release.edition.title} · ${release.ownershipLabel}',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
+                    color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
             ),
@@ -765,7 +780,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
             Text(
               'Source: ${release.sourceLabel}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: appPalette(context).textMuted,
+                    color: palette.textMuted,
                   ),
             ),
             if (release.ownedCopies.isNotEmpty) ...[

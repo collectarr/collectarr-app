@@ -206,16 +206,18 @@ class _BookAddPreviewPane extends StatelessWidget {
                         ],
                         if (isFetchingPreview) ...[
                           const SizedBox(height: 16),
-                          const Row(
+                          Row(
                             children: [
-                              SizedBox.square(
+                              const SizedBox.square(
                                 dimension: 14,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 'Fetching full metadata...',
-                                style: TextStyle(color: kAppTextMuted),
+                                style: TextStyle(
+                                  color: appPalette(context).textMuted,
+                                ),
                               ),
                             ],
                           ),
@@ -232,7 +234,9 @@ class _BookAddPreviewPane extends StatelessWidget {
                         Expanded(
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: const Color(0x12000000),
+                              color: appPalette(context).surfaceSubtle.withValues(
+                                alpha: 0.82,
+                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Padding(
@@ -260,10 +264,10 @@ class _BookAddPreviewPane extends StatelessWidget {
                               text: TextSpan(
                                 style: DefaultTextStyle.of(context).style,
                                 children: [
-                                  const TextSpan(
+                                  TextSpan(
                                     text: 'Pages ',
                                     style: TextStyle(
-                                      color: kAppTextMuted,
+                                      color: appPalette(context).textMuted,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
