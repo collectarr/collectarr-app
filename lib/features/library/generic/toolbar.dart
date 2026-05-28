@@ -763,10 +763,6 @@ class _ToolbarChromeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pinnedViews = [
-      for (final preset in LibraryWorkspacePreset.values)
-        if (pinnedViewPresets.contains(preset)) preset,
-    ];
     final pinnedSorts = [
       for (final favorite in sortFavorites)
         if (pinnedSortFavoriteIds.contains(favorite.id)) favorite,
@@ -776,12 +772,14 @@ class _ToolbarChromeRow extends StatelessWidget {
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
           preset,
     ];
-    final showFavoriteRow = pinnedViews.isNotEmpty ||
-        pinnedSorts.isNotEmpty ||
+    final canManageFavorites = onTogglePinnedSortFavorite != null ||
+        onTogglePinnedColumnFavorite != null;
+    final showFavoriteRow = pinnedSorts.isNotEmpty ||
         pinnedColumns.isNotEmpty ||
         onViewPresetSelected != null ||
         onSortFavoriteSelected != null ||
         onColumnFavoriteSelected != null ||
+        canManageFavorites ||
         canJumpToIssue;
 
     return Padding(
@@ -824,17 +822,6 @@ class _ToolbarChromeRow extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    for (final preset in pinnedViews) ...[
-                      _ToolbarPinnedChip(
-                        icon: preset.icon,
-                        label: preset.label,
-                        selected: activeViewPreset == preset,
-                        onPressed: onViewPresetSelected == null
-                            ? null
-                            : () => onViewPresetSelected!(preset),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
                     for (final favorite in pinnedSorts) ...[
                       _ToolbarPinnedChip(
                         icon: favorite.icon,
@@ -927,9 +914,7 @@ class _ToolbarChromeRow extends StatelessWidget {
                           for (final preset in columnFavoritePresets)
                             PopupMenuItem<Object>(
                               value: _ToolbarPresetSelection<
-                                  LibraryTableColumnPreset>(
-                                preset,
-                              ),
+                                  LibraryTableColumnPreset>(preset),
                               child: ListTile(
                                 dense: true,
                                 leading:
@@ -958,17 +943,13 @@ class _ToolbarChromeRow extends StatelessWidget {
                       ),
                     if (onColumnFavoriteSelected != null)
                       const SizedBox(width: 6),
-                    if (onTogglePinnedViewPreset != null ||
-                        onTogglePinnedSortFavorite != null ||
-                        onTogglePinnedColumnFavorite != null)
+                    if (canManageFavorites)
                       _ToolbarChromeButton(
                         icon: Icons.push_pin_outlined,
                         label: 'Manage favorites',
                         onPressed: () => _showManageFavoritesSheet(context),
                       ),
-                    if ((onTogglePinnedViewPreset != null ||
-                            onTogglePinnedSortFavorite != null ||
-                            onTogglePinnedColumnFavorite != null) &&
+                    if (canManageFavorites &&
                         canJumpToIssue &&
                         onJumpToIssueSubmitted != null)
                       const SizedBox(width: 6),
@@ -998,7 +979,6 @@ class _ToolbarChromeRow extends StatelessWidget {
   }
 
   Future<void> _showManageFavoritesSheet(BuildContext context) {
-    final pinnedViews = Set<LibraryWorkspacePreset>.from(pinnedViewPresets);
     final pinnedSorts = Set<String>.from(pinnedSortFavoriteIds);
     final pinnedColumns = Set<String>.from(pinnedColumnFavoriteKeys);
 
@@ -1020,30 +1000,6 @@ class _ToolbarChromeRow extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(height: 12),
-                  if (onTogglePinnedViewPreset != null) ...[
-                    const _ToolbarSheetSectionTitle('Views'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final preset in LibraryWorkspacePreset.values)
-                          FilterChip(
-                            avatar: Icon(preset.icon, size: 14),
-                            label: Text(preset.label),
-                            selected: pinnedViews.contains(preset),
-                            onSelected: (_) {
-                              setModalState(() {
-                                if (!pinnedViews.add(preset)) {
-                                  pinnedViews.remove(preset);
-                                }
-                              });
-                              onTogglePinnedViewPreset!(preset);
-                            },
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                  ],
                   if (onTogglePinnedSortFavorite != null &&
                       sortFavorites.isNotEmpty) ...[
                     const _ToolbarSheetSectionTitle('Sorts'),
@@ -1080,8 +1036,9 @@ class _ToolbarChromeRow extends StatelessWidget {
                           FilterChip(
                             avatar: const Icon(Icons.view_column, size: 14),
                             label: Text(preset.label),
-                            selected: pinnedColumns
-                                .contains(libraryColumnFavoriteKey(preset)),
+                            selected: pinnedColumns.contains(
+                              libraryColumnFavoriteKey(preset),
+                            ),
                             onSelected: (_) {
                               final key = libraryColumnFavoriteKey(preset);
                               setModalState(() {
@@ -1101,54 +1058,6 @@ class _ToolbarChromeRow extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class _ToolbarAlphabetRow extends StatelessWidget {
-  const _ToolbarAlphabetRow({
-    required this.letters,
-    required this.selectedLetter,
-    required this.onLetterSelected,
-  });
-
-  final Set<String> letters;
-  final String? selectedLetter;
-  final ValueChanged<String?> onLetterSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final sortedLetters = letters.toList(growable: false)..sort();
-    return SizedBox(
-      width: double.infinity,
-      height: 40,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Row(
-          children: [
-            ChoiceChip(
-              selected: selectedLetter == null,
-              onSelected: (_) => onLetterSelected(null),
-              label: const Text('All'),
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            const SizedBox(width: 6),
-            for (final letter in sortedLetters) ...[
-              ChoiceChip(
-                selected: selectedLetter == letter,
-                onSelected: (_) =>
-                    onLetterSelected(selectedLetter == letter ? null : letter),
-                label: Text(letter),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              const SizedBox(width: 6),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
@@ -1173,6 +1082,53 @@ class _ToolbarChromeButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         visualDensity: VisualDensity.compact,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
+    );
+  }
+}
+
+class _ToolbarAlphabetRow extends StatelessWidget {
+  const _ToolbarAlphabetRow({
+    required this.letters,
+    required this.selectedLetter,
+    required this.onLetterSelected,
+  });
+
+  final Set<String> letters;
+  final String? selectedLetter;
+  final ValueChanged<String?> onLetterSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final sortedLetters = letters.toList()..sort();
+    return SizedBox(
+      width: double.infinity,
+      height: 38,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            FilterChip(
+              label: const Text('All'),
+              selected: selectedLetter == null,
+              onSelected: (_) => onLetterSelected(null),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            const SizedBox(width: 6),
+            for (final letter in sortedLetters) ...[
+              FilterChip(
+                label: Text(letter),
+                selected: selectedLetter == letter,
+                onSelected: (_) =>
+                    onLetterSelected(selectedLetter == letter ? null : letter),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              const SizedBox(width: 6),
+            ],
+          ],
+        ),
       ),
     );
   }
