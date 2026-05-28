@@ -48,6 +48,10 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final palette = appPalette(context);
+    final resolvedMutedTextColor = widget.mutedTextColor == _kDefaultMutedText
+        ? palette.textMuted
+        : widget.mutedTextColor;
     final sectionColor = Color.alphaBlend(
       colorScheme.surfaceContainerHigh.withValues(alpha: 0.84),
       colorScheme.surface,
@@ -109,7 +113,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
                                 ? Icons.keyboard_arrow_down
                                 : Icons.keyboard_arrow_right,
                             size: 16,
-                            color: widget.mutedTextColor,
+                            color: resolvedMutedTextColor,
                           ),
                       ],
                     ),
@@ -187,6 +191,11 @@ class LibraryInspectorFact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final resolvedMutedTextColor = mutedTextColor == _kDefaultMutedText
+        ? palette.textMuted
+        : mutedTextColor;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -197,7 +206,7 @@ class LibraryInspectorFact extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: mutedTextColor,
+                    color: resolvedMutedTextColor,
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                   ),
@@ -213,11 +222,10 @@ class LibraryInspectorFact extends StatelessWidget {
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white,
+                          color: onSurfaceColor,
                             fontWeight: FontWeight.w600,
                             decoration: TextDecoration.underline,
-                            decorationColor:
-                                Colors.white.withValues(alpha: 0.4),
+                          decorationColor: onSurfaceColor.withValues(alpha: 0.4),
                           ),
                     ),
                   )
@@ -226,7 +234,7 @@ class LibraryInspectorFact extends StatelessWidget {
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
+                        color: onSurfaceColor,
                           fontWeight: FontWeight.w600,
                         ),
                   ),
@@ -284,6 +292,7 @@ class LibraryInspectorChipWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -293,7 +302,7 @@ class LibraryInspectorChipWrap extends StatelessWidget {
             child: Text(
               label!,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.white70,
+                    color: palette.textMuted,
                   ),
             ),
           ),
@@ -321,9 +330,15 @@ class LibraryInspectorChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final chipColor = palette.selection;
+    final chipTextColor = ThemeData.estimateBrightnessForColor(chipColor) ==
+            Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     final chip = DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppSelection,
+        color: chipColor,
         borderRadius: kAppRadiusSmall,
         border: Border.all(color: kAppAccent.withValues(alpha: 0.53)),
       ),
@@ -332,7 +347,7 @@ class LibraryInspectorChip extends StatelessWidget {
         child: Text(
           value,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Colors.white,
+                color: chipTextColor,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -371,6 +386,10 @@ class LibraryEmptyInspector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final palette = appPalette(context);
+    final resolvedMutedTextColor = mutedTextColor == _kDefaultMutedText
+        ? palette.textMuted
+        : mutedTextColor;
     final content = Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -390,7 +409,7 @@ class LibraryEmptyInspector extends StatelessWidget {
             'Select an item to inspect metadata, cover, and local status.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: mutedTextColor,
+              color: resolvedMutedTextColor,
                   fontWeight: FontWeight.w700,
                 ),
           ),

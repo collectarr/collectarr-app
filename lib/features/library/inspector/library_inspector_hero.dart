@@ -224,7 +224,7 @@ class _InspectorHeroInfo extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -238,13 +238,17 @@ class _InspectorHeroInfo extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.view_week_outlined, size: 16, color: kAppTextMuted),
+              Icon(
+                Icons.view_week_outlined,
+                size: 16,
+                color: appPalette(context).textMuted,
+              ),
               const SizedBox(width: 6),
               Text(
                 entry.barcode!,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       letterSpacing: 1.1,
-                      color: kAppTextMuted,
+                      color: appPalette(context).textMuted,
                     ),
               ),
             ],
@@ -271,7 +275,7 @@ class _InspectorHeroInfo extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kAppTextMuted,
+                  color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w600,
                 ),
           ),
@@ -370,9 +374,10 @@ class _ReferenceHierarchyLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: accent.withValues(alpha: 0.18)),
       ),
@@ -387,8 +392,9 @@ class _ReferenceHierarchyLine extends StatelessWidget {
               Text(
                 segments[i],
                 style: TextStyle(
-                  color:
-                      i == segments.length - 1 ? Colors.white : kAppTextMuted,
+                  color: i == segments.length - 1
+                      ? palette.textPrimary
+                      : palette.textMuted,
                   fontWeight: i == segments.length - 1
                       ? FontWeight.w800
                       : FontWeight.w600,

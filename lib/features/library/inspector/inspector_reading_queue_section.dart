@@ -64,6 +64,7 @@ class _InspectorReadingQueueSectionState
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     if (_loading) return const SizedBox.shrink();
 
     return LibraryInspectorSection(
@@ -75,7 +76,7 @@ class _InspectorReadingQueueSectionState
             Icon(
               _inQueue ? Icons.bookmark : Icons.bookmark_border,
               size: 16,
-              color: _inQueue ? widget.accent : kAppTextMuted,
+              color: _inQueue ? widget.accent : palette.textMuted,
             ),
             const SizedBox(width: 6),
             Expanded(
@@ -84,7 +85,9 @@ class _InspectorReadingQueueSectionState
                     ? 'In queue (position #$_position)'
                     : 'Not in reading queue',
                 style: TextStyle(
-                  color: _inQueue ? Colors.white : kAppTextMuted,
+                  color: _inQueue
+                      ? Theme.of(context).colorScheme.onSurface
+                      : palette.textMuted,
                   fontSize: 13,
                 ),
               ),
