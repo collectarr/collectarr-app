@@ -257,39 +257,50 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Builder(
-                  builder: (menuContext) {
-                    return Tooltip(
-                      message: 'Group by',
-                      child: InkWell(
-                        onTap: () => _showGroupModeMenu(menuContext),
-                        borderRadius: BorderRadius.circular(4),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 2, vertical: 6),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(icon, size: 16, color: accent),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        color: accent,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(maxWidth: constraints.maxWidth),
+                        child: Builder(
+                          builder: (menuContext) {
+                            return Tooltip(
+                              message: 'Group by',
+                              child: InkWell(
+                                onTap: () => _showGroupModeMenu(menuContext),
+                                borderRadius: BorderRadius.circular(4),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 2, vertical: 6),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(icon, size: 16, color: accent),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          label,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w800,
+                                                color: accent,
+                                              ),
+                                        ),
                                       ),
+                                      Icon(Icons.arrow_drop_down,
+                                          size: 18, color: accent),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              Icon(Icons.arrow_drop_down,
-                                  size: 18, color: accent),
-                            ],
-                          ),
+                            );
+                          },
                         ),
                       ),
                     );
