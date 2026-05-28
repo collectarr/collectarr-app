@@ -48,8 +48,8 @@ void main() {
     expect(find.byTooltip('Cover size'), findsOneWidget);
     expect(find.byKey(viewModeDropdownKey), findsOneWidget);
     expect(find.byKey(detailsLayoutDropdownKey), findsOneWidget);
-    expect(find.text('Grid'), findsOneWidget);
-    expect(find.text('Details right'), findsOneWidget);
+    expect(find.byTooltip('Grid view'), findsOneWidget);
+    expect(find.byTooltip('Details right'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();
@@ -65,7 +65,7 @@ void main() {
     );
     detailsDropdown.onSelected?.call(LibraryDetailsLayout.hidden);
     await tester.pump();
-    expect(find.text('Details hidden'), findsOneWidget);
+    expect(find.byTooltip('Details hidden'), findsOneWidget);
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();
     expect(editColumnsCount, 1);

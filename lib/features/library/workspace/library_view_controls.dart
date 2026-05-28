@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
 const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
 const _viewModeDropdownHeight = 36.0;
+const _compactDropdownTriggerWidth = 44.0;
 
 class LibraryViewControls extends StatelessWidget {
   const LibraryViewControls({
@@ -38,11 +39,11 @@ class LibraryViewControls extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: accent,
         );
-    final dropdownWidth = _measureViewDropdownWidth(
+    final menuWidth = _measureViewDropdownWidth(
       context,
       textStyle: dropdownTextStyle,
     );
-    final detailsDropdownWidth = _measureDetailsDropdownWidth(
+    final detailsMenuWidth = _measureDetailsDropdownWidth(
       context,
       textStyle: dropdownTextStyle,
     );
@@ -54,10 +55,10 @@ class LibraryViewControls extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: dropdownWidth,
+          width: _compactDropdownTriggerWidth,
           child: PopupMenuButton<LibraryViewMode>(
             key: _viewModeDropdownKey,
-            tooltip: 'View mode',
+            tooltip: _viewModeTooltip(viewMode),
             initialValue: viewMode,
             onSelected: onViewModeChanged,
             padding: EdgeInsets.zero,
@@ -68,7 +69,7 @@ class LibraryViewControls extends StatelessWidget {
             constraints: const BoxConstraints(
               minWidth: 0,
               maxWidth: double.infinity,
-            ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
+            ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
               side: BorderSide(color: accent.withValues(alpha: 0.26)),
@@ -122,25 +123,22 @@ class LibraryViewControls extends StatelessWidget {
                 border: Border.all(color: accent.withValues(alpha: 0.42)),
               ),
               child: SizedBox(
+                width: _compactDropdownTriggerWidth,
                 height: _viewModeDropdownHeight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      Icon(_viewModeIcon(viewMode), size: 17, color: accent),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _viewModeLabel(viewMode),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: dropdownTextStyle,
-                        ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(_viewModeIcon(viewMode), size: 18, color: accent),
+                    Positioned(
+                      right: 2,
+                      bottom: 2,
+                      child: Icon(
+                        Icons.arrow_drop_down,
+                        size: 16,
+                        color: accent,
                       ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.arrow_drop_down, size: 20, color: accent),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -148,10 +146,10 @@ class LibraryViewControls extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         SizedBox(
-          width: detailsDropdownWidth,
+          width: _compactDropdownTriggerWidth,
           child: PopupMenuButton<LibraryDetailsLayout>(
             key: _detailsLayoutDropdownKey,
-            tooltip: 'Details layout',
+            tooltip: _detailsLayoutTooltip(detailsLayout),
             initialValue: detailsLayout,
             onSelected: onDetailsLayoutChanged,
             padding: EdgeInsets.zero,
@@ -163,8 +161,8 @@ class LibraryViewControls extends StatelessWidget {
               minWidth: 0,
               maxWidth: double.infinity,
             ).copyWith(
-              minWidth: detailsDropdownWidth,
-              maxWidth: detailsDropdownWidth,
+              minWidth: detailsMenuWidth,
+              maxWidth: detailsMenuWidth,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
@@ -219,29 +217,26 @@ class LibraryViewControls extends StatelessWidget {
                 border: Border.all(color: accent.withValues(alpha: 0.42)),
               ),
               child: SizedBox(
+                width: _compactDropdownTriggerWidth,
                 height: _viewModeDropdownHeight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _detailsLayoutIcon(detailsLayout),
-                        size: 17,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      _detailsLayoutIcon(detailsLayout),
+                      size: 18,
+                      color: accent,
+                    ),
+                    Positioned(
+                      right: 2,
+                      bottom: 2,
+                      child: Icon(
+                        Icons.arrow_drop_down,
+                        size: 16,
                         color: accent,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _detailsLayoutLabel(detailsLayout),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: dropdownTextStyle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.arrow_drop_down, size: 20, color: accent),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -337,6 +332,10 @@ String _viewModeLabel(LibraryViewMode mode) {
   };
 }
 
+String _viewModeTooltip(LibraryViewMode mode) {
+  return '${_viewModeLabel(mode)} view';
+}
+
 IconData _viewModeIcon(LibraryViewMode mode) {
   return switch (mode) {
     LibraryViewMode.grid => Icons.grid_view,
@@ -353,6 +352,10 @@ String _detailsLayoutLabel(LibraryDetailsLayout layout) {
     LibraryDetailsLayout.bottom => 'Details bottom',
     LibraryDetailsLayout.hidden => 'Details hidden',
   };
+}
+
+String _detailsLayoutTooltip(LibraryDetailsLayout layout) {
+  return _detailsLayoutLabel(layout);
 }
 
 IconData _detailsLayoutIcon(LibraryDetailsLayout layout) {
