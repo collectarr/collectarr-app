@@ -12,27 +12,33 @@ const kLibraryToolbarCompactDropdownWidth = 40.0;
 const kLibraryToolbarTextDropdownHeight = 36.0;
 
 Color libraryToolbarMenuSurface(BuildContext context) =>
-    const Color(0xFFF5F5F5);
+    Color.alphaBlend(
+      Colors.black.withValues(alpha: 0.08),
+      appPalette(context).panelRaised,
+    );
 
 Color libraryToolbarMenuBorder(BuildContext context) =>
-    const Color(0xFFD5D5D5);
+    appPalette(context).divider.withValues(alpha: 0.95);
 
 Color libraryToolbarMenuText(BuildContext context) =>
-    const Color(0xFF2F2F2F);
+    appPalette(context).textPrimary;
 
 Color libraryToolbarMenuMutedText(BuildContext context) =>
-    const Color(0xFF9A9A9A);
+    appPalette(context).textMuted;
 
 Color libraryToolbarMenuHover(BuildContext context) =>
-    const Color(0xFFECECEC);
+    Color.alphaBlend(
+      Colors.white.withValues(alpha: 0.05),
+      appPalette(context).surfaceSubtle,
+    );
 
 BoxDecoration libraryToolbarMenuPanelDecoration(BuildContext context) {
   return BoxDecoration(
     color: libraryToolbarMenuSurface(context),
     border: Border.all(color: libraryToolbarMenuBorder(context)),
-    boxShadow: const [
+    boxShadow: [
       BoxShadow(
-        color: Color(0x26000000),
+        color: Theme.of(context).shadowColor.withValues(alpha: 0.24),
         blurRadius: 10,
         offset: Offset(0, 3),
       ),
@@ -45,10 +51,15 @@ BoxDecoration libraryToolbarDropdownDecoration(
   Color? backgroundColor,
   Color? borderColor,
 }) {
+  final palette = appPalette(context);
   return BoxDecoration(
-    color: backgroundColor ?? const Color(0xFF333333),
+    color: backgroundColor ??
+        Color.alphaBlend(
+          Colors.white.withValues(alpha: 0.03),
+          palette.toolbar,
+        ),
     border: Border.all(
-      color: borderColor ?? const Color(0xFF4C4C4C),
+      color: borderColor ?? palette.divider.withValues(alpha: 0.75),
     ),
   );
 }
@@ -145,13 +156,23 @@ class LibraryWorkspaceIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: dimension,
-      child: IconButton.filledTonal(
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        onPressed: onPressed,
-        icon: Icon(icon, size: iconSize),
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: libraryToolbarDropdownDecoration(context),
+      child: SizedBox.square(
+        dimension: dimension,
+        child: IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            hoverColor: palette.surfaceSubtle.withValues(alpha: 0.45),
+            highlightColor: Colors.transparent,
+          ),
+          onPressed: onPressed,
+          icon: Icon(icon, size: iconSize, color: palette.textPrimary),
+        ),
       ),
     );
   }
