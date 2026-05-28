@@ -269,7 +269,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
-    this.maxWidth = 272,
+    this.maxWidth = 248,
   });
 
   final TextEditingController controller;
@@ -303,58 +303,63 @@ class LibraryToolbarSearch extends StatelessWidget {
             Expanded(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: maxWidth),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: inputBackground,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: borderColor),
-                  ),
-                  child: SizedBox(
-                    height: 38,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: controller,
-                            onChanged: onChanged,
-                            onSubmitted: onSearch,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              hintText: hintText,
-                              hintStyle: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(color: palette.textMuted),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: inputBackground,
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: SizedBox(
+                      height: 38,
+                      child: TextField(
+                        controller: controller,
+                        onChanged: onChanged,
+                        onSubmitted: onSearch,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          hintText: hintText,
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: palette.textMuted),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          suffixIconConstraints: const BoxConstraints(
+                            minWidth: 0,
+                            minHeight: 38,
+                          ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _ToolbarSearchInlineAction(
+                                  tooltip: 'Search',
+                                  icon: Icons.search,
+                                  onPressed: () => onSearch(controller.text),
+                                ),
+                                if (onScanBarcode != null)
+                                  _ToolbarSearchInlineAction(
+                                    tooltip: 'Scan barcode',
+                                    icon: Icons.qr_code_2,
+                                    onPressed: onScanBarcode!,
+                                  ),
+                                if (onScanCover != null)
+                                  _ToolbarSearchInlineAction(
+                                    tooltip: 'Search by cover',
+                                    icon: Icons.image_search,
+                                    onPressed: onScanCover!,
+                                  ),
+                              ],
                             ),
                           ),
                         ),
-                        _ToolbarSearchActionButton(
-                          tooltip: 'Search',
-                          icon: Icons.search,
-                          borderColor: borderColor,
-                          onPressed: () => onSearch(controller.text),
-                        ),
-                        if (onScanBarcode != null)
-                          _ToolbarSearchActionButton(
-                            tooltip: 'Scan barcode',
-                            icon: Icons.qr_code_2,
-                            borderColor: borderColor,
-                            onPressed: onScanBarcode!,
-                          ),
-                        if (onScanCover != null)
-                          _ToolbarSearchActionButton(
-                            tooltip: 'Search by cover',
-                            icon: Icons.image_search,
-                            borderColor: borderColor,
-                            onPressed: onScanCover!,
-                          ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -376,36 +381,30 @@ class LibraryToolbarSearch extends StatelessWidget {
   }
 }
 
-class _ToolbarSearchActionButton extends StatelessWidget {
-  const _ToolbarSearchActionButton({
+class _ToolbarSearchInlineAction extends StatelessWidget {
+  const _ToolbarSearchInlineAction({
     required this.tooltip,
     required this.icon,
-    required this.borderColor,
     required this.onPressed,
   });
 
   final String tooltip;
   final IconData icon;
-  final Color borderColor;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(color: borderColor)),
-      ),
-      child: SizedBox(
-        width: 34,
-        child: Tooltip(
-          message: tooltip,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            onPressed: onPressed,
-            icon: Icon(icon, size: 17, color: palette.textPrimary),
-          ),
+    return SizedBox(
+      width: 28,
+      child: Tooltip(
+        message: tooltip,
+        child: IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+          onPressed: onPressed,
+          icon: Icon(icon, size: 17, color: palette.textPrimary),
         ),
       ),
     );

@@ -1000,35 +1000,37 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
                   ),
                 ),
                 if (favoriteModes.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-                    child: Text(
-                      'No favorites',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildMenuDividerLabel(context, label: 'Favorites'),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                        child: Text(
+                          'No favorites',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: palette.textMuted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ),
+                    ],
                   )
                 else
-                  _buildSection(
-                    context,
-                    label: 'Favorites',
-                    modes: favoriteModes,
-                    accentLabel: true,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildMenuDividerLabel(context, label: 'Favorites'),
+                      _buildSection(
+                        context,
+                        label: 'Favorites',
+                        modes: favoriteModes,
+                        accentLabel: true,
+                      ),
+                    ],
                   ),
-                const Divider(height: 1),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                  child: Text(
-                    'Folders',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: palette.textMuted,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.4,
-                        ),
-                  ),
-                ),
+                _buildMenuDividerLabel(context, label: 'Folders'),
                 for (final category in widget.categories)
                   _buildSection(
                     context,
@@ -1085,6 +1087,33 @@ class _GroupModeDropdownMenuState extends State<_GroupModeDropdownMenu> {
         if (expanded)
           for (final mode in modes) _buildModeItem(context, mode),
       ],
+    );
+  }
+
+  Widget _buildMenuDividerLabel(
+    BuildContext context, {
+    required String label,
+  }) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+      child: Row(
+        children: [
+          Expanded(child: Divider(height: 1, color: palette.divider)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: palette.textMuted,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+            ),
+          ),
+          Expanded(child: Divider(height: 1, color: palette.divider)),
+        ],
+      ),
     );
   }
 
