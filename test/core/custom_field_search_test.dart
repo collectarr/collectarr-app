@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 final _defaultViewState = LibraryWorkspaceViewState(
   viewMode: LibraryViewMode.grid,
   detailsLayout: LibraryDetailsLayout.hidden,
+  isSidebarVisible: true,
   sortColumn: LibrarySortColumn.title,
   sortAscending: true,
   coverSize: 128,

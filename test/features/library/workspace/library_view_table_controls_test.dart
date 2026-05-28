@@ -22,12 +22,14 @@ void main() {
                   counts: const LibraryWorkspaceCounts(shown: 12, total: 28),
                   viewMode: viewMode,
                   detailsLayout: LibraryDetailsLayout.right,
+                  isSidebarVisible: true,
                   coverSize: 128,
                   minCoverSize: 100,
                   maxCoverSize: 200,
                 ),
                 callbacks: LibraryViewTableControlCallbacks(
                   onEditColumns: () => editColumnsCount++,
+                  onSidebarVisibilityChanged: (_) {},
                   onViewModeChanged: (value) =>
                       setState(() => viewMode = value),
                   onDetailsLayoutChanged: (_) {},
