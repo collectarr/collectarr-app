@@ -269,7 +269,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
-    this.maxWidth = 320,
+    this.maxWidth = 272,
   });
 
   final TextEditingController controller;
@@ -286,14 +286,13 @@ class LibraryToolbarSearch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final inputBackground = Color.alphaBlend(
-      Colors.black.withValues(alpha: 0.58),
-      palette.surface,
-    );
-    final borderColor = Color.alphaBlend(
-      palette.textMuted.withValues(alpha: 0.18),
-      palette.divider,
-    );
+    final colorScheme = Theme.of(context).colorScheme;
+    final inputBackground = colorScheme.brightness == Brightness.dark
+        ? const Color(0xFF34383D)
+        : const Color(0xFFF4F6F8);
+    final borderColor = colorScheme.brightness == Brightness.dark
+        ? const Color(0xFF575D65)
+        : const Color(0xFFD6DCE3);
     return LayoutBuilder(
       builder: (context, constraints) {
         final showFilterChip =
@@ -307,7 +306,7 @@ class LibraryToolbarSearch extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: inputBackground,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: borderColor),
                   ),
                   child: SizedBox(
@@ -328,23 +327,6 @@ class LibraryToolbarSearch extends StatelessWidget {
                                   .bodyMedium
                                   ?.copyWith(color: palette.textMuted),
                               border: InputBorder.none,
-                                suffixIconConstraints: const BoxConstraints(
-                                  minWidth: 34,
-                                  minHeight: 34,
-                                ),
-                                suffixIcon: Tooltip(
-                                  message: 'Search',
-                                  child: IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () => onSearch(controller.text),
-                                    icon: Icon(
-                                      Icons.search,
-                                      size: 18,
-                                      color: palette.textPrimary,
-                                    ),
-                                  ),
-                                ),
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 10,
@@ -352,32 +334,32 @@ class LibraryToolbarSearch extends StatelessWidget {
                             ),
                           ),
                         ),
+                        _ToolbarSearchActionButton(
+                          tooltip: 'Search',
+                          icon: Icons.search,
+                          borderColor: borderColor,
+                          onPressed: () => onSearch(controller.text),
+                        ),
+                        if (onScanBarcode != null)
+                          _ToolbarSearchActionButton(
+                            tooltip: 'Scan barcode',
+                            icon: Icons.qr_code_2,
+                            borderColor: borderColor,
+                            onPressed: onScanBarcode!,
+                          ),
+                        if (onScanCover != null)
+                          _ToolbarSearchActionButton(
+                            tooltip: 'Search by cover',
+                            icon: Icons.image_search,
+                            borderColor: borderColor,
+                            onPressed: onScanCover!,
+                          ),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-              if (onScanBarcode != null) ...[
-                const SizedBox(width: 6),
-                Tooltip(
-                  message: 'Scan barcode',
-                  child: LibraryWorkspaceIconButton(
-                    icon: Icons.qr_code_2,
-                    onPressed: onScanBarcode,
-                  ),
-                ),
-              ],
-              if (onScanCover != null) ...[
-                const SizedBox(width: 6),
-                Tooltip(
-                  message: 'Search by cover',
-                  child: LibraryWorkspaceIconButton(
-                    icon: Icons.image_search,
-                    onPressed: onScanCover,
-                  ),
-                ),
-              ],
             if (showFilterChip) ...[
               const SizedBox(width: 6),
               InputChip(
@@ -390,6 +372,42 @@ class LibraryToolbarSearch extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _ToolbarSearchActionButton extends StatelessWidget {
+  const _ToolbarSearchActionButton({
+    required this.tooltip,
+    required this.icon,
+    required this.borderColor,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final Color borderColor;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(left: BorderSide(color: borderColor)),
+      ),
+      child: SizedBox(
+        width: 34,
+        child: Tooltip(
+          message: tooltip,
+          child: IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            onPressed: onPressed,
+            icon: Icon(icon, size: 17, color: palette.textPrimary),
+          ),
+        ),
+      ),
     );
   }
 }
