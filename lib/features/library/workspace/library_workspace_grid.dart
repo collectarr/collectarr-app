@@ -70,6 +70,9 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     if (widget.items.isEmpty) {
       return widget.emptyBuilder(context);
     }
+    final backgroundColor = widget.backgroundColor == kAppGridCanvas
+        ? appPalette(context).gridCanvas
+        : widget.backgroundColor;
     return LayoutBuilder(
       builder: (context, constraints) {
         final padding = widget.padding.resolve(Directionality.of(context));
@@ -113,7 +116,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
             ? grid
             : SizedBox(height: nestedGridHeight, child: grid);
         if (widget.itemIdOf == null || widget.onSelectionChanged == null) {
-          return ColoredBox(color: widget.backgroundColor, child: boundedGrid);
+          return ColoredBox(color: backgroundColor, child: boundedGrid);
         }
         final selectionLayer = Listener(
           behavior: HitTestBehavior.translucent,
@@ -178,7 +181,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
           ),
         );
         return ColoredBox(
-          color: widget.backgroundColor,
+          color: backgroundColor,
           child: nestedGridHeight == null
               ? selectionLayer
               : SizedBox(height: nestedGridHeight, child: selectionLayer),

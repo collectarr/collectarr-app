@@ -34,8 +34,11 @@ class LibraryCoverTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final uiPrefs = ref.watch(uiPreferencesProvider);
+    final palette = appPalette(context);
     final flat = uiPrefs.flatCovers;
     final showTitles = uiPrefs.showCoverTitles;
+    final resolvedMutedTextColor =
+        mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
     return RepaintBoundary(
       child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -51,7 +54,7 @@ class LibraryCoverTile extends ConsumerWidget {
                 ? Border.all(color: accentColor, width: 2)
                 : null)
             : Border.all(
-                color: selected ? accentColor : kAppCardBorder,
+                color: selected ? accentColor : palette.cardBorder,
                 width: selected ? 2 : 1,
               ),
         boxShadow: flat
@@ -130,7 +133,7 @@ class LibraryCoverTile extends ConsumerWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: selected ? Colors.white : mutedTextColor,
+                      color: selected ? Colors.white : resolvedMutedTextColor,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                       fontSize: 11,
                       height: 1.2,

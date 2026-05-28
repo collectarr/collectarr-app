@@ -154,9 +154,10 @@ class LibraryToolbar extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
+        final palette = appPalette(context);
         return LibraryToolbarFrame(
-          backgroundColor: kAppToolbar,
-          dividerColor: kAppDivider,
+          backgroundColor: palette.toolbar,
+          dividerColor: palette.divider,
           child: LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 760) {
@@ -246,7 +247,7 @@ class LibraryToolbar extends StatelessWidget {
                           addForegroundColor:
                               _toolbarForegroundForAccent(accent),
                         ),
-                        const LibraryWorkspaceSeparator(color: kAppDivider),
+                        LibraryWorkspaceSeparator(color: palette.divider),
                         LibraryToolbarSearch(
                           controller: searchController,
                           hintText:
@@ -255,7 +256,7 @@ class LibraryToolbar extends StatelessWidget {
                           onSearch: onSearchChanged,
                           onClearFilter: onClearBucket,
                           onChanged: onSearchChanged,
-                          selectionColor: kAppSelection,
+                          selectionColor: palette.selection,
                         ),
                         const SizedBox(width: 8),
                         _ItemCountLabel(
@@ -390,7 +391,11 @@ class _ToolbarDividerLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1, thickness: 1, color: kAppDivider);
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: appPalette(context).divider,
+    );
   }
 }
 
@@ -410,7 +415,11 @@ class _SelectionToolbarBand extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Row(
         children: [
-          const Icon(Icons.select_all, size: 16, color: kAppTextMuted),
+          Icon(
+            Icons.select_all,
+            size: 16,
+            color: appPalette(context).textMuted,
+          ),
           const SizedBox(width: 8),
           Text(
             'Selection',

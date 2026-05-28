@@ -39,6 +39,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final resolvedMutedTextColor =
+        mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: entry.mediaType,
       editions: entry.editions,
@@ -51,9 +54,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? selectedColor : kAppCardBackground,
+        color: selected ? selectedColor : palette.cardBackground,
         border: Border.all(
-          color: selected ? accentColor : kAppCardBorder,
+          color: selected ? accentColor : palette.cardBorder,
           width: selected ? 2 : 1,
         ),
         borderRadius: kAppRadiusSmall,
@@ -126,7 +129,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   ?.copyWith(
                                     color: selected
                                         ? Colors.white
-                                        : kAppAccentLight,
+                                        : (palette.isDark
+                                            ? kAppAccentLight
+                                            : accentColor),
                                     fontWeight: FontWeight.w900,
                                   ),
                             ),
@@ -151,7 +156,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: mutedTextColor,
+                          color: resolvedMutedTextColor,
                             ),
                       ),
                       const SizedBox(height: 8),
@@ -334,8 +339,8 @@ class _LibraryIssuePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
           label,
-          style: const TextStyle(
-            color: kAppSurfaceDim,
+          style: TextStyle(
+            color: appPalette(context).textPrimary,
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),
@@ -358,11 +363,12 @@ class _LibraryCompactMetaPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppTableBottomBorder,
+        color: palette.tableBottomBorder,
         borderRadius: kAppRadiusSmall,
-        border: Border.all(color: kAppBorderSubtle),
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -373,8 +379,8 @@ class _LibraryCompactMetaPill extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: palette.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),

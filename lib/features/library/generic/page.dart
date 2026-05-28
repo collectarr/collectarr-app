@@ -326,7 +326,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onDelete:
           projection == null ? null : () => _removeVisibleSelection(projection),
       child: Scaffold(
-        backgroundColor: kAppCanvas,
+      backgroundColor: appPalette(context).canvas,
         floatingActionButton: useFab
             ? FloatingActionButton(
                 onPressed: () => showAddDialogFlow(),

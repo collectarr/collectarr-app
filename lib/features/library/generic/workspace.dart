@@ -130,6 +130,7 @@ class LibraryWorkspace extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final uiPrefs = ref.watch(uiPreferencesProvider);
+    final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final cardScale = (viewState.coverSize / adapter.viewProfile.defaultCoverSize)
@@ -226,7 +227,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kAppGridCanvas,
+          backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.entry.id),
             entry: item.entry,
@@ -239,7 +240,7 @@ class LibraryWorkspace extends ConsumerWidget {
             selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
             accentColor: accent,
             selectionColor: accent,
-            mutedTextColor: kAppTextMuted,
+            mutedTextColor: palette.textMuted,
           ),
         ),
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
@@ -254,7 +255,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kAppGridCanvas,
+          backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             key: ValueKey(item.entry.id),
             entry: item.entry,
@@ -268,7 +269,7 @@ class LibraryWorkspace extends ConsumerWidget {
             moneyFormatter: formatMoney,
             selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
             accentColor: accent,
-            mutedTextColor: kAppTextMuted,
+            mutedTextColor: palette.textMuted,
             coverWidth: cardCoverWidth,
           ),
         ),
@@ -320,13 +321,14 @@ class LibraryWorkspace extends ConsumerWidget {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
+        final palette = appPalette(context);
         final tableWidth = adapter.tableWidthForColumns(
           viewState.visibleColumns,
           viewState.columnWidths,
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
-          color: kAppCanvas,
+          color: palette.canvas,
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,
@@ -358,14 +360,14 @@ class LibraryWorkspace extends ConsumerWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onColumnReordered: onColumnReordered,
-                  headerColor: kAppSurface,
-                  dividerColor: kAppDivider,
+                  headerColor: palette.surface,
+                  dividerColor: palette.divider,
                   selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
-                  oddColor: kAppTableOddRow,
-                  evenColor: kAppTableEvenRow,
+                  oddColor: palette.tableOddRow,
+                  evenColor: palette.tableEvenRow,
                   selectionRailColor: accent,
-                  bottomBorderColor: kAppTableBottomBorder,
-                  hoverColor: kAppTableHover,
+                  bottomBorderColor: palette.tableBottomBorder,
+                  hoverColor: palette.tableHover,
                   accentColor: accent,
                 ),
               ),

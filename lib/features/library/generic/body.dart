@@ -147,6 +147,7 @@ class LibraryBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final selected = projection.selectedItem;
@@ -262,7 +263,7 @@ class LibraryBody extends StatelessWidget {
         );
 
         return ColoredBox(
-          color: kAppCanvas,
+          color: palette.canvas,
           child: Row(
             children: [
               if (showSidebar) ...[
