@@ -1478,7 +1478,13 @@ class _CollectionValueChip extends StatelessWidget {
                 size: 13, color: Colors.greenAccent.withValues(alpha: 0.8)),
             const SizedBox(width: 3),
             Text(
-              _fmt(totalPaidCents > 0 ? totalPaidCents : totalCoverCents),
+              _fmt(
+                totalPaidCents > 0
+                    ? totalPaidCents
+                    : (totalCoverCents > 0
+                        ? totalCoverCents
+                        : totalSellCents),
+              ),
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
