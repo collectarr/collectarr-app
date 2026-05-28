@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -206,28 +207,79 @@ class LibraryToolbarSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final inputBackground = Color.alphaBlend(
+      Colors.black.withValues(alpha: 0.42),
+      palette.surface,
+    );
+    final borderColor = Color.alphaBlend(
+      palette.textMuted.withValues(alpha: 0.22),
+      palette.divider,
+    );
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: SearchBar(
-            controller: controller,
-            constraints: const BoxConstraints.tightFor(height: 32),
-            hintText: hintText,
-            leading: const Icon(Icons.search),
-            trailing: [
-              Tooltip(
-                message: 'Search',
-                child: IconButton(
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => onSearch(controller.text),
-                  icon: const Icon(Icons.arrow_forward, size: 18),
-                ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: inputBackground,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: borderColor),
+            ),
+            child: SizedBox(
+              height: 36,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 8),
+                    child: Icon(
+                      Icons.search,
+                      size: 18,
+                      color: palette.textMuted,
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      onChanged: onChanged,
+                      onSubmitted: onSearch,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: hintText,
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: palette.textMuted),
+                        border: InputBorder.none,
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 36,
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(color: borderColor)),
+                    ),
+                    child: Tooltip(
+                      message: 'Search',
+                      child: IconButton(
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => onSearch(controller.text),
+                        icon: Icon(
+                          Icons.search,
+                          size: 18,
+                          color: palette.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-            onChanged: onChanged,
-            onSubmitted: onSearch,
+            ),
           ),
         ),
         if (selectedFilterLabel != null) ...[

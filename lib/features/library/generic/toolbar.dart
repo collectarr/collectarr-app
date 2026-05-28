@@ -443,19 +443,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   onChanged: onCoverSizeChanged,
                 ),
                 Tooltip(
-                  message: viewState.isSidebarVisible
-                      ? 'Hide folders panel'
-                      : 'Show folders panel',
-                  child: LibraryWorkspaceIconButton(
-                    onPressed: () => onSidebarVisibilityChanged(
-                      !viewState.isSidebarVisible,
-                    ),
-                    icon: viewState.isSidebarVisible
-                        ? Icons.menu_open
-                        : Icons.menu,
-                  ),
-                ),
-                Tooltip(
                   message: 'Select columns',
                   child: LibraryWorkspaceIconButton(
                     onPressed: viewState.viewMode == LibraryViewMode.list

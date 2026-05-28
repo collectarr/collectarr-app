@@ -155,7 +155,7 @@ class LibraryBody extends StatelessWidget {
         final selected = projection.selectedItem;
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
         final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
-        final showSidebar = canShowSidebar && viewState.isSidebarVisible;
+        final showSidebar = canShowSidebar;
         final detailsLayout =
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
@@ -304,9 +304,6 @@ class LibraryBody extends StatelessWidget {
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
-                    onHideSidebar: canShowSidebar
-                        ? () => onSidebarVisibilityChanged(false)
-                        : null,
                     pinnedGroupModes: pinnedGroupModes,
                     onTogglePinGroupMode: onTogglePinGroupMode,
                   ),
