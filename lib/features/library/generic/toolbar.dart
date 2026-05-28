@@ -413,16 +413,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           children: [
             LibraryWorkspaceControlStrip(
               children: [
-                LibraryViewModeDropdown(
-                  viewMode: viewState.viewMode,
-                  onChanged: onViewModeChanged,
-                ),
-                if (onEditSort != null)
-                  _ToolbarSortButton(
-                    onPressed: onEditSort!,
-                    sortFavorites: sortFavorites,
-                    activeSortFavoriteId: activeSortFavoriteId,
-                  ),
                 _ItemCountLabel(
                   shown: counts.shown,
                   total: counts.total,
@@ -435,6 +425,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     totalSellCents: counts.totalSellPriceCents,
                     currency: counts.priceCurrency,
                   ),
+                if (onEditSort != null)
+                  _ToolbarSortButton(
+                    onPressed: onEditSort!,
+                    sortFavorites: sortFavorites,
+                    activeSortFavoriteId: activeSortFavoriteId,
+                  ),
+                LibraryViewModeDropdown(
+                  viewMode: viewState.viewMode,
+                  onChanged: onViewModeChanged,
+                ),
                 LibraryDetailsLayoutDropdown(
                   detailsLayout: viewState.detailsLayout,
                   onChanged: onDetailsLayoutChanged,
