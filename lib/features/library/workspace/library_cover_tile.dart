@@ -71,9 +71,11 @@ class LibraryCoverTile extends ConsumerWidget {
               ),
         boxShadow: flat
             ? null
-            : const [
+            : [
                 BoxShadow(
-                  color: Color(0x99000000),
+                  color: Theme.of(context).shadowColor.withValues(
+                    alpha: palette.isDark ? 0.6 : 0.18,
+                  ),
                   blurRadius: 6,
                   offset: Offset(0, 2),
                 ),

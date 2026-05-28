@@ -467,6 +467,15 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   Widget build(BuildContext context) {
     final interactive = _canPreview;
     final hoverCue = widget.enableHoverCue;
+    final palette = appPalette(context);
+    final controlBackground = Color.alphaBlend(
+      widget.accentColor.withValues(alpha: 0.16),
+      palette.surface.withValues(alpha: 0.94),
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return LayoutBuilder(
       builder: (context, constraints) {
         final compactHoverCue =
@@ -540,8 +549,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                             vertical: 6,
                           ),
                           visualDensity: VisualDensity.compact,
-                          backgroundColor: const Color(0xD0101010),
-                          foregroundColor: Colors.white,
+                          backgroundColor: controlBackground,
+                          foregroundColor: controlForeground,
                           side: BorderSide(
                             color: widget.accentColor.withValues(alpha: 0.45),
                           ),
@@ -558,13 +567,13 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                             borderRadius: BorderRadius.circular(
                               widget.borderRadius + 8,
                             ),
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Color(0x00000000),
-                                Color(0x22000000),
-                                Color(0xCC030303),
+                                Colors.transparent,
+                                palette.surface.withValues(alpha: 0.12),
+                                palette.surface.withValues(alpha: 0.9),
                               ],
                             ),
                           ),
@@ -574,7 +583,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                               padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xCC050505),
+                                  color: controlBackground.withValues(alpha: 0.96),
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
                                     color: widget.accentColor
@@ -603,10 +612,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                                 color: widget.accentColor,
                                               ),
                                               const SizedBox(width: 6),
-                                              const Text(
+                                              Text(
                                                 'Open cover',
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  color: controlForeground,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w800,
                                                 ),
@@ -642,16 +651,19 @@ class _CoverFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius + 2),
         border: Border.all(
-          color: const Color(0x90FFFFFF),
+          color: palette.divider.withValues(alpha: 0.72),
           width: 1.2,
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0xA6000000),
+            color: Theme.of(context).shadowColor.withValues(
+              alpha: palette.isDark ? 0.65 : 0.22,
+            ),
             blurRadius: 16,
             offset: Offset(0, 6),
           ),
