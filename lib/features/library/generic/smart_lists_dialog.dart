@@ -133,7 +133,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
           controller: nameCtrl,
@@ -203,7 +203,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: const Text('Overwrite Smart List'),
         content: Text(
           'Replace "${list.name}" with the current filters, search, sort and quick view?',
@@ -233,7 +233,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Smart List'),
         content: Text('Delete "${list.name}"?'),
         actions: [
@@ -286,9 +286,10 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final selectedList = _selectedList;
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Icon(Icons.auto_awesome_mosaic, size: 20),
@@ -313,7 +314,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                       'Apply filters, then tap + to save\n'
                       'the current view as a smart list.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: kAppTextMuted),
+                      style: TextStyle(color: palette.textMuted),
                     ),
                   )
                 : Row(
@@ -322,16 +323,16 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                         width: 310,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: kAppPanelRaised,
+                            color: palette.panelRaised,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: kAppDivider),
+                            border: Border.all(color: palette.divider),
                           ),
                           child: Material(
                             color: Colors.transparent,
                             child: ListView.separated(
                               itemCount: _lists.length,
                               separatorBuilder: (_, __) =>
-                                  Divider(height: 1, color: kAppDivider),
+                                  Divider(height: 1, color: palette.divider),
                               itemBuilder: (context, i) {
                                 final list = _lists[i];
                                 final selected = list.id == _selectedListId;
@@ -430,7 +431,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     if (parts.isEmpty) return null;
     return Text(
       parts.join(' · '),
-      style: TextStyle(color: kAppTextMuted, fontSize: 12),
+      style: TextStyle(color: appPalette(context).textMuted, fontSize: 12),
     );
   }
 }
@@ -454,13 +455,14 @@ class _SmartListDetailsPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final criteriaChips = _criteriaChips(list);
     final sortSummary = _smartListSortSummary(list.effectiveSortRules);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanelRaised,
+        color: palette.panelRaised,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kAppDivider),
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -480,7 +482,7 @@ class _SmartListDetailsPane extends StatelessWidget {
                     Text(
                       'Saved view details',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: kAppTextMuted,
+                            color: palette.textMuted,
                           ),
                     ),
                     const SizedBox(height: 16),
@@ -509,9 +511,9 @@ class _SmartListDetailsPane extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     if (criteriaChips.isEmpty)
-                      const Text(
+                      Text(
                         'No filters saved. This list only stores search, sort, or quick view settings.',
-                        style: TextStyle(color: kAppTextMuted),
+                        style: TextStyle(color: palette.textMuted),
                       )
                     else
                       Wrap(

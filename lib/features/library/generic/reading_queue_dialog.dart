@@ -176,9 +176,10 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final filteredEntries = _filteredEntries;
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Icon(Icons.bookmarks_outlined, size: 20),
@@ -187,7 +188,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
           if (_entries.isNotEmpty)
             Text(
               '${filteredEntries.length}/${_entries.length} item${_entries.length == 1 ? '' : 's'}',
-              style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
         ],
       ),
@@ -197,11 +198,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _entries.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'No queued items for this library yet.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: kAppTextMuted),
+                      style: TextStyle(color: palette.textMuted),
                     ),
                   )
                 : Column(
@@ -221,8 +222,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Drag to reorder still works in filtered results.',
-                            style: const TextStyle(
-                              color: kAppTextMuted,
+                            style: TextStyle(
+                              color: palette.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -231,11 +232,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                         const SizedBox(height: 8),
                       Expanded(
                         child: filteredEntries.isEmpty
-                            ? const Center(
+                            ? Center(
                                 child: Text(
                                   'No queued items match this filter.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: kAppTextMuted),
+                                  style: TextStyle(color: palette.textMuted),
                                 ),
                               )
                             : ReorderableListView.builder(
@@ -267,7 +268,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                     key: ValueKey(entry.ownedItem.id),
                                     leading: CircleAvatar(
                                       radius: 14,
-                                      backgroundColor: kAppPanelRaised,
+                                      backgroundColor: palette.panelRaised,
                                       child: Text(
                                         '$queuePosition',
                                         style: const TextStyle(fontSize: 12),
@@ -278,8 +279,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                         ? null
                                         : Text(
                                             details.join(' · '),
-                                            style: const TextStyle(
-                                              color: kAppTextMuted,
+                                            style: TextStyle(
+                                              color: palette.textMuted,
                                               fontSize: 12,
                                             ),
                                           ),

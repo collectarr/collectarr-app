@@ -540,6 +540,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final hasGrades = widget.type.grades.isNotEmpty;
     final hasConditions = widget.type.conditions.isNotEmpty;
     final labels = libraryMediaFilterLabels(widget.type);
@@ -561,7 +562,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
             children: [
               DropdownButtonFormField<LibraryOwnershipFilter>(
                 initialValue: _ownership,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Shelf',
@@ -581,7 +582,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<LibraryTrackingStatusFilter>(
                 initialValue: _trackingStatus,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Tracking status',
@@ -603,7 +604,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<LibraryLoanStatusFilter>(
                 initialValue: _loanStatus,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Loan status',
@@ -625,7 +626,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<LibraryDateRangeField>(
                 initialValue: _dateRangeField,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Date field',
@@ -679,7 +680,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                       ? _customFieldDefinitionId
                       : null,
                   isExpanded: true,
-                  dropdownColor: kAppPanelRaised,
+                  dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
                   decoration: const InputDecoration(
                     labelText: 'Custom field',
@@ -944,10 +945,11 @@ class _FilterDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DropdownButtonFormField<String>(
       initialValue: options.contains(value) ? value : null,
       isExpanded: true,
-      dropdownColor: kAppPanelRaised,
+      dropdownColor: palette.panelRaised,
       borderRadius: kAppMenuBorderRadius,
       decoration: InputDecoration(
         labelText: label,
@@ -1019,10 +1021,11 @@ class _AutocompleteFilterField extends StatelessWidget {
         );
       },
       optionsViewBuilder: (context, onSelected, displayedOptions) {
+        final palette = appPalette(context);
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
-            color: kAppPanelRaised,
+            color: palette.panelRaised,
             elevation: 4,
             borderRadius: kAppMenuBorderRadius,
             child: ConstrainedBox(

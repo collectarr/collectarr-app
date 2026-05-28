@@ -24,40 +24,34 @@ class LibraryCoverBadges extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isOwned &&
-      !isTracked &&
-        !isWishlisted &&
-        !hasMissingCover &&
-        !hasMissingMetadata &&
-        keyLabel == null &&
-        slabLabel == null &&
-        notesLabel == null) {
-      return const SizedBox.shrink();
-    }
     final colorScheme = Theme.of(context).colorScheme;
     return Wrap(
-      spacing: 4,
+      spacing: 6,
+      runSpacing: 6,
       children: [
-        if (isOwned)
-          LibraryCoverBadge(
-            icon: Icons.inventory_2,
-            label: 'Owned',
-            backgroundColor: colorScheme.primary,
-            foregroundColor: colorScheme.onPrimary,
-          ),
+        LibraryCoverBadge(
+          icon: isOwned ? Icons.check_box : Icons.check_box_outline_blank,
+          label: isOwned ? 'Owned' : 'Not owned',
+          backgroundColor: isOwned
+              ? colorScheme.primaryContainer
+              : colorScheme.surfaceContainerHighest,
+          foregroundColor: isOwned
+              ? colorScheme.onPrimaryContainer
+              : colorScheme.onSurfaceVariant,
+        ),
         if (isTracked)
           LibraryCoverBadge(
             icon: Icons.equalizer,
             label: 'Tracked',
-            backgroundColor: colorScheme.secondary,
-            foregroundColor: colorScheme.onSecondary,
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
           ),
         if (isWishlisted)
           LibraryCoverBadge(
             icon: Icons.star,
             label: 'Wishlist',
-            backgroundColor: colorScheme.tertiary,
-            foregroundColor: colorScheme.onTertiary,
+            backgroundColor: colorScheme.tertiaryContainer,
+            foregroundColor: colorScheme.onTertiaryContainer,
           ),
         if (hasMissingCover)
           LibraryCoverBadge(
@@ -168,60 +162,76 @@ class LibraryItemStatusIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final icons = <Widget>[
+      Icon(
+        isOwned ? Icons.check_box : Icons.check_box_outline_blank,
+        size: 17,
+        color: isOwned ? colorScheme.primary : colorScheme.outline,
+      ),
+      if (isTracked)
+        Icon(Icons.equalizer, size: 16, color: colorScheme.secondary),
+      if (isWishlisted)
+        Icon(Icons.star, size: 16, color: colorScheme.tertiary),
+      if (hasMissingCover)
+        Icon(
+          Icons.image_not_supported_outlined,
+          size: 16,
+          color: colorScheme.error,
+        ),
+      if (hasMissingMetadata)
+        Icon(
+          Icons.manage_search,
+          size: 16,
+          color: colorScheme.secondary,
+        ),
+      if (hasKeyMarker)
+        Icon(
+          Icons.label_important,
+          size: 16,
+          color: colorScheme.tertiary,
+        ),
+      if (hasSlabMarker)
+        Icon(
+          Icons.workspace_premium,
+          size: 16,
+          color: colorScheme.primary,
+        ),
+      if (hasNotesMarker)
+        Icon(
+          Icons.sticky_note_2_outlined,
+          size: 16,
+          color: colorScheme.secondary,
+        ),
+    ];
+    const maxVisibleIcons = 2;
+    final visibleIcons = icons.take(maxVisibleIcons).toList(growable: false);
+    final hiddenCount = icons.length - visibleIcons.length;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          isOwned ? Icons.check_box : Icons.check_box_outline_blank,
-          size: 17,
-          color: isOwned ? colorScheme.primary : colorScheme.outline,
-        ),
-        if (isTracked) ...[
-          const SizedBox(width: 4),
-          Icon(Icons.equalizer, size: 16, color: colorScheme.secondary),
+        for (var index = 0; index < visibleIcons.length; index++) ...[
+          if (index > 0) const SizedBox(width: 4),
+          visibleIcons[index],
         ],
-        if (isWishlisted) ...[
-          const SizedBox(width: 4),
-          Icon(Icons.star, size: 16, color: colorScheme.tertiary),
-        ],
-        if (hasMissingCover) ...[
-          const SizedBox(width: 4),
-          Icon(
-            Icons.image_not_supported_outlined,
-            size: 16,
-            color: colorScheme.error,
-          ),
-        ],
-        if (hasMissingMetadata) ...[
-          const SizedBox(width: 4),
-          Icon(
-            Icons.manage_search,
-            size: 16,
-            color: colorScheme.secondary,
-          ),
-        ],
-        if (hasKeyMarker) ...[
-          const SizedBox(width: 4),
-          Icon(
-            Icons.label_important,
-            size: 16,
-            color: colorScheme.tertiary,
-          ),
-        ],
-        if (hasSlabMarker) ...[
-          const SizedBox(width: 4),
-          Icon(
-            Icons.workspace_premium,
-            size: 16,
-            color: colorScheme.primary,
-          ),
-        ],
-        if (hasNotesMarker) ...[
-          const SizedBox(width: 4),
-          Icon(
-            Icons.sticky_note_2_outlined,
-            size: 16,
-            color: colorScheme.secondary,
+        if (hiddenCount > 0) ...[
+          if (visibleIcons.isNotEmpty) const SizedBox(width: 2),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              child: Text(
+                '+$hiddenCount',
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ),
         ],
       ],
