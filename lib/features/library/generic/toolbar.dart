@@ -1148,9 +1148,12 @@ class _ToolbarSortButton extends StatelessWidget {
       message: activeFavorite == null
           ? 'Change sorting'
           : 'Sorting: ${activeFavorite.label}',
-      child: LibraryWorkspaceIconButton(
-        onPressed: onPressed,
-        icon: activeFavorite?.icon ?? Icons.sort,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(6),
+        child: LibraryToolbarCompactDropdownTrigger(
+          icon: activeFavorite?.icon ?? Icons.sort,
+        ),
       ),
     );
   }

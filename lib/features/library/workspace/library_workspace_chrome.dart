@@ -8,6 +8,7 @@ import 'library_resizable_pane.dart';
 import 'library_workspace_config.dart';
 
 const kLibraryToolbarCompactDropdownSize = 30.0;
+const kLibraryToolbarCompactDropdownWidth = 40.0;
 const kLibraryToolbarTextDropdownHeight = 36.0;
 
 BoxDecoration libraryToolbarDropdownDecoration(
@@ -36,6 +37,47 @@ RoundedRectangleBorder libraryToolbarDropdownMenuShape(
       color: borderColor ?? palette.divider.withValues(alpha: 0.7),
     ),
   );
+}
+
+class LibraryToolbarCompactDropdownTrigger extends StatelessWidget {
+  const LibraryToolbarCompactDropdownTrigger({
+    super.key,
+    required this.icon,
+    this.iconColor,
+    this.arrowColor,
+  });
+
+  final IconData icon;
+  final Color? iconColor;
+  final Color? arrowColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: libraryToolbarDropdownDecoration(context),
+      child: SizedBox(
+        width: kLibraryToolbarCompactDropdownWidth,
+        height: kLibraryToolbarCompactDropdownSize,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 17,
+              color: iconColor ?? palette.textPrimary,
+            ),
+            const SizedBox(width: 1),
+            Icon(
+              Icons.arrow_drop_down,
+              size: 16,
+              color: arrowColor ?? palette.textMuted,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class LibraryToolbarFrame extends StatelessWidget {

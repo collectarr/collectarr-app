@@ -33,7 +33,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
       textStyle: dropdownTextStyle,
     );
     return SizedBox(
-      width: kLibraryToolbarCompactDropdownSize,
+      width: kLibraryToolbarCompactDropdownWidth,
       child: PopupMenuButton<LibraryViewMode>(
         key: _viewModeDropdownKey,
         tooltip: _viewModeTooltip(viewMode),
@@ -88,31 +88,8 @@ class LibraryViewModeDropdown extends StatelessWidget {
               ),
             ),
         ],
-        child: DecoratedBox(
-          decoration: libraryToolbarDropdownDecoration(context),
-          child: SizedBox(
-            width: kLibraryToolbarCompactDropdownSize,
-            height: kLibraryToolbarCompactDropdownSize,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  _viewModeIcon(viewMode),
-                  size: 17,
-                  color: palette.textPrimary,
-                ),
-                Positioned(
-                  right: 1,
-                  bottom: 1,
-                  child: Icon(
-                    Icons.arrow_drop_down,
-                    size: 14,
-                    color: palette.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        child: LibraryToolbarCompactDropdownTrigger(
+          icon: _viewModeIcon(viewMode),
         ),
       ),
     );
@@ -144,7 +121,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       textStyle: dropdownTextStyle,
     );
     return SizedBox(
-      width: kLibraryToolbarCompactDropdownSize,
+      width: kLibraryToolbarCompactDropdownWidth,
       child: PopupMenuButton<LibraryDetailsLayout>(
         key: _detailsLayoutDropdownKey,
         tooltip: _detailsLayoutTooltip(detailsLayout),
@@ -203,31 +180,8 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
               ),
             ),
         ],
-        child: DecoratedBox(
-          decoration: libraryToolbarDropdownDecoration(context),
-          child: SizedBox(
-            width: kLibraryToolbarCompactDropdownSize,
-            height: kLibraryToolbarCompactDropdownSize,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  _detailsLayoutIcon(detailsLayout),
-                  size: 17,
-                  color: palette.textPrimary,
-                ),
-                Positioned(
-                  right: 1,
-                  bottom: 1,
-                  child: Icon(
-                    Icons.arrow_drop_down,
-                    size: 14,
-                    color: palette.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        child: LibraryToolbarCompactDropdownTrigger(
+          icon: _detailsLayoutIcon(detailsLayout),
         ),
       ),
     );

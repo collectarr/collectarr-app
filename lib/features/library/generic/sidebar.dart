@@ -212,31 +212,9 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final label = genericGroupModeSidebarTitle(groupMode, type);
     final child = iconOnly
-        ? DecoratedBox(
-            decoration: libraryToolbarDropdownDecoration(context),
-            child: SizedBox(
-              width: kLibraryToolbarCompactDropdownSize,
-              height: kLibraryToolbarCompactDropdownSize,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Icon(icon, size: 17, color: palette.textPrimary),
-                  Positioned(
-                    right: 1,
-                    bottom: 1,
-                    child: Icon(
-                      Icons.arrow_drop_down,
-                      size: 14,
-                      color: palette.textMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
+        ? LibraryToolbarCompactDropdownTrigger(icon: icon)
         : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
             child: Row(
