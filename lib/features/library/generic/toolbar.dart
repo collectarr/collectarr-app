@@ -218,13 +218,7 @@ class LibraryToolbar extends StatelessWidget {
                 );
               }
 
-              final showChromeRow = onCollectionStatusScopeChanged != null ||
-                  onViewPresetSelected != null ||
-                  (sortFavorites.isNotEmpty &&
-                      onSortFavoriteSelected != null) ||
-                  (columnFavoritePresets.isNotEmpty &&
-                      onColumnFavoriteSelected != null) ||
-                  canJumpToIssue;
+                final showChromeRow = onCollectionStatusScopeChanged != null;
               final showAlphabetRow =
                   availableLetters.isNotEmpty && onLetterSelected != null;
 
@@ -550,12 +544,7 @@ class _CompactLibraryToolbarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showChromeRow = onCollectionStatusScopeChanged != null ||
-        onViewPresetSelected != null ||
-        (sortFavorites.isNotEmpty && onSortFavoriteSelected != null) ||
-        (columnFavoritePresets.isNotEmpty &&
-            onColumnFavoriteSelected != null) ||
-        canJumpToIssue;
+    final showChromeRow = onCollectionStatusScopeChanged != null;
     final showAlphabetRow =
         availableLetters.isNotEmpty && onLetterSelected != null;
 
@@ -763,33 +752,11 @@ class _ToolbarChromeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pinnedSorts = [
-      for (final favorite in sortFavorites)
-        if (pinnedSortFavoriteIds.contains(favorite.id)) favorite,
-    ];
-    final pinnedColumns = [
-      for (final preset in columnFavoritePresets)
-        if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
-          preset,
-    ];
-    final canManageFavorites = onTogglePinnedSortFavorite != null ||
-        onTogglePinnedColumnFavorite != null;
-    final showFavoriteRow = pinnedSorts.isNotEmpty ||
-        pinnedColumns.isNotEmpty ||
-        onViewPresetSelected != null ||
-        onSortFavoriteSelected != null ||
-        onColumnFavoriteSelected != null ||
-        canManageFavorites ||
-        canJumpToIssue;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (onCollectionStatusScopeChanged != null)
-            SizedBox(
+      child: onCollectionStatusScopeChanged == null
+          ? const SizedBox.shrink()
+          : SizedBox(
               width: double.infinity,
               height: 38,
               child: SingleChildScrollView(
@@ -813,276 +780,6 @@ class _ToolbarChromeRow extends StatelessWidget {
                 ),
               ),
             ),
-          if (onCollectionStatusScopeChanged != null && showFavoriteRow)
-            const SizedBox(height: 6),
-          if (showFavoriteRow)
-            SizedBox(
-              width: double.infinity,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final favorite in pinnedSorts) ...[
-                      _ToolbarPinnedChip(
-                        icon: favorite.icon,
-                        label: favorite.label,
-                        selected: activeSortFavoriteId == favorite.id,
-                        onPressed: onSortFavoriteSelected == null
-                            ? null
-                            : () => onSortFavoriteSelected!(favorite),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    for (final preset in pinnedColumns) ...[
-                      _ToolbarPinnedChip(
-                        icon: Icons.view_column,
-                        label: preset.label,
-                        selected: activeColumnFavoriteLabel == preset.label,
-                        onPressed: onColumnFavoriteSelected == null
-                            ? null
-                            : () => onColumnFavoriteSelected!(preset),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    if (onViewPresetSelected != null)
-                      PopupMenuButton<LibraryWorkspacePreset>(
-                        initialValue: activeViewPreset,
-                        tooltip: 'Views',
-                        onSelected: onViewPresetSelected,
-                        itemBuilder: (context) => [
-                          for (final preset in LibraryWorkspacePreset.values)
-                            PopupMenuItem<LibraryWorkspacePreset>(
-                              value: preset,
-                              child: ListTile(
-                                dense: true,
-                                leading: Icon(preset.icon, size: 18),
-                                title: Text(preset.label),
-                                trailing: preset == activeViewPreset
-                                    ? const Icon(Icons.check, size: 18)
-                                    : null,
-                              ),
-                            ),
-                        ],
-                        child: const _ToolbarChromeButton(
-                          icon: Icons.grid_view,
-                          label: 'Views',
-                        ),
-                      ),
-                    if (onViewPresetSelected != null) const SizedBox(width: 6),
-                    if (sortFavorites.isNotEmpty &&
-                        onSortFavoriteSelected != null)
-                      PopupMenuButton<LibrarySortFavorite>(
-                        initialValue: _activeSortFavorite(),
-                        tooltip: 'Sort',
-                        onSelected: onSortFavoriteSelected,
-                        itemBuilder: (context) => [
-                          for (final favorite in sortFavorites)
-                            PopupMenuItem<LibrarySortFavorite>(
-                              value: favorite,
-                              child: ListTile(
-                                dense: true,
-                                leading: Icon(favorite.icon, size: 18),
-                                title: Text(favorite.label),
-                                trailing: favorite.id == activeSortFavoriteId
-                                    ? const Icon(Icons.check, size: 18)
-                                    : null,
-                              ),
-                            ),
-                        ],
-                        child: const _ToolbarChromeButton(
-                          icon: Icons.sort,
-                          label: 'Sort',
-                        ),
-                      ),
-                    if (sortFavorites.isNotEmpty &&
-                        onSortFavoriteSelected != null)
-                      const SizedBox(width: 6),
-                    if (onColumnFavoriteSelected != null)
-                      PopupMenuButton<Object>(
-                        tooltip: 'Columns',
-                        onSelected: (selection) {
-                          if (selection is _ToolbarPresetSelection<
-                              LibraryTableColumnPreset>) {
-                            onColumnFavoriteSelected!(selection.value);
-                            return;
-                          }
-                          if (selection is _ToolbarActionSelection) {
-                            selection.onSelected();
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          for (final preset in columnFavoritePresets)
-                            PopupMenuItem<Object>(
-                              value: _ToolbarPresetSelection<
-                                  LibraryTableColumnPreset>(preset),
-                              child: ListTile(
-                                dense: true,
-                                leading:
-                                    const Icon(Icons.view_column, size: 18),
-                                title: Text(preset.label),
-                                trailing:
-                                    preset.label == activeColumnFavoriteLabel
-                                        ? const Icon(Icons.check, size: 18)
-                                        : null,
-                              ),
-                            ),
-                          const PopupMenuDivider(),
-                          PopupMenuItem<Object>(
-                            value: _ToolbarActionSelection(onManageColumns),
-                            child: const ListTile(
-                              dense: true,
-                              leading: Icon(Icons.tune, size: 18),
-                              title: Text('Manage columns...'),
-                            ),
-                          ),
-                        ],
-                        child: const _ToolbarChromeButton(
-                          icon: Icons.view_column,
-                          label: 'Columns',
-                        ),
-                      ),
-                    if (onColumnFavoriteSelected != null)
-                      const SizedBox(width: 6),
-                    if (canManageFavorites)
-                      _ToolbarChromeButton(
-                        icon: Icons.push_pin_outlined,
-                        label: 'Manage favorites',
-                        onPressed: () => _showManageFavoritesSheet(context),
-                      ),
-                    if (canManageFavorites &&
-                        canJumpToIssue &&
-                        onJumpToIssueSubmitted != null)
-                      const SizedBox(width: 6),
-                    if (canJumpToIssue && onJumpToIssueSubmitted != null)
-                      SizedBox(
-                        width: 190,
-                        child: _InlineIssueJumpField(
-                          onSubmitted: onJumpToIssueSubmitted!,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  LibrarySortFavorite? _activeSortFavorite() {
-    for (final favorite in sortFavorites) {
-      if (favorite.id == activeSortFavoriteId) {
-        return favorite;
-      }
-    }
-    return null;
-  }
-
-  Future<void> _showManageFavoritesSheet(BuildContext context) {
-    final pinnedSorts = Set<String>.from(pinnedSortFavoriteIds);
-    final pinnedColumns = Set<String>.from(pinnedColumnFavoriteKeys);
-
-    return showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return SafeArea(
-              child: ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(
-                    'Pinned favorites',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (onTogglePinnedSortFavorite != null &&
-                      sortFavorites.isNotEmpty) ...[
-                    const _ToolbarSheetSectionTitle('Sorts'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final favorite in sortFavorites)
-                          FilterChip(
-                            avatar: Icon(favorite.icon, size: 14),
-                            label: Text(favorite.label),
-                            selected: pinnedSorts.contains(favorite.id),
-                            onSelected: (_) {
-                              setModalState(() {
-                                if (!pinnedSorts.add(favorite.id)) {
-                                  pinnedSorts.remove(favorite.id);
-                                }
-                              });
-                              onTogglePinnedSortFavorite!(favorite);
-                            },
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  if (onTogglePinnedColumnFavorite != null &&
-                      columnFavoritePresets.isNotEmpty) ...[
-                    const _ToolbarSheetSectionTitle('Columns'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final preset in columnFavoritePresets)
-                          FilterChip(
-                            avatar: const Icon(Icons.view_column, size: 14),
-                            label: Text(preset.label),
-                            selected: pinnedColumns.contains(
-                              libraryColumnFavoriteKey(preset),
-                            ),
-                            onSelected: (_) {
-                              final key = libraryColumnFavoriteKey(preset);
-                              setModalState(() {
-                                if (!pinnedColumns.add(key)) {
-                                  pinnedColumns.remove(key);
-                                }
-                              });
-                              onTogglePinnedColumnFavorite!(preset);
-                            },
-                          ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-class _ToolbarChromeButton extends StatelessWidget {
-  const _ToolbarChromeButton({
-    required this.icon,
-    required this.label,
-    this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      ),
     );
   }
 }
@@ -1134,43 +831,6 @@ class _ToolbarAlphabetRow extends StatelessWidget {
   }
 }
 
-class _ToolbarPresetSelection<T> {
-  const _ToolbarPresetSelection(this.value);
-
-  final T value;
-}
-
-class _ToolbarActionSelection {
-  const _ToolbarActionSelection(this.onSelected);
-
-  final VoidCallback onSelected;
-}
-
-class _ToolbarPinnedChip extends StatelessWidget {
-  const _ToolbarPinnedChip({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilterChip(
-      avatar: Icon(icon, size: 14),
-      label: Text(label),
-      selected: selected,
-      onSelected: onPressed == null ? null : (_) => onPressed!(),
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
 
 class _InlineIssueJumpField extends StatefulWidget {
   const _InlineIssueJumpField({required this.onSubmitted});
@@ -1221,25 +881,6 @@ class _InlineIssueJumpFieldState extends State<_InlineIssueJumpField> {
   }
 }
 
-class _ToolbarSheetSectionTitle extends StatelessWidget {
-  const _ToolbarSheetSectionTitle(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: appPalette(context).textMuted,
-            ),
-      ),
-    );
-  }
-}
 
 void _showCompactCoverSizeSheet(
   BuildContext context,
