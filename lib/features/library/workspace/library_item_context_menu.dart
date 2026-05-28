@@ -40,7 +40,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
       overlay.size.width - position.dx,
       overlay.size.height - position.dy,
     ),
-    color: kAppSurfaceSubtle,
+    color: appPalette(context).surfaceSubtle,
     shape: RoundedRectangleBorder(
       borderRadius: kAppMenuBorderRadius,
       side: BorderSide(color: accent.withValues(alpha: 0.3)),
@@ -49,11 +49,13 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
         ? [
             _header('Selection', accent),
             _item(
+              context,
               LibraryItemContextAction.edit,
               Icons.edit_note,
               'Bulk edit selected',
             ),
             _item(
+              context,
               LibraryItemContextAction.duplicate,
               Icons.copy_outlined,
               'Duplicate selected',
@@ -61,16 +63,19 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             const PopupMenuDivider(),
             _header('Collection', accent),
             _item(
+              context,
               LibraryItemContextAction.addToOwned,
               Icons.inventory_2_outlined,
               'Move selected to owned',
             ),
             _item(
+              context,
               LibraryItemContextAction.addToWishlist,
               Icons.star_border,
               'Move selected to wishlist',
             ),
             _item(
+              context,
               LibraryItemContextAction.removeFromOwned,
               Icons.delete_outline,
               'Remove selected',
@@ -80,12 +85,14 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
         : [
             _header('Editing', accent),
             _item(
+              context,
               LibraryItemContextAction.edit,
               Icons.edit_outlined,
               'Edit item...',
             ),
             if (entry.isOwned)
               _item(
+                context,
                 LibraryItemContextAction.duplicate,
                 Icons.copy_outlined,
                 'Duplicate item',
@@ -94,6 +101,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             _header('Collection', accent),
             if (!entry.isOwned)
               _item(
+                context,
                 LibraryItemContextAction.addToOwned,
                 Icons.add_circle_outline,
                 entry.isWishlisted
@@ -102,6 +110,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               )
             else
               _item(
+                context,
                 LibraryItemContextAction.removeFromOwned,
                 Icons.remove_circle_outline,
                 'Remove from collection',
@@ -109,18 +118,21 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               ),
             if (!entry.isWishlisted)
               _item(
+                context,
                 LibraryItemContextAction.addToWishlist,
                 Icons.star_border,
                 'Add to wishlist',
               )
             else
               _item(
+                context,
                 LibraryItemContextAction.removeFromWishlist,
                 Icons.star_outline,
                 'Remove from wishlist',
               ),
             if (entry.isTracked && !entry.isOwned)
               _item(
+                context,
                 LibraryItemContextAction.removeTracking,
                 Icons.playlist_remove,
                 'Stop tracking',
@@ -129,12 +141,14 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             const PopupMenuDivider(),
             _header('Copy', accent),
             _item(
+              context,
               LibraryItemContextAction.copyTitle,
               Icons.content_copy,
               'Copy title',
             ),
             if (entry.barcode != null && entry.barcode!.isNotEmpty)
               _item(
+                context,
                 LibraryItemContextAction.copyBarcode,
                 Icons.qr_code,
                 'Copy barcode',
@@ -160,11 +174,14 @@ PopupMenuEntry<LibraryItemContextMenuResult> _header(String label, Color accent)
 }
 
 PopupMenuItem<LibraryItemContextMenuResult> _item(
+  BuildContext context,
   LibraryItemContextAction action,
   IconData icon,
   String label, {
   bool destructive = false,
 }) {
+  final palette = appPalette(context);
+  final destructiveColor = Theme.of(context).colorScheme.error;
   return PopupMenuItem<LibraryItemContextMenuResult>(
     value: LibraryItemContextMenuResult(action),
     height: 36,
@@ -173,7 +190,7 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
         Icon(
           icon,
           size: 18,
-          color: destructive ? Colors.red[300] : Colors.white70,
+          color: destructive ? destructiveColor : palette.textMuted,
         ),
         const SizedBox(width: 10),
         SizedBox(
@@ -184,7 +201,7 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 13,
-              color: destructive ? Colors.red[300] : Colors.white,
+              color: destructive ? destructiveColor : palette.textPrimary,
             ),
           ),
         ),
