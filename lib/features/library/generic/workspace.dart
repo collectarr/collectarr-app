@@ -133,8 +133,10 @@ class LibraryWorkspace extends ConsumerWidget {
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final cardScale = (viewState.coverSize / adapter.viewProfile.defaultCoverSize)
-        .clamp(0.78, 1.48);
+    final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
+    final cardScale = defaultCoverSize > 0
+      ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
+      : 1.0;
     final cardCoverWidth = (uiPrefs.cardCoverWidth * cardScale)
         .clamp(60.0, 164.0)
         .toDouble();

@@ -223,15 +223,19 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
       : null;
   final coverUrls = <String, String?>{};
   final startYears = <String, int?>{};
+  final bucketNumbers = isSeries ? <String, Set<int>>{} : null;
   final ownedNumbers = isSeries ? <String, Set<int>>{} : null;
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     counts[bucket] = (counts[bucket] ?? 0) + 1;
+    final number = isSeries ? _wholeNumber(item.entry.itemNumber) : null;
+    if (number != null) {
+      bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
+    }
     if (isSeries && item.entry.isOwned) {
       ownedCounts![bucket] = (ownedCounts[bucket] ?? 0) + 1;
-      final num = _wholeNumber(item.entry.itemNumber);
-      if (num != null) {
-        ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(num);
+      if (number != null) {
+        ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
       }
     }
     if (!coverUrls.containsKey(bucket)) {
@@ -246,18 +250,19 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
     }
   }
   final gapNumbers = <String, List<int>>{};
-  if (ownedNumbers != null) {
+  if (ownedNumbers != null && bucketNumbers != null) {
     for (final entry in ownedNumbers.entries) {
       final sorted = entry.value.toList(growable: false)..sort();
       if (sorted.length < 2) continue;
-      // Safeguard against extreme ranges from typos (e.g. issue #999999)
-      if (sorted.last - sorted.first > 5000) continue;
+      final existingNumbers = bucketNumbers[entry.key];
+      if (existingNumbers == null || existingNumbers.length < 2) continue;
+      final sortedExisting = existingNumbers.toList(growable: false)..sort();
       final missing = <int>[];
-      for (var n = sorted.first; n <= sorted.last; n++) {
-        if (!entry.value.contains(n)) {
-          missing.add(n);
-          if (missing.length > 1000) break;
-        }
+      for (final number in sortedExisting) {
+        if (number < sorted.first || number > sorted.last) continue;
+        if (entry.value.contains(number)) continue;
+        missing.add(number);
+        if (missing.length > 1000) break;
       }
       if (missing.isNotEmpty) gapNumbers[entry.key] = missing;
     }
