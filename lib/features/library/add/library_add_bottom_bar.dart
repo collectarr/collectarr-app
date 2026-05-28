@@ -38,7 +38,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
   final Color accent;
   final LibraryMetadataItem? selectedItem;
   final ProviderCandidate? selectedCandidate;
-  final _QueuedProviderIngest? selectedQueuedIngest;
+  final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;
   final LibraryAddTarget addTarget;
   final int addCount;
@@ -198,7 +198,7 @@ class _LibraryAddBottomActionButton extends StatelessWidget {
       message: tooltip,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        style: _libraryAddOutlinedButtonStyle(accent),
+        style: libraryAddOutlinedButtonStyle(accent),
         icon: Icon(icon, size: 17),
         label: Text(label),
       ),

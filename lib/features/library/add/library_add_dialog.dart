@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/add/library_cover_scan_service.d
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -126,7 +127,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   List<LibraryMetadataItem> _results = const [];
   List<ProviderCandidate> _providerResults = const [];
-  final _queuedProviderIngests = <String, _QueuedProviderIngest>{};
+  final _queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
   final _checkedResultIds = <String>{};
   final _checkedProviderIds = <String>{};
   String? _error;
@@ -136,7 +137,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isSearchingProvider = false;
   bool _isQueueingIngest = false;
   bool _isAdding = false;
-  _LibraryAddDialogMode _mode = _LibraryAddDialogMode.search;
+  LibraryAddDialogMode _mode = LibraryAddDialogMode.search;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   LibraryAddReferenceType _referenceType = LibraryAddReferenceType.media;
   String? _selectedResultId;
@@ -205,10 +206,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
     if (_barcodeController.text.isNotEmpty && widget.autoLookupInitialBarcode) {
-      _mode = _LibraryAddDialogMode.barcode;
+      _mode = LibraryAddDialogMode.barcode;
       WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
     } else if (_barcodeController.text.isNotEmpty) {
-      _mode = _LibraryAddDialogMode.barcode;
+      _mode = LibraryAddDialogMode.barcode;
     }
   }
 
@@ -262,7 +263,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
     final palette = appPalette(context);
     return Theme(
-      data: _libraryAddDialogTheme(accent, palette),
+      data: buildLibraryAddDialogTheme(accent, palette),
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(
           horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
@@ -312,7 +313,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   onScanCover: _scanCover,
                   onLookupBarcode: _lookupBarcode,
                   onManual: () =>
-                      setState(() => _mode = _LibraryAddDialogMode.manual),
+                      setState(() => _mode = LibraryAddDialogMode.manual),
                   showAdvanced: _showAdvancedSearch,
                   onToggleAdvanced: () => setState(
                       () => _showAdvancedSearch = !_showAdvancedSearch),
@@ -327,7 +328,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     barcode: _barcodeController.text.trim(),
                   ),
                 if (_coverScanPrefill != null)
-                  _CoverScanPrefillBanner(result: _coverScanPrefill!),
+                  LibraryCoverScanPrefillBanner(result: _coverScanPrefill!),
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -432,7 +433,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onAddWishlist: () =>
                             _addManual(LibraryAddTarget.wishlist),
                       );
-                      if (_mode == _LibraryAddDialogMode.manual) {
+                      if (_mode == LibraryAddDialogMode.manual) {
                         return manualPane;
                       }
                       if (constraints.maxWidth < 720) {
@@ -466,7 +467,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     },
                   ),
                 ),
-                if (_mode != _LibraryAddDialogMode.manual)
+                if (_mode != LibraryAddDialogMode.manual)
                   Builder(
                     builder: (context) {
                       final checkedItems = [
@@ -788,7 +789,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
       final query = (result.query ?? result.series ?? '').trim();
       setState(() {
-        _mode = _LibraryAddDialogMode.search;
+        _mode = LibraryAddDialogMode.search;
         _queryController.text = query;
         _searchSeriesController.text = result.series?.trim() ?? '';
         _searchNumberController.text = result.issueNumber?.trim() ?? '';
@@ -1676,99 +1677,3 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 }
 
-class _QueuedProviderIngest {
-  const _QueuedProviderIngest({
-    required this.id,
-    required this.status,
-  });
-
-  final String id;
-  final String status;
-
-  String get shortId {
-    final trimmed = id.trim();
-    if (trimmed.length <= 8) {
-      return trimmed;
-    }
-    return trimmed.substring(0, 8);
-  }
-
-  String get statusLabel {
-    final trimmed = status.trim();
-    if (trimmed.isEmpty) {
-      return 'Queued';
-    }
-    return '${trimmed[0].toUpperCase()}${trimmed.substring(1)}';
-  }
-}
-
-enum _LibraryAddDialogMode { search, barcode, manual }
-
-class _CoverScanPrefillBanner extends StatelessWidget {
-  const _CoverScanPrefillBanner({required this.result});
-
-  final LibraryCoverScanResult result;
-
-  @override
-  Widget build(BuildContext context) {
-    final details = <String>[
-      if (result.query != null && result.query!.trim().isNotEmpty) result.query!,
-      if (result.issueNumber != null && result.issueNumber!.trim().isNotEmpty)
-        '#${result.issueNumber}',
-      if (result.year != null) result.year!.toString(),
-      if (result.publisher != null && result.publisher!.trim().isNotEmpty)
-        result.publisher!,
-    ];
-    final confidence = result.confidenceLabel?.trim();
-    final reviewSummary = result.reviewSummary?.trim();
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Color(0xFF243926),
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        child: Row(
-          children: [
-            const Icon(Icons.photo_camera_outlined, size: 18, color: kAppAccent),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                details.isEmpty
-                    ? 'Cover scan filled search hints. Review them before searching Core.'
-                    : 'Cover scan filled search hints: ${details.join(' | ')}${confidence == null || confidence.isEmpty ? '' : ' ($confidence confidence)'}${reviewSummary == null || reviewSummary.isEmpty ? '' : ' • $reviewSummary'}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-const double _kLibraryAddControlHeight = 34;
-const double _kLibraryAddModeControlHeight = 36;
-
-ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
-  return OutlinedButton.styleFrom(
-    foregroundColor: accent,
-    side: BorderSide(color: accent.withValues(alpha: 0.78)),
-    minimumSize: const Size(0, _kLibraryAddControlHeight),
-    padding: const EdgeInsets.symmetric(horizontal: 12),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w800),
-  );
-}
-
-ThemeData _libraryAddDialogTheme(Color accent, AppThemePalette palette) {
-  return libraryAddDialogTheme(accent, palette: palette);
-}

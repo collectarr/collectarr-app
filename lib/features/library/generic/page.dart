@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
@@ -36,6 +35,8 @@ import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
+import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -131,7 +132,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Set<String> _pinnedSortFavoriteIds = const {};
   Set<String> _pinnedColumnFavoriteKeys = const {};
   List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
-  List<_LibrarySidebarScopeSnapshot> _scopeHistory = const [];
+  List<LibrarySidebarScopeSnapshot> _scopeHistory = const [];
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
@@ -488,7 +489,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                       loading: () => const SkeletonGrid(),
                     ),
                   ),
-                  _CollectionTabBar(
+                  LibraryCollectionTabBar(
                     mediaKind: widget.type.workspace.kind.apiValue,
                     activeSmartListId: _activeSmartListId,
                     onSmartListSelected: _applySmartList,
@@ -1254,7 +1255,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         _scopeHistory = const [];
         return;
       }
-      final history = List<_LibrarySidebarScopeSnapshot>.from(_scopeHistory);
+      final history = List<LibrarySidebarScopeSnapshot>.from(_scopeHistory);
       final existingIndex = history.lastIndexOf(next);
       if (existingIndex != -1) {
         _scopeHistory = history.sublist(0, existingIndex);
@@ -1268,8 +1269,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     });
   }
 
-  _LibrarySidebarScopeSnapshot _captureSidebarScope() {
-    return _LibrarySidebarScopeSnapshot(
+  LibrarySidebarScopeSnapshot _captureSidebarScope() {
+    return LibrarySidebarScopeSnapshot(
       groupMode: _activeGroupMode,
       selectedBucket: _selectedBucket,
       selectedLetter: _selectedLetter,
@@ -1283,7 +1284,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
-  void _applySidebarScopeSnapshot(_LibrarySidebarScopeSnapshot snapshot) {
+  void _applySidebarScopeSnapshot(LibrarySidebarScopeSnapshot snapshot) {
     _groupMode = snapshot.groupMode;
     _selectedBucket = snapshot.selectedBucket;
     _selectedLetter = snapshot.selectedLetter;
@@ -1305,7 +1306,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       return;
     }
     setState(() {
-      final history = List<_LibrarySidebarScopeSnapshot>.from(_scopeHistory);
+      final history = List<LibrarySidebarScopeSnapshot>.from(_scopeHistory);
       final target = history.removeLast();
       _scopeHistory = history;
       _applySidebarScopeSnapshot(target);
@@ -1317,7 +1318,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       setState(() {
         _scopeHistory = const [];
         _applySidebarScopeSnapshot(
-          _LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
+          LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
         );
       });
       return;
@@ -1332,7 +1333,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     });
   }
 
-  String _sidebarScopeLabel(_LibrarySidebarScopeSnapshot snapshot) {
+  String _sidebarScopeLabel(LibrarySidebarScopeSnapshot snapshot) {
     if (snapshot.selectedBucket != null) {
       return '${genericGroupModeLabel(snapshot.groupMode, widget.type)}: ${snapshot.selectedBucket}';
     }
@@ -1861,193 +1862,3 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 }
 
-class _LibrarySidebarScopeSnapshot {
-  const _LibrarySidebarScopeSnapshot({
-    required this.groupMode,
-    this.selectedBucket,
-    this.selectedLetter,
-    this.linkedMetadataFilter,
-    this.collectionStatusScope = LibraryCollectionStatusScope.all,
-    this.quickView,
-    this.filterSelection = LibraryFilterSelection.none,
-    this.activeSmartListId,
-    this.activeSmartListName,
-    this.searchQuery = '',
-  });
-
-  final LibraryGroupMode groupMode;
-  final String? selectedBucket;
-  final String? selectedLetter;
-  final LibraryLinkedMetadataFilter? linkedMetadataFilter;
-  final LibraryCollectionStatusScope collectionStatusScope;
-  final LibraryQuickView? quickView;
-  final LibraryFilterSelection filterSelection;
-  final String? activeSmartListId;
-  final String? activeSmartListName;
-  final String searchQuery;
-
-  bool get isRootScope =>
-      selectedBucket == null &&
-      selectedLetter == null &&
-      linkedMetadataFilter == null &&
-      collectionStatusScope == LibraryCollectionStatusScope.all &&
-      quickView == null &&
-      !filterSelection.hasActiveFilters &&
-      activeSmartListId == null &&
-      searchQuery.trim().isEmpty;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    return other is _LibrarySidebarScopeSnapshot &&
-        other.groupMode == groupMode &&
-        other.selectedBucket == selectedBucket &&
-        other.selectedLetter == selectedLetter &&
-        other.linkedMetadataFilter == linkedMetadataFilter &&
-        other.collectionStatusScope == collectionStatusScope &&
-        other.quickView == quickView &&
-        other.filterSelection == filterSelection &&
-        other.activeSmartListId == activeSmartListId &&
-        other.activeSmartListName == activeSmartListName &&
-        other.searchQuery == searchQuery;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        groupMode,
-        selectedBucket,
-        selectedLetter,
-        linkedMetadataFilter,
-        collectionStatusScope,
-        quickView,
-        filterSelection,
-        activeSmartListId,
-        activeSmartListName,
-        searchQuery,
-      );
-}
-
-/// Excel-style tab bar showing user smart lists as clickable collection tabs.
-class _CollectionTabBar extends ConsumerStatefulWidget {
-  const _CollectionTabBar({
-    required this.mediaKind,
-    required this.activeSmartListId,
-    required this.onSmartListSelected,
-    required this.onAllSelected,
-  });
-
-  final String mediaKind;
-  final String? activeSmartListId;
-  final ValueChanged<SmartList> onSmartListSelected;
-  final VoidCallback onAllSelected;
-
-  @override
-  ConsumerState<_CollectionTabBar> createState() => _CollectionTabBarState();
-}
-
-class _CollectionTabBarState extends ConsumerState<_CollectionTabBar> {
-  List<SmartList> _smartLists = const [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSmartLists();
-  }
-
-  @override
-  void didUpdateWidget(_CollectionTabBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.mediaKind != widget.mediaKind) {
-      _loadSmartLists();
-    }
-  }
-
-  Future<void> _loadSmartLists() async {
-    final db = ref.read(localDatabaseProvider);
-    final repo = SmartListRepository(db);
-    final lists = await repo.getAll(mediaKind: widget.mediaKind);
-    if (mounted) {
-      setState(() => _smartLists = lists);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_smartLists.isEmpty) return const SizedBox.shrink();
-
-    final theme = Theme.of(context);
-    final isAllActive = widget.activeSmartListId == null;
-
-    return Container(
-      height: 34,
-      decoration: BoxDecoration(
-        color: kAppCanvas,
-        border: Border(
-          top: BorderSide(color: theme.dividerColor, width: 0.5),
-        ),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            _CollectionTab(
-              label: 'All',
-              isActive: isAllActive,
-              onTap: widget.onAllSelected,
-            ),
-            for (final list in _smartLists)
-              _CollectionTab(
-                label: list.name,
-                isActive: widget.activeSmartListId == list.id,
-                onTap: () => widget.onSmartListSelected(list),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CollectionTab extends StatelessWidget {
-  const _CollectionTab({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-      child: Material(
-        color:
-            isActive ? theme.colorScheme.primaryContainer : Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(6),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                color: isActive
-                    ? theme.colorScheme.onPrimaryContainer
-                    : theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

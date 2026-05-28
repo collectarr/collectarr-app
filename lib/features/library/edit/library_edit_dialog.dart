@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -422,14 +423,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         owned?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
     _selectedEditionId = editionSelection.edition?.id;
     _selectedVariantId = editionSelection.variant?.id;
-    _selectedBundleReleaseId = _normalizedId(owned?.bundleReleaseId);
+    _selectedBundleReleaseId = normalizeLibrarySelectionId(
+      owned?.bundleReleaseId,
+    );
     _selectedTrackingEditionId = tracking?.editionId ?? _selectedEditionId;
     _selectedTrackingVariantId = tracking?.variantId ?? _selectedVariantId;
     _selectedWishlistAnchorType =
         wishlist?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
     _selectedWishlistEditionId = wishlistEditionSelection.edition?.id;
     _selectedWishlistVariantId = wishlistEditionSelection.variant?.id;
-    _selectedWishlistBundleReleaseId = _normalizedId(wishlist?.bundleReleaseId);
+    _selectedWishlistBundleReleaseId = normalizeLibrarySelectionId(
+      wishlist?.bundleReleaseId,
+    );
 
     _physicalFormatId = _initialPhysicalFormatId(item);
 
@@ -995,7 +1000,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     selectedBundleReleaseId: _selectedBundleReleaseId,
                     onChanged: (value) {
                       setState(() {
-                        _selectedBundleReleaseId = _normalizedId(value);
+                        _selectedBundleReleaseId =
+                          normalizeLibrarySelectionId(value);
                       });
                     },
                   ),
@@ -1198,7 +1204,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     selectedBundleReleaseId: _selectedBundleReleaseId,
                     onChanged: (value) {
                       setState(() {
-                        _selectedBundleReleaseId = _normalizedId(value);
+                        _selectedBundleReleaseId =
+                          normalizeLibrarySelectionId(value);
                       });
                     },
                   ),
@@ -1639,7 +1646,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     selectedBundleReleaseId: _selectedWishlistBundleReleaseId,
                     onChanged: (value) {
                       setState(() {
-                        _selectedWishlistBundleReleaseId = _normalizedId(value);
+                        _selectedWishlistBundleReleaseId =
+                          normalizeLibrarySelectionId(value);
                       });
                     },
                   ),
@@ -2366,7 +2374,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: label,
       selectedEditionId: selectedEditionId,
       editions: widget.item.editions,
-      onChanged: (value) => onChanged(_normalizedId(value)),
+      onChanged: (value) => onChanged(normalizeLibrarySelectionId(value)),
     );
   }
 
@@ -2423,7 +2431,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: label,
       selectedVariantId: selectedVariantId,
       variants: variants,
-      onChanged: variants.isEmpty ? (_) {} : (value) => onChanged(_normalizedId(value)),
+      onChanged: variants.isEmpty
+          ? (_) {}
+          : (value) => onChanged(normalizeLibrarySelectionId(value)),
     );
   }
 
@@ -2438,95 +2448,49 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: label,
       selectedBundleReleaseId: selectedBundleReleaseId,
       bundleReleases: widget.availableBundleReleases,
-      onChanged: (value) => onChanged(_normalizedId(value)),
+      onChanged: (value) => onChanged(normalizeLibrarySelectionId(value)),
     );
   }
 
   void _setOwnedAnchorType(String value) {
+    final state = resolveOwnedAnchorSelectionState(
+      anchorType: value,
+      editions: widget.item.editions,
+      selectedEditionId: _selectedEditionId,
+      selectedVariantId: _selectedVariantId,
+      editionTitle: widget.item.editionTitle,
+      variantName: widget.item.variant,
+      availableBundleReleaseIds: [
+        for (final release in widget.availableBundleReleases) release.id,
+      ],
+    );
     setState(() {
-      _selectedOwnedAnchorType = value;
-      if (value == PersonalItemAnchorType.variant.apiValue) {
-        final editionSelection = resolveLibraryEditionSelection(
-          widget.item.editions,
-          editionId: _selectedEditionId,
-          variantId: _selectedVariantId,
-          editionTitle: widget.item.editionTitle,
-          variantName: widget.item.variant,
-        );
-        _selectedEditionId = editionSelection.edition?.id;
-        _selectedVariantId = editionSelection.variant?.id;
-        _selectedBundleReleaseId = null;
-        _selectedTrackingEditionId = _selectedEditionId;
-        _selectedTrackingVariantId = _selectedVariantId;
-      } else if (value == PersonalItemAnchorType.edition.apiValue) {
-        final editionSelection = resolveLibraryEditionSelection(
-          widget.item.editions,
-          editionId: _selectedEditionId,
-          variantId: _selectedVariantId,
-          editionTitle: widget.item.editionTitle,
-          variantName: widget.item.variant,
-        );
-        _selectedEditionId = editionSelection.edition?.id;
-        _selectedVariantId = null;
-        _selectedBundleReleaseId = null;
-        _selectedTrackingEditionId = _selectedEditionId;
-        _selectedTrackingVariantId = null;
-      } else if (value == PersonalItemAnchorType.bundleRelease.apiValue) {
-        _selectedBundleReleaseId ??=
-            widget.availableBundleReleases.isEmpty ? null : widget.availableBundleReleases.first.id;
-        _selectedEditionId = null;
-        _selectedVariantId = null;
-        _selectedTrackingEditionId = null;
-        _selectedTrackingVariantId = null;
-      } else {
-        _selectedEditionId = null;
-        _selectedVariantId = null;
-        _selectedBundleReleaseId = null;
-        _selectedTrackingEditionId = null;
-        _selectedTrackingVariantId = null;
-      }
+      _selectedOwnedAnchorType = state.anchorType;
+      _selectedEditionId = state.selectedEditionId;
+      _selectedVariantId = state.selectedVariantId;
+      _selectedBundleReleaseId = state.selectedBundleReleaseId;
+      _selectedTrackingEditionId = state.selectedTrackingEditionId;
+      _selectedTrackingVariantId = state.selectedTrackingVariantId;
     });
   }
 
   void _setWishlistAnchorType(String value) {
+    final state = resolveWishlistAnchorSelectionState(
+      anchorType: value,
+      editions: widget.item.editions,
+      selectedEditionId: _selectedWishlistEditionId,
+      selectedVariantId: _selectedWishlistVariantId,
+      editionTitle: widget.item.editionTitle,
+      variantName: widget.item.variant,
+      availableBundleReleaseIds: [
+        for (final release in widget.availableBundleReleases) release.id,
+      ],
+    );
     setState(() {
-      _selectedWishlistAnchorType = value;
-      if (value == PersonalItemAnchorType.variant.apiValue) {
-        final editionSelection = resolveLibraryEditionSelection(
-          widget.item.editions,
-          editionId: _selectedWishlistEditionId,
-          variantId: _selectedWishlistVariantId,
-          editionTitle: widget.item.editionTitle,
-          variantName: widget.item.variant,
-        );
-        _selectedWishlistEditionId = editionSelection.edition?.id;
-        _selectedWishlistVariantId = editionSelection.variant?.id;
-        _selectedWishlistBundleReleaseId = null;
-      } else if (value == PersonalItemAnchorType.edition.apiValue) {
-        final editionSelection = resolveLibraryEditionSelection(
-          widget.item.editions,
-          editionId: _selectedWishlistEditionId,
-          variantId: _selectedWishlistVariantId,
-          editionTitle: widget.item.editionTitle,
-          variantName: widget.item.variant,
-        );
-        _selectedWishlistEditionId = editionSelection.edition?.id;
-        _selectedWishlistVariantId = null;
-        _selectedWishlistBundleReleaseId = null;
-      } else if (value == PersonalItemAnchorType.bundleRelease.apiValue) {
-        _selectedWishlistBundleReleaseId ??=
-            widget.availableBundleReleases.isEmpty ? null : widget.availableBundleReleases.first.id;
-        _selectedWishlistEditionId = null;
-        _selectedWishlistVariantId = null;
-      } else {
-        _selectedWishlistEditionId = null;
-        _selectedWishlistVariantId = null;
-        _selectedWishlistBundleReleaseId = null;
-      }
+      _selectedWishlistAnchorType = state.anchorType;
+      _selectedWishlistEditionId = state.selectedEditionId;
+      _selectedWishlistVariantId = state.selectedVariantId;
+      _selectedWishlistBundleReleaseId = state.selectedBundleReleaseId;
     });
-  }
-
-  String? _normalizedId(String? value) {
-    return emptyToNull(value ?? '');
   }
 }

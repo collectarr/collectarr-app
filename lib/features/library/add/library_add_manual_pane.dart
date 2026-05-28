@@ -214,7 +214,7 @@ class _ManualPane extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: isAdding ? null : onAddTrack,
-                            style: _libraryAddOutlinedButtonStyle(),
+                            style: libraryAddOutlinedButtonStyle(),
                             icon: const Icon(Icons.visibility_outlined, size: 18),
                             label: Text(
                               LibraryAddCopy.addToTargetLabel(
@@ -230,7 +230,7 @@ class _ManualPane extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: isAdding ? null : onAddWishlist,
-                            style: _libraryAddOutlinedButtonStyle(),
+                            style: libraryAddOutlinedButtonStyle(),
                             icon: const Icon(Icons.star_outline, size: 18),
                             label: Text(
                               LibraryAddCopy.addToTargetLabel(

@@ -316,7 +316,7 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
       }
       _rebuild(() {
         _queuedProviderIngests[candidate.localCatalogId] =
-            _QueuedProviderIngest(id: job.id, status: job.status);
+            LibraryQueuedProviderIngest(id: job.id, status: job.status);
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

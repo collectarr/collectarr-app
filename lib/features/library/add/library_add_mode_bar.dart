@@ -120,12 +120,12 @@ class _LibraryAddModeBar extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final _LibraryAddDialogMode mode;
+  final LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController barcodeController;
   final bool isSearching;
   final bool isSearchingProvider;
-  final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+  final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
   final List<LibraryMetadataItem> suggestions;
@@ -164,11 +164,11 @@ class _LibraryAddModeBar extends StatelessWidget {
               mode: mode,
               onModeChanged: onModeChanged,
               onManual: onManual,
-              onScan: () => onModeChanged(_LibraryAddDialogMode.barcode),
+              onScan: () => onModeChanged(LibraryAddDialogMode.barcode),
             ),
             const SizedBox(height: 7),
             switch (mode) {
-              _LibraryAddDialogMode.search => Column(
+              LibraryAddDialogMode.search => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
@@ -233,7 +233,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                       ),
                   ],
                 ),
-              _LibraryAddDialogMode.barcode => Row(
+              LibraryAddDialogMode.barcode => Row(
                   children: [
                     Expanded(
                       child: _LibraryAddModeTextField(
@@ -255,7 +255,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     ),
                   ],
                 ),
-              _LibraryAddDialogMode.manual => Row(
+              LibraryAddDialogMode.manual => Row(
                   children: [
                     Icon(Icons.edit_note, size: 18, color: accent),
                     const SizedBox(width: 8),
@@ -305,8 +305,8 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final _LibraryAddDialogMode mode;
-  final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+  final LibraryAddDialogMode mode;
+  final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onManual;
   final VoidCallback onScan;
 
@@ -341,15 +341,15 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     icon: type.workspace.icon,
                     label: 'Search',
                     accent: accent,
-                    selected: mode == _LibraryAddDialogMode.search,
-                    onTap: () => onModeChanged(_LibraryAddDialogMode.search),
+                    selected: mode == LibraryAddDialogMode.search,
+                    onTap: () => onModeChanged(LibraryAddDialogMode.search),
                   ),
                   LibraryAddModeTab(
                     icon: Icons.qr_code_2,
                     label: 'Barcode',
                     accent: accent,
-                    selected: mode == _LibraryAddDialogMode.barcode,
-                    onTap: () => onModeChanged(_LibraryAddDialogMode.barcode),
+                    selected: mode == LibraryAddDialogMode.barcode,
+                    onTap: () => onModeChanged(LibraryAddDialogMode.barcode),
                   ),
                 ],
               ),
@@ -437,7 +437,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
     final palette = appPalette(context);
     final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
       child: _LibraryAddModeFieldFrame(
         child: TextField(
           key: fieldKey,
@@ -482,7 +482,7 @@ class _LibraryAddModeFieldFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Container(
-      height: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: palette.panelRaised,
@@ -527,10 +527,10 @@ class _LibraryAddModeButton extends StatelessWidget {
             ],
           );
     final style = outlined
-        ? _libraryAddOutlinedButtonStyle(accent)
+        ? libraryAddOutlinedButtonStyle(accent)
       : libraryAddFilledButtonStyle(accent);
     return SizedBox(
-      height: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
       child: outlined
           ? OutlinedButton(
               onPressed: onPressed,
@@ -560,8 +560,8 @@ class _AdvancedToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _kLibraryAddModeControlHeight,
-      width: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
+      width: kLibraryAddModeControlHeight,
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(

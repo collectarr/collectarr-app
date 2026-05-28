@@ -217,7 +217,7 @@ class _UnifiedGroupNode extends StatefulWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> ownedCatalogItemIds;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String Function(String providerId) providerLabel;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
@@ -737,7 +737,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
   final ProviderCandidate candidate;
   final Color accent;
   final String providerLabel;
-  final _QueuedProviderIngest? queuedIngest;
+  final LibraryQueuedProviderIngest? queuedIngest;
   final bool selected;
   final VoidCallback onSelect;
 

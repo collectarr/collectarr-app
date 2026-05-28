@@ -34,7 +34,7 @@ class _SearchPane extends StatelessWidget {
   final Color accent;
   final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
   final bool searchedProvider;
   final String? selectedResultId;
@@ -101,7 +101,7 @@ class _SearchPaneNoticeStack extends StatelessWidget {
   });
 
   final String? error;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final bool isBusy;
   final Color accent;
   final VoidCallback onSearchCore;
@@ -174,7 +174,7 @@ class _QueuedIngestNotice extends StatelessWidget {
             const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: onSearchCore,
-              style: _libraryAddOutlinedButtonStyle(accent),
+              style: libraryAddOutlinedButtonStyle(accent),
               icon: const Icon(Icons.refresh, size: 16),
               label: const Text('Search Core again'),
             ),
@@ -221,7 +221,7 @@ class _SearchResultsList extends StatelessWidget {
   final bool searchedProvider;
   final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
@@ -888,7 +888,7 @@ class _ProviderCandidateTile extends StatelessWidget {
   final ProviderCandidate candidate;
   final Color accent;
   final String providerLabel;
-  final _QueuedProviderIngest? queuedIngest;
+  final LibraryQueuedProviderIngest? queuedIngest;
   final String providerQueryText;
   final String providerSeriesText;
   final String providerNumberText;
