@@ -45,8 +45,9 @@ class _IntegrationExportDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: const Row(
         children: [
           Icon(Icons.upload_outlined, size: 22),
@@ -61,7 +62,7 @@ class _IntegrationExportDialog extends StatelessWidget {
           children: [
             Text(
               '${shelfState.entries.length} items in ${type.workspace.title}',
-              style: TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             const SizedBox(height: 16),
             for (final format in ExportFormat.values) ...[
@@ -217,8 +218,9 @@ class _ExportFormatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Material(
-      color: kAppPanelRaised,
+      color: palette.panelRaised,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -238,11 +240,11 @@ class _ExportFormatTile extends StatelessWidget {
                             fontSize: 13, fontWeight: FontWeight.w600)),
                     Text(format.description,
                         style:
-                            TextStyle(fontSize: 11, color: kAppTextMuted)),
+                            TextStyle(fontSize: 11, color: palette.textMuted)),
                   ],
                 ),
               ),
-              Icon(Icons.copy, size: 16, color: kAppTextMuted),
+              Icon(Icons.copy, size: 16, color: palette.textMuted),
             ],
           ),
         ),

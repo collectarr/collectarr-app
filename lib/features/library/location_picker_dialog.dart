@@ -73,7 +73,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(context).panel,
         title: const Text('New Location'),
         content: TextField(
           controller: nameController,
@@ -108,9 +108,10 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final roots = _locations.where((location) => location.parentId == null).toList();
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),
@@ -188,10 +189,11 @@ class _LocationPickerEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppCanvas,
-        border: Border.all(color: kAppDivider),
+        color: palette.canvas,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -216,9 +218,9 @@ class _LocationPickerEmptyState extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Create a location first so this item can be assigned without leaving the dialog.',
-              style: TextStyle(color: kAppTextMuted),
+              style: TextStyle(color: palette.textMuted),
             ),
             const SizedBox(height: 16),
             Align(
