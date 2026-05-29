@@ -64,7 +64,7 @@ class _LibraryCollectionTabBarState
     return Container(
       height: 34,
       decoration: BoxDecoration(
-        color: kAppCanvas,
+        color: appPalette(context).canvas,
         border: Border(
           top: BorderSide(color: theme.dividerColor, width: 0.5),
         ),

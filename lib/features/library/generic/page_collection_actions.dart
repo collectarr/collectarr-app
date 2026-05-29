@@ -377,6 +377,7 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: appPalette(dialogContext).panel,
         title: const Text('Cover Matches'),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),

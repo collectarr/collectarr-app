@@ -105,51 +105,53 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Row(
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  if (!viewState.isSidebarVisible &&
-                      onGroupModeChanged != null) ...[
-                    LibraryGroupModeMenuButton(
-                      type: type,
-                      groupMode: groupMode,
-                      accent: libraryAccentForKind(type.workspace.kind),
-                      icon: groupMode == null
-                          ? Icons.account_tree_outlined
-                          : genericGroupModeIcon(groupMode!),
-                      onChanged: onGroupModeChanged!,
-                      sidebarVisible: false,
-                      onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                      pinnedGroupModes: pinnedGroupModes,
-                      onTogglePin: onTogglePinGroupMode,
-                      iconOnly: true,
-                    ),
-                    const SizedBox(width: 6),
-                  ],
-                  if (onEditSort != null) const SizedBox(width: 6),
-                  if (onEditSort != null)
-                    LibraryToolbarSortButton(
-                      onPressed: onEditSort!,
-                      sortFavorites: sortFavorites,
-                      activeSortFavoriteId: activeSortFavoriteId,
-                    ),
-                  if (onEditSort != null) const SizedBox(width: 6),
-                  LibraryViewModeDropdown(
-                    viewMode: viewState.viewMode,
-                    onChanged: onViewModeChanged,
-                  ),
-                  if (viewState.viewMode.supportsCoverSize) ...[
-                    const SizedBox(width: 6),
-                    LibraryCoverSizeSlider(
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    if (!viewState.isSidebarVisible &&
+                        onGroupModeChanged != null) ...[
+                      LibraryGroupModeMenuButton(
+                        type: type,
+                        groupMode: groupMode,
+                        accent: libraryAccentForKind(type.workspace.kind),
+                        icon: groupMode == null
+                            ? Icons.account_tree_outlined
+                            : genericGroupModeIcon(groupMode!),
+                        onChanged: onGroupModeChanged!,
+                        sidebarVisible: false,
+                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                        pinnedGroupModes: pinnedGroupModes,
+                        onTogglePin: onTogglePinGroupMode,
+                        iconOnly: true,
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    if (onEditSort != null) const SizedBox(width: 6),
+                    if (onEditSort != null)
+                      LibraryToolbarSortButton(
+                        onPressed: onEditSort!,
+                        sortFavorites: sortFavorites,
+                        activeSortFavoriteId: activeSortFavoriteId,
+                      ),
+                    if (onEditSort != null) const SizedBox(width: 6),
+                    LibraryViewModeDropdown(
                       viewMode: viewState.viewMode,
-                      coverSize: viewState.coverSize,
-                      minCoverSize: adapter.viewProfile.minCoverSize,
-                      maxCoverSize: adapter.viewProfile.maxCoverSize,
-                      onChanged: onCoverSizeChanged,
+                      onChanged: onViewModeChanged,
                     ),
+                    if (viewState.viewMode.supportsCoverSize) ...[
+                      const SizedBox(width: 6),
+                      LibraryCoverSizeSlider(
+                        viewMode: viewState.viewMode,
+                        coverSize: viewState.coverSize,
+                        minCoverSize: adapter.viewProfile.minCoverSize,
+                        maxCoverSize: adapter.viewProfile.maxCoverSize,
+                        onChanged: onCoverSizeChanged,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
             const SizedBox(width: 12),
