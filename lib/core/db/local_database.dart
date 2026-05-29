@@ -393,6 +393,15 @@ class LocalDatabase extends _$LocalDatabase {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
       onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          for (final table in allTables) {
+            await customStatement(
+              'DROP TABLE IF EXISTS ${table.actualTableName}',
+            );
+          }
+          await m.createAll();
+          return;
+        }
         if (from < 3) {
           await m.addColumn(ownedItemsCache, ownedItemsCache.createdAt);
           await m.addColumn(ownedItemsCache, ownedItemsCache.ownerUserId);

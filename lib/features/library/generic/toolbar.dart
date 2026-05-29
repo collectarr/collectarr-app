@@ -203,6 +203,7 @@ class LibraryToolbar extends StatelessWidget {
                   onJumpToIssueSubmitted: onJumpToIssueSubmitted,
                   hasActiveFilters: hasActiveFilters,
                   onClearFilters: onClearFilters,
+                  onClearBucket: onClearBucket,
                   onEditFilters: onEditFilters,
                   activeFilterCount: activeFilterCount,
                   onRandomPick: onRandomPick,

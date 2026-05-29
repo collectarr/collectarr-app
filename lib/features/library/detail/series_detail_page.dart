@@ -429,12 +429,13 @@ final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
 /// Computes missing issue numbers between the min and max owned issues.
 List<int> _computeMissingIssues(
-  List<Map<String, dynamic>> items,
+  List<dynamic> items,
   Map<String, OwnedItem> ownedItemIds,
 ) {
   final ownedNumbers = <int>{};
   final allNumbers = <int>{};
   for (final item in items) {
+    if (item is! Map) continue;
     final numberStr = item['item_number']?.toString();
     if (numberStr == null) continue;
     final match = _issueNumberRegExp.firstMatch(numberStr);

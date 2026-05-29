@@ -312,6 +312,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.onJumpToIssueSubmitted,
     required this.hasActiveFilters,
     required this.onClearFilters,
+    required this.onClearBucket,
     this.onEditFilters,
     this.activeFilterCount = 0,
     this.onRandomPick,
@@ -367,6 +368,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final ValueChanged<String>? onJumpToIssueSubmitted;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
+  final VoidCallback onClearBucket;
   final VoidCallback? onEditFilters;
   final int activeFilterCount;
   final VoidCallback? onRandomPick;
@@ -408,7 +410,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                       : [
                           IconButton(
                             tooltip: 'Clear scope chip',
-                            onPressed: onClearFilters,
+                            onPressed: onClearBucket,
                             icon: const Icon(Icons.clear, size: 18),
                           ),
                         ],

@@ -44,10 +44,11 @@ class _LibraryCollectionTabBarState
   }
 
   Future<void> _loadSmartLists() async {
+    final mediaKind = widget.mediaKind;
     final db = ref.read(localDatabaseProvider);
     final repo = SmartListRepository(db);
-    final lists = await repo.getAll(mediaKind: widget.mediaKind);
-    if (mounted) {
+    final lists = await repo.getAll(mediaKind: mediaKind);
+    if (mounted && widget.mediaKind == mediaKind) {
       setState(() => _smartLists = lists);
     }
   }
