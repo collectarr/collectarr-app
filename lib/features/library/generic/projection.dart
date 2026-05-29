@@ -44,7 +44,11 @@ String genericGroupModeLabel(
     LibraryGroupMode.language => 'Language',
     LibraryGroupMode.ageRating => 'Age Rating',
     LibraryGroupMode.format => 'Format',
+    LibraryGroupMode.actor => 'Actor',
     LibraryGroupMode.director => 'Director',
+    LibraryGroupMode.musician => 'Musician',
+    LibraryGroupMode.photography => 'Photography',
+    LibraryGroupMode.producer => 'Producer',
     LibraryGroupMode.creator => 'Creator',
     LibraryGroupMode.writer => 'Writer',
     LibraryGroupMode.artist => 'Artist',
@@ -97,7 +101,11 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.language => 'Languages',
     LibraryGroupMode.ageRating => 'Age Ratings',
     LibraryGroupMode.format => 'Formats',
+    LibraryGroupMode.actor => 'Actors',
     LibraryGroupMode.director => 'Directors',
+    LibraryGroupMode.musician => 'Musicians',
+    LibraryGroupMode.photography => 'Photography',
+    LibraryGroupMode.producer => 'Producers',
     LibraryGroupMode.creator => 'Creators',
     LibraryGroupMode.writer => 'Writers',
     LibraryGroupMode.artist => 'Artists',
@@ -146,7 +154,11 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.language => Icons.translate_outlined,
     LibraryGroupMode.ageRating => Icons.shield_outlined,
     LibraryGroupMode.format => Icons.album_outlined,
+    LibraryGroupMode.actor => Icons.theater_comedy_outlined,
     LibraryGroupMode.director => Icons.movie_creation_outlined,
+    LibraryGroupMode.musician => Icons.music_note_outlined,
+    LibraryGroupMode.photography => Icons.camera_alt_outlined,
+    LibraryGroupMode.producer => Icons.groups_outlined,
     LibraryGroupMode.creator => Icons.person_outlined,
     LibraryGroupMode.writer => Icons.edit_outlined,
     LibraryGroupMode.artist => Icons.brush_outlined,
@@ -409,7 +421,11 @@ String genericBucketForItemMode(
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
     LibraryGroupMode.format => _editionFormatBucket(entry),
+    LibraryGroupMode.actor => _creatorBucketByRole(entry, 'actor'),
     LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
+    LibraryGroupMode.musician => _creatorBucketByRole(entry, 'musician'),
+    LibraryGroupMode.photography => _creatorBucketByRole(entry, 'photography'),
+    LibraryGroupMode.producer => _creatorBucketByRole(entry, 'producer'),
     LibraryGroupMode.creator => _creatorBucketByRole(entry, null),
     LibraryGroupMode.writer => _creatorBucketByRole(entry, 'writer'),
     LibraryGroupMode.artist => _creatorBucketByRole(entry, 'artist'),
@@ -616,9 +632,24 @@ String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
     if (name == null || name.isEmpty) continue;
     if (role == null) return name;
     final creditRole = credit['role']?.toString().toLowerCase().trim();
-    if (creditRole != null && creditRole.contains(role)) return name;
+    if (creditRole != null && _matchesCreatorRole(creditRole, role)) return name;
   }
   return role != null ? 'Unknown $role' : 'Unknown creator';
+}
+
+bool _matchesCreatorRole(String creditRole, String role) {
+  return switch (role) {
+    'actor' => creditRole.contains('actor') || creditRole.contains('cast'),
+    'musician' =>
+      creditRole.contains('musician') ||
+      creditRole.contains('music') ||
+      creditRole.contains('composer'),
+    'photography' =>
+      creditRole.contains('photography') ||
+      creditRole.contains('director of photography') ||
+      creditRole.contains('cinemat'),
+    _ => creditRole.contains(role),
+  };
 }
 
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {

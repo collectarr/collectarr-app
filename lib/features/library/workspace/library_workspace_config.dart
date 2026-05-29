@@ -31,9 +31,13 @@ enum LibraryGroupMode {
   // ── Edition ──
   format,
   // ── Cast & Crew ──
+  actor,
   director,
-  creator,
+  musician,
+  photography,
+  producer,
   writer,
+  creator,
   artist,
   penciller,
   colorist,

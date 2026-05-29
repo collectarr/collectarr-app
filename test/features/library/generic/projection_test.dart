@@ -302,6 +302,59 @@ void main() {
     );
   });
 
+  test('movie cast and crew grouping uses role aliases', () {
+    final item = _projectionItem(
+      source: ShelfEntry(
+        itemId: 'movie-credits-1',
+        ownedItem: OwnedItem(
+          id: 'owned-credits-1',
+          itemId: 'movie-credits-1',
+          updatedAt: DateTime.utc(2026, 5, 1),
+        ),
+      ),
+      entry: LibraryWorkspaceEntry(
+        id: 'movie-credits-1',
+        mediaType: 'movie',
+        title: 'Heat',
+        isOwned: true,
+        creators: const [
+          {'name': 'Al Pacino', 'role': 'Cast'},
+          {'name': 'Michael Mann', 'role': 'Director'},
+          {'name': 'Elliot Goldenthal', 'role': 'Original Music Composer'},
+          {'name': 'Dante Spinotti', 'role': 'Director of Photography'},
+          {'name': 'Art Linson', 'role': 'Producer'},
+          {'name': 'Michael Mann', 'role': 'Writer'},
+        ],
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.actor),
+      'Al Pacino',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.director),
+      'Michael Mann',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.musician),
+      'Elliot Goldenthal',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.photography),
+      'Dante Spinotti',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.producer),
+      'Art Linson',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.writer),
+      'Michael Mann',
+    );
+  });
+
   test('linked metadata filter matches exact metadata values', () {
     final entry = LibraryWorkspaceEntry(
       id: 'comic-1',
