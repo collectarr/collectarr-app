@@ -781,12 +781,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       return 0;
     }
     final mutations = ref.read(collectionMutationsProvider);
-    for (var index = 0; index < updates.length; index++) {
-      await mutations.updateCatalogSnapshot(
-        updates[index],
-        notify: index == updates.length - 1,
-      );
-    }
+    await mutations.updateCatalogSnapshots(updates);
     if (!mounted) {
       return updates.length;
     }

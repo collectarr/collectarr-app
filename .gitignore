@@ -46,3 +46,4 @@ app.*.map.json
 test_results.json
 macos/
 sqlite3_temp.dat
+.github/skills/

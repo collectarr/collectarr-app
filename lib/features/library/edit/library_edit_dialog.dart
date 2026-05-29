@@ -2113,7 +2113,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   Future<void> _launchUrl(String url) async {
     final uri = Uri.tryParse(url);
     if (uri == null) return;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return;
+    }
   }
 
 

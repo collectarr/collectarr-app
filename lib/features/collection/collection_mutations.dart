@@ -607,6 +607,24 @@ class CollectionMutations {
     }
   }
 
+  Future<void> updateCatalogSnapshots(
+    Iterable<CatalogItem> items, {
+    bool notify = true,
+  }) async {
+    final pendingItems = items.toList(growable: false);
+    if (pendingItems.isEmpty) {
+      return;
+    }
+    final now = DateTime.now().toUtc();
+    await _catalogCache().upsertAll(pendingItems);
+    for (final item in pendingItems) {
+      await _syncQueue().enqueue(_syncChangeForCatalogItem(item, now));
+    }
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+  }
+
   Future<void> removeItem(OwnedItem item, {bool notify = true}) async {
     final now = DateTime.now().toUtc();
     await _ownedCache().markDeleted(item, now);

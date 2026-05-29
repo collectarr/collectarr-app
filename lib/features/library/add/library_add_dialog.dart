@@ -1103,18 +1103,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       List<ProviderCandidate> results;
       if (kindsToSearch.length > 1) {
         // Run parallel provider searches for each checked video kind.
-        final futures = kindsToSearch.map((kind) {
-          return runLibraryAddProviderSearch(
-            api: api,
-            type: widget.type,
-            provider: provider,
-            query: query,
-            rerankHints: rerankHints,
-            series: seriesText,
-            issueNumber: issueText,
-            year: yearValue,
-            kindOverride: kind,
-          );
+        final futures = kindsToSearch.map((kind) async {
+          try {
+            return await runLibraryAddProviderSearch(
+              api: api,
+              type: widget.type,
+              provider: provider,
+              query: query,
+              rerankHints: rerankHints,
+              series: seriesText,
+              issueNumber: issueText,
+              year: yearValue,
+              kindOverride: kind,
+            );
+          } catch (_) {
+            return <ProviderCandidate>[];
+          }
         });
         final allResults = await Future.wait(futures);
         results = allResults.expand((r) => r).toList();
