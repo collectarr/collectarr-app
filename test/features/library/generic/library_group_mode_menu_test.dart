@@ -40,5 +40,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Format'), findsOneWidget);
+    expect(find.text('Audio Tracks'), findsOneWidget);
+    expect(find.text('Edition Release Date'), findsOneWidget);
   });
 }

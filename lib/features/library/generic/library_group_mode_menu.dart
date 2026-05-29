@@ -405,11 +405,35 @@ List<_GroupModeCategory> _categorizeGroupModes(List<LibraryGroupMode> modes) {
     LibraryGroupMode.ageRating,
   };
   const editionModes = {
+    LibraryGroupMode.audioTracks,
+    LibraryGroupMode.boxSet,
+    LibraryGroupMode.distributor,
+    LibraryGroupMode.editionReleaseDate,
+    LibraryGroupMode.editionReleaseMonth,
+    LibraryGroupMode.editionReleaseYear,
+    LibraryGroupMode.extras,
     LibraryGroupMode.format,
+    LibraryGroupMode.hdr,
+    LibraryGroupMode.layers,
+    LibraryGroupMode.packaging,
+    LibraryGroupMode.regions,
+    LibraryGroupMode.screenRatios,
+    LibraryGroupMode.subtitles,
   };
   const crewModes = {
+    LibraryGroupMode.actor,
     LibraryGroupMode.director,
+    LibraryGroupMode.musician,
+    LibraryGroupMode.photography,
+    LibraryGroupMode.producer,
+    LibraryGroupMode.writer,
     LibraryGroupMode.creator,
+    LibraryGroupMode.artist,
+    LibraryGroupMode.penciller,
+    LibraryGroupMode.colorist,
+    LibraryGroupMode.letterer,
+    LibraryGroupMode.coverArtist,
+    LibraryGroupMode.editor,
   };
   final main = modes.where(mainModes.contains).toList();
   final edition = modes.where(editionModes.contains).toList();

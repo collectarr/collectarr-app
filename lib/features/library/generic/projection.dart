@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/utils/text_utils.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -43,7 +45,20 @@ String genericGroupModeLabel(
     LibraryGroupMode.country => 'Country',
     LibraryGroupMode.language => 'Language',
     LibraryGroupMode.ageRating => 'Age Rating',
+    LibraryGroupMode.audioTracks => 'Audio Tracks',
+    LibraryGroupMode.boxSet => 'Box Set',
+    LibraryGroupMode.distributor => 'Distributor',
+    LibraryGroupMode.editionReleaseDate => 'Edition Release Date',
+    LibraryGroupMode.editionReleaseMonth => 'Edition Release Month',
+    LibraryGroupMode.editionReleaseYear => 'Edition Release Year',
+    LibraryGroupMode.extras => 'Extras',
     LibraryGroupMode.format => 'Format',
+    LibraryGroupMode.hdr => 'HDR',
+    LibraryGroupMode.layers => 'Layers',
+    LibraryGroupMode.packaging => 'Packaging',
+    LibraryGroupMode.regions => 'Regions',
+    LibraryGroupMode.screenRatios => 'Screen Ratios',
+    LibraryGroupMode.subtitles => 'Subtitles',
     LibraryGroupMode.actor => 'Actor',
     LibraryGroupMode.director => 'Director',
     LibraryGroupMode.musician => 'Musician',
@@ -100,7 +115,20 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.country => 'Countries',
     LibraryGroupMode.language => 'Languages',
     LibraryGroupMode.ageRating => 'Age Ratings',
+    LibraryGroupMode.audioTracks => 'Audio Tracks',
+    LibraryGroupMode.boxSet => 'Box Sets',
+    LibraryGroupMode.distributor => 'Distributors',
+    LibraryGroupMode.editionReleaseDate => 'Edition Release Dates',
+    LibraryGroupMode.editionReleaseMonth => 'Edition Release Months',
+    LibraryGroupMode.editionReleaseYear => 'Edition Release Years',
+    LibraryGroupMode.extras => 'Extras',
     LibraryGroupMode.format => 'Formats',
+    LibraryGroupMode.hdr => 'HDR',
+    LibraryGroupMode.layers => 'Layers',
+    LibraryGroupMode.packaging => 'Packaging',
+    LibraryGroupMode.regions => 'Regions',
+    LibraryGroupMode.screenRatios => 'Screen Ratios',
+    LibraryGroupMode.subtitles => 'Subtitles',
     LibraryGroupMode.actor => 'Actors',
     LibraryGroupMode.director => 'Directors',
     LibraryGroupMode.musician => 'Musicians',
@@ -153,7 +181,20 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.country => Icons.flag_outlined,
     LibraryGroupMode.language => Icons.translate_outlined,
     LibraryGroupMode.ageRating => Icons.shield_outlined,
+    LibraryGroupMode.audioTracks => Icons.audiotrack_outlined,
+    LibraryGroupMode.boxSet => Icons.inventory_2_outlined,
+    LibraryGroupMode.distributor => Icons.local_shipping_outlined,
+    LibraryGroupMode.editionReleaseDate => Icons.event_outlined,
+    LibraryGroupMode.editionReleaseMonth => Icons.event_outlined,
+    LibraryGroupMode.editionReleaseYear => Icons.event_outlined,
+    LibraryGroupMode.extras => Icons.featured_play_list_outlined,
     LibraryGroupMode.format => Icons.album_outlined,
+    LibraryGroupMode.hdr => Icons.hdr_strong_outlined,
+    LibraryGroupMode.layers => Icons.layers_outlined,
+    LibraryGroupMode.packaging => Icons.inbox_outlined,
+    LibraryGroupMode.regions => Icons.public_outlined,
+    LibraryGroupMode.screenRatios => Icons.aspect_ratio_outlined,
+    LibraryGroupMode.subtitles => Icons.subtitles_outlined,
     LibraryGroupMode.actor => Icons.theater_comedy_outlined,
     LibraryGroupMode.director => Icons.movie_creation_outlined,
     LibraryGroupMode.musician => Icons.music_note_outlined,
@@ -420,7 +461,59 @@ String genericBucketForItemMode(
         : 'Unknown language',
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
+    LibraryGroupMode.audioTracks => _stringBucket(
+        entry.video?.audioTracks,
+        'No audio tracks',
+      ),
+    LibraryGroupMode.boxSet => _stringBucket(
+        item.source.ownedItem?.boxSetName,
+        'No box set',
+      ),
+    LibraryGroupMode.distributor => _stringBucket(
+        item.source.ownedItem?.distributor,
+        'No distributor',
+      ),
+    LibraryGroupMode.editionReleaseDate => _dateBucket(
+        _referenceEditionForItem(item)?.releaseDate,
+        'Unknown edition release date',
+      ),
+    LibraryGroupMode.editionReleaseMonth => _monthBucket(
+        _referenceEditionForItem(item)?.releaseDate,
+        fallback: 'Unknown edition release month',
+      ),
+    LibraryGroupMode.editionReleaseYear => _yearBucket(
+        _referenceEditionForItem(item)?.releaseDate,
+        'Unknown edition release year',
+      ),
+    LibraryGroupMode.extras => _stringBucket(
+        item.source.ownedItem?.features,
+        'No extras',
+      ),
     LibraryGroupMode.format => _editionFormatBucket(entry),
+    LibraryGroupMode.hdr => _firstOrDefault(
+        item.source.ownedItem?.hdrFormats,
+        'No HDR',
+      ),
+    LibraryGroupMode.layers => _stringBucket(
+        entry.video?.layers,
+        'No layers',
+      ),
+    LibraryGroupMode.packaging => _stringBucket(
+        item.source.ownedItem?.packaging,
+        'No packaging',
+      ),
+    LibraryGroupMode.regions => _stringBucket(
+        _referenceRegionForItem(item),
+        'No region',
+      ),
+    LibraryGroupMode.screenRatios => _stringBucket(
+        entry.video?.screenRatio,
+        'No screen ratio',
+      ),
+    LibraryGroupMode.subtitles => _stringBucket(
+        entry.video?.subtitles,
+        'No subtitles',
+      ),
     LibraryGroupMode.actor => _creatorBucketByRole(entry, 'actor'),
     LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
     LibraryGroupMode.musician => _creatorBucketByRole(entry, 'musician'),
@@ -624,6 +717,29 @@ String _editionFormatBucket(LibraryWorkspaceEntry entry) {
     if (label != null && label.trim().isNotEmpty) return label.trim();
   }
   return 'Unknown format';
+}
+
+CatalogEdition? _referenceEditionForItem(LibraryProjectionItem item) {
+  final resolved = resolveLibraryEntryReferenceRelease(item.entry);
+  return resolved.edition ??
+      (item.entry.editions.isEmpty ? null : item.entry.editions.first);
+}
+
+String? _referenceRegionForItem(LibraryProjectionItem item) {
+  final resolved = resolveLibraryEntryReferenceRelease(item.entry);
+  final variantRegion = resolved.variant?.region?.trim();
+  if (variantRegion != null && variantRegion.isNotEmpty) {
+    return variantRegion;
+  }
+  final editionRegion = _referenceEditionForItem(item)?.region?.trim();
+  if (editionRegion != null && editionRegion.isNotEmpty) {
+    return editionRegion;
+  }
+  final ownedRegion = item.source.ownedItem?.region?.trim();
+  if (ownedRegion != null && ownedRegion.isNotEmpty) {
+    return ownedRegion;
+  }
+  return null;
 }
 
 String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {

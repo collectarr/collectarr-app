@@ -127,12 +127,19 @@ void main() {
       ownedItem: OwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',
+        editionId: 'edition-4k',
         createdAt: DateTime.utc(2024, 9, 30),
         condition: 'Sealed',
         purchaseDate: DateTime.utc(2024, 11, 6),
         purchaseStore: 'Orbit DVD',
         storageDevice: 'NAS',
         collectionStatus: 'Backlog',
+        boxSetName: 'Nolan Collection',
+        features: 'Commentary',
+        hdrFormats: const ['HDR10'],
+        packaging: 'Steelbook',
+        distributor: 'Warner Home Video',
+        region: 'B',
         ownerUserId: 'user-1',
         ownerLabel: 'me@example.com',
         tags: 'favorite, sci-fi',
@@ -188,10 +195,55 @@ void main() {
         condition: 'Sealed',
         storageBox: 'Living Room › Shelf 2',
         tags: 'favorite, sci-fi',
+        video: const VideoCatalogDetails(
+          audioTracks: 'English DTS-HD MA',
+          subtitles: 'English, Romanian',
+          layers: 'BD-100',
+          screenRatio: '2.39:1',
+        ),
+        referenceEditionId: 'edition-4k',
+        editions: [
+          CatalogEdition(
+            id: 'edition-4k',
+            title: '4K UHD',
+            releaseDate: DateTime.utc(2023, 10, 12),
+            physicalFormat: '4k_uhd',
+            physicalFormatLabel: '4K UHD',
+            region: 'A/B/C',
+          ),
+        ],
         updatedAt: source.updatedAt,
       ),
     );
 
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audioTracks),
+      'English DTS-HD MA',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.boxSet),
+      'Nolan Collection',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.distributor),
+      'Warner Home Video',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseDate),
+      '2023-10-12',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseMonth),
+      'October 2023',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseYear),
+      '2023',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.extras),
+      'Commentary',
+    );
     expect(
       genericBucketForItemMode(
         item,
@@ -213,8 +265,20 @@ void main() {
       '2024',
     );
     expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.format),
+      '4K UHD',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.hdr),
+      'HDR10',
+    );
+    expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.imageType),
       'Back Cover',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.layers),
+      'BD-100',
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.myRating),
@@ -223,6 +287,10 @@ void main() {
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.owner),
       'me@example.com',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.packaging),
+      'Steelbook',
     );
     expect(
       genericBucketForItemMode(
@@ -255,6 +323,14 @@ void main() {
         LibraryGroupMode.purchaseStore,
       ),
       'Orbit DVD',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.regions),
+      'A/B/C',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.screenRatios),
+      '2.39:1',
     );
     expect(
       genericBucketForItemMode(
@@ -295,6 +371,10 @@ void main() {
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watched),
       'Watched',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.subtitles),
+      'English, Romanian',
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchedWhere),
