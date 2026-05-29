@@ -341,6 +341,123 @@ void main() {
     expect(find.text('Series group'), findsNothing);
   });
 
+  testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 920);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'comic-box-a',
+            name: 'Box A',
+            sortOrder: const Value(1),
+          ),
+        );
+
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Over the Garden Wall',
+        itemNumber: 'TP-1',
+        publisher: 'Boom! Studios',
+        releaseDate: DateTime.utc(2017, 3, 22),
+        variant: 'Trade Paperback',
+        barcode: '9781608869404',
+        country: 'USA',
+        language: 'English',
+        ageRating: 'Modern Age',
+        publishing: const CatalogPublishingDetails(
+          pageCount: 128,
+          imprint: 'KaBOOM!',
+          seriesGroup: 'Miniseries',
+        ),
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-comic-1',
+      itemId: 'comic-1',
+      locationId: 'comic-box-a',
+      rating: 8,
+      readStatus: 'Unread',
+      indexNumber: 1,
+      createdAt: DateTime.utc(2026, 5, 26, 23, 5, 39),
+      updatedAt: DateTime.utc(2026, 5, 27, 9, 15, 0),
+      condition: 'Near Mint',
+      grade: '9.8',
+      coverPriceCents: 1499,
+      pricePaidCents: 999,
+      currency: 'USD',
+      rawOrSlabbed: 'Raw',
+      gradingCompany: 'CGC',
+      certificationNumber: '12345',
+      ownerLabel: 'Andrei',
+      quantity: 1,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.deepOrange,
+                    ),
+                  );
+                },
+                child: const Text('Open comic owned'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic owned'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Cover'), findsOneWidget);
+    expect(find.text('Synopsis'), findsOneWidget);
+    expect(find.text('Custom'), findsOneWidget);
+    expect(find.text('Photos'), findsOneWidget);
+    expect(find.text('Sold'), findsNothing);
+
+    expect(find.text('#TP-1'), findsOneWidget);
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Age'), findsOneWidget);
+    expect(find.text('Country'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('Index'), findsOneWidget);
+    expect(find.text('Added date'), findsOneWidget);
+    expect(find.text('Modified date'), findsOneWidget);
+    expect(find.text('Cover price'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -900));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Raw / Slabbed'), findsOneWidget);
+    expect(find.text('Sale'), findsOneWidget);
+    expect(find.text('Mark as sold'), findsOneWidget);
+    expect(find.text('Storage & Notes'), findsOneWidget);
+  });
+
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
     tester.view.physicalSize = const Size(1100, 860);
     tester.view.devicePixelRatio = 1;

@@ -100,6 +100,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _audienceRatingController;
   late final TextEditingController _countryController;
   late final TextEditingController _languageController;
+  late final TextEditingController _ageRatingController;
   late final TextEditingController _genresEditController;
   late final TextEditingController _titleExtensionController;
   late final TextEditingController _ownerLabelController;
@@ -208,6 +209,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     };
     return videoKinds.contains(widget.item.mediaKind);
   }
+
+  bool get _isComicKind => widget.type.workspace.kind == CatalogMediaKind.comic;
 
   bool get _hasReleaseAnchor {
     return _selectedOwnedAnchorType != PersonalItemAnchorType.item.apiValue;
@@ -332,6 +335,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         TextEditingController(text: item.audienceRating ?? '');
     _countryController = TextEditingController(text: item.country ?? '');
     _languageController = TextEditingController(text: item.language ?? '');
+    _ageRatingController = TextEditingController(text: item.ageRating ?? '');
     _genresEditController =
         TextEditingController(text: item.genres?.join(', ') ?? '');
     _titleExtensionController =
@@ -509,6 +513,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _audienceRatingController.dispose();
     _countryController.dispose();
     _languageController.dispose();
+    _ageRatingController.dispose();
     _genresEditController.dispose();
     _titleExtensionController.dispose();
     _ownerLabelController.dispose();
@@ -563,12 +568,21 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   @override
   Widget build(BuildContext context) {
+    final comicIssueNumber = _isComicKind ? emptyToNull(_numberController.text) : null;
+    final comicFormatLabel = _isComicKind
+      ? emptyToNull(_variantController.text) ?? widget.item.displayEditionLabel
+        : null;
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
       icon: widget.type.workspace.icon,
-      title: 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
+      title: _isComicKind
+          ? widget.item.title
+          : 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
       badges: [
+        if (comicIssueNumber != null)
+          IssuePill(label: '#$comicIssueNumber', color: widget.accent),
+        if (comicFormatLabel != null) EditMiniBadge(comicFormatLabel),
         if (_isOwned) const EditMiniBadge('Owned'),
         if (_isTrackingOnly) const EditMiniBadge('Tracked'),
         if (_soldAt != null) const EditMiniBadge('Sold'),
@@ -1041,6 +1055,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   bool get _hasValueTab => _tabSpecs.any((t) => t.id == 'value');
 
   Widget _mainTab() {
+    if (_isComicKind && _isOwned) {
+      return _ownedComicMainTab();
+    }
     final mediaFields = widget.type.mediaFields;
     final releaseFields = widget.type.releaseFields;
     final editPresentation = _editPresentation;
@@ -1267,11 +1284,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   const SizedBox(height: 10),
                   _responsiveFields([
                     _field(controller: _signedByController, label: 'Signed by'),
-                    _field(
-                      controller: _coverPriceController,
-                      label: 'Cover price',
-                      validator: optionalMoneyValidator,
-                    ),
+                    if (!_isComicKind)
+                      _field(
+                        controller: _coverPriceController,
+                        label: 'Cover price',
+                        validator: optionalMoneyValidator,
+                      ),
                   ]),
                   const SizedBox(height: 10),
                 ] else if (editPresentation.ownedGradingSectionHint != null)
@@ -1300,6 +1318,389 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             ),
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _ownedComicMainTab() {
+    final mediaFields = widget.type.mediaFields;
+    final releaseFields = widget.type.releaseFields;
+    final editPresentation = _editPresentation;
+    return EditTabShell(
+      cover: _comicCoverPreview(),
+      children: [
+        EditSection(
+          title: 'Details',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(controller: _ageRatingController, label: 'Age'),
+                _field(controller: _variantController, label: 'Format'),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _countryController, label: 'Country'),
+                _field(controller: _languageController, label: 'Language'),
+              ]),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Issue',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _titleController,
+                  label: 'Title',
+                  validator: (value) =>
+                      emptyToNull(value ?? '') == null ? 'Enter a title' : null,
+                ),
+                _field(controller: _numberController, label: mediaFields.numberLabel),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _publisherController, label: mediaFields.publisherLabel),
+                _field(
+                  controller: _releaseDateController,
+                  label: 'Release date',
+                  hint: 'YYYY-MM-DD',
+                  validator: optionalDateValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _editionTitleController,
+                  label: releaseFields.editionTitleLabel,
+                ),
+                _field(controller: _barcodeController, label: releaseFields.barcodeLabel),
+              ]),
+              if (mediaFields.showPageCount || mediaFields.showImprint || mediaFields.showSeriesGroup) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  if (mediaFields.showPageCount)
+                    _field(
+                      controller: _pageCountController,
+                      label: 'Page count',
+                      validator: optionalIntValidator,
+                    ),
+                  if (mediaFields.showImprint)
+                    _field(controller: _imprintController, label: 'Imprint'),
+                  if (mediaFields.showSeriesGroup)
+                    _field(controller: _seriesGroupController, label: 'Series group'),
+                ]),
+              ],
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Personal',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                SizedBox(
+                  width: 120,
+                  child: MediaRatingField(controller: _ratingController),
+                ),
+                SizedBox(
+                  width: 180,
+                  child: MediaTrackingStatusField(
+                    profile: widget.type.trackingProfile,
+                    value: _trackingController.text,
+                    label: 'Read',
+                    onChanged: (value) {
+                      _trackingController.text = value ?? '';
+                    },
+                  ),
+                ),
+                _field(
+                  controller: _quantityController,
+                  label: 'Quantity',
+                  validator: positiveIntValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _readOnlyField(
+                  label: 'Index',
+                  value: widget.ownedItem?.indexNumber?.toString() ?? '—',
+                ),
+                _readOnlyField(
+                  label: 'Added date',
+                  value: _formatTimestamp(widget.ownedItem?.createdAt),
+                ),
+                _readOnlyField(
+                  label: 'Modified date',
+                  value: _formatTimestamp(widget.ownedItem?.updatedAt),
+                ),
+              ]),
+            ],
+          ),
+        ),
+        if (editPresentation.showsOwnershipReferenceSection)
+          EditSection(
+            title: editPresentation.ownershipReferenceTitle,
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _ownershipAnchorSelectionField(),
+                if (_selectedOwnedAnchorType == PersonalItemAnchorType.edition.apiValue ||
+                    _selectedOwnedAnchorType == PersonalItemAnchorType.variant.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _editionSelectionField(),
+                    if (_selectedOwnedAnchorType == PersonalItemAnchorType.variant.apiValue)
+                      _variantSelectionField(),
+                  ]),
+                ],
+                if (_selectedOwnedAnchorType == PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _bundleReleaseSelectionField(
+                    fieldKey: const Key('library-edit-owned-bundle-field'),
+                    label: editPresentation.ownedBundleLabel,
+                    selectedBundleReleaseId: _selectedBundleReleaseId,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedBundleReleaseId = normalizeLibrarySelectionId(value);
+                      });
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+        EditSection(
+          title: 'Value',
+          accent: widget.accent,
+          child: Column(
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _coverPriceController,
+                  label: 'Cover price',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(
+                  controller: _priceController,
+                  label: 'Price paid',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _currencyController, label: 'Currency'),
+                _field(
+                  controller: _marketValueController,
+                  label: 'Current value',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _purchaseStoreController, label: 'Purchase store'),
+                _datePickerField(
+                  label: 'Purchase date',
+                  value: parseDate(_purchaseDateController.text),
+                  onChanged: (value) {
+                    setState(() {
+                      _purchaseDateController.text =
+                          value == null ? '' : formatDate(value);
+                    });
+                  },
+                ),
+              ]),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                initialValue: _collectionStatus,
+                isExpanded: true,
+                dropdownColor: appPalette(context).panelRaised,
+                borderRadius: kEditMenuBorderRadius,
+                decoration: const InputDecoration(labelText: 'Collection status'),
+                items: const [
+                  DropdownMenuItem(value: null, child: Text('In collection')),
+                  DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
+                  DropdownMenuItem(value: 'on_order', child: Text('On order')),
+                ],
+                onChanged: (value) => setState(() => _collectionStatus = value),
+              ),
+              const SizedBox(height: 10),
+              _datePickerField(
+                label: 'Last bag & board date',
+                value: _lastBagBoardDate,
+                onChanged: (value) => setState(() => _lastBagBoardDate = value),
+              ),
+            ],
+          ),
+        ),
+        if (editPresentation.showsOwnedGradingSection)
+          EditSection(
+            title: editPresentation.ownedGradingSectionTitle,
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _responsiveFields([
+                  _field(controller: _conditionController, label: 'Condition'),
+                  _field(controller: _gradeController, label: 'Grade'),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(controller: _rawOrSlabbedController, label: 'Raw / Slabbed'),
+                  _field(controller: _gradingCompanyController, label: 'Grading company'),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(controller: _labelTypeController, label: 'Label type'),
+                  _field(
+                    controller: _certificationNumberController,
+                    label: 'Certification number',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                _field(controller: _graderNotesController, label: 'Grader notes'),
+                const SizedBox(height: 10),
+                _field(controller: _signedByController, label: 'Signed by'),
+                const SizedBox(height: 10),
+                SwitchListTile(
+                  value: _keyComic,
+                  onChanged: (value) => setState(() => _keyComic = value),
+                  title: Text(editPresentation.keyToggleLabel),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                if (_keyComic) ...[
+                  const SizedBox(height: 6),
+                  _field(
+                    controller: _keyReasonController,
+                    label: editPresentation.keyReasonLabel,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        EditSection(
+          title: 'Storage & Notes',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_showPhysicalOwnedFields) ...[
+                _responsiveFields([
+                  _locationField(),
+                  _field(
+                    controller: _ownerLabelController,
+                    label: 'Owner',
+                    hint: 'Name of the owner',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+              ] else ...[
+                Text(
+                  'Digital copies do not expose physical storage fields.',
+                  style: TextStyle(color: appPalette(context).textMuted),
+                ),
+                const SizedBox(height: 10),
+              ],
+              TagPickListField(
+                controller: _tagsController,
+                options: _tagOptions,
+                label: 'Tags',
+                hint: 'Comma-separated tags',
+              ),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _datePickerField(
+                  label: 'Started',
+                  value: _startedAt,
+                  onChanged: (v) => setState(() => _startedAt = v),
+                ),
+                _datePickerField(
+                  label: 'Finished',
+                  value: _finishedAt,
+                  onChanged: (v) => setState(() => _finishedAt = v),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _storageDeviceController, label: 'Storage device'),
+                _field(controller: _storageSlotController, label: 'Storage slot'),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _trackingNotesController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Tracking notes',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _notesController,
+                minLines: 4,
+                maxLines: 7,
+                decoration: const InputDecoration(
+                  labelText: 'Personal notes',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Sale',
+          accent: widget.accent,
+          child: Column(
+            children: [
+              SwitchListTile(
+                value: _soldAt != null,
+                onChanged: (value) {
+                  setState(() {
+                    _soldAt = value ? DateTime.now() : null;
+                  });
+                },
+                title: const Text('Mark as sold'),
+                subtitle: _soldAt != null
+                    ? Text(
+                        'Sold on ${formatDate(_soldAt!)}',
+                        style: TextStyle(color: appPalette(context).textMuted),
+                      )
+                    : null,
+                contentPadding: EdgeInsets.zero,
+              ),
+              if (_soldAt != null) ...[
+                const SizedBox(height: 12),
+                _datePickerField(
+                  label: 'Sold date',
+                  value: _soldAt,
+                  onChanged: (value) => setState(() => _soldAt = value),
+                ),
+                const SizedBox(height: 12),
+                _responsiveFields([
+                  _field(
+                    controller: _sellPriceController,
+                    label: 'Sell price',
+                    validator: optionalMoneyValidator,
+                  ),
+                  _field(controller: _soldToController, label: 'Sold to'),
+                ]),
+                const SizedBox(height: 12),
+                SoldSummaryPanel(
+                  pricePaidCents: parseMoneyCents(_priceController.text),
+                  sellPriceCents: parseMoneyCents(_sellPriceController.text),
+                  currency: _currencyController.text,
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -2165,6 +2566,83 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
   }
 
+  Widget _readOnlyField({
+    required String label,
+    required String value,
+  }) {
+    return InputDecorator(
+      decoration: InputDecoration(labelText: label),
+      child: Text(
+        value,
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime? value) {
+    if (value == null) {
+      return '—';
+    }
+    final local = value.toLocal();
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '${months[local.month - 1]} ${local.day}, ${local.year} $hour:$minute';
+  }
+
+  Widget _comicCoverPreview() {
+    final coverUrl = widget.item.displayCoverUrl ??
+        emptyToNull(_thumbnailController.text) ??
+        emptyToNull(_coverController.text);
+    if (coverUrl == null) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: appPalette(context).field,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.auto_stories,
+            color: appPalette(context).textMuted,
+            size: 42,
+          ),
+        ),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Image.network(
+        coverUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return DecoratedBox(
+            decoration: BoxDecoration(color: appPalette(context).field),
+            child: Center(
+              child: Icon(
+                Icons.broken_image_outlined,
+                color: appPalette(context).textMuted,
+                size: 42,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
 
   Widget _locationField() {
     final label = _selectedLocationLabel;
@@ -2353,6 +2831,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         variant: emptyToNull(_variantController.text),
         country: emptyToNull(_countryController.text),
         language: emptyToNull(_languageController.text),
+        ageRating: emptyToNull(_ageRatingController.text),
         audienceRating: emptyToNull(_audienceRatingController.text),
         genres: parsedGenres.isEmpty ? null : parsedGenres,
         publishing: updatedPublishing.hasData ? updatedPublishing : null,
