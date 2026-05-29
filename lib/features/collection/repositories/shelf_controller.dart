@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +19,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final owned = await ref.watch(collectionProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
   final trackingEntries = await ref.watch(trackingEntriesProvider.future);
+  final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
   final ids = {
     for (final item in owned) item.itemId,
@@ -38,6 +40,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     catalogItems: catalogItems,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
+    fallbackOwnerLabel: auth.email,
   );
 });
 
@@ -78,6 +81,7 @@ class ShelfState {
     List<StorageLocation> locations = const [],
     Map<String, List<ItemImage>> itemImagesByOwnedItem =
         const <String, List<ItemImage>>{},
+    String? fallbackOwnerLabel,
   }) {
     final locationPathsById = {
       for (final location in locations) location.id: location.fullPath(locations),
@@ -123,9 +127,10 @@ class ShelfState {
           trackingEntry: trackingByItemId[id],
           wishlistItem: wishlistByItemId[id],
           locationPath: locationPathsById[ownedByItemId[id]?.locationId],
-            watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
-            itemImages:
+          watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
+          itemImages:
               itemImagesByOwnedItem[ownedByItemId[id]?.id] ?? const <ItemImage>[],
+          fallbackOwnerLabel: fallbackOwnerLabel,
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -255,9 +260,11 @@ class ShelfEntry extends LibraryEntry {
     this.locationPath,
     this.watchSessions = const <WatchSession>[],
     this.itemImages = const <ItemImage>[],
+    this.fallbackOwnerLabel,
   });
 
   final String? locationPath;
   final List<WatchSession> watchSessions;
   final List<ItemImage> itemImages;
+  final String? fallbackOwnerLabel;
 }

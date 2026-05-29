@@ -229,6 +229,7 @@ class SyncService {
     return OwnedItem.fromJson({
       ...payload,
       'id': entity['entity_id'],
+      'created_at': payload['created_at'] ?? entity['client_changed_at'],
       'updated_at': entity['client_changed_at'],
       'deleted_at': deletedAt,
     });

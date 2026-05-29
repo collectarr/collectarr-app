@@ -91,6 +91,7 @@ class OwnedItemsCacheRepository {
     return OwnedItem(
       id: row.id,
       itemId: row.itemId,
+      createdAt: row.createdAt,
       isDigital: row.isDigital,
       anchorType: row.anchorType,
       editionId: row.editionId,
@@ -124,6 +125,8 @@ class OwnedItemsCacheRepository {
       soldAt: row.soldAt,
       sellPriceCents: row.sellPriceCents,
       soldTo: row.soldTo,
+      ownerUserId: row.ownerUserId,
+      ownerLabel: row.ownerLabel,
       locationId: row.locationId,
       features: row.features,
       hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
@@ -145,6 +148,7 @@ class OwnedItemsCacheRepository {
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
       anchorType: Value(item.anchorType),
       editionId: Value(item.editionId),
@@ -178,6 +182,8 @@ class OwnedItemsCacheRepository {
       soldAt: Value(item.soldAt),
       sellPriceCents: Value(item.sellPriceCents),
       soldTo: Value(item.soldTo),
+      ownerUserId: Value(item.ownerUserId),
+      ownerLabel: Value(item.ownerLabel),
       locationId: Value(item.locationId),
       features: Value(item.features),
       hdrFormatsJson: Value(

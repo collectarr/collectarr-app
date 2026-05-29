@@ -424,14 +424,16 @@ String genericBucketForItemMode(
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
-    LibraryGroupMode.addedDate =>
-      _dateBucket(item.source.wishlistItem?.createdAt, 'Unknown added date'),
+    LibraryGroupMode.addedDate => _dateBucket(
+        item.source.ownedItem?.createdAt ?? item.source.wishlistItem?.createdAt,
+        'Unknown added date',
+      ),
     LibraryGroupMode.addedMonth => _monthBucket(
-        item.source.wishlistItem?.createdAt,
+        item.source.ownedItem?.createdAt ?? item.source.wishlistItem?.createdAt,
         fallback: 'Unknown added month',
       ),
     LibraryGroupMode.addedYear => _yearBucket(
-        item.source.wishlistItem?.createdAt,
+        item.source.ownedItem?.createdAt ?? item.source.wishlistItem?.createdAt,
         'Unknown added year',
       ),
     LibraryGroupMode.collectionStatus => _stringBucket(
@@ -448,7 +450,7 @@ String genericBucketForItemMode(
     LibraryGroupMode.modifiedDate => formatCompactDate(entry.updatedAt),
     LibraryGroupMode.modifiedMonth => _monthBucket(entry.updatedAt),
     LibraryGroupMode.myRating => _ratingBucket(item.source.tracking.rating),
-    LibraryGroupMode.owner => 'You',
+    LibraryGroupMode.owner => _ownerBucket(item),
     LibraryGroupMode.purchaseDate => _dateBucket(
         item.source.ownedItem?.purchaseDate,
         'Unknown purchase date',
@@ -572,6 +574,18 @@ String _watchedWhereBucket(LibraryProjectionItem item) {
     return 'Unknown watch source';
   }
   return label;
+}
+
+String _ownerBucket(LibraryProjectionItem item) {
+  final explicit = item.source.ownedItem?.ownerLabel?.trim();
+  if (explicit != null && explicit.isNotEmpty) {
+    return explicit;
+  }
+  final fallback = item.source.fallbackOwnerLabel?.trim();
+  if (fallback != null && fallback.isNotEmpty) {
+    return fallback;
+  }
+  return 'Unknown owner';
 }
 
 String _locationBucket(String? location) {

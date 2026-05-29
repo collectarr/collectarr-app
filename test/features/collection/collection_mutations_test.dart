@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -45,6 +46,32 @@ void main() {
     expect(queued.single.entityType, 'owned_item');
     expect(queued.single.action, 'upsert');
     expect(container.read(syncControllerProvider).pendingCount, 1);
+  });
+
+  test('collection mutations stamp owned item createdAt and owner identity', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [
+        localDatabaseProvider.overrideWithValue(db),
+        authControllerProvider.overrideWith(
+          (ref) => _OwnedItemAuthController(ref),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionMutationsProvider).addItem('movie-1');
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final queued = await db.select(db.syncQueue).getSingle();
+
+    expect(owned.createdAt, isNotNull);
+    expect(owned.ownerUserId, 'user-1');
+    expect(owned.ownerLabel, 'owner@example.com');
+    expect(queued.payloadJson, contains('"created_at"'));
+    expect(queued.payloadJson, contains('"owner_user_id":"user-1"'));
+    expect(queued.payloadJson, contains('"owner_label":"owner@example.com"'));
   });
 
   test('collection mutations request online-first sync after local changes',
@@ -888,6 +915,16 @@ void main() {
       hasLength(1),
     );
   });
+}
+
+class _OwnedItemAuthController extends AuthController {
+  _OwnedItemAuthController(super.ref) {
+    state = const AuthState(
+      token: 'test-token',
+      userId: 'user-1',
+      email: 'owner@example.com',
+    );
+  }
 }
 
 class _SpySyncController extends SyncController {

@@ -30,6 +30,7 @@ import 'package:collectarr_app/features/collection/repositories/watch_sessions_c
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,6 +94,7 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final auth = ref.read(authControllerProvider);
     final resolvedIsDigital =
         isDigital ?? await _resolveOwnedDigitalFlag(itemId: itemId);
     final normalizedAnchorType = _normalizedPersonalAnchorType(
@@ -104,6 +106,7 @@ class CollectionMutations {
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
       itemId: itemId,
+      createdAt: now,
       isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
       editionId: editionId,
@@ -136,6 +139,8 @@ class CollectionMutations {
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
       soldTo: soldTo,
+      ownerUserId: auth.userId,
+      ownerLabel: auth.email,
       features: features,
       hdrFormats: hdrFormats ?? const <String>[],
       purchaseStore: purchaseStore,
@@ -231,6 +236,7 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final auth = ref.read(authControllerProvider);
     final resolvedIsDigital = isDigital ??
         item.isDigital ??
         await _resolveOwnedDigitalFlag(itemId: item.itemId);
@@ -246,6 +252,7 @@ class CollectionMutations {
     final updated = OwnedItem(
       id: item.id,
       itemId: item.itemId,
+      createdAt: item.createdAt ?? now,
       isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
       editionId: editionId,
@@ -278,6 +285,8 @@ class CollectionMutations {
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
       soldTo: soldTo,
+      ownerUserId: item.ownerUserId ?? auth.userId,
+      ownerLabel: item.ownerLabel ?? auth.email,
       updatedAt: now,
       deletedAt: item.deletedAt,
       features: features,

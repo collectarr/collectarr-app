@@ -127,11 +127,14 @@ void main() {
       ownedItem: OwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',
+        createdAt: DateTime.utc(2024, 9, 30),
         condition: 'Sealed',
         purchaseDate: DateTime.utc(2024, 11, 6),
         purchaseStore: 'Orbit DVD',
         storageDevice: 'NAS',
         collectionStatus: 'Backlog',
+        ownerUserId: 'user-1',
+        ownerLabel: 'me@example.com',
         tags: 'favorite, sci-fi',
         updatedAt: DateTime.utc(2026, 4, 2),
       ),
@@ -199,11 +202,11 @@ void main() {
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedDate),
-      '2024-10-01',
+      '2024-09-30',
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedMonth),
-      'October 2024',
+      'September 2024',
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedYear),
@@ -219,7 +222,7 @@ void main() {
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.owner),
-      'You',
+      'me@example.com',
     );
     expect(
       genericBucketForItemMode(

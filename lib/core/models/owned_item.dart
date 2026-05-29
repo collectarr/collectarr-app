@@ -6,6 +6,7 @@ class OwnedItem {
   OwnedItem({
     required this.id,
     required this.itemId,
+    this.createdAt,
     this.isDigital,
     PersonalItemAnchor? anchor,
     String? anchorType,
@@ -40,6 +41,8 @@ class OwnedItem {
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.ownerUserId,
+    this.ownerLabel,
     this.locationId,
     this.features,
     this.hdrFormats = const <String>[],
@@ -64,6 +67,7 @@ class OwnedItem {
 
   final String id;
   final String itemId;
+  final DateTime? createdAt;
   final bool? isDigital;
   final PersonalItemAnchor? anchor;
   final String? condition;
@@ -94,6 +98,8 @@ class OwnedItem {
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+  final String? ownerUserId;
+  final String? ownerLabel;
   final String? locationId;
   final String? features;
   final List<String> hdrFormats;
@@ -123,6 +129,7 @@ class OwnedItem {
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
+      if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (isDigital != null) 'is_digital': isDigital,
       ...?anchor?.toSyncPayload(),
       'condition': condition,
@@ -151,6 +158,8 @@ class OwnedItem {
       'sold_at': soldAt?.toUtc().toIso8601String(),
       'sell_price_cents': sellPriceCents,
       'sold_to': soldTo,
+      if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (ownerLabel != null) 'owner_label': ownerLabel,
       'location_id': locationId,
       if (features != null) 'features': features,
       if (hdrFormats.isNotEmpty)
@@ -174,6 +183,9 @@ class OwnedItem {
     return OwnedItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
       isDigital: json['is_digital'] as bool?,
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: json['anchor_type'] as String?,
@@ -219,6 +231,8 @@ class OwnedItem {
           : DateTime.parse(json['sold_at'] as String),
       sellPriceCents: json['sell_price_cents'] as int?,
       soldTo: json['sold_to'] as String?,
+        ownerUserId: json['owner_user_id'] as String?,
+        ownerLabel: json['owner_label'] as String?,
       locationId: json['location_id'] as String?,
       features: json['features'] as String?,
       hdrFormats: (json['hdr_formats'] as List<dynamic>?)
@@ -244,6 +258,7 @@ class OwnedItem {
   OwnedItem copyWith({
     String? id,
     String? itemId,
+    DateTime? createdAt,
     bool? isDigital,
     Object? anchor = _ownedItemUnset,
     String? anchorType,
@@ -278,6 +293,8 @@ class OwnedItem {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    String? ownerUserId,
+    String? ownerLabel,
     String? locationId,
     String? features,
     List<String>? hdrFormats,
@@ -305,6 +322,7 @@ class OwnedItem {
     return OwnedItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
       anchor: resolvedAnchor,
       condition: condition ?? this.condition,
@@ -335,6 +353,8 @@ class OwnedItem {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerLabel: ownerLabel ?? this.ownerLabel,
       locationId: locationId ?? this.locationId,
       features: features ?? this.features,
       hdrFormats: hdrFormats ?? this.hdrFormats,

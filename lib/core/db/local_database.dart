@@ -64,6 +64,7 @@ class CatalogCache extends Table {
 class OwnedItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isDigital => boolean().nullable()();
   TextColumn get anchorType => text().nullable()();
   TextColumn get editionId => text().nullable()();
@@ -97,6 +98,8 @@ class OwnedItemsCache extends Table {
   DateTimeColumn get soldAt => dateTime().nullable()();
   IntColumn get sellPriceCents => integer().nullable()();
   TextColumn get soldTo => text().nullable()();
+  TextColumn get ownerUserId => text().nullable()();
+  TextColumn get ownerLabel => text().nullable()();
   TextColumn get locationId => text().nullable()();
   TextColumn get features => text().nullable()();
   TextColumn get hdrFormatsJson => text().nullable()();
@@ -382,18 +385,21 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
       onUpgrade: (m, from, to) async {
-        // Destructive: drop everything and recreate from scratch.
-        for (final table in allTables) {
-          await m.deleteTable(table.actualTableName);
+        if (from < 3) {
+          await m.addColumn(ownedItemsCache, ownedItemsCache.createdAt);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.ownerUserId);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.ownerLabel);
+          await customStatement(
+            'UPDATE owned_items_cache SET created_at = updated_at WHERE created_at IS NULL',
+          );
         }
-        await m.createAll();
       },
     );
   }
