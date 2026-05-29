@@ -162,18 +162,22 @@ class _StarButton extends StatelessWidget {
     final accent = Theme.of(context).colorScheme.primary;
     final muted =
         Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24);
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-        child: Icon(
-          filled
-              ? Icons.star_rounded
-              : half
-                  ? Icons.star_half_rounded
-                  : Icons.star_outline_rounded,
-          size: size,
-          color: filled || half ? accent : muted,
+    return Semantics(
+      button: true,
+      label: 'Rate ${filled ? 'filled' : half ? 'half' : 'empty'} star',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Icon(
+            filled
+                ? Icons.star_rounded
+                : half
+                    ? Icons.star_half_rounded
+                    : Icons.star_outline_rounded,
+            size: size,
+            color: filled || half ? accent : muted,
+          ),
         ),
       ),
     );

@@ -76,4 +76,45 @@ void main() {
 
     expect(find.text('Format'), findsNothing);
   });
+
+  testWidgets('sidebar shows a manage button for editable group buckets', (
+    tester,
+  ) async {
+    var manageTapped = false;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              height: 420,
+              child: LibrarySidebar(
+                type: moviesLibraryConfig,
+                accent: Colors.cyan,
+                buckets: const [
+                  LibrarySeriesBucket(title: '[All Movies]', count: 12),
+                  LibrarySeriesBucket(title: 'Action', count: 8),
+                ],
+                groupMode: LibraryGroupMode.genre,
+                selectedBucket: '[All Movies]',
+                onSelected: (_) {},
+                onGroupModeChanged: (_) {},
+                collectionStatusScope: LibraryCollectionStatusScope.all,
+                onClearFilter: () {},
+                onManageBuckets: () => manageTapped = true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Manage genres'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Manage genres'));
+    await tester.pumpAndSettle();
+
+    expect(manageTapped, isTrue);
+  });
 }

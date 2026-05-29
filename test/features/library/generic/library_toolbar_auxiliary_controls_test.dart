@@ -33,6 +33,44 @@ void main() {
     expect(selected, LibraryCollectionStatusScope.wishList);
   });
 
+  testWidgets('collection status scope trigger width tracks the current label', (
+    tester,
+  ) async {
+    var selected = LibraryCollectionStatusScope.all;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            return Scaffold(
+              body: LibraryCollectionStatusScopeDropdown(
+                collectionStatusScope: selected,
+                onCollectionStatusScopeChanged: (value) {
+                  setState(() => selected = value);
+                },
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    final allWidth = tester.getSize(
+      find.byKey(const Key('collection-status-scope-dropdown')),
+    ).width;
+
+    await tester.tap(find.byKey(const Key('collection-status-scope-dropdown')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Not in Collection').last);
+    await tester.pumpAndSettle();
+
+    final inCollectionWidth = tester.getSize(
+      find.byKey(const Key('collection-status-scope-dropdown')),
+    ).width;
+
+    expect(inCollectionWidth, greaterThan(allWidth));
+  });
+
   testWidgets('inline issue jump field submits trimmed values', (tester) async {
     var submitted = '';
 

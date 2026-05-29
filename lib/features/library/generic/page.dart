@@ -39,6 +39,7 @@ import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
+import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -627,6 +628,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onLetterSelected: _setSelectedLetter,
       db: ref.read(localDatabaseProvider),
       pinnedGroupModes: _pinnedGroupModes,
+      onManageBuckets: libraryGroupModeSupportsBucketManagement(_activeGroupMode)
+          ? () => unawaited(_showBucketManagerFlow(projection))
+          : null,
       onTogglePinGroupMode: (mode) {
         final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
         if (updated.contains(mode)) {
@@ -710,6 +714,90 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         onGroupModeChanged: _setGroupMode,
       ),
     );
+  }
+
+  Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
+    final mode = _activeGroupMode;
+    if (!libraryGroupModeSupportsBucketManagement(mode)) {
+      return;
+    }
+    final entries = [
+      for (final bucket in projection.buckets)
+        if (bucket.title != genericAllBucketLabel(widget.type))
+          LibraryBucketManagerEntry(label: bucket.title, count: bucket.count),
+    ];
+    if (entries.isEmpty) {
+      return;
+    }
+    await showLibraryBucketManagerDialog(
+      context: context,
+      type: widget.type,
+      groupMode: mode,
+      accent: widget.accent,
+      entries: entries,
+      onRenameBucket: (currentLabel, nextLabel) => _mutateBucketValues(
+        projection,
+        mode,
+        currentLabel,
+        replacement: nextLabel,
+      ),
+      onMergeBucket: (currentLabel, targetLabel) => _mutateBucketValues(
+        projection,
+        mode,
+        currentLabel,
+        replacement: targetLabel,
+      ),
+      onDeleteBucket: (currentLabel) =>
+          _mutateBucketValues(projection, mode, currentLabel),
+    );
+  }
+
+  Future<int> _mutateBucketValues(
+    LibraryProjection projection,
+    LibraryGroupMode mode,
+    String currentLabel, {
+    String? replacement,
+  }) async {
+    final updates = <CatalogItem>[];
+    for (final item in projection.allItems) {
+      final catalogItem = item.source.catalogItem;
+      if (catalogItem == null ||
+          genericBucketForItemMode(item, widget.type, mode) != currentLabel) {
+        continue;
+      }
+      final updated = replacement == null
+          ? deleteLibraryGroupBucketValue(catalogItem, mode, currentLabel)
+          : renameLibraryGroupBucketValue(
+              catalogItem,
+              mode,
+              currentLabel,
+              replacement,
+            );
+      if (updated != null) {
+        updates.add(updated);
+      }
+    }
+    if (updates.isEmpty) {
+      return 0;
+    }
+    final mutations = ref.read(collectionMutationsProvider);
+    for (var index = 0; index < updates.length; index++) {
+      await mutations.updateCatalogSnapshot(
+        updates[index],
+        notify: index == updates.length - 1,
+      );
+    }
+    if (!mounted) {
+      return updates.length;
+    }
+    setState(() {
+      if (_selectedBucket == currentLabel) {
+        final nextBucket = replacement?.trim();
+        _selectedBucket =
+            nextBucket == null || nextBucket.isEmpty ? null : nextBucket;
+      }
+    });
+    return updates.length;
   }
 
   LibraryProjection _projectionForShelf(

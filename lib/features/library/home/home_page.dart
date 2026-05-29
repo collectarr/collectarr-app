@@ -3,6 +3,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -25,13 +26,11 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   String? _routeKind() {
-    final rawKind = widget.routeUri.queryParameters['kind'];
-    final normalized = rawKind?.trim().toLowerCase();
-    return normalized == null || normalized.isEmpty ? null : normalized;
+    return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
   }
 
   void _replaceLibraryKind(String kind) {
-    final normalized = kind.trim().toLowerCase();
+    final normalized = canonicalLibraryNavKind(kind) ?? 'comic';
     ref.read(selectedLibraryKindProvider.notifier).select(normalized);
     final nextUri = widget.routeUri.replace(
       queryParameters: {'kind': normalized},
@@ -58,12 +57,21 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
+    final rawRouteKind = widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
     final routeKind = _routeKind();
     final routeSelected = routeKind == null
         ? null
         : visibleTypes.where((type) => type.kind == routeKind).firstOrNull;
     final selected = routeSelected ??
         selectedLibraryHomeType(visibleTypes, selectedKind);
+    if (routeKind != null && rawRouteKind != routeKind) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        _replaceLibraryKind(routeKind);
+      });
+    }
     if (selected.kind != selectedKind) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {

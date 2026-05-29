@@ -72,11 +72,12 @@ Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
   String? series,
   String? issueNumber,
   int? year,
+  String? kindOverride,
 }) async {
   final rows = await api.searchProvider(
     provider: provider,
     query: query,
-    kind: type.workspace.kind.apiValue,
+    kind: kindOverride ?? type.workspace.kind.apiValue,
     series: series,
     issueNumber: issueNumber,
     year: year,

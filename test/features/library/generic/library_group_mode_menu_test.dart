@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -40,9 +41,22 @@ void main() {
     expect(find.text('Studios'), findsOneWidget);
     expect(find.byKey(const ValueKey('groupModeSectionBar_Main')), findsNothing);
     expect(
+      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('groupModeItemBar_releaseYear')),
+      findsNothing,
+    );
+    expect(
       find.byKey(const ValueKey('groupModeSectionBar_Cast & Crew')),
       findsNothing,
     );
+
+    final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
+      find.byKey(const ValueKey('groupModeItemRow_releaseYear')),
+    );
+    expect(selectedRow.backgroundColor, Colors.transparent);
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
     await tester.ensureVisible(editionHeader);
@@ -61,6 +75,10 @@ void main() {
     expect(
       find.byKey(const ValueKey('groupModeSectionBar_Main')),
       findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
+      findsNothing,
     );
   });
 

@@ -169,13 +169,16 @@ class _ShelfRow<T> extends StatelessWidget {
     final bookHeight = shelfHeight - 8;
     final bookW = bookWidth - 8;
     final palette = appPalette(context);
-    return GestureDetector(
-      onTap: () => onTap(item),
-      onDoubleTap: () => onDoubleTap(item),
-      onSecondaryTapUp: onSecondaryTapUp != null
-          ? (d) => onSecondaryTapUp!(item, d)
-          : null,
-      child: Tooltip(
+    return Semantics(
+      button: true,
+      label: entry.resolvedTitle,
+      child: GestureDetector(
+        onTap: () => onTap(item),
+        onDoubleTap: () => onDoubleTap(item),
+        onSecondaryTapUp: onSecondaryTapUp != null
+            ? (d) => onSecondaryTapUp!(item, d)
+            : null,
+        child: Tooltip(
         message: entry.resolvedTitle,
         waitDuration: const Duration(milliseconds: 400),
         child: Padding(
@@ -278,6 +281,7 @@ class _ShelfRow<T> extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

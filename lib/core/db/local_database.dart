@@ -231,6 +231,7 @@ class WatchSessionsCache extends Table {
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
   TextColumn get sourceType => text().nullable()();
+  TextColumn get seenWhere => text().nullable()();
   DateTimeColumn get watchedAt => dateTime()();
   IntColumn get rating => integer().nullable()();
   TextColumn get notes => text().nullable()();
@@ -386,7 +387,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -416,6 +417,12 @@ class LocalDatabase extends _$LocalDatabase {
           await m.addColumn(
             ownedItemsCache,
             ownedItemsCache.certificationNumber,
+          );
+        }
+        if (from < 5) {
+          await m.addColumn(
+            watchSessionsCache,
+            watchSessionsCache.seenWhere,
           );
         }
       },

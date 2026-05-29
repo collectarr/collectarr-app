@@ -7133,6 +7133,12 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
   late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
       'source_type', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seenWhereMeta =
+      const VerificationMeta('seenWhere');
+  @override
+  late final GeneratedColumn<String> seenWhere = GeneratedColumn<String>(
+      'seen_where', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _watchedAtMeta =
       const VerificationMeta('watchedAt');
   @override
@@ -7169,6 +7175,7 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
         seasonNumber,
         episodeNumber,
         sourceType,
+        seenWhere,
         watchedAt,
         rating,
         notes,
@@ -7221,6 +7228,10 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
           sourceType.isAcceptableOrUnknown(
               data['source_type']!, _sourceTypeMeta));
     }
+    if (data.containsKey('seen_where')) {
+      context.handle(_seenWhereMeta,
+          seenWhere.isAcceptableOrUnknown(data['seen_where']!, _seenWhereMeta));
+    }
     if (data.containsKey('watched_at')) {
       context.handle(_watchedAtMeta,
           watchedAt.isAcceptableOrUnknown(data['watched_at']!, _watchedAtMeta));
@@ -7266,6 +7277,8 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
           .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      seenWhere: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}seen_where']),
       watchedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}watched_at'])!,
       rating: attachedDatabase.typeMapping
@@ -7293,6 +7306,7 @@ class WatchSessionsCacheData extends DataClass
   final int? seasonNumber;
   final int? episodeNumber;
   final String? sourceType;
+  final String? seenWhere;
   final DateTime watchedAt;
   final int? rating;
   final String? notes;
@@ -7305,6 +7319,7 @@ class WatchSessionsCacheData extends DataClass
       this.seasonNumber,
       this.episodeNumber,
       this.sourceType,
+      this.seenWhere,
       required this.watchedAt,
       this.rating,
       this.notes,
@@ -7326,6 +7341,9 @@ class WatchSessionsCacheData extends DataClass
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || seenWhere != null) {
+      map['seen_where'] = Variable<String>(seenWhere);
     }
     map['watched_at'] = Variable<DateTime>(watchedAt);
     if (!nullToAbsent || rating != null) {
@@ -7357,6 +7375,9 @@ class WatchSessionsCacheData extends DataClass
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
+      seenWhere: seenWhere == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seenWhere),
       watchedAt: Value(watchedAt),
       rating:
           rating == null && nullToAbsent ? const Value.absent() : Value(rating),
@@ -7379,6 +7400,7 @@ class WatchSessionsCacheData extends DataClass
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
+      seenWhere: serializer.fromJson<String?>(json['seenWhere']),
       watchedAt: serializer.fromJson<DateTime>(json['watchedAt']),
       rating: serializer.fromJson<int?>(json['rating']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -7396,6 +7418,7 @@ class WatchSessionsCacheData extends DataClass
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
       'sourceType': serializer.toJson<String?>(sourceType),
+      'seenWhere': serializer.toJson<String?>(seenWhere),
       'watchedAt': serializer.toJson<DateTime>(watchedAt),
       'rating': serializer.toJson<int?>(rating),
       'notes': serializer.toJson<String?>(notes),
@@ -7411,6 +7434,7 @@ class WatchSessionsCacheData extends DataClass
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
+          Value<String?> seenWhere = const Value.absent(),
           DateTime? watchedAt,
           Value<int?> rating = const Value.absent(),
           Value<String?> notes = const Value.absent(),
@@ -7427,6 +7451,7 @@ class WatchSessionsCacheData extends DataClass
         episodeNumber:
             episodeNumber.present ? episodeNumber.value : this.episodeNumber,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        seenWhere: seenWhere.present ? seenWhere.value : this.seenWhere,
         watchedAt: watchedAt ?? this.watchedAt,
         rating: rating.present ? rating.value : this.rating,
         notes: notes.present ? notes.value : this.notes,
@@ -7448,6 +7473,7 @@ class WatchSessionsCacheData extends DataClass
           : this.episodeNumber,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
+      seenWhere: data.seenWhere.present ? data.seenWhere.value : this.seenWhere,
       watchedAt: data.watchedAt.present ? data.watchedAt.value : this.watchedAt,
       rating: data.rating.present ? data.rating.value : this.rating,
       notes: data.notes.present ? data.notes.value : this.notes,
@@ -7465,6 +7491,7 @@ class WatchSessionsCacheData extends DataClass
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
           ..write('sourceType: $sourceType, ')
+          ..write('seenWhere: $seenWhere, ')
           ..write('watchedAt: $watchedAt, ')
           ..write('rating: $rating, ')
           ..write('notes: $notes, ')
@@ -7482,6 +7509,7 @@ class WatchSessionsCacheData extends DataClass
       seasonNumber,
       episodeNumber,
       sourceType,
+      seenWhere,
       watchedAt,
       rating,
       notes,
@@ -7497,6 +7525,7 @@ class WatchSessionsCacheData extends DataClass
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
           other.sourceType == this.sourceType &&
+          other.seenWhere == this.seenWhere &&
           other.watchedAt == this.watchedAt &&
           other.rating == this.rating &&
           other.notes == this.notes &&
@@ -7512,6 +7541,7 @@ class WatchSessionsCacheCompanion
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
   final Value<String?> sourceType;
+  final Value<String?> seenWhere;
   final Value<DateTime> watchedAt;
   final Value<int?> rating;
   final Value<String?> notes;
@@ -7525,6 +7555,7 @@ class WatchSessionsCacheCompanion
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.sourceType = const Value.absent(),
+    this.seenWhere = const Value.absent(),
     this.watchedAt = const Value.absent(),
     this.rating = const Value.absent(),
     this.notes = const Value.absent(),
@@ -7539,6 +7570,7 @@ class WatchSessionsCacheCompanion
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.sourceType = const Value.absent(),
+    this.seenWhere = const Value.absent(),
     required DateTime watchedAt,
     this.rating = const Value.absent(),
     this.notes = const Value.absent(),
@@ -7556,6 +7588,7 @@ class WatchSessionsCacheCompanion
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
     Expression<String>? sourceType,
+    Expression<String>? seenWhere,
     Expression<DateTime>? watchedAt,
     Expression<int>? rating,
     Expression<String>? notes,
@@ -7570,6 +7603,7 @@ class WatchSessionsCacheCompanion
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
       if (sourceType != null) 'source_type': sourceType,
+      if (seenWhere != null) 'seen_where': seenWhere,
       if (watchedAt != null) 'watched_at': watchedAt,
       if (rating != null) 'rating': rating,
       if (notes != null) 'notes': notes,
@@ -7586,6 +7620,7 @@ class WatchSessionsCacheCompanion
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
       Value<String?>? sourceType,
+      Value<String?>? seenWhere,
       Value<DateTime>? watchedAt,
       Value<int?>? rating,
       Value<String?>? notes,
@@ -7599,6 +7634,7 @@ class WatchSessionsCacheCompanion
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
       sourceType: sourceType ?? this.sourceType,
+      seenWhere: seenWhere ?? this.seenWhere,
       watchedAt: watchedAt ?? this.watchedAt,
       rating: rating ?? this.rating,
       notes: notes ?? this.notes,
@@ -7628,6 +7664,9 @@ class WatchSessionsCacheCompanion
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (seenWhere.present) {
+      map['seen_where'] = Variable<String>(seenWhere.value);
     }
     if (watchedAt.present) {
       map['watched_at'] = Variable<DateTime>(watchedAt.value);
@@ -7659,6 +7698,7 @@ class WatchSessionsCacheCompanion
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
           ..write('sourceType: $sourceType, ')
+          ..write('seenWhere: $seenWhere, ')
           ..write('watchedAt: $watchedAt, ')
           ..write('rating: $rating, ')
           ..write('notes: $notes, ')
@@ -15265,6 +15305,7 @@ typedef $$WatchSessionsCacheTableCreateCompanionBuilder
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<String?> sourceType,
+  Value<String?> seenWhere,
   required DateTime watchedAt,
   Value<int?> rating,
   Value<String?> notes,
@@ -15280,6 +15321,7 @@ typedef $$WatchSessionsCacheTableUpdateCompanionBuilder
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<String?> sourceType,
+  Value<String?> seenWhere,
   Value<DateTime> watchedAt,
   Value<int?> rating,
   Value<String?> notes,
@@ -15315,6 +15357,9 @@ class $$WatchSessionsCacheTableFilterComposer
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seenWhere => $composableBuilder(
+      column: $table.seenWhere, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get watchedAt => $composableBuilder(
       column: $table.watchedAt, builder: (column) => ColumnFilters(column));
@@ -15362,6 +15407,9 @@ class $$WatchSessionsCacheTableOrderingComposer
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get seenWhere => $composableBuilder(
+      column: $table.seenWhere, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get watchedAt => $composableBuilder(
       column: $table.watchedAt, builder: (column) => ColumnOrderings(column));
 
@@ -15404,6 +15452,9 @@ class $$WatchSessionsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get seenWhere =>
+      $composableBuilder(column: $table.seenWhere, builder: (column) => column);
 
   GeneratedColumn<DateTime> get watchedAt =>
       $composableBuilder(column: $table.watchedAt, builder: (column) => column);
@@ -15456,6 +15507,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
+            Value<String?> seenWhere = const Value.absent(),
             Value<DateTime> watchedAt = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -15470,6 +15522,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             sourceType: sourceType,
+            seenWhere: seenWhere,
             watchedAt: watchedAt,
             rating: rating,
             notes: notes,
@@ -15484,6 +15537,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
+            Value<String?> seenWhere = const Value.absent(),
             required DateTime watchedAt,
             Value<int?> rating = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -15498,6 +15552,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             sourceType: sourceType,
+            seenWhere: seenWhere,
             watchedAt: watchedAt,
             rating: rating,
             notes: notes,

@@ -33,6 +33,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   const _LibraryAddPreviewPane({
     required this.type,
     required this.accent,
+    required this.isMovieDesktopChrome,
     required this.item,
     required this.candidate,
     required this.candidatePreview,
@@ -56,6 +57,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
+  final bool isMovieDesktopChrome;
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
@@ -142,6 +144,157 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     );
     if (customPreview != null) {
       return customPreview;
+    }
+    if (isMovieDesktopChrome) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.panel,
+          border: Border(left: BorderSide(color: palette.divider)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 132,
+                    child: AspectRatio(
+                      aspectRatio: 2 / 3,
+                      child: LibraryInteractiveCover(
+                        title: title,
+                        itemNumber: itemNumber,
+                        imageUrl: coverUrl,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          itemNumber == null ? title : '$title #$itemNumber',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: palette.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            height: 1.02,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            LibraryAddResultBadge(
+                              selectedItem == null ? providerLabel : 'library',
+                              accent: accent,
+                            ),
+                            if (selectedItem?.releaseYear != null)
+                              LibraryAddResultBadge(
+                                selectedItem!.releaseYear.toString(),
+                                accent: accent,
+                              ),
+                            if (selectedItem?.physicalFormatLabel?.trim().isNotEmpty == true)
+                              LibraryAddResultBadge(
+                                selectedItem!.physicalFormatLabel!,
+                                accent: accent,
+                              ),
+                          ],
+                        ),
+                        if (synopsis != null && synopsis.trim().isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            synopsis,
+                            maxLines: 8,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: palette.textPrimary,
+                              fontSize: 12,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: ListView(
+                  children: [
+                    if (selectedItem != null) ...[
+                      _LibraryAddReferenceSelector(
+                        accent: accent,
+                        addTarget: addTarget,
+                        referenceType: referenceType,
+                        item: selectedItem,
+                        bundleReleases: availableBundleReleases,
+                        selectedBundleReleaseId: selectedBundleReleaseId,
+                        selectedEditionId: selectedEditionId,
+                        selectedVariantId: selectedVariantId,
+                        isLoadingBundleReleases: isLoadingBundleReleases,
+                        onReferenceTypeChanged: onReferenceTypeChanged,
+                        onEditionSelected: onEditionSelected,
+                        onVariantSelected: onVariantSelected,
+                        onBundleReleaseSelected: onBundleReleaseSelected,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    Text(
+                      'Details',
+                      style: TextStyle(color: accent, fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 8),
+                    for (final row in rows)
+                      if (row.$2 != null && row.$2!.trim().isNotEmpty)
+                        _LibraryAddPreviewMetadataRow(
+                          label: row.$1,
+                          value: row.$2!,
+                        ),
+                    if (discoverySections.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      Text(
+                        'Discovery',
+                        style: TextStyle(color: accent, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 8),
+                      for (final section in discoverySections)
+                        _LibraryAddPreviewDiscoverySection(
+                          title: section.title,
+                          values: section.values,
+                          accent: accent,
+                        ),
+                    ],
+                    if (isFetchingPreview) ...[
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          const SizedBox.square(
+                            dimension: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Fetching full metadata...',
+                            style: TextStyle(color: palette.textMuted),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     return DecoratedBox(
       decoration: BoxDecoration(

@@ -18,6 +18,7 @@ class LibraryAlphaJumpBar extends StatelessWidget {
   static const _letters = [
     'All',
     '#',
+    '0-9',
     'A',
     'B',
     'C',
@@ -115,24 +116,31 @@ class LibraryAlphaJumpBar extends StatelessWidget {
   static Set<String> lettersFromTitles(Iterable<String> titles) {
     final letters = <String>{};
     for (final title in titles) {
-      if (title.isEmpty) continue;
-      final first = title[0].toUpperCase();
-      if (RegExp(r'[A-Z]').hasMatch(first)) {
-        letters.add(first);
-      } else {
-        letters.add('#');
+      final letter = normalizedLetterForTitle(title);
+      if (letter != null) {
+        letters.add(letter);
       }
     }
     return letters;
   }
 
+  static String? normalizedLetterForTitle(String title) {
+    final trimmedTitle = title.trimLeft();
+    if (trimmedTitle.isEmpty) {
+      return null;
+    }
+    final first = trimmedTitle[0].toUpperCase();
+    if (RegExp(r'[A-Z]').hasMatch(first)) {
+      return first;
+    }
+    if (RegExp(r'[0-9]').hasMatch(first)) {
+      return '0-9';
+    }
+    return '#';
+  }
+
   /// Filter items by selected letter. Returns true if the item matches.
   static bool matchesLetter(String title, String letter) {
-    if (title.isEmpty) return letter == '#';
-    final first = title[0].toUpperCase();
-    if (letter == '#') {
-      return !RegExp(r'[A-Z]').hasMatch(first);
-    }
-    return first == letter;
+    return normalizedLetterForTitle(title) == letter;
   }
 }

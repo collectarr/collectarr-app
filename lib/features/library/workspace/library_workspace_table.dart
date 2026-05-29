@@ -427,22 +427,25 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                   bottom: 0,
                   child: MouseRegion(
                     cursor: SystemMouseCursors.resizeColumn,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onHorizontalDragUpdate: (details) {
-                        final nextWidth = (width + details.delta.dx)
-                            .clamp(40.0, double.infinity);
-                        onColumnWidthChanged(column, nextWidth.toDouble());
-                      },
-                      onDoubleTap: () =>
-                          onColumnWidthChanged(column, defaultWidth),
-                      child: SizedBox(
-                        width: 10,
-                        child: Center(
-                          child: VerticalDivider(
-                            width: 1,
-                            thickness: 1,
-                            color: dividerColor,
+                    child: Semantics(
+                      label: 'Resize column',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onHorizontalDragUpdate: (details) {
+                          final nextWidth = (width + details.delta.dx)
+                              .clamp(40.0, double.infinity);
+                          onColumnWidthChanged(column, nextWidth.toDouble());
+                        },
+                        onDoubleTap: () =>
+                            onColumnWidthChanged(column, defaultWidth),
+                        child: SizedBox(
+                          width: 10,
+                          child: Center(
+                            child: VerticalDivider(
+                              width: 1,
+                              thickness: 1,
+                              color: dividerColor,
+                            ),
                           ),
                         ),
                       ),

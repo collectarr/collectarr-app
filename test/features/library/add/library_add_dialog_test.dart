@@ -1008,6 +1008,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Physical format'), findsOneWidget);
+    expect(find.text('Add Movies from Collectarr Core'), findsNothing);
+    expect(find.text('Add Movies'), findsOneWidget);
+    expect(find.text('Search by'), findsNothing);
     await tester.tap(find.byType(DropdownButtonFormField<String>));
     await pumpUntilSettled(tester);
     expect(find.text('Blu-ray'), findsOneWidget);

@@ -245,19 +245,31 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: palette.highlight.withValues(alpha: 0.78),
+        border: Border(
+          top: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider),
+        ),
+      ),
       child: Row(
         children: [
-          Icon(
-            Icons.select_all,
-            size: 16,
-            color: appPalette(context).textMuted,
+          TextButton.icon(
+            onPressed: callbacks.onClearSelection,
+            icon: const Icon(Icons.close, size: 16),
+            label: const Text('Cancel'),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              foregroundColor: palette.textMuted,
+            ),
           ),
           const SizedBox(width: 8),
           Text(
-            'Selection',
+            '$selectedCount selected',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -644,52 +656,92 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                         ),
                       ),
                   ],
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: palette.panelRaised,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: libraryCollectionStatusScopeColor(
-                          collectionStatusScope,
-                          accent,
-                          palette.textMuted,
-                        ).withValues(alpha: 0.45),
-                      ),
-                    ),
-                    child: SizedBox(
-                      height: _statusScopeDropdownHeight,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          children: [
-                            LibraryCollectionStatusScopeBadge(
-                              scope: collectionStatusScope,
-                              accent: accent,
-                              muted: palette.textMuted,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                collectionStatusScope.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: dropdownTextStyle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_drop_down,
-                              size: 18,
-                              color: palette.textPrimary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  child: _ScopeDropdownTrigger(
+                    scope: collectionStatusScope,
+                    accent: accent,
+                    height: _statusScopeDropdownHeight,
+                    textStyle: dropdownTextStyle,
                   ),
                 ),
               ),
             ),
+    );
+  }
+}
+
+class _ScopeDropdownTrigger extends StatefulWidget {
+  const _ScopeDropdownTrigger({
+    required this.scope,
+    required this.accent,
+    required this.height,
+    this.textStyle,
+  });
+
+  final LibraryCollectionStatusScope scope;
+  final Color accent;
+  final double height;
+  final TextStyle? textStyle;
+
+  @override
+  State<_ScopeDropdownTrigger> createState() => _ScopeDropdownTriggerState();
+}
+
+class _ScopeDropdownTriggerState extends State<_ScopeDropdownTrigger> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final borderColor = libraryCollectionStatusScopeColor(
+      widget.scope,
+      widget.accent,
+      palette.textMuted,
+    ).withValues(alpha: 0.45);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: _hovered
+              ? Color.alphaBlend(
+                  palette.surfaceSubtle.withValues(alpha: 0.45),
+                  palette.panelRaised,
+                )
+              : palette.panelRaised,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: borderColor),
+        ),
+        child: SizedBox(
+          height: widget.height,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                LibraryCollectionStatusScopeBadge(
+                  scope: widget.scope,
+                  accent: widget.accent,
+                  muted: palette.textMuted,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.scope.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: widget.textStyle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 18,
+                  color: palette.textPrimary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

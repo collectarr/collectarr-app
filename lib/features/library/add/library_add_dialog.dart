@@ -193,9 +193,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   static const _autocompleteDebounce = Duration(milliseconds: 350);
   static const _autocompleteLimit = 8;
 
+  /// Video-kind filter for movie library: allows searching across movie + tv.
+  late final Set<String> _videoKindFilters;
+
+  bool get _isVideoKind =>
+      widget.type.workspace.kind == CatalogMediaKind.movie ||
+      widget.type.workspace.kind == CatalogMediaKind.tv;
+
+    bool get _isMovieDesktopChrome =>
+      widget.type.workspace.kind == CatalogMediaKind.movie;
+
   @override
   void initState() {
     super.initState();
+    _videoKindFilters = {widget.type.workspace.kind.apiValue};
+    if (_isMovieDesktopChrome) {
+      _resultsPaneWidth = 720;
+    }
     _selectedProvider = widget.type.defaultSupportedMetadataProvider;
     _conditionOptions = widget.type.conditions;
     _gradeOptions = widget.type.grades;
@@ -262,6 +276,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
     final palette = appPalette(context);
+    final movieDesktopWidth = _isMovieDesktopChrome ? 1540.0 : _defaultDialogWidth;
+    final movieDesktopHeight = _isMovieDesktopChrome ? 920.0 : _defaultDialogHeight;
     return Theme(
       data: buildLibraryAddDialogTheme(accent, palette),
       child: Dialog(
@@ -271,27 +287,32 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: (_dialogWidth ?? _defaultDialogWidth)
+            maxWidth: (_dialogWidth ?? movieDesktopWidth)
                 .clamp(_minDialogWidth, _maxDialogWidth),
-            maxHeight: (_dialogHeight ?? _defaultDialogHeight)
+            maxHeight: (_dialogHeight ?? movieDesktopHeight)
                 .clamp(_minDialogHeight, _maxDialogHeight),
           ),
           child: _ResizableDialogShell(
             accent: accent,
             onResizeWidth: (delta) => setState(() {
-              _dialogWidth = ((_dialogWidth ?? _defaultDialogWidth) + delta)
+              _dialogWidth = ((_dialogWidth ?? movieDesktopWidth) + delta)
                   .clamp(_minDialogWidth, _maxDialogWidth);
             }),
             onResizeHeight: (delta) => setState(() {
-              _dialogHeight = ((_dialogHeight ?? _defaultDialogHeight) + delta)
+              _dialogHeight = ((_dialogHeight ?? movieDesktopHeight) + delta)
                   .clamp(_minDialogHeight, _maxDialogHeight);
             }),
             child: Column(
               children: [
-                _DialogHeader(type: widget.type, accent: accent),
+                _DialogHeader(
+                  type: widget.type,
+                  accent: accent,
+                  isMovieDesktopChrome: _isMovieDesktopChrome,
+                ),
                 _LibraryAddModeBar(
                   type: widget.type,
                   accent: accent,
+                  isMovieDesktopChrome: _isMovieDesktopChrome,
                   mode: _mode,
                   queryController: _queryController,
                   barcodeController: _barcodeController,
@@ -321,6 +342,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   numberController: _searchNumberController,
                   publisherController: _searchPublisherController,
                   yearController: _searchYearController,
+                  videoKindFilters: _isVideoKind ? _videoKindFilters : null,
+                  onVideoKindFilterChanged: _isVideoKind
+                      ? (kind, checked) {
+                          setState(() {
+                            if (checked) {
+                              _videoKindFilters.add(kind);
+                            } else {
+                              _videoKindFilters.remove(kind);
+                            }
+                          });
+                        }
+                      : null,
                 ),
                 if (_barcodeController.text.trim().isNotEmpty)
                   _BarcodePrefillBanner(
@@ -335,6 +368,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       final searchPane = _SearchPane(
                         type: widget.type,
                         isBusy: isBusy,
+                        isMovieDesktopChrome: _isMovieDesktopChrome,
                         error: _error,
                         accent: accent,
                         results: _results,
@@ -374,6 +408,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       final previewPane = _LibraryAddPreviewPane(
                         type: widget.type,
                         accent: accent,
+                        isMovieDesktopChrome: _isMovieDesktopChrome,
                         item: selectedResult,
                         candidate: selectedCandidate,
                         candidatePreview: selectedCandidate == null
@@ -500,6 +535,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                               selectedEditionSelection != null);
                       return _LibraryAddBottomBar(
                         type: widget.type,
+                        isMovieDesktopChrome: _isMovieDesktopChrome,
                         conditions: _conditionOptions,
                         grades: _gradeOptions,
                         defaultTags: _defaultTags,
@@ -1048,22 +1084,64 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final results = await runLibraryAddProviderSearch(
-        api: api,
-        type: widget.type,
-        provider: provider,
-        query: query,
-        rerankHints: _currentLocalRerankHints(),
-        series: _searchSeriesController.text.trim().isNotEmpty
-            ? _searchSeriesController.text.trim()
-            : null,
-        issueNumber: _searchNumberController.text.trim().isNotEmpty
-            ? _searchNumberController.text.trim()
-            : null,
-        year: _searchYearController.text.trim().isNotEmpty
-            ? int.tryParse(_searchYearController.text.trim())
-            : null,
-      );
+      final kindsToSearch = _isVideoKind
+          ? (_videoKindFilters.isEmpty
+              ? _VideoKindFilterRow.allKinds
+              : _videoKindFilters.toList())
+          : <String>[];
+      final seriesText = _searchSeriesController.text.trim().isNotEmpty
+          ? _searchSeriesController.text.trim()
+          : null;
+      final issueText = _searchNumberController.text.trim().isNotEmpty
+          ? _searchNumberController.text.trim()
+          : null;
+      final yearValue = _searchYearController.text.trim().isNotEmpty
+          ? int.tryParse(_searchYearController.text.trim())
+          : null;
+      final rerankHints = _currentLocalRerankHints();
+
+      List<ProviderCandidate> results;
+      if (kindsToSearch.length > 1) {
+        // Run parallel provider searches for each checked video kind.
+        final futures = kindsToSearch.map((kind) {
+          return runLibraryAddProviderSearch(
+            api: api,
+            type: widget.type,
+            provider: provider,
+            query: query,
+            rerankHints: rerankHints,
+            series: seriesText,
+            issueNumber: issueText,
+            year: yearValue,
+            kindOverride: kind,
+          );
+        });
+        final allResults = await Future.wait(futures);
+        results = allResults.expand((r) => r).toList();
+      } else if (kindsToSearch.length == 1) {
+        results = await runLibraryAddProviderSearch(
+          api: api,
+          type: widget.type,
+          provider: provider,
+          query: query,
+          rerankHints: rerankHints,
+          series: seriesText,
+          issueNumber: issueText,
+          year: yearValue,
+          kindOverride: kindsToSearch.first,
+        );
+      } else {
+        results = await runLibraryAddProviderSearch(
+          api: api,
+          type: widget.type,
+          provider: provider,
+          query: query,
+          rerankHints: rerankHints,
+          series: seriesText,
+          issueNumber: issueText,
+          year: yearValue,
+        );
+      }
       if (!mounted) {
         return;
       }

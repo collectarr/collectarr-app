@@ -196,6 +196,7 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         collectionStatus: personal.collectionStatus,
         lastBagBoardDate: personal.lastBagBoardDate,
         marketValueCents: personal.marketValueCents,
+        ownerLabel: personal.ownerLabel,
       );
       await mutations.syncOwnedTrackingEntry(
         updatedOwned,

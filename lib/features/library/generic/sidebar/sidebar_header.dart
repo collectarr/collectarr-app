@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_panels.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -36,6 +37,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onClearFilter,
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
+    this.onManageBuckets,
     this.pinnedGroupModes = const {},
     this.onTogglePin,
   });
@@ -67,6 +69,7 @@ class LibrarySidebarHeader extends StatelessWidget {
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
+  final VoidCallback? onManageBuckets;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePin;
 
@@ -120,6 +123,18 @@ class LibrarySidebarHeader extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ],
+              if (onManageBuckets != null &&
+                  libraryGroupModeSupportsBucketManagement(groupMode))
+                IconButton(
+                  tooltip:
+                      'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+                  onPressed: onManageBuckets,
+                  icon: const Icon(Icons.edit_outlined, size: 16),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                ),
               if (onHideSidebar != null)
                 IconButton(
                   tooltip: 'Hide folders panel',

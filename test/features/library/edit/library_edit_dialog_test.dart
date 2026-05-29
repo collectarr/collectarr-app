@@ -18,8 +18,13 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets(
       'generic edit dialog returns media-aware catalog and owned fields',
       (tester) async {
@@ -138,14 +143,11 @@ void main() {
       'Blade Runner: Final Cut',
     );
 
-    // Navigate to Value tab to set price
-    await tester.tap(find.text('Value'));
+    // Video kinds merge purchase/value fields into Personal.
+    await tester.tap(find.text('Personal').last);
     await pumpUntilSettled(tester);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Price paid'), '12.50');
 
-    // Navigate to Personal tab to set location
-    await tester.tap(find.text('Personal'));
+    // Stay on Personal to set location.
     await pumpUntilSettled(tester);
     await tester.tap(find.byIcon(Icons.place).first);
     await pumpUntilSettled(tester);
@@ -172,7 +174,7 @@ void main() {
     expect(selection?.item.barcode, '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
-    expect(selection?.personal?.pricePaidCents, 1250);
+    expect(selection?.personal?.pricePaidCents, 999);
     expect(selection?.personal?.quantity, 1);
     expect(selection?.tracking?.readStatus, 'In progress');
     expect(selection?.tracking?.rating, 9);
@@ -329,8 +331,11 @@ void main() {
     await tester.tap(find.text('Open movie publishing test'));
     await pumpUntilSettled(tester);
 
+    await tester.tap(find.text('Main').last);
+    await pumpUntilSettled(tester);
+
     expect(find.text('Release date'), findsOneWidget);
-    expect(find.text('Release year'), findsOneWidget);
+    expect(find.text('Release year'), findsNothing);
     expect(find.text('Page count'), findsNothing);
     expect(find.text('Imprint'), findsNothing);
     expect(find.text('Series group'), findsNothing);
@@ -491,8 +496,8 @@ void main() {
     await tester.tap(find.text('Open tracked'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Tracking tab (video kind splits tabs)
-    await tester.tap(find.text('Tracking'));
+    // Tracking fields now live under the Personal tab for video kinds.
+    await tester.tap(find.text('Personal'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Personal'), findsOneWidget);
@@ -667,11 +672,16 @@ void main() {
     await tester.tap(find.text('Open digital'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Ownership tab (video kind splits tabs)
-    await tester.tap(find.text('Ownership'));
+    // Ownership-specific fields now live under the Personal tab for video kinds.
+    await tester.tap(find.text('Personal'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.'), findsOneWidget);
+    expect(
+      find.text(
+        'Wishlist-only and digital copies do not expose storage location fields.',
+      ),
+      findsOneWidget,
+    );
     expect(find.widgetWithText(TextField, 'Condition'), findsNothing);
     expect(find.widgetWithText(TextField, 'Grade'), findsNothing);
     expect(find.byIcon(Icons.place), findsNothing);

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -126,7 +127,10 @@ class _AppShellState extends ConsumerState<AppShell> {
     final selectedKind = ref.watch(selectedLibraryKindProvider);
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
-    return selectedLibraryHomeType(visibleTypes, selectedKind).kind;
+    return selectedLibraryHomeType(
+      visibleTypes,
+      canonicalLibraryNavKind(selectedKind) ?? selectedKind,
+    ).kind;
   }
 }
 

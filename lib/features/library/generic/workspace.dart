@@ -50,6 +50,7 @@ class LibraryWorkspace extends ConsumerWidget {
     required this.onActivateItem,
     required this.onToggleSelectionItem,
     required this.onOpenItem,
+    required this.onEditItem,
     this.onBoxSelectionChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
@@ -75,6 +76,7 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<String> onActivateItem;
   final ValueChanged<String> onToggleSelectionItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
+  final ValueChanged<LibraryProjectionItem> onEditItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
@@ -161,6 +163,7 @@ class LibraryWorkspace extends ConsumerWidget {
               selected: _isSelected(item),
               onTap: _selectionTap(item),
               onDoubleTap: () => onOpenItem(item),
+                onEditTap: () => onEditItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -236,6 +239,7 @@ class LibraryWorkspace extends ConsumerWidget {
             selected: _isSelected(item),
             onTap: _selectionTap(item),
             onDoubleTap: () => onOpenItem(item),
+            onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),

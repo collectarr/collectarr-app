@@ -69,6 +69,7 @@ class LibraryPersonalEditSelection {
     this.collectionStatus,
     this.lastBagBoardDate,
     this.marketValueCents,
+    this.ownerLabel,
   });
 
   final String? anchorType;
@@ -115,6 +116,7 @@ class LibraryPersonalEditSelection {
   final String? collectionStatus;
   final DateTime? lastBagBoardDate;
   final int? marketValueCents;
+  final String? ownerLabel;
 }
 
 class LibraryWishlistEditSelection {

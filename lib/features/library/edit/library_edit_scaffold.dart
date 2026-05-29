@@ -4,6 +4,11 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum LibraryEditChromeVariant {
+  standard,
+  movieDesktop,
+}
+
 class LibraryEditDialogScaffold extends StatefulWidget {
   const LibraryEditDialogScaffold({
     super.key,
@@ -17,6 +22,8 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.views,
     required this.onClose,
     required this.onSave,
+    this.chromeVariant = LibraryEditChromeVariant.standard,
+    this.allowTabReorder = true,
     this.tabOrderKey,
     this.ebaySearchQuery,
   });
@@ -31,6 +38,8 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> views;
   final VoidCallback onClose;
   final VoidCallback onSave;
+  final LibraryEditChromeVariant chromeVariant;
+  final bool allowTabReorder;
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
   /// If non-null, an eBay search button appears in the title bar.
@@ -49,7 +58,9 @@ class _LibraryEditDialogScaffoldState
   void initState() {
     super.initState();
     _tabOrder = List.generate(widget.tabs.length, (i) => i);
-    _loadSavedTabOrder();
+    if (widget.allowTabReorder) {
+      _loadSavedTabOrder();
+    }
   }
 
   Future<void> _loadSavedTabOrder() async {
@@ -82,6 +93,10 @@ class _LibraryEditDialogScaffoldState
   @override
   void didUpdateWidget(LibraryEditDialogScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!widget.allowTabReorder) {
+      _tabOrder = List.generate(widget.tabs.length, (i) => i);
+      return;
+    }
     if (widget.tabs.length != _tabOrder.length) {
       _tabOrder = List.generate(widget.tabs.length, (i) => i);
     }
@@ -97,11 +112,29 @@ class _LibraryEditDialogScaffoldState
 
   @override
   Widget build(BuildContext context) {
-    final orderedTabs = [for (final i in _tabOrder) widget.tabs[i]];
+    final isMovieDesktop =
+        widget.chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final tabOrder = widget.allowTabReorder
+        ? _tabOrder
+        : List<int>.generate(widget.tabs.length, (i) => i);
+    final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
+    final viewport = MediaQuery.sizeOf(context);
+    final maxWidth = isMovieDesktop
+        ? (viewport.width > 1440 ? 1180.0 : 1100.0)
+        : (viewport.width > 1440 ? 1120.0 : 1040.0);
+    final maxHeight = viewport.height > 900 ? 820.0 : viewport.height - 40;
     return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(isMovieDesktop ? 2 : 8),
+      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: editDialogTheme(seedColor: widget.accent, palette: appPalette(context)),
+        data: editDialogTheme(
+          seedColor: widget.accent,
+          palette: appPalette(context),
+          compactDesktop: isMovieDesktop,
+        ),
         child: Builder(builder: (context) {
           final p = appPalette(context);
           return DecoratedBox(
@@ -117,7 +150,7 @@ class _LibraryEditDialogScaffoldState
               ],
             ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
+              constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
               child: Form(
                 key: widget.formKey,
                 child: Column(
@@ -128,18 +161,20 @@ class _LibraryEditDialogScaffoldState
                       title: widget.title,
                       badges: widget.badges,
                       onClose: widget.onClose,
+                      chromeVariant: widget.chromeVariant,
                       ebaySearchQuery: widget.ebaySearchQuery,
                     ),
                     ColoredBox(
                       color: p.panelRaised,
                       child: _ReorderableTabStrip(
                         tabController: widget.tabController,
-                        tabOrder: _tabOrder,
+                        tabOrder: tabOrder,
                         tabs: orderedTabs,
                         accent: widget.accent,
                         labelColor: p.textPrimary,
                         unselectedLabelColor: p.textMuted,
                         dividerColor: p.divider,
+                        allowReorder: widget.allowTabReorder,
                         onReorderItem: _onReorderItem,
                       ),
                     ),
@@ -154,6 +189,8 @@ class _LibraryEditDialogScaffoldState
                     ),
                     _LibraryEditFooter(
                       onSave: widget.onSave,
+                      chromeVariant: widget.chromeVariant,
+                      accent: widget.accent,
                     ),
                   ],
                 ),
@@ -179,6 +216,7 @@ class _ReorderableTabStrip extends StatelessWidget {
     required this.labelColor,
     required this.unselectedLabelColor,
     required this.dividerColor,
+    required this.allowReorder,
     required this.onReorderItem,
   });
 
@@ -189,7 +227,44 @@ class _ReorderableTabStrip extends StatelessWidget {
   final Color labelColor;
   final Color unselectedLabelColor;
   final Color dividerColor;
+  final bool allowReorder;
   final void Function(int oldIndex, int newIndex) onReorderItem;
+
+  Widget _tabChild({
+    required int index,
+    required Widget tab,
+    required bool selected,
+    required bool highlighted,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: highlighted ? accent.withValues(alpha: 0.12) : Colors.transparent,
+        border: Border(
+          bottom: BorderSide(
+            color: selected ? accent : Colors.transparent,
+            width: 2,
+          ),
+        ),
+      ),
+      alignment: Alignment.center,
+      child: DefaultTextStyle.merge(
+        style: TextStyle(
+          color: selected ? labelColor : unselectedLabelColor,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          fontSize: 12,
+        ),
+        child: IconTheme.merge(
+          data: IconThemeData(
+            color: selected ? labelColor : unselectedLabelColor,
+            size: 16,
+          ),
+          child: tab,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,85 +275,62 @@ class _ReorderableTabStrip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: 40,
+              height: 38,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
                 for (var i = 0; i < tabs.length; i++)
-                  DragTarget<int>(
-                    onAcceptWithDetails: (details) {
-                      final from = details.data;
-                      if (from != i) {
-                        onReorderItem(from, i);
-                      }
-                    },
-                    builder: (context, candidateData, _) {
-                      return LongPressDraggable<int>(
-                        data: i,
-                        axis: Axis.horizontal,
-                        feedback: Material(
-                          elevation: 4,
-                          color: Colors.transparent,
-                          child: _DraggableTabContent(
-                            tab: tabs[i],
-                            accent: accent,
-                            labelColor: labelColor,
-                          ),
-                        ),
-                        childWhenDragging: Opacity(
-                          opacity: 0.3,
-                          child: _DraggableTabContent(
-                            tab: tabs[i],
-                            accent: accent,
-                            labelColor: unselectedLabelColor,
-                          ),
-                        ),
-                        child: GestureDetector(
+                  allowReorder
+                      ? DragTarget<int>(
+                          onAcceptWithDetails: (details) {
+                            final from = details.data;
+                            if (from != i) {
+                              onReorderItem(from, i);
+                            }
+                          },
+                          builder: (context, candidateData, _) {
+                            return LongPressDraggable<int>(
+                              data: i,
+                              axis: Axis.horizontal,
+                              feedback: Material(
+                                elevation: 4,
+                                color: Colors.transparent,
+                                child: _DraggableTabContent(
+                                  tab: tabs[i],
+                                  accent: accent,
+                                  labelColor: labelColor,
+                                ),
+                              ),
+                              childWhenDragging: Opacity(
+                                opacity: 0.3,
+                                child: _DraggableTabContent(
+                                  tab: tabs[i],
+                                  accent: accent,
+                                  labelColor: unselectedLabelColor,
+                                ),
+                              ),
+                              child: GestureDetector(
+                                onTap: () => tabController.animateTo(tabOrder[i]),
+                                child: _tabChild(
+                                  index: i,
+                                  tab: tabs[i],
+                                  selected: tabController.index == tabOrder[i],
+                                  highlighted: candidateData.isNotEmpty,
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : GestureDetector(
                           onTap: () => tabController.animateTo(tabOrder[i]),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 11),
-                            decoration: BoxDecoration(
-                              color: candidateData.isNotEmpty
-                                  ? accent.withValues(alpha: 0.12)
-                                  : Colors.transparent,
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: tabController.index == tabOrder[i]
-                                      ? accent
-                                      : Colors.transparent,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: DefaultTextStyle.merge(
-                              style: TextStyle(
-                                color: tabController.index == tabOrder[i]
-                                    ? labelColor
-                                    : unselectedLabelColor,
-                                fontWeight: tabController.index == tabOrder[i]
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                fontSize: 13,
-                              ),
-                              child: IconTheme.merge(
-                                data: IconThemeData(
-                                  color: tabController.index == tabOrder[i]
-                                      ? labelColor
-                                      : unselectedLabelColor,
-                                  size: 18,
-                                ),
-                                child: tabs[i],
-                              ),
-                            ),
+                          child: _tabChild(
+                            index: i,
+                            tab: tabs[i],
+                            selected: tabController.index == tabOrder[i],
+                            highlighted: false,
                           ),
                         ),
-                      );
-                    },
-                  ),
               ],
             ),
           ),
@@ -305,8 +357,8 @@ class _DraggableTabContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
@@ -316,10 +368,10 @@ class _DraggableTabContent extends StatelessWidget {
         style: TextStyle(
           color: labelColor,
           fontWeight: FontWeight.w700,
-          fontSize: 13,
+          fontSize: 12,
         ),
         child: IconTheme.merge(
-          data: IconThemeData(color: labelColor, size: 18),
+          data: IconThemeData(color: labelColor, size: 16),
           child: tab,
         ),
       ),
@@ -334,6 +386,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.title,
     required this.badges,
     required this.onClose,
+    required this.chromeVariant,
     this.ebaySearchQuery,
   });
 
@@ -342,6 +395,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final String title;
   final List<Widget> badges;
   final VoidCallback onClose;
+  final LibraryEditChromeVariant chromeVariant;
   final String? ebaySearchQuery;
 
   Future<void> _searchOnEbay() async {
@@ -352,18 +406,18 @@ class _LibraryEditTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
     return Container(
-      height: 64,
+      height: isMovieDesktop ? 54 : 58,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [appPalette(context).surface, appPalette(context).surfaceDim],
-        ),
-        border: Border(bottom: BorderSide(color: accent)),
+        color: isMovieDesktop ? palette.toolbar : palette.surface,
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: accent, size: 22),
+          Icon(icon, color: accent, size: isMovieDesktop ? 18 : 22),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -377,13 +431,16 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w900, fontSize: 15),
+                      ?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontSize: isMovieDesktop ? 14 : 15,
+                      ),
                 ),
                 if (badges.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Wrap(
                     spacing: 6,
-                    runSpacing: 4,
+                    runSpacing: 3,
                     children: badges,
                   ),
                 ],
@@ -395,13 +452,16 @@ class _LibraryEditTitleBar extends StatelessWidget {
               tooltip: 'Search on eBay',
               onPressed: _searchOnEbay,
               visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+              icon: Icon(
+                Icons.shopping_cart_outlined,
+                size: isMovieDesktop ? 18 : 20,
+              ),
             ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.close),
+            icon: Icon(Icons.close, size: isMovieDesktop ? 20 : 24),
           ),
         ],
       ),
@@ -410,21 +470,41 @@ class _LibraryEditTitleBar extends StatelessWidget {
 }
 
 class _LibraryEditFooter extends StatelessWidget {
-  const _LibraryEditFooter({required this.onSave});
+  const _LibraryEditFooter({
+    required this.onSave,
+    required this.chromeVariant,
+    required this.accent,
+  });
 
   final VoidCallback onSave;
+  final LibraryEditChromeVariant chromeVariant;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
+    final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final saveBackground = isMovieDesktop
+        ? Color.lerp(accent, Colors.white, 0.58) ?? accent
+        : null;
+    final saveForeground = isMovieDesktop ? Colors.black87 : null;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: appPalette(context).toolbar,
+        color: isMovieDesktop ? appPalette(context).toolbar : appPalette(context).surface,
         border: Border(top: BorderSide(color: appPalette(context).divider)),
       ),
       child: Align(
         alignment: Alignment.centerRight,
         child: FilledButton.icon(
+          style: isMovieDesktop
+              ? FilledButton.styleFrom(
+                  backgroundColor: saveBackground,
+                  foregroundColor: saveForeground,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: const StadiumBorder(),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                )
+              : null,
           onPressed: onSave,
           icon: const Icon(Icons.save_outlined),
           label: const Text('Save'),

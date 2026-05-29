@@ -16,10 +16,12 @@ class LibraryResizableDivider extends StatelessWidget {
     final gripColor = dividerColor.withValues(alpha: 0.75);
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onHorizontalDragUpdate: (details) => onDragDelta(details.delta.dx),
-        child: SizedBox(
+      child: Semantics(
+        label: 'Resize panel',
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onHorizontalDragUpdate: (details) => onDragDelta(details.delta.dx),
+          child: SizedBox(
           width: 12,
           child: Stack(
             alignment: Alignment.center,
@@ -56,6 +58,7 @@ class LibraryResizableDivider extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

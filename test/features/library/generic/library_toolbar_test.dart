@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
+import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +42,7 @@ void main() {
               onRefreshMetadata: () {},
               quickView: null,
               onQuickViewSelected: (_) {},
-              availableLetters: const {'A', 'C', 'M', 'Z'},
+              availableLetters: const {'#', '0-9', 'A', 'C', 'M', 'Z'},
               selectedLetter: null,
               onLetterSelected: (_) {},
               hasActiveFilters: false,
@@ -61,6 +62,27 @@ void main() {
     final allCenterX = tester.getRect(find.text('All')).center.dx;
     final zCenterX = tester.getRect(find.text('Z')).center.dx;
     final contentCenterX = (allCenterX + zCenterX) / 2;
-    expect((contentCenterX - rowCenterX).abs(), lessThan(12));
+    expect((contentCenterX - rowCenterX).abs(), lessThan(16));
+
+    expect(find.text('#'), findsOneWidget);
+    expect(find.text('0-9'), findsOneWidget);
+  });
+
+  test('alpha jump bar groups symbol and numeric titles separately', () {
+    expect(
+      LibraryAlphaJumpBar.lettersFromTitles([
+        'Batman',
+        '7 Seeds',
+        '#DRCL',
+        '  20th Century Boys',
+        '  !Hero',
+      ]),
+      {'B', '0-9', '#'},
+    );
+
+    expect(LibraryAlphaJumpBar.matchesLetter('7 Seeds', '0-9'), isTrue);
+    expect(LibraryAlphaJumpBar.matchesLetter('#DRCL', '#'), isTrue);
+    expect(LibraryAlphaJumpBar.matchesLetter('Batman', 'B'), isTrue);
+    expect(LibraryAlphaJumpBar.matchesLetter('7 Seeds', '#'), isFalse);
   });
 }

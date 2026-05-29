@@ -36,6 +36,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'library_edit_dialog_anchor_widgets.dart';
 
@@ -91,6 +92,17 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _coverController;
   late final TextEditingController _thumbnailController;
   late final TextEditingController _synopsisController;
+
+  // Video / CLZ Main fields
+  late final TextEditingController _sortKeyController;
+  late final TextEditingController _originalTitleController;
+  late final TextEditingController _runtimeController;
+  late final TextEditingController _audienceRatingController;
+  late final TextEditingController _countryController;
+  late final TextEditingController _languageController;
+  late final TextEditingController _genresEditController;
+  late final TextEditingController _titleExtensionController;
+  late final TextEditingController _ownerLabelController;
 
   // Series-level fields
   late final TextEditingController _imprintController;
@@ -187,6 +199,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   bool get _isTrackingOnly => !_isOwned && widget.trackingEntry != null;
 
   bool get _hasWishlistContext => widget.wishlistItem != null;
+
+  bool get _isVideoKind {
+    const videoKinds = {
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+    };
+    return videoKinds.contains(widget.item.mediaKind);
+  }
 
   bool get _hasReleaseAnchor {
     return _selectedOwnedAnchorType != PersonalItemAnchorType.item.apiValue;
@@ -299,6 +320,24 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _thumbnailController =
         TextEditingController(text: item.thumbnailImageUrl ?? '');
     _synopsisController = TextEditingController(text: item.synopsis ?? '');
+
+    // Video / CLZ Main fields
+    _sortKeyController = TextEditingController(text: item.sortKey ?? '');
+    _originalTitleController =
+        TextEditingController(text: item.originalTitle ?? '');
+    _runtimeController = TextEditingController(
+      text: item.video?.runtimeMinutes?.toString() ?? '',
+    );
+    _audienceRatingController =
+        TextEditingController(text: item.audienceRating ?? '');
+    _countryController = TextEditingController(text: item.country ?? '');
+    _languageController = TextEditingController(text: item.language ?? '');
+    _genresEditController =
+        TextEditingController(text: item.genres?.join(', ') ?? '');
+    _titleExtensionController =
+        TextEditingController(text: item.titleExtension ?? '');
+    _ownerLabelController =
+        TextEditingController(text: owned?.ownerLabel ?? '');
 
     _imprintController = TextEditingController(
       text: item.publishing?.imprint ?? '',
@@ -464,6 +503,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _coverController.dispose();
     _thumbnailController.dispose();
     _synopsisController.dispose();
+    _sortKeyController.dispose();
+    _originalTitleController.dispose();
+    _runtimeController.dispose();
+    _audienceRatingController.dispose();
+    _countryController.dispose();
+    _languageController.dispose();
+    _genresEditController.dispose();
+    _titleExtensionController.dispose();
+    _ownerLabelController.dispose();
     _imprintController.dispose();
     _seriesGroupController.dispose();
     _conditionController.dispose();
@@ -557,6 +605,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         return _specsTab();
       case 'cast':
         return _castTab();
+      case 'crew':
+        return _crewTab();
       case 'value':
         return _valueTab();
       case 'personal':
@@ -573,6 +623,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         return _synopsisTab();
       case 'discs':
         return _discsTab();
+      case 'links':
+        return _linksTab();
       default:
         throw StateError('Unsupported generic edit tab: $id');
     }
@@ -583,6 +635,114 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   Widget _mediaTab() {
+    if (_isVideoKind) return _videoMediaTab();
+    return _genericMediaTab();
+  }
+
+  /// CLZ-style Main tab for Movies / TV / Anime.
+  Widget _videoMediaTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Main',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _titleController,
+                  label: 'Title',
+                  validator: (value) =>
+                      emptyToNull(value ?? '') == null ? 'Enter a title' : null,
+                ),
+                _field(controller: _sortKeyController, label: 'Sort title'),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                    controller: _titleExtensionController,
+                    label: 'Title extension',
+                    hint: 'e.g. Collector\'s Edition, Director\'s Cut'),
+                _field(
+                    controller: _originalTitleController,
+                    label: 'Original title'),
+              ]),
+              if (widget.item.series != null) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Series',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Text(
+                      widget.item.series!.seriesTitle ?? '—',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ]),
+              ],
+              if (widget.item.mediaKind == CatalogMediaKind.tv) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.tv, size: 18,
+                        color: appPalette(context).textMuted),
+                    const SizedBox(width: 6),
+                    Text(
+                      'TV Series',
+                      style: TextStyle(
+                        color: appPalette(context).textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                    controller: _publisherController, label: 'Studios'),
+                _field(
+                  controller: _releaseDateController,
+                  label: 'Release date',
+                  hint: 'YYYY-MM-DD',
+                  validator: optionalDateValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _runtimeController,
+                  label: 'Runtime (min)',
+                  validator: optionalIntValidator,
+                ),
+                _field(
+                    controller: _audienceRatingController,
+                    label: 'Audience rating'),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _countryController, label: 'Country'),
+                _field(controller: _languageController, label: 'Language'),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                    controller: _genresEditController,
+                    label: 'Genres',
+                    hint: 'Comma-separated'),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Default media tab for non-video kinds (comics, books, etc.).
+  Widget _genericMediaTab() {
     final mediaFields = widget.type.mediaFields;
     final releaseFields = widget.type.releaseFields;
     return EditTabShell(
@@ -702,22 +862,28 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   }
 
   // -------------------------------------------------------------------------
-  // Tab: Cast & Crew (placeholder — read-only credits display)
+  // Tab: Cast (read-only cast display — actors)
   // -------------------------------------------------------------------------
+
+  static const _castRoles = {'actor', 'voice', 'voice actor', 'guest star', 'cameo', 'narrator'};
 
   Widget _castTab() {
     final creators = widget.item.creators;
-    final hasCreators = creators != null && creators.isNotEmpty;
+    final castEntries = creators?.where((c) {
+      final role = c['role']?.toString().trim().toLowerCase() ?? '';
+      return role.isEmpty || _castRoles.any((r) => role.contains(r));
+    }).toList();
+    final hasCast = castEntries != null && castEntries.isNotEmpty;
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Cast & Crew',
+          title: 'Cast',
           accent: widget.accent,
-          child: hasCreators
+          child: hasCast
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final credit in creators)
+                    for (final credit in castEntries)
                       if (credit['name']?.toString().trim().isNotEmpty == true)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
@@ -742,7 +908,60 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   ],
                 )
               : Text(
-                  'No cast or crew data available.',
+                  'No cast data available.',
+                  style: TextStyle(color: appPalette(context).textMuted),
+                ),
+        ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Crew (read-only crew display — directors, writers, producers, etc.)
+  // -------------------------------------------------------------------------
+
+  Widget _crewTab() {
+    final creators = widget.item.creators;
+    final crewEntries = creators?.where((c) {
+      final role = c['role']?.toString().trim().toLowerCase() ?? '';
+      return role.isNotEmpty && !_castRoles.any((r) => role.contains(r));
+    }).toList();
+    final hasCrew = crewEntries != null && crewEntries.isNotEmpty;
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Crew',
+          accent: widget.accent,
+          child: hasCrew
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final credit in crewEntries)
+                      if (credit['name']?.toString().trim().isNotEmpty == true)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            children: [
+                              Icon(Icons.person, size: 16, color: appPalette(context).textMuted),
+                              const SizedBox(width: 8),
+                              Text(
+                                credit['name'].toString().trim(),
+                                style: const TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              if (credit['role']?.toString().trim().isNotEmpty == true) ...[
+                                const SizedBox(width: 6),
+                                Text(
+                                  '— ${credit['role']}',
+                                  style: TextStyle(color: appPalette(context).textMuted),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                  ],
+                )
+              : Text(
+                  'No crew data available.',
                   style: TextStyle(color: appPalette(context).textMuted),
                 ),
         ),
@@ -818,6 +1037,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   bool get _hasMediaTab => _tabSpecs.any((t) => t.id == 'media');
   bool get _hasEditionTab => _tabSpecs.any((t) => t.id == 'edition');
   bool get _hasSpecsTab => _tabSpecs.any((t) => t.id == 'specs');
+  bool get _hasMainTab => _tabSpecs.any((t) => t.id == 'main');
+  bool get _hasValueTab => _tabSpecs.any((t) => t.id == 'value');
 
   Widget _mainTab() {
     final mediaFields = widget.type.mediaFields;
@@ -1151,14 +1372,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
-                  controller: _regionController,
-                  label: 'Region',
-                  hint: 'e.g. A, B, C (Blu-ray) or 1-6 (DVD)',
-                ),
-                _field(
                   controller: _packagingController,
                   label: 'Packaging',
                   hint: 'e.g. Keep Case, Steelbook, Digibook',
+                ),
+                _field(
+                  controller: _colorController,
+                  label: 'Color',
+                  hint: 'B&W, Color, or Both',
                 ),
               ]),
               const SizedBox(height: 10),
@@ -1173,6 +1394,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   validator: optionalIntValidator,
                 ),
               ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _featuresController,
+                minLines: 3,
+                maxLines: 6,
+                decoration: const InputDecoration(
+                  labelText: 'Features',
+                  hintText: 'Disc features, special editions, bonus content...',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(),
+                ),
+              ),
             ],
           ),
         ),
@@ -1245,14 +1478,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             children: [
               _responsiveFields([
                 _field(
+                  controller: _regionController,
+                  label: 'Region',
+                  hint: 'e.g. A, B, C (Blu-ray) or 1-6 (DVD)',
+                ),
+                _field(
                   controller: _screenRatioController,
                   label: 'Screen Ratio',
                   hint: 'e.g. 2.39:1, 1.85:1, 16:9',
-                ),
-                _field(
-                  controller: _colorController,
-                  label: 'Color',
-                  hint: 'B&W, Color, or Both',
                 ),
               ]),
               const SizedBox(height: 10),
@@ -1326,21 +1559,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 ),
               ),
             ],
-          ),
-        ),
-        EditSection(
-          title: 'Features',
-          accent: widget.accent,
-          child: TextFormField(
-            controller: _featuresController,
-            minLines: 3,
-            maxLines: 6,
-            decoration: const InputDecoration(
-              labelText: 'Features',
-              hintText: 'Disc features, special editions, bonus content...',
-              alignLabelWithHint: true,
-              border: OutlineInputBorder(),
-            ),
           ),
         ),
       ],
@@ -1491,6 +1709,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   label: 'Tags',
                   hint: 'Comma-separated tags',
                 ),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _ownerLabelController,
+                    label: 'Owner',
+                    hint: 'Name of the owner',
+                  ),
+                ]),
                 const SizedBox(height: 10),
               ],
               if (_showPhysicalOwnedFields) ...[
@@ -1694,13 +1920,58 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
             ),
           ),
+        // Ownership fields merged into Personal when no standalone tab.
+        if (_isOwned && !_hasMainTab)
+          EditSection(
+            title: 'Ownership',
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _responsiveFields([
+                  if (_showPhysicalOwnedFields) ...[
+                    _field(controller: _conditionController, label: 'Condition'),
+                    _field(controller: _gradeController, label: 'Grade'),
+                  ],
+                  _field(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        // Value fields merged into Personal when no standalone tab.
+        if (_isOwned && !_hasValueTab)
+          EditSection(
+            title: 'Purchase & Value',
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _responsiveFields([
+                  _field(controller: _priceController, label: 'Purchase price'),
+                  _field(controller: _currencyController, label: 'Currency'),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _purchaseDateController,
+                    label: 'Purchase date',
+                    hint: 'YYYY-MM-DD',
+                    validator: optionalDateValidator,
+                  ),
+                  _field(controller: _purchaseStoreController, label: 'Purchase store'),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(controller: _marketValueController, label: 'Current value'),
+                ]),
+              ],
+            ),
+          ),
       ],
     );
   }
-
-  // -------------------------------------------------------------------------
-  // Tab: Custom fields
-  // -------------------------------------------------------------------------
 
   Widget _customFieldsTab() {
     return EditTabShell(
@@ -1774,6 +2045,75 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         ),
       ],
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Links (external links — TMDb, IMDb, etc.)
+  // -------------------------------------------------------------------------
+
+  Widget _linksTab() {
+    final trailers = widget.item.trailerUrls;
+    return EditTabShell(
+      children: [
+        if (trailers.isNotEmpty)
+          EditSection(
+            title: 'YouTube Trailers',
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final trailer in trailers) ...[
+                  InkWell(
+                    onTap: () => _launchUrl(trailer.url),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.play_circle_outline, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            trailer.title ?? trailer.url,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              decoration: TextDecoration.underline,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (trailer.source != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            trailer.source!,
+                            style: TextStyle(
+                              color: appPalette(context).textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            ),
+          ),
+        EditSection(
+          title: 'External Links',
+          accent: widget.accent,
+          child: Text(
+            'External links (TMDb, IMDb, etc.) will be available in a future update.',
+            style: TextStyle(color: appPalette(context).textMuted),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
 
@@ -1976,7 +2316,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       seriesGroup: emptyToNull(_seriesGroupController.text),
     );
     final updatedVideo = VideoCatalogDetails(
-      runtimeMinutes: widget.item.video?.runtimeMinutes,
+      runtimeMinutes: int.tryParse(_runtimeController.text),
       color: emptyToNull(_colorController.text),
       nrDiscs: int.tryParse(_nrDiscsController.text),
       screenRatio: emptyToNull(_screenRatioController.text),
@@ -1984,9 +2324,17 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       subtitles: emptyToNull(_subtitlesController.text),
       layers: emptyToNull(_layersController.text),
     );
+    final parsedGenres = _genresEditController.text
+        .split(',')
+        .map((g) => g.trim())
+        .where((g) => g.isNotEmpty)
+        .toList();
     final selection = LibraryEditSelection(
       item: widget.item.copyWith(
         title: _titleController.text.trim(),
+        sortKey: emptyToNull(_sortKeyController.text),
+        originalTitle: emptyToNull(_originalTitleController.text),
+        titleExtension: emptyToNull(_titleExtensionController.text),
         itemNumber: emptyToNull(_numberController.text),
         synopsis: emptyToNull(_synopsisController.text),
         coverImageUrl: emptyToNull(_coverController.text),
@@ -1999,6 +2347,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         releaseYear: parseInt(_releaseYearController.text),
         barcode: emptyToNull(_barcodeController.text),
         variant: emptyToNull(_variantController.text),
+        country: emptyToNull(_countryController.text),
+        language: emptyToNull(_languageController.text),
+        audienceRating: emptyToNull(_audienceRatingController.text),
+        genres: parsedGenres.isEmpty ? null : parsedGenres,
         publishing: updatedPublishing.hasData ? updatedPublishing : null,
         video: updatedVideo.hasData ? updatedVideo : null,
       ),
@@ -2068,6 +2420,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               collectionStatus: _collectionStatus,
               lastBagBoardDate: _lastBagBoardDate,
               marketValueCents: parseMoneyCents(_marketValueController.text),
+              ownerLabel: emptyToNull(_ownerLabelController.text),
             ),
       wishlist: widget.wishlistItem == null
           ? null

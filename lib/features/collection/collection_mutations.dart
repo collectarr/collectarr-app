@@ -232,6 +232,7 @@ class CollectionMutations {
     String? collectionStatus,
     DateTime? lastBagBoardDate,
     int? marketValueCents,
+    String? ownerLabel,
     bool syncTracking = true,
     bool notify = true,
   }) async {
@@ -286,7 +287,7 @@ class CollectionMutations {
       sellPriceCents: sellPriceCents,
       soldTo: soldTo,
       ownerUserId: item.ownerUserId ?? auth.userId,
-      ownerLabel: item.ownerLabel ?? auth.email,
+      ownerLabel: ownerLabel ?? item.ownerLabel ?? auth.email,
       updatedAt: now,
       deletedAt: item.deletedAt,
       features: features,

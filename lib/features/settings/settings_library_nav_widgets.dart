@@ -23,17 +23,17 @@ class _LibraryNavSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final types = _orderedSettingsMediaTypes(catalog, preferences);
-    final visibleTypes = [
-      for (final type in types)
-        if (preferences.isVisible(type.kind)) type,
+    final groups = _orderedSettingsLibraryNavGroups(catalog, preferences);
+    final visibleGroups = [
+      for (final group in groups)
+        if (group.types.any((type) => preferences.isVisible(type.kind))) group,
     ];
-    final hiddenCount = types.length - visibleTypes.length;
+    final hiddenCount = groups.length - visibleGroups.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _LibraryNavSummary(
-          visibleCount: visibleTypes.length,
+          visibleCount: visibleGroups.length,
           hiddenCount: hiddenCount,
           placement: preferences.placement,
         ),
@@ -80,14 +80,14 @@ class _LibraryNavSettings extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _LibraryNavPreview(
-          types: visibleTypes.isEmpty ? types.take(1).toList() : visibleTypes,
+          groups: visibleGroups.isEmpty ? groups.take(1).toList() : visibleGroups,
           placement: preferences.placement,
         ),
         const SizedBox(height: 12),
         Row(
           children: [
             Text(
-              'Libraries',
+              'Library groups',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
@@ -102,7 +102,7 @@ class _LibraryNavSettings extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'Drag rows or use the arrow buttons to reorder. Hidden libraries are removed from the top bar/rail, but can be restored here.',
+          'Drag groups to reorder the CLZ-style top-level entries. Grouped families now behave like single libraries in the UI, even though their stored preference order still expands back to the underlying kinds.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -112,19 +112,23 @@ class _LibraryNavSettings extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           buildDefaultDragHandles: false,
-          itemCount: types.length,
+          itemCount: groups.length,
           onReorderItem: (oldIndex, newIndex) {
-            final reordered = types.map((type) => type.kind).toList();
+            final reordered = [...groups];
             final moved = reordered.removeAt(oldIndex);
             reordered.insert(newIndex, moved);
-            onOrderChanged(reordered);
+            onOrderChanged(_expandSettingsGroupKinds(reordered));
           },
           itemBuilder: (context, index) {
-            final type = types[index];
-            final visible = preferences.isVisible(type.kind);
-            final reordered = types.map((type) => type.kind).toList();
+            final group = groups[index];
+            final hiddenKinds = [
+              for (final type in group.types)
+                if (!preferences.isVisible(type.kind)) type,
+            ];
+            final allVisible = hiddenKinds.isEmpty;
+            final reordered = [...groups];
             return ListTile(
-              key: ValueKey('library-nav-${type.kind}'),
+              key: ValueKey('library-nav-${group.id}'),
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               leading: SizedBox(
@@ -136,17 +140,17 @@ class _LibraryNavSettings extends StatelessWidget {
                       child: const Icon(Icons.drag_indicator),
                     ),
                     const SizedBox(width: 6),
-                    _LibraryNavTypeIcon(type: type),
+                    _LibraryNavTypeIcon(group: group),
                   ],
                 ),
               ),
-              title: Text(type.pluralLabel),
+              title: Text(group.label),
               subtitle: Text(
                 [
-                  visible ? 'Visible' : 'Hidden',
-                  type.providers.isEmpty
+                  allVisible ? 'Visible' : 'Hidden',
+                  _groupProviders(group).isEmpty
                       ? 'No provider'
-                      : 'Providers: ${type.providers.join(', ')}',
+                      : 'Providers: ${_groupProviders(group).join(', ')}',
                 ].join(' | '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -162,27 +166,28 @@ class _LibraryNavSettings extends StatelessWidget {
                         : () {
                             final moved = reordered.removeAt(index);
                             reordered.insert(index - 1, moved);
-                            onOrderChanged(reordered);
+                            onOrderChanged(_expandSettingsGroupKinds(reordered));
                           },
                     icon: const Icon(Icons.keyboard_arrow_up),
                   ),
                   IconButton(
                     tooltip: 'Move down',
-                    onPressed: index == types.length - 1
+                    onPressed: index == groups.length - 1
                         ? null
                         : () {
                             final moved = reordered.removeAt(index);
                             reordered.insert(index + 1, moved);
-                            onOrderChanged(reordered);
+                            onOrderChanged(_expandSettingsGroupKinds(reordered));
                           },
                     icon: const Icon(Icons.keyboard_arrow_down),
                   ),
                   Switch(
-                    value: visible,
-                    onChanged: (value) => onVisibilityChanged(
-                      type.kind,
-                      value,
-                    ),
+                    value: allVisible,
+                    onChanged: (value) {
+                      for (final type in group.types) {
+                        onVisibilityChanged(type.kind, value);
+                      }
+                    },
                   ),
                 ],
               ),
@@ -236,17 +241,17 @@ class _LibraryNavSummary extends StatelessWidget {
 
 class _LibraryNavPreview extends StatelessWidget {
   const _LibraryNavPreview({
-    required this.types,
+    required this.groups,
     required this.placement,
   });
 
-  final List<CatalogMediaType> types;
+  final List<LibraryNavGroup> groups;
   final LibraryNavPlacement placement;
 
   @override
   Widget build(BuildContext context) {
-    final visible = types.take(5).toList();
-    final overflow = types.length - visible.length;
+    final visible = groups.take(5).toList();
+    final overflow = groups.length - visible.length;
     final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -264,10 +269,10 @@ class _LibraryNavPreview extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        for (final type in visible.take(4))
+                        for (final group in visible.take(4))
                           Padding(
                             padding: const EdgeInsets.only(bottom: 5),
-                            child: _LibraryNavPreviewTile(type: type),
+                            child: _LibraryNavPreviewTile(group: group),
                           ),
                         if (overflow > 0)
                           _LibraryNavPreviewBadge(label: '+$overflow'),
@@ -293,10 +298,10 @@ class _LibraryNavPreview extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          for (final type in visible)
+                          for (final group in visible)
                             Padding(
                               padding: const EdgeInsets.only(right: 6),
-                              child: _LibraryNavPreviewButton(type: type),
+                              child: _LibraryNavPreviewButton(group: group),
                             ),
                           if (overflow > 0)
                             _LibraryNavPreviewBadge(label: 'More +$overflow'),
@@ -312,12 +317,13 @@ class _LibraryNavPreview extends StatelessWidget {
 }
 
 class _LibraryNavTypeIcon extends StatelessWidget {
-  const _LibraryNavTypeIcon({required this.type});
+  const _LibraryNavTypeIcon({required this.group});
 
-  final CatalogMediaType type;
+  final LibraryNavGroup group;
 
   @override
   Widget build(BuildContext context) {
+    final type = group.primaryType;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: libraryAccentForKind(type.kind).withValues(alpha: 0.18),
@@ -337,12 +343,13 @@ class _LibraryNavTypeIcon extends StatelessWidget {
 }
 
 class _LibraryNavPreviewButton extends StatelessWidget {
-  const _LibraryNavPreviewButton({required this.type});
+  const _LibraryNavPreviewButton({required this.group});
 
-  final CatalogMediaType type;
+  final LibraryNavGroup group;
 
   @override
   Widget build(BuildContext context) {
+    final type = group.primaryType;
     final accent = libraryAccentForKind(type.kind);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -358,7 +365,7 @@ class _LibraryNavPreviewButton extends StatelessWidget {
             Icon(libraryIconForKind(type.kind), size: 15, color: accent),
             const SizedBox(width: 5),
             Text(
-              type.pluralLabel,
+              group.label,
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
             ),
           ],
@@ -369,12 +376,13 @@ class _LibraryNavPreviewButton extends StatelessWidget {
 }
 
 class _LibraryNavPreviewTile extends StatelessWidget {
-  const _LibraryNavPreviewTile({required this.type});
+  const _LibraryNavPreviewTile({required this.group});
 
-  final CatalogMediaType type;
+  final LibraryNavGroup group;
 
   @override
   Widget build(BuildContext context) {
+    final type = group.primaryType;
     final accent = libraryAccentForKind(type.kind);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -474,4 +482,29 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   return ordered.isEmpty
       ? fallbackMediaCatalog.where((type) => type.isTopLevel).toList()
       : ordered;
+}
+
+List<LibraryNavGroup> _orderedSettingsLibraryNavGroups(
+  List<CatalogMediaType> catalog,
+  LibraryNavPreferences preferences,
+) {
+  return buildLibraryNavGroups(
+    _orderedSettingsMediaTypes(catalog, preferences),
+  );
+}
+
+List<String> _expandSettingsGroupKinds(List<LibraryNavGroup> groups) {
+  return [
+    for (final group in groups)
+      for (final type in group.types) type.kind,
+  ];
+}
+
+List<String> _groupProviders(LibraryNavGroup group) {
+  final providers = <String>{};
+  for (final type in group.types) {
+    providers.addAll(type.providers);
+  }
+  final ordered = providers.toList()..sort();
+  return ordered;
 }

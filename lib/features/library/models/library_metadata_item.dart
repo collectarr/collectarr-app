@@ -9,6 +9,7 @@ class LibraryMetadataItem {
     this.displayTitle,
     this.localizedTitle,
     this.originalTitle,
+    this.titleExtension,
     this.searchAliases,
         this.sortKey,
     this.itemNumber,
@@ -38,6 +39,7 @@ class LibraryMetadataItem {
     this.language,
     this.ageRating,
     this.audienceRating,
+    this.trailerUrls = const <TrailerLink>[],
     }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
   static const _unset = Object();
@@ -48,6 +50,7 @@ class LibraryMetadataItem {
     final String? displayTitle;
     final String? localizedTitle;
     final String? originalTitle;
+    final String? titleExtension;
     final List<String>? searchAliases;
     final String? sortKey;
   final String? itemNumber;
@@ -77,6 +80,7 @@ class LibraryMetadataItem {
   final String? language;
   final String? ageRating;
     final String? audienceRating;
+    final List<TrailerLink> trailerUrls;
 
     String get kind => mediaKind.apiValue;
 
@@ -88,6 +92,7 @@ class LibraryMetadataItem {
     displayTitle: item.displayTitle,
     localizedTitle: item.localizedTitle,
     originalTitle: item.originalTitle,
+    titleExtension: item.titleExtension,
     searchAliases: item.searchAliases,
     sortKey: item.sortKey,
       itemNumber: item.itemNumber,
@@ -117,6 +122,7 @@ class LibraryMetadataItem {
       language: item.language,
       ageRating: item.ageRating,
             audienceRating: item.audienceRating,
+      trailerUrls: item.trailerUrls,
     );
   }
 
@@ -128,6 +134,7 @@ class LibraryMetadataItem {
     Object? displayTitle = _unset,
     Object? localizedTitle = _unset,
     Object? originalTitle = _unset,
+    Object? titleExtension = _unset,
     Object? searchAliases = _unset,
     Object? sortKey = _unset,
     Object? itemNumber = _unset,
@@ -157,6 +164,7 @@ class LibraryMetadataItem {
     Object? language = _unset,
     Object? ageRating = _unset,
         Object? audienceRating = _unset,
+    List<TrailerLink>? trailerUrls,
   }) {
     return LibraryMetadataItem(
       id: id ?? this.id,
@@ -172,6 +180,9 @@ class LibraryMetadataItem {
       originalTitle: identical(originalTitle, _unset)
           ? this.originalTitle
           : originalTitle as String?,
+      titleExtension: identical(titleExtension, _unset)
+          ? this.titleExtension
+          : titleExtension as String?,
       searchAliases: identical(searchAliases, _unset)
           ? this.searchAliases
           : searchAliases as List<String>?,
@@ -257,6 +268,7 @@ class LibraryMetadataItem {
       audienceRating: identical(audienceRating, _unset)
           ? this.audienceRating
           : audienceRating as String?,
+      trailerUrls: trailerUrls ?? this.trailerUrls,
     );
   }
 
@@ -269,6 +281,7 @@ class LibraryMetadataItem {
     displayTitle: displayTitle,
     localizedTitle: localizedTitle,
     originalTitle: originalTitle,
+    titleExtension: titleExtension,
     searchAliases: searchAliases,
     sortKey: sortKey,
       itemNumber: itemNumber,
@@ -300,6 +313,7 @@ class LibraryMetadataItem {
       language: language,
       ageRating: ageRating,
             audienceRating: audienceRating,
+      trailerUrls: trailerUrls,
     );
   }
 

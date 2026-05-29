@@ -79,6 +79,7 @@ class LibraryBody extends StatelessWidget {
     this.db,
     this.pinnedGroupModes = const {},
     this.onTogglePinGroupMode,
+    this.onManageBuckets,
     this.desktopToolbarBand,
   });
 
@@ -145,6 +146,7 @@ class LibraryBody extends StatelessWidget {
   final LocalDatabase? db;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final VoidCallback? onManageBuckets;
   final Widget? desktopToolbarBand;
 
   @override
@@ -209,6 +211,7 @@ class LibraryBody extends StatelessWidget {
                 onActivateItem: onActivateItem,
                 onToggleSelectionItem: onToggleSelectionItem,
                 onOpenItem: onOpenItem,
+                onEditItem: (item) => onEditItem(item, item.source.ownedItem),
                 onBoxSelectionChanged: onBoxSelectionChanged,
                 onSortChanged: onSortChanged,
                 onColumnWidthChanged: onColumnWidthChanged,
@@ -306,6 +309,7 @@ class LibraryBody extends StatelessWidget {
                         ? null
                         : () => onBucketChanged(null),
                     onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                    onManageBuckets: onManageBuckets,
                     pinnedGroupModes: pinnedGroupModes,
                     onTogglePinGroupMode: onTogglePinGroupMode,
                   ),

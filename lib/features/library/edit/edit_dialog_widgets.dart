@@ -21,6 +21,7 @@ const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 ThemeData editDialogTheme({
   Color? seedColor,
   AppThemePalette palette = kDefaultAppThemePalette,
+  bool compactDesktop = false,
 }) {
   final accent = seedColor ?? palette.accent;
   final base = palette.isDark
@@ -65,16 +66,36 @@ ThemeData editDialogTheme({
       filled: true,
       fillColor: palette.field,
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      labelStyle: TextStyle(color: palette.textMuted),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: compactDesktop ? 9 : 10,
+        vertical: compactDesktop ? 7 : 8,
+      ),
+      floatingLabelBehavior:
+          compactDesktop ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
+      labelStyle: TextStyle(
+        color: palette.textMuted,
+        fontSize: compactDesktop ? 12 : null,
+      ),
+      floatingLabelStyle: TextStyle(
+        color: accent,
+        fontSize: compactDesktop ? 12 : null,
+        fontWeight: compactDesktop ? FontWeight.w700 : null,
+      ),
+      hintStyle: TextStyle(
+        color: palette.textMuted.withValues(alpha: 0.7),
+        fontSize: compactDesktop ? 12 : null,
+      ),
       border: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
+        borderRadius: BorderRadius.circular(compactDesktop ? 3 : 4),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
+        borderRadius: BorderRadius.circular(compactDesktop ? 3 : 4),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: accent),
+        borderRadius: BorderRadius.circular(compactDesktop ? 3 : 4),
       ),
     ),
     textTheme: base.textTheme.apply(
@@ -104,7 +125,7 @@ class EditTabShell extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final content = ListView(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
           children: children,
         );
         if (cover == null || constraints.maxWidth < 720) {
@@ -115,7 +136,7 @@ class EditTabShell extends StatelessWidget {
           children: [
             Container(
               width: 204,
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: appPalette(context).field,
                 border: Border(right: BorderSide(color: appPalette(context).divider)),
@@ -168,7 +189,7 @@ class EditSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Material(
         color: p.gridCanvas,
         shape: Border(
@@ -178,7 +199,7 @@ class EditSection extends StatelessWidget {
           bottom: BorderSide(color: p.surfaceBright),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(11),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -187,10 +208,10 @@ class EditSection extends StatelessWidget {
                 style: TextStyle(
                   color: accent,
                   fontWeight: FontWeight.w900,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: 8),
               child,
             ],
           ),
@@ -213,12 +234,12 @@ class EditTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 36,
+      height: 34,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 17),
-          const SizedBox(width: 5),
+          Icon(icon, size: 16),
+          const SizedBox(width: 4),
           Text(label),
         ],
       ),
@@ -276,7 +297,7 @@ class EditMiniBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         child: Text(
           label,
           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),

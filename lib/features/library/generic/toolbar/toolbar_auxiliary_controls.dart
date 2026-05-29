@@ -26,7 +26,7 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: palette.textPrimary,
         );
-    final dropdownWidth = measureLibraryToolbarDropdownWidth(
+    final menuWidth = measureLibraryToolbarDropdownWidth(
       context,
       labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
       textStyle: dropdownTextStyle,
@@ -36,8 +36,18 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
       horizontalPadding: 24,
       minWidth: 132,
     );
+    final triggerWidth = measureLibraryToolbarDropdownWidth(
+      context,
+      labels: [collectionStatusScope.label],
+      textStyle: dropdownTextStyle,
+      leadingWidth: 20,
+      leadingSpacing: 8,
+      trailingWidth: 24,
+      horizontalPadding: 24,
+      minWidth: 0,
+    );
     return SizedBox(
-      width: dropdownWidth,
+      width: triggerWidth,
       child: PopupMenuButton<LibraryCollectionStatusScope>(
         key: const Key('collection-status-scope-dropdown'),
         tooltip: 'Collection status scope',
@@ -51,7 +61,7 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
         constraints: const BoxConstraints(
           minWidth: 0,
           maxWidth: double.infinity,
-        ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
+        ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
         shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
           for (final scope in LibraryCollectionStatusScope.values)
@@ -276,9 +286,43 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
     final palette = appPalette(context);
     final availableLetters = letters
         .map((letter) => letter.trim().toUpperCase())
-        .where((letter) => letter.length == 1)
+        .where(
+          (letter) =>
+              letter == '#' ||
+              letter == '0-9' ||
+              (letter.length == 1 && RegExp(r'[A-Z]').hasMatch(letter)),
+        )
         .toSet();
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const alphabet = [
+      '#',
+      '0-9',
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'Q',
+      'R',
+      'S',
+      'T',
+      'U',
+      'V',
+      'W',
+      'X',
+      'Y',
+      'Z',
+    ];
 
     Widget buildLetterButton({
       required String label,
@@ -358,7 +402,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                       enabled: true,
                       onTap: () => onLetterSelected(null),
                     ),
-                    for (final letter in alphabet.split(''))
+                    for (final letter in alphabet)
                       buildLetterButton(
                         label: letter,
                         selected: selectedLetter == letter,

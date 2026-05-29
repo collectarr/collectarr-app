@@ -35,7 +35,26 @@ class LibrarySelectionControls extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        LibraryToolbarStat(label: 'Selected', value: selectedCount),
+        FilledButton.tonalIcon(
+          onPressed: callbacks.onBulkEdit,
+          icon: const Icon(Icons.edit_outlined, size: 16),
+          label: const Text('Edit'),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+        ),
+        const SizedBox(width: 6),
+        FilledButton.tonalIcon(
+          onPressed: callbacks.onBulkRemove,
+          icon: const Icon(Icons.delete_outline, size: 16),
+          label: const Text('Remove'),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            foregroundColor: Theme.of(context).colorScheme.error,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+        ),
         const SizedBox(width: 6),
         PopupMenuButton<_BulkAction>(
           tooltip: 'Bulk actions',
@@ -111,6 +130,8 @@ class LibrarySelectionControls extends StatelessWidget {
             icon: Icons.close,
           ),
         ),
+        const SizedBox(width: 8),
+        LibraryToolbarStat(label: 'Selected', value: selectedCount),
       ],
     );
   }

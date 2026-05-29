@@ -429,6 +429,7 @@ sealed class CatalogItem {
     this.displayTitle,
     this.localizedTitle,
     this.originalTitle,
+    this.titleExtension,
     this.searchAliases,
     this.sortKey,
     this.itemNumber,
@@ -465,6 +466,7 @@ sealed class CatalogItem {
     String? displayTitle,
     String? localizedTitle,
     String? originalTitle,
+    String? titleExtension,
     List<String>? searchAliases,
     String? sortKey,
     String? itemNumber,
@@ -505,6 +507,7 @@ sealed class CatalogItem {
       displayTitle: displayTitle,
       localizedTitle: localizedTitle,
       originalTitle: originalTitle,
+      titleExtension: titleExtension,
       searchAliases: _normalizeStringList(searchAliases),
       sortKey: sortKey,
       itemNumber: itemNumber,
@@ -666,6 +669,7 @@ sealed class CatalogItem {
       displayTitle: json['display_title'] as String?,
       localizedTitle: json['localized_title'] as String?,
       originalTitle: json['original_title'] as String?,
+      titleExtension: json['title_extension'] as String?,
       searchAliases: (json['search_aliases'] as List<dynamic>?)
           ?.whereType<String>()
           .toList(growable: false),
@@ -719,6 +723,7 @@ sealed class CatalogItem {
   final String? displayTitle;
   final String? localizedTitle;
   final String? originalTitle;
+  final String? titleExtension;
   final List<String>? searchAliases;
   final String? sortKey;
   final String? itemNumber;
@@ -865,6 +870,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
         displayTitle: common.displayTitle,
         localizedTitle: common.localizedTitle,
         originalTitle: common.originalTitle,
+        titleExtension: common.titleExtension,
         searchAliases: common.searchAliases,
           sortKey: common.sortKey,
           itemNumber: common.itemNumber,
@@ -1061,6 +1067,7 @@ class _CatalogItemCommon {
     this.displayTitle,
     this.localizedTitle,
     this.originalTitle,
+    this.titleExtension,
     this.searchAliases,
     this.sortKey,
     this.itemNumber,
@@ -1095,6 +1102,7 @@ class _CatalogItemCommon {
   final String? displayTitle;
   final String? localizedTitle;
   final String? originalTitle;
+  final String? titleExtension;
   final List<String>? searchAliases;
   final String? sortKey;
   final String? itemNumber;
