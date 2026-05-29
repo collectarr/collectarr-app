@@ -60,6 +60,7 @@ sealed class LibraryWorkspaceEntry {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
     this.editions = const <CatalogEdition>[],
     required this.updatedAt,
     this.rawPlatforms,
@@ -126,6 +127,7 @@ sealed class LibraryWorkspaceEntry {
     String? country,
     String? language,
     String? ageRating,
+    String? audienceRating,
     List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
     List<TrailerLink>? trailerUrls,
@@ -186,6 +188,7 @@ sealed class LibraryWorkspaceEntry {
       country: country,
       language: language,
       ageRating: ageRating,
+      audienceRating: audienceRating,
       editions: _copyEditionList(editions),
       updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
@@ -296,6 +299,7 @@ sealed class LibraryWorkspaceEntry {
     String? fallbackCountry,
     String? fallbackLanguage,
     String? fallbackAgeRating,
+    String? fallbackAudienceRating,
     bool isOwned = false,
     bool isWishlisted = false,
     bool isTracked = false,
@@ -350,6 +354,7 @@ sealed class LibraryWorkspaceEntry {
       country: fallbackCountry,
       language: edition.language ?? fallbackLanguage,
       ageRating: fallbackAgeRating,
+      audienceRating: fallbackAudienceRating,
       series: fallbackSeries,
       publishing: fallbackPublishing,
       video: fallbackVideo,
@@ -414,6 +419,7 @@ sealed class LibraryWorkspaceEntry {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
@@ -512,6 +518,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           country: common.country,
           language: common.language,
           ageRating: common.ageRating,
+          audienceRating: common.audienceRating,
           editions: common.editions,
           updatedAt: common.updatedAt,
           rawPlatforms: common.rawPlatforms,
@@ -734,6 +741,7 @@ class _LibraryWorkspaceCommon {
     required this.country,
     required this.language,
     required this.ageRating,
+    required this.audienceRating,
     required this.editions,
     required this.updatedAt,
     required this.rawPlatforms,
@@ -794,6 +802,7 @@ class _LibraryWorkspaceCommon {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;

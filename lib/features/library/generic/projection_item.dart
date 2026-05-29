@@ -106,6 +106,7 @@ class LibraryProjectionItem {
       country: item.country,
       language: item.language,
       ageRating: item.ageRating,
+      audienceRating: item.audienceRating,
       editions: resolvedEditions,
       updatedAt: source.updatedAt,
       trailerUrls: item.trailerUrls,

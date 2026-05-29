@@ -111,6 +111,7 @@ class CatalogCacheRepository {
                 releaseStatus: Value(music?.releaseStatus),
                 language: Value(item.language),
                 ageRating: Value(item.ageRating),
+                audienceRating: Value(item.audienceRating),
                 imprint: Value(publishing?.imprint),
                 subtitle: Value(publishing?.subtitle),
                 seriesGroup: Value(publishing?.seriesGroup),
@@ -288,6 +289,7 @@ class CatalogCacheRepository {
       country: row.country,
       language: row.language,
       ageRating: row.ageRating,
+      audienceRating: row.audienceRating,
     );
   }
 

@@ -468,7 +468,9 @@ String genericBucketForItemMode(
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.audienceRating => 'No audience rating',
+    LibraryGroupMode.audienceRating => entry.audienceRating?.trim().isNotEmpty == true
+      ? entry.audienceRating!
+      : 'No audience rating',
     LibraryGroupMode.color => _stringBucket(
         entry.video?.color,
         'No color',

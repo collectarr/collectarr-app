@@ -45,6 +45,7 @@ class CatalogCache extends Table {
   TextColumn get releaseStatus => text().nullable()();
   TextColumn get language => text().nullable()();
   TextColumn get ageRating => text().nullable()();
+  TextColumn get audienceRating => text().nullable()();
   TextColumn get imprint => text().nullable()();
   TextColumn get subtitle => text().nullable()();
   TextColumn get seriesGroup => text().nullable()();
@@ -385,7 +386,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -399,6 +400,9 @@ class LocalDatabase extends _$LocalDatabase {
           await customStatement(
             'UPDATE owned_items_cache SET created_at = updated_at WHERE created_at IS NULL',
           );
+        }
+        if (from < 4) {
+          await m.addColumn(catalogCache, catalogCache.audienceRating);
         }
       },
     );

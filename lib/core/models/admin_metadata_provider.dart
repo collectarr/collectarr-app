@@ -320,6 +320,7 @@ class AdminProviderPreview {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
     this.creators = const [],
     this.characters = const [],
     this.storyArcs = const [],
@@ -350,6 +351,7 @@ class AdminProviderPreview {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<ProviderPreviewCredit> creators;
   final List<String> characters;
   final List<String> storyArcs;
@@ -426,6 +428,7 @@ class AdminProviderPreview {
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
+      audienceRating: json['audience_rating'] as String?,
       creators: (json['creators'] as List<dynamic>?)
               ?.map((e) =>
                   ProviderPreviewCredit.fromJson(e as Map<String, dynamic>))

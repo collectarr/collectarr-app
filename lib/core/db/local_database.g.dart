@@ -252,6 +252,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
       'age_rating', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audienceRatingMeta =
+      const VerificationMeta('audienceRating');
+  @override
+  late final GeneratedColumn<String> audienceRating = GeneratedColumn<String>(
+      'audience_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _imprintMeta =
       const VerificationMeta('imprint');
   @override
@@ -359,6 +365,7 @@ class $CatalogCacheTable extends CatalogCache
         releaseStatus,
         language,
         ageRating,
+        audienceRating,
         imprint,
         subtitle,
         seriesGroup,
@@ -606,6 +613,12 @@ class $CatalogCacheTable extends CatalogCache
       context.handle(_ageRatingMeta,
           ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
     }
+    if (data.containsKey('audience_rating')) {
+      context.handle(
+          _audienceRatingMeta,
+          audienceRating.isAcceptableOrUnknown(
+              data['audience_rating']!, _audienceRatingMeta));
+    }
     if (data.containsKey('imprint')) {
       context.handle(_imprintMeta,
           imprint.isAcceptableOrUnknown(data['imprint']!, _imprintMeta));
@@ -753,6 +766,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}language']),
       ageRating: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      audienceRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}audience_rating']),
       imprint: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}imprint']),
       subtitle: attachedDatabase.typeMapping
@@ -827,6 +842,7 @@ class CatalogCacheData extends DataClass
   final String? releaseStatus;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final String? imprint;
   final String? subtitle;
   final String? seriesGroup;
@@ -880,6 +896,7 @@ class CatalogCacheData extends DataClass
       this.releaseStatus,
       this.language,
       this.ageRating,
+      this.audienceRating,
       this.imprint,
       this.subtitle,
       this.seriesGroup,
@@ -1010,6 +1027,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || ageRating != null) {
       map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || audienceRating != null) {
+      map['audience_rating'] = Variable<String>(audienceRating);
     }
     if (!nullToAbsent || imprint != null) {
       map['imprint'] = Variable<String>(imprint);
@@ -1164,6 +1184,9 @@ class CatalogCacheData extends DataClass
       ageRating: ageRating == null && nullToAbsent
           ? const Value.absent()
           : Value(ageRating),
+      audienceRating: audienceRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audienceRating),
       imprint: imprint == null && nullToAbsent
           ? const Value.absent()
           : Value(imprint),
@@ -1243,6 +1266,7 @@ class CatalogCacheData extends DataClass
       releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
       language: serializer.fromJson<String?>(json['language']),
       ageRating: serializer.fromJson<String?>(json['ageRating']),
+      audienceRating: serializer.fromJson<String?>(json['audienceRating']),
       imprint: serializer.fromJson<String?>(json['imprint']),
       subtitle: serializer.fromJson<String?>(json['subtitle']),
       seriesGroup: serializer.fromJson<String?>(json['seriesGroup']),
@@ -1301,6 +1325,7 @@ class CatalogCacheData extends DataClass
       'releaseStatus': serializer.toJson<String?>(releaseStatus),
       'language': serializer.toJson<String?>(language),
       'ageRating': serializer.toJson<String?>(ageRating),
+      'audienceRating': serializer.toJson<String?>(audienceRating),
       'imprint': serializer.toJson<String?>(imprint),
       'subtitle': serializer.toJson<String?>(subtitle),
       'seriesGroup': serializer.toJson<String?>(seriesGroup),
@@ -1357,6 +1382,7 @@ class CatalogCacheData extends DataClass
           Value<String?> releaseStatus = const Value.absent(),
           Value<String?> language = const Value.absent(),
           Value<String?> ageRating = const Value.absent(),
+          Value<String?> audienceRating = const Value.absent(),
           Value<String?> imprint = const Value.absent(),
           Value<String?> subtitle = const Value.absent(),
           Value<String?> seriesGroup = const Value.absent(),
@@ -1435,6 +1461,8 @@ class CatalogCacheData extends DataClass
             releaseStatus.present ? releaseStatus.value : this.releaseStatus,
         language: language.present ? language.value : this.language,
         ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        audienceRating:
+            audienceRating.present ? audienceRating.value : this.audienceRating,
         imprint: imprint.present ? imprint.value : this.imprint,
         subtitle: subtitle.present ? subtitle.value : this.subtitle,
         seriesGroup: seriesGroup.present ? seriesGroup.value : this.seriesGroup,
@@ -1543,6 +1571,9 @@ class CatalogCacheData extends DataClass
           : this.releaseStatus,
       language: data.language.present ? data.language.value : this.language,
       ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      audienceRating: data.audienceRating.present
+          ? data.audienceRating.value
+          : this.audienceRating,
       imprint: data.imprint.present ? data.imprint.value : this.imprint,
       subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
       seriesGroup:
@@ -1609,6 +1640,7 @@ class CatalogCacheData extends DataClass
           ..write('releaseStatus: $releaseStatus, ')
           ..write('language: $language, ')
           ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
           ..write('imprint: $imprint, ')
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
@@ -1667,6 +1699,7 @@ class CatalogCacheData extends DataClass
         releaseStatus,
         language,
         ageRating,
+        audienceRating,
         imprint,
         subtitle,
         seriesGroup,
@@ -1724,6 +1757,7 @@ class CatalogCacheData extends DataClass
           other.releaseStatus == this.releaseStatus &&
           other.language == this.language &&
           other.ageRating == this.ageRating &&
+          other.audienceRating == this.audienceRating &&
           other.imprint == this.imprint &&
           other.subtitle == this.subtitle &&
           other.seriesGroup == this.seriesGroup &&
@@ -1779,6 +1813,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> releaseStatus;
   final Value<String?> language;
   final Value<String?> ageRating;
+  final Value<String?> audienceRating;
   final Value<String?> imprint;
   final Value<String?> subtitle;
   final Value<String?> seriesGroup;
@@ -1833,6 +1868,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseStatus = const Value.absent(),
     this.language = const Value.absent(),
     this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
     this.imprint = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
@@ -1888,6 +1924,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseStatus = const Value.absent(),
     this.language = const Value.absent(),
     this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
     this.imprint = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
@@ -1946,6 +1983,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? releaseStatus,
     Expression<String>? language,
     Expression<String>? ageRating,
+    Expression<String>? audienceRating,
     Expression<String>? imprint,
     Expression<String>? subtitle,
     Expression<String>? seriesGroup,
@@ -2002,6 +2040,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (releaseStatus != null) 'release_status': releaseStatus,
       if (language != null) 'language': language,
       if (ageRating != null) 'age_rating': ageRating,
+      if (audienceRating != null) 'audience_rating': audienceRating,
       if (imprint != null) 'imprint': imprint,
       if (subtitle != null) 'subtitle': subtitle,
       if (seriesGroup != null) 'series_group': seriesGroup,
@@ -2059,6 +2098,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? releaseStatus,
       Value<String?>? language,
       Value<String?>? ageRating,
+      Value<String?>? audienceRating,
       Value<String?>? imprint,
       Value<String?>? subtitle,
       Value<String?>? seriesGroup,
@@ -2113,6 +2153,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       releaseStatus: releaseStatus ?? this.releaseStatus,
       language: language ?? this.language,
       ageRating: ageRating ?? this.ageRating,
+      audienceRating: audienceRating ?? this.audienceRating,
       imprint: imprint ?? this.imprint,
       subtitle: subtitle ?? this.subtitle,
       seriesGroup: seriesGroup ?? this.seriesGroup,
@@ -2255,6 +2296,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (ageRating.present) {
       map['age_rating'] = Variable<String>(ageRating.value);
     }
+    if (audienceRating.present) {
+      map['audience_rating'] = Variable<String>(audienceRating.value);
+    }
     if (imprint.present) {
       map['imprint'] = Variable<String>(imprint.value);
     }
@@ -2338,6 +2382,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('releaseStatus: $releaseStatus, ')
           ..write('language: $language, ')
           ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
           ..write('imprint: $imprint, ')
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
@@ -12369,6 +12414,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> releaseStatus,
   Value<String?> language,
   Value<String?> ageRating,
+  Value<String?> audienceRating,
   Value<String?> imprint,
   Value<String?> subtitle,
   Value<String?> seriesGroup,
@@ -12425,6 +12471,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> releaseStatus,
   Value<String?> language,
   Value<String?> ageRating,
+  Value<String?> audienceRating,
   Value<String?> imprint,
   Value<String?> subtitle,
   Value<String?> seriesGroup,
@@ -12579,6 +12626,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get ageRating => $composableBuilder(
       column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get imprint => $composableBuilder(
       column: $table.imprint, builder: (column) => ColumnFilters(column));
@@ -12768,6 +12819,10 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get ageRating => $composableBuilder(
       column: $table.ageRating, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get imprint => $composableBuilder(
       column: $table.imprint, builder: (column) => ColumnOrderings(column));
 
@@ -12937,6 +12992,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get ageRating =>
       $composableBuilder(column: $table.ageRating, builder: (column) => column);
 
+  GeneratedColumn<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating, builder: (column) => column);
+
   GeneratedColumn<String> get imprint =>
       $composableBuilder(column: $table.imprint, builder: (column) => column);
 
@@ -13038,6 +13096,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> releaseStatus = const Value.absent(),
             Value<String?> language = const Value.absent(),
             Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
             Value<String?> imprint = const Value.absent(),
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
@@ -13093,6 +13152,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseStatus: releaseStatus,
             language: language,
             ageRating: ageRating,
+            audienceRating: audienceRating,
             imprint: imprint,
             subtitle: subtitle,
             seriesGroup: seriesGroup,
@@ -13148,6 +13208,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> releaseStatus = const Value.absent(),
             Value<String?> language = const Value.absent(),
             Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
             Value<String?> imprint = const Value.absent(),
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
@@ -13203,6 +13264,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseStatus: releaseStatus,
             language: language,
             ageRating: ageRating,
+            audienceRating: audienceRating,
             imprint: imprint,
             subtitle: subtitle,
             seriesGroup: seriesGroup,

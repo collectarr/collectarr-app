@@ -140,6 +140,7 @@ void main() {
         genres: const ['Drama'],
         country: 'USA',
         language: 'English',
+        audienceRating: '8.1',
         video: const VideoCatalogDetails(color: 'Color'),
         series: const CatalogSeriesDetails(seasonNumber: 1),
         updatedAt: DateTime.utc(2026, 5, 1),
@@ -156,7 +157,7 @@ void main() {
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audienceRating),
-      'No audience rating',
+      '8.1',
     );
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.color),

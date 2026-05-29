@@ -118,6 +118,7 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
       country: preview.country,
       language: preview.language,
       ageRating: preview.ageRating,
+      audienceRating: preview.audienceRating,
       creators: [
         for (final creator in preview.creators)
           {
