@@ -160,7 +160,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   total: counts.total,
                   pluralLabel: type.pluralLabel,
                 ),
-                if (counts.totalPricePaidCents > 0)
+                if (counts.totalPricePaidCents > 0 ||
+                    counts.totalCoverPriceCents > 0 ||
+                    counts.totalSellPriceCents > 0)
                   LibraryCollectionValueChip(
                     totalPaidCents: counts.totalPricePaidCents,
                     totalCoverCents: counts.totalCoverPriceCents,
@@ -585,7 +587,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: palette.textPrimary,
         );
     final dropdownWidth = measureLibraryToolbarDropdownWidth(
       context,
@@ -671,10 +673,10 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 6),
-                            const Icon(
+                            Icon(
                               Icons.arrow_drop_down,
                               size: 18,
-                              color: Colors.white,
+                              color: palette.textPrimary,
                             ),
                           ],
                         ),

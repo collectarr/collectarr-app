@@ -1,5 +1,7 @@
 part of 'page.dart';
 
+import 'package:cached_network_image/cached_network_image.dart';
+
 final _random = math.Random();
 
 /// Collection actions, context menu handling, bulk operations, and barcode
@@ -395,12 +397,12 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
                 leading: publicUrl != null && publicUrl.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(4),
-                        child: Image.network(
-                          publicUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: publicUrl,
                           width: 40,
                           height: 56,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
+                          errorWidget: (_, __, ___) =>
                               const Icon(Icons.broken_image, size: 40),
                         ),
                       )

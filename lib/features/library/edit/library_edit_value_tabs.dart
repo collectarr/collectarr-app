@@ -119,14 +119,16 @@ Widget buildLibraryEditValueTab({
             ValueContextChip(
               icon: Icons.payments_outlined,
               label: 'Paid',
-              value: priceController.text.isEmpty ? '—' : '4${priceController.text}',
+              value: priceController.text.isEmpty
+                  ? '—'
+                  : '\$${priceController.text}',
             ),
             ValueContextChip(
               icon: Icons.sell_outlined,
               label: 'Sell',
               value: sellPriceController.text.isEmpty
                   ? '—'
-                  : '4${sellPriceController.text}',
+                  : '\$${sellPriceController.text}',
             ),
             ValueContextChip(
               icon: Icons.calendar_month_outlined,
@@ -140,7 +142,7 @@ Widget buildLibraryEditValueTab({
               label: 'Market value',
               value: marketValueController.text.isEmpty
                   ? '—'
-                  : '4${marketValueController.text}',
+              : '\$${marketValueController.text}',
             ),
           ],
         ),

@@ -403,6 +403,11 @@ class LocalDatabase extends _$LocalDatabase {
         }
         if (from < 4) {
           await m.addColumn(catalogCache, catalogCache.audienceRating);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.labelType);
+          await m.addColumn(
+            ownedItemsCache,
+            ownedItemsCache.certificationNumber,
+          );
         }
       },
     );

@@ -77,6 +77,9 @@ void main() {
     expect(find.text('Collection status'), findsOneWidget);
     expect(find.text('Value summary'), findsOneWidget);
     expect(find.text('Purchase date: 2024-01-02'), findsOneWidget);
+    expect(find.text('\$12.50'), findsOneWidget);
+    expect(find.text('\$25.00'), findsOneWidget);
+    expect(find.text('\$20.00'), findsOneWidget);
   });
 
   testWidgets('sold tab renders sold summary when sold date exists', (
