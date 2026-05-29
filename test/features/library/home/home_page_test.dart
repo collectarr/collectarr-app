@@ -59,7 +59,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -144,7 +146,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -206,7 +210,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -266,7 +272,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -328,7 +336,9 @@ void main() {
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
           localDatabaseProvider.overrideWithValue(db),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
