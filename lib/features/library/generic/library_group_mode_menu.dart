@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_menu
 import 'package:collectarr_app/features/library/workspace/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
 
-enum LibraryGroupModeMenuAction { toggleSidebar }
+enum LibraryGroupModeMenuAction { disableFolders }
 
 class LibraryGroupModeMenuButton extends StatelessWidget {
   const LibraryGroupModeMenuButton({
@@ -126,9 +126,13 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
     selection.then((value) {
       if (value is LibraryGroupMode) {
         onChanged(value);
-      } else if (value == LibraryGroupModeMenuAction.toggleSidebar &&
+        if (!sidebarVisible && onSidebarVisibilityChanged != null) {
+          onSidebarVisibilityChanged!(true);
+        }
+      } else if (value == LibraryGroupModeMenuAction.disableFolders &&
           onSidebarVisibilityChanged != null) {
-        onSidebarVisibilityChanged!(!sidebarVisible);
+        onChanged(LibraryGroupMode.title);
+        onSidebarVisibilityChanged!(false);
       }
     });
   }
@@ -194,16 +198,13 @@ class _LibraryGroupModeDropdownMenuState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (widget.hasSidebarVisibilityToggle)
+                if (widget.hasSidebarVisibilityToggle && widget.sidebarVisible)
                   _buildActionItem(
                     context,
-                    icon: widget.sidebarVisible
-                        ? Icons.folder_off_outlined
-                        : Icons.folder_open_outlined,
-                    label:
-                        widget.sidebarVisible ? 'No folders' : 'Show folders',
+                    icon: Icons.folder_off_outlined,
+                    label: 'No folders',
                     onTap: () => Navigator.of(context).pop(
-                      LibraryGroupModeMenuAction.toggleSidebar,
+                      LibraryGroupModeMenuAction.disableFolders,
                     ),
                   ),
                 Padding(
@@ -332,18 +333,32 @@ class _LibraryGroupModeDropdownMenuState
   Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
     final isPinned = _pinnedModes.contains(mode);
     final isSelected = mode == widget.selectedMode;
+    final indentColor = isSelected
+        ? libraryToolbarMenuText(context)
+        : libraryToolbarMenuBorder(context).withValues(alpha: 0.9);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       child: LibraryWorkspaceMenuRow(
         label: genericGroupModeLabel(mode, widget.type),
-        leadingWidth: 16,
-        leading: isSelected
-            ? Icon(
+        leadingWidth: 24,
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              key: ValueKey('groupModeIndentBar_${mode.name}'),
+              width: 2,
+              height: 18,
+              color: indentColor,
+            ),
+            const SizedBox(width: 6),
+            if (isSelected)
+              Icon(
                 Icons.check,
                 size: 16,
                 color: libraryToolbarMenuText(context),
-              )
-            : null,
+              ),
+          ],
+        ),
         trailing: widget.onTogglePin == null
             ? null
             : GestureDetector(
@@ -374,7 +389,9 @@ class _LibraryGroupModeDropdownMenuState
                 ),
               ),
         onTap: () => Navigator.of(context).pop(mode),
-        padding: const EdgeInsets.fromLTRB(24, 8, 8, 8),
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+        backgroundColor:
+            isSelected ? libraryToolbarMenuHover(context) : Colors.transparent,
         textStyle: TextStyle(
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
           color: libraryToolbarMenuText(context),

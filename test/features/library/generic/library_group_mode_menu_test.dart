@@ -24,6 +24,7 @@ void main() {
     );
 
     expect(find.text('No folders'), findsOneWidget);
+  expect(find.text('Show folders'), findsNothing);
     expect(find.text('Manage Favorites'), findsOneWidget);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Folders'), findsOneWidget);
@@ -37,6 +38,14 @@ void main() {
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('groupModeIndentBar_releaseYear')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('groupModeIndentBar_director')),
+      findsWidgets,
+    );
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
     await tester.ensureVisible(editionHeader);
@@ -46,5 +55,28 @@ void main() {
     expect(find.text('Format'), findsOneWidget);
     expect(find.text('Audio Tracks'), findsOneWidget);
     expect(find.text('Edition Release Date'), findsOneWidget);
+  });
+
+  testWidgets('hidden grouping menu does not offer a show folders toggle', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeDropdownMenu(
+            type: moviesLibraryConfig,
+            selectedMode: LibraryGroupMode.releaseYear,
+            availableModes: libraryGroupModesForType(moviesLibraryConfig),
+            initialPinnedModes: const {},
+            sidebarVisible: false,
+            hasSidebarVisibilityToggle: true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('No folders'), findsNothing);
+    expect(find.text('Show folders'), findsNothing);
+    expect(find.text('Main'), findsOneWidget);
   });
 }

@@ -361,9 +361,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                           state.withSortColumn(column, _adapter.viewProfile),
                     ),
                     onEditSort: showSortDialogFlow,
-                    onSidebarVisibilityChanged: (isVisible) => _updateViewState(
-                      (state) => state.copyWith(isSidebarVisible: isVisible),
-                    ),
+                    onSidebarVisibilityChanged: _setGroupingPanelVisibility,
                     onViewModeChanged: (mode) => _updateViewState(
                       (state) => state.copyWith(viewMode: mode),
                     ),
@@ -593,9 +591,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onSidebarWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(sidebarWidth: width),
       ),
-      onSidebarVisibilityChanged: (isVisible) => _updateViewState(
-        (state) => state.copyWith(isSidebarVisible: isVisible),
-      ),
+      onSidebarVisibilityChanged: _setGroupingPanelVisibility,
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),
@@ -657,9 +653,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         counts: projection.counts,
         onEditColumns: showColumnChooserFlow,
         onEditSort: showSortDialogFlow,
-        onSidebarVisibilityChanged: (isVisible) => _updateViewState(
-          (state) => state.copyWith(isSidebarVisible: isVisible),
-        ),
+        onSidebarVisibilityChanged: _setGroupingPanelVisibility,
         onViewModeChanged: (mode) => _updateViewState(
           (state) => state.copyWith(viewMode: mode),
         ),
@@ -1445,6 +1439,20 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   ) {
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
+    unawaited(_adapter.viewProfile.save(next));
+  }
+
+  void _setGroupingPanelVisibility(bool isVisible) {
+    final current = _viewState ?? _adapter.viewProfile.defaults();
+    final next = current.copyWith(isSidebarVisible: isVisible);
+    setState(() {
+      _viewState = next;
+      if (!isVisible) {
+        _groupMode = LibraryGroupMode.title;
+        _selectedBucket = null;
+        _scopeHistory = const [];
+      }
+    });
     unawaited(_adapter.viewProfile.save(next));
   }
 
