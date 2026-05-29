@@ -283,25 +283,45 @@ class _LibraryGroupModeDropdownMenuState
   }) {
     final expanded = _expandedSections[label] ?? false;
     final hasSelectedMode = modes.contains(widget.selectedMode);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: LibraryWorkspaceMenuTreeHeader(
-            label: label,
-            expanded: expanded,
-            highlighted: hasSelectedMode,
-            onTap: () {
-              setState(() {
-                _expandedSections[label] = !expanded;
-              });
-            },
+    final branchColor = hasSelectedMode
+        ? libraryToolbarMenuText(context).withValues(alpha: 0.95)
+        : libraryToolbarMenuBorder(context).withValues(alpha: 0.9);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Stack(
+        children: [
+          Positioned(
+            left: 10,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              key: ValueKey('groupModeSectionBar_$label'),
+              width: 2,
+              color: branchColor,
+            ),
           ),
-        ),
-        if (expanded)
-          for (final mode in modes) _buildModeItem(context, mode),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LibraryWorkspaceMenuTreeHeader(
+                  label: label,
+                  expanded: expanded,
+                  highlighted: hasSelectedMode,
+                  onTap: () {
+                    setState(() {
+                      _expandedSections[label] = !expanded;
+                    });
+                  },
+                ),
+                if (expanded)
+                  for (final mode in modes) _buildModeItem(context, mode),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -333,32 +353,18 @@ class _LibraryGroupModeDropdownMenuState
   Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
     final isPinned = _pinnedModes.contains(mode);
     final isSelected = mode == widget.selectedMode;
-    final indentColor = isSelected
-        ? libraryToolbarMenuText(context)
-        : libraryToolbarMenuBorder(context).withValues(alpha: 0.9);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: LibraryWorkspaceMenuRow(
         label: genericGroupModeLabel(mode, widget.type),
-        leadingWidth: 24,
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              key: ValueKey('groupModeIndentBar_${mode.name}'),
-              width: 2,
-              height: 18,
-              color: indentColor,
-            ),
-            const SizedBox(width: 6),
-            if (isSelected)
-              Icon(
+        leadingWidth: 16,
+        leading: isSelected
+            ? Icon(
                 Icons.check,
                 size: 16,
                 color: libraryToolbarMenuText(context),
-              ),
-          ],
-        ),
+              )
+            : null,
         trailing: widget.onTogglePin == null
             ? null
             : GestureDetector(
@@ -389,7 +395,7 @@ class _LibraryGroupModeDropdownMenuState
                 ),
               ),
         onTap: () => Navigator.of(context).pop(mode),
-        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
         backgroundColor:
             isSelected ? libraryToolbarMenuHover(context) : Colors.transparent,
         textStyle: TextStyle(

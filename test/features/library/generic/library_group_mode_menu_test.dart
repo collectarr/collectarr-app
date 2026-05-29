@@ -39,12 +39,12 @@ void main() {
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('groupModeIndentBar_releaseYear')),
+      find.byKey(const ValueKey('groupModeSectionBar_Main')),
       findsOneWidget,
     );
     expect(
-      find.byKey(const ValueKey('groupModeIndentBar_director')),
-      findsWidgets,
+      find.byKey(const ValueKey('groupModeSectionBar_Cast & Crew')),
+      findsOneWidget,
     );
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
