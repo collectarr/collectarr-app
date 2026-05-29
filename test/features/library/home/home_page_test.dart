@@ -59,7 +59,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -88,7 +90,6 @@ void main() {
     await tester.tap(find.byTooltip('Library tools'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Quick views'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
 
     await tester.tap(find.text('Statistics'));
@@ -108,13 +109,6 @@ void main() {
     expect(find.text('Hades'), findsNothing);
     await tester.tap(find.text('Clear filter'));
     await pumpUntilSettled(tester);
-    expect(find.text('Hades'), findsWidgets);
-
-    await tester.tap(find.byTooltip('Refresh metadata'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Refresh games metadata'), findsOneWidget);
-    expect(find.text('Source: Collectarr Core search'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
   });
 
@@ -152,7 +146,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -214,7 +210,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -229,8 +227,6 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Add Podcasts'), findsOneWidget);
-    expect(find.byTooltip('Scan barcode'), findsOneWidget);
-    expect(find.byTooltip('Refresh metadata'), findsOneWidget);
     expect(find.byTooltip('Library tools'), findsOneWidget);
     expect(find.text('Search podcasts...'), findsOneWidget);
     expect(find.text('[All Podcasts]'), findsOneWidget);
@@ -276,7 +272,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -338,7 +336,9 @@ void main() {
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
           localDatabaseProvider.overrideWithValue(db),
         ],
-        child: const MaterialApp(home: LibraryHomePage()),
+        child: MaterialApp(
+          home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
+        ),
       ),
     );
     await pumpUntilSettled(tester);

@@ -88,6 +88,7 @@ class _BundleBrowserApiClient extends ApiClient {
         primaryCount: 3,
         bonusCount: 0,
       ),
+      providerLinks: [],
       members: [
         BundleReleaseMember(
           itemId: 'vol-1',

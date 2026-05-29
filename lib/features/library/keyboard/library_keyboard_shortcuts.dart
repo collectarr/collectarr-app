@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 /// Defines the keyboard shortcuts available in the library view.
 /// Wrap this around the library page to enable shortcuts.
@@ -99,23 +100,25 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
+      backgroundColor: palette.panel,
       title: const Text('Keyboard Shortcuts'),
       content: SizedBox(
         width: 360,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _shortcutRow('Ctrl+F', 'Search'),
-            _shortcutRow('Ctrl+N', 'Add item'),
-            _shortcutRow('Ctrl+B', 'Scan barcode'),
-            _shortcutRow('F5 / Ctrl+R', 'Refresh'),
-            _shortcutRow('Ctrl+A', 'Select all'),
-            _shortcutRow('Escape', 'Clear / Close'),
-            _shortcutRow('Delete', 'Remove item'),
-            _shortcutRow('↓ / J', 'Next item'),
-            _shortcutRow('↑ / K', 'Previous item'),
-            _shortcutRow('Ctrl+I', 'Toggle inspector'),
+            _shortcutRow(context, 'Ctrl+F', 'Search'),
+            _shortcutRow(context, 'Ctrl+N', 'Add item'),
+            _shortcutRow(context, 'Ctrl+B', 'Scan barcode'),
+            _shortcutRow(context, 'F5 / Ctrl+R', 'Refresh'),
+            _shortcutRow(context, 'Ctrl+A', 'Select all'),
+            _shortcutRow(context, 'Escape', 'Clear / Close'),
+            _shortcutRow(context, 'Delete', 'Remove item'),
+            _shortcutRow(context, '↓ / J', 'Next item'),
+            _shortcutRow(context, '↑ / K', 'Previous item'),
+            _shortcutRow(context, 'Ctrl+I', 'Toggle inspector'),
           ],
         ),
       ),
@@ -128,7 +131,8 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
     );
   }
 
-  Widget _shortcutRow(String shortcut, String description) {
+  Widget _shortcutRow(BuildContext context, String shortcut, String description) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -138,14 +142,17 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: palette.panelRaised,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.white24),
+                border: Border.all(color: palette.divider),
               ),
               child: Text(
                 shortcut,
-                style: const TextStyle(
-                    fontSize: 12, fontFamily: 'monospace'),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'monospace',
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ),
           ),

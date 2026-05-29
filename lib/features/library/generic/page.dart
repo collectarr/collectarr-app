@@ -21,6 +21,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
@@ -33,7 +34,12 @@ import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
+import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
+import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -58,10 +64,12 @@ import 'package:collectarr_app/features/library/selection/library_bulk_actions.d
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
@@ -69,11 +77,16 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_view
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 part 'page_edit_handler.dart';
@@ -86,11 +99,13 @@ class LibraryPage extends ConsumerStatefulWidget {
     required this.type,
     required this.topBar,
     required this.accent,
+    required this.routeUri,
   });
 
   final LibraryTypeConfig type;
   final Widget topBar;
   final Color accent;
+  final Uri routeUri;
 
   @override
   ConsumerState<LibraryPage> createState() => _LibraryPageState();
@@ -105,6 +120,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   String? _selectedLetter;
   LibraryLinkedMetadataFilter? _linkedMetadataFilter;
   LibraryQuickView? _quickView;
+  var _collectionStatusScope = LibraryCollectionStatusScope.all;
   LibraryGroupMode? _groupMode;
   var _selection = LibrarySelectionState.empty();
   String? _selectionAnchorId;
@@ -116,6 +132,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Set<LibraryGroupMode> _pinnedGroupModes = const {};
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
+  String? _activeSmartListId;
+  String? _activeSmartListName;
+  Set<LibraryWorkspacePreset> _pinnedViewPresets = const {};
+  Set<String> _pinnedSortFavoriteIds = const {};
+  Set<String> _pinnedColumnFavoriteKeys = const {};
+  List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
+  List<LibrarySidebarScopeSnapshot> _scopeHistory = const [];
+  bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
 
@@ -131,8 +155,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
     _primeCachedViewPreferences();
+    _applyRouteStateFromUri(widget.routeUri);
     unawaited(_loadViewState());
     unawaited(_loadViewPreferences());
+    unawaited(_loadColumnFavoritePresets());
     unawaited(
       loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
     );
@@ -141,21 +167,35 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   Future<void> _loadViewPreferences() async {
     try {
-    final loadToken = ++_viewPreferenceLoadToken;
-    final expectedKind = widget.type.workspace.kind;
-    final quickView = await _viewPrefs.readQuickView();
-    final groupMode = await _viewPrefs.readGroupMode();
-    final pinnedModes = await _viewPrefs.readPinnedGroupModes();
-    if (!mounted ||
-        loadToken != _viewPreferenceLoadToken ||
-        widget.type.workspace.kind != expectedKind) {
-      return;
-    }
-    setState(() {
-      _quickView = quickView;
-      _groupMode = groupMode;
-      _pinnedGroupModes = pinnedModes;
-    });
+      final loadToken = ++_viewPreferenceLoadToken;
+      final expectedKind = widget.type.workspace.kind;
+      final quickView = await _viewPrefs.readQuickView();
+      final groupMode = await _viewPrefs.readGroupMode();
+      final pinnedModes = await _viewPrefs.readPinnedGroupModes();
+      final pinnedViewPresets = await _viewPrefs.readPinnedViewPresets(
+        fallback: libraryDefaultPinnedViewPresetsForType(widget.type),
+      );
+      final pinnedSortFavoriteIds = await _viewPrefs.readPinnedSortFavoriteIds(
+        fallback: libraryDefaultPinnedSortFavoriteIdsForType(widget.type),
+      );
+      final pinnedColumnFavoriteKeys =
+          await _viewPrefs.readPinnedColumnFavoriteKeys(
+        fallback: libraryDefaultPinnedColumnFavoriteKeysForType(widget.type),
+      );
+      if (!mounted ||
+          loadToken != _viewPreferenceLoadToken ||
+          widget.type.workspace.kind != expectedKind) {
+        return;
+      }
+      setState(() {
+        _quickView = quickView;
+        _groupMode = groupMode;
+        _pinnedGroupModes = pinnedModes;
+        _pinnedViewPresets = pinnedViewPresets;
+        _pinnedSortFavoriteIds = pinnedSortFavoriteIds;
+        _pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
+        _applyRouteStateFromUri(widget.routeUri);
+      });
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
@@ -170,6 +210,16 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     _quickView = _viewPrefs.cachedQuickView;
     _groupMode = _viewPrefs.cachedGroupMode;
     _pinnedGroupModes = _viewPrefs.cachedPinnedGroupModes;
+    _pinnedViewPresets = _viewPrefs.cachedPinnedViewPresets.isNotEmpty
+        ? _viewPrefs.cachedPinnedViewPresets
+        : libraryDefaultPinnedViewPresetsForType(widget.type);
+    _pinnedSortFavoriteIds = _viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
+        ? _viewPrefs.cachedPinnedSortFavoriteIds
+        : libraryDefaultPinnedSortFavoriteIdsForType(widget.type);
+    _pinnedColumnFavoriteKeys =
+        _viewPrefs.cachedPinnedColumnFavoriteKeys.isNotEmpty
+            ? _viewPrefs.cachedPinnedColumnFavoriteKeys
+            : libraryDefaultPinnedColumnFavoriteKeysForType(widget.type);
   }
 
   @override
@@ -180,6 +230,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedBucket = null;
       _selectedLetter = null;
       _linkedMetadataFilter = null;
+      _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _pinnedViewPresets = const {};
+      _pinnedSortFavoriteIds = const {};
+      _pinnedColumnFavoriteKeys = const {};
+      _savedColumnFavoritePresets = const [];
+      _scopeHistory = const [];
       _selectionAnchorId = null;
       _videoShelfDrilldownTitleItemId = null;
       _videoShelfDrilldownReleaseId = null;
@@ -192,25 +250,28 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           );
       unawaited(_loadViewState());
       unawaited(_loadViewPreferences());
+      unawaited(_loadColumnFavoritePresets());
       unawaited(
         loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
       );
       unawaited(_loadActiveLoanIds());
+    } else if (oldWidget.routeUri.toString() != widget.routeUri.toString()) {
+      _applyRouteStateFromUri(widget.routeUri);
     }
   }
 
   Future<void> _loadActiveLoanIds() async {
     try {
-    final db = ref.read(localDatabaseProvider);
-    final repo = LoanRepository(db);
-    final activeLoans = await repo.getActiveLoans();
-    final next = <String>{
-      for (final loan in activeLoans) loan.ownedItemId,
-    };
-    if (!mounted) {
-      return;
-    }
-    setState(() => _activeLoanOwnedItemIds = next);
+      final db = ref.read(localDatabaseProvider);
+      final repo = LoanRepository(db);
+      final activeLoans = await repo.getActiveLoans();
+      final next = <String>{
+        for (final loan in activeLoans) loan.ownedItemId,
+      };
+      if (!mounted) {
+        return;
+      }
+      setState(() => _activeLoanOwnedItemIds = next);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
@@ -249,11 +310,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
     final allOwnedCopies = ownedCopiesValue.maybeWhen(
-      data: (items) => items.where((item) => !item.isDeleted).toList(growable: false),
+      data: (items) =>
+          items.where((item) => !item.isDeleted).toList(growable: false),
       orElse: () => const <OwnedItem>[],
     );
     final allWishlistItems = wishlistValue.maybeWhen(
-      data: (items) => items.where((item) => !item.isDeleted).toList(growable: false),
+      data: (items) =>
+          items.where((item) => !item.isDeleted).toList(growable: false),
       orElse: () => const <WishlistItem>[],
     );
     if (shelfState != null) {
@@ -267,119 +330,183 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             shelfState,
             viewState,
           );
+    final useFab =
+        ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return LibraryKeyboardShortcuts(
-      onSelectAll: projection == null ? null : () => _selectAllVisible(projection),
-      onDelete: projection == null ? null : () => _removeVisibleSelection(projection),
+      onSelectAll:
+          projection == null ? null : () => _selectAllVisible(projection),
+      onDelete:
+          projection == null ? null : () => _removeVisibleSelection(projection),
       child: Scaffold(
-        backgroundColor: kAppCanvas,
+        backgroundColor: appPalette(context).canvas,
+        floatingActionButton: useFab
+            ? FloatingActionButton(
+                onPressed: () => showAddDialogFlow(),
+                backgroundColor: widget.accent,
+                child: const Icon(Icons.add, color: Colors.white),
+              )
+            : null,
         body: SafeArea(
           bottom: false,
-          child: Column(
+          child: Stack(
             children: [
-              widget.topBar,
-              LibraryToolbar(
-                type: widget.type,
-                searchController: _searchController,
-                viewState: viewState,
-                adapter: _adapter,
-                onAdd: () => showAddDialogFlow(),
-                onScan: scanBarcodeFlow,
-                onSearchChanged: (value) => setState(() {}),
-                onEditColumns: showColumnChooserFlow,
-                onSortChanged: (column) => _updateViewState(
-                  (state) => state.withSortColumn(column, _adapter.viewProfile),
-                ),
-                onEditSort: showSortDialogFlow,
-                onViewModeChanged: (mode) => _updateViewState(
-                  (state) => state.copyWith(viewMode: mode),
-                ),
-                onDetailsLayoutChanged: (layout) => _updateViewState(
-                  (state) => state.copyWith(detailsLayout: layout),
-                ),
-                onCoverSizeChanged: (size) => _updateViewState(
-                  (state) => state.copyWith(coverSize: size),
-                ),
-                selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
-                onClearBucket: _clearToolbarSearchChip,
-                onRefreshMetadata: () => showMetadataRefreshFlow(
-                  projection,
-                ),
-                quickView: _quickView,
-                onQuickViewSelected: (view) {
-                  final next = _quickView == view ? null : view;
-                  setState(() => _quickView = next);
-                  unawaited(_viewPrefs.writeQuickView(next));
-                },
-                hasActiveFilters: _hasActiveFilter,
-                onClearFilters: _clearFilters,
-                onEditFilters: () => showFilterDialogFlow(projection),
-                activeFilterCount: _filterSelection.activeFilterCount,
-                onRandomPick:
-                    projection != null && projection.filteredItems.isNotEmpty
+              Column(
+                children: [
+                  widget.topBar,
+                  LibraryToolbar(
+                    type: widget.type,
+                    searchController: _searchController,
+                    viewState: viewState,
+                    adapter: _adapter,
+                    onAdd: () => showAddDialogFlow(),
+                    onScan: scanBarcodeFlow,
+                    onSearchChanged: (value) => _mutateSidebarScope(() {
+                      _activeSmartListId = null;
+                      _activeSmartListName = null;
+                    }),
+                    onEditColumns: showColumnChooserFlow,
+                    onSortChanged: (column) => _updateViewState(
+                      (state) =>
+                          state.withSortColumn(column, _adapter.viewProfile),
+                    ),
+                    onEditSort: showSortDialogFlow,
+                    onSidebarVisibilityChanged: _setGroupingPanelVisibility,
+                    onViewModeChanged: (mode) => _updateViewState(
+                      (state) => state.copyWith(viewMode: mode),
+                    ),
+                    onDetailsLayoutChanged: (layout) => _updateViewState(
+                      (state) => state.copyWith(detailsLayout: layout),
+                    ),
+                    onCoverSizeChanged: (size) => _updateViewState(
+                      (state) => state.copyWith(coverSize: size),
+                    ),
+                    selectedBucket:
+                        _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+                    onClearBucket: _clearToolbarSearchChip,
+                    onRefreshMetadata: () => showMetadataRefreshFlow(
+                      projection,
+                    ),
+                    collectionStatusScope: _collectionStatusScope,
+                    onCollectionStatusScopeChanged: _setCollectionStatusScope,
+                    quickView: _quickView,
+                    onQuickViewSelected: (view) =>
+                        _setQuickView(_quickView == view ? null : view),
+                    availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
+                      (projection?.filteredItems ??
+                              const <LibraryProjectionItem>[])
+                          .map((i) => i.entry.resolvedTitle),
+                    ),
+                    selectedLetter: _selectedLetter,
+                    onLetterSelected: _setSelectedLetter,
+                    activeViewPreset: _activeViewPreset,
+                    onViewPresetSelected: _applyViewPreset,
+                    sortFavorites: _sortFavorites,
+                    activeSortFavoriteId: _activeSortFavorite?.id,
+                    onSortFavoriteSelected: _applySortFavorite,
+                    pinnedViewPresets: _pinnedViewPresets,
+                    onTogglePinnedViewPreset: _togglePinnedViewPreset,
+                    pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
+                    onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
+                    columnFavoritePresets: _columnFavoritePresets,
+                    activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
+                    onColumnFavoriteSelected: _applyColumnFavorite,
+                    pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
+                    onTogglePinnedColumnFavorite: _togglePinnedColumnFavorite,
+                    canJumpToIssue: _canJumpToIssue(projection),
+                    onJumpToIssueSubmitted: projection == null
+                        ? null
+                        : (value) => _jumpToIssue(projection, value),
+                    hasActiveFilters: _hasActiveFilter,
+                    onClearFilters: _clearFilters,
+                    onEditFilters: () => showFilterDialogFlow(projection),
+                    activeFilterCount: _filterSelection.activeFilterCount,
+                    onRandomPick: projection != null &&
+                            projection.filteredItems.isNotEmpty
                         ? () => pickRandomItemFlow(projection)
                         : null,
-                onDownloadAllCovers: shelfState != null
-                    ? () => downloadAllCoversFlow(shelfState)
-                    : null,
-                counts: projection?.counts ?? const LibraryToolbarCounts(),
-                shelfState: shelfState,
-                onEditConditionPickList: widget.type.conditions.isNotEmpty
-                  ? showConditionPickListEditorFlow
-                  : null,
-                onEditGradePickList: widget.type.grades.isNotEmpty
-                  ? showGradePickListEditorFlow
-                  : null,
-                onEditTagPickList: showTagPickListEditorFlow,
-                onSmartLists: () => showSmartListsFlow(shelfState),
-                onFolders: showUserFoldersFlow,
-                onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
-                  ? showReadingQueueFlow
-                  : null,
-                onTransferFieldData: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => showTransferFieldDataFlow(projection)
-                    : null,
-                onReassignIndex: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => reassignIndexFlow(projection)
-                    : null,
-                onPrintReport: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => printReportFlow(projection)
-                    : null,
-                onShareCollection: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => shareCollectionFlow(projection)
-                    : null,
-                selectionEnabled: _selection.enabled,
-                selectedCount: _selection.selectedCount,
-                selectionCallbacks: (
-                  onClearSelection: () => setState(() {
-                    _selection = _selection.clear();
-                    _selectionAnchorId = null;
-                  }),
-                  onBulkEdit: () => bulkEditFlow(projection),
-                  onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
-                  onBulkMoveToWishlist: () => bulkMoveToWishlistFlow(projection),
-                  onBulkRemove: () => bulkRemoveFlow(projection),
-                  onBulkRefreshMetadata: () => bulkRefreshMetadataFlow(projection),
-                ),
-              ),
-              Expanded(
-                child: shelf.when(
-                  data: (state) => _buildBody(
-                    projection ?? _projectionForShelf(state, viewState),
-                    viewState,
-                    allOwnedCopies: allOwnedCopies,
-                    allWishlistItems: allWishlistItems,
+                    onScanCover: () => scanCoverFlow(),
+                    onDownloadAllCovers: shelfState != null
+                        ? () => downloadAllCoversFlow(shelfState)
+                        : null,
+                    counts: projection?.counts ?? const LibraryToolbarCounts(),
+                    shelfState: shelfState,
+                    onEditConditionPickList: widget.type.conditions.isNotEmpty
+                        ? showConditionPickListEditorFlow
+                        : null,
+                    onEditGradePickList: widget.type.grades.isNotEmpty
+                        ? showGradePickListEditorFlow
+                        : null,
+                    onEditTagPickList: showTagPickListEditorFlow,
+                    onSmartLists: () => showSmartListsFlow(shelfState),
+                    onFolders: showUserFoldersFlow,
+                    onReadingQueue:
+                        libraryShowsReadingQueue(widget.type.workspace.kind)
+                            ? showReadingQueueFlow
+                            : null,
+                    onTransferFieldData: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => showTransferFieldDataFlow(projection)
+                        : null,
+                    onReassignIndex: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => reassignIndexFlow(projection)
+                        : null,
+                    onPrintReport: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => printReportFlow(projection)
+                        : null,
+                    onShareCollection: projection != null &&
+                            projection.filteredItems.isNotEmpty
+                        ? () => shareCollectionFlow(projection)
+                        : null,
+                    selectionEnabled: _selection.enabled,
+                    selectedCount: _selection.selectedCount,
+                    includeDesktopSecondaryBand: false,
+                    selectionCallbacks: (
+                      onClearSelection: () => setState(() {
+                            _selection = _selection.clear();
+                            _selectionAnchorId = null;
+                          }),
+                      onBulkEdit: () => bulkEditFlow(projection),
+                      onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
+                      onBulkMoveToWishlist: () =>
+                          bulkMoveToWishlistFlow(projection),
+                      onBulkRemove: () => bulkRemoveFlow(projection),
+                      onBulkRefreshMetadata: () =>
+                          bulkRefreshMetadataFlow(projection),
+                    ),
                   ),
-                  error: (error, _) => AppErrorCard(
-                    message: error.toString(),
+                  Expanded(
+                    child: shelf.when(
+                      data: (state) => _buildBody(
+                        projection ?? _projectionForShelf(state, viewState),
+                        viewState,
+                        allOwnedCopies: allOwnedCopies,
+                        allWishlistItems: allWishlistItems,
+                      ),
+                      error: (error, _) => AppErrorCard(
+                        message: error.toString(),
+                      ),
+                      loading: () => const SkeletonGrid(),
+                    ),
                   ),
-                  loading: () =>
-                      const SkeletonGrid(),
-                ),
+                  LibraryCollectionTabBar(
+                    mediaKind: widget.type.workspace.kind.apiValue,
+                    activeSmartListId: _activeSmartListId,
+                    onSmartListSelected: _applySmartList,
+                    onAllSelected: _clearSmartList,
+                  ),
+                ],
               ),
+              if (_isScanningCover)
+                Positioned.fill(
+                  child: AbsorbPointer(
+                    child: ColoredBox(
+                      color: appPalette(context).panel.withValues(alpha: 0.48),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -389,18 +516,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   Widget _buildBody(
     LibraryProjection projection,
-    LibraryWorkspaceViewState viewState,
-    {
+    LibraryWorkspaceViewState viewState, {
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
-  }
-  ) {
+  }) {
     final workspaceOverride = _buildVideoShelfDrilldown(
       projection,
       viewState,
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
+    final trimmedSearchQuery = _searchController.text.trim();
+    final seriesStatusSummary = _seriesStatusSummaryForProjection(projection);
     return LibraryBody(
       type: widget.type,
       adapter: _adapter,
@@ -415,6 +542,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => showAddDialogFlow(),
       onClearFilters: _clearFilters,
+      onEditFilters: () => showFilterDialogFlow(projection),
       selectionEnabled: _selection.enabled,
       selectedItemIds: _selection.itemIds,
       onApplySelection: _applySelection,
@@ -430,18 +558,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           _selectedId = ids.contains(_selectedId) ? _selectedId : ids.first;
         }
       }),
-      onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
-      onGroupModeChanged: (mode) {
-        setState(() {
-          _groupMode = mode;
-          _selectedBucket = null;
-          final shelfState = ref.read(shelfProvider).asData?.value;
-          if (shelfState != null) {
-            _ensureFacetBucketsLoaded(shelfState, mode);
-          }
-        });
-        unawaited(_viewPrefs.writeGroupMode(mode));
-      },
+      onBucketChanged: _setSelectedBucket,
+      onGroupModeChanged: _setGroupMode,
       onSortChanged: (column) => _updateViewState(
         (state) => state.withSortColumn(column, _adapter.viewProfile),
       ),
@@ -464,6 +582,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onSidebarWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(sidebarWidth: width),
       ),
+      onSidebarVisibilityChanged: _setGroupingPanelVisibility,
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),
@@ -477,23 +596,35 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onRemoveWishlist: (item) => runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
-      onEditItem: (item, ownedItem) => unawaited(showEditDialog(item, ownedItem)),
+      onEditItem: (item, ownedItem) =>
+          unawaited(showEditDialog(item, ownedItem)),
       workspaceOverride: workspaceOverride,
-        onItemContextMenu: (item, position) =>
+      onItemContextMenu: (item, position) =>
           handleItemContextMenu(projection, item, position),
-      onFilterByValue: (value) => setState(() {
-        _linkedMetadataFilter =
-            _linkedMetadataFilter?.value == value
-                ? null
-                : LibraryLinkedMetadataFilter(value: value);
-        _selectedBucket = null;
-        _selectedLetter = null;
-      }),
+      sidebarBreadcrumbs: _sidebarBreadcrumbs,
+      onSidebarNavigateBack:
+          _scopeHistory.isEmpty ? null : _navigateSidebarBack,
+      onSidebarNavigateToBreadcrumb: _navigateSidebarToBreadcrumb,
+      searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
+      activeSmartListName: _activeSmartListName,
+      quickView: _quickView,
+      collectionStatusScope: _collectionStatusScope,
+      collectionStatusScopeLabel:
+          _collectionStatusScope == LibraryCollectionStatusScope.all
+              ? null
+              : _collectionStatusScope.label,
+      linkedMetadataFilterLabel: _linkedMetadataFilter?.chipLabel,
+      sidebarSelectedLetter: _selectedLetter,
+      seriesStatusSummary: seriesStatusSummary,
+      filterSelection: _filterSelection,
+      preferToolbarAlphabet: true,
+      onCollectionStatusScopeChanged: _toggleCollectionStatusScope,
+      onFilterByValue: _toggleLinkedMetadataFilter,
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
         projection.filteredItems.map((i) => i.entry.resolvedTitle),
       ),
-      onLetterSelected: (letter) => setState(() => _selectedLetter = letter),
+      onLetterSelected: _setSelectedLetter,
       db: ref.read(localDatabaseProvider),
       pinnedGroupModes: _pinnedGroupModes,
       onTogglePinGroupMode: (mode) {
@@ -506,6 +637,78 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         setState(() => _pinnedGroupModes = updated);
         unawaited(_viewPrefs.writePinnedGroupModes(updated));
       },
+      desktopToolbarBand: LibraryDesktopSecondaryToolbar(
+        type: widget.type,
+        viewState: viewState,
+        adapter: _adapter,
+        counts: projection.counts,
+        onEditColumns: showColumnChooserFlow,
+        onEditSort: showSortDialogFlow,
+        onSidebarVisibilityChanged: _setGroupingPanelVisibility,
+        onViewModeChanged: (mode) => _updateViewState(
+          (state) => state.copyWith(viewMode: mode),
+        ),
+        onDetailsLayoutChanged: (layout) => _updateViewState(
+          (state) => state.copyWith(detailsLayout: layout),
+        ),
+        onCoverSizeChanged: (size) => _updateViewState(
+          (state) => state.copyWith(coverSize: size),
+        ),
+        selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+        quickView: _quickView,
+        hasActiveFilters: _hasActiveFilter,
+        onQuickViewSelected: (view) =>
+            _setQuickView(_quickView == view ? null : view),
+        onClearFilters: _clearFilters,
+        onEditFilters: () => showFilterDialogFlow(projection),
+        activeFilterCount: _filterSelection.activeFilterCount,
+        activeSortFavoriteId: _activeSortFavorite?.id,
+        sortFavorites: _sortFavorites,
+        onRandomPick: projection.filteredItems.isNotEmpty
+            ? () => pickRandomItemFlow(projection)
+            : null,
+        onDownloadAllCovers: ref.read(shelfProvider).asData?.value != null
+            ? () => downloadAllCoversFlow(ref.read(shelfProvider).asData!.value)
+            : null,
+        shelfState: ref.read(shelfProvider).asData?.value,
+        onSmartLists: () =>
+            showSmartListsFlow(ref.read(shelfProvider).asData?.value),
+        onFolders: showUserFoldersFlow,
+        onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
+            ? showReadingQueueFlow
+            : null,
+        onEditConditionPickList: widget.type.conditions.isNotEmpty
+            ? showConditionPickListEditorFlow
+            : null,
+        onEditGradePickList:
+            widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
+        onEditTagPickList: showTagPickListEditorFlow,
+        onTransferFieldData: projection.filteredItems.isNotEmpty
+            ? () => showTransferFieldDataFlow(projection)
+            : null,
+        onReassignIndex: projection.filteredItems.isNotEmpty
+            ? () => reassignIndexFlow(projection)
+            : null,
+        onPrintReport: projection.filteredItems.isNotEmpty
+            ? () => printReportFlow(projection)
+            : null,
+        onShareCollection: projection.filteredItems.isNotEmpty
+            ? () => shareCollectionFlow(projection)
+            : null,
+        groupMode: _groupMode,
+        pinnedGroupModes: _pinnedGroupModes,
+        onTogglePinGroupMode: (mode) {
+          final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
+          if (updated.contains(mode)) {
+            updated.remove(mode);
+          } else {
+            updated.add(mode);
+          }
+          setState(() => _pinnedGroupModes = updated);
+          unawaited(_viewPrefs.writePinnedGroupModes(updated));
+        },
+        onGroupModeChanged: _setGroupMode,
+      ),
     );
   }
 
@@ -528,25 +731,31 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       selectedBucket: _usesExternalFacetBuckets(mode) ? null : _selectedBucket,
       selectedItemId: _selectedId,
       quickView: _quickView,
+      collectionStatusScope: _collectionStatusScope,
       groupMode: mode,
       overrideBuckets: facetBuckets?.buckets,
       constrainedItemIds: constrainedItemIds,
       filterSelection: _filterSelection,
       customFieldValuesByItem: customFieldValuesByItem,
-      customFieldValuesByDefinitionByItem:
-          customFieldValuesByDefinitionByItem,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       activeLoanOwnedItemIds: _activeLoanOwnedItemIds,
     );
   }
 
   LibraryGroupMode get _activeGroupMode =>
-      _groupMode ?? libraryDefaultGroupMode(widget.type);
+      _groupMode ??
+      ((_viewState ?? _adapter.viewProfile.defaults()).isSidebarVisible
+        ? libraryDefaultGroupMode(widget.type)
+        : LibraryGroupMode.title);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||
       _linkedMetadataFilter != null ||
       _selectedBucket != null ||
+      _selectedLetter != null ||
+      _collectionStatusScope != LibraryCollectionStatusScope.all ||
       _quickView != null ||
+      _activeSmartListId != null ||
       _filterSelection.hasActiveFilters;
 
   bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
@@ -656,35 +865,550 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     ]);
   }
 
-  void _clearFilters() {
-    setState(() {
-      _selectedBucket = null;
-      _linkedMetadataFilter = null;
-      _quickView = null;
-      _filterSelection = LibraryFilterSelection.none;
-      _searchController.clear();
-      _selectionAnchorId = null;
+  Future<void> _loadColumnFavoritePresets() async {
+    try {
+      final presets =
+          await LibraryColumnPresetStore(widget.type.workspace).read();
+      if (!mounted) {
+        return;
+      }
+      setState(() => _savedColumnFavoritePresets = presets);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_page',
+        message: 'Failed to load column favorites.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  List<LibraryTableColumnPreset> get _columnFavoritePresets {
+    final merged = <LibraryTableColumnPreset>[];
+    final seenLabels = <String>{};
+    for (final preset in [
+      ...libraryColumnFavoritesForType(widget.type),
+      ..._savedColumnFavoritePresets,
+    ]) {
+      final normalized = preset.label.trim().toLowerCase();
+      if (normalized.isEmpty || !seenLabels.add(normalized)) {
+        continue;
+      }
+      merged.add(preset);
+    }
+    return merged;
+  }
+
+  String? get _activeColumnFavoriteLabel {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    for (final preset in _columnFavoritePresets) {
+      if (setEquals(preset.columns, viewState.visibleColumns)) {
+        return preset.label;
+      }
+    }
+    return null;
+  }
+
+  List<LibrarySortFavorite> get _sortFavorites =>
+      librarySortFavoritesForType(widget.type);
+
+  LibrarySortFavorite? get _activeSortFavorite {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    for (final favorite in _sortFavorites) {
+      if (_sameSortRules(favorite.rules, viewState.sortRules)) {
+        return favorite;
+      }
+    }
+    return null;
+  }
+
+  LibraryWorkspacePreset? get _activeViewPreset {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    for (final preset in LibraryWorkspacePreset.values) {
+      final config = _adapter.viewProfile.presetConfig(preset);
+      if (viewState.viewMode == config.viewMode &&
+          viewState.detailsLayout == config.detailsLayout &&
+          viewState.coverSize == config.coverSize &&
+          setEquals(viewState.visibleColumns, config.visibleColumns)) {
+        return preset;
+      }
+    }
+    return null;
+  }
+
+  void _applyViewPreset(LibraryWorkspacePreset preset) {
+    _updateViewState((state) => state.withPreset(preset, _adapter.viewProfile));
+  }
+
+  void _togglePinnedViewPreset(LibraryWorkspacePreset preset) {
+    final next = Set<LibraryWorkspacePreset>.from(_pinnedViewPresets);
+    if (!next.add(preset)) {
+      next.remove(preset);
+    }
+    setState(() => _pinnedViewPresets = next);
+    unawaited(_viewPrefs.writePinnedViewPresets(next));
+  }
+
+  void _applySortFavorite(LibrarySortFavorite favorite) {
+    _updateViewState(
+      (state) => state.withSortRules(favorite.rules, _adapter.viewProfile),
+    );
+  }
+
+  void _togglePinnedSortFavorite(LibrarySortFavorite favorite) {
+    final next = Set<String>.from(_pinnedSortFavoriteIds);
+    if (!next.add(favorite.id)) {
+      next.remove(favorite.id);
+    }
+    setState(() => _pinnedSortFavoriteIds = next);
+    unawaited(_viewPrefs.writePinnedSortFavoriteIds(next));
+  }
+
+  void _applyColumnFavorite(LibraryTableColumnPreset preset) {
+    _updateViewState((state) => state.copyWith(visibleColumns: preset.columns));
+  }
+
+  void _togglePinnedColumnFavorite(LibraryTableColumnPreset preset) {
+    final key = libraryColumnFavoriteKey(preset);
+    final next = Set<String>.from(_pinnedColumnFavoriteKeys);
+    if (!next.add(key)) {
+      next.remove(key);
+    }
+    setState(() => _pinnedColumnFavoriteKeys = next);
+    unawaited(_viewPrefs.writePinnedColumnFavoriteKeys(next));
+  }
+
+  void _setCollectionStatusScope(LibraryCollectionStatusScope scope) {
+    _mutateSidebarScope(() {
+      _collectionStatusScope = scope;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
     });
   }
 
-  void _clearToolbarSearchChip() {
+  void _toggleCollectionStatusScope(LibraryCollectionStatusScope scope) {
+    _setCollectionStatusScope(
+      _collectionStatusScope == scope
+          ? LibraryCollectionStatusScope.all
+          : scope,
+    );
+  }
+
+  bool _canJumpToIssue(LibraryProjection? projection) {
+    if (projection == null ||
+        widget.type.workspace.kind != CatalogMediaKind.comic ||
+        _activeGroupMode != LibraryGroupMode.series ||
+        _selectedBucket == null) {
+      return false;
+    }
+    return _seriesBucketItems(projection).any(
+      (item) => _issueSortNumber(item.entry.itemNumber) != null,
+    );
+  }
+
+  Future<void> _jumpToIssue(
+    LibraryProjection projection,
+    String rawIssue,
+  ) async {
+    final normalizedIssue = rawIssue.trim();
+    if (normalizedIssue.isEmpty) {
+      return;
+    }
+    final match = _matchIssueInProjection(projection, normalizedIssue);
+    if (match == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Issue #$normalizedIssue was not found.')),
+      );
+      return;
+    }
+    _mutateSidebarScope(() {
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _quickView = null;
+      _filterSelection = LibraryFilterSelection.none;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _searchController.clear();
+    });
+    _selectItem(match.entry.id);
+  }
+
+  LibraryProjectionItem? _matchIssueInProjection(
+    LibraryProjection projection,
+    String rawIssue,
+  ) {
+    final target = int.tryParse(rawIssue.trim());
+    if (target == null) {
+      return null;
+    }
+    for (final item in _seriesBucketItems(projection)) {
+      if (_issueSortNumber(item.entry.itemNumber) == target) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  List<LibraryProjectionItem> _seriesBucketItems(LibraryProjection projection) {
+    final selectedBucket = _selectedBucket;
+    if (selectedBucket == null) {
+      return const [];
+    }
+    return [
+      for (final item in projection.allItems)
+        if (genericBucketForItemMode(
+                item, widget.type, LibraryGroupMode.series) ==
+            selectedBucket)
+          item,
+    ];
+  }
+
+  LibrarySeriesStatusSummary? _seriesStatusSummaryForProjection(
+    LibraryProjection projection,
+  ) {
+    if (_activeGroupMode != LibraryGroupMode.series ||
+        _selectedBucket == null) {
+      return null;
+    }
+    LibrarySeriesBucket? selectedBucket;
+    for (final bucket in projection.buckets) {
+      if (bucket.title == _selectedBucket) {
+        selectedBucket = bucket;
+        break;
+      }
+    }
+    if (selectedBucket == null) {
+      return null;
+    }
+
+    var wishlistCount = 0;
+    var forSaleCount = 0;
+    var onOrderCount = 0;
+    var soldCount = 0;
+    var catalogOnlyCount = 0;
+    for (final item in _seriesBucketItems(projection)) {
+      final ownedItem = item.source.ownedItem;
+      final status = item.entry.collectionStatus?.trim().toLowerCase();
+      if (ownedItem?.isSold == true) {
+        soldCount += 1;
+        continue;
+      }
+      if (status == 'for_sale') {
+        forSaleCount += 1;
+        continue;
+      }
+      if (status == 'on_order') {
+        onOrderCount += 1;
+        continue;
+      }
+      if (item.source.isWishlisted && !item.source.isOwned) {
+        wishlistCount += 1;
+        continue;
+      }
+      if (!item.source.isOwned && !item.source.isWishlisted) {
+        catalogOnlyCount += 1;
+      }
+    }
+
+    return LibrarySeriesStatusSummary(
+      title: selectedBucket.title,
+      totalCount: selectedBucket.count,
+      ownedCount: selectedBucket.ownedCount ?? 0,
+      wishlistCount: wishlistCount,
+      forSaleCount: forSaleCount,
+      onOrderCount: onOrderCount,
+      soldCount: soldCount,
+      catalogOnlyCount: catalogOnlyCount,
+      missingIssueSummary: selectedBucket.missingNumbers.isEmpty
+          ? null
+          : _formatIssueRanges(selectedBucket.missingNumbers),
+    );
+  }
+
+  bool _sameSortRules(List<LibrarySortRule> a, List<LibrarySortRule> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (var index = 0; index < a.length; index += 1) {
+      if (a[index] != b[index]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  int? _issueSortNumber(String? rawValue) {
+    if (rawValue == null || rawValue.trim().isEmpty) {
+      return null;
+    }
+    final match = RegExp(r'^\s*(\d+)').firstMatch(rawValue);
+    if (match == null) {
+      return null;
+    }
+    return int.tryParse(match.group(1)!);
+  }
+
+  String _formatIssueRanges(List<int> numbers) {
+    if (numbers.isEmpty) {
+      return '';
+    }
+    final sorted = numbers.toList(growable: false)..sort();
+    final labels = <String>[];
+    var start = sorted.first;
+    var end = start;
+    for (var index = 1; index < sorted.length; index += 1) {
+      final current = sorted[index];
+      if (current == end + 1) {
+        end = current;
+        continue;
+      }
+      labels.add(start == end ? '#$start' : '#$start-#$end');
+      start = current;
+      end = current;
+    }
+    labels.add(start == end ? '#$start' : '#$start-#$end');
+    return labels.take(8).join(', ');
+  }
+
+  List<String> get _sidebarBreadcrumbs {
+    return buildLibrarySidebarBreadcrumbs(
+      rootLabel: 'All ${widget.type.pluralLabel}',
+      history: _scopeHistory,
+      current: _captureSidebarScope(),
+      labelForScope: _sidebarScopeLabel,
+    );
+  }
+
+  void _setSelectedBucket(String? bucket) {
+    _mutateSidebarScope(() {
+      _selectedBucket = bucket;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+  }
+
+  void _setSelectedLetter(String? letter) {
+    _mutateSidebarScope(() {
+      _selectedLetter = letter;
+      _selectedBucket = null;
+      _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+  }
+
+  void _toggleLinkedMetadataFilter(String value) {
+    _mutateSidebarScope(() {
+      _linkedMetadataFilter = _linkedMetadataFilter?.value == value
+          ? null
+          : LibraryLinkedMetadataFilter(value: value);
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+  }
+
+  void _mutateSidebarScope(VoidCallback mutate) {
+    final previous = _captureSidebarScope();
+    mutate();
+    final next = _captureSidebarScope();
+    if (next == previous) {
+      return;
+    }
     setState(() {
+      _scopeHistory = updateLibrarySidebarScopeHistory(
+        history: _scopeHistory,
+        previous: previous,
+        next: next,
+      );
+    });
+    _syncRouteState();
+  }
+
+  LibrarySidebarScopeSnapshot _captureSidebarScope() {
+    return LibrarySidebarScopeSnapshot(
+      groupMode: _activeGroupMode,
+      selectedBucket: _selectedBucket,
+      selectedLetter: _selectedLetter,
+      linkedMetadataFilter: _linkedMetadataFilter,
+      collectionStatusScope: _collectionStatusScope,
+      quickView: _quickView,
+      filterSelection: _filterSelection,
+      activeSmartListId: _activeSmartListId,
+      activeSmartListName: _activeSmartListName,
+      searchQuery: _searchController.text.trim(),
+    );
+  }
+
+  void _applySidebarScopeSnapshot(LibrarySidebarScopeSnapshot snapshot) {
+    _groupMode = snapshot.groupMode;
+    _selectedBucket = snapshot.selectedBucket;
+    _selectedLetter = snapshot.selectedLetter;
+    _linkedMetadataFilter = snapshot.linkedMetadataFilter;
+    _collectionStatusScope = snapshot.collectionStatusScope;
+    _quickView = snapshot.quickView;
+    _filterSelection = snapshot.filterSelection;
+    _activeSmartListId = snapshot.activeSmartListId;
+    _activeSmartListName = snapshot.activeSmartListName;
+    _searchController.value = _searchController.value.copyWith(
+      text: snapshot.searchQuery,
+      selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
+      composing: TextRange.empty,
+    );
+  }
+
+  void _navigateSidebarBack() {
+    final navigation = popLibrarySidebarScopeHistory(_scopeHistory);
+    if (navigation == null) {
+      return;
+    }
+    setState(() {
+      _scopeHistory = navigation.history;
+      _applySidebarScopeSnapshot(navigation.target);
+    });
+    _syncRouteState();
+  }
+
+  void _navigateSidebarToBreadcrumb(int index) {
+    final navigation = navigateLibrarySidebarScopeHistoryToBreadcrumb(
+      history: _scopeHistory,
+      index: index,
+      rootScope: LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
+    );
+    if (navigation == null) {
+      return;
+    }
+    setState(() {
+      _scopeHistory = navigation.history;
+      _applySidebarScopeSnapshot(navigation.target);
+    });
+    _syncRouteState();
+  }
+
+  String _sidebarScopeLabel(LibrarySidebarScopeSnapshot snapshot) {
+    if (snapshot.selectedBucket != null) {
+      return '${genericGroupModeLabel(snapshot.groupMode, widget.type)}: ${snapshot.selectedBucket}';
+    }
+    if (snapshot.linkedMetadataFilter != null) {
+      return snapshot.linkedMetadataFilter!.chipLabel;
+    }
+    if (snapshot.collectionStatusScope != LibraryCollectionStatusScope.all) {
+      return snapshot.collectionStatusScope.label;
+    }
+    if (snapshot.selectedLetter != null) {
+      return 'Letter ${snapshot.selectedLetter}';
+    }
+    if (snapshot.activeSmartListName != null &&
+        snapshot.activeSmartListName!.trim().isNotEmpty) {
+      return snapshot.activeSmartListName!;
+    }
+    if (snapshot.quickView != null) {
+      return snapshot.quickView!.label;
+    }
+    if (snapshot.filterSelection.hasActiveFilters) {
+      return '${snapshot.filterSelection.activeFilterCount} filters';
+    }
+    if (snapshot.searchQuery.trim().isNotEmpty) {
+      return 'Search';
+    }
+    return 'All ${widget.type.pluralLabel}';
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _quickView = null;
+      _filterSelection = LibraryFilterSelection.none;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
+      _searchController.clear();
+      _selectionAnchorId = null;
+    });
+    _syncRouteState();
+  }
+
+  void _applySmartList(SmartList smartList) {
+    setState(() {
+      _activeSmartListId = smartList.id;
+      _activeSmartListName = smartList.name;
+      _filterSelection = smartList.filterSelection;
+      _quickView = smartList.quickView;
+      if (smartList.searchQuery != null) {
+        _searchController.text = smartList.searchQuery!;
+      } else {
+        _searchController.clear();
+      }
+      if (_viewState != null) {
+        if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
+          _viewState = _viewState!.withSortRules(
+            smartList.sortRules!,
+            _adapter.viewProfile,
+          );
+        } else if (smartList.sortColumn != null) {
+          _viewState = _viewState!.copyWith(
+            sortColumn: smartList.sortColumn,
+            sortAscending: smartList.sortAscending ?? true,
+          );
+        }
+      }
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _scopeHistory = const [];
+    });
+    _syncRouteState();
+  }
+
+  void _clearSmartList() {
+    setState(() {
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _filterSelection = LibraryFilterSelection.none;
+      _quickView = null;
+      _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _searchController.clear();
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _scopeHistory = const [];
+    });
+    _syncRouteState();
+  }
+
+  void _clearToolbarSearchChip() {
+    _mutateSidebarScope(() {
       if (_linkedMetadataFilter != null) {
         _linkedMetadataFilter = null;
       } else {
         _selectedBucket = null;
       }
+      _activeSmartListId = null;
+      _activeSmartListName = null;
     });
   }
 
   Future<void> _loadViewState() async {
     try {
-    final token = ++_viewStateLoadToken;
-    final expectedKind = widget.type.workspace.kind;
-    final state = await _adapter.viewProfile.load();
-    if (mounted && token == _viewStateLoadToken && widget.type.workspace.kind == expectedKind) {
-      setState(() => _viewState = state);
-    }
+      final token = ++_viewStateLoadToken;
+      final expectedKind = widget.type.workspace.kind;
+      final state = await _adapter.viewProfile.load();
+      if (mounted &&
+          token == _viewStateLoadToken &&
+          widget.type.workspace.kind == expectedKind) {
+        setState(() {
+          _viewState = state;
+          _applyRouteStateFromUri(widget.routeUri);
+        });
+      }
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
@@ -700,7 +1424,122 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   ) {
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
+    _syncRouteState();
     unawaited(_adapter.viewProfile.save(next));
+  }
+
+  void _setGroupingPanelVisibility(bool isVisible) {
+    final current = _viewState ?? _adapter.viewProfile.defaults();
+    final next = current.copyWith(isSidebarVisible: isVisible);
+    setState(() {
+      _viewState = next;
+      if (!isVisible) {
+        _groupMode = null;
+        _selectedBucket = null;
+        _scopeHistory = const [];
+      }
+    });
+    if (!isVisible) {
+      unawaited(_viewPrefs.writeGroupMode(null));
+    }
+    _syncRouteState();
+    unawaited(_adapter.viewProfile.save(next));
+  }
+
+  void _setQuickView(LibraryQuickView? view) {
+    _mutateSidebarScope(() {
+      _quickView = view;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+    unawaited(_viewPrefs.writeQuickView(view));
+  }
+
+  void _setGroupMode(LibraryGroupMode mode) {
+    setState(() {
+      _groupMode = mode;
+      _selectedBucket = null;
+      _scopeHistory = const [];
+      final shelfState = ref.read(shelfProvider).asData?.value;
+      if (shelfState != null) {
+        _ensureFacetBucketsLoaded(shelfState, mode);
+      }
+    });
+    _syncRouteState();
+    unawaited(_viewPrefs.writeGroupMode(mode));
+  }
+
+  LibraryRouteState _buildRouteState() {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    return LibraryRouteState(
+      kind: widget.type.workspace.kind.apiValue,
+      searchQuery: _trimmedQuery(_searchController.text),
+      groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
+      selectedBucket: _selectedBucket,
+      linkedMetadataValue: _linkedMetadataFilter?.value,
+      selectedLetter: _selectedLetter,
+      collectionStatusScope: _collectionStatusScope,
+      quickView: _quickView,
+      filterSelection: _filterSelection,
+      sortRules: viewState.sortRules,
+      isSidebarVisible: viewState.isSidebarVisible,
+    );
+  }
+
+  void _syncRouteState() {
+    if (!mounted) {
+      return;
+    }
+    if (GoRouter.maybeOf(context) == null) {
+      return;
+    }
+    final nextUri = _buildRouteState().toUri(
+      widget.routeUri,
+      kind: widget.type.workspace.kind.apiValue,
+    );
+    if (nextUri.toString() == widget.routeUri.toString()) {
+      return;
+    }
+    context.replace(nextUri.toString());
+  }
+
+  void _applyRouteStateFromUri(Uri uri) {
+    final routeState = LibraryRouteState.fromUri(uri);
+    if (!routeState.hasExplicitViewState) {
+      return;
+    }
+    final currentViewState = _viewState ?? _adapter.viewProfile.defaults();
+    _viewState = currentViewState.copyWith(
+      isSidebarVisible:
+          routeState.isSidebarVisible ?? currentViewState.isSidebarVisible,
+      sortRules: routeState.sortRules ?? currentViewState.sortRules,
+    );
+    final sidebarVisible = _viewState!.isSidebarVisible;
+    _groupMode = sidebarVisible
+        ? routeState.groupMode ?? libraryDefaultGroupMode(widget.type)
+        : null;
+    _selectedBucket = routeState.selectedBucket;
+    _selectedLetter = routeState.selectedLetter;
+    _linkedMetadataFilter = routeState.linkedMetadataValue == null
+        ? null
+        : LibraryLinkedMetadataFilter(value: routeState.linkedMetadataValue!);
+    _collectionStatusScope = routeState.collectionStatusScope;
+    _quickView = routeState.quickView;
+    _filterSelection = routeState.filterSelection;
+    _activeSmartListId = null;
+    _activeSmartListName = null;
+    _scopeHistory = const [];
+    final routeQuery = routeState.searchQuery ?? '';
+    _searchController.value = _searchController.value.copyWith(
+      text: routeQuery,
+      selection: TextSelection.collapsed(offset: routeQuery.length),
+      composing: TextRange.empty,
+    );
+  }
+
+  String? _trimmedQuery(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   Future<void> showAddDialogFlow({String? barcode}) async {
@@ -735,10 +1574,15 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedBucket = null;
       _selectedLetter = null;
       _linkedMetadataFilter = null;
+      _collectionStatusScope = LibraryCollectionStatusScope.all;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
       _searchController.clear();
     });
+    _syncRouteState();
   }
 
   void _selectItem(String id) {
@@ -808,7 +1652,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
               ),
             )
             .toList(growable: false);
-              return visibleItems.map((item) => item.entry.id).toSet();
+    return visibleItems.map((item) => item.entry.id).toSet();
   }
 
   bool get _isTextInputFocused {
@@ -904,7 +1748,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         if (!mounted || _videoShelfDrilldownReleaseId != null) {
           return;
         }
-        setState(() => _videoShelfDrilldownReleaseId = drilldownItems.first.entry.id);
+        setState(() =>
+            _videoShelfDrilldownReleaseId = drilldownItems.first.entry.id);
       });
     }
 
@@ -942,14 +1787,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     (actions) => actions.removeWishlist(titleItem!),
                   )
               : null,
-          onEdit: (ownedItem) => unawaited(showEditDialog(titleItem!, ownedItem)),
-          onFilterByValue: (value) => _rebuild(() {
-            _linkedMetadataFilter = _linkedMetadataFilter?.value == value
-                ? null
-                : LibraryLinkedMetadataFilter(value: value);
-            _selectedBucket = null;
-            _selectedLetter = null;
-          }),
+          onEdit: (ownedItem) =>
+              unawaited(showEditDialog(titleItem!, ownedItem)),
+          onFilterByValue: _toggleLinkedMetadataFilter,
         ),
       ),
     );
@@ -1060,7 +1900,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     return _VideoShelfReleaseDrilldownItem(
       entry: entry,
       sourceLabel: videoReleaseSourceLabel(edition),
-      ownedCount: matchedOwnedCopies.fold<int>(0, (sum, item) => sum + item.quantity),
+      ownedCount:
+          matchedOwnedCopies.fold<int>(0, (sum, item) => sum + item.quantity),
       wishlistCount: matchedWishlistItems.length,
       node: LibraryBrowserNode(
         id: entry.id,
@@ -1098,3 +1939,4 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
   }
 }
+

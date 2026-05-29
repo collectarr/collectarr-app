@@ -41,6 +41,7 @@ class MediaLibraryNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selected.kind);
+    final palette = appPalette(context);
     final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
 
@@ -51,13 +52,16 @@ class MediaLibraryNav extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         border: Border(
           bottom: BorderSide(
-            color:
-                Color.alphaBlend(Colors.black.withValues(alpha: 0.24), accent),
+            color: libraryChromeBorderColor(
+              accent,
+              brightness: palette.brightness,
+            ),
           ),
         ),
       ),
@@ -130,6 +134,7 @@ class MediaLibraryTitleBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accent = libraryAccentForKind(type.kind);
+    final palette = appPalette(context);
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
     return AnimatedContainer(
@@ -139,14 +144,15 @@ class MediaLibraryTitleBar extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         border: Border(
           bottom: BorderSide(
-            color: Color.alphaBlend(
-              Colors.black.withValues(alpha: 0.24),
+            color: libraryChromeBorderColor(
               accent,
+              brightness: palette.brightness,
             ),
           ),
         ),
@@ -198,10 +204,12 @@ class _MediaLibraryTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final titleColor = palette.textPrimary;
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Icon(icon, size: 20, color: Colors.white),
+        Icon(icon, size: 20, color: titleColor),
         const SizedBox(width: 7),
         Expanded(
           child: Text(
@@ -209,8 +217,8 @@ class _MediaLibraryTitle extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: titleColor,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
@@ -276,6 +284,34 @@ class _TopBarSyncButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
+    final palette = appPalette(context);
+    final controlBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
+    );
+    final controlBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
+      palette.divider,
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
+    final controlMutedForeground = controlForeground.withValues(alpha: 0.72);
+    final pendingBadgeBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.12),
+      palette.selection,
+    );
+    final pendingBadgeBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+      palette.divider,
+    );
+    final pendingBadgeForeground =
+        ThemeData.estimateBrightnessForColor(pendingBadgeBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Tooltip(
       message: sync.isSyncing
           ? 'Personal sync is running'
@@ -292,8 +328,8 @@ class _TopBarSyncButton extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.12),
-              border: Border.all(color: Colors.white24),
+              color: controlBackground,
+              border: Border.all(color: controlBorder),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Stack(
@@ -305,10 +341,12 @@ class _TopBarSyncButton extends ConsumerWidget {
                       : Icons.sync_outlined,
                   size: 18,
                   color: sync.isSyncing
-                      ? Colors.white54
+                      ? controlMutedForeground
                       : sync.isOffline
+                        ? (palette.isDark
                           ? Colors.orange.shade200
-                          : Colors.white,
+                          : Colors.orange.shade700)
+                        : controlForeground,
                 ),
                 if (!sync.isSyncing && sync.pendingCount > 0)
                   Positioned(
@@ -320,9 +358,9 @@ class _TopBarSyncButton extends ConsumerWidget {
                         vertical: 1,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: pendingBadgeBackground,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.35),
+                          color: pendingBadgeBorder,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -330,9 +368,9 @@ class _TopBarSyncButton extends ConsumerWidget {
                         sync.pendingCount > 99
                             ? '99+'
                             : sync.pendingCount.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 9,
-                          color: Colors.white,
+                          color: pendingBadgeForeground,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -424,6 +462,16 @@ class _HeaderActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final controlBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Tooltip(
       message: tooltip,
       child: OutlinedButton.icon(
@@ -431,9 +479,14 @@ class _HeaderActionButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Colors.white24),
-          backgroundColor: Colors.black.withValues(alpha: 0.12),
+          foregroundColor: controlForeground,
+          side: BorderSide(
+            color: Color.alphaBlend(
+              palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
+              palette.divider,
+            ),
+          ),
+          backgroundColor: controlBackground,
           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
         icon: Icon(icon, size: 16),
@@ -529,68 +582,101 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
     return Listener(
       onPointerSignal: (event) {
         if (event is PointerScrollEvent && _scrollController.hasClients) {
-          final delta = event.scrollDelta.dy != 0 ? event.scrollDelta.dy : event.scrollDelta.dx;
+          final delta = event.scrollDelta.dy != 0
+              ? event.scrollDelta.dy
+              : event.scrollDelta.dx;
           _scrollBy(delta);
         }
       },
-      child: Stack(
-        children: [
-          ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-                PointerDeviceKind.trackpad,
-              },
-            ),
-            child: ListView.builder(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
-              itemCount: widget.types.length,
-              itemBuilder: (context, index) {
-                final type = widget.types[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 5),
-                  child: MediaLibraryNavButton(
-                    type: type,
-                    color: libraryAccentForKind(type.kind),
-                    icon: widget.registry.byKind(type.kind)?.workspace.icon ??
-                        libraryIconForKind(type.kind),
-                    selected: type.kind == widget.selectedKind,
-                    count: widget.counts[type.kind]?.total ?? 0,
-                    onPressed: () => widget.onSelected(type),
-                    animationDuration: widget.animationDuration,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                    PointerDeviceKind.trackpad,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: (constraints.maxWidth - 14).clamp(0.0, double.infinity),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var index = 0;
+                                index < widget.types.length;
+                                index += 1)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  right: index == widget.types.length - 1 ? 0 : 5,
+                                ),
+                                child: MediaLibraryNavButton(
+                                  type: widget.types[index],
+                                  color: libraryAccentForKind(
+                                    widget.types[index].kind,
+                                  ),
+                                  icon: widget.registry
+                                          .byKind(widget.types[index].kind)
+                                          ?.workspace
+                                          .icon ??
+                                      libraryIconForKind(
+                                        widget.types[index].kind,
+                                      ),
+                                  selected:
+                                      widget.types[index].kind == widget.selectedKind,
+                                  count:
+                                      widget.counts[widget.types[index].kind]?.total ?? 0,
+                                  onPressed: () =>
+                                      widget.onSelected(widget.types[index]),
+                                  animationDuration: widget.animationDuration,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-        if (_showLeft)
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: _ScrollArrowButton(
-                icon: Icons.chevron_left,
-                onTap: () => _scrollBy(-120),
+                ),
               ),
-            ),
-          ),
-        if (_showRight)
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: _ScrollArrowButton(
-                icon: Icons.chevron_right,
-                onTap: () => _scrollBy(120),
-              ),
-            ),
-          ),
-      ],
+              if (_showLeft)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _ScrollArrowButton(
+                      icon: Icons.chevron_left,
+                      onTap: () => _scrollBy(-120),
+                    ),
+                  ),
+                ),
+              if (_showRight)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _ScrollArrowButton(
+                      icon: Icons.chevron_right,
+                      onTap: () => _scrollBy(120),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -607,16 +693,30 @@ class _ScrollArrowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final buttonBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.16 : 0.12),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final buttonForeground =
+        ThemeData.estimateBrightnessForColor(buttonBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 20,
         height: 28,
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.45),
+          color: buttonBackground,
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Icon(icon, size: 16, color: Colors.white),
+        child: Icon(
+          icon,
+          size: 16,
+          color: buttonForeground,
+        ),
       ),
     );
   }
@@ -632,11 +732,22 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
+    final handleBackground = Color.alphaBlend(
+      accent.withValues(alpha: 0.14),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final handleForeground =
+        ThemeData.estimateBrightnessForColor(handleBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Container(
       height: 6,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -654,11 +765,11 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
               child: Container(
                 width: 42,
                 height: 6,
-                color: Colors.white.withValues(alpha: 0.18),
-                child: const Icon(
+                color: handleBackground,
+                child: Icon(
                   Icons.expand_more,
                   size: 6,
-                  color: Colors.white70,
+                  color: handleForeground,
                 ),
               ),
             ),
@@ -679,11 +790,22 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
+    final handleBackground = Color.alphaBlend(
+      accent.withValues(alpha: 0.14),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final handleForeground =
+        ThemeData.estimateBrightnessForColor(handleBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Container(
       width: 10,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
+          brightness: palette.brightness,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -701,11 +823,11 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
               child: Container(
                 width: 10,
                 height: 36,
-                color: Colors.white.withValues(alpha: 0.18),
-                child: const Icon(
+                color: handleBackground,
+                child: Icon(
                   Icons.chevron_right,
                   size: 14,
-                  color: Colors.white70,
+                  color: handleForeground,
                 ),
               ),
             ),

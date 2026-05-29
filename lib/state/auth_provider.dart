@@ -10,12 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';
 const _authEmailKey = 'collectarr.auth.email';
+const _authUserIdKey = 'collectarr.auth.user_id';
 const _authIsAdminKey = 'collectarr.auth.is_admin';
 const _authSecureStorage = FlutterSecureStorage();
 
 class AuthState {
   const AuthState({
     this.token,
+    this.userId,
     this.email,
     this.expiresAt,
     this.isLoading = false,
@@ -25,6 +27,7 @@ class AuthState {
   });
 
   final String? token;
+  final String? userId;
   final String? email;
   final DateTime? expiresAt;
   final bool isLoading;
@@ -38,6 +41,7 @@ class AuthState {
 
   AuthState copyWith({
     String? token,
+    String? userId,
     String? email,
     DateTime? expiresAt,
     bool? isLoading,
@@ -47,6 +51,7 @@ class AuthState {
   }) {
     return AuthState(
       token: token ?? this.token,
+      userId: userId ?? this.userId,
       email: email ?? this.email,
       expiresAt: expiresAt ?? this.expiresAt,
       isLoading: isLoading ?? this.isLoading,
@@ -126,15 +131,20 @@ class AuthController extends StateNotifier<AuthState> {
       return;
     }
     final user = await ref.read(apiClientProvider).currentUser();
+    final userId = _stringFromJson(user['id']) ?? state.userId;
     final email = _stringFromJson(user['email']) ?? state.email;
     final isAdmin = _boolFromJson(user['is_admin']);
     final prefs = await SharedPreferences.getInstance();
+    if (userId != null && userId.isNotEmpty) {
+      await prefs.setString(_authUserIdKey, userId);
+    }
     if (email != null && email.isNotEmpty) {
       await prefs.setString(_authEmailKey, email);
     }
     await prefs.setBool(_authIsAdminKey, isAdmin);
     state = AuthState(
       token: token,
+      userId: userId,
       email: email,
       expiresAt: state.expiresAt,
       isAdmin: isAdmin,
@@ -145,6 +155,7 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = await _readStoredToken(prefs);
+      final userId = prefs.getString(_authUserIdKey);
       final email = prefs.getString(_authEmailKey);
       final isAdmin = prefs.getBool(_authIsAdminKey) ?? false;
       if (token != null && token.isNotEmpty) {
@@ -162,13 +173,14 @@ class AuthController extends StateNotifier<AuthState> {
         ref.read(apiClientProvider).setToken(token);
         state = AuthState(
           token: token,
+          userId: userId,
           email: email,
           expiresAt: expiresAt,
           isAdmin: isAdmin,
         );
       } else {
         ref.read(apiAuthTokenProvider.notifier).set(null);
-        state = AuthState(email: email);
+        state = AuthState(userId: userId, email: email);
       }
     } catch (error) {
       ref.read(apiAuthTokenProvider.notifier).set(null);
@@ -181,6 +193,7 @@ class AuthController extends StateNotifier<AuthState> {
     required String fallbackEmail,
     required Map<String, dynamic>? user,
   }) async {
+    final userId = _stringFromJson(user?['id']);
     final email = _stringFromJson(user?['email']) ?? fallbackEmail;
     final isAdmin = _boolFromJson(user?['is_admin']);
     final prefs = await SharedPreferences.getInstance();
@@ -197,12 +210,16 @@ class AuthController extends StateNotifier<AuthState> {
       );
       await prefs.setString(_authTokenKey, token);
     }
+    if (userId != null && userId.isNotEmpty) {
+      await prefs.setString(_authUserIdKey, userId);
+    }
     await prefs.setString(_authEmailKey, email);
     await prefs.setBool(_authIsAdminKey, isAdmin);
     ref.read(apiAuthTokenProvider.notifier).set(token);
     ref.read(apiClientProvider).setToken(token);
     state = AuthState(
       token: token,
+      userId: userId,
       email: email,
       expiresAt: _jwtExpiresAt(token),
       isAdmin: isAdmin,
@@ -214,6 +231,7 @@ class AuthController extends StateNotifier<AuthState> {
     String? error,
     DateTime? expiresAt,
   }) async {
+    final userId = prefs.getString(_authUserIdKey) ?? state.userId;
     final email = prefs.getString(_authEmailKey) ?? state.email;
     try {
       await _authSecureStorage.delete(key: _authTokenKey);
@@ -226,10 +244,16 @@ class AuthController extends StateNotifier<AuthState> {
       );
     }
     await prefs.remove(_authTokenKey);
+    await prefs.remove(_authUserIdKey);
     await prefs.remove(_authIsAdminKey);
     ref.read(apiAuthTokenProvider.notifier).set(null);
     ref.read(apiClientProvider).clearToken();
-    state = AuthState(email: email, expiresAt: expiresAt, error: error);
+    state = AuthState(
+      userId: userId,
+      email: email,
+      expiresAt: expiresAt,
+      error: error,
+    );
   }
 
   Future<String?> _readStoredToken(SharedPreferences prefs) async {

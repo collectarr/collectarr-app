@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailActionStrip extends StatelessWidget {
@@ -35,6 +36,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || entry.isOwned;
     final removeLabel = ownedCopies.length > 1
         ? 'Remove selected copy'
@@ -50,7 +52,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
                     ? Text(
                         '1 copy in collection',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white,
+                              color: palette.textPrimary,
                               fontWeight: FontWeight.w700,
                             ),
                       )
@@ -91,7 +93,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
             Text(
               '${ownedCopies.length} copies in collection',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white70,
+                    color: palette.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
             ),

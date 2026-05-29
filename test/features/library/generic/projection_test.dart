@@ -1,6 +1,13 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
@@ -110,6 +117,382 @@ void main() {
         LibraryGroupMode.location,
       ),
       'Office › Shelf A › Short Box 1',
+    );
+  });
+
+  test('movie main grouping uses release and video metadata', () {
+    final item = _projectionItem(
+      source: ShelfEntry(
+        itemId: 'movie-main-1',
+        ownedItem: OwnedItem(
+          id: 'owned-main-1',
+          itemId: 'movie-main-1',
+          updatedAt: DateTime.utc(2026, 5, 1),
+        ),
+      ),
+      entry: LibraryWorkspaceEntry(
+        id: 'movie-main-1',
+        mediaType: 'movie',
+        title: 'Twin Peaks: Fire Walk with Me',
+        publisher: 'New Line Cinema',
+        releaseDate: DateTime.utc(1992, 8, 28),
+        releaseYear: 1992,
+        genres: const ['Drama'],
+        country: 'USA',
+        language: 'English',
+        audienceRating: '8.1',
+        video: const VideoCatalogDetails(color: 'Color'),
+        series: const CatalogSeriesDetails(seasonNumber: 1),
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericGroupModeLabel(LibraryGroupMode.publisher, moviesLibraryConfig),
+      'Studios',
+    );
+    expect(
+      genericGroupModeLabel(LibraryGroupMode.genre, moviesLibraryConfig),
+      'Genres',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audienceRating),
+      '8.1',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.color),
+      'Color',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.movieOrTvSeries),
+      'TV Series',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseDate),
+      '1992-08-28',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseMonth),
+      'August 1992',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
+      '1992',
+    );
+  });
+
+  test('movie personal grouping uses owned and tracking fields', () {
+    final source = ShelfEntry(
+      itemId: 'movie-1',
+      locationPath: 'Living Room › Shelf 2',
+      ownedItem: OwnedItem(
+        id: 'owned-1',
+        itemId: 'movie-1',
+        editionId: 'edition-4k',
+        createdAt: DateTime.utc(2024, 9, 30),
+        condition: 'Sealed',
+        purchaseDate: DateTime.utc(2024, 11, 6),
+        purchaseStore: 'Orbit DVD',
+        storageDevice: 'NAS',
+        collectionStatus: 'Backlog',
+        boxSetName: 'Nolan Collection',
+        features: 'Commentary',
+        hdrFormats: const ['HDR10'],
+        packaging: 'Steelbook',
+        distributor: 'Warner Home Video',
+        region: 'B',
+        ownerUserId: 'user-1',
+        ownerLabel: 'me@example.com',
+        tags: 'favorite, sci-fi',
+        updatedAt: DateTime.utc(2026, 4, 2),
+      ),
+      wishlistItem: WishlistItem(
+        id: 'wish-1',
+        itemId: 'movie-1',
+        createdAt: DateTime.utc(2024, 10, 1),
+        updatedAt: DateTime.utc(2024, 10, 1),
+      ),
+      trackingEntry: TrackingEntry(
+        id: 'tracking-1',
+        itemId: 'movie-1',
+        rating: 9,
+        status: 'Completed',
+        finishedAt: DateTime.utc(2026, 4, 10),
+        updatedAt: DateTime.utc(2026, 4, 10),
+      ),
+      watchSessions: [
+        WatchSession(
+          id: 'watch-2',
+          itemId: 'movie-1',
+          watchedAt: DateTime.utc(2026, 4, 10),
+          sourceType: TrackingSourceType.streaming,
+          updatedAt: DateTime.utc(2026, 4, 10),
+        ),
+        WatchSession(
+          id: 'watch-1',
+          itemId: 'movie-1',
+          watchedAt: DateTime.utc(2026, 4, 9),
+          sourceType: TrackingSourceType.physical,
+          updatedAt: DateTime.utc(2026, 4, 9),
+        ),
+      ],
+      itemImages: [
+        ItemImage(
+          id: 'img-1',
+          ownedItemId: 'owned-1',
+          imageType: 'back_cover',
+          imageData: 'data',
+          createdAt: DateTime.utc(2026, 4, 1),
+        ),
+      ],
+    );
+    final item = _projectionItem(
+      source: source,
+      entry: LibraryWorkspaceEntry(
+        id: 'movie-1',
+        mediaType: 'movie',
+        title: 'Blade Runner 2049',
+        isOwned: true,
+        condition: 'Sealed',
+        storageBox: 'Living Room › Shelf 2',
+        tags: 'favorite, sci-fi',
+        video: const VideoCatalogDetails(
+          audioTracks: 'English DTS-HD MA',
+          subtitles: 'English, Romanian',
+          layers: 'BD-100',
+          screenRatio: '2.39:1',
+        ),
+        referenceEditionId: 'edition-4k',
+        editions: [
+          CatalogEdition(
+            id: 'edition-4k',
+            title: '4K UHD',
+            releaseDate: DateTime.utc(2023, 10, 12),
+            physicalFormat: '4k_uhd',
+            physicalFormatLabel: '4K UHD',
+            region: 'A/B/C',
+          ),
+        ],
+        updatedAt: source.updatedAt,
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audioTracks),
+      'English DTS-HD MA',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.boxSet),
+      'Nolan Collection',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.distributor),
+      'Warner Home Video',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseDate),
+      '2023-10-12',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseMonth),
+      'October 2023',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseYear),
+      '2023',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.extras),
+      'Commentary',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.collectionStatus,
+      ),
+      'Backlog',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedDate),
+      '2024-09-30',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedMonth),
+      'September 2024',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedYear),
+      '2024',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.format),
+      '4K UHD',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.hdr),
+      'HDR10',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.imageType),
+      'Back Cover',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.layers),
+      'BD-100',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.myRating),
+      '9',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.owner),
+      'me@example.com',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.packaging),
+      'Steelbook',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseDate,
+      ),
+      '2024-11-06',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseMonth,
+      ),
+      'November 2024',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseYear,
+      ),
+      '2024',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseStore,
+      ),
+      'Orbit DVD',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.regions),
+      'A/B/C',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.screenRatios),
+      '2.39:1',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.storageDevice,
+      ),
+      'NAS',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.modifiedDate,
+      ),
+      '2026-04-10',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.modifiedMonth,
+      ),
+      'April 2026',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchDate),
+      '2026-04-10',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchMonth),
+      'April 2026',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchYear),
+      '2026',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watched),
+      'Watched',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.subtitles),
+      'English, Romanian',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchedWhere),
+      'Streaming',
+    );
+  });
+
+  test('movie cast and crew grouping uses role aliases', () {
+    final item = _projectionItem(
+      source: ShelfEntry(
+        itemId: 'movie-credits-1',
+        ownedItem: OwnedItem(
+          id: 'owned-credits-1',
+          itemId: 'movie-credits-1',
+          updatedAt: DateTime.utc(2026, 5, 1),
+        ),
+      ),
+      entry: LibraryWorkspaceEntry(
+        id: 'movie-credits-1',
+        mediaType: 'movie',
+        title: 'Heat',
+        isOwned: true,
+        creators: const [
+          {'name': 'Al Pacino', 'role': 'Cast'},
+          {'name': 'Michael Mann', 'role': 'Director'},
+          {'name': 'Elliot Goldenthal', 'role': 'Original Music Composer'},
+          {'name': 'Dante Spinotti', 'role': 'Director of Photography'},
+          {'name': 'Art Linson', 'role': 'Producer'},
+          {'name': 'Michael Mann', 'role': 'Writer'},
+        ],
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.actor),
+      'Al Pacino',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.director),
+      'Michael Mann',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.musician),
+      'Elliot Goldenthal',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.photography),
+      'Dante Spinotti',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.producer),
+      'Art Linson',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.writer),
+      'Michael Mann',
     );
   });
 

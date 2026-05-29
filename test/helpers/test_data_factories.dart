@@ -71,6 +71,7 @@ CatalogItem testCatalogItem({
 OwnedItem testOwnedItem({
   String id = 'owned-1',
   String itemId = 'test-item-1',
+  DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
   String? condition,
@@ -94,6 +95,7 @@ OwnedItem testOwnedItem({
   return OwnedItem(
     id: id,
     itemId: itemId,
+    createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
     condition: condition,

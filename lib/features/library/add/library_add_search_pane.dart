@@ -15,6 +15,7 @@ class _SearchPane extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
+    required this.ownedCatalogItemIds,
     required this.providerQueryText,
     required this.providerSeriesText,
     required this.providerNumberText,
@@ -33,13 +34,14 @@ class _SearchPane extends StatelessWidget {
   final Color accent;
   final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
   final bool searchedProvider;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
+  final Set<String> ownedCatalogItemIds;
   final String providerQueryText;
   final String providerSeriesText;
   final String providerNumberText;
@@ -53,10 +55,11 @@ class _SearchPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppSurfaceSubtle,
-        border: Border(right: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border(right: BorderSide(color: palette.divider)),
       ),
       child: _SearchResultsList(
         type: type,
@@ -72,6 +75,7 @@ class _SearchPane extends StatelessWidget {
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
         checkedProviderIds: checkedProviderIds,
+        ownedCatalogItemIds: ownedCatalogItemIds,
         providerQueryText: providerQueryText,
         providerSeriesText: providerSeriesText,
         providerNumberText: providerNumberText,
@@ -97,13 +101,14 @@ class _SearchPaneNoticeStack extends StatelessWidget {
   });
 
   final String? error;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final bool isBusy;
   final Color accent;
   final VoidCallback onSearchCore;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     if (error == null && queuedProviderIngests.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -124,7 +129,7 @@ class _SearchPaneNoticeStack extends StatelessWidget {
             ),
             child: AppErrorBanner(error!),
           ),
-        const Divider(height: 1, thickness: 1, color: kAppDivider),
+        Divider(height: 1, thickness: 1, color: palette.divider),
       ],
     );
   }
@@ -144,6 +149,7 @@ class _QueuedIngestNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final jobLabel = count == 1 ? 'job' : 'jobs';
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: kAppBannerInfoBackground,
@@ -158,8 +164,8 @@ class _QueuedIngestNotice extends StatelessWidget {
             Expanded(
               child: Text(
                 '$count Core ingest $jobLabel queued. Run or retry them in Admin, then search Core again.',
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -168,7 +174,7 @@ class _QueuedIngestNotice extends StatelessWidget {
             const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: onSearchCore,
-              style: _libraryAddOutlinedButtonStyle(accent),
+              style: libraryAddOutlinedButtonStyle(accent),
               icon: const Icon(Icons.refresh, size: 16),
               label: const Text('Search Core again'),
             ),
@@ -194,6 +200,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
+    required this.ownedCatalogItemIds,
     required this.providerQueryText,
     required this.providerSeriesText,
     required this.providerNumberText,
@@ -214,11 +221,12 @@ class _SearchResultsList extends StatelessWidget {
   final bool searchedProvider;
   final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
+  final Set<String> ownedCatalogItemIds;
   final String providerQueryText;
   final String providerSeriesText;
   final String providerNumberText;
@@ -232,6 +240,7 @@ class _SearchResultsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final notice = _SearchPaneNoticeStack(
       error: error,
       queuedProviderIngests: queuedProviderIngests,
@@ -261,79 +270,45 @@ class _SearchResultsList extends StatelessWidget {
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
     final mixedProviderSummary = _mixedProviderSummary();
+    final groups = _buildUnifiedGroups(
+      coreResults: results,
+      providerResults: providerResults,
+    );
     return ListView(
       padding: EdgeInsets.zero,
       children: [
         notice,
-        if (results.isNotEmpty) ...[
-          const _ResultSectionHeader(label: 'Collectarr Core'),
-          ..._withDividers(
-            context,
-            [
-              for (final item in results)
-                _SearchResultTile(
-                  type: type,
-                  item: item,
-                  accent: accent,
-                  queryText: providerQueryText,
-                  seriesText: providerSeriesText,
-                  numberText: providerNumberText,
-                  publisherText: providerPublisherText,
-                  yearText: providerYearText,
-                  selected: item.id == selectedResultId,
-                  checked: checkedResultIds.contains(item.id),
-                  onSelect: () => onSelectResult(item.id),
-                  onToggleCheck: () => onToggleResultCheck(item.id),
-                ),
-            ],
+        if (fallbackProviderLabel != null)
+          _ProviderFallbackNotice(
+            requestedProvider: type.metadataProviderLabel(selectedProvider),
+            fallbackProvider: fallbackProviderLabel,
           ),
-        ],
-        if (providerResults.isNotEmpty) ...[
-          if (fallbackProviderLabel != null)
-            _ProviderFallbackNotice(
-              requestedProvider: type.metadataProviderLabel(selectedProvider),
-              fallbackProvider: fallbackProviderLabel,
-            ),
-          if (mixedProviderSummary != null)
-            _ProviderMixedNotice(summary: mixedProviderSummary),
-          _ResultSectionHeader(
-            label: _providerSectionLabel(),
+        if (mixedProviderSummary != null)
+          _ProviderMixedNotice(summary: mixedProviderSummary),
+        for (var i = 0; i < groups.length; i++) ...[
+          _UnifiedGroupNode(
+            key: ValueKey(groups[i].key),
+            type: type,
+            group: groups[i],
+            accent: accent,
+            selectedResultId: selectedResultId,
+            selectedProviderCandidateId: selectedProviderCandidateId,
+            checkedResultIds: checkedResultIds,
+            ownedCatalogItemIds: ownedCatalogItemIds,
+            queuedProviderIngests: queuedProviderIngests,
+            providerLabel: type.metadataProviderLabel,
+            onSelectResult: onSelectResult,
+            onSelectProviderCandidate: onSelectProviderCandidate,
+            onToggleResultCheck: onToggleResultCheck,
+            onToggleProviderCheck: onToggleProviderCheck,
+            queryText: providerQueryText,
+            seriesText: providerSeriesText,
+            numberText: providerNumberText,
+            publisherText: providerPublisherText,
+            yearText: providerYearText,
           ),
-          if (_usesTreeProviderCandidates(type))
-            _ProviderCandidateTreeList(
-              type: type,
-              results: providerResults,
-              accent: accent,
-              selectedProviderCandidateId: selectedProviderCandidateId,
-              queuedProviderIngests: queuedProviderIngests,
-              providerLabel: type.metadataProviderLabel,
-              onSelectProviderCandidate: onSelectProviderCandidate,
-            )
-          else
-            ..._withDividers(
-              context,
-              [
-                for (final candidate in providerResults)
-                  _ProviderCandidateTile(
-                  type: type,
-                    candidate: candidate,
-                    accent: accent,
-                    providerLabel:
-                        type.metadataProviderLabel(candidate.provider),
-                    queuedIngest:
-                        queuedProviderIngests[candidate.localCatalogId],
-                  providerQueryText: providerQueryText,
-                  providerSeriesText: providerSeriesText,
-                  providerNumberText: providerNumberText,
-                  providerPublisherText: providerPublisherText,
-                  providerYearText: providerYearText,
-                    selected:
-                        candidate.localCatalogId == selectedProviderCandidateId,
-                    onSelect: () =>
-                        onSelectProviderCandidate(candidate.localCatalogId),
-                  ),
-              ],
-            ),
+          if (i < groups.length - 1)
+            Divider(height: 1, thickness: 1, color: palette.divider),
         ],
       ],
     );
@@ -349,14 +324,6 @@ class _SearchResultsList extends StatelessWidget {
       return type.metadataProviderLabel(onlyProvider);
     }
     return null;
-  }
-
-  String _providerSectionLabel() {
-    final providers = _providerIdsInOrder();
-    if (providers.length == 1) {
-      return '${type.metadataProviderLabel(providers.first)} candidates';
-    }
-    return 'Provider candidates';
   }
 
   String? _mixedProviderSummary() {
@@ -391,68 +358,6 @@ class _SearchResultsList extends StatelessWidget {
     final leading = labels.take(labels.length - 1).join(', ');
     return '$leading, and ${labels.last}';
   }
-
-  List<Widget> _withDividers(BuildContext context, List<Widget> tiles) {
-    const divider = Divider(height: 1, thickness: 1, color: kAppDivider);
-    final separated = <Widget>[];
-    for (var index = 0; index < tiles.length; index++) {
-      if (index > 0) {
-        separated.add(divider);
-      }
-      separated.add(tiles[index]);
-    }
-    return separated;
-  }
-}
-
-bool _usesTreeProviderCandidates(LibraryTypeConfig type) {
-  return switch (type.workspace.kind) {
-    CatalogMediaKind.comic || CatalogMediaKind.manga => true,
-    _ => type.presentation.usesTreeProviderCandidates,
-  };
-}
-
-class _ProviderCandidateTreeList extends StatelessWidget {
-  const _ProviderCandidateTreeList({
-    required this.type,
-    required this.results,
-    required this.accent,
-    required this.selectedProviderCandidateId,
-    required this.queuedProviderIngests,
-    required this.providerLabel,
-    required this.onSelectProviderCandidate,
-  });
-
-  final LibraryTypeConfig type;
-  final List<ProviderCandidate> results;
-  final Color accent;
-  final String? selectedProviderCandidateId;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
-  final String Function(String providerId) providerLabel;
-  final ValueChanged<String> onSelectProviderCandidate;
-
-  @override
-  Widget build(BuildContext context) {
-    if (type.workspace.kind == CatalogMediaKind.comic) {
-      return _ComicCandidateTreeList(
-        type: type,
-        results: results,
-        accent: accent,
-        selectedProviderCandidateId: selectedProviderCandidateId,
-        queuedProviderIngests: queuedProviderIngests,
-        providerLabel: providerLabel,
-        onSelectProviderCandidate: onSelectProviderCandidate,
-      );
-    }
-    return _MangaCandidateTreeList(
-      results: results,
-      accent: accent,
-      selectedProviderCandidateId: selectedProviderCandidateId,
-      queuedProviderIngests: queuedProviderIngests,
-      providerLabel: providerLabel,
-      onSelectProviderCandidate: onSelectProviderCandidate,
-    );
-  }
 }
 
 class _SearchSkeletonList extends StatelessWidget {
@@ -462,6 +367,7 @@ class _SearchSkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -476,8 +382,10 @@ class _SearchSkeletonList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: index.isEven ? kAppTableEvenRow : kAppTableOddRow,
-                border: Border.all(color: kAppTableBottomBorder),
+                color: index.isEven
+                    ? palette.tableEvenRow
+                    : palette.tableOddRow,
+                border: Border.all(color: palette.tableBottomBorder),
               ),
               child: const Padding(
                 padding: EdgeInsets.all(8),
@@ -515,11 +423,12 @@ class _SkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: kAppSurfaceBright,
+        color: palette.surfaceBright,
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -537,11 +446,12 @@ class _ProviderFallbackNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: kAppBannerWarningBackground,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Row(
         children: [
@@ -570,21 +480,25 @@ class _ProviderMixedNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final bannerTextColor = ThemeData.estimateBrightnessForColor(kAppBannerInfoBackground) == Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: kAppBannerInfoBackground,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.layers_outlined, size: 18, color: kAppTextMuted),
+          Icon(Icons.layers_outlined, size: 18, color: palette.textMuted),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               summary,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: bannerTextColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -603,16 +517,17 @@ class _ResultSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: const BoxDecoration(
-        color: kAppPanelRaised,
-        border: Border(bottom: _kLibraryAddBorder),
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: kAppTextMuted,
+        style: TextStyle(
+          color: palette.textMuted,
           fontSize: 12,
           fontWeight: FontWeight.w900,
         ),
@@ -633,6 +548,7 @@ class _SearchResultTile extends StatelessWidget {
     required this.yearText,
     required this.selected,
     required this.checked,
+    this.isOwned = false,
     required this.onSelect,
     required this.onToggleCheck,
   });
@@ -647,11 +563,13 @@ class _SearchResultTile extends StatelessWidget {
   final String yearText;
   final bool selected;
   final bool checked;
+  final bool isOwned;
   final VoidCallback onSelect;
   final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final matchSummary = _metadataItemMatchSummary(
       type: type,
       item: item,
@@ -676,8 +594,8 @@ class _SearchResultTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kAppSelection)
-              : kAppTableEvenRow,
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected ? accent : Colors.transparent,
@@ -720,8 +638,8 @@ class _SearchResultTile extends StatelessWidget {
                               : '${item.title} #${item.itemNumber}'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: palette.textPrimary,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -731,8 +649,8 @@ class _SearchResultTile extends StatelessWidget {
                         subtitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -744,8 +662,8 @@ class _SearchResultTile extends StatelessWidget {
                         detailLine,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -767,6 +685,30 @@ class _SearchResultTile extends StatelessWidget {
                     const SizedBox(height: 5),
                     Row(
                       children: [
+                        if (isOwned) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            child: const Text(
+                              'In collection',
+                              style: TextStyle(
+                                color: Colors.greenAccent,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
                         const LibraryAddResultBadge('core'),
                         const SizedBox(width: 4),
                         LibraryAddResultBadge(item.kind),
@@ -946,7 +888,7 @@ class _ProviderCandidateTile extends StatelessWidget {
   final ProviderCandidate candidate;
   final Color accent;
   final String providerLabel;
-  final _QueuedProviderIngest? queuedIngest;
+  final LibraryQueuedProviderIngest? queuedIngest;
   final String providerQueryText;
   final String providerSeriesText;
   final String providerNumberText;
@@ -957,6 +899,7 @@ class _ProviderCandidateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final matchSummary = _providerCandidateMatchSummary(
       type: type,
       candidate: candidate,
@@ -977,8 +920,8 @@ class _ProviderCandidateTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kAppSelection)
-              : kAppTableEvenRow,
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected ? accent : Colors.transparent,
@@ -1007,8 +950,8 @@ class _ProviderCandidateTile extends StatelessWidget {
                       candidate.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: palette.textPrimary,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -1018,8 +961,8 @@ class _ProviderCandidateTile extends StatelessWidget {
                         subtitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1058,7 +1001,7 @@ class _ProviderCandidateTile extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 selected ? Icons.check_circle : Icons.chevron_right,
-                color: selected ? accent : kAppTextMuted,
+                color: selected ? accent : palette.textMuted,
                 size: 20,
               ),
             ],
@@ -1142,6 +1085,7 @@ class _NoSearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
@@ -1155,8 +1099,8 @@ class _NoSearchResults extends StatelessWidget {
               child: Text(
                 _message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),

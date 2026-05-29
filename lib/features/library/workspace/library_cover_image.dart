@@ -45,10 +45,11 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-      final cacheWidth = constraints.hasBoundedWidth &&
+      final resolvedCacheWidth = constraints.hasBoundedWidth &&
         constraints.maxWidth > 0
           ? (constraints.maxWidth * pixelRatio).ceil()
             : null;
+      final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
 
     // Prefer local offline bytes when available
     if (local != null && local.isNotEmpty) {
@@ -86,6 +87,7 @@ class LibraryCoverImage extends ConsumerWidget {
           key: ValueKey(url),
           fit: fit,
           cacheWidth: cacheWidth,
+          gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
           loadingBuilder: (context, child, loadingProgress) {
@@ -102,6 +104,7 @@ class LibraryCoverImage extends ConsumerWidget {
         imageUrl: url,
         fit: fit,
         memCacheWidth: cacheWidth,
+        useOldImageOnUrlChange: true,
         filterQuality: FilterQuality.medium,
         placeholder: (_, __) => placeholder,
         errorWidget: (_, __, ___) => placeholder,
@@ -124,6 +127,149 @@ class LibraryCoverImage extends ConsumerWidget {
       return null;
     }
     return url;
+  }
+}
+
+/// Wraps a cover image in a slab-style frame for graded comics (CGC/CBCS).
+class SlabFrameOverlay extends StatelessWidget {
+  const SlabFrameOverlay({
+    required this.child,
+    required this.gradingCompany,
+    required this.grade,
+    this.labelType,
+    super.key,
+  });
+
+  static Widget maybeWrap({
+    required String? rawOrSlabbed,
+    required String? gradingCompany,
+    required String? grade,
+    required String? labelType,
+    required Widget child,
+  }) {
+    if (rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
+    if (gradingCompany == null || grade == null) return child;
+    return SlabFrameOverlay(
+      gradingCompany: gradingCompany,
+      grade: grade,
+      labelType: labelType,
+      child: child,
+    );
+  }
+
+  final Widget child;
+  final String gradingCompany;
+  final String grade;
+  final String? labelType;
+
+  /// Returns the label color for the grading company.
+  Color get _labelColor {
+    final company = gradingCompany.toUpperCase();
+    if (company.contains('CGC')) return const Color(0xFF1565C0);
+    if (company.contains('CBCS')) return const Color(0xFF2E7D32);
+    if (company.contains('PGX')) return const Color(0xFF6A1B9A);
+    return const Color(0xFF37474F);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 60;
+        final labelHeight = isCompact ? 14.0 : 20.0;
+        final gradeSize = isCompact ? 8.0 : 11.0;
+        final companySize = isCompact ? 7.0 : 9.0;
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: _labelColor.withValues(alpha: 0.8),
+              width: isCompact ? 1.5 : 2.5,
+            ),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Column(
+            children: [
+              // Slab label header
+              Container(
+                width: double.infinity,
+                height: labelHeight,
+                decoration: BoxDecoration(
+                  color: _labelColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(1.5),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        gradingCompany.toUpperCase(),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: companySize,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: isCompact ? 3 : 6),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isCompact ? 2 : 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: Text(
+                        grade,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: gradeSize,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Cover image
+              Expanded(child: child),
+              // Bottom bar with label type
+              if (labelType != null && !isCompact)
+                Container(
+                  width: double.infinity,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: _labelColor.withValues(alpha: 0.7),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(1.5),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    labelType!.toUpperCase(),
+                    style: TextStyle(
+                      color: ThemeData.estimateBrightnessForColor(_labelColor) ==
+                              Brightness.dark
+                          ? Colors.white
+                          : Colors.black87,
+                      fontSize: 7,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -193,8 +339,29 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
             (widget.ownedItemId?.trim().isNotEmpty ?? false));
   }
 
+  Future<void> _warmPreviewImage() async {
+    final imageUrl = _activeImageUrl?.trim();
+    if (imageUrl == null || imageUrl.isEmpty || !mounted) {
+      return;
+    }
+    try {
+      await precacheImage(NetworkImage(imageUrl), context);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_cover_image',
+        message: 'Failed to precache cover preview image.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
   Future<void> _openPreview() async {
     if (!_canPreview) {
+      return;
+    }
+    await _warmPreviewImage();
+    if (!mounted) {
       return;
     }
     final size = MediaQuery.sizeOf(context);
@@ -303,6 +470,15 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   Widget build(BuildContext context) {
     final interactive = _canPreview;
     final hoverCue = widget.enableHoverCue;
+    final palette = appPalette(context);
+    final controlBackground = Color.alphaBlend(
+      widget.accentColor.withValues(alpha: 0.16),
+      palette.surface.withValues(alpha: 0.94),
+    );
+    final controlForeground =
+        ThemeData.estimateBrightnessForColor(controlBackground) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return LayoutBuilder(
       builder: (context, constraints) {
         final compactHoverCue =
@@ -376,8 +552,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                             vertical: 6,
                           ),
                           visualDensity: VisualDensity.compact,
-                          backgroundColor: const Color(0xD0101010),
-                          foregroundColor: Colors.white,
+                          backgroundColor: controlBackground,
+                          foregroundColor: controlForeground,
                           side: BorderSide(
                             color: widget.accentColor.withValues(alpha: 0.45),
                           ),
@@ -394,13 +570,13 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                             borderRadius: BorderRadius.circular(
                               widget.borderRadius + 8,
                             ),
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Color(0x00000000),
-                                Color(0x22000000),
-                                Color(0xCC030303),
+                                Colors.transparent,
+                                palette.surface.withValues(alpha: 0.12),
+                                palette.surface.withValues(alpha: 0.9),
                               ],
                             ),
                           ),
@@ -410,7 +586,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                               padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xCC050505),
+                                  color: controlBackground.withValues(alpha: 0.96),
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
                                     color: widget.accentColor
@@ -439,10 +615,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                                 color: widget.accentColor,
                                               ),
                                               const SizedBox(width: 6),
-                                              const Text(
+                                              Text(
                                                 'Open cover',
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  color: controlForeground,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w800,
                                                 ),
@@ -478,16 +654,19 @@ class _CoverFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius + 2),
         border: Border.all(
-          color: const Color(0x90FFFFFF),
+          color: palette.divider.withValues(alpha: 0.72),
           width: 1.2,
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0xA6000000),
+            color: Theme.of(context).shadowColor.withValues(
+              alpha: palette.isDark ? 0.65 : 0.22,
+            ),
             blurRadius: 16,
             offset: Offset(0, 6),
           ),

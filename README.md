@@ -4,6 +4,13 @@
 
 # Collectarr App
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![GitHub Release](https://img.shields.io/github/v/release/collectarr/collectarr-app)
+[![Issues](https://img.shields.io/github/issues/collectarr/collectarr-app)](https://github.com/collectarr/collectarr-app/issues)
+![Made with Flutter](https://img.shields.io/badge/Made%20with-Flutter-02569B?logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3.12+-0175C2?logo=dart&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20Android-lightgrey)
+
 > A local-first collection manager for comics, manga, books, games, movies, TV, music, and more.
 
 Collectarr is built for people who want a CLZ-style collection workflow without

@@ -150,6 +150,10 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
           ],
         ),
+        if (trackingRating != null && trackingRating > 0) ...[
+          const SizedBox(height: 10),
+          _DetailStarRating(rating: trackingRating, maxRating: 10, accent: accent),
+        ],
         if (ownedItem?.personalNotes != null &&
             ownedItem!.personalNotes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -230,9 +234,57 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
             'updated_at: ${entry.updatedAt.toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
                 fontWeight: FontWeight.w700,
               ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DetailStarRating extends StatelessWidget {
+  const _DetailStarRating({
+    required this.rating,
+    required this.maxRating,
+    required this.accent,
+  });
+
+  final int rating;
+  final int maxRating;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    // Convert rating to 5-star scale for display
+    const starCount = 5;
+    final filledStars = maxRating > 0
+        ? (rating * starCount / maxRating).round().clamp(0, starCount)
+        : 0;
+    return Row(
+      children: [
+        Text(
+          'Rating  ',
+          style: TextStyle(
+            color: appPalette(context).textMuted,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        for (var i = 0; i < starCount; i++)
+          Icon(
+            i < filledStars ? Icons.star_rounded : Icons.star_outline_rounded,
+            color: i < filledStars ? accent : appPalette(context).textMuted,
+            size: 20,
+          ),
+        const SizedBox(width: 6),
+        Text(
+          '$rating/$maxRating',
+          style: TextStyle(
+            color: appPalette(context).textMuted,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );

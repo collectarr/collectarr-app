@@ -82,7 +82,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Folder'),
         content: Text(
           'Delete "${folder.name}" and remove all item assignments?\n'
@@ -117,7 +117,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
           controller: nameCtrl,
@@ -143,8 +143,9 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Icon(Icons.folder_outlined, size: 20),
@@ -169,13 +170,13 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                       'Create a folder to organize items\n'
                       'into custom shortlists.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: kAppTextMuted),
+                      style: TextStyle(color: palette.textMuted),
                     ),
                   )
                 : ListView.separated(
                     itemCount: _folders.length,
                     separatorBuilder: (_, __) =>
-                        Divider(height: 1, color: kAppDivider),
+                        Divider(height: 1, color: palette.divider),
                     itemBuilder: (context, i) {
                       final folder = _folders[i];
                       final count = _folderItemIds[folder.id]?.length ?? 0;
@@ -187,8 +188,8 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         title: Text(folder.name),
                         subtitle: Text(
                           '$count ${count == 1 ? 'item' : 'items'}',
-                          style: const TextStyle(
-                            color: kAppTextMuted,
+                          style: TextStyle(
+                            color: palette.textMuted,
                             fontSize: 12,
                           ),
                         ),

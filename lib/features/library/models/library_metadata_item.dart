@@ -37,6 +37,7 @@ class LibraryMetadataItem {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
     }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
   static const _unset = Object();
@@ -75,6 +76,7 @@ class LibraryMetadataItem {
   final String? country;
   final String? language;
   final String? ageRating;
+    final String? audienceRating;
 
     String get kind => mediaKind.apiValue;
 
@@ -114,6 +116,7 @@ class LibraryMetadataItem {
       country: item.country,
       language: item.language,
       ageRating: item.ageRating,
+            audienceRating: item.audienceRating,
     );
   }
 
@@ -153,6 +156,7 @@ class LibraryMetadataItem {
     Object? country = _unset,
     Object? language = _unset,
     Object? ageRating = _unset,
+        Object? audienceRating = _unset,
   }) {
     return LibraryMetadataItem(
       id: id ?? this.id,
@@ -250,6 +254,9 @@ class LibraryMetadataItem {
       ageRating: identical(ageRating, _unset)
           ? this.ageRating
           : ageRating as String?,
+      audienceRating: identical(audienceRating, _unset)
+          ? this.audienceRating
+          : audienceRating as String?,
     );
   }
 
@@ -292,6 +299,7 @@ class LibraryMetadataItem {
       country: country,
       language: language,
       ageRating: ageRating,
+            audienceRating: audienceRating,
     );
   }
 

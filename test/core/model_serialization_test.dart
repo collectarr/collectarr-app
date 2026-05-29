@@ -372,7 +372,13 @@ void main() {
               'region': 'US',
               'release_date': '2026-05-11',
               'publisher': 'Marvel',
-              'external_ids': {'comicvine': '4000-1'},
+              'provider_links': [
+                {
+                  'provider': 'comicvine',
+                  'entity_type': 'bundle_release',
+                  'provider_item_id': '4000-1',
+                },
+              ],
             }
           ],
         }
@@ -410,6 +416,7 @@ void main() {
     final item = OwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
+      createdAt: DateTime.utc(2026, 5, 10),
       isDigital: true,
       condition: 'Near Mint',
       grade: '9.8',
@@ -425,6 +432,8 @@ void main() {
       soldAt: DateTime.utc(2026, 5, 20),
       sellPriceCents: 1899,
       soldTo: 'Local shop',
+      ownerUserId: 'user-1',
+      ownerLabel: 'user@example.com',
       locationId: 'loc-short-box-6',
       updatedAt: DateTime.utc(2026, 5, 12),
     );
@@ -432,6 +441,7 @@ void main() {
     final payload = item.toSyncPayload();
 
     expect(payload['item_id'], 'comic-1');
+    expect(payload['created_at'], '2026-05-10T00:00:00.000Z');
     expect(payload['is_digital'], isTrue);
     expect(payload['grade'], '9.8');
     expect(payload['purchase_date'], '2026-05-11T00:00:00.000Z');
@@ -445,6 +455,8 @@ void main() {
     expect(payload['sold_at'], '2026-05-20T00:00:00.000Z');
     expect(payload['sell_price_cents'], 1899);
     expect(payload['sold_to'], 'Local shop');
+    expect(payload['owner_user_id'], 'user-1');
+    expect(payload['owner_label'], 'user@example.com');
     expect(payload['location_id'], 'loc-short-box-6');
   });
 

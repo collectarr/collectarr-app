@@ -21,6 +21,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.mutedTextColor = kAppTextMuted,
+    this.coverWidth = 72,
     super.key,
   });
 
@@ -34,9 +35,22 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final Color selectedColor;
   final Color accentColor;
   final Color mutedTextColor;
+  final double coverWidth;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final resolvedSelectedColor = selectedColor == kAppSelection
+        ? palette.selection
+        : selectedColor;
+    final resolvedMutedTextColor =
+        mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
+    final selectedTitleColor = ThemeData.estimateBrightnessForColor(
+              resolvedSelectedColor,
+            ) ==
+            Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: entry.mediaType,
       editions: entry.editions,
@@ -49,9 +63,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? selectedColor : kAppCardBackground,
+        color: selected ? resolvedSelectedColor : palette.cardBackground,
         border: Border.all(
-          color: selected ? accentColor : kAppCardBorder,
+          color: selected ? accentColor : palette.cardBorder,
           width: selected ? 2 : 1,
         ),
         borderRadius: kAppRadiusSmall,
@@ -67,18 +81,24 @@ class LibraryWorkspaceCard extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: 72,
+                  width: coverWidth,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      LibraryInteractiveCover(
-                        title: entry.resolvedTitle,
-                        itemNumber: entry.itemNumber,
-                        imageUrl: entry.displayCoverUrl,
-                        ownedItemId: entry.ownedItemId,
-                        accentColor: accentColor,
-                        enableFullscreen: false,
-                        enableSecondaryControl: false,
+                      SlabFrameOverlay.maybeWrap(
+                        rawOrSlabbed: entry.rawOrSlabbed,
+                        gradingCompany: entry.gradingCompany,
+                        grade: entry.grade,
+                        labelType: entry.labelType,
+                        child: LibraryInteractiveCover(
+                          title: entry.resolvedTitle,
+                          itemNumber: entry.itemNumber,
+                          imageUrl: entry.displayCoverUrl,
+                          ownedItemId: entry.ownedItemId,
+                          accentColor: accentColor,
+                          enableFullscreen: false,
+                          enableSecondaryControl: false,
+                        ),
                       ),
                       Positioned(
                         left: 4,
@@ -120,8 +140,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   .titleSmall
                                   ?.copyWith(
                                     color: selected
-                                        ? Colors.white
-                                        : kAppAccentLight,
+                                        ? selectedTitleColor
+                                        : (palette.isDark
+                                            ? kAppAccentLight
+                                            : accentColor),
                                     fontWeight: FontWeight.w900,
                                   ),
                             ),
@@ -146,7 +168,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: mutedTextColor,
+                          color: resolvedMutedTextColor,
                             ),
                       ),
                       const SizedBox(height: 8),
@@ -329,8 +351,8 @@ class _LibraryIssuePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
           label,
-          style: const TextStyle(
-            color: kAppSurfaceDim,
+          style: TextStyle(
+            color: appPalette(context).textPrimary,
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),
@@ -353,11 +375,12 @@ class _LibraryCompactMetaPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppTableBottomBorder,
+        color: palette.tableBottomBorder,
         borderRadius: kAppRadiusSmall,
-        border: Border.all(color: kAppBorderSubtle),
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -368,8 +391,8 @@ class _LibraryCompactMetaPill extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: palette.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),

@@ -15,6 +15,29 @@ class ItemImageRepository {
     return rows.map(_fromRow).toList(growable: false);
   }
 
+  Future<Map<String, List<ItemImage>>> listForOwnedItemIds(
+    Iterable<String> ownedItemIds,
+  ) async {
+    final ids = ownedItemIds.where((value) => value.isNotEmpty).toSet().toList(
+          growable: false,
+        );
+    if (ids.isEmpty) {
+      return const <String, List<ItemImage>>{};
+    }
+    final rows = await (_db.select(_db.itemImagesCache)
+          ..where((row) => row.ownedItemId.isIn(ids))
+          ..orderBy([
+            (row) => OrderingTerm.asc(row.sortOrder),
+            (row) => OrderingTerm.asc(row.createdAt),
+          ]))
+        .get();
+    final grouped = <String, List<ItemImage>>{};
+    for (final row in rows) {
+      grouped.putIfAbsent(row.ownedItemId, () => <ItemImage>[]).add(_fromRow(row));
+    }
+    return grouped;
+  }
+
   Future<void> add(ItemImage image) {
     return _db.into(_db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(

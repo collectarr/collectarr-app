@@ -131,7 +131,10 @@ void main() {
       OwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
+        createdAt: DateTime.utc(2026, 5, 21),
         storageBox: 'Short Box 1',
+        ownerUserId: 'user-1',
+        ownerLabel: 'user@example.com',
         locationId: 'loc-1',
         updatedAt: DateTime.utc(2026, 5, 22),
       ),
@@ -141,7 +144,13 @@ void main() {
     final raw = await db.select(db.ownedItemsCache).getSingle();
 
     expect(owned?.locationId, 'loc-1');
+    expect(owned?.createdAt?.toUtc(), DateTime.utc(2026, 5, 21));
+    expect(owned?.ownerUserId, 'user-1');
+    expect(owned?.ownerLabel, 'user@example.com');
     expect(raw.locationId, 'loc-1');
+    expect(raw.createdAt?.toUtc(), DateTime.utc(2026, 5, 21));
+    expect(raw.ownerUserId, 'user-1');
+    expect(raw.ownerLabel, 'user@example.com');
   });
 
   test('owned items repository preserves explicit digital flag', () async {

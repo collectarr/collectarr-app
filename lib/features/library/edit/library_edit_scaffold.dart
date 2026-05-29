@@ -1,8 +1,10 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LibraryEditDialogScaffold extends StatelessWidget {
+class LibraryEditDialogScaffold extends StatefulWidget {
   const LibraryEditDialogScaffold({
     super.key,
     required this.formKey,
@@ -15,6 +17,8 @@ class LibraryEditDialogScaffold extends StatelessWidget {
     required this.views,
     required this.onClose,
     required this.onSave,
+    this.tabOrderKey,
+    this.ebaySearchQuery,
   });
 
   final GlobalKey<FormState> formKey;
@@ -27,13 +31,77 @@ class LibraryEditDialogScaffold extends StatelessWidget {
   final List<Widget> views;
   final VoidCallback onClose;
   final VoidCallback onSave;
+  /// If non-null, the tab order is persisted to SharedPreferences under this key.
+  final String? tabOrderKey;
+  /// If non-null, an eBay search button appears in the title bar.
+  final String? ebaySearchQuery;
+
+  @override
+  State<LibraryEditDialogScaffold> createState() =>
+      _LibraryEditDialogScaffoldState();
+}
+
+class _LibraryEditDialogScaffoldState
+    extends State<LibraryEditDialogScaffold> {
+  late List<int> _tabOrder;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabOrder = List.generate(widget.tabs.length, (i) => i);
+    _loadSavedTabOrder();
+  }
+
+  Future<void> _loadSavedTabOrder() async {
+    final key = widget.tabOrderKey;
+    if (key == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList(key);
+    if (saved != null && saved.length == widget.tabs.length) {
+      final parsed = saved.map(int.tryParse).toList();
+      if (!parsed.contains(null)) {
+        final order = parsed.cast<int>();
+        // Validate: must be a permutation of 0..<length.
+        final check = List.of(order)..sort();
+        if (check.length == widget.tabs.length &&
+            check.indexed.every((e) => e.$2 == e.$1)) {
+          if (!mounted) return;
+          setState(() => _tabOrder = order);
+        }
+      }
+    }
+  }
+
+  Future<void> _saveTabOrder() async {
+    final key = widget.tabOrderKey;
+    if (key == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(key, _tabOrder.map((e) => e.toString()).toList());
+  }
+
+  @override
+  void didUpdateWidget(LibraryEditDialogScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.tabs.length != _tabOrder.length) {
+      _tabOrder = List.generate(widget.tabs.length, (i) => i);
+    }
+  }
+
+  void _onReorderItem(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _tabOrder.removeAt(oldIndex);
+      _tabOrder.insert(newIndex, item);
+    });
+    _saveTabOrder();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final orderedTabs = [for (final i in _tabOrder) widget.tabs[i]];
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: editDialogTheme(seedColor: accent, palette: appPalette(context)),
+        data: editDialogTheme(seedColor: widget.accent, palette: appPalette(context)),
         child: Builder(builder: (context) {
           final p = appPalette(context);
           return DecoratedBox(
@@ -51,42 +119,41 @@ class LibraryEditDialogScaffold extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
               child: Form(
-                key: formKey,
+                key: widget.formKey,
                 child: Column(
                   children: [
                     _LibraryEditTitleBar(
-                      accent: accent,
-                      icon: icon,
-                      title: title,
-                      badges: badges,
-                      onClose: onClose,
+                      accent: widget.accent,
+                      icon: widget.icon,
+                      title: widget.title,
+                      badges: widget.badges,
+                      onClose: widget.onClose,
+                      ebaySearchQuery: widget.ebaySearchQuery,
                     ),
                     ColoredBox(
                       color: p.panelRaised,
-                      child: TabBar(
-                        controller: tabController,
-                        isScrollable: true,
-                        tabAlignment: TabAlignment.start,
+                      child: _ReorderableTabStrip(
+                        tabController: widget.tabController,
+                        tabOrder: _tabOrder,
+                        tabs: orderedTabs,
+                        accent: widget.accent,
                         labelColor: p.textPrimary,
                         unselectedLabelColor: p.textMuted,
-                        indicatorColor: accent,
                         dividerColor: p.divider,
-                        labelPadding:
-                            const EdgeInsets.symmetric(horizontal: 11),
-                        tabs: tabs,
+                        onReorderItem: _onReorderItem,
                       ),
                     ),
                     Expanded(
                       child: ColoredBox(
                         color: p.panel,
                         child: TabBarView(
-                          controller: tabController,
-                          children: views,
+                          controller: widget.tabController,
+                            children: widget.views,
                         ),
                       ),
                     ),
                     _LibraryEditFooter(
-                      onSave: onSave,
+                      onSave: widget.onSave,
                     ),
                   ],
                 ),
@@ -99,6 +166,167 @@ class LibraryEditDialogScaffold extends StatelessWidget {
   }
 }
 
+/// A horizontal reorderable tab strip that replaces the standard [TabBar].
+///
+/// Uses [LongPressDraggable] + [DragTarget] so all tabs are always in the
+/// widget tree (unlike [ReorderableListView] which lazily builds items).
+class _ReorderableTabStrip extends StatelessWidget {
+  const _ReorderableTabStrip({
+    required this.tabController,
+    required this.tabOrder,
+    required this.tabs,
+    required this.accent,
+    required this.labelColor,
+    required this.unselectedLabelColor,
+    required this.dividerColor,
+    required this.onReorderItem,
+  });
+
+  final TabController tabController;
+  final List<int> tabOrder;
+  final List<Widget> tabs;
+  final Color accent;
+  final Color labelColor;
+  final Color unselectedLabelColor;
+  final Color dividerColor;
+  final void Function(int oldIndex, int newIndex) onReorderItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: tabController,
+      builder: (context, _) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 40,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (var i = 0; i < tabs.length; i++)
+                  DragTarget<int>(
+                    onAcceptWithDetails: (details) {
+                      final from = details.data;
+                      if (from != i) {
+                        onReorderItem(from, i);
+                      }
+                    },
+                    builder: (context, candidateData, _) {
+                      return LongPressDraggable<int>(
+                        data: i,
+                        axis: Axis.horizontal,
+                        feedback: Material(
+                          elevation: 4,
+                          color: Colors.transparent,
+                          child: _DraggableTabContent(
+                            tab: tabs[i],
+                            accent: accent,
+                            labelColor: labelColor,
+                          ),
+                        ),
+                        childWhenDragging: Opacity(
+                          opacity: 0.3,
+                          child: _DraggableTabContent(
+                            tab: tabs[i],
+                            accent: accent,
+                            labelColor: unselectedLabelColor,
+                          ),
+                        ),
+                        child: GestureDetector(
+                          onTap: () => tabController.animateTo(tabOrder[i]),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 11),
+                            decoration: BoxDecoration(
+                              color: candidateData.isNotEmpty
+                                  ? accent.withValues(alpha: 0.12)
+                                  : Colors.transparent,
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: tabController.index == tabOrder[i]
+                                      ? accent
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: DefaultTextStyle.merge(
+                              style: TextStyle(
+                                color: tabController.index == tabOrder[i]
+                                    ? labelColor
+                                    : unselectedLabelColor,
+                                fontWeight: tabController.index == tabOrder[i]
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                              child: IconTheme.merge(
+                                data: IconThemeData(
+                                  color: tabController.index == tabOrder[i]
+                                      ? labelColor
+                                      : unselectedLabelColor,
+                                  size: 18,
+                                ),
+                                child: tabs[i],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+            Divider(height: 1, thickness: 1, color: dividerColor),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DraggableTabContent extends StatelessWidget {
+  const _DraggableTabContent({
+    required this.tab,
+    required this.accent,
+    required this.labelColor,
+  });
+
+  final Widget tab;
+  final Color accent;
+  final Color labelColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 11),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      alignment: Alignment.center,
+      child: DefaultTextStyle.merge(
+        style: TextStyle(
+          color: labelColor,
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+        ),
+        child: IconTheme.merge(
+          data: IconThemeData(color: labelColor, size: 18),
+          child: tab,
+        ),
+      ),
+    );
+  }
+}
+
 class _LibraryEditTitleBar extends StatelessWidget {
   const _LibraryEditTitleBar({
     required this.accent,
@@ -106,6 +334,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.title,
     required this.badges,
     required this.onClose,
+    this.ebaySearchQuery,
   });
 
   final Color accent;
@@ -113,6 +342,13 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final String title;
   final List<Widget> badges;
   final VoidCallback onClose;
+  final String? ebaySearchQuery;
+
+  Future<void> _searchOnEbay() async {
+    final query = ebaySearchQuery;
+    if (query == null) return;
+    await launchEbaySearch(query);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +390,13 @@ class _LibraryEditTitleBar extends StatelessWidget {
               ],
             ),
           ),
+          if (ebaySearchQuery != null)
+            IconButton(
+              tooltip: 'Search on eBay',
+              onPressed: _searchOnEbay,
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+            ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,

@@ -38,7 +38,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
   final Color accent;
   final LibraryMetadataItem? selectedItem;
   final ProviderCandidate? selectedCandidate;
-  final _QueuedProviderIngest? selectedQueuedIngest;
+  final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;
   final LibraryAddTarget addTarget;
   final int addCount;
@@ -61,6 +61,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final hasSelection = selectedItem != null || selectedCandidate != null;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
     final addLabel = selectedCandidate != null &&
@@ -74,9 +75,9 @@ class _LibraryAddBottomBar extends StatelessWidget {
               )
             : 'Select a ${type.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppToolbar,
-        border: Border(top: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(top: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 7, 8, 9),
@@ -197,7 +198,7 @@ class _LibraryAddBottomActionButton extends StatelessWidget {
       message: tooltip,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        style: _libraryAddOutlinedButtonStyle(accent),
+        style: libraryAddOutlinedButtonStyle(accent),
         icon: Icon(icon, size: 17),
         label: Text(label),
       ),
@@ -342,17 +343,18 @@ class _LibraryAddTargetMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return PopupMenuButton<LibraryAddTarget>(
       initialValue: value,
       enabled: enabled,
       tooltip: 'Add target',
       position: PopupMenuPosition.under,
-      color: compactMenuBackgroundFor(accent),
+      color: compactMenuBackgroundFor(accent, palette),
       elevation: 10,
       constraints: const BoxConstraints(minWidth: 158, maxWidth: 210),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: accent.withValues(alpha: 0.74)),
+        side: BorderSide(color: compactMenuBorderFor(accent, palette)),
       ),
       padding: EdgeInsets.zero,
       onSelected: onChanged,

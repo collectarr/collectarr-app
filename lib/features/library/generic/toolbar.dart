@@ -1,18 +1,20 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/compact_toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/tools_menu.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
+
+export 'toolbar/toolbar_auxiliary_controls.dart';
+export 'toolbar/toolbar_sections.dart';
 
 class LibraryToolbar extends StatelessWidget {
   const LibraryToolbar({
@@ -28,19 +30,42 @@ class LibraryToolbar extends StatelessWidget {
     required this.onEditColumns,
     required this.onSortChanged,
     this.onEditSort,
+    required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
     required this.onClearBucket,
     required this.onRefreshMetadata,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.onCollectionStatusScopeChanged,
     required this.quickView,
     required this.onQuickViewSelected,
+    this.availableLetters = const {},
+    this.selectedLetter,
+    this.onLetterSelected,
+    this.activeViewPreset,
+    this.onViewPresetSelected,
+    this.pinnedViewPresets = const {},
+    this.onTogglePinnedViewPreset,
+    this.sortFavorites = const [],
+    this.activeSortFavoriteId,
+    this.onSortFavoriteSelected,
+    this.pinnedSortFavoriteIds = const {},
+    this.onTogglePinnedSortFavorite,
+    this.columnFavoritePresets = const [],
+    this.activeColumnFavoriteLabel,
+    this.onColumnFavoriteSelected,
+    this.pinnedColumnFavoriteKeys = const {},
+    this.onTogglePinnedColumnFavorite,
+    this.canJumpToIssue = false,
+    this.onJumpToIssueSubmitted,
     required this.hasActiveFilters,
     required this.onClearFilters,
     this.onEditFilters,
     this.activeFilterCount = 0,
     this.onRandomPick,
+    this.onScanCover,
     this.onDownloadAllCovers,
     this.selectionEnabled = false,
     this.selectedCount = 0,
@@ -56,6 +81,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
+    this.includeDesktopSecondaryBand = true,
   });
 
   final LibraryTypeConfig type;
@@ -69,19 +95,43 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback onEditColumns;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final VoidCallback? onEditSort;
+  final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
   final VoidCallback onClearBucket;
   final VoidCallback onRefreshMetadata;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
   final LibraryQuickView? quickView;
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
+  final Set<String> availableLetters;
+  final String? selectedLetter;
+  final ValueChanged<String?>? onLetterSelected;
+  final LibraryWorkspacePreset? activeViewPreset;
+  final ValueChanged<LibraryWorkspacePreset>? onViewPresetSelected;
+  final Set<LibraryWorkspacePreset> pinnedViewPresets;
+  final ValueChanged<LibraryWorkspacePreset>? onTogglePinnedViewPreset;
+  final List<LibrarySortFavorite> sortFavorites;
+  final String? activeSortFavoriteId;
+  final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
+  final Set<String> pinnedSortFavoriteIds;
+  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
+  final List<LibraryTableColumnPreset> columnFavoritePresets;
+  final String? activeColumnFavoriteLabel;
+  final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
+  final Set<String> pinnedColumnFavoriteKeys;
+  final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
+  final bool canJumpToIssue;
+  final ValueChanged<String>? onJumpToIssueSubmitted;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback? onEditFilters;
   final int activeFilterCount;
   final VoidCallback? onRandomPick;
+  final VoidCallback? onScanCover;
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final bool selectionEnabled;
@@ -97,6 +147,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final bool includeDesktopSecondaryBand;
 
   @override
   Widget build(BuildContext context) {
@@ -107,81 +158,169 @@ class LibraryToolbar extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
-    return LibraryToolbarFrame(
-      backgroundColor: kAppToolbar,
-      dividerColor: kAppDivider,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 760) {
-            return CompactLibraryToolbar(
-              type: type,
-              searchController: searchController,
-              counts: counts,
-              selectedBucket: selectedBucket,
-              onAdd: onAdd,
-              onScan: onScan,
-              onSearchChanged: onSearchChanged,
-              onRefreshMetadata: onRefreshMetadata,
-              onViewModeChanged: onViewModeChanged,
-              onCoverSizeChanged: onCoverSizeChanged,
-              quickView: quickView,
-              onQuickViewSelected: onQuickViewSelected,
-              hasActiveFilters: hasActiveFilters,
-              onClearFilters: onClearFilters,
-              onRandomPick: onRandomPick,
-              onDownloadAllCovers: onDownloadAllCovers,
-              onEditConditionPickList: onEditConditionPickList,
-              onEditGradePickList: onEditGradePickList,
-              onEditTagPickList: onEditTagPickList,
-              onEditSort: onEditSort,
-            );
-          }
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            child: Row(
-              children: [
-                LibraryToolbarPrimaryActions(
-                  addLabel: 'Add ${type.pluralLabel}',
+        final palette = appPalette(context);
+        return LibraryToolbarFrame(
+          backgroundColor: palette.toolbar,
+          dividerColor: palette.divider,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 760) {
+                return LibraryCompactToolbarContent(
+                  type: type,
+                  searchController: searchController,
+                  accent: accent,
+                  counts: counts,
+                  viewMode: viewState.viewMode,
+                  selectedBucket: selectedBucket,
                   onAdd: onAdd,
-                  onScanBarcode: onScan,
+                  onScan: onScan,
+                  onSearchChanged: onSearchChanged,
                   onRefreshMetadata: onRefreshMetadata,
-                  addBackgroundColor: accent,
-                  addForegroundColor: _toolbarForegroundForAccent(accent),
-                ),
-                const LibraryWorkspaceSeparator(color: kAppDivider),
-                LibraryToolbarSearch(
-                  controller: searchController,
-                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-                  selectedFilterLabel: selectedBucket,
-                  onSearch: onSearchChanged,
-                  onClearFilter: onClearBucket,
-                  onChanged: onSearchChanged,
-                  selectionColor: kAppSelection,
-                ),
-                const SizedBox(width: 8),
-                _ItemCountLabel(
-                  shown: counts.shown,
-                  total: counts.total,
-                  pluralLabel: type.pluralLabel,
-                ),
-                const Spacer(),
-                if (selectionCallbacks != null)
-                  LibrarySelectionControls(
-                    selectedCount: selectedCount,
-                    callbacks: selectionCallbacks!,
+                  onViewModeChanged: onViewModeChanged,
+                  onDetailsLayoutChanged: onDetailsLayoutChanged,
+                  onCoverSizeChanged: onCoverSizeChanged,
+                  quickView: quickView,
+                  onQuickViewSelected: onQuickViewSelected,
+                  collectionStatusScope: collectionStatusScope,
+                  onCollectionStatusScopeChanged:
+                      onCollectionStatusScopeChanged,
+                  activeViewPreset: activeViewPreset,
+                  onViewPresetSelected: onViewPresetSelected,
+                  pinnedViewPresets: pinnedViewPresets,
+                  onTogglePinnedViewPreset: onTogglePinnedViewPreset,
+                  sortFavorites: sortFavorites,
+                  activeSortFavoriteId: activeSortFavoriteId,
+                  onSortFavoriteSelected: onSortFavoriteSelected,
+                  pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                  onTogglePinnedSortFavorite: onTogglePinnedSortFavorite,
+                  columnFavoritePresets: columnFavoritePresets,
+                  activeColumnFavoriteLabel: activeColumnFavoriteLabel,
+                  onColumnFavoriteSelected: onColumnFavoriteSelected,
+                  pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
+                  onTogglePinnedColumnFavorite: onTogglePinnedColumnFavorite,
+                  onManageColumns: onEditColumns,
+                  canJumpToIssue: canJumpToIssue,
+                  onJumpToIssueSubmitted: onJumpToIssueSubmitted,
+                  hasActiveFilters: hasActiveFilters,
+                  onClearFilters: onClearFilters,
+                  onClearBucket: onClearBucket,
+                  onEditFilters: onEditFilters,
+                  activeFilterCount: activeFilterCount,
+                  onRandomPick: onRandomPick,
+                  onDownloadAllCovers: onDownloadAllCovers,
+                  onSmartLists: onSmartLists,
+                  onFolders: onFolders,
+                  onReadingQueue: onReadingQueue,
+                  onEditConditionPickList: onEditConditionPickList,
+                  onEditGradePickList: onEditGradePickList,
+                  onEditTagPickList: onEditTagPickList,
+                  onEditSort: onEditSort,
+                  availableLetters: availableLetters,
+                  selectedLetter: selectedLetter,
+                  onLetterSelected: onLetterSelected,
+                  selectionCallbacks: selectionCallbacks,
+                  selectedCount: selectedCount,
+                );
+              }
+
+              final showChromeRow = onCollectionStatusScopeChanged != null;
+              final showAlphabetRow = onLetterSelected != null;
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Row(
+                      children: [
+                        LibraryToolbarPrimaryActions(
+                          addLabel: 'Add ${type.pluralLabel}',
+                          onAdd: onAdd,
+                          onScanBarcode: onScan,
+                          onRefreshMetadata: onRefreshMetadata,
+                          onRandomPick: onRandomPick,
+                          onScanCover: onScanCover,
+                          addBackgroundColor: accent,
+                          addForegroundColor:
+                              _toolbarForegroundForAccent(accent),
+                        ),
+                        if (showChromeRow) ...[
+                          const SizedBox(width: 8),
+                          LibraryCollectionStatusScopeDropdown(
+                            collectionStatusScope: collectionStatusScope,
+                            onCollectionStatusScopeChanged:
+                                onCollectionStatusScopeChanged!,
+                          ),
+                        ],
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              if (showAlphabetRow)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: LibraryToolbarAlphabetRow(
+                                      letters: availableLetters,
+                                      selectedLetter: selectedLetter,
+                                      onLetterSelected: onLetterSelected!,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Spacer(),
+                              Flexible(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 760,
+                                    ),
+                                    child: LibraryToolbarSearch(
+                                      controller: searchController,
+                                      hintText:
+                                          'Search ${type.pluralLabel.toLowerCase()}...',
+                                      onScanBarcode: onScan,
+                                      onScanCover: onScanCover,
+                                      selectedFilterLabel: selectedBucket,
+                                      onSearch: onSearchChanged,
+                                      onClearFilter: onClearBucket,
+                                      onChanged: onSearchChanged,
+                                      selectionColor: palette.selection,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                if (selectionCallbacks != null && selectedCount > 0)
-                  const LibraryWorkspaceSeparator(color: kAppDivider),
-                LibraryWorkspaceControlStrip(
-                  children: [
-                    LibraryToolsButton(
+                  if (includeDesktopSecondaryBand)
+                    LibraryDesktopSecondaryToolbar(
                       type: type,
+                      viewState: viewState,
+                      adapter: adapter,
                       counts: counts,
+                      onEditColumns: onEditColumns,
+                      onEditSort: onEditSort,
+                      onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                      onViewModeChanged: onViewModeChanged,
+                      onDetailsLayoutChanged: onDetailsLayoutChanged,
+                      onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
                       quickView: quickView,
+                      activeSortFavoriteId: activeSortFavoriteId,
+                      sortFavorites: sortFavorites,
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
+                      onEditFilters: onEditFilters,
+                      activeFilterCount: activeFilterCount,
                       onRandomPick: onRandomPick,
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
@@ -191,44 +330,23 @@ class LibraryToolbar extends StatelessWidget {
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,
                       onEditTagPickList: onEditTagPickList,
-                      onEditSort: onEditSort,
                       onTransferFieldData: onTransferFieldData,
                       onReassignIndex: onReassignIndex,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),
-                    if (onEditFilters != null)
-                      _FilterButton(
-                        activeCount: activeFilterCount,
-                        onPressed: onEditFilters!,
-                      ),
-                    LibraryViewTableControls(
-                      state: LibraryViewTableControlState(
-                        counts: LibraryWorkspaceCounts(
-                          shown: counts.shown,
-                          total: counts.total,
-                        ),
-                        viewMode: viewState.viewMode,
-                        detailsLayout: viewState.detailsLayout,
-                        coverSize: viewState.coverSize,
-                        minCoverSize: adapter.viewProfile.minCoverSize,
-                        maxCoverSize: adapter.viewProfile.maxCoverSize,
-                      ),
-                      callbacks: LibraryViewTableControlCallbacks(
-                        onEditColumns: onEditColumns,
-                        onViewModeChanged: onViewModeChanged,
-                        onDetailsLayoutChanged: onDetailsLayoutChanged,
-                        onCoverSizeChanged: onCoverSizeChanged,
-                      ),
+                  if (selectionCallbacks != null && selectedCount > 0) ...[
+                    const LibraryToolbarDividerLine(),
+                    LibrarySelectionToolbarBand(
+                      selectedCount: selectedCount,
+                      callbacks: selectionCallbacks!,
                     ),
                   ],
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+                ],
+              );
+            },
+          ),
+        );
       },
     );
   }
@@ -238,56 +356,3 @@ Color _toolbarForegroundForAccent(Color accent) {
   return Colors.white;
 }
 
-class _FilterButton extends StatelessWidget {
-  const _FilterButton({
-    required this.activeCount,
-    required this.onPressed,
-  });
-
-  final int activeCount;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: activeCount > 0,
-      label: Text(activeCount.toString()),
-      child: IconButton(
-        icon: Icon(
-          activeCount > 0
-              ? Icons.filter_alt
-              : Icons.filter_alt_outlined,
-          size: 20,
-        ),
-        tooltip: 'Edit filters',
-        onPressed: onPressed,
-      ),
-    );
-  }
-}
-
-class _ItemCountLabel extends StatelessWidget {
-  const _ItemCountLabel({
-    required this.shown,
-    required this.total,
-    required this.pluralLabel,
-  });
-
-  final int shown;
-  final int total;
-  final String pluralLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = shown == total
-        ? '$total ${pluralLabel.toLowerCase()}'
-        : '$shown of $total ${pluralLabel.toLowerCase()}';
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 12,
-        color: kAppTextMuted,
-      ),
-    );
-  }
-}

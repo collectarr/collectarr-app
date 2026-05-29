@@ -32,8 +32,9 @@ class _CollectionShareDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Icon(Icons.share, size: 20),
@@ -48,7 +49,7 @@ class _CollectionShareDialog extends StatelessWidget {
           children: [
             Text(
               '${items.length} items in current view',
-              style: TextStyle(color: kAppTextMuted),
+              style: TextStyle(color: palette.textMuted),
             ),
             const SizedBox(height: 16),
             _ShareOption(
@@ -317,8 +318,9 @@ class _ShareOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Material(
-      color: kAppPanelRaised,
+      color: palette.panelRaised,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -338,11 +340,11 @@ class _ShareOption extends StatelessWidget {
                             fontSize: 13, fontWeight: FontWeight.w600)),
                     Text(subtitle,
                         style:
-                            TextStyle(fontSize: 11, color: kAppTextMuted)),
+                            TextStyle(fontSize: 11, color: palette.textMuted)),
                   ],
                 ),
               ),
-              Icon(Icons.copy, size: 16, color: kAppTextMuted),
+              Icon(Icons.copy, size: 16, color: palette.textMuted),
             ],
           ),
         ),

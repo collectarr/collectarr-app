@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_collection
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
@@ -123,6 +124,11 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   ? null
                   : () => widget.onEdit!(activeOwnedItem),
               icon: const Icon(Icons.edit_outlined),
+            ),
+            IconButton(
+              tooltip: 'Search on eBay',
+              onPressed: () => _searchOnEbay(widget.entry),
+              icon: const Icon(Icons.shopping_cart_outlined),
             ),
             if (activeOwnedItem != null)
               IconButton(
@@ -314,6 +320,13 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _searchOnEbay(LibraryWorkspaceEntry entry) async {
+    final query = entry.itemNumber != null
+        ? '${entry.resolvedTitle} #${entry.itemNumber}'
+        : entry.resolvedTitle;
+    await launchEbaySearch(query);
   }
 
   Future<void> _addOwnedCopy(

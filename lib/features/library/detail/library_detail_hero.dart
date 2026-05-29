@@ -32,7 +32,7 @@ class LibraryDetailHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
-    final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
+    final resolvedIsOwned = isOwned ?? (ownedItem != null || entry.isOwned);
     final referenceLabel =
         libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
             entry.primaryReferenceLabel;
@@ -85,33 +85,39 @@ class LibraryDetailHero extends StatelessWidget {
                         .value;
                 return SizedBox(
                   width: wide ? 180 : 150,
-                  child: LibraryInteractiveCover(
-                    title: entry.resolvedTitle,
-                    itemNumber: entry.itemNumber,
-                    imageUrl: entry.displayCoverUrl,
-                    localBase64: localFront,
-                    secondaryLocalBase64: localBack,
-                    ownedItemId: ownedItemId,
-                    accentColor: accent,
-                    onMissingSecondaryPressed: ownedItemId == null
-                        ? null
-                        : () async {
-                            final savedType = await pickAndStoreOwnedItemImage(
-                              context: context,
-                              db: db,
-                              ownedItemId: ownedItemId,
-                              imageType: 'back_cover',
-                            );
-                            if (savedType == 'back_cover') {
-                              ref.invalidate(
-                                localItemImageProvider((
-                                  ownedItemId: ownedItemId,
-                                  imageType: 'back_cover',
-                                )),
+                  child: SlabFrameOverlay.maybeWrap(
+                    rawOrSlabbed: ownedItem?.rawOrSlabbed,
+                    gradingCompany: ownedItem?.gradingCompany,
+                    grade: ownedItem?.grade,
+                    labelType: ownedItem?.labelType,
+                    child: LibraryInteractiveCover(
+                      title: entry.resolvedTitle,
+                      itemNumber: entry.itemNumber,
+                      imageUrl: entry.displayCoverUrl,
+                      localBase64: localFront,
+                      secondaryLocalBase64: localBack,
+                      ownedItemId: ownedItemId,
+                      accentColor: accent,
+                      onMissingSecondaryPressed: ownedItemId == null
+                          ? null
+                          : () async {
+                              final savedType = await pickAndStoreOwnedItemImage(
+                                context: context,
+                                db: db,
+                                ownedItemId: ownedItemId,
+                                imageType: 'back_cover',
                               );
-                            }
-                          },
-                  ),
+                              if (savedType == 'back_cover') {
+                                ref.invalidate(
+                                  localItemImageProvider((
+                                    ownedItemId: ownedItemId,
+                                    imageType: 'back_cover',
+                                  )),
+                                );
+                              }
+                            },
+                      ),
+                    ),
                 );
               },
             );
@@ -214,6 +220,12 @@ class LibraryDetailHero extends StatelessWidget {
                         label: ownedItem!.grade!,
                         accent: accent,
                       ),
+                    if (ownedItem?.certificationNumber != null)
+                      _DetailHeaderChip(
+                        icon: Icons.verified_outlined,
+                        label: 'Cert #${ownedItem!.certificationNumber!}',
+                        accent: accent,
+                      ),
                     if (entry.video?.runtimeMinutes != null)
                       _DetailHeaderChip(
                         icon: Icons.schedule,
@@ -290,7 +302,7 @@ class LibraryDetailHero extends StatelessWidget {
                     maxLines: wide ? 5 : 4,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: kAppTextMuted,
+                          color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),

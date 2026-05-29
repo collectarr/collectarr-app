@@ -32,14 +32,16 @@ class _EpisodeRatingPickerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return AlertDialog(
-      backgroundColor: kAppSurface,
+      backgroundColor: palette.panel,
       title: Text(
         'S$season E$episode',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w900,
-          color: Colors.white,
+          color: onSurface,
         ),
       ),
       contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
@@ -83,6 +85,7 @@ class _RatingChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final hue = ((value - 1) / 9 * 120).clamp(0.0, 120.0);
     final color = HSLColor.fromAHSL(1.0, hue, 0.7, 0.35).toColor();
     return Material(
@@ -98,7 +101,7 @@ class _RatingChip extends StatelessWidget {
             child: Text(
               value.toString(),
               style: TextStyle(
-                color: selected ? Colors.white : Colors.white70,
+                color: selected ? Colors.white : onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
               ),

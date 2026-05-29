@@ -173,6 +173,12 @@ class _InspectorThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bytes = base64.decode(image.imageData);
+    final palette = appPalette(context);
+    final dismissBackground = palette.panel.withValues(alpha: 0.84);
+    final dismissForeground = ThemeData.estimateBrightnessForColor(dismissBackground) ==
+            Brightness.dark
+        ? Colors.white
+        : Colors.black87;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -192,7 +198,7 @@ class _InspectorThumbnail extends StatelessWidget {
                   width: 80,
                   height: 100,
                   color: kAppSurfaceSubtle,
-                  child: const Icon(Icons.broken_image, color: Colors.white38),
+                  child: Icon(Icons.broken_image, color: palette.textMuted),
                 ),
               ),
             ),
@@ -206,14 +212,14 @@ class _InspectorThumbnail extends StatelessWidget {
                 customBorder: const CircleBorder(),
                 child: Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
+                  decoration: BoxDecoration(
+                    color: dismissBackground,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.close,
                     size: 14,
-                    color: Colors.white70,
+                    color: dismissForeground,
                   ),
                 ),
               ),

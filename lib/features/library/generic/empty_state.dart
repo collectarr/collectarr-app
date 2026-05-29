@@ -29,8 +29,9 @@ class LibraryEmptyState extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final animatedAccent = color ?? accent;
+        final palette = appPalette(context);
     return ColoredBox(
-      color: kAppCanvas,
+      color: palette.canvas,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
@@ -44,8 +45,8 @@ class LibraryEmptyState extends StatelessWidget {
                     ? 'No matching ${type.pluralLabel.toLowerCase()}'
                     : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: palette.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),
@@ -56,8 +57,8 @@ class LibraryEmptyState extends StatelessWidget {
                     ? 'Clear filters to return to your local shelf.'
                     : _emptyStateSummary(type),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -86,7 +87,7 @@ class LibraryEmptyState extends StatelessWidget {
                     'Manual add is enabled even without provider search.',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kAppTextMuted,
+                        color: palette.textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),

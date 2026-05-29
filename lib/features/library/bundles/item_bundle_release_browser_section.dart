@@ -128,6 +128,7 @@ class _ItemBundleReleaseBrowserSectionState
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final selectedId = _selectedBundleReleaseId;
     final selectedDetail = selectedId == null ? null : _detailsById[selectedId];
     final selectedDetailError =
@@ -165,7 +166,7 @@ class _ItemBundleReleaseBrowserSectionState
             ),
             subtitle: Text(
               _summaryLabel(),
-              style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             children: [
               if (_summariesLoading)
@@ -181,7 +182,7 @@ class _ItemBundleReleaseBrowserSectionState
                     children: [
                       Text(
                         'Could not load collected editions: $_summariesError',
-                        style: const TextStyle(color: kAppTextMuted),
+                        style: TextStyle(color: palette.textMuted),
                       ),
                       const SizedBox(height: 8),
                       OutlinedButton.icon(
@@ -193,11 +194,11 @@ class _ItemBundleReleaseBrowserSectionState
                   ),
                 )
               else if ((_summaries ?? const <BundleReleaseSummary>[]).isEmpty)
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Core has not returned any collected editions for this title yet.',
-                    style: TextStyle(color: kAppTextMuted),
+                    style: TextStyle(color: palette.textMuted),
                   ),
                 )
               else ...[
@@ -233,7 +234,7 @@ class _ItemBundleReleaseBrowserSectionState
                       children: [
                         Text(
                           'Could not load edition contents: $selectedDetailError',
-                          style: const TextStyle(color: kAppTextMuted),
+                          style: TextStyle(color: palette.textMuted),
                         ),
                         const SizedBox(height: 8),
                         OutlinedButton.icon(

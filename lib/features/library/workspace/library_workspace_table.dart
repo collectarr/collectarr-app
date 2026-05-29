@@ -105,6 +105,25 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final resolvedHeaderColor =
+      widget.headerColor == kAppSurface ? palette.surface : widget.headerColor;
+    final resolvedDividerColor =
+      widget.dividerColor == kAppDivider ? palette.divider : widget.dividerColor;
+    final resolvedSelectedColor = widget.selectedColor == kAppSelection
+      ? palette.selection
+      : widget.selectedColor;
+    final resolvedOddColor =
+      widget.oddColor == kAppTableOddRow ? palette.tableOddRow : widget.oddColor;
+    final resolvedEvenColor = widget.evenColor == kAppTableEvenRow
+      ? palette.tableEvenRow
+      : widget.evenColor;
+    final resolvedBottomBorderColor =
+      widget.bottomBorderColor == kAppTableBottomBorder
+        ? palette.tableBottomBorder
+        : widget.bottomBorderColor;
+    final resolvedHoverColor =
+      widget.hoverColor == kAppTableHover ? palette.tableHover : widget.hoverColor;
     return Column(
       children: [
         _LibraryWorkspaceTableHeader(
@@ -122,8 +141,8 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
           headerHeight: widget.headerHeight,
           columnSpacing: widget.columnSpacing,
           horizontalMargin: widget.horizontalMargin,
-          headerColor: widget.headerColor,
-          dividerColor: widget.dividerColor,
+          headerColor: resolvedHeaderColor,
+          dividerColor: resolvedDividerColor,
           accentColor: widget.accentColor,
         ),
         Expanded(
@@ -156,12 +175,12 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                   columnSpacing: widget.columnSpacing,
                   horizontalMargin: widget.horizontalMargin,
                   selectionRailWidth: widget.selectionRailWidth,
-                  selectedColor: widget.selectedColor,
-                  oddColor: widget.oddColor,
-                  evenColor: widget.evenColor,
+                  selectedColor: resolvedSelectedColor,
+                  oddColor: resolvedOddColor,
+                  evenColor: resolvedEvenColor,
                   selectionRailColor: widget.selectionRailColor,
-                  bottomBorderColor: widget.bottomBorderColor,
-                  hoverColor: widget.hoverColor,
+                  bottomBorderColor: resolvedBottomBorderColor,
+                  hoverColor: resolvedHoverColor,
                 );
               },
             ),
@@ -307,6 +326,11 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final headerTextColor =
+        ThemeData.estimateBrightnessForColor(headerColor) == Brightness.dark
+            ? Colors.white
+            : Theme.of(context).colorScheme.onSurface;
+    final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
     return DragTarget<LibraryTableColumn>(
       onWillAcceptWithDetails: (details) {
         return onColumnReordered != null && details.data != column;
@@ -346,14 +370,16 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             label: label,
                             headerColor: headerColor,
                             accentColor: accentColor,
+                            labelColor: headerTextColor,
+                            mutedColor: headerMutedTextColor,
                           ),
                         Expanded(
                           child: Text(
                             label,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: headerTextColor,
                               fontWeight: FontWeight.w800,
                               fontSize: 11,
                             ),
@@ -447,21 +473,25 @@ class _LibraryColumnDragHandle extends StatelessWidget {
     required this.label,
     required this.headerColor,
     required this.accentColor,
+    required this.labelColor,
+    required this.mutedColor,
   });
 
   final LibraryTableColumn column;
   final String label;
   final Color headerColor;
   final Color accentColor;
+  final Color labelColor;
+  final Color mutedColor;
 
   @override
   Widget build(BuildContext context) {
     final feedbackLabel =
         label.trim().isEmpty ? _humanizeEnumName(column.name) : label;
-    const icon = Icon(
+    final icon = Icon(
       Icons.drag_indicator,
       size: 14,
-      color: Colors.white70,
+      color: mutedColor,
     );
     return Padding(
       padding: const EdgeInsets.only(right: 3),
@@ -484,8 +514,8 @@ class _LibraryColumnDragHandle extends StatelessWidget {
                 ),
                 child: Text(
                   feedbackLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: labelColor,
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                   ),
@@ -493,7 +523,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
               ),
             ),
           ),
-          childWhenDragging: const Opacity(opacity: 0.35, child: icon),
+          childWhenDragging: Opacity(opacity: 0.35, child: icon),
           child: icon,
         ),
       ),

@@ -2,10 +2,12 @@ import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibraryCoverTile extends StatelessWidget {
+class LibraryCoverTile extends ConsumerWidget {
   const LibraryCoverTile({
     required this.entry,
     required this.selected,
@@ -30,26 +32,54 @@ class LibraryCoverTile extends StatelessWidget {
   final Color mutedTextColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uiPrefs = ref.watch(uiPreferencesProvider);
+    final palette = appPalette(context);
+    final flat = uiPrefs.flatCovers;
+    final showTitles = uiPrefs.showCoverTitles;
+    final resolvedSelectedColor = selectedColor == kAppSelection
+      ? palette.selection
+      : selectedColor;
+    final resolvedSelectionColor =
+      selectionColor == kAppHighlight ? accentColor : selectionColor;
+    final resolvedMutedTextColor =
+        mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
+    final selectedTextColor = ThemeData.estimateBrightnessForColor(
+          resolvedSelectedColor,
+        ) ==
+        Brightness.dark
+      ? Colors.white
+      : Theme.of(context).colorScheme.onSurface;
+    final selectedSecondaryTextColor = selectedTextColor.withValues(alpha: 0.72);
     return RepaintBoundary(
       child: AnimatedContainer(
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(2),
+      padding: flat ? EdgeInsets.zero : const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: selected ? selectedColor : appPalette(context).field,
-        borderRadius: kAppRadiusSmall,
-        border: Border.all(
-          color: selected ? accentColor : kAppCardBorder,
-          width: selected ? 2 : 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x99000000),
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
+        color: selected
+        ? resolvedSelectedColor
+        : (flat ? Colors.transparent : palette.field),
+        borderRadius: flat ? BorderRadius.zero : kAppRadiusSmall,
+        border: flat
+            ? (selected
+                ? Border.all(color: accentColor, width: 2)
+                : null)
+            : Border.all(
+                color: selected ? accentColor : palette.cardBorder,
+                width: selected ? 2 : 1,
+              ),
+        boxShadow: flat
+            ? null
+            : [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withValues(
+                    alpha: palette.isDark ? 0.6 : 0.18,
+                  ),
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -64,14 +94,20 @@ class LibraryCoverTile extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    LibraryInteractiveCover(
-                      title: entry.resolvedTitle,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: entry.displayCoverUrl,
-                      ownedItemId: entry.ownedItemId,
-                      accentColor: accentColor,
-                      enableFullscreen: false,
-                      enableSecondaryControl: false,
+                    SlabFrameOverlay.maybeWrap(
+                      rawOrSlabbed: entry.rawOrSlabbed,
+                      gradingCompany: entry.gradingCompany,
+                      grade: entry.grade,
+                      labelType: entry.labelType,
+                      child: LibraryInteractiveCover(
+                        title: entry.resolvedTitle,
+                        itemNumber: entry.itemNumber,
+                        imageUrl: entry.displayCoverUrl,
+                        ownedItemId: entry.ownedItemId,
+                        accentColor: accentColor,
+                        enableFullscreen: false,
+                        enableSecondaryControl: false,
+                      ),
                     ),
                     Positioned(
                       left: 4,
@@ -98,13 +134,14 @@ class LibraryCoverTile extends StatelessWidget {
                           padding: const EdgeInsets.all(4),
                           child: Icon(
                             Icons.check_circle,
-                            color: selectionColor,
+                            color: resolvedSelectionColor,
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
+              if (showTitles) ...[
               const SizedBox(height: 4),
               Text(
                 entry.itemNumber == null
@@ -113,7 +150,7 @@ class LibraryCoverTile extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: selected ? Colors.white : mutedTextColor,
+                      color: selected ? selectedTextColor : resolvedMutedTextColor,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                       fontSize: 11,
                       height: 1.2,
@@ -127,8 +164,8 @@ class LibraryCoverTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: selected
-                            ? Colors.white70
-                            : mutedTextColor.withValues(alpha: 0.7),
+                            ? selectedSecondaryTextColor
+                            : resolvedMutedTextColor.withValues(alpha: 0.7),
                         fontSize: 9,
                         height: 1.2,
                       ),
@@ -145,14 +182,15 @@ class LibraryCoverTile extends StatelessWidget {
                       entry.releaseYear.toString(),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: selected
-                                ? Colors.white70
-                                : mutedTextColor.withValues(alpha: 0.6),
+                                ? selectedSecondaryTextColor
+                                : resolvedMutedTextColor.withValues(alpha: 0.6),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
                 ],
               ),
+              ],
             ],
           ),
         ),

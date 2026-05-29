@@ -90,8 +90,9 @@ class _InsuranceValueDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: const Row(
         children: [
           Icon(Icons.shield_outlined, size: 22),
@@ -127,18 +128,18 @@ class _InsuranceValueDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: kAppPanelRaised,
+                color: palette.panelRaised,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: kAppTextMuted),
+                  Icon(Icons.info_outline, size: 16, color: palette.textMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'For insurance purposes, consider using cover price '
                       'or current market value as the replacement cost.',
-                      style: TextStyle(fontSize: 11, color: kAppTextMuted),
+                      style: TextStyle(fontSize: 11, color: palette.textMuted),
                     ),
                   ),
                 ],
@@ -170,18 +171,20 @@ class _ValueRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: kAppTextMuted, fontSize: 13)),
+          Text(label, style: TextStyle(color: palette.textMuted, fontSize: 13)),
           Text(
             value,
             style: TextStyle(
               fontSize: highlight ? 16 : 13,
               fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
-              color: highlight ? kAppAccent : Colors.white,
+              color: highlight ? Theme.of(context).colorScheme.primary : onSurface,
             ),
           ),
         ],

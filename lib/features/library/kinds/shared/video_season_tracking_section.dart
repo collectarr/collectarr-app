@@ -95,7 +95,10 @@ class _VideoSeasonTrackingSectionState
                 const SizedBox(height: 6),
                 Text(
                   '$watchedInSelectedSeason/${selectedSeason.episodes.length} watched in ${selectedSeason.title}',
-                  style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+                  style: TextStyle(
+                    color: appPalette(context).textMuted,
+                    fontSize: 12,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
@@ -400,10 +403,11 @@ class _VideoEpisodeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
           side: BorderSide(color: accent.withValues(alpha: 0.14)),
@@ -422,7 +426,7 @@ class _VideoEpisodeTile extends StatelessWidget {
                       watched
                           ? Icons.check_box
                           : Icons.check_box_outline_blank,
-                      color: watched ? accent : kAppTextMuted,
+                      color: watched ? accent : palette.textMuted,
                     ),
                   ),
             title: Text(
@@ -436,7 +440,7 @@ class _VideoEpisodeTile extends StatelessWidget {
                   episode.airDate!,
                 if (watchCount > 0) '🎬 $watchCount',
               ].join(' • '),
-              style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             onTap: busy ? null : onPressed,
           ),
@@ -469,6 +473,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     final customEpisodes = customEpisodesAsync.maybeWhen(
       data: (grouped) => grouped[seasonNumber] ?? const <CustomEpisode>[],
       orElse: () => const <CustomEpisode>[],
@@ -478,12 +483,12 @@ class _CustomEpisodesPanel extends ConsumerWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.edit_note, size: 16, color: kAppTextMuted),
+            Icon(Icons.edit_note, size: 16, color: palette.textMuted),
             const SizedBox(width: 4),
             Text(
               'Custom episodes',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: kAppTextMuted,
+                    color: palette.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
             ),
@@ -497,11 +502,11 @@ class _CustomEpisodesPanel extends ConsumerWidget {
           ],
         ),
         if (customEpisodes.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 4, bottom: 4),
             child: Text(
               'No custom episodes — tap + to add one.',
-              style: TextStyle(color: kAppTextMuted, fontSize: 12),
+              style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
           ),
         for (final ep in customEpisodes)
@@ -582,10 +587,11 @@ class _CustomEpisodeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
           side: BorderSide(color: accent.withValues(alpha: 0.14)),
@@ -602,7 +608,7 @@ class _CustomEpisodeTile extends StatelessWidget {
                   onPressed: onPressed,
                   icon: Icon(
                     watched ? Icons.check_box : Icons.check_box_outline_blank,
-                    color: watched ? accent : kAppTextMuted,
+                    color: watched ? accent : palette.textMuted,
                   ),
                 ),
           title: Text(
@@ -617,11 +623,11 @@ class _CustomEpisodeTile extends StatelessWidget {
               if (watchCount > 0) '🎬 $watchCount',
               '✏️ custom',
             ].join(' • '),
-            style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+            style: TextStyle(color: palette.textMuted, fontSize: 12),
           ),
           trailing: IconButton(
             icon: const Icon(Icons.delete_outline, size: 18),
-            color: kAppTextMuted,
+            color: palette.textMuted,
             tooltip: 'Delete custom episode',
             onPressed: onDelete,
           ),

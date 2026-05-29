@@ -19,15 +19,17 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_entr
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef LibraryItemContextMenuCallback = void Function(
   LibraryProjectionItem item,
   Offset globalPosition,
 );
 
-class LibraryWorkspace extends StatelessWidget {
+class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
     super.key,
     required this.type,
@@ -126,7 +128,20 @@ class LibraryWorkspace extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uiPrefs = ref.watch(uiPreferencesProvider);
+    final palette = appPalette(context);
+    final gridSpacing = uiPrefs.gridSpacing;
+    final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
+    final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
+    final cardScale = defaultCoverSize > 0
+      ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
+      : 1.0;
+    final cardCoverWidth = (uiPrefs.cardCoverWidth * cardScale)
+        .clamp(60.0, 164.0)
+        .toDouble();
+    final cardTileWidth = (430.0 * cardScale).clamp(336.0, 620.0).toDouble();
+    final cardTileHeight = (156.0 * cardScale).clamp(132.0, 228.0).toDouble();
     if (_showGrouped && items.isNotEmpty) {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
@@ -149,10 +164,10 @@ class LibraryWorkspace extends StatelessWidget {
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
-              selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+              selectedColor: palette.selection,
               accentColor: accent,
               selectionColor: accent,
-              mutedTextColor: kAppTextMuted,
+              mutedTextColor: palette.textMuted,
             ),
           ),
         LibraryViewMode.card => _GroupedGrid(
@@ -163,9 +178,8 @@ class LibraryWorkspace extends StatelessWidget {
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
             accent: accent,
-            maxCrossAxisExtent: 430,
-            mainAxisExtent:
-                (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+            maxCrossAxisExtent: cardTileWidth,
+            mainAxisExtent: cardTileHeight,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               key: ValueKey(item.entry.id),
@@ -178,9 +192,10 @@ class LibraryWorkspace extends StatelessWidget {
                   : (d) => onItemContextMenu!(item, d.globalPosition),
               dateFormatter: formatDate,
               moneyFormatter: formatMoney,
-              selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+              selectedColor: palette.selection,
               accentColor: accent,
-              mutedTextColor: kAppTextMuted,
+              mutedTextColor: palette.textMuted,
+              coverWidth: cardCoverWidth,
             ),
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
@@ -207,11 +222,14 @@ class LibraryWorkspace extends StatelessWidget {
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: viewState.coverSize,
           mainAxisExtent: viewState.coverSize * 1.53,
+          crossAxisSpacing: gridSpacing,
+          mainAxisSpacing: gridSpacing,
+          padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kAppGridCanvas,
+          backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.entry.id),
             entry: item.entry,
@@ -221,23 +239,25 @@ class LibraryWorkspace extends StatelessWidget {
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
-            selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+            selectedColor: palette.selection,
             accentColor: accent,
             selectionColor: accent,
-            mutedTextColor: kAppTextMuted,
+            mutedTextColor: palette.textMuted,
           ),
         ),
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
           emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent: 430,
-          mainAxisExtent:
-              (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+          maxCrossAxisExtent: cardTileWidth,
+          mainAxisExtent: cardTileHeight,
+          crossAxisSpacing: gridSpacing,
+          mainAxisSpacing: gridSpacing,
+          padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kAppGridCanvas,
+          backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             key: ValueKey(item.entry.id),
             entry: item.entry,
@@ -249,9 +269,10 @@ class LibraryWorkspace extends StatelessWidget {
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             dateFormatter: formatDate,
             moneyFormatter: formatMoney,
-            selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+            selectedColor: palette.selection,
             accentColor: accent,
-            mutedTextColor: kAppTextMuted,
+            mutedTextColor: palette.textMuted,
+            coverWidth: cardCoverWidth,
           ),
         ),
         LibraryViewMode.cardFlow => LibraryFlowCarousel(
@@ -302,13 +323,14 @@ class LibraryWorkspace extends StatelessWidget {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
+        final palette = appPalette(context);
         final tableWidth = adapter.tableWidthForColumns(
           viewState.visibleColumns,
           viewState.columnWidths,
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
-          color: kAppCanvas,
+          color: palette.canvas,
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,
@@ -340,14 +362,14 @@ class LibraryWorkspace extends StatelessWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onColumnReordered: onColumnReordered,
-                  headerColor: kAppSurface,
-                  dividerColor: kAppDivider,
+                  headerColor: palette.surface,
+                  dividerColor: palette.divider,
                   selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
-                  oddColor: kAppTableOddRow,
-                  evenColor: kAppTableEvenRow,
+                  oddColor: palette.tableOddRow,
+                  evenColor: palette.tableEvenRow,
                   selectionRailColor: accent,
-                  bottomBorderColor: kAppTableBottomBorder,
-                  hoverColor: kAppTableHover,
+                  bottomBorderColor: palette.tableBottomBorder,
+                  hoverColor: palette.tableHover,
                   accentColor: accent,
                 ),
               ),

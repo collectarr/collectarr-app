@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -32,6 +34,7 @@ class LibraryBody extends StatelessWidget {
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
+    required this.onEditFilters,
     required this.selectionEnabled,
     required this.selectedItemIds,
     required this.onApplySelection,
@@ -41,11 +44,26 @@ class LibraryBody extends StatelessWidget {
     this.onBoxSelectionChanged,
     required this.onBucketChanged,
     required this.onGroupModeChanged,
+    required this.sidebarBreadcrumbs,
+    this.onSidebarNavigateBack,
+    this.onSidebarNavigateToBreadcrumb,
+    this.searchQuery,
+    this.activeSmartListName,
+    this.quickView,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.collectionStatusScopeLabel,
+    this.linkedMetadataFilterLabel,
+    this.sidebarSelectedLetter,
+    this.seriesStatusSummary,
+    this.filterSelection = LibraryFilterSelection.none,
+    this.preferToolbarAlphabet = false,
+    this.onCollectionStatusScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
+    required this.onSidebarVisibilityChanged,
     required this.onDetailsWidthChanged,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -61,6 +79,7 @@ class LibraryBody extends StatelessWidget {
     this.db,
     this.pinnedGroupModes = const {},
     this.onTogglePinGroupMode,
+    this.desktopToolbarBand,
   });
 
   final LibraryTypeConfig type;
@@ -76,6 +95,7 @@ class LibraryBody extends StatelessWidget {
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
+  final VoidCallback onEditFilters;
   final bool selectionEnabled;
   final Set<String> selectedItemIds;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
@@ -85,6 +105,21 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
+  final List<String> sidebarBreadcrumbs;
+  final VoidCallback? onSidebarNavigateBack;
+  final ValueChanged<int>? onSidebarNavigateToBreadcrumb;
+  final String? searchQuery;
+  final String? activeSmartListName;
+  final LibraryQuickView? quickView;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final String? collectionStatusScopeLabel;
+  final String? linkedMetadataFilterLabel;
+  final String? sidebarSelectedLetter;
+  final LibrarySeriesStatusSummary? seriesStatusSummary;
+  final LibraryFilterSelection filterSelection;
+  final bool preferToolbarAlphabet;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -93,6 +128,7 @@ class LibraryBody extends StatelessWidget {
       onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
+  final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
@@ -109,14 +145,17 @@ class LibraryBody extends StatelessWidget {
   final LocalDatabase? db;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final Widget? desktopToolbarBand;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final selected = projection.selectedItem;
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
-        final showSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
+        final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
+        final showSidebar = canShowSidebar && viewState.isSidebarVisible;
         final detailsLayout =
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
@@ -146,6 +185,7 @@ class LibraryBody extends StatelessWidget {
                 .toList();
         final workspace = workspaceOverride ??
             LibraryCtrlScrollZoom(
+              viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
               minCoverSize: adapter.viewProfile.minCoverSize,
               maxCoverSize: adapter.viewProfile.maxCoverSize,
@@ -199,7 +239,11 @@ class LibraryBody extends StatelessWidget {
 
         final workspaceContent = Column(
           children: [
-            if (workspaceOverride == null && !showSidebar && projection.buckets.length > 1)
+            if (!compact && desktopToolbarBand != null) desktopToolbarBand!,
+            if (workspaceOverride == null &&
+                !showSidebar &&
+                !canShowSidebar &&
+                projection.buckets.length > 1)
               LibraryCompactBucketBar(
                 type: type,
                 accent: accent,
@@ -209,7 +253,9 @@ class LibraryBody extends StatelessWidget {
                   bucket == genericAllBucketLabel(type) ? null : bucket,
                 ),
               ),
-            if (workspaceOverride == null && onLetterSelected != null)
+            if (workspaceOverride == null &&
+                onLetterSelected != null &&
+                (!preferToolbarAlphabet || compact))
               LibraryAlphaJumpBar(
                 availableLetters: availableLetters,
                 selectedLetter: selectedLetter,
@@ -221,7 +267,7 @@ class LibraryBody extends StatelessWidget {
         );
 
         return ColoredBox(
-          color: kAppCanvas,
+          color: palette.canvas,
           child: Row(
             children: [
               if (showSidebar) ...[
@@ -239,9 +285,27 @@ class LibraryBody extends StatelessWidget {
                       bucket == genericAllBucketLabel(type) ? null : bucket,
                     ),
                     onGroupModeChanged: onGroupModeChanged,
+                    breadcrumbs: sidebarBreadcrumbs,
+                    onNavigateBack: onSidebarNavigateBack,
+                    onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
+                    searchQuery: searchQuery,
+                    activeSmartListName: activeSmartListName,
+                    quickView: quickView,
+                    collectionStatusScope: collectionStatusScope,
+                    collectionStatusScopeLabel: collectionStatusScopeLabel,
+                    linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+                    selectedLetter: sidebarSelectedLetter,
+                    seriesStatusSummary: seriesStatusSummary,
+                    filterSelection: filterSelection,
+                    hasActiveFilters: hasActiveFilter,
+                    onEditFilters: onEditFilters,
+                    onClearFilters: onClearFilters,
+                    onCollectionStatusScopeChanged:
+                        onCollectionStatusScopeChanged,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
+                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                     pinnedGroupModes: pinnedGroupModes,
                     onTogglePinGroupMode: onTogglePinGroupMode,
                   ),
@@ -264,7 +328,7 @@ class LibraryBody extends StatelessWidget {
                   rightWidth: viewState.detailsWidth,
                   maxRightWidth: maxDetailsWidth,
                   onRightWidthChanged: onDetailsWidthChanged,
-                  bottomHeight: compact ? 220 : 250,
+                  bottomHeight: compact ? 210 : 220,
                 ),
               ),
             ],

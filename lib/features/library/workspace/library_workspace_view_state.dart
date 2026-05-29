@@ -40,7 +40,8 @@ class LibraryWorkspaceViewProfile {
     this.defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     this.defaultDetailsWidth = kLibraryDetailsDefaultWidth,
     this.defaultViewMode = LibraryViewMode.grid,
-    this.defaultDetailsLayout = LibraryDetailsLayout.right,
+    this.defaultDetailsLayout = LibraryDetailsLayout.bottom,
+    this.defaultSidebarVisible = true,
     this.defaultSortAscending = true,
     this.sortAscendingForColumn,
   });
@@ -55,6 +56,7 @@ class LibraryWorkspaceViewProfile {
   final double defaultDetailsWidth;
   final LibraryViewMode defaultViewMode;
   final LibraryDetailsLayout defaultDetailsLayout;
+  final bool defaultSidebarVisible;
   final bool defaultSortAscending;
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
@@ -70,6 +72,7 @@ class LibraryWorkspaceViewProfile {
     final defaults = LibraryWorkspaceViewState(
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
+      isSidebarVisible: defaultSidebarVisible,
       sortColumn: config.defaultSortColumn,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
@@ -87,6 +90,7 @@ class LibraryWorkspaceViewProfile {
     return LibraryWorkspaceViewState(
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
+      isSidebarVisible: preferences.isSidebarVisible,
       sortColumn: preferences.sortColumn,
       sortAscending: preferences.sortAscending,
       sortRules: preferences.sortRules,
@@ -107,6 +111,7 @@ class LibraryWorkspaceViewProfile {
       maxCoverSize: maxCoverSize,
       defaultViewMode: defaultViewMode,
       defaultDetailsLayout: defaultDetailsLayout,
+      defaultSidebarVisible: defaultSidebarVisible,
       defaultSortAscending: defaultSortAscending,
       defaultSidebarWidth: defaultSidebarWidth,
       defaultDetailsWidth: defaultDetailsWidth,
@@ -129,6 +134,7 @@ class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState({
     required this.viewMode,
     required this.detailsLayout,
+    required this.isSidebarVisible,
     required LibrarySortColumn sortColumn,
     required bool sortAscending,
     List<LibrarySortRule>? sortRules,
@@ -149,6 +155,7 @@ class LibraryWorkspaceViewState {
 
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
+  final bool isSidebarVisible;
   final List<LibrarySortRule> _sortRules;
   final double coverSize;
   final double sidebarWidth;
@@ -166,6 +173,7 @@ class LibraryWorkspaceViewState {
     return LibraryWorkspacePreferenceSnapshot(
       viewMode: viewMode,
       detailsLayout: detailsLayout,
+      isSidebarVisible: isSidebarVisible,
       sortColumn: sortColumn,
       sortAscending: sortAscending,
       sortRules: sortRules,
@@ -180,6 +188,7 @@ class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState copyWith({
     LibraryViewMode? viewMode,
     LibraryDetailsLayout? detailsLayout,
+    bool? isSidebarVisible,
     LibrarySortColumn? sortColumn,
     bool? sortAscending,
     List<LibrarySortRule>? sortRules,
@@ -203,6 +212,7 @@ class LibraryWorkspaceViewState {
     return LibraryWorkspaceViewState(
       viewMode: viewMode ?? this.viewMode,
       detailsLayout: detailsLayout ?? this.detailsLayout,
+      isSidebarVisible: isSidebarVisible ?? this.isSidebarVisible,
       sortColumn: sortColumn ?? this.sortColumn,
       sortAscending: sortAscending ?? this.sortAscending,
       sortRules: nextSortRules,
@@ -276,6 +286,7 @@ class LibraryWorkspaceViewState {
     }
     return copyWith(
       detailsLayout: chrome.detailsLayout,
+      isSidebarVisible: chrome.isSidebarVisible,
       sidebarWidth: chrome.sidebarWidth,
       detailsWidth: chrome.detailsWidth,
     );

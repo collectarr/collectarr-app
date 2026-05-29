@@ -252,6 +252,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
       'age_rating', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audienceRatingMeta =
+      const VerificationMeta('audienceRating');
+  @override
+  late final GeneratedColumn<String> audienceRating = GeneratedColumn<String>(
+      'audience_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _imprintMeta =
       const VerificationMeta('imprint');
   @override
@@ -359,6 +365,7 @@ class $CatalogCacheTable extends CatalogCache
         releaseStatus,
         language,
         ageRating,
+        audienceRating,
         imprint,
         subtitle,
         seriesGroup,
@@ -606,6 +613,12 @@ class $CatalogCacheTable extends CatalogCache
       context.handle(_ageRatingMeta,
           ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
     }
+    if (data.containsKey('audience_rating')) {
+      context.handle(
+          _audienceRatingMeta,
+          audienceRating.isAcceptableOrUnknown(
+              data['audience_rating']!, _audienceRatingMeta));
+    }
     if (data.containsKey('imprint')) {
       context.handle(_imprintMeta,
           imprint.isAcceptableOrUnknown(data['imprint']!, _imprintMeta));
@@ -753,6 +766,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}language']),
       ageRating: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      audienceRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}audience_rating']),
       imprint: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}imprint']),
       subtitle: attachedDatabase.typeMapping
@@ -827,6 +842,7 @@ class CatalogCacheData extends DataClass
   final String? releaseStatus;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final String? imprint;
   final String? subtitle;
   final String? seriesGroup;
@@ -880,6 +896,7 @@ class CatalogCacheData extends DataClass
       this.releaseStatus,
       this.language,
       this.ageRating,
+      this.audienceRating,
       this.imprint,
       this.subtitle,
       this.seriesGroup,
@@ -1010,6 +1027,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || ageRating != null) {
       map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || audienceRating != null) {
+      map['audience_rating'] = Variable<String>(audienceRating);
     }
     if (!nullToAbsent || imprint != null) {
       map['imprint'] = Variable<String>(imprint);
@@ -1164,6 +1184,9 @@ class CatalogCacheData extends DataClass
       ageRating: ageRating == null && nullToAbsent
           ? const Value.absent()
           : Value(ageRating),
+      audienceRating: audienceRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audienceRating),
       imprint: imprint == null && nullToAbsent
           ? const Value.absent()
           : Value(imprint),
@@ -1243,6 +1266,7 @@ class CatalogCacheData extends DataClass
       releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
       language: serializer.fromJson<String?>(json['language']),
       ageRating: serializer.fromJson<String?>(json['ageRating']),
+      audienceRating: serializer.fromJson<String?>(json['audienceRating']),
       imprint: serializer.fromJson<String?>(json['imprint']),
       subtitle: serializer.fromJson<String?>(json['subtitle']),
       seriesGroup: serializer.fromJson<String?>(json['seriesGroup']),
@@ -1301,6 +1325,7 @@ class CatalogCacheData extends DataClass
       'releaseStatus': serializer.toJson<String?>(releaseStatus),
       'language': serializer.toJson<String?>(language),
       'ageRating': serializer.toJson<String?>(ageRating),
+      'audienceRating': serializer.toJson<String?>(audienceRating),
       'imprint': serializer.toJson<String?>(imprint),
       'subtitle': serializer.toJson<String?>(subtitle),
       'seriesGroup': serializer.toJson<String?>(seriesGroup),
@@ -1357,6 +1382,7 @@ class CatalogCacheData extends DataClass
           Value<String?> releaseStatus = const Value.absent(),
           Value<String?> language = const Value.absent(),
           Value<String?> ageRating = const Value.absent(),
+          Value<String?> audienceRating = const Value.absent(),
           Value<String?> imprint = const Value.absent(),
           Value<String?> subtitle = const Value.absent(),
           Value<String?> seriesGroup = const Value.absent(),
@@ -1435,6 +1461,8 @@ class CatalogCacheData extends DataClass
             releaseStatus.present ? releaseStatus.value : this.releaseStatus,
         language: language.present ? language.value : this.language,
         ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        audienceRating:
+            audienceRating.present ? audienceRating.value : this.audienceRating,
         imprint: imprint.present ? imprint.value : this.imprint,
         subtitle: subtitle.present ? subtitle.value : this.subtitle,
         seriesGroup: seriesGroup.present ? seriesGroup.value : this.seriesGroup,
@@ -1543,6 +1571,9 @@ class CatalogCacheData extends DataClass
           : this.releaseStatus,
       language: data.language.present ? data.language.value : this.language,
       ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      audienceRating: data.audienceRating.present
+          ? data.audienceRating.value
+          : this.audienceRating,
       imprint: data.imprint.present ? data.imprint.value : this.imprint,
       subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
       seriesGroup:
@@ -1609,6 +1640,7 @@ class CatalogCacheData extends DataClass
           ..write('releaseStatus: $releaseStatus, ')
           ..write('language: $language, ')
           ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
           ..write('imprint: $imprint, ')
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
@@ -1667,6 +1699,7 @@ class CatalogCacheData extends DataClass
         releaseStatus,
         language,
         ageRating,
+        audienceRating,
         imprint,
         subtitle,
         seriesGroup,
@@ -1724,6 +1757,7 @@ class CatalogCacheData extends DataClass
           other.releaseStatus == this.releaseStatus &&
           other.language == this.language &&
           other.ageRating == this.ageRating &&
+          other.audienceRating == this.audienceRating &&
           other.imprint == this.imprint &&
           other.subtitle == this.subtitle &&
           other.seriesGroup == this.seriesGroup &&
@@ -1779,6 +1813,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> releaseStatus;
   final Value<String?> language;
   final Value<String?> ageRating;
+  final Value<String?> audienceRating;
   final Value<String?> imprint;
   final Value<String?> subtitle;
   final Value<String?> seriesGroup;
@@ -1833,6 +1868,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseStatus = const Value.absent(),
     this.language = const Value.absent(),
     this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
     this.imprint = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
@@ -1888,6 +1924,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseStatus = const Value.absent(),
     this.language = const Value.absent(),
     this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
     this.imprint = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
@@ -1946,6 +1983,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? releaseStatus,
     Expression<String>? language,
     Expression<String>? ageRating,
+    Expression<String>? audienceRating,
     Expression<String>? imprint,
     Expression<String>? subtitle,
     Expression<String>? seriesGroup,
@@ -2002,6 +2040,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (releaseStatus != null) 'release_status': releaseStatus,
       if (language != null) 'language': language,
       if (ageRating != null) 'age_rating': ageRating,
+      if (audienceRating != null) 'audience_rating': audienceRating,
       if (imprint != null) 'imprint': imprint,
       if (subtitle != null) 'subtitle': subtitle,
       if (seriesGroup != null) 'series_group': seriesGroup,
@@ -2059,6 +2098,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? releaseStatus,
       Value<String?>? language,
       Value<String?>? ageRating,
+      Value<String?>? audienceRating,
       Value<String?>? imprint,
       Value<String?>? subtitle,
       Value<String?>? seriesGroup,
@@ -2113,6 +2153,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       releaseStatus: releaseStatus ?? this.releaseStatus,
       language: language ?? this.language,
       ageRating: ageRating ?? this.ageRating,
+      audienceRating: audienceRating ?? this.audienceRating,
       imprint: imprint ?? this.imprint,
       subtitle: subtitle ?? this.subtitle,
       seriesGroup: seriesGroup ?? this.seriesGroup,
@@ -2255,6 +2296,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (ageRating.present) {
       map['age_rating'] = Variable<String>(ageRating.value);
     }
+    if (audienceRating.present) {
+      map['audience_rating'] = Variable<String>(audienceRating.value);
+    }
     if (imprint.present) {
       map['imprint'] = Variable<String>(imprint.value);
     }
@@ -2338,6 +2382,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('releaseStatus: $releaseStatus, ')
           ..write('language: $language, ')
           ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
           ..write('imprint: $imprint, ')
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
@@ -2371,6 +2416,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _isDigitalMeta =
       const VerificationMeta('isDigital');
   @override
@@ -2489,6 +2540,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
       'signed_by', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelTypeMeta =
+      const VerificationMeta('labelType');
+  @override
+  late final GeneratedColumn<String> labelType = GeneratedColumn<String>(
+      'label_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _certificationNumberMeta =
+      const VerificationMeta('certificationNumber');
+  @override
+  late final GeneratedColumn<String> certificationNumber =
+      GeneratedColumn<String>('certification_number', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _keyComicMeta =
       const VerificationMeta('keyComic');
   @override
@@ -2560,6 +2623,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   @override
   late final GeneratedColumn<String> soldTo = GeneratedColumn<String>(
       'sold_to', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownerUserIdMeta =
+      const VerificationMeta('ownerUserId');
+  @override
+  late final GeneratedColumn<String> ownerUserId = GeneratedColumn<String>(
+      'owner_user_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownerLabelMeta =
+      const VerificationMeta('ownerLabel');
+  @override
+  late final GeneratedColumn<String> ownerLabel = GeneratedColumn<String>(
+      'owner_label', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _locationIdMeta =
       const VerificationMeta('locationId');
@@ -2648,6 +2723,7 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        createdAt,
         isDigital,
         anchorType,
         editionId,
@@ -2667,6 +2743,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         gradingCompany,
         graderNotes,
         signedBy,
+        labelType,
+        certificationNumber,
         keyComic,
         keyReason,
         rating,
@@ -2679,6 +2757,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         soldAt,
         sellPriceCents,
         soldTo,
+        ownerUserId,
+        ownerLabel,
         locationId,
         features,
         hdrFormatsJson,
@@ -2715,6 +2795,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
     } else if (isInserting) {
       context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
     if (data.containsKey('is_digital')) {
       context.handle(_isDigitalMeta,
@@ -2814,6 +2898,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
       context.handle(_signedByMeta,
           signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
     }
+    if (data.containsKey('label_type')) {
+      context.handle(_labelTypeMeta,
+          labelType.isAcceptableOrUnknown(data['label_type']!, _labelTypeMeta));
+    }
+    if (data.containsKey('certification_number')) {
+      context.handle(
+          _certificationNumberMeta,
+          certificationNumber.isAcceptableOrUnknown(
+              data['certification_number']!, _certificationNumberMeta));
+    }
     if (data.containsKey('key_comic')) {
       context.handle(_keyComicMeta,
           keyComic.isAcceptableOrUnknown(data['key_comic']!, _keyComicMeta));
@@ -2869,6 +2963,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     if (data.containsKey('sold_to')) {
       context.handle(_soldToMeta,
           soldTo.isAcceptableOrUnknown(data['sold_to']!, _soldToMeta));
+    }
+    if (data.containsKey('owner_user_id')) {
+      context.handle(
+          _ownerUserIdMeta,
+          ownerUserId.isAcceptableOrUnknown(
+              data['owner_user_id']!, _ownerUserIdMeta));
+    }
+    if (data.containsKey('owner_label')) {
+      context.handle(
+          _ownerLabelMeta,
+          ownerLabel.isAcceptableOrUnknown(
+              data['owner_label']!, _ownerLabelMeta));
     }
     if (data.containsKey('location_id')) {
       context.handle(
@@ -2959,6 +3065,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
       anchorType: attachedDatabase.typeMapping
@@ -2997,6 +3105,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
       signedBy: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      labelType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_type']),
+      certificationNumber: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}certification_number']),
       keyComic: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
       keyReason: attachedDatabase.typeMapping
@@ -3021,6 +3133,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.int, data['${effectivePrefix}sell_price_cents']),
       soldTo: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}sold_to']),
+      ownerUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_user_id']),
+      ownerLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_label']),
       locationId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
       features: attachedDatabase.typeMapping
@@ -3062,6 +3178,7 @@ class OwnedItemsCacheData extends DataClass
     implements Insertable<OwnedItemsCacheData> {
   final String id;
   final String itemId;
+  final DateTime? createdAt;
   final bool? isDigital;
   final String? anchorType;
   final String? editionId;
@@ -3081,6 +3198,8 @@ class OwnedItemsCacheData extends DataClass
   final String? gradingCompany;
   final String? graderNotes;
   final String? signedBy;
+  final String? labelType;
+  final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
   final int? rating;
@@ -3093,6 +3212,8 @@ class OwnedItemsCacheData extends DataClass
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+  final String? ownerUserId;
+  final String? ownerLabel;
   final String? locationId;
   final String? features;
   final String? hdrFormatsJson;
@@ -3110,6 +3231,7 @@ class OwnedItemsCacheData extends DataClass
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
+      this.createdAt,
       this.isDigital,
       this.anchorType,
       this.editionId,
@@ -3129,6 +3251,8 @@ class OwnedItemsCacheData extends DataClass
       this.gradingCompany,
       this.graderNotes,
       this.signedBy,
+      this.labelType,
+      this.certificationNumber,
       required this.keyComic,
       this.keyReason,
       this.rating,
@@ -3141,6 +3265,8 @@ class OwnedItemsCacheData extends DataClass
       this.soldAt,
       this.sellPriceCents,
       this.soldTo,
+      this.ownerUserId,
+      this.ownerLabel,
       this.locationId,
       this.features,
       this.hdrFormatsJson,
@@ -3160,6 +3286,9 @@ class OwnedItemsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
@@ -3215,6 +3344,12 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || signedBy != null) {
       map['signed_by'] = Variable<String>(signedBy);
     }
+    if (!nullToAbsent || labelType != null) {
+      map['label_type'] = Variable<String>(labelType);
+    }
+    if (!nullToAbsent || certificationNumber != null) {
+      map['certification_number'] = Variable<String>(certificationNumber);
+    }
     map['key_comic'] = Variable<bool>(keyComic);
     if (!nullToAbsent || keyReason != null) {
       map['key_reason'] = Variable<String>(keyReason);
@@ -3246,6 +3381,12 @@ class OwnedItemsCacheData extends DataClass
     }
     if (!nullToAbsent || soldTo != null) {
       map['sold_to'] = Variable<String>(soldTo);
+    }
+    if (!nullToAbsent || ownerUserId != null) {
+      map['owner_user_id'] = Variable<String>(ownerUserId);
+    }
+    if (!nullToAbsent || ownerLabel != null) {
+      map['owner_label'] = Variable<String>(ownerLabel);
     }
     if (!nullToAbsent || locationId != null) {
       map['location_id'] = Variable<String>(locationId);
@@ -3296,6 +3437,9 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
@@ -3350,6 +3494,12 @@ class OwnedItemsCacheData extends DataClass
       signedBy: signedBy == null && nullToAbsent
           ? const Value.absent()
           : Value(signedBy),
+      labelType: labelType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelType),
+      certificationNumber: certificationNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(certificationNumber),
       keyComic: Value(keyComic),
       keyReason: keyReason == null && nullToAbsent
           ? const Value.absent()
@@ -3377,6 +3527,12 @@ class OwnedItemsCacheData extends DataClass
           : Value(sellPriceCents),
       soldTo:
           soldTo == null && nullToAbsent ? const Value.absent() : Value(soldTo),
+      ownerUserId: ownerUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerUserId),
+      ownerLabel: ownerLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerLabel),
       locationId: locationId == null && nullToAbsent
           ? const Value.absent()
           : Value(locationId),
@@ -3427,6 +3583,7 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
       anchorType: serializer.fromJson<String?>(json['anchorType']),
       editionId: serializer.fromJson<String?>(json['editionId']),
@@ -3446,6 +3603,9 @@ class OwnedItemsCacheData extends DataClass
       gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
       graderNotes: serializer.fromJson<String?>(json['graderNotes']),
       signedBy: serializer.fromJson<String?>(json['signedBy']),
+      labelType: serializer.fromJson<String?>(json['labelType']),
+      certificationNumber:
+          serializer.fromJson<String?>(json['certificationNumber']),
       keyComic: serializer.fromJson<bool>(json['keyComic']),
       keyReason: serializer.fromJson<String?>(json['keyReason']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -3458,6 +3618,8 @@ class OwnedItemsCacheData extends DataClass
       soldAt: serializer.fromJson<DateTime?>(json['soldAt']),
       sellPriceCents: serializer.fromJson<int?>(json['sellPriceCents']),
       soldTo: serializer.fromJson<String?>(json['soldTo']),
+      ownerUserId: serializer.fromJson<String?>(json['ownerUserId']),
+      ownerLabel: serializer.fromJson<String?>(json['ownerLabel']),
       locationId: serializer.fromJson<String?>(json['locationId']),
       features: serializer.fromJson<String?>(json['features']),
       hdrFormatsJson: serializer.fromJson<String?>(json['hdrFormatsJson']),
@@ -3481,6 +3643,7 @@ class OwnedItemsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
       'anchorType': serializer.toJson<String?>(anchorType),
       'editionId': serializer.toJson<String?>(editionId),
@@ -3500,6 +3663,8 @@ class OwnedItemsCacheData extends DataClass
       'gradingCompany': serializer.toJson<String?>(gradingCompany),
       'graderNotes': serializer.toJson<String?>(graderNotes),
       'signedBy': serializer.toJson<String?>(signedBy),
+      'labelType': serializer.toJson<String?>(labelType),
+      'certificationNumber': serializer.toJson<String?>(certificationNumber),
       'keyComic': serializer.toJson<bool>(keyComic),
       'keyReason': serializer.toJson<String?>(keyReason),
       'rating': serializer.toJson<int?>(rating),
@@ -3512,6 +3677,8 @@ class OwnedItemsCacheData extends DataClass
       'soldAt': serializer.toJson<DateTime?>(soldAt),
       'sellPriceCents': serializer.toJson<int?>(sellPriceCents),
       'soldTo': serializer.toJson<String?>(soldTo),
+      'ownerUserId': serializer.toJson<String?>(ownerUserId),
+      'ownerLabel': serializer.toJson<String?>(ownerLabel),
       'locationId': serializer.toJson<String?>(locationId),
       'features': serializer.toJson<String?>(features),
       'hdrFormatsJson': serializer.toJson<String?>(hdrFormatsJson),
@@ -3532,6 +3699,7 @@ class OwnedItemsCacheData extends DataClass
   OwnedItemsCacheData copyWith(
           {String? id,
           String? itemId,
+          Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
           Value<String?> anchorType = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
@@ -3551,6 +3719,8 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> gradingCompany = const Value.absent(),
           Value<String?> graderNotes = const Value.absent(),
           Value<String?> signedBy = const Value.absent(),
+          Value<String?> labelType = const Value.absent(),
+          Value<String?> certificationNumber = const Value.absent(),
           bool? keyComic,
           Value<String?> keyReason = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -3563,6 +3733,8 @@ class OwnedItemsCacheData extends DataClass
           Value<DateTime?> soldAt = const Value.absent(),
           Value<int?> sellPriceCents = const Value.absent(),
           Value<String?> soldTo = const Value.absent(),
+          Value<String?> ownerUserId = const Value.absent(),
+          Value<String?> ownerLabel = const Value.absent(),
           Value<String?> locationId = const Value.absent(),
           Value<String?> features = const Value.absent(),
           Value<String?> hdrFormatsJson = const Value.absent(),
@@ -3580,6 +3752,7 @@ class OwnedItemsCacheData extends DataClass
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
         anchorType: anchorType.present ? anchorType.value : this.anchorType,
         editionId: editionId.present ? editionId.value : this.editionId,
@@ -3608,6 +3781,10 @@ class OwnedItemsCacheData extends DataClass
             gradingCompany.present ? gradingCompany.value : this.gradingCompany,
         graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
         signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        labelType: labelType.present ? labelType.value : this.labelType,
+        certificationNumber: certificationNumber.present
+            ? certificationNumber.value
+            : this.certificationNumber,
         keyComic: keyComic ?? this.keyComic,
         keyReason: keyReason.present ? keyReason.value : this.keyReason,
         rating: rating.present ? rating.value : this.rating,
@@ -3621,6 +3798,8 @@ class OwnedItemsCacheData extends DataClass
         sellPriceCents:
             sellPriceCents.present ? sellPriceCents.value : this.sellPriceCents,
         soldTo: soldTo.present ? soldTo.value : this.soldTo,
+        ownerUserId: ownerUserId.present ? ownerUserId.value : this.ownerUserId,
+        ownerLabel: ownerLabel.present ? ownerLabel.value : this.ownerLabel,
         locationId: locationId.present ? locationId.value : this.locationId,
         features: features.present ? features.value : this.features,
         hdrFormatsJson:
@@ -3649,6 +3828,7 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
       anchorType:
           data.anchorType.present ? data.anchorType.value : this.anchorType,
@@ -3686,6 +3866,10 @@ class OwnedItemsCacheData extends DataClass
       graderNotes:
           data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
       signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      labelType: data.labelType.present ? data.labelType.value : this.labelType,
+      certificationNumber: data.certificationNumber.present
+          ? data.certificationNumber.value
+          : this.certificationNumber,
       keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
       keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
       rating: data.rating.present ? data.rating.value : this.rating,
@@ -3702,6 +3886,10 @@ class OwnedItemsCacheData extends DataClass
           ? data.sellPriceCents.value
           : this.sellPriceCents,
       soldTo: data.soldTo.present ? data.soldTo.value : this.soldTo,
+      ownerUserId:
+          data.ownerUserId.present ? data.ownerUserId.value : this.ownerUserId,
+      ownerLabel:
+          data.ownerLabel.present ? data.ownerLabel.value : this.ownerLabel,
       locationId:
           data.locationId.present ? data.locationId.value : this.locationId,
       features: data.features.present ? data.features.value : this.features,
@@ -3740,6 +3928,7 @@ class OwnedItemsCacheData extends DataClass
     return (StringBuffer('OwnedItemsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
           ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
@@ -3759,6 +3948,8 @@ class OwnedItemsCacheData extends DataClass
           ..write('gradingCompany: $gradingCompany, ')
           ..write('graderNotes: $graderNotes, ')
           ..write('signedBy: $signedBy, ')
+          ..write('labelType: $labelType, ')
+          ..write('certificationNumber: $certificationNumber, ')
           ..write('keyComic: $keyComic, ')
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
@@ -3771,6 +3962,8 @@ class OwnedItemsCacheData extends DataClass
           ..write('soldAt: $soldAt, ')
           ..write('sellPriceCents: $sellPriceCents, ')
           ..write('soldTo: $soldTo, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerLabel: $ownerLabel, ')
           ..write('locationId: $locationId, ')
           ..write('features: $features, ')
           ..write('hdrFormatsJson: $hdrFormatsJson, ')
@@ -3793,6 +3986,7 @@ class OwnedItemsCacheData extends DataClass
   int get hashCode => Object.hashAll([
         id,
         itemId,
+        createdAt,
         isDigital,
         anchorType,
         editionId,
@@ -3812,6 +4006,8 @@ class OwnedItemsCacheData extends DataClass
         gradingCompany,
         graderNotes,
         signedBy,
+        labelType,
+        certificationNumber,
         keyComic,
         keyReason,
         rating,
@@ -3824,6 +4020,8 @@ class OwnedItemsCacheData extends DataClass
         soldAt,
         sellPriceCents,
         soldTo,
+        ownerUserId,
+        ownerLabel,
         locationId,
         features,
         hdrFormatsJson,
@@ -3845,6 +4043,7 @@ class OwnedItemsCacheData extends DataClass
       (other is OwnedItemsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
           other.anchorType == this.anchorType &&
           other.editionId == this.editionId &&
@@ -3864,6 +4063,8 @@ class OwnedItemsCacheData extends DataClass
           other.gradingCompany == this.gradingCompany &&
           other.graderNotes == this.graderNotes &&
           other.signedBy == this.signedBy &&
+          other.labelType == this.labelType &&
+          other.certificationNumber == this.certificationNumber &&
           other.keyComic == this.keyComic &&
           other.keyReason == this.keyReason &&
           other.rating == this.rating &&
@@ -3876,6 +4077,8 @@ class OwnedItemsCacheData extends DataClass
           other.soldAt == this.soldAt &&
           other.sellPriceCents == this.sellPriceCents &&
           other.soldTo == this.soldTo &&
+          other.ownerUserId == this.ownerUserId &&
+          other.ownerLabel == this.ownerLabel &&
           other.locationId == this.locationId &&
           other.features == this.features &&
           other.hdrFormatsJson == this.hdrFormatsJson &&
@@ -3895,6 +4098,7 @@ class OwnedItemsCacheData extends DataClass
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
   final Value<String?> anchorType;
   final Value<String?> editionId;
@@ -3914,6 +4118,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> gradingCompany;
   final Value<String?> graderNotes;
   final Value<String?> signedBy;
+  final Value<String?> labelType;
+  final Value<String?> certificationNumber;
   final Value<bool> keyComic;
   final Value<String?> keyReason;
   final Value<int?> rating;
@@ -3926,6 +4132,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<DateTime?> soldAt;
   final Value<int?> sellPriceCents;
   final Value<String?> soldTo;
+  final Value<String?> ownerUserId;
+  final Value<String?> ownerLabel;
   final Value<String?> locationId;
   final Value<String?> features;
   final Value<String?> hdrFormatsJson;
@@ -3944,6 +4152,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
     this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
@@ -3963,6 +4172,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.gradingCompany = const Value.absent(),
     this.graderNotes = const Value.absent(),
     this.signedBy = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
     this.keyComic = const Value.absent(),
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
@@ -3975,6 +4186,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.soldAt = const Value.absent(),
     this.sellPriceCents = const Value.absent(),
     this.soldTo = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerLabel = const Value.absent(),
     this.locationId = const Value.absent(),
     this.features = const Value.absent(),
     this.hdrFormatsJson = const Value.absent(),
@@ -3994,6 +4207,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
     this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
@@ -4013,6 +4227,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.gradingCompany = const Value.absent(),
     this.graderNotes = const Value.absent(),
     this.signedBy = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
     this.keyComic = const Value.absent(),
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
@@ -4025,6 +4241,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.soldAt = const Value.absent(),
     this.sellPriceCents = const Value.absent(),
     this.soldTo = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerLabel = const Value.absent(),
     this.locationId = const Value.absent(),
     this.features = const Value.absent(),
     this.hdrFormatsJson = const Value.absent(),
@@ -4046,6 +4264,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   static Insertable<OwnedItemsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
     Expression<String>? anchorType,
     Expression<String>? editionId,
@@ -4065,6 +4284,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? gradingCompany,
     Expression<String>? graderNotes,
     Expression<String>? signedBy,
+    Expression<String>? labelType,
+    Expression<String>? certificationNumber,
     Expression<bool>? keyComic,
     Expression<String>? keyReason,
     Expression<int>? rating,
@@ -4077,6 +4298,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<DateTime>? soldAt,
     Expression<int>? sellPriceCents,
     Expression<String>? soldTo,
+    Expression<String>? ownerUserId,
+    Expression<String>? ownerLabel,
     Expression<String>? locationId,
     Expression<String>? features,
     Expression<String>? hdrFormatsJson,
@@ -4096,6 +4319,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
       if (anchorType != null) 'anchor_type': anchorType,
       if (editionId != null) 'edition_id': editionId,
@@ -4115,6 +4339,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (gradingCompany != null) 'grading_company': gradingCompany,
       if (graderNotes != null) 'grader_notes': graderNotes,
       if (signedBy != null) 'signed_by': signedBy,
+      if (labelType != null) 'label_type': labelType,
+      if (certificationNumber != null)
+        'certification_number': certificationNumber,
       if (keyComic != null) 'key_comic': keyComic,
       if (keyReason != null) 'key_reason': keyReason,
       if (rating != null) 'rating': rating,
@@ -4127,6 +4354,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (soldAt != null) 'sold_at': soldAt,
       if (sellPriceCents != null) 'sell_price_cents': sellPriceCents,
       if (soldTo != null) 'sold_to': soldTo,
+      if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (ownerLabel != null) 'owner_label': ownerLabel,
       if (locationId != null) 'location_id': locationId,
       if (features != null) 'features': features,
       if (hdrFormatsJson != null) 'hdr_formats_json': hdrFormatsJson,
@@ -4148,6 +4377,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
       Value<String?>? anchorType,
       Value<String?>? editionId,
@@ -4167,6 +4397,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? gradingCompany,
       Value<String?>? graderNotes,
       Value<String?>? signedBy,
+      Value<String?>? labelType,
+      Value<String?>? certificationNumber,
       Value<bool>? keyComic,
       Value<String?>? keyReason,
       Value<int?>? rating,
@@ -4179,6 +4411,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<DateTime?>? soldAt,
       Value<int?>? sellPriceCents,
       Value<String?>? soldTo,
+      Value<String?>? ownerUserId,
+      Value<String?>? ownerLabel,
       Value<String?>? locationId,
       Value<String?>? features,
       Value<String?>? hdrFormatsJson,
@@ -4197,6 +4431,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
       anchorType: anchorType ?? this.anchorType,
       editionId: editionId ?? this.editionId,
@@ -4216,6 +4451,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       gradingCompany: gradingCompany ?? this.gradingCompany,
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
+      labelType: labelType ?? this.labelType,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
@@ -4228,6 +4465,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerLabel: ownerLabel ?? this.ownerLabel,
       locationId: locationId ?? this.locationId,
       features: features ?? this.features,
       hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
@@ -4254,6 +4493,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
@@ -4312,6 +4554,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (signedBy.present) {
       map['signed_by'] = Variable<String>(signedBy.value);
     }
+    if (labelType.present) {
+      map['label_type'] = Variable<String>(labelType.value);
+    }
+    if (certificationNumber.present) {
+      map['certification_number'] = Variable<String>(certificationNumber.value);
+    }
     if (keyComic.present) {
       map['key_comic'] = Variable<bool>(keyComic.value);
     }
@@ -4347,6 +4595,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (soldTo.present) {
       map['sold_to'] = Variable<String>(soldTo.value);
+    }
+    if (ownerUserId.present) {
+      map['owner_user_id'] = Variable<String>(ownerUserId.value);
+    }
+    if (ownerLabel.present) {
+      map['owner_label'] = Variable<String>(ownerLabel.value);
     }
     if (locationId.present) {
       map['location_id'] = Variable<String>(locationId.value);
@@ -4401,6 +4655,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return (StringBuffer('OwnedItemsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
           ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
@@ -4420,6 +4675,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('gradingCompany: $gradingCompany, ')
           ..write('graderNotes: $graderNotes, ')
           ..write('signedBy: $signedBy, ')
+          ..write('labelType: $labelType, ')
+          ..write('certificationNumber: $certificationNumber, ')
           ..write('keyComic: $keyComic, ')
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
@@ -4432,6 +4689,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('soldAt: $soldAt, ')
           ..write('sellPriceCents: $sellPriceCents, ')
           ..write('soldTo: $soldTo, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerLabel: $ownerLabel, ')
           ..write('locationId: $locationId, ')
           ..write('features: $features, ')
           ..write('hdrFormatsJson: $hdrFormatsJson, ')
@@ -12155,6 +12414,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> releaseStatus,
   Value<String?> language,
   Value<String?> ageRating,
+  Value<String?> audienceRating,
   Value<String?> imprint,
   Value<String?> subtitle,
   Value<String?> seriesGroup,
@@ -12211,6 +12471,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> releaseStatus,
   Value<String?> language,
   Value<String?> ageRating,
+  Value<String?> audienceRating,
   Value<String?> imprint,
   Value<String?> subtitle,
   Value<String?> seriesGroup,
@@ -12365,6 +12626,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get ageRating => $composableBuilder(
       column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get imprint => $composableBuilder(
       column: $table.imprint, builder: (column) => ColumnFilters(column));
@@ -12554,6 +12819,10 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get ageRating => $composableBuilder(
       column: $table.ageRating, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get imprint => $composableBuilder(
       column: $table.imprint, builder: (column) => ColumnOrderings(column));
 
@@ -12723,6 +12992,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get ageRating =>
       $composableBuilder(column: $table.ageRating, builder: (column) => column);
 
+  GeneratedColumn<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating, builder: (column) => column);
+
   GeneratedColumn<String> get imprint =>
       $composableBuilder(column: $table.imprint, builder: (column) => column);
 
@@ -12824,6 +13096,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> releaseStatus = const Value.absent(),
             Value<String?> language = const Value.absent(),
             Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
             Value<String?> imprint = const Value.absent(),
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
@@ -12879,6 +13152,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseStatus: releaseStatus,
             language: language,
             ageRating: ageRating,
+            audienceRating: audienceRating,
             imprint: imprint,
             subtitle: subtitle,
             seriesGroup: seriesGroup,
@@ -12934,6 +13208,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> releaseStatus = const Value.absent(),
             Value<String?> language = const Value.absent(),
             Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
             Value<String?> imprint = const Value.absent(),
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
@@ -12989,6 +13264,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseStatus: releaseStatus,
             language: language,
             ageRating: ageRating,
+            audienceRating: audienceRating,
             imprint: imprint,
             subtitle: subtitle,
             seriesGroup: seriesGroup,
@@ -13028,6 +13304,7 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   required String id,
   required String itemId,
+  Value<DateTime?> createdAt,
   Value<bool?> isDigital,
   Value<String?> anchorType,
   Value<String?> editionId,
@@ -13047,6 +13324,8 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> gradingCompany,
   Value<String?> graderNotes,
   Value<String?> signedBy,
+  Value<String?> labelType,
+  Value<String?> certificationNumber,
   Value<bool> keyComic,
   Value<String?> keyReason,
   Value<int?> rating,
@@ -13059,6 +13338,8 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<DateTime?> soldAt,
   Value<int?> sellPriceCents,
   Value<String?> soldTo,
+  Value<String?> ownerUserId,
+  Value<String?> ownerLabel,
   Value<String?> locationId,
   Value<String?> features,
   Value<String?> hdrFormatsJson,
@@ -13079,6 +13360,7 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   Value<String> id,
   Value<String> itemId,
+  Value<DateTime?> createdAt,
   Value<bool?> isDigital,
   Value<String?> anchorType,
   Value<String?> editionId,
@@ -13098,6 +13380,8 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> gradingCompany,
   Value<String?> graderNotes,
   Value<String?> signedBy,
+  Value<String?> labelType,
+  Value<String?> certificationNumber,
   Value<bool> keyComic,
   Value<String?> keyReason,
   Value<int?> rating,
@@ -13110,6 +13394,8 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<DateTime?> soldAt,
   Value<int?> sellPriceCents,
   Value<String?> soldTo,
+  Value<String?> ownerUserId,
+  Value<String?> ownerLabel,
   Value<String?> locationId,
   Value<String?> features,
   Value<String?> hdrFormatsJson,
@@ -13141,6 +13427,9 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
@@ -13203,6 +13492,13 @@ class $$OwnedItemsCacheTableFilterComposer
   ColumnFilters<String> get signedBy => $composableBuilder(
       column: $table.signedBy, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<bool> get keyComic => $composableBuilder(
       column: $table.keyComic, builder: (column) => ColumnFilters(column));
 
@@ -13239,6 +13535,12 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get soldTo => $composableBuilder(
       column: $table.soldTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => ColumnFilters(column));
@@ -13301,6 +13603,9 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
@@ -13366,6 +13671,13 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get signedBy => $composableBuilder(
       column: $table.signedBy, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get keyComic => $composableBuilder(
       column: $table.keyComic, builder: (column) => ColumnOrderings(column));
 
@@ -13402,6 +13714,12 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get soldTo => $composableBuilder(
       column: $table.soldTo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => ColumnOrderings(column));
@@ -13467,6 +13785,9 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
@@ -13524,6 +13845,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get signedBy =>
       $composableBuilder(column: $table.signedBy, builder: (column) => column);
 
+  GeneratedColumn<String> get labelType =>
+      $composableBuilder(column: $table.labelType, builder: (column) => column);
+
+  GeneratedColumn<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber, builder: (column) => column);
+
   GeneratedColumn<bool> get keyComic =>
       $composableBuilder(column: $table.keyComic, builder: (column) => column);
 
@@ -13559,6 +13886,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get soldTo =>
       $composableBuilder(column: $table.soldTo, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => column);
 
   GeneratedColumn<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => column);
@@ -13633,6 +13966,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
             Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
@@ -13652,6 +13986,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> gradingCompany = const Value.absent(),
             Value<String?> graderNotes = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
             Value<bool> keyComic = const Value.absent(),
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -13664,6 +14000,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<DateTime?> soldAt = const Value.absent(),
             Value<int?> sellPriceCents = const Value.absent(),
             Value<String?> soldTo = const Value.absent(),
+            Value<String?> ownerUserId = const Value.absent(),
+            Value<String?> ownerLabel = const Value.absent(),
             Value<String?> locationId = const Value.absent(),
             Value<String?> features = const Value.absent(),
             Value<String?> hdrFormatsJson = const Value.absent(),
@@ -13683,6 +14021,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
               OwnedItemsCacheCompanion(
             id: id,
             itemId: itemId,
+            createdAt: createdAt,
             isDigital: isDigital,
             anchorType: anchorType,
             editionId: editionId,
@@ -13702,6 +14041,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             gradingCompany: gradingCompany,
             graderNotes: graderNotes,
             signedBy: signedBy,
+            labelType: labelType,
+            certificationNumber: certificationNumber,
             keyComic: keyComic,
             keyReason: keyReason,
             rating: rating,
@@ -13714,6 +14055,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             soldAt: soldAt,
             sellPriceCents: sellPriceCents,
             soldTo: soldTo,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
             locationId: locationId,
             features: features,
             hdrFormatsJson: hdrFormatsJson,
@@ -13733,6 +14076,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
             Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
@@ -13752,6 +14096,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> gradingCompany = const Value.absent(),
             Value<String?> graderNotes = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
             Value<bool> keyComic = const Value.absent(),
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -13764,6 +14110,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<DateTime?> soldAt = const Value.absent(),
             Value<int?> sellPriceCents = const Value.absent(),
             Value<String?> soldTo = const Value.absent(),
+            Value<String?> ownerUserId = const Value.absent(),
+            Value<String?> ownerLabel = const Value.absent(),
             Value<String?> locationId = const Value.absent(),
             Value<String?> features = const Value.absent(),
             Value<String?> hdrFormatsJson = const Value.absent(),
@@ -13783,6 +14131,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
               OwnedItemsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            createdAt: createdAt,
             isDigital: isDigital,
             anchorType: anchorType,
             editionId: editionId,
@@ -13802,6 +14151,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             gradingCompany: gradingCompany,
             graderNotes: graderNotes,
             signedBy: signedBy,
+            labelType: labelType,
+            certificationNumber: certificationNumber,
             keyComic: keyComic,
             keyReason: keyReason,
             rating: rating,
@@ -13814,6 +14165,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             soldAt: soldAt,
             sellPriceCents: sellPriceCents,
             soldTo: soldTo,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
             locationId: locationId,
             features: features,
             hdrFormatsJson: hdrFormatsJson,

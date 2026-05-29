@@ -452,6 +452,7 @@ sealed class CatalogItem {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
     this.rawPlatforms,
     this.trailerUrls = const <TrailerLink>[],
   });
@@ -494,6 +495,7 @@ sealed class CatalogItem {
     String? country,
     String? language,
     String? ageRating,
+    String? audienceRating,
   }) {
     final resolvedMediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
     final common = _CatalogItemCommon(
@@ -526,6 +528,7 @@ sealed class CatalogItem {
       country: country,
       language: language,
       ageRating: ageRating,
+      audienceRating: audienceRating,
       rawPlatforms: _normalizeStringList(rawPlatforms ?? game?.platforms),
       trailerUrls: _normalizeTrailerList(trailerUrls),
     );
@@ -706,6 +709,7 @@ sealed class CatalogItem {
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
+      audienceRating: json['audience_rating'] as String?,
     );
   }
 
@@ -738,6 +742,7 @@ sealed class CatalogItem {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<String>? rawPlatforms;
   final List<TrailerLink> trailerUrls;
 
@@ -824,6 +829,7 @@ sealed class CatalogItem {
       'editions': editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
       'release_status': music?.releaseStatus,
+      'audience_rating': audienceRating,
       if (trailerUrls.isNotEmpty)
         'trailer_urls':
             trailerUrls.map((t) => t.toJson()).toList(growable: false),
@@ -882,6 +888,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           country: common.country,
           language: common.language,
           ageRating: common.ageRating,
+          audienceRating: common.audienceRating,
           rawPlatforms: common.rawPlatforms,
           trailerUrls: common.trailerUrls ?? const <TrailerLink>[],
         );
@@ -1077,6 +1084,7 @@ class _CatalogItemCommon {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
     this.rawPlatforms,
     this.trailerUrls,
   });
@@ -1110,6 +1118,7 @@ class _CatalogItemCommon {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<String>? rawPlatforms;
   final List<TrailerLink>? trailerUrls;
 }

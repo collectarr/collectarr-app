@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -335,6 +336,63 @@ void main() {
       LibraryGroupMode.location,
       LibraryGroupMode.title,
       LibraryGroupMode.ownership,
+    ]);
+    expect(moviesLibraryConfig.presentation.groupModes, [
+      LibraryGroupMode.audienceRating,
+      LibraryGroupMode.color,
+      LibraryGroupMode.country,
+      LibraryGroupMode.genre,
+      LibraryGroupMode.language,
+      LibraryGroupMode.movieOrTvSeries,
+      LibraryGroupMode.releaseDate,
+      LibraryGroupMode.releaseMonth,
+      LibraryGroupMode.releaseYear,
+      LibraryGroupMode.series,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.audioTracks,
+      LibraryGroupMode.boxSet,
+      LibraryGroupMode.distributor,
+      LibraryGroupMode.editionReleaseDate,
+      LibraryGroupMode.editionReleaseMonth,
+      LibraryGroupMode.editionReleaseYear,
+      LibraryGroupMode.extras,
+      LibraryGroupMode.format,
+      LibraryGroupMode.hdr,
+      LibraryGroupMode.layers,
+      LibraryGroupMode.packaging,
+      LibraryGroupMode.regions,
+      LibraryGroupMode.screenRatios,
+      LibraryGroupMode.subtitles,
+      LibraryGroupMode.actor,
+      LibraryGroupMode.director,
+      LibraryGroupMode.musician,
+      LibraryGroupMode.photography,
+      LibraryGroupMode.producer,
+      LibraryGroupMode.writer,
+      LibraryGroupMode.title,
+      LibraryGroupMode.ownership,
+      LibraryGroupMode.addedDate,
+      LibraryGroupMode.addedMonth,
+      LibraryGroupMode.addedYear,
+      LibraryGroupMode.collectionStatus,
+      LibraryGroupMode.condition,
+      LibraryGroupMode.imageType,
+      LibraryGroupMode.location,
+      LibraryGroupMode.modifiedDate,
+      LibraryGroupMode.modifiedMonth,
+      LibraryGroupMode.myRating,
+      LibraryGroupMode.owner,
+      LibraryGroupMode.purchaseDate,
+      LibraryGroupMode.purchaseMonth,
+      LibraryGroupMode.purchaseYear,
+      LibraryGroupMode.purchaseStore,
+      LibraryGroupMode.storageDevice,
+      LibraryGroupMode.tags,
+      LibraryGroupMode.watchDate,
+      LibraryGroupMode.watchMonth,
+      LibraryGroupMode.watchYear,
+      LibraryGroupMode.watched,
+      LibraryGroupMode.watchedWhere,
     ]);
   });
 }

@@ -61,6 +61,16 @@ class _ShelfHeader extends StatelessWidget {
                 label: 'Missing metadata',
                 value: state.missingMetadataCount.toString(),
               ),
+              _ShelfStatCard(
+                icon: Icons.trending_up_outlined,
+                label: 'Market value',
+                value: _totalMarketValueLabel(state),
+              ),
+              _ShelfStatCard(
+                icon: Icons.sell_outlined,
+                label: 'Sold',
+                value: _totalSoldLabel(state),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -130,6 +140,34 @@ class _ShelfHeader extends StatelessWidget {
       return 'No prices';
     }
     return _formatMoney(cents, state.primaryCurrency!);
+  }
+
+  String _totalMarketValueLabel(ShelfState state) {
+    if (state.marketValuedCount == 0) {
+      return 'No values';
+    }
+    if (state.hasMixedCurrencies) {
+      return '${state.marketValuedCount} valued';
+    }
+    final cents = state.totalMarketValueCents;
+    if (cents == null || state.primaryCurrency == null) {
+      return '${state.marketValuedCount} valued';
+    }
+    return _formatMoney(cents, state.primaryCurrency!);
+  }
+
+  String _totalSoldLabel(ShelfState state) {
+    if (state.soldCount == 0) {
+      return 'None';
+    }
+    if (state.hasMixedCurrencies) {
+      return '${state.soldCount} sold';
+    }
+    final cents = state.totalSellCents;
+    if (cents == null || state.primaryCurrency == null) {
+      return '${state.soldCount} sold';
+    }
+    return '${state.soldCount} — ${_formatMoney(cents, state.primaryCurrency!)}';
   }
 }
 

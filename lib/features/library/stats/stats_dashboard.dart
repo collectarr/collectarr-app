@@ -29,6 +29,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     final totalValue = state.totalPaidCents == null
         ? '-'
         : formatMoney(state.totalPaidCents, state.primaryCurrency);
@@ -69,20 +70,21 @@ class _GenericStatsDashboard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 980, maxHeight: 760),
         child: ColoredBox(
-          color: kLibraryStatsCanvas,
+          color: colors.canvas,
           child: Column(
             children: [
               Container(
                 height: 46,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: const BoxDecoration(
-                  color: kLibraryStatsToolbar,
-                  border:
-                      Border(bottom: BorderSide(color: kLibraryStatsDivider)),
+                decoration: BoxDecoration(
+                  color: colors.toolbar,
+                  border: Border(
+                    bottom: BorderSide(color: colors.divider),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(type.workspace.icon, color: kLibraryStatsAccent),
+                    Icon(type.workspace.icon, color: colors.accent),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(

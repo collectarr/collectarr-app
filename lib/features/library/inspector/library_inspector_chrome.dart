@@ -18,6 +18,7 @@ class InspectorBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return Stack(
       fit: StackFit.expand,
@@ -31,28 +32,28 @@ class InspectorBackdrop extends StatelessWidget {
             ownedItemId: ownedItemId,
           ),
         ),
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0x66111111),
-                Color(0xE0121212),
-                Color(0xFA111111),
+                palette.surface.withValues(alpha: 0.4),
+                palette.panel.withValues(alpha: 0.82),
+                palette.panel.withValues(alpha: 0.94),
               ],
             ),
           ),
         ),
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                Color(0xF0101010),
-                Color(0xC0101010),
-                Color(0xE8101010),
+                palette.panel.withValues(alpha: 0.94),
+                palette.surfaceSubtle.withValues(alpha: 0.72),
+                palette.panel.withValues(alpha: 0.9),
               ],
             ),
           ),
@@ -86,10 +87,14 @@ class InspectorActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final ownedForeground = ThemeData.estimateBrightnessForColor(kAppHighlight) == Brightness.dark
+        ? Colors.white
+        : Colors.black87;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xD51D1D1D),
-        border: Border.all(color: kAppDivider),
+        color: palette.panel.withValues(alpha: 0.84),
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
@@ -154,7 +159,7 @@ class InspectorActionBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: entry.isOwned ? kAppHighlight : kAppSurfaceSubtle,
                 border: Border.all(
-                  color: entry.isOwned ? kAppHighlight : kAppDivider,
+                  color: entry.isOwned ? kAppHighlight : palette.divider,
                 ),
               ),
               child: Padding(
@@ -167,16 +172,16 @@ class InspectorActionBar extends StatelessWidget {
                           : Icons.check_box_outline_blank,
                       size: 15,
                       color: entry.isOwned
-                        ? kAppCanvas
-                          : kAppTextMuted,
+                        ? ownedForeground
+                          : palette.textMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       entry.isOwned ? 'OWNED' : 'CATALOG',
                       style: TextStyle(
                         color: entry.isOwned
-                            ? kAppCanvas
-                            : kAppTextMuted,
+                            ? ownedForeground
+                            : palette.textMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                       ),

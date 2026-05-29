@@ -170,6 +170,8 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         gradingCompany: personal.gradingCompany,
         graderNotes: personal.graderNotes,
         signedBy: personal.signedBy,
+        labelType: personal.labelType,
+        certificationNumber: personal.certificationNumber,
         keyComic: personal.keyComic,
         keyReason: personal.keyReason,
         rating: result.tracking?.rating,
@@ -354,7 +356,7 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                       Text(
                         'Shelf releases',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
+                              color: appPalette(context).textPrimary,
                               fontWeight: FontWeight.w800,
                             ),
                       ),
@@ -364,7 +366,7 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: kAppTextMuted,
+                              color: appPalette(context).textMuted,
                             ),
                       ),
                     ],
@@ -405,7 +407,7 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                             'No release-specific copies or wishlist entries are anchored in your shelf for this title yet.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  color: Colors.white,
+                                  color: appPalette(context).textPrimary,
                                   fontWeight: FontWeight.w700,
                                 ),
                           ),
@@ -414,7 +416,7 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                             'Use Search releases in Core to refresh editions, or add a release-specific copy or wishlist entry from the detail browser.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: kAppTextMuted,
+                                  color: appPalette(context).textMuted,
                                 ),
                           ),
                         ],
@@ -432,7 +434,7 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                           child: Text(
                             '${selected.entry.variant ?? selected.entry.title} · ${selected.ownedCount} copies · ${selected.wishlistCount} wishlist · ${selected.sourceLabel}',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: kAppTextMuted,
+                                  color: appPalette(context).textMuted,
                                 ),
                           ),
                         ),

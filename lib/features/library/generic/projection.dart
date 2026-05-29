@@ -1,9 +1,15 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/utils/text_utils.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -28,19 +34,43 @@ String genericGroupModeLabel(
   LibraryTypeConfig type,
 ) {
   final labels = libraryMediaGroupLabels(type);
+  final isMovieType = type.workspace.kind == CatalogMediaKind.movie;
   return switch (mode) {
     LibraryGroupMode.series => labels.series,
     LibraryGroupMode.storyArc => 'Story Arc',
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.title => 'Title',
-    LibraryGroupMode.publisher => labels.publisher,
+    LibraryGroupMode.publisher => isMovieType ? labels.publisherPlural : labels.publisher,
     LibraryGroupMode.year => 'Year',
-    LibraryGroupMode.genre => 'Genre',
+    LibraryGroupMode.audienceRating => 'Audience Rating',
+    LibraryGroupMode.color => 'Color',
+    LibraryGroupMode.genre => isMovieType ? 'Genres' : 'Genre',
     LibraryGroupMode.country => 'Country',
     LibraryGroupMode.language => 'Language',
     LibraryGroupMode.ageRating => 'Age Rating',
+    LibraryGroupMode.movieOrTvSeries => 'Movie / TV Series',
+    LibraryGroupMode.releaseDate => 'Release Date',
+    LibraryGroupMode.releaseMonth => 'Release Month',
+    LibraryGroupMode.releaseYear => 'Release Year',
+    LibraryGroupMode.audioTracks => 'Audio Tracks',
+    LibraryGroupMode.boxSet => 'Box Set',
+    LibraryGroupMode.distributor => 'Distributor',
+    LibraryGroupMode.editionReleaseDate => 'Edition Release Date',
+    LibraryGroupMode.editionReleaseMonth => 'Edition Release Month',
+    LibraryGroupMode.editionReleaseYear => 'Edition Release Year',
+    LibraryGroupMode.extras => 'Extras',
     LibraryGroupMode.format => 'Format',
+    LibraryGroupMode.hdr => 'HDR',
+    LibraryGroupMode.layers => 'Layers',
+    LibraryGroupMode.packaging => 'Packaging',
+    LibraryGroupMode.regions => 'Regions',
+    LibraryGroupMode.screenRatios => 'Screen Ratios',
+    LibraryGroupMode.subtitles => 'Subtitles',
+    LibraryGroupMode.actor => 'Actor',
     LibraryGroupMode.director => 'Director',
+    LibraryGroupMode.musician => 'Musician',
+    LibraryGroupMode.photography => 'Photography',
+    LibraryGroupMode.producer => 'Producer',
     LibraryGroupMode.creator => 'Creator',
     LibraryGroupMode.writer => 'Writer',
     LibraryGroupMode.artist => 'Artist',
@@ -51,9 +81,28 @@ String genericGroupModeLabel(
     LibraryGroupMode.editor => 'Editor',
     LibraryGroupMode.location => 'Location',
     LibraryGroupMode.ownership => 'Ownership',
+    LibraryGroupMode.addedDate => 'Added Date',
+    LibraryGroupMode.addedMonth => 'Added Month',
+    LibraryGroupMode.addedYear => 'Added Year',
+    LibraryGroupMode.collectionStatus => 'Collection Status',
     LibraryGroupMode.grade => 'Grade',
     LibraryGroupMode.condition => 'Condition',
+    LibraryGroupMode.imageType => 'Image Type',
+    LibraryGroupMode.modifiedDate => 'Modified Date',
+    LibraryGroupMode.modifiedMonth => 'Modified Month',
+    LibraryGroupMode.myRating => 'My Rating',
+    LibraryGroupMode.owner => 'Owner',
+    LibraryGroupMode.purchaseDate => 'Purchase Date',
+    LibraryGroupMode.purchaseMonth => 'Purchase Month',
+    LibraryGroupMode.purchaseYear => 'Purchase Year',
+    LibraryGroupMode.purchaseStore => 'Purchase Store',
+    LibraryGroupMode.storageDevice => 'Storage Device',
     LibraryGroupMode.tags => 'Tags',
+    LibraryGroupMode.watchDate => 'Watch Date',
+    LibraryGroupMode.watchMonth => 'Watch Month',
+    LibraryGroupMode.watchYear => 'Watch Year',
+    LibraryGroupMode.watched => 'Watched',
+    LibraryGroupMode.watchedWhere => 'Watched Where',
   };
 }
 
@@ -69,12 +118,35 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.title => 'Titles',
     LibraryGroupMode.publisher => labels.publisherPlural,
     LibraryGroupMode.year => 'Years',
+    LibraryGroupMode.audienceRating => 'Audience Ratings',
+    LibraryGroupMode.color => 'Colors',
     LibraryGroupMode.genre => 'Genres',
     LibraryGroupMode.country => 'Countries',
     LibraryGroupMode.language => 'Languages',
     LibraryGroupMode.ageRating => 'Age Ratings',
+    LibraryGroupMode.movieOrTvSeries => 'Movie / TV Series',
+    LibraryGroupMode.releaseDate => 'Release Dates',
+    LibraryGroupMode.releaseMonth => 'Release Months',
+    LibraryGroupMode.releaseYear => 'Release Years',
+    LibraryGroupMode.audioTracks => 'Audio Tracks',
+    LibraryGroupMode.boxSet => 'Box Sets',
+    LibraryGroupMode.distributor => 'Distributors',
+    LibraryGroupMode.editionReleaseDate => 'Edition Release Dates',
+    LibraryGroupMode.editionReleaseMonth => 'Edition Release Months',
+    LibraryGroupMode.editionReleaseYear => 'Edition Release Years',
+    LibraryGroupMode.extras => 'Extras',
     LibraryGroupMode.format => 'Formats',
+    LibraryGroupMode.hdr => 'HDR',
+    LibraryGroupMode.layers => 'Layers',
+    LibraryGroupMode.packaging => 'Packaging',
+    LibraryGroupMode.regions => 'Regions',
+    LibraryGroupMode.screenRatios => 'Screen Ratios',
+    LibraryGroupMode.subtitles => 'Subtitles',
+    LibraryGroupMode.actor => 'Actors',
     LibraryGroupMode.director => 'Directors',
+    LibraryGroupMode.musician => 'Musicians',
+    LibraryGroupMode.photography => 'Photography',
+    LibraryGroupMode.producer => 'Producers',
     LibraryGroupMode.creator => 'Creators',
     LibraryGroupMode.writer => 'Writers',
     LibraryGroupMode.artist => 'Artists',
@@ -85,9 +157,28 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.editor => 'Editors',
     LibraryGroupMode.location => 'Locations',
     LibraryGroupMode.ownership => 'Ownership',
+    LibraryGroupMode.addedDate => 'Added Dates',
+    LibraryGroupMode.addedMonth => 'Added Months',
+    LibraryGroupMode.addedYear => 'Added Years',
+    LibraryGroupMode.collectionStatus => 'Collection Status',
     LibraryGroupMode.grade => 'Grades',
     LibraryGroupMode.condition => 'Conditions',
+    LibraryGroupMode.imageType => 'Image Types',
+    LibraryGroupMode.modifiedDate => 'Modified Dates',
+    LibraryGroupMode.modifiedMonth => 'Modified Months',
+    LibraryGroupMode.myRating => 'My Ratings',
+    LibraryGroupMode.owner => 'Owners',
+    LibraryGroupMode.purchaseDate => 'Purchase Dates',
+    LibraryGroupMode.purchaseMonth => 'Purchase Months',
+    LibraryGroupMode.purchaseYear => 'Purchase Years',
+    LibraryGroupMode.purchaseStore => 'Purchase Stores',
+    LibraryGroupMode.storageDevice => 'Storage Devices',
     LibraryGroupMode.tags => 'Tags',
+    LibraryGroupMode.watchDate => 'Watch Dates',
+    LibraryGroupMode.watchMonth => 'Watch Months',
+    LibraryGroupMode.watchYear => 'Watch Years',
+    LibraryGroupMode.watched => 'Watched',
+    LibraryGroupMode.watchedWhere => 'Watched Where',
   };
 }
 
@@ -99,12 +190,35 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.title => Icons.sort_by_alpha,
     LibraryGroupMode.publisher => Icons.business_outlined,
     LibraryGroupMode.year => Icons.calendar_today_outlined,
+    LibraryGroupMode.audienceRating => Icons.star_half_outlined,
+    LibraryGroupMode.color => Icons.palette_outlined,
     LibraryGroupMode.genre => Icons.theater_comedy_outlined,
     LibraryGroupMode.country => Icons.flag_outlined,
     LibraryGroupMode.language => Icons.translate_outlined,
     LibraryGroupMode.ageRating => Icons.shield_outlined,
+    LibraryGroupMode.movieOrTvSeries => Icons.movie_outlined,
+    LibraryGroupMode.releaseDate => Icons.event_outlined,
+    LibraryGroupMode.releaseMonth => Icons.event_outlined,
+    LibraryGroupMode.releaseYear => Icons.event_outlined,
+    LibraryGroupMode.audioTracks => Icons.audiotrack_outlined,
+    LibraryGroupMode.boxSet => Icons.inventory_2_outlined,
+    LibraryGroupMode.distributor => Icons.local_shipping_outlined,
+    LibraryGroupMode.editionReleaseDate => Icons.event_outlined,
+    LibraryGroupMode.editionReleaseMonth => Icons.event_outlined,
+    LibraryGroupMode.editionReleaseYear => Icons.event_outlined,
+    LibraryGroupMode.extras => Icons.featured_play_list_outlined,
     LibraryGroupMode.format => Icons.album_outlined,
+    LibraryGroupMode.hdr => Icons.hdr_strong_outlined,
+    LibraryGroupMode.layers => Icons.layers_outlined,
+    LibraryGroupMode.packaging => Icons.inbox_outlined,
+    LibraryGroupMode.regions => Icons.public_outlined,
+    LibraryGroupMode.screenRatios => Icons.aspect_ratio_outlined,
+    LibraryGroupMode.subtitles => Icons.subtitles_outlined,
+    LibraryGroupMode.actor => Icons.theater_comedy_outlined,
     LibraryGroupMode.director => Icons.movie_creation_outlined,
+    LibraryGroupMode.musician => Icons.music_note_outlined,
+    LibraryGroupMode.photography => Icons.camera_alt_outlined,
+    LibraryGroupMode.producer => Icons.groups_outlined,
     LibraryGroupMode.creator => Icons.person_outlined,
     LibraryGroupMode.writer => Icons.edit_outlined,
     LibraryGroupMode.artist => Icons.brush_outlined,
@@ -115,9 +229,28 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.editor => Icons.rule_outlined,
     LibraryGroupMode.location => Icons.place_outlined,
     LibraryGroupMode.ownership => Icons.inventory_2_outlined,
+    LibraryGroupMode.addedDate => Icons.playlist_add_outlined,
+    LibraryGroupMode.addedMonth => Icons.playlist_add_outlined,
+    LibraryGroupMode.addedYear => Icons.playlist_add_outlined,
+    LibraryGroupMode.collectionStatus => Icons.checklist_outlined,
     LibraryGroupMode.grade => Icons.workspace_premium_outlined,
     LibraryGroupMode.condition => Icons.fact_check_outlined,
+    LibraryGroupMode.imageType => Icons.image_outlined,
+    LibraryGroupMode.modifiedDate => Icons.update_outlined,
+    LibraryGroupMode.modifiedMonth => Icons.update_outlined,
+    LibraryGroupMode.myRating => Icons.star_outline,
+    LibraryGroupMode.owner => Icons.person_outline,
+    LibraryGroupMode.purchaseDate => Icons.shopping_bag_outlined,
+    LibraryGroupMode.purchaseMonth => Icons.shopping_bag_outlined,
+    LibraryGroupMode.purchaseYear => Icons.shopping_bag_outlined,
+    LibraryGroupMode.purchaseStore => Icons.store_outlined,
+    LibraryGroupMode.storageDevice => Icons.storage_outlined,
     LibraryGroupMode.tags => Icons.label_outlined,
+    LibraryGroupMode.watchDate => Icons.visibility_outlined,
+    LibraryGroupMode.watchMonth => Icons.visibility_outlined,
+    LibraryGroupMode.watchYear => Icons.visibility_outlined,
+    LibraryGroupMode.watched => Icons.remove_red_eye_outlined,
+    LibraryGroupMode.watchedWhere => Icons.live_tv_outlined,
   };
 }
 
@@ -149,13 +282,15 @@ class LibraryProjection {
     required String? selectedBucket,
     required String? selectedItemId,
     required LibraryQuickView? quickView,
+    LibraryCollectionStatusScope collectionStatusScope =
+        LibraryCollectionStatusScope.all,
     required LibraryGroupMode groupMode,
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
-      const {},
+        const {},
     Set<String> activeLoanOwnedItemIds = const {},
   }) {
     final allItems = libraryItemsForShelf(shelf, type);
@@ -164,6 +299,7 @@ class LibraryProjection {
       for (final item in allItems)
         if (_matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesConstrainedItemIds(item, constrainedItemIds) &&
+            _matchesCollectionStatusScope(item, collectionStatusScope) &&
             _matchesQuickView(item, quickView) &&
             _matchesFilter(
               item,
@@ -211,18 +347,28 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
 ) {
   final allBucketLabel = genericAllBucketLabel(type);
   final counts = <String, int>{allBucketLabel: items.length};
-  final ownedCounts = groupMode == LibraryGroupMode.series
+  final isSeries = groupMode == LibraryGroupMode.series;
+  final ownedCounts = isSeries
       ? <String, int>{
           allBucketLabel: items.where((item) => item.entry.isOwned).length,
         }
       : null;
   final coverUrls = <String, String?>{};
   final startYears = <String, int?>{};
+  final bucketNumbers = isSeries ? <String, Set<int>>{} : null;
+  final ownedNumbers = isSeries ? <String, Set<int>>{} : null;
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     counts[bucket] = (counts[bucket] ?? 0) + 1;
-    if (ownedCounts != null && item.entry.isOwned) {
-      ownedCounts[bucket] = (ownedCounts[bucket] ?? 0) + 1;
+    final number = isSeries ? _wholeNumber(item.entry.itemNumber) : null;
+    if (number != null) {
+      bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
+    }
+    if (isSeries && item.entry.isOwned) {
+      ownedCounts![bucket] = (ownedCounts[bucket] ?? 0) + 1;
+      if (number != null) {
+        ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
+      }
     }
     if (!coverUrls.containsKey(bucket)) {
       coverUrls[bucket] = item.entry.displayCoverUrl;
@@ -235,6 +381,24 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
       }
     }
   }
+  final gapNumbers = <String, List<int>>{};
+  if (ownedNumbers != null && bucketNumbers != null) {
+    for (final entry in ownedNumbers.entries) {
+      final sorted = entry.value.toList(growable: false)..sort();
+      if (sorted.length < 2) continue;
+      final existingNumbers = bucketNumbers[entry.key];
+      if (existingNumbers == null || existingNumbers.length < 2) continue;
+      final sortedExisting = existingNumbers.toList(growable: false)..sort();
+      final missing = <int>[];
+      for (final number in sortedExisting) {
+        if (number < sorted.first || number > sorted.last) continue;
+        if (entry.value.contains(number)) continue;
+        missing.add(number);
+        if (missing.length > 1000) break;
+      }
+      if (missing.isNotEmpty) gapNumbers[entry.key] = missing;
+    }
+  }
   final buckets = [
     for (final entry in counts.entries)
       LibrarySeriesBucket(
@@ -243,6 +407,7 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
         coverUrl: coverUrls[entry.key],
         startYear: startYears[entry.key],
         ownedCount: ownedCounts?[entry.key],
+        missingNumbers: gapNumbers[entry.key] ?? const <int>[],
       ),
   ];
   buckets.sort((a, b) {
@@ -255,6 +420,14 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
     return a.title.compareTo(b.title);
   });
   return buckets;
+}
+
+final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
+
+int? _wholeNumber(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final match = _issueNumberRegExp.firstMatch(value);
+  return match == null ? null : int.tryParse(match.group(1)!);
 }
 
 LibraryProjectionItem? librarySelectedItem(
@@ -272,7 +445,8 @@ LibraryProjectionItem? librarySelectedItem(
   return null;
 }
 
-String genericBucketForItem(LibraryProjectionItem item, LibraryTypeConfig type) {
+String genericBucketForItem(
+    LibraryProjectionItem item, LibraryTypeConfig type) {
   return genericBucketForItemMode(
     item,
     type,
@@ -294,6 +468,13 @@ String genericBucketForItemMode(
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    LibraryGroupMode.audienceRating => entry.audienceRating?.trim().isNotEmpty == true
+      ? entry.audienceRating!
+      : 'No audience rating',
+    LibraryGroupMode.color => _stringBucket(
+        entry.video?.color,
+        'No color',
+      ),
     LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
@@ -304,11 +485,82 @@ String genericBucketForItemMode(
     LibraryGroupMode.language => entry.language?.trim().isNotEmpty == true
         ? entry.language!
         : 'Unknown language',
-    LibraryGroupMode.ageRating => entry.ageRating?.trim().isNotEmpty == true
-        ? entry.ageRating!
-        : 'Unrated',
+    LibraryGroupMode.ageRating =>
+      entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
+    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
+    LibraryGroupMode.releaseDate => _dateBucket(
+        entry.releaseDate,
+        'Unknown release date',
+      ),
+    LibraryGroupMode.releaseMonth => _monthBucket(
+        entry.releaseDate,
+        fallback: 'Unknown release month',
+      ),
+    LibraryGroupMode.releaseYear => _yearBucket(
+        entry.releaseDate ??
+            (entry.releaseYear == null
+                ? null
+                : DateTime(entry.releaseYear!)),
+        'Unknown release year',
+      ),
+    LibraryGroupMode.audioTracks => _stringBucket(
+        entry.video?.audioTracks,
+        'No audio tracks',
+      ),
+    LibraryGroupMode.boxSet => _stringBucket(
+        item.source.ownedItem?.boxSetName,
+        'No box set',
+      ),
+    LibraryGroupMode.distributor => _stringBucket(
+        item.source.ownedItem?.distributor,
+        'No distributor',
+      ),
+    LibraryGroupMode.editionReleaseDate => _dateBucket(
+        _referenceEditionForItem(item)?.releaseDate,
+        'Unknown edition release date',
+      ),
+    LibraryGroupMode.editionReleaseMonth => _monthBucket(
+        _referenceEditionForItem(item)?.releaseDate,
+        fallback: 'Unknown edition release month',
+      ),
+    LibraryGroupMode.editionReleaseYear => _yearBucket(
+        _referenceEditionForItem(item)?.releaseDate,
+        'Unknown edition release year',
+      ),
+    LibraryGroupMode.extras => _stringBucket(
+        item.source.ownedItem?.features,
+        'No extras',
+      ),
     LibraryGroupMode.format => _editionFormatBucket(entry),
+    LibraryGroupMode.hdr => _firstOrDefault(
+        item.source.ownedItem?.hdrFormats,
+        'No HDR',
+      ),
+    LibraryGroupMode.layers => _stringBucket(
+        entry.video?.layers,
+        'No layers',
+      ),
+    LibraryGroupMode.packaging => _stringBucket(
+        item.source.ownedItem?.packaging,
+        'No packaging',
+      ),
+    LibraryGroupMode.regions => _stringBucket(
+        _referenceRegionForItem(item),
+        'No region',
+      ),
+    LibraryGroupMode.screenRatios => _stringBucket(
+        entry.video?.screenRatio,
+        'No screen ratio',
+      ),
+    LibraryGroupMode.subtitles => _stringBucket(
+        entry.video?.subtitles,
+        'No subtitles',
+      ),
+    LibraryGroupMode.actor => _creatorBucketByRole(entry, 'actor'),
     LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
+    LibraryGroupMode.musician => _creatorBucketByRole(entry, 'musician'),
+    LibraryGroupMode.photography => _creatorBucketByRole(entry, 'photography'),
+    LibraryGroupMode.producer => _creatorBucketByRole(entry, 'producer'),
     LibraryGroupMode.creator => _creatorBucketByRole(entry, null),
     LibraryGroupMode.writer => _creatorBucketByRole(entry, 'writer'),
     LibraryGroupMode.artist => _creatorBucketByRole(entry, 'artist'),
@@ -323,18 +575,168 @@ String genericBucketForItemMode(
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
+    LibraryGroupMode.addedDate => _dateBucket(
+        item.source.ownedItem?.createdAt ?? item.source.wishlistItem?.createdAt,
+        'Unknown added date',
+      ),
+    LibraryGroupMode.addedMonth => _monthBucket(
+        item.source.ownedItem?.createdAt ?? item.source.wishlistItem?.createdAt,
+        fallback: 'Unknown added month',
+      ),
+    LibraryGroupMode.addedYear => _yearBucket(
+        item.source.ownedItem?.createdAt ?? item.source.wishlistItem?.createdAt,
+        'Unknown added year',
+      ),
+    LibraryGroupMode.collectionStatus => _stringBucket(
+        item.source.ownedItem?.collectionStatus,
+        'No collection status',
+      ),
     LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.grade =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
-    LibraryGroupMode.condition =>
-      entry.condition?.trim().isNotEmpty == true
-          ? entry.condition!
-          : 'No condition',
+    LibraryGroupMode.condition => entry.condition?.trim().isNotEmpty == true
+        ? entry.condition!
+        : 'No condition',
+    LibraryGroupMode.imageType => _imageTypeBucket(item),
+    LibraryGroupMode.modifiedDate => formatCompactDate(entry.updatedAt),
+    LibraryGroupMode.modifiedMonth => _monthBucket(entry.updatedAt),
+    LibraryGroupMode.myRating => _ratingBucket(item.source.tracking.rating),
+    LibraryGroupMode.owner => _ownerBucket(item),
+    LibraryGroupMode.purchaseDate => _dateBucket(
+        item.source.ownedItem?.purchaseDate,
+        'Unknown purchase date',
+      ),
+    LibraryGroupMode.purchaseMonth => _monthBucket(
+        item.source.ownedItem?.purchaseDate,
+        fallback: 'Unknown purchase month',
+      ),
+    LibraryGroupMode.purchaseYear => _yearBucket(
+        item.source.ownedItem?.purchaseDate,
+        'Unknown purchase year',
+      ),
+    LibraryGroupMode.purchaseStore => _stringBucket(
+        item.source.ownedItem?.purchaseStore,
+        'No purchase store',
+      ),
+    LibraryGroupMode.storageDevice => _stringBucket(
+        item.source.ownedItem?.storageDevice,
+        'No storage device',
+      ),
     LibraryGroupMode.tags => _firstOrDefault(
-        entry.tags?.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList(),
+        entry.tags
+            ?.split(',')
+            .map((t) => t.trim())
+            .where((t) => t.isNotEmpty)
+            .toList(),
         'No tags',
       ),
+    LibraryGroupMode.watchDate =>
+      _dateBucket(_latestWatchSession(item)?.watchedAt, 'Unknown watch date'),
+    LibraryGroupMode.watchMonth => _monthBucket(
+        _latestWatchSession(item)?.watchedAt,
+        fallback: 'Unknown watch month',
+      ),
+    LibraryGroupMode.watchYear => _yearBucket(
+        _latestWatchSession(item)?.watchedAt,
+        'Unknown watch year',
+      ),
+    LibraryGroupMode.watched => _watchedBucket(item),
+    LibraryGroupMode.watchedWhere => _watchedWhereBucket(item),
   };
+}
+
+const _monthNames = <String>[
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+const _imageTypeLabels = <String, String>{
+  'front_cover': 'Front Cover',
+  'back_cover': 'Back Cover',
+  'auxiliary': 'Photos',
+};
+
+String _dateBucket(DateTime? value, String fallback) {
+  return value == null ? fallback : formatCompactDate(value);
+}
+
+String _monthBucket(DateTime? value, {String fallback = 'Unknown month'}) {
+  if (value == null) {
+    return fallback;
+  }
+  final local = value.toLocal();
+  return '${_monthNames[local.month - 1]} ${local.year}';
+}
+
+String _yearBucket(DateTime? value, String fallback) {
+  return value == null ? fallback : value.toLocal().year.toString();
+}
+
+String _stringBucket(String? value, String fallback) {
+  final normalized = value?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return fallback;
+  }
+  return normalized;
+}
+
+String _ratingBucket(int? rating) {
+  if (rating == null || rating <= 0) {
+    return 'No rating';
+  }
+  return rating.toString();
+}
+
+String _imageTypeBucket(LibraryProjectionItem item) {
+  final imageType = item.source.itemImages.firstOrNull?.imageType;
+  if (imageType == null || imageType.trim().isEmpty) {
+    return 'No image type';
+  }
+  return _imageTypeLabels[imageType] ?? imageType;
+}
+
+WatchSession? _latestWatchSession(LibraryProjectionItem item) {
+  return item.source.watchSessions.firstOrNull;
+}
+
+String _watchedBucket(LibraryProjectionItem item) {
+  final latestSession = _latestWatchSession(item);
+  final tracking = item.source.tracking;
+  final watched = latestSession != null ||
+      tracking.completedAt != null ||
+      tracking.status == MediaTrackingStatus.completed ||
+      tracking.status == MediaTrackingStatus.repeating;
+  return watched ? 'Watched' : 'Not watched';
+}
+
+String _watchedWhereBucket(LibraryProjectionItem item) {
+  final label = _latestWatchSession(item)?.sourceType?.label;
+  if (label == null || label.trim().isEmpty) {
+    return 'Unknown watch source';
+  }
+  return label;
+}
+
+String _ownerBucket(LibraryProjectionItem item) {
+  final explicit = item.source.ownedItem?.ownerLabel?.trim();
+  if (explicit != null && explicit.isNotEmpty) {
+    return explicit;
+  }
+  final fallback = item.source.fallbackOwnerLabel?.trim();
+  if (fallback != null && fallback.isNotEmpty) {
+    return fallback;
+  }
+  return 'Unknown owner';
 }
 
 String _locationBucket(String? location) {
@@ -359,15 +761,64 @@ String _editionFormatBucket(LibraryWorkspaceEntry entry) {
   return 'Unknown format';
 }
 
+String _movieOrTvSeriesBucket(LibraryWorkspaceEntry entry) {
+  if (entry.mediaType == 'tv') {
+    return 'TV Series';
+  }
+  final series = entry.series;
+  if (series?.seasonNumber != null || series?.episodeNumber != null) {
+    return 'TV Series';
+  }
+  return 'Movie';
+}
+
+CatalogEdition? _referenceEditionForItem(LibraryProjectionItem item) {
+  final resolved = resolveLibraryEntryReferenceRelease(item.entry);
+  return resolved.edition ??
+      (item.entry.editions.isEmpty ? null : item.entry.editions.first);
+}
+
+String? _referenceRegionForItem(LibraryProjectionItem item) {
+  final resolved = resolveLibraryEntryReferenceRelease(item.entry);
+  final variantRegion = resolved.variant?.region?.trim();
+  if (variantRegion != null && variantRegion.isNotEmpty) {
+    return variantRegion;
+  }
+  final editionRegion = _referenceEditionForItem(item)?.region?.trim();
+  if (editionRegion != null && editionRegion.isNotEmpty) {
+    return editionRegion;
+  }
+  final ownedRegion = item.source.ownedItem?.region?.trim();
+  if (ownedRegion != null && ownedRegion.isNotEmpty) {
+    return ownedRegion;
+  }
+  return null;
+}
+
 String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
   for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
     final name = credit['name']?.toString().trim();
     if (name == null || name.isEmpty) continue;
     if (role == null) return name;
     final creditRole = credit['role']?.toString().toLowerCase().trim();
-    if (creditRole != null && creditRole.contains(role)) return name;
+    if (creditRole != null && _matchesCreatorRole(creditRole, role)) return name;
   }
   return role != null ? 'Unknown $role' : 'Unknown creator';
+}
+
+bool _matchesCreatorRole(String creditRole, String role) {
+  return switch (role) {
+    'actor' => creditRole.contains('actor') || creditRole.contains('cast'),
+    'musician' =>
+      creditRole.contains('musician') ||
+      creditRole.contains('music') ||
+      creditRole.contains('composer'),
+    'photography' =>
+      creditRole.contains('photography') ||
+      creditRole.contains('director of photography') ||
+      creditRole.contains('cinemat'),
+    _ => creditRole.contains(role),
+  };
 }
 
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
@@ -406,7 +857,8 @@ bool _matchesConstrainedItemIds(
       constrainedItemIds.contains(item.entry.id);
 }
 
-bool _matchesQuickView(LibraryProjectionItem item, LibraryQuickView? quickView) {
+bool _matchesQuickView(
+    LibraryProjectionItem item, LibraryQuickView? quickView) {
   return switch (quickView) {
     null => true,
     LibraryQuickView.owned => item.entry.isOwned,
@@ -415,6 +867,31 @@ bool _matchesQuickView(LibraryProjectionItem item, LibraryQuickView? quickView) 
     LibraryQuickView.missingMetadata => item.entry.hasMissingMetadata,
     LibraryQuickView.missingGrade => item.entry.isOwned &&
         (item.entry.grade == null || item.entry.grade!.trim().isEmpty),
+  };
+}
+
+bool _matchesCollectionStatusScope(
+  LibraryProjectionItem item,
+  LibraryCollectionStatusScope scope,
+) {
+  final ownedItem = item.source.ownedItem;
+  final isSold = ownedItem?.isSold == true;
+  final collectionStatus = item.entry.collectionStatus?.trim().toLowerCase();
+  final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
+  final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
+  final isForSale = !isSold && collectionStatus == 'for_sale';
+  final isOnOrder = !isSold && collectionStatus == 'on_order';
+  final isInCollection =
+      item.source.isOwned && !isSold && !isForSale && !isOnOrder;
+
+  return switch (scope) {
+    LibraryCollectionStatusScope.all => true,
+    LibraryCollectionStatusScope.inCollection => isInCollection,
+    LibraryCollectionStatusScope.forSale => isForSale,
+    LibraryCollectionStatusScope.wishList => isWishlistOnly,
+    LibraryCollectionStatusScope.onOrder => isOnOrder,
+    LibraryCollectionStatusScope.sold => isSold,
+    LibraryCollectionStatusScope.notInCollection => isCatalogOnly,
   };
 }
 
@@ -436,7 +913,8 @@ bool _matchesFilter(
   )) {
     return false;
   }
-  if (!_matchesLoanFilter(item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
+  if (!_matchesLoanFilter(
+      item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
     return false;
   }
   if (!_matchesDateRange(item, filters)) {
@@ -533,8 +1011,10 @@ DateTime? _filterDateForItem(
   return switch (field) {
     LibraryDateRangeField.updated => item.source.updatedAt,
     LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
-    LibraryDateRangeField.started => trackingEntry?.startedAt ?? ownedItem?.startedAt,
-    LibraryDateRangeField.finished => trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+    LibraryDateRangeField.started =>
+      trackingEntry?.startedAt ?? ownedItem?.startedAt,
+    LibraryDateRangeField.finished =>
+      trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
   };
 }
 

@@ -3,6 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('compact dropdown trigger renders icon and arrow', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: LibraryToolbarCompactDropdownTrigger(
+            icon: Icons.grid_view_outlined,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.grid_view_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
+  });
+
   testWidgets('workspace icon button triggers callback', (tester) async {
     var pressed = false;
 
@@ -37,3 +54,4 @@ void main() {
     expect(divider.color, Colors.red);
   });
 }
+

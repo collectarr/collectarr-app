@@ -53,6 +53,7 @@ class _TrailerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final isYouTube = trailer.url.contains('youtube.com') ||
         trailer.url.contains('youtu.be');
     return Padding(
@@ -67,7 +68,7 @@ class _TrailerTile extends StatelessWidget {
               Icon(
                 isYouTube ? Icons.smart_display : Icons.open_in_new,
                 size: 20,
-                color: isYouTube ? Colors.red : kAppTextMuted,
+                color: isYouTube ? Colors.red : palette.textMuted,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -84,8 +85,8 @@ class _TrailerTile extends StatelessWidget {
                     if (trailer.source != null)
                       Text(
                         trailer.source!,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 11,
                         ),
                       ),
@@ -98,7 +99,7 @@ class _TrailerTile extends StatelessWidget {
                   child: Icon(Icons.person_outline, size: 14, color: accent),
                 ),
               const SizedBox(width: 4),
-              Icon(Icons.chevron_right, size: 18, color: kAppTextMuted),
+              Icon(Icons.chevron_right, size: 18, color: palette.textMuted),
             ],
           ),
         ),

@@ -71,6 +71,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(widget.types, widget.selectedKind);
     final accent = libraryAccentForKind(selected.kind);
+    final palette = appPalette(context);
     final selectedIcon = widget.registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
     return TweenAnimationBuilder<Color?>(
@@ -84,14 +85,15 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
           decoration: BoxDecoration(
             gradient: libraryChromeGradient(
               animatedAccent,
+              brightness: palette.brightness,
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
             border: Border(
               right: BorderSide(
-                color: Color.alphaBlend(
-                  Colors.white.withValues(alpha: 0.14),
+                color: libraryChromeBorderColor(
                   animatedAccent,
+                  brightness: palette.brightness,
                 ),
               ),
             ),
@@ -103,7 +105,11 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                 SizedBox(
                   height: 42,
                   child: Center(
-                    child: Icon(selectedIcon, color: Colors.white, size: 22),
+                    child: Icon(
+                      selectedIcon,
+                      color: palette.textPrimary,
+                      size: 22,
+                    ),
                   ),
                 ),
                 const Divider(height: 1, color: kAppDivider),
@@ -118,6 +124,29 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                           final type = widget.types[index];
                           final typeAccent = libraryAccentForKind(type.kind);
                           final selectedType = type.kind == widget.selectedKind;
+                          final tileFill = selectedType
+                            ? (palette.isDark
+                              ? typeAccent.withValues(alpha: 0.34)
+                              : Color.alphaBlend(
+                                typeAccent.withValues(alpha: 0.16),
+                                palette.surfaceSubtle,
+                              ))
+                            : (palette.isDark
+                              ? Colors.black.withValues(alpha: 0.20)
+                              : Color.alphaBlend(
+                                typeAccent.withValues(alpha: 0.04),
+                                palette.surfaceSubtle,
+                              ));
+                          final selectedTileForeground =
+                            ThemeData.estimateBrightnessForColor(tileFill) ==
+                                Brightness.dark
+                              ? Colors.white
+                              : palette.textPrimary;
+                          final unselectedTileForeground =
+                            ThemeData.estimateBrightnessForColor(tileFill) ==
+                                Brightness.dark
+                              ? Colors.white
+                              : palette.textPrimary;
                       return Tooltip(
                         message: type.pluralLabel,
                         child: Padding(
@@ -130,13 +159,16 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                             onTap: selectedType ? null : () => widget.onSelected(type),
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                color: selectedType
-                                    ? typeAccent.withValues(alpha: 0.34)
-                                    : Colors.black.withValues(alpha: 0.20),
+                                color: tileFill,
                                 border: Border.all(
                                   color: selectedType
-                                      ? Colors.white70
-                                      : typeAccent,
+                                      ? selectedTileForeground.withValues(alpha: 0.72)
+                                      : (palette.isDark
+                                          ? typeAccent
+                                          : Color.alphaBlend(
+                                              typeAccent.withValues(alpha: 0.28),
+                                              palette.divider,
+                                            )),
                                 ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -153,15 +185,17 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                           libraryIconForKind(type.kind),
                                       size: 19,
                                       color: selectedType
-                                          ? Colors.white
+                                          ? selectedTileForeground
                                           : typeAccent,
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       (widget.counts[type.kind]?.total ?? 0)
                                           .toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: selectedType
+                                            ? selectedTileForeground
+                                            : unselectedTileForeground,
                                         fontSize: 10,
                                         fontWeight: FontWeight.w900,
                                       ),
@@ -183,14 +217,35 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () => _scrollBy(-120),
-                          child: Container(
+                          child: Builder(
+                            builder: (context) {
+                              final buttonBackground = Color.alphaBlend(
+                                animatedAccent.withValues(alpha: 0.12),
+                                palette.surfaceSubtle.withValues(
+                                  alpha: palette.isDark ? 0.9 : 1,
+                                ),
+                              );
+                              final buttonForeground =
+                                  ThemeData.estimateBrightnessForColor(
+                                            buttonBackground,
+                                          ) ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : palette.textPrimary;
+                              return Container(
                             width: 28,
                             height: 18,
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.45),
+                              color: buttonBackground,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(Icons.expand_less, size: 16, color: Colors.white),
+                            child: Icon(
+                              Icons.expand_less,
+                              size: 16,
+                              color: buttonForeground,
+                            ),
+                          );
+                            },
                           ),
                         ),
                       ),
@@ -203,14 +258,35 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () => _scrollBy(120),
-                          child: Container(
+                          child: Builder(
+                            builder: (context) {
+                              final buttonBackground = Color.alphaBlend(
+                                animatedAccent.withValues(alpha: 0.12),
+                                palette.surfaceSubtle.withValues(
+                                  alpha: palette.isDark ? 0.9 : 1,
+                                ),
+                              );
+                              final buttonForeground =
+                                  ThemeData.estimateBrightnessForColor(
+                                            buttonBackground,
+                                          ) ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : palette.textPrimary;
+                              return Container(
                             width: 28,
                             height: 18,
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.45),
+                              color: buttonBackground,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(Icons.expand_more, size: 16, color: Colors.white),
+                            child: Icon(
+                              Icons.expand_more,
+                              size: 16,
+                              color: buttonForeground,
+                            ),
+                          );
+                            },
                           ),
                         ),
                       ),
@@ -227,13 +303,13 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                     onTap: () => ref
                         .read(libraryNavPreferencesProvider.notifier)
                         .toggleCollapsed(),
-                    child: const SizedBox(
+                    child: SizedBox(
                       height: 36,
                       child: Center(
                         child: Icon(
                           Icons.chevron_left,
                           size: 18,
-                          color: Colors.white,
+                          color: palette.textPrimary,
                         ),
                       ),
                     ),
@@ -254,6 +330,20 @@ class _RailSyncButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
+    final palette = appPalette(context);
+    final pendingBadgeBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.12),
+      palette.selection,
+    );
+    final pendingBadgeBorder = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+      palette.divider,
+    );
+    final pendingBadgeForeground =
+        ThemeData.estimateBrightnessForColor(pendingBadgeBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Tooltip(
       message: sync.isSyncing
           ? 'Personal sync is running'
@@ -274,10 +364,12 @@ class _RailSyncButton extends ConsumerWidget {
                   sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
                   size: 18,
                   color: sync.isSyncing
-                      ? Colors.white54
+                    ? palette.textMuted
                       : sync.isOffline
-                          ? Colors.orange.shade200
-                          : Colors.white,
+                      ? (palette.isDark
+                        ? Colors.orange.shade200
+                        : Colors.orange.shade700)
+                      : palette.textPrimary,
                 ),
                 if (!sync.isSyncing && sync.pendingCount > 0)
                   Positioned(
@@ -289,9 +381,9 @@ class _RailSyncButton extends ConsumerWidget {
                         vertical: 1,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
+                        color: pendingBadgeBackground,
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.35),
+                          color: pendingBadgeBorder,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -299,9 +391,9 @@ class _RailSyncButton extends ConsumerWidget {
                         sync.pendingCount > 99
                             ? '99+'
                             : sync.pendingCount.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 9,
-                          color: Colors.white,
+                          color: pendingBadgeForeground,
                           fontWeight: FontWeight.w800,
                         ),
                       ),

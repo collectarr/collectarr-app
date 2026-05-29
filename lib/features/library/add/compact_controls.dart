@@ -10,13 +10,31 @@ const Color kCompactMenuBackground = kAppBannerInfoBackground;
 const Color kCompactMenuText = Color(0xFFBFEFFF);
 
 /// Derives a dark background tinted by [accent] for popup menus and buttons.
-Color compactMenuBackgroundFor(Color accent) {
-  return Color.alphaBlend(accent.withValues(alpha: 0.18), const Color(0xFF161616));
+Color compactMenuBackgroundFor(Color accent, AppThemePalette palette) {
+  if (palette.isDark) {
+    return Color.alphaBlend(
+      accent.withValues(alpha: 0.18),
+      const Color(0xFF161616),
+    );
+  }
+  return Color.alphaBlend(
+    accent.withValues(alpha: 0.08),
+    palette.surfaceSubtle,
+  );
 }
 
 /// Derives a light text color tinted by [accent] for popup menus and buttons.
-Color compactMenuTextFor(Color accent) {
-  return Color.alphaBlend(accent.withValues(alpha: 0.40), Colors.white);
+Color compactMenuTextFor(Color accent, AppThemePalette palette) {
+  if (palette.isDark) {
+    return Color.alphaBlend(accent.withValues(alpha: 0.40), Colors.white);
+  }
+  return palette.textPrimary;
+}
+
+Color compactMenuBorderFor(Color accent, AppThemePalette palette) {
+  return palette.isDark
+      ? accent.withValues(alpha: 0.74)
+      : Color.alphaBlend(accent.withValues(alpha: 0.22), palette.divider);
 }
 
 class CompactDropdown extends StatelessWidget {
@@ -40,7 +58,8 @@ class CompactDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedValue = items.contains(value) ? value : null;
-    final bg = compactMenuBackgroundFor(accent);
+    final palette = appPalette(context);
+    final bg = compactMenuBackgroundFor(accent, palette);
     return PopupMenuButton<String?>(
       initialValue: selectedValue,
       tooltip: label,
@@ -50,7 +69,7 @@ class CompactDropdown extends StatelessWidget {
       constraints: BoxConstraints(minWidth: width, maxWidth: 220),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: accent.withValues(alpha: 0.74)),
+        side: BorderSide(color: compactMenuBorderFor(accent, palette)),
       ),
       onSelected: onChanged,
       itemBuilder: (context) => [
@@ -96,7 +115,8 @@ class CompactDropdownWithNone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedValue = items.contains(value) ? value : null;
-    final bg = compactMenuBackgroundFor(accent);
+    final palette = appPalette(context);
+    final bg = compactMenuBackgroundFor(accent, palette);
     return PopupMenuButton<String?>(
       initialValue: selectedValue,
       tooltip: label,
@@ -106,7 +126,7 @@ class CompactDropdownWithNone extends StatelessWidget {
       constraints: BoxConstraints(minWidth: width, maxWidth: 220),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: accent.withValues(alpha: 0.74)),
+        side: BorderSide(color: compactMenuBorderFor(accent, palette)),
       ),
       onSelected: onChanged,
       itemBuilder: (context) => [
@@ -165,12 +185,15 @@ class CompactPopupMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = compactMenuTextFor(accent);
+    final palette = appPalette(context);
+    final textColor = compactMenuTextFor(accent, palette);
     return Container(
       height: kCompactMenuItemHeight,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: selected ? accent.withValues(alpha: 0.26) : Colors.transparent,
+        color: selected
+            ? (palette.isDark ? accent.withValues(alpha: 0.26) : palette.selection)
+            : Colors.transparent,
         border: selected
             ? Border(left: BorderSide(color: accent, width: 3))
             : null,
@@ -214,12 +237,13 @@ class CompactInputShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       height: kCompactControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: compactMenuBackgroundFor(accent),
-        border: Border.all(color: accent.withValues(alpha: 0.82)),
+        color: compactMenuBackgroundFor(accent, palette),
+        border: Border.all(color: compactMenuBorderFor(accent, palette)),
         borderRadius: BorderRadius.circular(3),
       ),
       child: child,
@@ -270,8 +294,9 @@ class CompactMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = compactMenuTextFor(accent);
-    final color = enabled ? textColor : const Color(0xFF7B8790);
+    final palette = appPalette(context);
+    final textColor = compactMenuTextFor(accent, palette);
+    final color = enabled ? textColor : palette.textMuted;
     return Opacity(
       opacity: enabled ? 1 : 0.62,
       child: CompactMenuFrame(
@@ -305,14 +330,15 @@ class CompactMenuFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = enabledColor ?? compactMenuTextFor(accent);
+    final palette = appPalette(context);
+    final color = enabledColor ?? compactMenuTextFor(accent, palette);
     return Container(
       width: width,
       height: kCompactControlHeight,
       padding: const EdgeInsets.symmetric(horizontal: 9),
       decoration: BoxDecoration(
-        color: compactMenuBackgroundFor(accent),
-        border: Border.all(color: accent.withValues(alpha: 0.82)),
+        color: compactMenuBackgroundFor(accent, palette),
+        border: Border.all(color: compactMenuBorderFor(accent, palette)),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(

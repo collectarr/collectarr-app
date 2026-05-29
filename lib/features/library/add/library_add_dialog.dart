@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -19,6 +20,8 @@ import 'package:collectarr_app/features/library/add/library_cover_scan_service.d
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/library_add_search_operations.dart';
+import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -36,11 +39,9 @@ import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart'
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
@@ -61,6 +62,7 @@ part 'library_add_mode_bar.dart';
 part 'library_add_search_pane.dart';
 part 'library_add_search_comic.dart';
 part 'library_add_search_manga.dart';
+part 'library_add_search_unified.dart';
 part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
 part 'library_add_manual_pane.dart';
@@ -125,7 +127,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   List<LibraryMetadataItem> _results = const [];
   List<ProviderCandidate> _providerResults = const [];
-  final _queuedProviderIngests = <String, _QueuedProviderIngest>{};
+  final _queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
   final _checkedResultIds = <String>{};
   final _checkedProviderIds = <String>{};
   String? _error;
@@ -135,7 +137,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isSearchingProvider = false;
   bool _isQueueingIngest = false;
   bool _isAdding = false;
-  _LibraryAddDialogMode _mode = _LibraryAddDialogMode.search;
+  LibraryAddDialogMode _mode = LibraryAddDialogMode.search;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   LibraryAddReferenceType _referenceType = LibraryAddReferenceType.media;
   String? _selectedResultId;
@@ -204,10 +206,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
     if (_barcodeController.text.isNotEmpty && widget.autoLookupInitialBarcode) {
-      _mode = _LibraryAddDialogMode.barcode;
+      _mode = LibraryAddDialogMode.barcode;
       WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
     } else if (_barcodeController.text.isNotEmpty) {
-      _mode = _LibraryAddDialogMode.barcode;
+      _mode = LibraryAddDialogMode.barcode;
     }
   }
 
@@ -258,8 +260,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       selectedCandidate != null &&
       _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
       !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
+    final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
+    final palette = appPalette(context);
     return Theme(
-      data: _libraryAddDialogTheme(accent),
+      data: buildLibraryAddDialogTheme(accent, palette),
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(
           horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
@@ -309,7 +313,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   onScanCover: _scanCover,
                   onLookupBarcode: _lookupBarcode,
                   onManual: () =>
-                      setState(() => _mode = _LibraryAddDialogMode.manual),
+                      setState(() => _mode = LibraryAddDialogMode.manual),
                   showAdvanced: _showAdvancedSearch,
                   onToggleAdvanced: () => setState(
                       () => _showAdvancedSearch = !_showAdvancedSearch),
@@ -324,7 +328,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     barcode: _barcodeController.text.trim(),
                   ),
                 if (_coverScanPrefill != null)
-                  _CoverScanPrefillBanner(result: _coverScanPrefill!),
+                  LibraryCoverScanPrefillBanner(result: _coverScanPrefill!),
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -343,6 +347,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedProviderCandidateId,
                         checkedResultIds: _checkedResultIds,
                         checkedProviderIds: _checkedProviderIds,
+                        ownedCatalogItemIds: ownedByCatalogId.keys.toSet(),
                         providerQueryText: _queryController.text,
                         providerSeriesText: _searchSeriesController.text,
                         providerNumberText: _searchNumberController.text,
@@ -428,7 +433,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onAddWishlist: () =>
                             _addManual(LibraryAddTarget.wishlist),
                       );
-                      if (_mode == _LibraryAddDialogMode.manual) {
+                      if (_mode == LibraryAddDialogMode.manual) {
                         return manualPane;
                       }
                       if (constraints.maxWidth < 720) {
@@ -462,7 +467,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     },
                   ),
                 ),
-                if (_mode != _LibraryAddDialogMode.manual)
+                if (_mode != LibraryAddDialogMode.manual)
                   Builder(
                     builder: (context) {
                       final checkedItems = [
@@ -629,7 +634,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final year = yearText.isNotEmpty ? int.tryParse(yearText) : null;
     try {
       final api = ref.read(apiClientProvider);
-      final items = await searchAndCacheLibraryMetadata(
+      final searchResult = await runLibraryAddCoreSearch(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
@@ -641,31 +646,24 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           year: year,
           limit: 20,
         ),
-      ).timeout(_coreSearchTimeout);
-      final mappedItems = [
-        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-      ];
-      final rerankHints = _currentLocalRerankHints();
-      final rankedItems = rerankLibraryMetadataItems(mappedItems, rerankHints);
-      final shouldSearchProvider =
-          shouldSearchProviderForCoreResults(
-            rankedItems,
-            rerankHints,
-          ) &&
-          widget.type.supportedMetadataProviders.isNotEmpty;
+        timeout: _coreSearchTimeout,
+        rerankHints: _currentLocalRerankHints(),
+        providerSearchAvailable:
+            widget.type.supportedMetadataProviders.isNotEmpty,
+      );
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
-          _results = rankedItems;
+          _results = searchResult.items;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _resetReferenceSelection();
           _clearSelectionCaches();
         });
-        _precacheMetadataCovers(rankedItems);
+        _precacheMetadataCovers(searchResult.items);
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
-          shouldSearchProvider) {
+          searchResult.shouldSearchProvider) {
         await _searchProvider(
           queryOverride: query,
           bypassDebounce: true,
@@ -710,22 +708,17 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _fetchSuggestions(String query) async {
     try {
       final api = ref.read(apiClientProvider);
-      final items = await searchAndCacheLibraryMetadata(
+      final filtered = await fetchLibraryAddSuggestions(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-        input: LibraryMetadataSearchInput(
-          query: query,
-          limit: _autocompleteLimit,
-        ),
-      ).timeout(const Duration(seconds: 5));
+        query: query,
+        limit: _autocompleteLimit,
+      );
       if (!mounted) return;
-      final mapped = [
-        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-      ];
       setState(() {
-        _suggestions = mapped;
-        _showSuggestions = mapped.isNotEmpty;
+        _suggestions = filtered;
+        _showSuggestions = filtered.isNotEmpty;
       });
     } catch (_) {
       // Silently ignore autocomplete failures — the user can still press Search.
@@ -780,7 +773,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
       final query = (result.query ?? result.series ?? '').trim();
       setState(() {
-        _mode = _LibraryAddDialogMode.search;
+        _mode = LibraryAddDialogMode.search;
         _queryController.text = query;
         _searchSeriesController.text = result.series?.trim() ?? '';
         _searchNumberController.text = result.issueNumber?.trim() ?? '';
@@ -820,37 +813,33 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final results = await lookupAndCacheLibraryBarcodes(
+      final lookupResult = await runLibraryAddBarcodeLookup(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-        barcodes: [barcode],
-      ).timeout(_coreSearchTimeout);
-      final found = [
-        for (final result in results)
-          if (result.item != null)
-            LibraryMetadataItem.fromCatalogItem(result.item!),
-      ];
-      final shouldSearchProvider =
-          found.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty;
+        barcode: barcode,
+        timeout: _coreSearchTimeout,
+        providerSearchAvailable:
+            widget.type.supportedMetadataProviders.isNotEmpty,
+      );
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
-          _results = found;
+          _results = lookupResult.items;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _resetReferenceSelection();
           _clearSelectionCaches();
           _error =
-              found.isEmpty &&
+              lookupResult.items.isEmpty &&
                       widget.type.supportedMetadataProviders.isEmpty
                   ? 'No item found for barcode $barcode.'
                   : null;
         });
-        _precacheMetadataCovers(found);
+        _precacheMetadataCovers(lookupResult.items);
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
-          shouldSearchProvider) {
+          lookupResult.shouldSearchProvider) {
         await _searchProvider(queryOverride: barcode);
       }
     } catch (error) {
@@ -966,6 +955,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       gradingCompany: personal.gradingCompany,
       graderNotes: personal.graderNotes,
       signedBy: personal.signedBy,
+      labelType: personal.labelType,
+      certificationNumber: personal.certificationNumber,
       keyComic: personal.keyComic ?? false,
       keyReason: personal.keyReason,
       rating: selection.tracking?.rating,
@@ -1032,8 +1023,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final provider = _activeProvider;
     ++_providerSearchGeneration;
+    final debounceDecision = evaluateLibraryAddProviderSearchDebounce(
+      provider: provider,
+      query: query,
+      debounce: _providerSearchDebounce,
+      now: DateTime.now(),
+      previousSignature: _lastProviderSearchSignature,
+      previousAt: _lastProviderSearchAt,
+    );
+    _lastProviderSearchSignature = debounceDecision.signature;
+    _lastProviderSearchAt = debounceDecision.at;
     if (_isSearchingProvider ||
-        (!bypassDebounce && _shouldDebounceProviderSearch(provider, query))) {
+        (!bypassDebounce && debounceDecision.shouldSkip)) {
       return;
     }
     setState(() {
@@ -1047,11 +1048,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final rawResults = await searchLibraryProviderCandidates(
-        api,
-        widget.type,
+      final results = await runLibraryAddProviderSearch(
+        api: api,
+        type: widget.type,
         provider: provider,
         query: query,
+        rerankHints: _currentLocalRerankHints(),
         series: _searchSeriesController.text.trim().isNotEmpty
             ? _searchSeriesController.text.trim()
             : null,
@@ -1061,10 +1063,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         year: _searchYearController.text.trim().isNotEmpty
             ? int.tryParse(_searchYearController.text.trim())
             : null,
-      );
-      final results = rerankProviderCandidates(
-        rawResults,
-        _currentLocalRerankHints(),
       );
       if (!mounted) {
         return;
@@ -1325,18 +1323,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     ]);
   }
 
-  bool _shouldDebounceProviderSearch(String provider, String query) {
-    final now = DateTime.now();
-    final signature = '$provider|${query.trim().toLowerCase()}';
-    final lastAt = _lastProviderSearchAt;
-    final shouldSkip = _lastProviderSearchSignature == signature &&
-        lastAt != null &&
-        now.difference(lastAt) < _providerSearchDebounce;
-    _lastProviderSearchSignature = signature;
-    _lastProviderSearchAt = now;
-    return shouldSkip;
-  }
-
   Future<bool> _clearRejectedMetadataSession(
     Object error,
     String action,
@@ -1439,20 +1425,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   String get _providerQuery {
-    final seen = <String>{};
-    return [
+    return buildLibraryAddProviderQuery([
       _queryController.text,
       _searchSeriesController.text,
       _searchNumberController.text,
       _searchPublisherController.text,
       _searchYearController.text,
       _barcodeController.text,
-    ].map((part) => part.trim()).where((part) {
-      if (part.isEmpty) {
-        return false;
-      }
-      return seen.add(part.toLowerCase());
-    }).join(' ');
+    ]);
   }
 
   Future<void> _addItems(
@@ -1666,99 +1646,3 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 }
 
-class _QueuedProviderIngest {
-  const _QueuedProviderIngest({
-    required this.id,
-    required this.status,
-  });
-
-  final String id;
-  final String status;
-
-  String get shortId {
-    final trimmed = id.trim();
-    if (trimmed.length <= 8) {
-      return trimmed;
-    }
-    return trimmed.substring(0, 8);
-  }
-
-  String get statusLabel {
-    final trimmed = status.trim();
-    if (trimmed.isEmpty) {
-      return 'Queued';
-    }
-    return '${trimmed[0].toUpperCase()}${trimmed.substring(1)}';
-  }
-}
-
-enum _LibraryAddDialogMode { search, barcode, manual }
-
-class _CoverScanPrefillBanner extends StatelessWidget {
-  const _CoverScanPrefillBanner({required this.result});
-
-  final LibraryCoverScanResult result;
-
-  @override
-  Widget build(BuildContext context) {
-    final details = <String>[
-      if (result.query != null && result.query!.trim().isNotEmpty) result.query!,
-      if (result.issueNumber != null && result.issueNumber!.trim().isNotEmpty)
-        '#${result.issueNumber}',
-      if (result.year != null) result.year!.toString(),
-      if (result.publisher != null && result.publisher!.trim().isNotEmpty)
-        result.publisher!,
-    ];
-    final confidence = result.confidenceLabel?.trim();
-    final reviewSummary = result.reviewSummary?.trim();
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Color(0xFF243926),
-        border: Border(bottom: _kLibraryAddBorder),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        child: Row(
-          children: [
-            const Icon(Icons.photo_camera_outlined, size: 18, color: kAppAccent),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                details.isEmpty
-                    ? 'Cover scan filled search hints. Review them before searching Core.'
-                    : 'Cover scan filled search hints: ${details.join(' | ')}${confidence == null || confidence.isEmpty ? '' : ' ($confidence confidence)'}${reviewSummary == null || reviewSummary.isEmpty ? '' : ' • $reviewSummary'}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-const double _kLibraryAddControlHeight = 34;
-const double _kLibraryAddModeControlHeight = 36;
-const BorderSide _kLibraryAddBorder = BorderSide(color: kAppDivider);
-
-ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
-  return OutlinedButton.styleFrom(
-    foregroundColor: accent,
-    side: BorderSide(color: accent.withValues(alpha: 0.78)),
-    minimumSize: const Size(0, _kLibraryAddControlHeight),
-    padding: const EdgeInsets.symmetric(horizontal: 12),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w800),
-  );
-}
-
-ThemeData _libraryAddDialogTheme(Color accent) {
-  return libraryAddDialogTheme(accent);
-}

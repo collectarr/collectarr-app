@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('cover badges hides when item has no local state',
+  testWidgets('cover badges shows ownership state when item has no local state',
       (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
@@ -15,7 +15,8 @@ void main() {
       ),
     );
 
-    expect(find.byType(LibraryCoverBadge), findsNothing);
+    expect(find.byType(LibraryCoverBadge), findsOneWidget);
+    expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
   });
 
   testWidgets('cover badges renders owned and wishlist markers',
@@ -31,7 +32,7 @@ void main() {
     );
 
     expect(find.byType(LibraryCoverBadge), findsNWidgets(2));
-    expect(find.byIcon(Icons.inventory_2), findsOneWidget);
+    expect(find.byIcon(Icons.check_box), findsOneWidget);
     expect(find.byIcon(Icons.star), findsOneWidget);
   });
 
@@ -49,7 +50,8 @@ void main() {
       ),
     );
 
-    expect(find.byType(LibraryCoverBadge), findsNWidgets(2));
+    expect(find.byType(LibraryCoverBadge), findsNWidgets(3));
+    expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
     expect(find.byIcon(Icons.image_not_supported_outlined), findsOneWidget);
     expect(find.byIcon(Icons.manage_search), findsOneWidget);
   });
@@ -102,8 +104,9 @@ void main() {
       ),
     );
 
+    expect(find.byIcon(Icons.check_box), findsOneWidget);
     expect(find.byIcon(Icons.image_not_supported_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.manage_search), findsOneWidget);
+    expect(find.text('+1'), findsOneWidget);
   });
 
   testWidgets('status icons include collector markers', (tester) async {
@@ -120,9 +123,9 @@ void main() {
       ),
     );
 
+    expect(find.byIcon(Icons.check_box), findsOneWidget);
     expect(find.byIcon(Icons.label_important), findsOneWidget);
-    expect(find.byIcon(Icons.workspace_premium), findsOneWidget);
-    expect(find.byIcon(Icons.sticky_note_2_outlined), findsOneWidget);
+    expect(find.text('+2'), findsOneWidget);
   });
 
   testWidgets('cover badges renders tracked marker for tracking-only items',

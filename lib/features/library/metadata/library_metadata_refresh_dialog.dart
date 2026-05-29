@@ -84,11 +84,13 @@ class _LibraryMetadataRefreshDialogState
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final targets = _targetEntries();
     final visibleTargets = targets.take(_maxRefreshTargets).toList();
     final overLimit = targets.length > visibleTargets.length;
     final summary = _summary();
     return AlertDialog(
+      backgroundColor: palette.panel,
       title: Text('Refresh ${widget.type.pluralLabel.toLowerCase()} metadata'),
       content: SizedBox(
         width: 680,
@@ -100,7 +102,7 @@ class _LibraryMetadataRefreshDialogState
               Text(
                 'Search Collectarr Core for fresher metadata and cache the returned snapshots locally on this device.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: kAppTextMuted,
+                      color: palette.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
               ),
@@ -424,10 +426,11 @@ class _RefreshSourcePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanelRaised,
-        border: Border.all(color: kAppDivider),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Padding(
@@ -451,7 +454,7 @@ class _RefreshSourcePanel extends StatelessWidget {
                   Text(
                     _providerSummary(type),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kAppTextMuted,
+                          color: palette.textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
@@ -478,6 +481,7 @@ class _RefreshTargetList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final values = rows.isEmpty
         ? [
             for (final entry in targets)
@@ -492,8 +496,8 @@ class _RefreshTargetList extends StatelessWidget {
     }
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanel,
-        border: Border.all(color: kAppDivider),
+        color: palette.panel,
+        border: Border.all(color: palette.divider),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 280),
@@ -507,7 +511,7 @@ class _RefreshTargetList extends StatelessWidget {
               dense: true,
               leading: Icon(
                 _statusIcon(row.status),
-                color: _statusColor(row.status, accent),
+                color: _statusColor(context, row.status, accent),
               ),
               title: Text(
                 row.entry.title,
@@ -540,10 +544,11 @@ class _RefreshStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanelRaised,
-        border: Border.all(color: kAppDivider),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -553,8 +558,8 @@ class _RefreshStat extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: kAppTextMuted,
+              style: TextStyle(
+                color: palette.textMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -562,8 +567,8 @@ class _RefreshStat extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               value.toString(),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
               ),
@@ -583,10 +588,11 @@ class _RefreshNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppTableOddRow,
-        border: Border.all(color: kAppDivider),
+        color: palette.surfaceSubtle,
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
@@ -597,8 +603,8 @@ class _RefreshNotice extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -649,12 +655,14 @@ IconData _statusIcon(_RefreshRowStatus status) {
   };
 }
 
-Color _statusColor(_RefreshRowStatus status, Color accent) {
+Color _statusColor(BuildContext context, _RefreshRowStatus status, Color accent) {
+  final palette = appPalette(context);
+  final colorScheme = Theme.of(context).colorScheme;
   return switch (status) {
-    _RefreshRowStatus.waiting => kAppTextMuted,
+    _RefreshRowStatus.waiting => palette.textMuted,
     _RefreshRowStatus.running => accent,
-    _RefreshRowStatus.matched => Colors.lightGreenAccent,
-    _RefreshRowStatus.missing => kAppHighlight,
-    _RefreshRowStatus.failed => Colors.redAccent,
+    _RefreshRowStatus.matched => Colors.green,
+    _RefreshRowStatus.missing => colorScheme.secondary,
+    _RefreshRowStatus.failed => colorScheme.error,
   };
 }

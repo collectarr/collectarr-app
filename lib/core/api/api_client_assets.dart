@@ -127,4 +127,24 @@ class _AssetsApiClient {
     );
     return response.data ?? {};
   }
+
+  /// Upload an image and search for visually similar covers by perceptual hash.
+  Future<Map<String, dynamic>> searchByCoverUpload(
+    Uint8List imageBytes, {
+    int threshold = 12,
+    int limit = 20,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(imageBytes, filename: 'scan.jpg'),
+    });
+    final response = await _client._dio.post<Map<String, dynamic>>(
+      '/images/search-by-cover-upload',
+      data: formData,
+      queryParameters: {
+        'threshold': threshold,
+        'limit': limit,
+      },
+    );
+    return response.data ?? {};
+  }
 }

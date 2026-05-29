@@ -7,6 +7,7 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       child: GestureDetector(
@@ -19,7 +20,7 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
           child: SizedBox(
             width: 10,
             child: Center(
-              child: Container(width: 2, color: kAppDivider),
+              child: Container(width: 2, color: palette.divider),
             ),
           ),
         ),
@@ -77,6 +78,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     final selectedItem = item;
     final selectedCandidate = candidate;
     final selectedBundle =
@@ -85,12 +87,16 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         : null;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
-        color: const Color(0xFF060606),
+        color: palette.panel,
         child: Center(
           child: Text(
             searched
                 ? 'Select a result or search $providerLabel.'
                 : 'Search Collectarr Core to preview metadata.',
+            style: TextStyle(
+              color: palette.textMuted,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       );
@@ -143,9 +149,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF020202),
-            Color.alphaBlend(accent.withValues(alpha: 0.22), kAppCanvas),
-            const Color(0xFF050505),
+            palette.panelRaised,
+            Color.alphaBlend(accent.withValues(alpha: 0.12), palette.panel),
+            palette.panel,
           ],
         ),
       ),
@@ -241,18 +247,18 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           const SizedBox(height: 8),
                           if (selectedBundleReleaseId != null &&
                               isLoadingBundleReleaseDetail)
-                            const Row(
+                            Row(
                               children: [
-                                SizedBox.square(
+                                const SizedBox.square(
                                   dimension: 14,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Loading bundle contents...',
-                                  style: TextStyle(color: kAppTextMuted),
+                                  style: TextStyle(color: palette.textMuted),
                                 ),
                               ],
                             )
@@ -262,9 +268,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               accent: accent,
                             )
                           else
-                            const Text(
+                            Text(
                               'Select a bundle release to preview its members.',
-                              style: TextStyle(color: kAppTextMuted),
+                              style: TextStyle(color: palette.textMuted),
                             ),
                         ],
                         const SizedBox(height: 22),
@@ -278,17 +284,17 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                             ),
                         if (isFetchingPreview) ...[
                           const SizedBox(height: 16),
-                          const Row(
+                          Row(
                             children: [
-                              SizedBox.square(
+                              const SizedBox.square(
                                 dimension: 14,
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 'Fetching full metadata...',
-                                style: TextStyle(color: kAppTextMuted),
+                                style: TextStyle(color: palette.textMuted),
                               ),
                             ],
                           ),
@@ -322,7 +328,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                     width: 200,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: const Color(0x12000000),
+                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.74),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
@@ -361,6 +367,7 @@ class _BundleReleaseDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final groupedMembers = _groupBundleMembers(detail.members);
     final summaryParts = <String>[
       if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
@@ -373,7 +380,7 @@ class _BundleReleaseDetailCard extends StatelessWidget {
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x12000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.74),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: accent.withValues(alpha: 0.24)),
       ),
@@ -390,8 +397,8 @@ class _BundleReleaseDetailCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 summaryParts.join(' • '),
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: palette.textMuted,
                   fontSize: 12,
                 ),
               ),
@@ -445,9 +452,10 @@ class _BundleReleaseDiscSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: accent.withValues(alpha: 0.16)),
       ),
@@ -474,8 +482,8 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                       width: 28,
                       child: Text(
                         member.sequenceNumber?.toString() ?? '•',
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -500,8 +508,8 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                           ),
                           Text(
                             _bundleMemberSubtitle(member),
-                            style: const TextStyle(
-                              color: kAppTextMuted,
+                            style: TextStyle(
+                              color: palette.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -606,6 +614,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final editionAvailable = item.editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
@@ -623,7 +632,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     };
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: accent.withValues(alpha: 0.24)),
       ),
@@ -684,8 +693,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               selectionSummary,
-              style: const TextStyle(
-                color: kAppTextMuted,
+              style: TextStyle(
+                color: palette.textMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -710,14 +719,14 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               if (selectedEdition == null)
-                const Text(
+                Text(
                   'No canonical edition is attached to this item yet.',
-                  style: TextStyle(color: kAppTextMuted),
+                  style: TextStyle(color: palette.textMuted),
                 )
               else if (selectedEdition.variants.isEmpty)
-                const Text(
+                Text(
                   'This edition has no canonical variants yet, so the edition itself will be used.',
-                  style: TextStyle(color: kAppTextMuted),
+                  style: TextStyle(color: palette.textMuted),
                 )
               else
                 _VariantGrid(
@@ -732,23 +741,23 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 referenceType == LibraryAddReferenceType.bundleRelease) ...[
               const SizedBox(height: 10),
               if (isLoadingBundleReleases)
-                const Row(
+                Row(
                   children: [
-                    SizedBox.square(
+                    const SizedBox.square(
                       dimension: 14,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Loading bundle releases...',
-                      style: TextStyle(color: kAppTextMuted),
+                      style: TextStyle(color: palette.textMuted),
                     ),
                   ],
                 )
               else if (bundleReleases.isEmpty)
-                const Text(
+                Text(
                   'No bundle releases are linked to this item yet.',
-                  style: TextStyle(color: kAppTextMuted),
+                  style: TextStyle(color: palette.textMuted),
                 )
               else
                 Column(
@@ -787,6 +796,7 @@ class _ReferenceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return ChoiceChip(
       label: Text(label),
       selected: selected,
@@ -795,13 +805,13 @@ class _ReferenceChip extends StatelessWidget {
       side: BorderSide(
         color: selected
             ? accent.withValues(alpha: 0.8)
-            : kAppDivider.withValues(alpha: enabled ? 1 : 0.5),
+            : palette.divider.withValues(alpha: enabled ? 1 : 0.5),
       ),
       labelStyle: TextStyle(
-        color: enabled ? null : kAppTextMuted,
+        color: enabled ? null : palette.textMuted,
         fontWeight: FontWeight.w700,
       ),
-      backgroundColor: const Color(0x12000000),
+      backgroundColor: palette.surfaceSubtle.withValues(alpha: 0.9),
     );
   }
 }
@@ -821,6 +831,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final releaseDate = bundle.releaseDate;
     final subtitleParts = <String>[
       if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
@@ -842,12 +853,12 @@ class _BundleReleaseOptionCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? accent.withValues(alpha: 0.14)
-                : const Color(0x0E000000),
+                : palette.surfaceSubtle.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: selected
                   ? accent.withValues(alpha: 0.85)
-                  : kAppDivider,
+                  : palette.divider,
             ),
           ),
           child: Padding(
@@ -857,7 +868,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
               children: [
                 Icon(
                   selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                  color: selected ? accent : kAppTextMuted,
+                  color: selected ? accent : palette.textMuted,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -872,8 +883,8 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           subtitleParts.join(' • '),
-                          style: const TextStyle(
-                            color: kAppTextMuted,
+                          style: TextStyle(
+                            color: palette.textMuted,
                             fontSize: 12,
                           ),
                         ),
@@ -1062,6 +1073,7 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
       child: Row(
@@ -1071,8 +1083,8 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
             width: 96,
             child: Text(
               label,
-              style: const TextStyle(
-                color: kAppTextMuted,
+              style: TextStyle(
+                color: palette.textMuted,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -1282,8 +1294,8 @@ class _PreviewTrackRow extends StatelessWidget {
               child: Text(
                 durationStr,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
-                  color: kAppTextMuted,
+                style: TextStyle(
+                  color: appPalette(context).textMuted,
                   fontSize: 13,
                 ),
               ),
@@ -1348,23 +1360,24 @@ class _PreviewSeasonsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     final seasonsAsync = ref.watch(
       seasonsProvider((provider: provider, providerItemId: providerItemId)),
     );
 
     return seasonsAsync.when(
-      loading: () => const Padding(
+      loading: () => Padding(
         padding: EdgeInsets.only(top: 22),
         child: Row(
           children: [
-            SizedBox.square(
+            const SizedBox.square(
               dimension: 14,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               'Loading seasons...',
-              style: TextStyle(color: kAppTextMuted),
+              style: TextStyle(color: palette.textMuted),
             ),
           ],
         ),
@@ -1409,6 +1422,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final season = widget.season;
     final episodeCount = season.episodeCount ?? season.episodes.length;
     return Column(
@@ -1452,8 +1466,8 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                           '$episodeCount episodes',
                           if (season.airDate != null) season.airDate!,
                         ].join(' · '),
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                         ),
                       ),
@@ -1464,7 +1478,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
                     size: 18,
-                    color: kAppTextMuted,
+                    color: palette.textMuted,
                   ),
               ],
             ),
@@ -1505,8 +1519,8 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                         if (ep.runtimeMinutes != null)
                           Text(
                             '${ep.runtimeMinutes} min',
-                            style: const TextStyle(
-                              color: kAppTextMuted,
+                            style: TextStyle(
+                              color: palette.textMuted,
                               fontSize: 13,
                             ),
                           ),
@@ -1537,12 +1551,13 @@ class _ResizableDialogShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Stack(
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: kAppPanel,
-            border: Border.all(color: kAppDivider),
+            color: palette.panel,
+            border: Border.all(color: palette.divider),
             boxShadow: const [
               BoxShadow(
                 color: Color(0xCC000000),
@@ -1740,12 +1755,13 @@ class _EditionPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       width: 88,
       height: 120,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: kAppField,
+        color: palette.field,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -1753,8 +1769,8 @@ class _EditionPlaceholder extends StatelessWidget {
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: kAppTextMuted,
+        style: TextStyle(
+          color: palette.textMuted,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
@@ -1779,13 +1795,14 @@ class _VariantGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Variant',
           style: TextStyle(
-            color: kAppTextMuted,
+            color: palette.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w800,
           ),
@@ -1840,6 +1857,7 @@ class _VariantChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1848,12 +1866,12 @@ class _VariantChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? accent.withValues(alpha: 0.12)
-              : const Color(0x08000000),
+              : palette.surfaceSubtle.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: selected
                 ? accent.withValues(alpha: 0.8)
-                : kAppBorderSubtle,
+                : palette.divider,
             width: selected ? 2 : 1,
           ),
         ),
@@ -1885,7 +1903,7 @@ class _VariantChip extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: selected ? accent : kAppTextBright,
+                      color: selected ? accent : palette.textPrimary,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),

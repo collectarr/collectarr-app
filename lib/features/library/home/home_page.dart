@@ -12,15 +12,36 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class LibraryHomePage extends ConsumerStatefulWidget {
-  const LibraryHomePage({super.key});
+  const LibraryHomePage({super.key, required this.routeUri});
+
+  final Uri routeUri;
 
   @override
   ConsumerState<LibraryHomePage> createState() => _LibraryHomePageState();
 }
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
+  String? _routeKind() {
+    final rawKind = widget.routeUri.queryParameters['kind'];
+    final normalized = rawKind?.trim().toLowerCase();
+    return normalized == null || normalized.isEmpty ? null : normalized;
+  }
+
+  void _replaceLibraryKind(String kind) {
+    final normalized = kind.trim().toLowerCase();
+    ref.read(selectedLibraryKindProvider.notifier).select(normalized);
+    final nextUri = widget.routeUri.replace(
+      queryParameters: {'kind': normalized},
+    );
+    if (nextUri.toString() != widget.routeUri.toString() &&
+        GoRouter.maybeOf(context) != null) {
+      context.replace(nextUri.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final catalogState = ref.watch(mediaCatalogProvider);
@@ -37,7 +58,23 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
-    final selected = selectedLibraryHomeType(visibleTypes, selectedKind);
+    final routeKind = _routeKind();
+    final routeSelected = routeKind == null
+        ? null
+        : visibleTypes.where((type) => type.kind == routeKind).firstOrNull;
+    final selected = routeSelected ??
+        selectedLibraryHomeType(visibleTypes, selectedKind);
+    if (selected.kind != selectedKind) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        final currentKind = ref.read(selectedLibraryKindProvider);
+        if (currentKind != selected.kind) {
+          ref.read(selectedLibraryKindProvider.notifier).select(selected.kind);
+        }
+      });
+    }
     final counts = ref.watch(shelfProvider.select((shelf) => shelf.maybeWhen(
       data: libraryCountsByKind,
       orElse: () => const <String, LibraryKindCount>{},
@@ -61,8 +98,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       registry: registry,
       selectedKind: selected.kind,
       animationDuration: animationDuration,
-      onSelected: (type) =>
-          ref.read(selectedLibraryKindProvider.notifier).select(type.kind),
+      onSelected: (type) => _replaceLibraryKind(type.kind),
     );
     final selectedConfig = libraryConfigForCatalogType(selected, registry);
     final offlineBanner = isCatalogOffline
@@ -100,10 +136,11 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         if (offlineBanner != null) offlineBanner,
         Expanded(
           child: LibraryPage(
-      type: selectedConfig,
-      topBar: resolvedTopBar,
-      accent: accent,
-    ),
+            type: selectedConfig,
+            topBar: resolvedTopBar,
+            accent: accent,
+            routeUri: widget.routeUri,
+          ),
         ),
       ],
     );
@@ -121,9 +158,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                 counts: counts,
                 registry: registry,
                 selectedKind: selected.kind,
-                onSelected: (type) => ref
-                    .read(selectedLibraryKindProvider.notifier)
-                    .select(type.kind),
+                onSelected: (type) => _replaceLibraryKind(type.kind),
               ),
             Expanded(child: content),
           ],

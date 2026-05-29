@@ -43,6 +43,7 @@ void main() {
       const LibraryWorkspacePreferenceSnapshot(
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
+        isSidebarVisible: true,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
         sortRules: [
@@ -113,6 +114,7 @@ void main() {
       const LibraryWorkspacePreferenceSnapshot(
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
+        isSidebarVisible: true,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
         coverSize: 144,

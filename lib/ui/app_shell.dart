@@ -161,25 +161,34 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final duration =
         animationsEnabled ? kAppAnimNormal : Duration.zero;
+    final palette = appPalette(context);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
       duration: duration,
       curve: Curves.easeOutCubic,
       builder: (context, color, child) {
         final animatedAccent = color ?? accent;
-        final indicatorColor = animatedAccent.withValues(alpha: 0.52);
+        final indicatorColor = palette.isDark
+            ? animatedAccent.withValues(alpha: 0.52)
+            : Color.alphaBlend(
+                animatedAccent.withValues(alpha: 0.14),
+                palette.selection,
+              );
+        final chromeTextColor =
+            palette.isDark ? Colors.white : palette.textPrimary;
         return DecoratedBox(
           decoration: BoxDecoration(
             gradient: libraryChromeGradient(
               animatedAccent,
+              brightness: palette.brightness,
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             border: Border(
               top: BorderSide(
-                color: Color.alphaBlend(
-                  Colors.white.withValues(alpha: 0.12),
+                color: libraryChromeBorderColor(
                   animatedAccent,
+                  brightness: palette.brightness,
                 ),
               ),
             ),
@@ -189,15 +198,15 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
               backgroundColor: Colors.transparent,
               indicatorColor: indicatorColor,
               height: 58,
-              labelTextStyle: const WidgetStatePropertyAll(
+              labelTextStyle: WidgetStatePropertyAll(
                 TextStyle(
-                  color: Colors.white,
+                  color: chromeTextColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              iconTheme: const WidgetStatePropertyAll(
-                IconThemeData(color: Colors.white, size: 20),
+              iconTheme: WidgetStatePropertyAll(
+                IconThemeData(color: chromeTextColor, size: 20),
               ),
             ),
             child: NavigationBar(

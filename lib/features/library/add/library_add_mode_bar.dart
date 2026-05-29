@@ -8,12 +8,14 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 34,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [kAppDivider, kAppSurfaceDim],
+          gradient: LinearGradient(
+            colors: [palette.panelRaised, palette.panel],
           ),
           border: Border(bottom: BorderSide(color: accent)),
         ),
@@ -25,8 +27,8 @@ class _DialogHeader extends StatelessWidget {
             Expanded(
               child: Text(
                 'Add ${type.pluralLabel} from Collectarr Core',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                 ),
@@ -56,10 +58,11 @@ class _BarcodePrefillBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: kAppBannerInfoBackground,
-        border: Border(bottom: _kLibraryAddBorder),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -117,12 +120,12 @@ class _LibraryAddModeBar extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final _LibraryAddDialogMode mode;
+  final LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController barcodeController;
   final bool isSearching;
   final bool isSearchingProvider;
-  final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+  final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
   final List<LibraryMetadataItem> suggestions;
@@ -145,10 +148,11 @@ class _LibraryAddModeBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isBusy = isSearching || isSearchingProvider;
     final searchLabels = libraryMediaSearchFieldLabels(type);
+    final palette = appPalette(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppToolbar,
-        border: Border(bottom: BorderSide(color: kAppField)),
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
@@ -160,11 +164,11 @@ class _LibraryAddModeBar extends StatelessWidget {
               mode: mode,
               onModeChanged: onModeChanged,
               onManual: onManual,
-              onScan: () => onModeChanged(_LibraryAddDialogMode.barcode),
+              onScan: () => onModeChanged(LibraryAddDialogMode.barcode),
             ),
             const SizedBox(height: 7),
             switch (mode) {
-              _LibraryAddDialogMode.search => Column(
+              LibraryAddDialogMode.search => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
@@ -229,7 +233,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                       ),
                   ],
                 ),
-              _LibraryAddDialogMode.barcode => Row(
+              LibraryAddDialogMode.barcode => Row(
                   children: [
                     Expanded(
                       child: _LibraryAddModeTextField(
@@ -251,7 +255,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     ),
                   ],
                 ),
-              _LibraryAddDialogMode.manual => Row(
+              LibraryAddDialogMode.manual => Row(
                   children: [
                     Icon(Icons.edit_note, size: 18, color: accent),
                     const SizedBox(width: 8),
@@ -260,8 +264,8 @@ class _LibraryAddModeBar extends StatelessWidget {
                         'Start a manual draft here, then review the full editor before saving.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: kAppTextMuted,
+                        style: TextStyle(
+                          color: palette.textMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                         ),
@@ -301,28 +305,30 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final _LibraryAddDialogMode mode;
-  final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+  final LibraryAddDialogMode mode;
+  final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onManual;
   final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: kAppSurfaceSubtle,
-        border: Border.all(color: accent.withValues(alpha: 0.72)),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Search by',
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: kAppTextBright,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(width: 8),
@@ -335,15 +341,15 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     icon: type.workspace.icon,
                     label: 'Search',
                     accent: accent,
-                    selected: mode == _LibraryAddDialogMode.search,
-                    onTap: () => onModeChanged(_LibraryAddDialogMode.search),
+                    selected: mode == LibraryAddDialogMode.search,
+                    onTap: () => onModeChanged(LibraryAddDialogMode.search),
                   ),
                   LibraryAddModeTab(
                     icon: Icons.qr_code_2,
                     label: 'Barcode',
                     accent: accent,
-                    selected: mode == _LibraryAddDialogMode.barcode,
-                    onTap: () => onModeChanged(_LibraryAddDialogMode.barcode),
+                    selected: mode == LibraryAddDialogMode.barcode,
+                    onTap: () => onModeChanged(LibraryAddDialogMode.barcode),
                   ),
                 ],
               ),
@@ -363,7 +369,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             onPressed: onScan,
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.menu, size: 26, color: kAppTextBright),
+          Icon(Icons.menu, size: 26, color: colorScheme.onSurfaceVariant),
         ],
       ),
     );
@@ -428,8 +434,10 @@ class _LibraryAddModeTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
       child: _LibraryAddModeFieldFrame(
         child: TextField(
           key: fieldKey,
@@ -443,8 +451,8 @@ class _LibraryAddModeTextField extends StatelessWidget {
           textAlignVertical: TextAlignVertical.center,
           onChanged: onChanged,
           onSubmitted: (_) => onSubmitted(),
-          style: const TextStyle(
-            color: kAppTextBright,
+          style: TextStyle(
+            color: colorScheme.onSurface,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -455,7 +463,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
             border: InputBorder.none,
             semanticCounterText: label,
             hintText: hintText,
-            hintStyle: const TextStyle(color: kAppTextHint),
+            hintStyle: TextStyle(color: palette.textMuted),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
@@ -472,12 +480,13 @@ class _LibraryAddModeFieldFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
-      height: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: kAppField,
-        border: Border.all(color: kAppBorderSubtle),
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: child,
@@ -518,10 +527,10 @@ class _LibraryAddModeButton extends StatelessWidget {
             ],
           );
     final style = outlined
-        ? _libraryAddOutlinedButtonStyle(accent)
+        ? libraryAddOutlinedButtonStyle(accent)
       : libraryAddFilledButtonStyle(accent);
     return SizedBox(
-      height: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
       child: outlined
           ? OutlinedButton(
               onPressed: onPressed,
@@ -551,8 +560,8 @@ class _AdvancedToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _kLibraryAddModeControlHeight,
-      width: _kLibraryAddModeControlHeight,
+      height: kLibraryAddModeControlHeight,
+      width: kLibraryAddModeControlHeight,
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(
@@ -660,6 +669,7 @@ class _AdvancedField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return SizedBox(
       height: 30,
       child: _LibraryAddModeFieldFrame(
@@ -671,8 +681,8 @@ class _AdvancedField extends StatelessWidget {
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
-          style: const TextStyle(
-            color: kAppTextBright,
+          style: TextStyle(
+            color: palette.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -681,8 +691,8 @@ class _AdvancedField extends StatelessWidget {
             filled: false,
             border: InputBorder.none,
             hintText: hint,
-            hintStyle: const TextStyle(
-              color: kAppTextHint,
+            hintStyle: TextStyle(
+              color: palette.textMuted,
               fontSize: 13,
             ),
             contentPadding:
@@ -709,11 +719,12 @@ class _SuggestionDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       margin: const EdgeInsets.only(top: 4),
       constraints: const BoxConstraints(maxHeight: 260),
       decoration: BoxDecoration(
-        color: kAppField,
+        color: palette.field,
         border: Border.all(color: accent.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -722,7 +733,7 @@ class _SuggestionDropdown extends StatelessWidget {
         shrinkWrap: true,
         itemCount: suggestions.length,
         separatorBuilder: (_, __) =>
-            const Divider(height: 1, color: kAppBorderSubtle),
+            Divider(height: 1, color: palette.divider),
         itemBuilder: (context, index) {
           final item = suggestions[index];
           return _SuggestionTile(
@@ -749,6 +760,7 @@ class _SuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final year = item.releaseDate?.year;
     final subtitle = [
       if (year != null) year.toString(),
@@ -783,8 +795,8 @@ class _SuggestionTile extends StatelessWidget {
                     item.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: kAppTextBright,
+                    style: TextStyle(
+                      color: palette.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -794,8 +806,8 @@ class _SuggestionTile extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: kAppTextMuted,
+                      style: TextStyle(
+                        color: palette.textMuted,
                         fontSize: 11,
                       ),
                     ),

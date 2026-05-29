@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -240,6 +241,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
         ),
     ];
+    final palette = appPalette(context);
     return Stack(
       children: [
         Positioned.fill(
@@ -249,7 +251,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           ),
         ),
         DecoratedBox(
-          decoration: const BoxDecoration(color: Color(0xBA111111)),
+          decoration: BoxDecoration(
+            color: palette.panel.withValues(alpha: 0.84),
+          ),
           child: ListView(
             padding: const EdgeInsets.all(10),
             children: [
@@ -477,6 +481,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           gradingCompany: item.gradingCompany,
           graderNotes: item.graderNotes,
           signedBy: item.signedBy,
+          labelType: item.labelType,
+          certificationNumber: item.certificationNumber,
           keyComic: item.keyComic,
           keyReason: item.keyReason,
           rating: item.rating,
@@ -656,7 +662,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
           Text(
             '${copies.length} copies in collection',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
+                  color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w600,
                 ),
           ),

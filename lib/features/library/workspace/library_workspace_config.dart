@@ -3,6 +3,17 @@ import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, cardFlow, list, shelves }
 
+extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
+  bool get supportsCoverSize {
+    return switch (this) {
+      LibraryViewMode.grid ||
+      LibraryViewMode.card ||
+      LibraryViewMode.shelves => true,
+      LibraryViewMode.cardFlow || LibraryViewMode.list => false,
+    };
+  }
+}
+
 enum LibraryDetailsLayout { right, bottom, hidden }
 
 enum LibraryGroupMode {
@@ -13,16 +24,39 @@ enum LibraryGroupMode {
   title,
   publisher,
   year,
+  audienceRating,
+  color,
   genre,
   country,
   language,
   ageRating,
+  movieOrTvSeries,
+  releaseDate,
+  releaseMonth,
+  releaseYear,
   // ── Edition ──
+  audioTracks,
+  boxSet,
+  distributor,
+  editionReleaseDate,
+  editionReleaseMonth,
+  editionReleaseYear,
+  extras,
   format,
+  hdr,
+  layers,
+  packaging,
+  regions,
+  screenRatios,
+  subtitles,
   // ── Cast & Crew ──
+  actor,
   director,
-  creator,
+  musician,
+  photography,
+  producer,
   writer,
+  creator,
   artist,
   penciller,
   colorist,
@@ -32,9 +66,28 @@ enum LibraryGroupMode {
   // ── Personal ──
   location,
   ownership,
+  addedDate,
+  addedMonth,
+  addedYear,
+  collectionStatus,
   grade,
   condition,
+  imageType,
+  modifiedDate,
+  modifiedMonth,
+  myRating,
+  owner,
+  purchaseDate,
+  purchaseMonth,
+  purchaseYear,
+  purchaseStore,
+  storageDevice,
   tags,
+  watchDate,
+  watchMonth,
+  watchYear,
+  watched,
+  watchedWhere,
 }
 
 enum LibraryWorkspacePreset { cover, card, list, details }

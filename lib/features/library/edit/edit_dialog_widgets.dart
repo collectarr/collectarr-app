@@ -212,7 +212,7 @@ class EditTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tab(
+    return SizedBox(
       height: 36,
       child: Row(
         mainAxisSize: MainAxisSize.min,

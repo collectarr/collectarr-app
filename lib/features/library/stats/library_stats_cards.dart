@@ -15,23 +15,24 @@ class LibraryStatsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: kLibraryStatsPanel,
-        border: Border.all(color: kLibraryStatsPanelBorder),
+        color: colors.panel,
+        border: Border.all(color: colors.panelBorder),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: kLibraryStatsAccent),
+          Icon(icon, size: 16, color: colors.accent),
           const SizedBox(width: 7),
           Text(
             label,
-            style: const TextStyle(
-              color: kLibraryStatsTextMuted,
+            style: TextStyle(
+              color: colors.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -39,8 +40,8 @@ class LibraryStatsTile extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w900,
             ),
@@ -63,6 +64,7 @@ class LibraryStatsDistributionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     final entries = values.entries.toList(growable: false)
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = entries.fold<int>(0, (sum, entry) => sum + entry.value);
@@ -71,7 +73,7 @@ class LibraryStatsDistributionCard extends StatelessWidget {
       child: _StatsPanel(
         title: title,
         child: entries.isEmpty
-            ? const Text('-', style: TextStyle(color: kLibraryStatsTextMuted))
+            ? Text('-', style: TextStyle(color: colors.textMuted))
             : Column(
                 children: [
                   for (final entry in entries.take(4))
@@ -99,13 +101,14 @@ class LibraryStatsRankedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     final entries = values.entries.toList(growable: false)
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = entries.fold<int>(0, (sum, entry) => sum + entry.value);
     return _StatsPanel(
       title: title,
       child: entries.isEmpty
-          ? const Text('-', style: TextStyle(color: kLibraryStatsTextMuted))
+          ? Text('-', style: TextStyle(color: colors.textMuted))
           : Column(
               children: [
                 for (final entry in entries.take(5))
@@ -134,13 +137,14 @@ class LibraryStatsMoneyRankedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     final entries = values.entries.toList(growable: false)
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = entries.fold<int>(0, (sum, entry) => sum + entry.value);
     return _StatsPanel(
       title: title,
       child: entries.isEmpty
-          ? const Text('-', style: TextStyle(color: kLibraryStatsTextMuted))
+          ? Text('-', style: TextStyle(color: colors.textMuted))
           : Column(
               children: [
                 for (final entry in entries.take(5))
@@ -206,20 +210,20 @@ class LibraryMissingIssuesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return SizedBox(
       width: kLibraryStatsCardWidth,
       child: _StatsPanel(
         title: selectedSeries == null ? 'Series gaps' : 'Gaps: $selectedSeries',
         child: selectedSeries == null
-            ? const Text(
+            ? Text(
                 'Select a series',
-                style: TextStyle(color: kLibraryStatsTextMuted, fontSize: 12),
+                style: TextStyle(color: colors.textMuted, fontSize: 12),
               )
             : missingIssues.isEmpty
-                ? const Text(
+                ? Text(
                     'No gaps',
-                    style:
-                        TextStyle(color: kLibraryStatsTextMuted, fontSize: 12),
+                    style: TextStyle(color: colors.textMuted, fontSize: 12),
                   )
                 : Wrap(
                     spacing: 5,
@@ -255,20 +259,20 @@ class LibraryMissingSequenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return SizedBox(
       width: kLibraryStatsCardWidth,
       child: _StatsPanel(
         title: selectedSeries == null ? title : '$title: $selectedSeries',
         child: selectedSeries == null
-            ? const Text(
+            ? Text(
                 'Select a series',
-                style: TextStyle(color: kLibraryStatsTextMuted, fontSize: 12),
+                style: TextStyle(color: colors.textMuted, fontSize: 12),
               )
             : missingValues.isEmpty
-                ? const Text(
+                ? Text(
                     'No gaps',
-                    style:
-                        TextStyle(color: kLibraryStatsTextMuted, fontSize: 12),
+                    style: TextStyle(color: colors.textMuted, fontSize: 12),
                   )
                 : Wrap(
                     spacing: 5,
@@ -295,11 +299,12 @@ class _StatsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: kLibraryStatsPanel,
-        border: Border.all(color: kLibraryStatsPanelBorder),
+        color: colors.panel,
+        border: Border.all(color: colors.panelBorder),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Column(
@@ -307,8 +312,8 @@ class _StatsPanel extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: kLibraryStatsAccent,
+            style: TextStyle(
+              color: colors.accent,
               fontSize: 12,
               fontWeight: FontWeight.w900,
             ),
@@ -328,17 +333,18 @@ class _MissingSequencePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0x1A4FC3F7),
+        color: colors.pillBackground,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0x664FC3F7)),
+        border: Border.all(color: colors.pillBorder),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: colors.textPrimary,
           fontSize: 11,
           fontWeight: FontWeight.w700,
         ),
@@ -360,6 +366,7 @@ class _DistributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -370,8 +377,8 @@ class _DistributionRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
+                style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -383,8 +390,8 @@ class _DistributionRow extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: fraction.clamp(0, 1).toDouble(),
                 minHeight: 7,
-                backgroundColor: kLibraryStatsMeterBackground,
-                valueColor: const AlwaysStoppedAnimation(kLibraryStatsAccent),
+                backgroundColor: colors.meterBackground,
+                valueColor: AlwaysStoppedAnimation(colors.accent),
               ),
             ),
           ),
@@ -394,8 +401,8 @@ class _DistributionRow extends StatelessWidget {
             child: Text(
               count.toString(),
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: kLibraryStatsTextMuted,
+              style: TextStyle(
+                color: colors.textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
@@ -422,6 +429,7 @@ class _MoneyDistributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     final prefix = currency == null || currency!.isEmpty ? '' : '${currency!} ';
     final amount = '$prefix${(cents / 100).toStringAsFixed(2)}';
     return Padding(
@@ -434,8 +442,8 @@ class _MoneyDistributionRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
+                style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -447,8 +455,8 @@ class _MoneyDistributionRow extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: fraction.clamp(0, 1).toDouble(),
                 minHeight: 7,
-                backgroundColor: kLibraryStatsMeterBackground,
-                valueColor: const AlwaysStoppedAnimation(kLibraryStatsAccent),
+                backgroundColor: colors.meterBackground,
+                valueColor: AlwaysStoppedAnimation(colors.accent),
               ),
             ),
           ),
@@ -458,8 +466,8 @@ class _MoneyDistributionRow extends StatelessWidget {
             child: Text(
               amount,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: kLibraryStatsTextMuted,
+              style: TextStyle(
+                color: colors.textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
@@ -479,18 +487,19 @@ class _MissingIssuePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = libraryStatsColors(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kLibraryStatsMeterBackground,
-        border: Border.all(color: kLibraryStatsAccent),
+        color: colors.meterBackground,
+        border: Border.all(color: colors.accent),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
           more ? '+$issue' : '#$issue',
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.textPrimary,
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),

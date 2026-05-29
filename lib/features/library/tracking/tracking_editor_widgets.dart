@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 typedef TrackingFieldWidgetBuilder = Widget Function(
@@ -159,9 +160,10 @@ class _QuickTrackingStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x10000000),
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
         border: Border.all(color: accent.withValues(alpha: 0.22)),
         borderRadius: BorderRadius.circular(10),
       ),

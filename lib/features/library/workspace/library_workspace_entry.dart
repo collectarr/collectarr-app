@@ -36,6 +36,8 @@ sealed class LibraryWorkspaceEntry {
     this.grade,
     this.rawOrSlabbed,
     this.gradingCompany,
+    this.labelType,
+    this.certificationNumber,
     this.primaryReferenceLabel,
     this.referenceScopeLabel,
     this.referenceFormatLabel,
@@ -58,6 +60,7 @@ sealed class LibraryWorkspaceEntry {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
     this.editions = const <CatalogEdition>[],
     required this.updatedAt,
     this.rawPlatforms,
@@ -95,6 +98,8 @@ sealed class LibraryWorkspaceEntry {
     String? grade,
     String? rawOrSlabbed,
     String? gradingCompany,
+    String? labelType,
+    String? certificationNumber,
     String? primaryReferenceLabel,
     String? referenceScopeLabel,
     String? referenceFormatLabel,
@@ -122,6 +127,7 @@ sealed class LibraryWorkspaceEntry {
     String? country,
     String? language,
     String? ageRating,
+    String? audienceRating,
     List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
     List<TrailerLink>? trailerUrls,
@@ -158,6 +164,8 @@ sealed class LibraryWorkspaceEntry {
       grade: grade,
       rawOrSlabbed: rawOrSlabbed,
       gradingCompany: gradingCompany,
+      labelType: labelType,
+      certificationNumber: certificationNumber,
       primaryReferenceLabel: primaryReferenceLabel,
       referenceScopeLabel: referenceScopeLabel,
       referenceFormatLabel: referenceFormatLabel,
@@ -180,6 +188,7 @@ sealed class LibraryWorkspaceEntry {
       country: country,
       language: language,
       ageRating: ageRating,
+      audienceRating: audienceRating,
       editions: _copyEditionList(editions),
       updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
@@ -290,6 +299,7 @@ sealed class LibraryWorkspaceEntry {
     String? fallbackCountry,
     String? fallbackLanguage,
     String? fallbackAgeRating,
+    String? fallbackAudienceRating,
     bool isOwned = false,
     bool isWishlisted = false,
     bool isTracked = false,
@@ -344,6 +354,7 @@ sealed class LibraryWorkspaceEntry {
       country: fallbackCountry,
       language: edition.language ?? fallbackLanguage,
       ageRating: fallbackAgeRating,
+      audienceRating: fallbackAudienceRating,
       series: fallbackSeries,
       publishing: fallbackPublishing,
       video: fallbackVideo,
@@ -384,6 +395,8 @@ sealed class LibraryWorkspaceEntry {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? labelType;
+  final String? certificationNumber;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
@@ -406,6 +419,7 @@ sealed class LibraryWorkspaceEntry {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
@@ -480,6 +494,8 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           grade: common.grade,
           rawOrSlabbed: common.rawOrSlabbed,
           gradingCompany: common.gradingCompany,
+          labelType: common.labelType,
+          certificationNumber: common.certificationNumber,
           primaryReferenceLabel: common.primaryReferenceLabel,
           referenceScopeLabel: common.referenceScopeLabel,
           referenceFormatLabel: common.referenceFormatLabel,
@@ -502,6 +518,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           country: common.country,
           language: common.language,
           ageRating: common.ageRating,
+          audienceRating: common.audienceRating,
           editions: common.editions,
           updatedAt: common.updatedAt,
           rawPlatforms: common.rawPlatforms,
@@ -700,6 +717,8 @@ class _LibraryWorkspaceCommon {
     required this.grade,
     required this.rawOrSlabbed,
     required this.gradingCompany,
+    required this.labelType,
+    required this.certificationNumber,
     required this.primaryReferenceLabel,
     required this.referenceScopeLabel,
     required this.referenceFormatLabel,
@@ -722,6 +741,7 @@ class _LibraryWorkspaceCommon {
     required this.country,
     required this.language,
     required this.ageRating,
+    required this.audienceRating,
     required this.editions,
     required this.updatedAt,
     required this.rawPlatforms,
@@ -758,6 +778,8 @@ class _LibraryWorkspaceCommon {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? labelType;
+  final String? certificationNumber;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
@@ -780,6 +802,7 @@ class _LibraryWorkspaceCommon {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;

@@ -73,6 +73,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
     if (_loading) {
       return const SizedBox.shrink();
     }
+    final palette = appPalette(context);
 
     final current = _currentLocationId != null
         ? _allLocations
@@ -94,7 +95,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                 Icon(
                   Icons.place,
                   size: 16,
-                  color: current != null ? widget.accent : kAppTextMuted,
+                  color: current != null ? widget.accent : palette.textMuted,
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -103,7 +104,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                         ? current.fullPath(_allLocations)
                         : 'No location assigned',
                     style: TextStyle(
-                      color: current != null ? Colors.white : kAppTextMuted,
+                      color: current != null ? null : palette.textMuted,
                       fontSize: 13,
                     ),
                   ),
@@ -111,7 +112,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                 Icon(
                   Icons.edit,
                   size: 14,
-                  color: kAppTextMuted,
+                  color: palette.textMuted,
                 ),
               ],
             ),
@@ -153,7 +154,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kAppPanel,
+        backgroundColor: appPalette(ctx).panel,
         title: const Text('New Location'),
         content: TextField(
           controller: nameCtrl,
@@ -187,12 +188,13 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     // Build tree structure: roots then children
     final roots =
         _locations.where((l) => l.parentId == null).toList();
 
     return AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: palette.panel,
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),
@@ -209,8 +211,8 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
         child: _locations.isEmpty
             ? DecoratedBox(
                 decoration: BoxDecoration(
-                  color: kAppCanvas,
-                  border: Border.all(color: kAppDivider),
+                  color: palette.canvas,
+                  border: Border.all(color: palette.divider),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
@@ -235,9 +237,9 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      const Text(
+                      Text(
                         'Create a location first so this item can be assigned without leaving the dialog.',
-                        style: TextStyle(color: kAppTextMuted),
+                        style: TextStyle(color: palette.textMuted),
                       ),
                       const SizedBox(height: 16),
                       Align(

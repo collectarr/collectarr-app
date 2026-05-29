@@ -342,6 +342,10 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       views: _tabViews(),
       onClose: () => Navigator.of(context).pop(),
       onSave: _submit,
+      tabOrderKey: 'edit_tab_order_${_type.workspace.kind.apiValue}',
+      ebaySearchQuery: widget.request.item.itemNumber != null
+          ? '${widget.request.item.title} #${widget.request.item.itemNumber}'
+          : widget.request.item.title,
     );
   }
 

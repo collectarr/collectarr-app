@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
-
 void main() {
   testWidgets('reports view and details layout changes', (tester) async {
     var viewMode = LibraryViewMode.grid;
@@ -31,12 +29,20 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('List view'));
-    await pumpUntilSettled(tester);
+    final viewDropdown = tester.widget<PopupMenuButton<LibraryViewMode>>(
+      find.byWidgetPredicate((widget) => widget is PopupMenuButton<LibraryViewMode>),
+    );
+    viewDropdown.onSelected?.call(LibraryViewMode.list);
+    await tester.pump();
     expect(viewMode, LibraryViewMode.list);
 
-    await tester.tap(find.byTooltip('Hide details panel'));
-    await pumpUntilSettled(tester);
+    final detailsDropdown = tester.widget<PopupMenuButton<LibraryDetailsLayout>>(
+      find.byWidgetPredicate(
+        (widget) => widget is PopupMenuButton<LibraryDetailsLayout>,
+      ),
+    );
+    detailsDropdown.onSelected?.call(LibraryDetailsLayout.hidden);
+    await tester.pump();
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 
     // Cover size slider is present

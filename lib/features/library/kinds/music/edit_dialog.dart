@@ -316,6 +316,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         views: _tabViews(),
         onClose: () => Navigator.of(context).pop(),
         onSave: _submit,
+        tabOrderKey: 'edit_tab_order_${widget.request.type.workspace.kind.apiValue}',
+        ebaySearchQuery: _item.itemNumber != null
+            ? '${_item.title} #${_item.itemNumber}'
+            : _item.title,
     );
   }
 

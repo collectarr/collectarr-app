@@ -19,6 +19,7 @@ class WatchHistorySection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sessions =
         ref.watch(watchSessionsByItemProvider)[itemId] ?? const <WatchSession>[];
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: appPalette(context).surfaceSubtle,
@@ -49,18 +50,18 @@ class WatchHistorySection extends ConsumerWidget {
               ],
             ),
             if (sessions.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
                   'No watches logged yet.',
-                  style: TextStyle(color: kAppTextMuted, fontSize: 12),
+                  style: TextStyle(color: palette.textMuted, fontSize: 12),
                 ),
               )
             else ...[
               const SizedBox(height: 4),
               Text(
                 '${sessions.length} ${sessions.length == 1 ? 'watch' : 'watches'}',
-                style: const TextStyle(color: kAppTextMuted, fontSize: 12),
+                style: TextStyle(color: palette.textMuted, fontSize: 12),
               ),
               const SizedBox(height: 8),
               for (final session in sessions)
@@ -131,6 +132,7 @@ class _WatchSessionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     final localDate = session.watchedAt.toLocal();
     final dateLabel =
         '${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}';
@@ -143,7 +145,7 @@ class _WatchSessionTile extends ConsumerWidget {
           Expanded(
             child: Text(
               dateLabel,
-              style: const TextStyle(color: kAppTextBright, fontSize: 13),
+              style: TextStyle(color: palette.textPrimary, fontSize: 13),
             ),
           ),
           if (session.rating != null)
@@ -152,7 +154,7 @@ class _WatchSessionTile extends ConsumerWidget {
               style: TextStyle(color: accent, fontSize: 12),
             ),
           IconButton(
-            icon: const Icon(Icons.close, size: 16, color: kAppTextMuted),
+            icon: Icon(Icons.close, size: 16, color: palette.textMuted),
             tooltip: 'Remove',
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 28, minHeight: 28),

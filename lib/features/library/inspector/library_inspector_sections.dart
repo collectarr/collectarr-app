@@ -364,12 +364,13 @@ class EmptyInspector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return LibraryEmptyInspector(
       icon: type.workspace.icon,
       label: type.singularLabel.toLowerCase(),
       accent: accent,
-      mutedTextColor: kAppTextMuted,
-      backgroundColor: kAppCanvas,
+      mutedTextColor: palette.textMuted,
+      backgroundColor: palette.panel,
     );
   }
 }

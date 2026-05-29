@@ -1,12 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,6 +19,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final owned = await ref.watch(collectionProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
   final trackingEntries = await ref.watch(trackingEntriesProvider.future);
+  final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
   final ids = {
     for (final item in owned) item.itemId,
@@ -22,12 +28,19 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   };
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
   final locations = await LocationRepository(db).getAll();
+  final watchSessions = await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
+  final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedItemIds(
+    owned.map((item) => item.id),
+  );
   return ShelfState.from(
     ownedItems: owned,
     wishlistItems: wishlist,
     trackingEntries: trackingEntries,
+    watchSessions: watchSessions,
     catalogItems: catalogItems,
     locations: locations,
+    itemImagesByOwnedItem: itemImagesByOwnedItem,
+    fallbackOwnerLabel: auth.email,
   );
 });
 
@@ -55,14 +68,20 @@ class ShelfState {
     this.hasMixedCoverPriceCurrencies = false,
     this.soldCount = 0,
     this.totalSellCents,
+    this.marketValuedCount = 0,
+    this.totalMarketValueCents,
   });
 
   factory ShelfState.from({
     required List<OwnedItem> ownedItems,
     required List<WishlistItem> wishlistItems,
     List<TrackingEntry> trackingEntries = const [],
+    List<WatchSession> watchSessions = const [],
     required Map<String, CatalogItem> catalogItems,
     List<StorageLocation> locations = const [],
+    Map<String, List<ItemImage>> itemImagesByOwnedItem =
+        const <String, List<ItemImage>>{},
+    String? fallbackOwnerLabel,
   }) {
     final locationPathsById = {
       for (final location in locations) location.id: location.fullPath(locations),
@@ -82,6 +101,18 @@ class ShelfState {
       }
       trackingByItemId[entry.itemId] = entry;
     }
+    final watchSessionsByItemId = <String, List<WatchSession>>{};
+    for (final session in watchSessions) {
+      if (session.isDeleted) {
+        continue;
+      }
+      watchSessionsByItemId
+          .putIfAbsent(session.itemId, () => <WatchSession>[])
+          .add(session);
+    }
+    for (final sessions in watchSessionsByItemId.values) {
+      sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
+    }
     final ids = {
       ...ownedByItemId.keys,
       ...wishlistByItemId.keys,
@@ -96,6 +127,10 @@ class ShelfState {
           trackingEntry: trackingByItemId[id],
           wishlistItem: wishlistByItemId[id],
           locationPath: locationPathsById[ownedByItemId[id]?.locationId],
+          watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
+          itemImages:
+              itemImagesByOwnedItem[ownedByItemId[id]?.id] ?? const <ItemImage>[],
+          fallbackOwnerLabel: fallbackOwnerLabel,
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -170,6 +205,14 @@ class ShelfState {
           : activeOwned
               .where((item) => item.sellPriceCents != null)
               .fold<int>(0, (total, item) => total + item.sellPriceCents!),
+      marketValuedCount: activeOwned
+          .where((item) => item.marketValueCents != null)
+          .length,
+      totalMarketValueCents: hasMixedCurrencies
+          ? null
+          : activeOwned
+              .where((item) => item.marketValueCents != null)
+              .fold<int>(0, (total, item) => total + item.marketValueCents!),
     );
   }
 
@@ -195,6 +238,8 @@ class ShelfState {
   final bool hasMixedCoverPriceCurrencies;
   final int soldCount;
   final int? totalSellCents;
+  final int marketValuedCount;
+  final int? totalMarketValueCents;
 
   static Map<String, int> _counts(Iterable<String> values) {
     final counts = <String, int>{};
@@ -213,7 +258,13 @@ class ShelfEntry extends LibraryEntry {
     super.trackingEntry,
     super.wishlistItem,
     this.locationPath,
+    this.watchSessions = const <WatchSession>[],
+    this.itemImages = const <ItemImage>[],
+    this.fallbackOwnerLabel,
   });
 
   final String? locationPath;
+  final List<WatchSession> watchSessions;
+  final List<ItemImage> itemImages;
+  final String? fallbackOwnerLabel;
 }

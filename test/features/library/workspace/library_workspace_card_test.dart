@@ -49,7 +49,7 @@ void main() {
     expect(tapped, isTrue);
     expect(find.text('#13A'), findsWidgets);
     expect(find.textContaining('Marvel Comics'), findsOneWidget);
-    expect(find.text('9.4'), findsOneWidget);
+    expect(find.text('9.4'), findsWidgets);
     expect(find.text('Near Mint'), findsOneWidget);
     expect(find.text('First appearance'), findsOneWidget);
     expect(find.text('Slabbed - CGC'), findsOneWidget);

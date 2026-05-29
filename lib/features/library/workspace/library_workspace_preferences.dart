@@ -6,6 +6,7 @@ class LibraryWorkspacePreferenceSnapshot {
   const LibraryWorkspacePreferenceSnapshot({
     required this.viewMode,
     required this.detailsLayout,
+    required this.isSidebarVisible,
     required this.sortColumn,
     required this.sortAscending,
     this.sortRules,
@@ -18,6 +19,7 @@ class LibraryWorkspacePreferenceSnapshot {
 
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
+  final bool isSidebarVisible;
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule>? sortRules;
@@ -30,6 +32,7 @@ class LibraryWorkspacePreferenceSnapshot {
   LibraryWorkspaceChromePreferenceSnapshot get chrome =>
       LibraryWorkspaceChromePreferenceSnapshot(
         detailsLayout: detailsLayout,
+        isSidebarVisible: isSidebarVisible,
         sidebarWidth: sidebarWidth,
         detailsWidth: detailsWidth,
       );
@@ -38,11 +41,13 @@ class LibraryWorkspacePreferenceSnapshot {
 class LibraryWorkspaceChromePreferenceSnapshot {
   const LibraryWorkspaceChromePreferenceSnapshot({
     required this.detailsLayout,
+    required this.isSidebarVisible,
     required this.sidebarWidth,
     required this.detailsWidth,
   });
 
   final LibraryDetailsLayout detailsLayout;
+  final bool isSidebarVisible;
   final double sidebarWidth;
   final double detailsWidth;
 }
@@ -77,6 +82,7 @@ class LibraryWorkspacePreferences {
     double? maxCoverSize,
     LibraryViewMode defaultViewMode = LibraryViewMode.grid,
     LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.right,
+    bool defaultSidebarVisible = true,
     bool defaultSortAscending = true,
     double defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     double defaultDetailsWidth = kLibraryDetailsDefaultWidth,
@@ -101,6 +107,8 @@ class LibraryWorkspacePreferences {
                 prefs.getString(_key('details_layout')),
           ) ??
           defaultDetailsLayout,
+        isSidebarVisible:
+          prefs.getBool(_globalKey('sidebar_visible')) ?? defaultSidebarVisible,
         sortColumn: _enumByName(
             LibrarySortColumn.values,
             prefs.getString(_key('sort_column')),
@@ -140,6 +148,10 @@ class LibraryWorkspacePreferences {
     await prefs.setString(
       _globalKey('details_layout'),
       snapshot.detailsLayout.name,
+    );
+    await prefs.setBool(
+      _globalKey('sidebar_visible'),
+      snapshot.isSidebarVisible,
     );
     await prefs.setString(_key('sort_column'), snapshot.sortColumn.name);
     await prefs.setBool(_key('sort_ascending'), snapshot.sortAscending);

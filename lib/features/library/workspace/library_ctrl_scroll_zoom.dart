@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 class LibraryCtrlScrollZoom extends StatelessWidget {
   const LibraryCtrlScrollZoom({
     super.key,
+    required this.viewMode,
     required this.coverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
@@ -12,6 +14,7 @@ class LibraryCtrlScrollZoom extends StatelessWidget {
     required this.child,
   });
 
+  final LibraryViewMode viewMode;
   final double coverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -28,7 +31,9 @@ class LibraryCtrlScrollZoom extends StatelessWidget {
   }
 
   void _handlePointerSignal(PointerSignalEvent event) {
-    if (event is! PointerScrollEvent || !isLibraryZoomModifierPressed()) {
+    if (event is! PointerScrollEvent ||
+        !viewMode.supportsCoverSize ||
+        !isLibraryZoomModifierPressed()) {
       return;
     }
     GestureBinding.instance.pointerSignalResolver.register(event, (_) {
