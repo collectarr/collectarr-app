@@ -34,6 +34,7 @@ import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
@@ -83,6 +84,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -96,11 +98,13 @@ class LibraryPage extends ConsumerStatefulWidget {
     required this.type,
     required this.topBar,
     required this.accent,
+    required this.routeUri,
   });
 
   final LibraryTypeConfig type;
   final Widget topBar;
   final Color accent;
+  final Uri routeUri;
 
   @override
   ConsumerState<LibraryPage> createState() => _LibraryPageState();
@@ -150,6 +154,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
     _primeCachedViewPreferences();
+    _applyRouteStateFromUri(widget.routeUri);
     unawaited(_loadViewState());
     unawaited(_loadViewPreferences());
     unawaited(_loadColumnFavoritePresets());
@@ -188,6 +193,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         _pinnedViewPresets = pinnedViewPresets;
         _pinnedSortFavoriteIds = pinnedSortFavoriteIds;
         _pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
+        _applyRouteStateFromUri(widget.routeUri);
       });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -248,6 +254,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
       );
       unawaited(_loadActiveLoanIds());
+    } else if (oldWidget.routeUri.toString() != widget.routeUri.toString()) {
+      _applyRouteStateFromUri(widget.routeUri);
     }
   }
 
@@ -380,15 +388,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     collectionStatusScope: _collectionStatusScope,
                     onCollectionStatusScopeChanged: _setCollectionStatusScope,
                     quickView: _quickView,
-                    onQuickViewSelected: (view) {
-                      final next = _quickView == view ? null : view;
-                      _mutateSidebarScope(() {
-                        _quickView = next;
-                        _activeSmartListId = null;
-                        _activeSmartListName = null;
-                      });
-                      unawaited(_viewPrefs.writeQuickView(next));
-                    },
+                    onQuickViewSelected: (view) =>
+                        _setQuickView(_quickView == view ? null : view),
                     availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
                       (projection?.filteredItems ??
                               const <LibraryProjectionItem>[])
@@ -557,18 +558,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         }
       }),
       onBucketChanged: _setSelectedBucket,
-      onGroupModeChanged: (mode) {
-        setState(() {
-          _groupMode = mode;
-          _selectedBucket = null;
-          _scopeHistory = const [];
-          final shelfState = ref.read(shelfProvider).asData?.value;
-          if (shelfState != null) {
-            _ensureFacetBucketsLoaded(shelfState, mode);
-          }
-        });
-        unawaited(_viewPrefs.writeGroupMode(mode));
-      },
+      onGroupModeChanged: _setGroupMode,
       onSortChanged: (column) => _updateViewState(
         (state) => state.withSortColumn(column, _adapter.viewProfile),
       ),
@@ -666,15 +656,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
         quickView: _quickView,
         hasActiveFilters: _hasActiveFilter,
-        onQuickViewSelected: (view) {
-          final next = _quickView == view ? null : view;
-          _mutateSidebarScope(() {
-            _quickView = next;
-            _activeSmartListId = null;
-            _activeSmartListName = null;
-          });
-          unawaited(_viewPrefs.writeQuickView(next));
-        },
+        onQuickViewSelected: (view) =>
+            _setQuickView(_quickView == view ? null : view),
         onClearFilters: _clearFilters,
         onEditFilters: () => showFilterDialogFlow(projection),
         activeFilterCount: _filterSelection.activeFilterCount,
@@ -723,18 +706,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           setState(() => _pinnedGroupModes = updated);
           unawaited(_viewPrefs.writePinnedGroupModes(updated));
         },
-        onGroupModeChanged: (mode) {
-          setState(() {
-            _groupMode = mode;
-            _selectedBucket = null;
-            _scopeHistory = const [];
-            final shelfState = ref.read(shelfProvider).asData?.value;
-            if (shelfState != null) {
-              _ensureFacetBucketsLoaded(shelfState, mode);
-            }
-          });
-          unawaited(_viewPrefs.writeGroupMode(mode));
-        },
+        onGroupModeChanged: _setGroupMode,
       ),
     );
   }
@@ -1253,6 +1225,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         next: next,
       );
     });
+    _syncRouteState();
   }
 
   LibrarySidebarScopeSnapshot _captureSidebarScope() {
@@ -1296,6 +1269,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _scopeHistory = navigation.history;
       _applySidebarScopeSnapshot(navigation.target);
     });
+    _syncRouteState();
   }
 
   void _navigateSidebarToBreadcrumb(int index) {
@@ -1311,6 +1285,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _scopeHistory = navigation.history;
       _applySidebarScopeSnapshot(navigation.target);
     });
+    _syncRouteState();
   }
 
   String _sidebarScopeLabel(LibrarySidebarScopeSnapshot snapshot) {
@@ -1356,6 +1331,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _searchController.clear();
       _selectionAnchorId = null;
     });
+    _syncRouteState();
   }
 
   void _applySmartList(SmartList smartList) {
@@ -1388,6 +1364,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _collectionStatusScope = LibraryCollectionStatusScope.all;
       _scopeHistory = const [];
     });
+    _syncRouteState();
   }
 
   void _clearSmartList() {
@@ -1403,6 +1380,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _linkedMetadataFilter = null;
       _scopeHistory = const [];
     });
+    _syncRouteState();
   }
 
   void _clearToolbarSearchChip() {
@@ -1425,7 +1403,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       if (mounted &&
           token == _viewStateLoadToken &&
           widget.type.workspace.kind == expectedKind) {
-        setState(() => _viewState = state);
+        setState(() {
+          _viewState = state;
+          _applyRouteStateFromUri(widget.routeUri);
+        });
       }
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -1442,6 +1423,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   ) {
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
+    _syncRouteState();
     unawaited(_adapter.viewProfile.save(next));
   }
 
@@ -1459,7 +1441,101 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     if (!isVisible) {
       unawaited(_viewPrefs.writeGroupMode(null));
     }
+    _syncRouteState();
     unawaited(_adapter.viewProfile.save(next));
+  }
+
+  void _setQuickView(LibraryQuickView? view) {
+    _mutateSidebarScope(() {
+      _quickView = view;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+    unawaited(_viewPrefs.writeQuickView(view));
+  }
+
+  void _setGroupMode(LibraryGroupMode mode) {
+    setState(() {
+      _groupMode = mode;
+      _selectedBucket = null;
+      _scopeHistory = const [];
+      final shelfState = ref.read(shelfProvider).asData?.value;
+      if (shelfState != null) {
+        _ensureFacetBucketsLoaded(shelfState, mode);
+      }
+    });
+    _syncRouteState();
+    unawaited(_viewPrefs.writeGroupMode(mode));
+  }
+
+  LibraryRouteState _buildRouteState() {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    return LibraryRouteState(
+      kind: widget.type.workspace.kind.apiValue,
+      searchQuery: _trimmedQuery(_searchController.text),
+      groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
+      selectedBucket: _selectedBucket,
+      linkedMetadataValue: _linkedMetadataFilter?.value,
+      selectedLetter: _selectedLetter,
+      collectionStatusScope: _collectionStatusScope,
+      quickView: _quickView,
+      filterSelection: _filterSelection,
+      sortRules: viewState.sortRules,
+      isSidebarVisible: viewState.isSidebarVisible,
+    );
+  }
+
+  void _syncRouteState() {
+    if (!mounted) {
+      return;
+    }
+    final nextUri = _buildRouteState().toUri(
+      widget.routeUri,
+      kind: widget.type.workspace.kind.apiValue,
+    );
+    if (nextUri.toString() == widget.routeUri.toString()) {
+      return;
+    }
+    context.replace(nextUri.toString());
+  }
+
+  void _applyRouteStateFromUri(Uri uri) {
+    final routeState = LibraryRouteState.fromUri(uri);
+    if (!routeState.hasExplicitViewState) {
+      return;
+    }
+    final currentViewState = _viewState ?? _adapter.viewProfile.defaults();
+    _viewState = currentViewState.copyWith(
+      isSidebarVisible:
+          routeState.isSidebarVisible ?? currentViewState.isSidebarVisible,
+      sortRules: routeState.sortRules ?? currentViewState.sortRules,
+    );
+    final sidebarVisible = _viewState!.isSidebarVisible;
+    _groupMode = sidebarVisible
+        ? routeState.groupMode ?? libraryDefaultGroupMode(widget.type)
+        : null;
+    _selectedBucket = routeState.selectedBucket;
+    _selectedLetter = routeState.selectedLetter;
+    _linkedMetadataFilter = routeState.linkedMetadataValue == null
+        ? null
+        : LibraryLinkedMetadataFilter(value: routeState.linkedMetadataValue!);
+    _collectionStatusScope = routeState.collectionStatusScope;
+    _quickView = routeState.quickView;
+    _filterSelection = routeState.filterSelection;
+    _activeSmartListId = null;
+    _activeSmartListName = null;
+    _scopeHistory = const [];
+    final routeQuery = routeState.searchQuery ?? '';
+    _searchController.value = _searchController.value.copyWith(
+      text: routeQuery,
+      selection: TextSelection.collapsed(offset: routeQuery.length),
+      composing: TextRange.empty,
+    );
+  }
+
+  String? _trimmedQuery(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   Future<void> showAddDialogFlow({String? barcode}) async {
@@ -1502,6 +1578,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _scopeHistory = const [];
       _searchController.clear();
     });
+    _syncRouteState();
   }
 
   void _selectItem(String id) {

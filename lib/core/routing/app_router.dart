@@ -88,7 +88,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.libraries,
-                builder: (context, state) => const LibraryHomePage(),
+                builder: (context, state) => LibraryHomePage(routeUri: state.uri),
               ),
             ],
           ),
@@ -141,7 +141,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final request = state.extra as LibraryDetailPageRequest?;
           if (request == null) {
-            return const LibraryHomePage();
+            return LibraryHomePage(routeUri: state.uri);
           }
           final builder =
               request.type.detailPageBuilder ?? _buildDefaultDetailPage;
