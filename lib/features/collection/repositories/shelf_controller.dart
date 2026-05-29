@@ -1,11 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,12 +26,18 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   };
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
   final locations = await LocationRepository(db).getAll();
+  final watchSessions = await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
+  final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedItemIds(
+    owned.map((item) => item.id),
+  );
   return ShelfState.from(
     ownedItems: owned,
     wishlistItems: wishlist,
     trackingEntries: trackingEntries,
+    watchSessions: watchSessions,
     catalogItems: catalogItems,
     locations: locations,
+    itemImagesByOwnedItem: itemImagesByOwnedItem,
   );
 });
 
@@ -63,8 +73,11 @@ class ShelfState {
     required List<OwnedItem> ownedItems,
     required List<WishlistItem> wishlistItems,
     List<TrackingEntry> trackingEntries = const [],
+    List<WatchSession> watchSessions = const [],
     required Map<String, CatalogItem> catalogItems,
     List<StorageLocation> locations = const [],
+    Map<String, List<ItemImage>> itemImagesByOwnedItem =
+        const <String, List<ItemImage>>{},
   }) {
     final locationPathsById = {
       for (final location in locations) location.id: location.fullPath(locations),
@@ -84,6 +97,18 @@ class ShelfState {
       }
       trackingByItemId[entry.itemId] = entry;
     }
+    final watchSessionsByItemId = <String, List<WatchSession>>{};
+    for (final session in watchSessions) {
+      if (session.isDeleted) {
+        continue;
+      }
+      watchSessionsByItemId
+          .putIfAbsent(session.itemId, () => <WatchSession>[])
+          .add(session);
+    }
+    for (final sessions in watchSessionsByItemId.values) {
+      sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
+    }
     final ids = {
       ...ownedByItemId.keys,
       ...wishlistByItemId.keys,
@@ -98,6 +123,9 @@ class ShelfState {
           trackingEntry: trackingByItemId[id],
           wishlistItem: wishlistByItemId[id],
           locationPath: locationPathsById[ownedByItemId[id]?.locationId],
+            watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
+            itemImages:
+              itemImagesByOwnedItem[ownedByItemId[id]?.id] ?? const <ItemImage>[],
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -225,7 +253,11 @@ class ShelfEntry extends LibraryEntry {
     super.trackingEntry,
     super.wishlistItem,
     this.locationPath,
+    this.watchSessions = const <WatchSession>[],
+    this.itemImages = const <ItemImage>[],
   });
 
   final String? locationPath;
+  final List<WatchSession> watchSessions;
+  final List<ItemImage> itemImages;
 }

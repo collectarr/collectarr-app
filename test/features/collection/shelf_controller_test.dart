@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,6 +39,15 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 9),
         ),
       ],
+      watchSessions: [
+        WatchSession(
+          id: 'watch-1',
+          itemId: 'comic-1',
+          watchedAt: DateTime.utc(2026, 5, 8),
+          sourceType: TrackingSourceType.streaming,
+          updatedAt: DateTime.utc(2026, 5, 8),
+        ),
+      ],
       catalogItems: {
         'comic-1': CatalogItem(
           id: 'comic-1',
@@ -43,6 +55,17 @@ void main() {
           title: 'Saga',
           itemNumber: '1',
         ),
+      },
+      itemImagesByOwnedItem: {
+        'owned-1': [
+          ItemImage(
+            id: 'img-1',
+            ownedItemId: 'owned-1',
+            imageType: 'back_cover',
+            imageData: 'data',
+            createdAt: DateTime.utc(2026, 5, 8),
+          ),
+        ],
       },
     );
 
@@ -58,5 +81,7 @@ void main() {
     expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});
     expect(state.conditionCounts, {'Near Mint': 1, 'Fine': 1});
     expect(state.entries.first.title, 'Saga #1');
+    expect(state.entries.first.watchSessions.single.sourceType, TrackingSourceType.streaming);
+    expect(state.entries.first.itemImages.single.imageType, 'back_cover');
   });
 }

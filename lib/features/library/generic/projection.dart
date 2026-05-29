@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -54,19 +55,28 @@ String genericGroupModeLabel(
     LibraryGroupMode.editor => 'Editor',
     LibraryGroupMode.location => 'Location',
     LibraryGroupMode.ownership => 'Ownership',
+    LibraryGroupMode.addedDate => 'Added Date',
+    LibraryGroupMode.addedMonth => 'Added Month',
+    LibraryGroupMode.addedYear => 'Added Year',
     LibraryGroupMode.collectionStatus => 'Collection Status',
     LibraryGroupMode.grade => 'Grade',
     LibraryGroupMode.condition => 'Condition',
+    LibraryGroupMode.imageType => 'Image Type',
     LibraryGroupMode.modifiedDate => 'Modified Date',
     LibraryGroupMode.modifiedMonth => 'Modified Month',
     LibraryGroupMode.myRating => 'My Rating',
+    LibraryGroupMode.owner => 'Owner',
     LibraryGroupMode.purchaseDate => 'Purchase Date',
     LibraryGroupMode.purchaseMonth => 'Purchase Month',
     LibraryGroupMode.purchaseYear => 'Purchase Year',
     LibraryGroupMode.purchaseStore => 'Purchase Store',
     LibraryGroupMode.storageDevice => 'Storage Device',
     LibraryGroupMode.tags => 'Tags',
+    LibraryGroupMode.watchDate => 'Watch Date',
+    LibraryGroupMode.watchMonth => 'Watch Month',
+    LibraryGroupMode.watchYear => 'Watch Year',
     LibraryGroupMode.watched => 'Watched',
+    LibraryGroupMode.watchedWhere => 'Watched Where',
   };
 }
 
@@ -98,19 +108,28 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.editor => 'Editors',
     LibraryGroupMode.location => 'Locations',
     LibraryGroupMode.ownership => 'Ownership',
+    LibraryGroupMode.addedDate => 'Added Dates',
+    LibraryGroupMode.addedMonth => 'Added Months',
+    LibraryGroupMode.addedYear => 'Added Years',
     LibraryGroupMode.collectionStatus => 'Collection Status',
     LibraryGroupMode.grade => 'Grades',
     LibraryGroupMode.condition => 'Conditions',
+    LibraryGroupMode.imageType => 'Image Types',
     LibraryGroupMode.modifiedDate => 'Modified Dates',
     LibraryGroupMode.modifiedMonth => 'Modified Months',
     LibraryGroupMode.myRating => 'My Ratings',
+    LibraryGroupMode.owner => 'Owners',
     LibraryGroupMode.purchaseDate => 'Purchase Dates',
     LibraryGroupMode.purchaseMonth => 'Purchase Months',
     LibraryGroupMode.purchaseYear => 'Purchase Years',
     LibraryGroupMode.purchaseStore => 'Purchase Stores',
     LibraryGroupMode.storageDevice => 'Storage Devices',
     LibraryGroupMode.tags => 'Tags',
+    LibraryGroupMode.watchDate => 'Watch Dates',
+    LibraryGroupMode.watchMonth => 'Watch Months',
+    LibraryGroupMode.watchYear => 'Watch Years',
     LibraryGroupMode.watched => 'Watched',
+    LibraryGroupMode.watchedWhere => 'Watched Where',
   };
 }
 
@@ -138,19 +157,28 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.editor => Icons.rule_outlined,
     LibraryGroupMode.location => Icons.place_outlined,
     LibraryGroupMode.ownership => Icons.inventory_2_outlined,
+    LibraryGroupMode.addedDate => Icons.playlist_add_outlined,
+    LibraryGroupMode.addedMonth => Icons.playlist_add_outlined,
+    LibraryGroupMode.addedYear => Icons.playlist_add_outlined,
     LibraryGroupMode.collectionStatus => Icons.checklist_outlined,
     LibraryGroupMode.grade => Icons.workspace_premium_outlined,
     LibraryGroupMode.condition => Icons.fact_check_outlined,
+    LibraryGroupMode.imageType => Icons.image_outlined,
     LibraryGroupMode.modifiedDate => Icons.update_outlined,
     LibraryGroupMode.modifiedMonth => Icons.update_outlined,
     LibraryGroupMode.myRating => Icons.star_outline,
+    LibraryGroupMode.owner => Icons.person_outline,
     LibraryGroupMode.purchaseDate => Icons.shopping_bag_outlined,
     LibraryGroupMode.purchaseMonth => Icons.shopping_bag_outlined,
     LibraryGroupMode.purchaseYear => Icons.shopping_bag_outlined,
     LibraryGroupMode.purchaseStore => Icons.store_outlined,
     LibraryGroupMode.storageDevice => Icons.storage_outlined,
     LibraryGroupMode.tags => Icons.label_outlined,
+    LibraryGroupMode.watchDate => Icons.visibility_outlined,
+    LibraryGroupMode.watchMonth => Icons.visibility_outlined,
+    LibraryGroupMode.watchYear => Icons.visibility_outlined,
     LibraryGroupMode.watched => Icons.remove_red_eye_outlined,
+    LibraryGroupMode.watchedWhere => Icons.live_tv_outlined,
   };
 }
 
@@ -396,6 +424,16 @@ String genericBucketForItemMode(
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
+    LibraryGroupMode.addedDate =>
+      _dateBucket(item.source.wishlistItem?.createdAt, 'Unknown added date'),
+    LibraryGroupMode.addedMonth => _monthBucket(
+        item.source.wishlistItem?.createdAt,
+        fallback: 'Unknown added month',
+      ),
+    LibraryGroupMode.addedYear => _yearBucket(
+        item.source.wishlistItem?.createdAt,
+        'Unknown added year',
+      ),
     LibraryGroupMode.collectionStatus => _stringBucket(
         item.source.ownedItem?.collectionStatus,
         'No collection status',
@@ -406,9 +444,11 @@ String genericBucketForItemMode(
     LibraryGroupMode.condition => entry.condition?.trim().isNotEmpty == true
         ? entry.condition!
         : 'No condition',
+    LibraryGroupMode.imageType => _imageTypeBucket(item),
     LibraryGroupMode.modifiedDate => formatCompactDate(entry.updatedAt),
     LibraryGroupMode.modifiedMonth => _monthBucket(entry.updatedAt),
     LibraryGroupMode.myRating => _ratingBucket(item.source.tracking.rating),
+    LibraryGroupMode.owner => 'You',
     LibraryGroupMode.purchaseDate => _dateBucket(
         item.source.ownedItem?.purchaseDate,
         'Unknown purchase date',
@@ -437,7 +477,18 @@ String genericBucketForItemMode(
             .toList(),
         'No tags',
       ),
+    LibraryGroupMode.watchDate =>
+      _dateBucket(_latestWatchSession(item)?.watchedAt, 'Unknown watch date'),
+    LibraryGroupMode.watchMonth => _monthBucket(
+        _latestWatchSession(item)?.watchedAt,
+        fallback: 'Unknown watch month',
+      ),
+    LibraryGroupMode.watchYear => _yearBucket(
+        _latestWatchSession(item)?.watchedAt,
+        'Unknown watch year',
+      ),
     LibraryGroupMode.watched => _watchedBucket(item),
+    LibraryGroupMode.watchedWhere => _watchedWhereBucket(item),
   };
 }
 
@@ -455,6 +506,12 @@ const _monthNames = <String>[
   'November',
   'December',
 ];
+
+const _imageTypeLabels = <String, String>{
+  'front_cover': 'Front Cover',
+  'back_cover': 'Back Cover',
+  'auxiliary': 'Photos',
+};
 
 String _dateBucket(DateTime? value, String fallback) {
   return value == null ? fallback : formatCompactDate(value);
@@ -487,12 +544,34 @@ String _ratingBucket(int? rating) {
   return rating.toString();
 }
 
+String _imageTypeBucket(LibraryProjectionItem item) {
+  final imageType = item.source.itemImages.firstOrNull?.imageType;
+  if (imageType == null || imageType.trim().isEmpty) {
+    return 'No image type';
+  }
+  return _imageTypeLabels[imageType] ?? imageType;
+}
+
+WatchSession? _latestWatchSession(LibraryProjectionItem item) {
+  return item.source.watchSessions.firstOrNull;
+}
+
 String _watchedBucket(LibraryProjectionItem item) {
+  final latestSession = _latestWatchSession(item);
   final tracking = item.source.tracking;
-  final watched = tracking.completedAt != null ||
+  final watched = latestSession != null ||
+      tracking.completedAt != null ||
       tracking.status == MediaTrackingStatus.completed ||
       tracking.status == MediaTrackingStatus.repeating;
   return watched ? 'Watched' : 'Not watched';
+}
+
+String _watchedWhereBucket(LibraryProjectionItem item) {
+  final label = _latestWatchSession(item)?.sourceType?.label;
+  if (label == null || label.trim().isEmpty) {
+    return 'Unknown watch source';
+  }
+  return label;
 }
 
 String _locationBucket(String? location) {

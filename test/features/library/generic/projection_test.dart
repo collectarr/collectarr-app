@@ -1,7 +1,11 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
@@ -131,6 +135,12 @@ void main() {
         tags: 'favorite, sci-fi',
         updatedAt: DateTime.utc(2026, 4, 2),
       ),
+      wishlistItem: WishlistItem(
+        id: 'wish-1',
+        itemId: 'movie-1',
+        createdAt: DateTime.utc(2024, 10, 1),
+        updatedAt: DateTime.utc(2024, 10, 1),
+      ),
       trackingEntry: TrackingEntry(
         id: 'tracking-1',
         itemId: 'movie-1',
@@ -139,6 +149,31 @@ void main() {
         finishedAt: DateTime.utc(2026, 4, 10),
         updatedAt: DateTime.utc(2026, 4, 10),
       ),
+      watchSessions: [
+        WatchSession(
+          id: 'watch-2',
+          itemId: 'movie-1',
+          watchedAt: DateTime.utc(2026, 4, 10),
+          sourceType: TrackingSourceType.streaming,
+          updatedAt: DateTime.utc(2026, 4, 10),
+        ),
+        WatchSession(
+          id: 'watch-1',
+          itemId: 'movie-1',
+          watchedAt: DateTime.utc(2026, 4, 9),
+          sourceType: TrackingSourceType.physical,
+          updatedAt: DateTime.utc(2026, 4, 9),
+        ),
+      ],
+      itemImages: [
+        ItemImage(
+          id: 'img-1',
+          ownedItemId: 'owned-1',
+          imageType: 'back_cover',
+          imageData: 'data',
+          createdAt: DateTime.utc(2026, 4, 1),
+        ),
+      ],
     );
     final item = _projectionItem(
       source: source,
@@ -163,8 +198,28 @@ void main() {
       'Backlog',
     );
     expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedDate),
+      '2024-10-01',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedMonth),
+      'October 2024',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedYear),
+      '2024',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.imageType),
+      'Back Cover',
+    );
+    expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.myRating),
       '9',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.owner),
+      'You',
     );
     expect(
       genericBucketForItemMode(
@@ -223,8 +278,24 @@ void main() {
       'April 2026',
     );
     expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchDate),
+      '2026-04-10',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchMonth),
+      'April 2026',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchYear),
+      '2026',
+    );
+    expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watched),
       'Watched',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchedWhere),
+      'Streaming',
     );
   });
 
