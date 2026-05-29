@@ -399,10 +399,16 @@ List<_GroupModeCategory> _categorizeGroupModes(List<LibraryGroupMode> modes) {
     LibraryGroupMode.title,
     LibraryGroupMode.publisher,
     LibraryGroupMode.year,
+    LibraryGroupMode.audienceRating,
+    LibraryGroupMode.color,
     LibraryGroupMode.genre,
     LibraryGroupMode.country,
     LibraryGroupMode.language,
     LibraryGroupMode.ageRating,
+    LibraryGroupMode.movieOrTvSeries,
+    LibraryGroupMode.releaseDate,
+    LibraryGroupMode.releaseMonth,
+    LibraryGroupMode.releaseYear,
   };
   const editionModes = {
     LibraryGroupMode.audioTracks,

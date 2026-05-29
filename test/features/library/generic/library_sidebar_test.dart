@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
       (tester) async {
-    var selectedMode = LibraryGroupMode.year;
+    var selectedMode = LibraryGroupMode.releaseYear;
     final pinnedModes = <LibraryGroupMode>{LibraryGroupMode.director};
 
     await tester.pumpWidget(
@@ -57,6 +57,10 @@ void main() {
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
+    expect(find.text('Release Years'), findsWidgets);
+    expect(find.text('Audience Rating'), findsOneWidget);
+    expect(find.text('Movie / TV Series'), findsOneWidget);
+    expect(find.text('Studios'), findsOneWidget);
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
     await tester.ensureVisible(editionHeader);

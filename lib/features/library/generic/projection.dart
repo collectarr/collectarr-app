@@ -34,17 +34,24 @@ String genericGroupModeLabel(
   LibraryTypeConfig type,
 ) {
   final labels = libraryMediaGroupLabels(type);
+  final isMovieType = type.workspace.kind == CatalogMediaKind.movie;
   return switch (mode) {
     LibraryGroupMode.series => labels.series,
     LibraryGroupMode.storyArc => 'Story Arc',
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.title => 'Title',
-    LibraryGroupMode.publisher => labels.publisher,
+    LibraryGroupMode.publisher => isMovieType ? labels.publisherPlural : labels.publisher,
     LibraryGroupMode.year => 'Year',
-    LibraryGroupMode.genre => 'Genre',
+    LibraryGroupMode.audienceRating => 'Audience Rating',
+    LibraryGroupMode.color => 'Color',
+    LibraryGroupMode.genre => isMovieType ? 'Genres' : 'Genre',
     LibraryGroupMode.country => 'Country',
     LibraryGroupMode.language => 'Language',
     LibraryGroupMode.ageRating => 'Age Rating',
+    LibraryGroupMode.movieOrTvSeries => 'Movie / TV Series',
+    LibraryGroupMode.releaseDate => 'Release Date',
+    LibraryGroupMode.releaseMonth => 'Release Month',
+    LibraryGroupMode.releaseYear => 'Release Year',
     LibraryGroupMode.audioTracks => 'Audio Tracks',
     LibraryGroupMode.boxSet => 'Box Set',
     LibraryGroupMode.distributor => 'Distributor',
@@ -111,10 +118,16 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.title => 'Titles',
     LibraryGroupMode.publisher => labels.publisherPlural,
     LibraryGroupMode.year => 'Years',
+    LibraryGroupMode.audienceRating => 'Audience Ratings',
+    LibraryGroupMode.color => 'Colors',
     LibraryGroupMode.genre => 'Genres',
     LibraryGroupMode.country => 'Countries',
     LibraryGroupMode.language => 'Languages',
     LibraryGroupMode.ageRating => 'Age Ratings',
+    LibraryGroupMode.movieOrTvSeries => 'Movie / TV Series',
+    LibraryGroupMode.releaseDate => 'Release Dates',
+    LibraryGroupMode.releaseMonth => 'Release Months',
+    LibraryGroupMode.releaseYear => 'Release Years',
     LibraryGroupMode.audioTracks => 'Audio Tracks',
     LibraryGroupMode.boxSet => 'Box Sets',
     LibraryGroupMode.distributor => 'Distributors',
@@ -177,10 +190,16 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.title => Icons.sort_by_alpha,
     LibraryGroupMode.publisher => Icons.business_outlined,
     LibraryGroupMode.year => Icons.calendar_today_outlined,
+    LibraryGroupMode.audienceRating => Icons.star_half_outlined,
+    LibraryGroupMode.color => Icons.palette_outlined,
     LibraryGroupMode.genre => Icons.theater_comedy_outlined,
     LibraryGroupMode.country => Icons.flag_outlined,
     LibraryGroupMode.language => Icons.translate_outlined,
     LibraryGroupMode.ageRating => Icons.shield_outlined,
+    LibraryGroupMode.movieOrTvSeries => Icons.movie_outlined,
+    LibraryGroupMode.releaseDate => Icons.event_outlined,
+    LibraryGroupMode.releaseMonth => Icons.event_outlined,
+    LibraryGroupMode.releaseYear => Icons.event_outlined,
     LibraryGroupMode.audioTracks => Icons.audiotrack_outlined,
     LibraryGroupMode.boxSet => Icons.inventory_2_outlined,
     LibraryGroupMode.distributor => Icons.local_shipping_outlined,
@@ -449,6 +468,11 @@ String genericBucketForItemMode(
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    LibraryGroupMode.audienceRating => 'No audience rating',
+    LibraryGroupMode.color => _stringBucket(
+        entry.video?.color,
+        'No color',
+      ),
     LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
@@ -461,6 +485,22 @@ String genericBucketForItemMode(
         : 'Unknown language',
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
+    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
+    LibraryGroupMode.releaseDate => _dateBucket(
+        entry.releaseDate,
+        'Unknown release date',
+      ),
+    LibraryGroupMode.releaseMonth => _monthBucket(
+        entry.releaseDate,
+        fallback: 'Unknown release month',
+      ),
+    LibraryGroupMode.releaseYear => _yearBucket(
+        entry.releaseDate ??
+            (entry.releaseYear == null
+                ? null
+                : DateTime(entry.releaseYear!)),
+        'Unknown release year',
+      ),
     LibraryGroupMode.audioTracks => _stringBucket(
         entry.video?.audioTracks,
         'No audio tracks',
@@ -717,6 +757,17 @@ String _editionFormatBucket(LibraryWorkspaceEntry entry) {
     if (label != null && label.trim().isNotEmpty) return label.trim();
   }
   return 'Unknown format';
+}
+
+String _movieOrTvSeriesBucket(LibraryWorkspaceEntry entry) {
+  if (entry.mediaType == 'tv') {
+    return 'TV Series';
+  }
+  final series = entry.series;
+  if (series?.seasonNumber != null || series?.episodeNumber != null) {
+    return 'TV Series';
+  }
+  return 'Movie';
 }
 
 CatalogEdition? _referenceEditionForItem(LibraryProjectionItem item) {

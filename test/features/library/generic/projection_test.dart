@@ -120,6 +120,66 @@ void main() {
     );
   });
 
+  test('movie main grouping uses release and video metadata', () {
+    final item = _projectionItem(
+      source: ShelfEntry(
+        itemId: 'movie-main-1',
+        ownedItem: OwnedItem(
+          id: 'owned-main-1',
+          itemId: 'movie-main-1',
+          updatedAt: DateTime.utc(2026, 5, 1),
+        ),
+      ),
+      entry: LibraryWorkspaceEntry(
+        id: 'movie-main-1',
+        mediaType: 'movie',
+        title: 'Twin Peaks: Fire Walk with Me',
+        publisher: 'New Line Cinema',
+        releaseDate: DateTime.utc(1992, 8, 28),
+        releaseYear: 1992,
+        genres: const ['Drama'],
+        country: 'USA',
+        language: 'English',
+        video: const VideoCatalogDetails(color: 'Color'),
+        series: const CatalogSeriesDetails(seasonNumber: 1),
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericGroupModeLabel(LibraryGroupMode.publisher, moviesLibraryConfig),
+      'Studios',
+    );
+    expect(
+      genericGroupModeLabel(LibraryGroupMode.genre, moviesLibraryConfig),
+      'Genres',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audienceRating),
+      'No audience rating',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.color),
+      'Color',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.movieOrTvSeries),
+      'TV Series',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseDate),
+      '1992-08-28',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseMonth),
+      'August 1992',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
+      '1992',
+    );
+  });
+
   test('movie personal grouping uses owned and tracking fields', () {
     final source = ShelfEntry(
       itemId: 'movie-1',

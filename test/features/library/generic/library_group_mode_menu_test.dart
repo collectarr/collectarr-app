@@ -13,7 +13,7 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: moviesLibraryConfig,
-            selectedMode: LibraryGroupMode.year,
+            selectedMode: LibraryGroupMode.releaseYear,
             availableModes: libraryGroupModesForType(moviesLibraryConfig),
             initialPinnedModes: const {LibraryGroupMode.director},
             sidebarVisible: true,
@@ -33,6 +33,10 @@ void main() {
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
+    expect(find.text('Release Year'), findsWidgets);
+    expect(find.text('Audience Rating'), findsOneWidget);
+    expect(find.text('Movie / TV Series'), findsOneWidget);
+    expect(find.text('Studios'), findsOneWidget);
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
     await tester.ensureVisible(editionHeader);
