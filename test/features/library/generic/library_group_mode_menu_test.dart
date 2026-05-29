@@ -38,13 +38,10 @@ void main() {
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('groupModeSectionBar_Main')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('groupModeSectionBar_Main')), findsNothing);
     expect(
       find.byKey(const ValueKey('groupModeSectionBar_Cast & Crew')),
-      findsOneWidget,
+      findsNothing,
     );
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
@@ -55,6 +52,16 @@ void main() {
     expect(find.text('Format'), findsOneWidget);
     expect(find.text('Audio Tracks'), findsOneWidget);
     expect(find.text('Edition Release Date'), findsOneWidget);
+
+    final mainHeader = find.widgetWithText(InkWell, 'Main');
+    await tester.ensureVisible(mainHeader);
+    await tester.tap(mainHeader);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('groupModeSectionBar_Main')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('hidden grouping menu does not offer a show folders toggle', (
