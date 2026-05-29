@@ -1490,6 +1490,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     if (!mounted) {
       return;
     }
+    if (GoRouter.maybeOf(context) == null) {
+      return;
+    }
     final nextUri = _buildRouteState().toUri(
       widget.routeUri,
       kind: widget.type.workspace.kind.apiValue,

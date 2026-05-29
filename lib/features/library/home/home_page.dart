@@ -36,7 +36,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final nextUri = widget.routeUri.replace(
       queryParameters: {'kind': normalized},
     );
-    if (nextUri.toString() != widget.routeUri.toString()) {
+    if (nextUri.toString() != widget.routeUri.toString() &&
+        GoRouter.maybeOf(context) != null) {
       context.replace(nextUri.toString());
     }
   }
