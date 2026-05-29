@@ -44,11 +44,14 @@ class LibraryToolbarSearch extends StatelessWidget {
       builder: (context, constraints) {
         final showFilterChip =
             selectedFilterLabel != null && constraints.maxWidth >= 340;
+        final availableWidth = constraints.hasBoundedWidth
+            ? (constraints.maxWidth < maxWidth ? constraints.maxWidth : maxWidth)
+            : maxWidth;
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth),
+              constraints: BoxConstraints(maxWidth: availableWidth),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: DecoratedBox(
@@ -144,21 +147,19 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
     final palette = appPalette(context);
     return SizedBox(
       width: 30,
-      child: Tooltip(
-        message: tooltip,
-        child: IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          style: IconButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            disabledBackgroundColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          constraints: const BoxConstraints.tightFor(width: 30, height: 30),
-          onPressed: onPressed,
-          icon: Icon(icon, size: 19, color: palette.textPrimary),
+      child: IconButton(
+        tooltip: tooltip,
+        visualDensity: VisualDensity.compact,
+        padding: EdgeInsets.zero,
+        style: IconButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
         ),
+        constraints: const BoxConstraints.tightFor(width: 30, height: 30),
+        onPressed: onPressed,
+        icon: Icon(icon, size: 19, color: palette.textPrimary),
       ),
     );
   }
