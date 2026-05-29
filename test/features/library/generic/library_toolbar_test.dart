@@ -56,5 +56,11 @@ void main() {
     final alphabetRow = find.byType(LibraryToolbarAlphabetRow);
     expect(alphabetRow, findsOneWidget);
     expect(tester.getSize(alphabetRow).width, greaterThan(520));
+
+    final rowCenterX = tester.getRect(alphabetRow).center.dx;
+    final allCenterX = tester.getRect(find.text('All')).center.dx;
+    final zCenterX = tester.getRect(find.text('Z')).center.dx;
+    final contentCenterX = (allCenterX + zCenterX) / 2;
+    expect((contentCenterX - rowCenterX).abs(), lessThan(12));
   });
 }

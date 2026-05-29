@@ -1,7 +1,5 @@
 part of 'page.dart';
 
-import 'package:cached_network_image/cached_network_image.dart';
-
 final _random = math.Random();
 
 /// Collection actions, context menu handling, bulk operations, and barcode

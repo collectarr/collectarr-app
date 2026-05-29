@@ -341,29 +341,40 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 28,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            buildLetterButton(
-              label: 'All',
-              selected: selectedLetter == null,
-              enabled: true,
-              onTap: () => onLetterSelected(null),
-            ),
-            for (final letter in alphabet.split(''))
-              buildLetterButton(
-                label: letter,
-                selected: selectedLetter == letter,
-                enabled: availableLetters.contains(letter),
-                onTap: availableLetters.contains(letter)
-                    ? () => onLetterSelected(
-                          selectedLetter == letter ? null : letter,
-                        )
-                    : null,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: Align(
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    buildLetterButton(
+                      label: 'All',
+                      selected: selectedLetter == null,
+                      enabled: true,
+                      onTap: () => onLetterSelected(null),
+                    ),
+                    for (final letter in alphabet.split(''))
+                      buildLetterButton(
+                        label: letter,
+                        selected: selectedLetter == letter,
+                        enabled: availableLetters.contains(letter),
+                        onTap: availableLetters.contains(letter)
+                            ? () => onLetterSelected(
+                                  selectedLetter == letter ? null : letter,
+                                )
+                            : null,
+                      ),
+                  ],
+                ),
               ),
-          ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }

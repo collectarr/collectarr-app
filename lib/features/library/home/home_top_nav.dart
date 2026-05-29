@@ -582,68 +582,101 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
     return Listener(
       onPointerSignal: (event) {
         if (event is PointerScrollEvent && _scrollController.hasClients) {
-          final delta = event.scrollDelta.dy != 0 ? event.scrollDelta.dy : event.scrollDelta.dx;
+          final delta = event.scrollDelta.dy != 0
+              ? event.scrollDelta.dy
+              : event.scrollDelta.dx;
           _scrollBy(delta);
         }
       },
-      child: Stack(
-        children: [
-          ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-                PointerDeviceKind.trackpad,
-              },
-            ),
-            child: ListView.builder(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
-              itemCount: widget.types.length,
-              itemBuilder: (context, index) {
-                final type = widget.types[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 5),
-                  child: MediaLibraryNavButton(
-                    type: type,
-                    color: libraryAccentForKind(type.kind),
-                    icon: widget.registry.byKind(type.kind)?.workspace.icon ??
-                        libraryIconForKind(type.kind),
-                    selected: type.kind == widget.selectedKind,
-                    count: widget.counts[type.kind]?.total ?? 0,
-                    onPressed: () => widget.onSelected(type),
-                    animationDuration: widget.animationDuration,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                    PointerDeviceKind.trackpad,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: (constraints.maxWidth - 14).clamp(0.0, double.infinity),
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var index = 0;
+                                index < widget.types.length;
+                                index += 1)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  right: index == widget.types.length - 1 ? 0 : 5,
+                                ),
+                                child: MediaLibraryNavButton(
+                                  type: widget.types[index],
+                                  color: libraryAccentForKind(
+                                    widget.types[index].kind,
+                                  ),
+                                  icon: widget.registry
+                                          .byKind(widget.types[index].kind)
+                                          ?.workspace
+                                          .icon ??
+                                      libraryIconForKind(
+                                        widget.types[index].kind,
+                                      ),
+                                  selected:
+                                      widget.types[index].kind == widget.selectedKind,
+                                  count:
+                                      widget.counts[widget.types[index].kind]?.total ?? 0,
+                                  onPressed: () =>
+                                      widget.onSelected(widget.types[index]),
+                                  animationDuration: widget.animationDuration,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-        if (_showLeft)
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: _ScrollArrowButton(
-                icon: Icons.chevron_left,
-                onTap: () => _scrollBy(-120),
+                ),
               ),
-            ),
-          ),
-        if (_showRight)
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: _ScrollArrowButton(
-                icon: Icons.chevron_right,
-                onTap: () => _scrollBy(120),
-              ),
-            ),
-          ),
-      ],
+              if (_showLeft)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _ScrollArrowButton(
+                      icon: Icons.chevron_left,
+                      onTap: () => _scrollBy(-120),
+                    ),
+                  ),
+                ),
+              if (_showRight)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _ScrollArrowButton(
+                      icon: Icons.chevron_right,
+                      onTap: () => _scrollBy(120),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
