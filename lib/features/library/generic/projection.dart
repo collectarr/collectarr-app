@@ -1,10 +1,12 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -52,9 +54,19 @@ String genericGroupModeLabel(
     LibraryGroupMode.editor => 'Editor',
     LibraryGroupMode.location => 'Location',
     LibraryGroupMode.ownership => 'Ownership',
+    LibraryGroupMode.collectionStatus => 'Collection Status',
     LibraryGroupMode.grade => 'Grade',
     LibraryGroupMode.condition => 'Condition',
+    LibraryGroupMode.modifiedDate => 'Modified Date',
+    LibraryGroupMode.modifiedMonth => 'Modified Month',
+    LibraryGroupMode.myRating => 'My Rating',
+    LibraryGroupMode.purchaseDate => 'Purchase Date',
+    LibraryGroupMode.purchaseMonth => 'Purchase Month',
+    LibraryGroupMode.purchaseYear => 'Purchase Year',
+    LibraryGroupMode.purchaseStore => 'Purchase Store',
+    LibraryGroupMode.storageDevice => 'Storage Device',
     LibraryGroupMode.tags => 'Tags',
+    LibraryGroupMode.watched => 'Watched',
   };
 }
 
@@ -86,9 +98,19 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.editor => 'Editors',
     LibraryGroupMode.location => 'Locations',
     LibraryGroupMode.ownership => 'Ownership',
+    LibraryGroupMode.collectionStatus => 'Collection Status',
     LibraryGroupMode.grade => 'Grades',
     LibraryGroupMode.condition => 'Conditions',
+    LibraryGroupMode.modifiedDate => 'Modified Dates',
+    LibraryGroupMode.modifiedMonth => 'Modified Months',
+    LibraryGroupMode.myRating => 'My Ratings',
+    LibraryGroupMode.purchaseDate => 'Purchase Dates',
+    LibraryGroupMode.purchaseMonth => 'Purchase Months',
+    LibraryGroupMode.purchaseYear => 'Purchase Years',
+    LibraryGroupMode.purchaseStore => 'Purchase Stores',
+    LibraryGroupMode.storageDevice => 'Storage Devices',
     LibraryGroupMode.tags => 'Tags',
+    LibraryGroupMode.watched => 'Watched',
   };
 }
 
@@ -116,9 +138,19 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.editor => Icons.rule_outlined,
     LibraryGroupMode.location => Icons.place_outlined,
     LibraryGroupMode.ownership => Icons.inventory_2_outlined,
+    LibraryGroupMode.collectionStatus => Icons.checklist_outlined,
     LibraryGroupMode.grade => Icons.workspace_premium_outlined,
     LibraryGroupMode.condition => Icons.fact_check_outlined,
+    LibraryGroupMode.modifiedDate => Icons.update_outlined,
+    LibraryGroupMode.modifiedMonth => Icons.update_outlined,
+    LibraryGroupMode.myRating => Icons.star_outline,
+    LibraryGroupMode.purchaseDate => Icons.shopping_bag_outlined,
+    LibraryGroupMode.purchaseMonth => Icons.shopping_bag_outlined,
+    LibraryGroupMode.purchaseYear => Icons.shopping_bag_outlined,
+    LibraryGroupMode.purchaseStore => Icons.store_outlined,
+    LibraryGroupMode.storageDevice => Icons.storage_outlined,
     LibraryGroupMode.tags => Icons.label_outlined,
+    LibraryGroupMode.watched => Icons.remove_red_eye_outlined,
   };
 }
 
@@ -364,12 +396,39 @@ String genericBucketForItemMode(
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
+    LibraryGroupMode.collectionStatus => _stringBucket(
+        item.source.ownedItem?.collectionStatus,
+        'No collection status',
+      ),
     LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.grade =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
     LibraryGroupMode.condition => entry.condition?.trim().isNotEmpty == true
         ? entry.condition!
         : 'No condition',
+    LibraryGroupMode.modifiedDate => formatCompactDate(entry.updatedAt),
+    LibraryGroupMode.modifiedMonth => _monthBucket(entry.updatedAt),
+    LibraryGroupMode.myRating => _ratingBucket(item.source.tracking.rating),
+    LibraryGroupMode.purchaseDate => _dateBucket(
+        item.source.ownedItem?.purchaseDate,
+        'Unknown purchase date',
+      ),
+    LibraryGroupMode.purchaseMonth => _monthBucket(
+        item.source.ownedItem?.purchaseDate,
+        fallback: 'Unknown purchase month',
+      ),
+    LibraryGroupMode.purchaseYear => _yearBucket(
+        item.source.ownedItem?.purchaseDate,
+        'Unknown purchase year',
+      ),
+    LibraryGroupMode.purchaseStore => _stringBucket(
+        item.source.ownedItem?.purchaseStore,
+        'No purchase store',
+      ),
+    LibraryGroupMode.storageDevice => _stringBucket(
+        item.source.ownedItem?.storageDevice,
+        'No storage device',
+      ),
     LibraryGroupMode.tags => _firstOrDefault(
         entry.tags
             ?.split(',')
@@ -378,7 +437,62 @@ String genericBucketForItemMode(
             .toList(),
         'No tags',
       ),
+    LibraryGroupMode.watched => _watchedBucket(item),
   };
+}
+
+const _monthNames = <String>[
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+String _dateBucket(DateTime? value, String fallback) {
+  return value == null ? fallback : formatCompactDate(value);
+}
+
+String _monthBucket(DateTime? value, {String fallback = 'Unknown month'}) {
+  if (value == null) {
+    return fallback;
+  }
+  final local = value.toLocal();
+  return '${_monthNames[local.month - 1]} ${local.year}';
+}
+
+String _yearBucket(DateTime? value, String fallback) {
+  return value == null ? fallback : value.toLocal().year.toString();
+}
+
+String _stringBucket(String? value, String fallback) {
+  final normalized = value?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return fallback;
+  }
+  return normalized;
+}
+
+String _ratingBucket(int? rating) {
+  if (rating == null || rating <= 0) {
+    return 'No rating';
+  }
+  return rating.toString();
+}
+
+String _watchedBucket(LibraryProjectionItem item) {
+  final tracking = item.source.tracking;
+  final watched = tracking.completedAt != null ||
+      tracking.status == MediaTrackingStatus.completed ||
+      tracking.status == MediaTrackingStatus.repeating;
+  return watched ? 'Watched' : 'Not watched';
 }
 
 String _locationBucket(String? location) {

@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -335,6 +336,33 @@ void main() {
       LibraryGroupMode.location,
       LibraryGroupMode.title,
       LibraryGroupMode.ownership,
+    ]);
+    expect(moviesLibraryConfig.presentation.groupModes, [
+      LibraryGroupMode.year,
+      LibraryGroupMode.series,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.genre,
+      LibraryGroupMode.country,
+      LibraryGroupMode.language,
+      LibraryGroupMode.ageRating,
+      LibraryGroupMode.format,
+      LibraryGroupMode.director,
+      LibraryGroupMode.creator,
+      LibraryGroupMode.location,
+      LibraryGroupMode.title,
+      LibraryGroupMode.ownership,
+      LibraryGroupMode.collectionStatus,
+      LibraryGroupMode.condition,
+      LibraryGroupMode.modifiedDate,
+      LibraryGroupMode.modifiedMonth,
+      LibraryGroupMode.myRating,
+      LibraryGroupMode.purchaseDate,
+      LibraryGroupMode.purchaseMonth,
+      LibraryGroupMode.purchaseStore,
+      LibraryGroupMode.purchaseYear,
+      LibraryGroupMode.storageDevice,
+      LibraryGroupMode.tags,
+      LibraryGroupMode.watched,
     ]);
   });
 }

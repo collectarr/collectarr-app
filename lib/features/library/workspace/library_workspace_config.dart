@@ -43,9 +43,19 @@ enum LibraryGroupMode {
   // ── Personal ──
   location,
   ownership,
+  collectionStatus,
   grade,
   condition,
+  modifiedDate,
+  modifiedMonth,
+  myRating,
+  purchaseDate,
+  purchaseMonth,
+  purchaseYear,
+  purchaseStore,
+  storageDevice,
   tags,
+  watched,
 }
 
 enum LibraryWorkspacePreset { cover, card, list, details }

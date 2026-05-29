@@ -1,6 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
@@ -110,6 +113,118 @@ void main() {
         LibraryGroupMode.location,
       ),
       'Office › Shelf A › Short Box 1',
+    );
+  });
+
+  test('movie personal grouping uses owned and tracking fields', () {
+    final source = ShelfEntry(
+      itemId: 'movie-1',
+      locationPath: 'Living Room › Shelf 2',
+      ownedItem: OwnedItem(
+        id: 'owned-1',
+        itemId: 'movie-1',
+        condition: 'Sealed',
+        purchaseDate: DateTime.utc(2024, 11, 6),
+        purchaseStore: 'Orbit DVD',
+        storageDevice: 'NAS',
+        collectionStatus: 'Backlog',
+        tags: 'favorite, sci-fi',
+        updatedAt: DateTime.utc(2026, 4, 2),
+      ),
+      trackingEntry: TrackingEntry(
+        id: 'tracking-1',
+        itemId: 'movie-1',
+        rating: 9,
+        status: 'Completed',
+        finishedAt: DateTime.utc(2026, 4, 10),
+        updatedAt: DateTime.utc(2026, 4, 10),
+      ),
+    );
+    final item = _projectionItem(
+      source: source,
+      entry: LibraryWorkspaceEntry(
+        id: 'movie-1',
+        mediaType: 'movie',
+        title: 'Blade Runner 2049',
+        isOwned: true,
+        condition: 'Sealed',
+        storageBox: 'Living Room › Shelf 2',
+        tags: 'favorite, sci-fi',
+        updatedAt: source.updatedAt,
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.collectionStatus,
+      ),
+      'Backlog',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.myRating),
+      '9',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseDate,
+      ),
+      '2024-11-06',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseMonth,
+      ),
+      'November 2024',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseYear,
+      ),
+      '2024',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.purchaseStore,
+      ),
+      'Orbit DVD',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.storageDevice,
+      ),
+      'NAS',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.modifiedDate,
+      ),
+      '2026-04-10',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        moviesLibraryConfig,
+        LibraryGroupMode.modifiedMonth,
+      ),
+      'April 2026',
+    );
+    expect(
+      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watched),
+      'Watched',
     );
   });
 
