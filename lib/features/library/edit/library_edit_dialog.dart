@@ -1352,8 +1352,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   Widget _valueTab() {
-    return buildLibraryEditValueTab(
-      context: context,
+    return LibraryEditValueTab(
       accent: widget.accent,
       buildResponsiveFields: _responsiveFields,
       buildField: _field,

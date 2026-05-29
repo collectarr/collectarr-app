@@ -89,14 +89,8 @@ class _LibraryEditDialogScaffoldState
 
   void _onReorderItem(int oldIndex, int newIndex) {
     setState(() {
-      final currentTabLogical = _tabOrder[widget.tabController.index];
       final item = _tabOrder.removeAt(oldIndex);
       _tabOrder.insert(newIndex, item);
-      // Keep the same logical tab selected after reorder.
-      final newSelectedIndex = _tabOrder.indexOf(currentTabLogical);
-      if (newSelectedIndex >= 0) {
-        widget.tabController.index = newSelectedIndex;
-      }
     });
     _saveTabOrder();
   }
@@ -104,7 +98,6 @@ class _LibraryEditDialogScaffoldState
   @override
   Widget build(BuildContext context) {
     final orderedTabs = [for (final i in _tabOrder) widget.tabs[i]];
-    final orderedViews = [for (final i in _tabOrder) widget.views[i]];
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
@@ -141,6 +134,7 @@ class _LibraryEditDialogScaffoldState
                       color: p.panelRaised,
                       child: _ReorderableTabStrip(
                         tabController: widget.tabController,
+                        tabOrder: _tabOrder,
                         tabs: orderedTabs,
                         accent: widget.accent,
                         labelColor: p.textPrimary,
@@ -154,7 +148,7 @@ class _LibraryEditDialogScaffoldState
                         color: p.panel,
                         child: TabBarView(
                           controller: widget.tabController,
-                          children: orderedViews,
+                            children: widget.views,
                         ),
                       ),
                     ),
@@ -179,6 +173,7 @@ class _LibraryEditDialogScaffoldState
 class _ReorderableTabStrip extends StatelessWidget {
   const _ReorderableTabStrip({
     required this.tabController,
+    required this.tabOrder,
     required this.tabs,
     required this.accent,
     required this.labelColor,
@@ -188,6 +183,7 @@ class _ReorderableTabStrip extends StatelessWidget {
   });
 
   final TabController tabController;
+  final List<int> tabOrder;
   final List<Widget> tabs;
   final Color accent;
   final Color labelColor;
@@ -239,7 +235,7 @@ class _ReorderableTabStrip extends StatelessWidget {
                           ),
                         ),
                         child: GestureDetector(
-                          onTap: () => tabController.animateTo(i),
+                          onTap: () => tabController.animateTo(tabOrder[i]),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 150),
                             padding:
@@ -250,7 +246,7 @@ class _ReorderableTabStrip extends StatelessWidget {
                                   : Colors.transparent,
                               border: Border(
                                 bottom: BorderSide(
-                                  color: tabController.index == i
+                                  color: tabController.index == tabOrder[i]
                                       ? accent
                                       : Colors.transparent,
                                   width: 2,
@@ -260,17 +256,17 @@ class _ReorderableTabStrip extends StatelessWidget {
                             alignment: Alignment.center,
                             child: DefaultTextStyle.merge(
                               style: TextStyle(
-                                color: tabController.index == i
+                                color: tabController.index == tabOrder[i]
                                     ? labelColor
                                     : unselectedLabelColor,
-                                fontWeight: tabController.index == i
+                                fontWeight: tabController.index == tabOrder[i]
                                     ? FontWeight.w700
                                     : FontWeight.w500,
                                 fontSize: 13,
                               ),
                               child: IconTheme.merge(
                                 data: IconThemeData(
-                                  color: tabController.index == i
+                                  color: tabController.index == tabOrder[i]
                                       ? labelColor
                                       : unselectedLabelColor,
                                   size: 18,

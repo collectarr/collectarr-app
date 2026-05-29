@@ -49,9 +49,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Builder(
-            builder: (context) => buildLibraryEditValueTab(
-              context: context,
+          body: LibraryEditValueTab(
               accent: Colors.blue,
               buildResponsiveFields: buildResponsiveFields,
               buildField: buildField,
@@ -67,7 +65,6 @@ void main() {
               onCollectionStatusChanged: (_) {},
               lastBagBoardDate: null,
               onLastBagBoardDateChanged: (_) {},
-            ),
           ),
         ),
       ),

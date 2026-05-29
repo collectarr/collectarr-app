@@ -19,136 +19,157 @@ typedef LibraryEditDatePickerFieldBuilder = Widget Function({
   required ValueChanged<DateTime?> onChanged,
 });
 
-Widget buildLibraryEditValueTab({
-  required BuildContext context,
-  required Color accent,
-  required LibraryEditResponsiveFieldsBuilder buildResponsiveFields,
-  required LibraryEditFieldBuilder buildField,
-  required LibraryEditDatePickerFieldBuilder buildDatePickerField,
-  required TextEditingController priceController,
-  required TextEditingController currencyController,
-  required TextEditingController purchaseDateController,
-  required TextEditingController purchaseStoreController,
-  required TextEditingController marketValueController,
-  required TextEditingController sellPriceController,
-  required VoidCallback onPickPurchaseDate,
-  required String? collectionStatus,
-  required ValueChanged<String?> onCollectionStatusChanged,
-  required DateTime? lastBagBoardDate,
-  required ValueChanged<DateTime?> onLastBagBoardDateChanged,
-}) {
-  return EditTabShell(
-    children: [
-      EditSection(
-        title: 'Purchase',
-        accent: accent,
-        child: Column(
-          children: [
-            buildResponsiveFields([
+class LibraryEditValueTab extends StatelessWidget {
+  const LibraryEditValueTab({
+    super.key,
+    required this.accent,
+    required this.buildResponsiveFields,
+    required this.buildField,
+    required this.buildDatePickerField,
+    required this.priceController,
+    required this.currencyController,
+    required this.purchaseDateController,
+    required this.purchaseStoreController,
+    required this.marketValueController,
+    required this.sellPriceController,
+    required this.onPickPurchaseDate,
+    required this.collectionStatus,
+    required this.onCollectionStatusChanged,
+    required this.lastBagBoardDate,
+    required this.onLastBagBoardDateChanged,
+  });
+
+  final Color accent;
+  final LibraryEditResponsiveFieldsBuilder buildResponsiveFields;
+  final LibraryEditFieldBuilder buildField;
+  final LibraryEditDatePickerFieldBuilder buildDatePickerField;
+  final TextEditingController priceController;
+  final TextEditingController currencyController;
+  final TextEditingController purchaseDateController;
+  final TextEditingController purchaseStoreController;
+  final TextEditingController marketValueController;
+  final TextEditingController sellPriceController;
+  final VoidCallback onPickPurchaseDate;
+  final String? collectionStatus;
+  final ValueChanged<String?> onCollectionStatusChanged;
+  final DateTime? lastBagBoardDate;
+  final ValueChanged<DateTime?> onLastBagBoardDateChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Purchase',
+          accent: accent,
+          child: Column(
+            children: [
+              buildResponsiveFields([
+                buildField(
+                  controller: priceController,
+                  label: 'Price paid',
+                  validator: optionalMoneyValidator,
+                ),
+                buildField(controller: currencyController, label: 'Currency'),
+              ]),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: onPickPurchaseDate,
+                icon: const Icon(Icons.event),
+                label: Text(
+                  purchaseDateController.text.isEmpty
+                      ? 'Set purchase date'
+                      : 'Purchase date: ${purchaseDateController.text}',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: purchaseStoreController,
+                decoration: const InputDecoration(
+                  labelText: 'Purchase Store',
+                  hintText: 'Where you bought it',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
               buildField(
-                controller: priceController,
-                label: 'Price paid',
+                controller: marketValueController,
+                label: 'Estimated market value',
                 validator: optionalMoneyValidator,
               ),
-              buildField(controller: currencyController, label: 'Currency'),
-            ]),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: onPickPurchaseDate,
-              icon: const Icon(Icons.event),
-              label: Text(
-                purchaseDateController.text.isEmpty
-                    ? 'Set purchase date'
-                    : 'Purchase date: ${purchaseDateController.text}',
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: purchaseStoreController,
-              decoration: const InputDecoration(
-                labelText: 'Purchase Store',
-                hintText: 'Where you bought it',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            buildField(
-              controller: marketValueController,
-              label: 'Estimated market value',
-              validator: optionalMoneyValidator,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      EditSection(
-        title: 'Collection status',
-        accent: accent,
-        child: Column(
-          children: [
-            DropdownButtonFormField<String>(
-              initialValue: collectionStatus,
-              isExpanded: true,
-              dropdownColor: appPalette(context).panelRaised,
-              borderRadius: kEditMenuBorderRadius,
-              decoration: const InputDecoration(
-                labelText: 'Status',
+        EditSection(
+          title: 'Collection status',
+          accent: accent,
+          child: Column(
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: collectionStatus,
+                isExpanded: true,
+                dropdownColor: appPalette(context).panelRaised,
+                borderRadius: kEditMenuBorderRadius,
+                decoration: const InputDecoration(
+                  labelText: 'Status',
+                ),
+                items: const [
+                  DropdownMenuItem(value: null, child: Text('In collection')),
+                  DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
+                  DropdownMenuItem(value: 'on_order', child: Text('On order')),
+                ],
+                onChanged: onCollectionStatusChanged,
               ),
-              items: const [
-                DropdownMenuItem(value: null, child: Text('In collection')),
-                DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
-                DropdownMenuItem(value: 'on_order', child: Text('On order')),
-              ],
-              onChanged: onCollectionStatusChanged,
-            ),
-            const SizedBox(height: 10),
-            buildDatePickerField(
-              label: 'Last bag & board date',
-              value: lastBagBoardDate,
-              onChanged: onLastBagBoardDateChanged,
-            ),
-          ],
+              const SizedBox(height: 10),
+              buildDatePickerField(
+                label: 'Last bag & board date',
+                value: lastBagBoardDate,
+                onChanged: onLastBagBoardDateChanged,
+              ),
+            ],
+          ),
         ),
-      ),
-      EditSection(
-        title: 'Value summary',
-        accent: accent,
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            ValueContextChip(
-              icon: Icons.payments_outlined,
-              label: 'Paid',
-              value: priceController.text.isEmpty
-                  ? '—'
-                  : '\$${priceController.text}',
-            ),
-            ValueContextChip(
-              icon: Icons.sell_outlined,
-              label: 'Sell',
-              value: sellPriceController.text.isEmpty
-                  ? '—'
-                  : '\$${sellPriceController.text}',
-            ),
-            ValueContextChip(
-              icon: Icons.calendar_month_outlined,
-              label: 'Purchased',
-              value: purchaseDateController.text.isEmpty
-                  ? '—'
-                  : purchaseDateController.text,
-            ),
-            ValueContextChip(
-              icon: Icons.trending_up_outlined,
-              label: 'Market value',
-              value: marketValueController.text.isEmpty
-                  ? '—'
-              : '\$${marketValueController.text}',
-            ),
-          ],
+        EditSection(
+          title: 'Value summary',
+          accent: accent,
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              ValueContextChip(
+                icon: Icons.payments_outlined,
+                label: 'Paid',
+                value: priceController.text.isEmpty
+                    ? '—'
+                    : '\$${priceController.text}',
+              ),
+              ValueContextChip(
+                icon: Icons.sell_outlined,
+                label: 'Sell',
+                value: sellPriceController.text.isEmpty
+                    ? '—'
+                    : '\$${sellPriceController.text}',
+              ),
+              ValueContextChip(
+                icon: Icons.calendar_month_outlined,
+                label: 'Purchased',
+                value: purchaseDateController.text.isEmpty
+                    ? '—'
+                    : purchaseDateController.text,
+              ),
+              ValueContextChip(
+                icon: Icons.trending_up_outlined,
+                label: 'Market value',
+                value: marketValueController.text.isEmpty
+                    ? '—'
+                    : '\$${marketValueController.text}',
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 Widget buildLibraryEditSoldTab({

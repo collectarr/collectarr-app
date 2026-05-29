@@ -12,6 +12,34 @@ void main() {
     expect(find.text('Next'), findsNothing);
     expect(find.text('Cancel'), findsNothing);
   });
+
+  testWidgets('reordering tabs keeps logical view order stable', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
+
+    expect(find.text('Main tab'), findsOneWidget);
+    expect(find.text('Details tab'), findsNothing);
+
+    final detailsLabel = find.text('Details');
+    final mainLabel = find.text('Main');
+    final gesture = await tester.startGesture(tester.getCenter(detailsLabel));
+    await tester.pump(const Duration(milliseconds: 700));
+    await gesture.moveTo(tester.getCenter(mainLabel));
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(detailsLabel).dx,
+      lessThan(tester.getTopLeft(mainLabel).dx),
+    );
+    expect(find.text('Main tab'), findsOneWidget);
+
+    await tester.tap(detailsLabel);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Details tab'), findsOneWidget);
+    expect(find.text('Main tab'), findsNothing);
+  });
 }
 
 class _EditScaffoldHarness extends StatefulWidget {
