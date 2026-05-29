@@ -262,18 +262,10 @@ class LibraryToolbar extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 12,
                                     ),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(
-                                          maxWidth: 520,
-                                        ),
-                                        child: LibraryToolbarAlphabetRow(
-                                          letters: availableLetters,
-                                          selectedLetter: selectedLetter,
-                                          onLetterSelected: onLetterSelected!,
-                                        ),
-                                      ),
+                                    child: LibraryToolbarAlphabetRow(
+                                      letters: availableLetters,
+                                      selectedLetter: selectedLetter,
+                                      onLetterSelected: onLetterSelected!,
                                     ),
                                   ),
                                 )
