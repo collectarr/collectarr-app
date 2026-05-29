@@ -617,9 +617,9 @@ class CollectionMutations {
     }
     final now = DateTime.now().toUtc();
     await _catalogCache().upsertAll(pendingItems);
-    for (final item in pendingItems) {
-      await _syncQueue().enqueue(_syncChangeForCatalogItem(item, now));
-    }
+    await _syncQueue().enqueueAll([
+      for (final item in pendingItems) _syncChangeForCatalogItem(item, now),
+    ]);
     if (notify) {
       await _notifyCollectionChanged();
     }

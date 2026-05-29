@@ -492,7 +492,7 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
         builder: (context, setState) => AlertDialog(
           title: Text('Merge ${entry.label} into...'),
           content: DropdownButtonFormField<String>(
-            initialValue: targetLabel,
+            value: targetLabel,
             decoration: const InputDecoration(
               labelText: 'Target bucket',
               border: OutlineInputBorder(),
@@ -662,6 +662,7 @@ CatalogItem? _rebuildCatalogItem(
     displayTitle: item.displayTitle,
     localizedTitle: item.localizedTitle,
     originalTitle: item.originalTitle,
+    titleExtension: item.titleExtension,
     searchAliases: item.searchAliases,
     sortKey: item.sortKey,
     itemNumber: item.itemNumber,

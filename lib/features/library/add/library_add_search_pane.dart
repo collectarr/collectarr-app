@@ -463,7 +463,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
               ].whereType<String>().join(' · ')
             : [
                 providerLabel(candidate!.provider),
-                if (candidate.summary?.trim().isNotEmpty == true) candidate.summary,
+              if (candidate.summary?.trim().isNotEmpty == true) candidate!.summary,
               ].whereType<String>().join(' · ');
         final matchSummary = isCore
             ? _metadataItemMatchSummary(
