@@ -711,7 +711,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => shareCollectionFlow(projection)
             : null,
-        groupMode: _activeGroupMode,
+        groupMode: _groupMode,
         pinnedGroupModes: _pinnedGroupModes,
         onTogglePinGroupMode: (mode) {
           final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
@@ -770,7 +770,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   LibraryGroupMode get _activeGroupMode =>
-      _groupMode ?? libraryDefaultGroupMode(widget.type);
+      _groupMode ??
+      ((_viewState ?? _adapter.viewProfile.defaults()).isSidebarVisible
+        ? libraryDefaultGroupMode(widget.type)
+        : LibraryGroupMode.title);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||
@@ -1448,11 +1451,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     setState(() {
       _viewState = next;
       if (!isVisible) {
-        _groupMode = LibraryGroupMode.title;
+        _groupMode = null;
         _selectedBucket = null;
         _scopeHistory = const [];
       }
     });
+    if (!isVisible) {
+      unawaited(_viewPrefs.writeGroupMode(null));
+    }
     unawaited(_adapter.viewProfile.save(next));
   }
 

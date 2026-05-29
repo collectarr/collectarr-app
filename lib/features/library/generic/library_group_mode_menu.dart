@@ -23,7 +23,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryGroupMode groupMode;
+  final LibraryGroupMode? groupMode;
   final Color accent;
   final IconData icon;
   final ValueChanged<LibraryGroupMode> onChanged;
@@ -35,7 +35,9 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = genericGroupModeSidebarTitle(groupMode, type);
+    final label = groupMode == null
+        ? 'Group by'
+        : genericGroupModeSidebarTitle(groupMode!, type);
     final child = iconOnly
         ? LibraryToolbarCompactDropdownTrigger(icon: icon)
         : Padding(
@@ -131,7 +133,6 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
         }
       } else if (value == LibraryGroupModeMenuAction.disableFolders &&
           onSidebarVisibilityChanged != null) {
-        onChanged(LibraryGroupMode.title);
         onSidebarVisibilityChanged!(false);
       }
     });
@@ -151,7 +152,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryGroupMode selectedMode;
+  final LibraryGroupMode? selectedMode;
   final List<LibraryGroupMode> availableModes;
   final Set<LibraryGroupMode> initialPinnedModes;
   final bool sidebarVisible;

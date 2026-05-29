@@ -24,7 +24,7 @@ void main() {
     );
 
     expect(find.text('No folders'), findsOneWidget);
-  expect(find.text('Show folders'), findsNothing);
+    expect(find.text('Show folders'), findsNothing);
     expect(find.text('Manage Favorites'), findsOneWidget);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Folders'), findsOneWidget);
@@ -65,7 +65,7 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: moviesLibraryConfig,
-            selectedMode: LibraryGroupMode.releaseYear,
+            selectedMode: null,
             availableModes: libraryGroupModesForType(moviesLibraryConfig),
             initialPinnedModes: const {},
             sidebarVisible: false,
@@ -78,5 +78,6 @@ void main() {
     expect(find.text('No folders'), findsNothing);
     expect(find.text('Show folders'), findsNothing);
     expect(find.text('Main'), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing);
   });
 }

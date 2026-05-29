@@ -110,13 +110,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               child: Row(
                 children: [
                   if (!viewState.isSidebarVisible &&
-                      groupMode != null &&
                       onGroupModeChanged != null) ...[
                     LibraryGroupModeMenuButton(
                       type: type,
-                      groupMode: groupMode!,
+                      groupMode: groupMode,
                       accent: libraryAccentForKind(type.workspace.kind),
-                      icon: genericGroupModeIcon(groupMode!),
+                      icon: groupMode == null
+                          ? Icons.account_tree_outlined
+                          : genericGroupModeIcon(groupMode!),
                       onChanged: onGroupModeChanged!,
                       sidebarVisible: false,
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
