@@ -106,6 +106,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final tableBorderRadius = BorderRadius.circular(10);
     final resolvedHeaderColor =
       widget.headerColor == kAppSurface ? palette.surface : widget.headerColor;
     final resolvedDividerColor =
@@ -124,69 +125,92 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
         : widget.bottomBorderColor;
     final resolvedHoverColor =
       widget.hoverColor == kAppTableHover ? palette.tableHover : widget.hoverColor;
-    return Column(
-      children: [
-        _LibraryWorkspaceTableHeader(
-          columns: widget.columns,
-          sortColumn: widget.sortColumn,
-          sortAscending: widget.sortAscending,
-          sortRules: widget.sortRules,
-          columnWidthFor: widget.columnWidthFor,
-          defaultColumnWidthFor: widget.defaultColumnWidthFor,
-          columnSortFor: widget.columnSortFor,
-          columnLabelFor: widget.columnLabelFor,
-          onSortChanged: widget.onSortChanged,
-          onColumnWidthChanged: widget.onColumnWidthChanged,
-          onColumnReordered: widget.onColumnReordered,
-          headerHeight: widget.headerHeight,
-          columnSpacing: widget.columnSpacing,
-          horizontalMargin: widget.horizontalMargin,
-          headerColor: resolvedHeaderColor,
-          dividerColor: resolvedDividerColor,
-          accentColor: widget.accentColor,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          Colors.white.withValues(alpha: 0.015),
+          palette.panel,
         ),
-        Expanded(
-          child: Scrollbar(
-            controller: _scrollController,
-            child: ListView.builder(
-              controller: _scrollController,
-              primary: false,
-              itemCount: widget.entries.length,
-              itemExtent: widget.rowHeight,
-              itemBuilder: (context, index) {
-                final entry = widget.entries[index];
-                return _LibraryWorkspaceTableRow<T>(
-                  entry: entry,
-                  columns: widget.columns,
-                  selected: widget.isSelected(entry),
-                  odd: index.isOdd,
-                  onTap: () => widget.onEntryTap(entry),
-                    onDoubleTap: widget.onEntryDoubleTap == null
-                      ? null
-                      : () => widget.onEntryDoubleTap!(entry),
-                  onSecondaryTapUp: widget.onEntrySecondaryTapUp == null
-                      ? null
-                      : (details) =>
-                          widget.onEntrySecondaryTapUp!(entry, details),
-                  columnWidthFor: widget.columnWidthFor,
-                  columnIsNumeric: widget.columnIsNumeric,
-                  cellBuilder: widget.cellBuilder,
-                  rowHeight: widget.rowHeight,
-                  columnSpacing: widget.columnSpacing,
-                  horizontalMargin: widget.horizontalMargin,
-                  selectionRailWidth: widget.selectionRailWidth,
-                  selectedColor: resolvedSelectedColor,
-                  oddColor: resolvedOddColor,
-                  evenColor: resolvedEvenColor,
-                  selectionRailColor: widget.selectionRailColor,
-                  bottomBorderColor: resolvedBottomBorderColor,
-                  hoverColor: resolvedHoverColor,
-                );
-              },
-            ),
+        borderRadius: tableBorderRadius,
+        border: Border.all(color: resolvedDividerColor.withValues(alpha: 0.92)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: tableBorderRadius,
+        child: Column(
+          children: [
+            _LibraryWorkspaceTableHeader(
+              columns: widget.columns,
+              sortColumn: widget.sortColumn,
+              sortAscending: widget.sortAscending,
+              sortRules: widget.sortRules,
+              columnWidthFor: widget.columnWidthFor,
+              defaultColumnWidthFor: widget.defaultColumnWidthFor,
+              columnSortFor: widget.columnSortFor,
+              columnLabelFor: widget.columnLabelFor,
+              onSortChanged: widget.onSortChanged,
+              onColumnWidthChanged: widget.onColumnWidthChanged,
+              onColumnReordered: widget.onColumnReordered,
+              headerHeight: widget.headerHeight,
+              columnSpacing: widget.columnSpacing,
+              horizontalMargin: widget.horizontalMargin,
+              headerColor: resolvedHeaderColor,
+              dividerColor: resolvedDividerColor,
+              accentColor: widget.accentColor,
+            ),
+            Expanded(
+              child: ColoredBox(
+                color: palette.canvas,
+                child: Scrollbar(
+                  controller: _scrollController,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    primary: false,
+                    itemCount: widget.entries.length,
+                    itemExtent: widget.rowHeight,
+                    itemBuilder: (context, index) {
+                      final entry = widget.entries[index];
+                      return _LibraryWorkspaceTableRow<T>(
+                        entry: entry,
+                        columns: widget.columns,
+                        selected: widget.isSelected(entry),
+                        odd: index.isOdd,
+                        onTap: () => widget.onEntryTap(entry),
+                        onDoubleTap: widget.onEntryDoubleTap == null
+                            ? null
+                            : () => widget.onEntryDoubleTap!(entry),
+                        onSecondaryTapUp: widget.onEntrySecondaryTapUp == null
+                            ? null
+                            : (details) =>
+                                widget.onEntrySecondaryTapUp!(entry, details),
+                        columnWidthFor: widget.columnWidthFor,
+                        columnIsNumeric: widget.columnIsNumeric,
+                        cellBuilder: widget.cellBuilder,
+                        rowHeight: widget.rowHeight,
+                        columnSpacing: widget.columnSpacing,
+                        horizontalMargin: widget.horizontalMargin,
+                        selectionRailWidth: widget.selectionRailWidth,
+                        selectedColor: resolvedSelectedColor,
+                        oddColor: resolvedOddColor,
+                        evenColor: resolvedEvenColor,
+                        selectionRailColor: widget.selectionRailColor,
+                        bottomBorderColor: resolvedBottomBorderColor,
+                        hoverColor: resolvedHoverColor,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -235,10 +259,12 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: headerColor,
+        color: Color.alphaBlend(
+          Colors.white.withValues(alpha: 0.03),
+          headerColor,
+        ),
         border: Border(
           bottom: BorderSide(color: dividerColor),
-          top: BorderSide(color: dividerColor),
         ),
       ),
       child: Padding(
