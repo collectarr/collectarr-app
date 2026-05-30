@@ -1,7 +1,7 @@
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -88,58 +88,82 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.filter_alt_outlined,
-              size: 14,
-              color: appPalette(context).textMuted,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                'Filters',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+    return _LibrarySidebarSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.filter_alt_outlined,
+                size: 14,
+                color: appPalette(context).textMuted,
               ),
-            ),
-            if (onEditFilters != null)
-              TextButton(
-                onPressed: onEditFilters,
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Filters',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+              if (onEditFilters != null)
+                TextButton(
+                  onPressed: onEditFilters,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  ),
+                  child: const Text('Edit'),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: chips,
+          ),
+          if (hasActiveFilters && onClearFilters != null) ...[
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: onClearFilters,
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 ),
-                child: const Text('Edit'),
+                child: const Text('Clear all'),
               ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: chips,
-        ),
-        if (hasActiveFilters && onClearFilters != null) ...[
-          const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: onClearFilters,
-              style: TextButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              ),
-              child: const Text('Clear all'),
             ),
-          ),
+          ],
         ],
-      ],
+      ),
+    );
+  }
+}
+
+class _LibrarySidebarSectionCard extends StatelessWidget {
+  const _LibrarySidebarSectionCard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: palette.panel,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: palette.divider),
+      ),
+      child: child,
     );
   }
 }
@@ -263,43 +287,45 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
         ),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.monitor_heart_outlined,
-              size: 14,
-              color: appPalette(context).textMuted,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                'Status',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+    return _LibrarySidebarSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.monitor_heart_outlined,
+                size: 14,
+                color: appPalette(context).textMuted,
               ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Status',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: chips,
+          ),
+          if (summary.missingIssueSummary != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Missing: ${summary.missingIssueSummary}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: appPalette(context).textMuted,
+                  ),
             ),
           ],
-        ),
-        const SizedBox(height: 4),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: chips,
-        ),
-        if (summary.missingIssueSummary != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            'Missing: ${summary.missingIssueSummary}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: appPalette(context).textMuted,
-                ),
-          ),
         ],
-      ],
+      ),
     );
   }
 }
