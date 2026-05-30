@@ -1,14 +1,12 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_panel.dart';
 import 'package:flutter/material.dart';
-
-const String _comicCrossoverPrefix = 'Crossover: ';
 
 String? _buildComicSynopsis(String? summary, String? description) {
   final normalizedSummary = emptyToNull(summary ?? '');
@@ -108,15 +106,11 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                               .map((storyArc) => storyArc.trim())
                               .where((storyArc) => storyArc.isNotEmpty)
                               .toList();
-                      final parsedCrossover = emptyToNull(
-                        map['crossover'] ?? '',
-                      );
-                      if (parsedCrossover != null) {
-                        parsedStoryArcs.insert(
-                          0,
-                          '$_comicCrossoverPrefix$parsedCrossover',
-                        );
-                      }
+                      final parsedCrossover =
+                          emptyToNull(map['crossover'] ?? '');
+                      final parsedSummary = emptyToNull(map['summary'] ?? '');
+                      final parsedDescription =
+                          emptyToNull(map['description'] ?? '');
                       final parsedReleaseDate = parseDate(
                         map['releaseDate'] ?? '',
                       );
@@ -144,18 +138,47 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                                     ) !=
                                     null,
                               )
-                              .map(
-                                (creator) => <String, dynamic>{
-                                  'name': creator['name']?.toString() ?? '',
-                                  'role': creator['role']?.toString() ?? '',
-                                },
-                              )
-                              .toList();
+                              .map((creator) {
+                        final normalized = <String, dynamic>{
+                          ...creator,
+                          'name': creator['name']?.toString() ?? '',
+                          'role': creator['role']?.toString() ?? '',
+                        };
+                        normalized.removeWhere(
+                          (key, value) =>
+                              value == null ||
+                              (value is String && value.trim().isEmpty),
+                        );
+                        return normalized;
+                      }).toList();
                       final updatedCharacters =
                           ((map['characters'] as List<dynamic>?) ?? const [])
                               .map((character) => character.toString().trim())
                               .where((character) => character.isNotEmpty)
                               .toList();
+                      final updatedCharacterDetails =
+                          ((map['characterDetails'] as List<dynamic>?) ??
+                                  const [])
+                              .whereType<Map<String, dynamic>>()
+                              .where(
+                                (character) =>
+                                    emptyToNull(
+                                      character['name']?.toString() ?? '',
+                                    ) !=
+                                    null,
+                              )
+                              .map((character) {
+                        final normalized = <String, dynamic>{
+                          ...character,
+                          'name': character['name']?.toString() ?? '',
+                        };
+                        normalized.removeWhere(
+                          (key, value) =>
+                              value == null ||
+                              (value is String && value.trim().isEmpty),
+                        );
+                        return normalized;
+                      }).toList();
                       final updatedLinks =
                           ((map['links'] as List<dynamic>?) ?? const [])
                               .whereType<Map<String, dynamic>>()
@@ -180,6 +203,9 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                           map['summary'] as String?,
                           map['description'] as String?,
                         ),
+                        crossover: parsedCrossover,
+                        plotSummary: parsedSummary,
+                        plotDescription: parsedDescription,
                         coverImageUrl: emptyToNull(map['coverUrl'] ?? ''),
                         thumbnailImageUrl: emptyToNull(map['coverUrl'] ?? ''),
                         editionTitle: emptyToNull(
@@ -226,6 +252,9 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                         characters: updatedCharacters.isEmpty
                             ? null
                             : updatedCharacters,
+                        characterDetails: updatedCharacterDetails.isEmpty
+                            ? null
+                            : updatedCharacterDetails,
                         trailerUrls: updatedLinks,
                       );
 

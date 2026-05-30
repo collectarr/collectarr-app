@@ -5,11 +5,8 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 
-/// Gallery / carousel section for item images within an edit dialog.
-///
-/// Displays existing images, allows adding new ones (base64), editing captions,
-/// and deleting images. Returns the full list of mutations via [onChanged].
 class ItemImagesEditSection extends StatefulWidget {
   const ItemImagesEditSection({
     super.key,
@@ -26,7 +23,6 @@ class ItemImagesEditSection extends StatefulWidget {
   State<ItemImagesEditSection> createState() => _ItemImagesEditSectionState();
 }
 
-/// Represents an add, update, or delete operation on an item image.
 class ItemImageEdit {
   const ItemImageEdit({
     required this.id,
@@ -34,14 +30,16 @@ class ItemImageEdit {
     this.caption,
     this.imageType = 'auxiliary',
     this.sortOrder = 0,
+    this.createdAt,
     this.deleted = false,
   });
 
   final String id;
-  final String? imageData; // base64, null for unchanged/deleted
+  final String? imageData;
   final String? caption;
   final String imageType;
   final int sortOrder;
+  final DateTime? createdAt;
   final bool deleted;
 }
 
@@ -52,37 +50,25 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   void initState() {
     super.initState();
     _images = [
-      for (final img in widget.images)
+      for (final image in widget.images)
         _EditableImage(
-          id: img.id,
-          imageData: img.imageData,
-          caption: img.caption,
-          imageType: img.imageType,
-          sortOrder: img.sortOrder,
-          isNew: false,
-          deleted: false,
+          id: image.id,
+          imageData: image.imageData,
+          createdAt: image.createdAt,
+          caption: image.caption,
+          imageType: image.imageType,
+          sortOrder: image.sortOrder,
         ),
     ];
   }
 
-  void _notifyChanged() {
-    widget.onChanged([
-      for (final img in _images)
-        ItemImageEdit(
-          id: img.id,
-          imageData: img.isNew ? img.imageData : null,
-          caption: img.caption,
-          imageType: img.imageType,
-          sortOrder: img.sortOrder,
-          deleted: img.deleted,
-        ),
-    ]);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final visible = _images.where((img) => !img.deleted).toList();
+    final visible = _visibleImages();
+    final deleted =
+        _images.where((image) => image.deleted).toList(growable: false);
     final canAddMore = visible.length < 5;
+
     return EditSection(
       title: 'Item photos (${visible.length}/5)',
       accent: widget.accent,
@@ -93,27 +79,51 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'No photos attached. Use the button below to add one.',
-                style: TextStyle(color: kEditTextMuted, fontSize: 13),
+                'No photos attached. Use the tools below to add a front cover, back cover, or supporting shots.',
+                style: const TextStyle(color: kEditTextMuted, fontSize: 13),
               ),
             )
           else
             SizedBox(
-              height: 140,
+              height: 156,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: visible.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final img = visible[index];
+                  final image = visible[index];
                   return _ImageCard(
-                    image: img,
-                    onEditCaption: () => _editImageDetails(img),
-                    onDelete: () => _deleteImage(img),
+                    image: image,
+                    canMoveLeft: index > 0,
+                    canMoveRight: index < visible.length - 1,
+                    onAction: (action) => _handleImageAction(image, action),
                   );
                 },
               ),
             ),
+          if (deleted.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              'Removed photos',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final image in deleted)
+                  OutlinedButton.icon(
+                    onPressed: () => _restoreImage(image),
+                    icon: const Icon(Icons.restore_outlined),
+                    label: Text(_labelForType(image.imageType)),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -136,8 +146,39 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     );
   }
 
+  List<_EditableImage> _visibleImages() {
+    final visible =
+        _images.where((image) => !image.deleted).toList(growable: false);
+    visible.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return visible;
+  }
+
+  void _normalizeVisibleSortOrder() {
+    final visible = _visibleImages();
+    for (var index = 0; index < visible.length; index++) {
+      visible[index].sortOrder = index;
+    }
+  }
+
+  void _notifyChanged() {
+    _normalizeVisibleSortOrder();
+    widget.onChanged([
+      for (final image in _images)
+        ItemImageEdit(
+          id: image.id,
+          imageData:
+              image.isNew || image.hasBinaryChanges ? image.imageData : null,
+          caption: image.caption,
+          imageType: image.imageType,
+          sortOrder: image.sortOrder,
+          createdAt: image.createdAt,
+          deleted: image.deleted,
+        ),
+    ]);
+  }
+
   Future<void> _addImageFromFile() async {
-    if (_images.where((img) => !img.deleted).length >= 5) {
+    if (_visibleImages().length >= 5) {
       return;
     }
     final file = await openFile(
@@ -185,8 +226,9 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         ],
       ),
     );
-    if (base64Data == null || base64Data.isEmpty) return;
-    // Validate base64
+    if (base64Data == null || base64Data.isEmpty) {
+      return;
+    }
     try {
       base64Decode(base64Data);
     } catch (error, stackTrace) {
@@ -207,26 +249,29 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 
   void _addImage(String base64Data) {
-    if (_images.where((img) => !img.deleted).length >= 5) {
+    if (_visibleImages().length >= 5) {
       return;
     }
+    final createdAt = DateTime.now().toUtc();
     setState(() {
-      _images.add(_EditableImage(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        imageData: base64Data,
-        caption: null,
-        imageType: 'auxiliary',
-        sortOrder: _images.length,
-        isNew: true,
-        deleted: false,
-      ));
+      _images.add(
+        _EditableImage(
+          id: createdAt.microsecondsSinceEpoch.toString(),
+          imageData: base64Data,
+          createdAt: createdAt,
+          imageType: 'auxiliary',
+          sortOrder: _images.length,
+          isNew: true,
+          hasBinaryChanges: true,
+        ),
+      );
     });
     _notifyChanged();
   }
 
-  Future<void> _editImageDetails(_EditableImage img) async {
-    final controller = TextEditingController(text: img.caption ?? '');
-    var selectedType = img.imageType;
+  Future<void> _editImageDetails(_EditableImage image) async {
+    final controller = TextEditingController(text: image.caption ?? '');
+    var selectedType = image.imageType;
     final result = await showDialog<({String caption, String imageType})>(
       context: context,
       builder: (context) => AlertDialog(
@@ -287,50 +332,116 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       ),
     );
     controller.dispose();
-    if (result == null) return;
+    if (result == null) {
+      return;
+    }
     setState(() {
-      img.caption = result.caption.isEmpty ? null : result.caption;
-      img.imageType = result.imageType;
+      image.caption = result.caption.isEmpty ? null : result.caption;
+      _assignImageType(image, result.imageType);
     });
     _notifyChanged();
   }
 
-  void _deleteImage(_EditableImage img) {
-    setState(() => img.deleted = true);
+  void _restoreImage(_EditableImage image) {
+    setState(() {
+      image.deleted = false;
+      image.sortOrder = _visibleImages().length;
+    });
     _notifyChanged();
   }
-}
 
-class _EditableImage {
-  _EditableImage({
-    required this.id,
-    required this.imageData,
-    this.caption,
-    this.imageType = 'auxiliary',
-    this.sortOrder = 0,
-    this.isNew = false,
-    this.deleted = false,
-  });
+  void _deleteImage(_EditableImage image) {
+    setState(() => image.deleted = true);
+    _notifyChanged();
+  }
 
-  final String id;
-  final String imageData;
-  String? caption;
-  String imageType;
-  int sortOrder;
-  final bool isNew;
-  bool deleted;
-}
+  void _assignImageType(_EditableImage image, String imageType) {
+    if (imageType == 'front_cover' || imageType == 'back_cover') {
+      for (final other in _images) {
+        if (!other.deleted &&
+            other.id != image.id &&
+            other.imageType == imageType) {
+          other.imageType = 'auxiliary';
+        }
+      }
+    }
+    image.imageType = imageType;
+  }
 
-class _ImageCard extends StatelessWidget {
-  const _ImageCard({
-    required this.image,
-    required this.onEditCaption,
-    required this.onDelete,
-  });
+  Future<void> _rotateImage(
+    _EditableImage image, {
+    required bool clockwise,
+  }) async {
+    try {
+      final decoded = img.decodeImage(base64Decode(image.imageData));
+      if (decoded == null) {
+        throw StateError('Image decode returned null.');
+      }
+      final rotated = img.copyRotate(decoded, angle: clockwise ? 90 : -90);
+      setState(() {
+        image.imageData = base64Encode(img.encodePng(rotated));
+        image.hasBinaryChanges = true;
+      });
+      _notifyChanged();
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'item_images',
+        message: 'Failed to rotate item image in edit dialog.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to rotate that image.')),
+        );
+      }
+    }
+  }
 
-  final _EditableImage image;
-  final VoidCallback onEditCaption;
-  final VoidCallback onDelete;
+  void _moveImage(_EditableImage image, int direction) {
+    final visible = _visibleImages();
+    final currentIndex = visible.indexWhere((entry) => entry.id == image.id);
+    if (currentIndex < 0) {
+      return;
+    }
+    final targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= visible.length) {
+      return;
+    }
+    final other = visible[targetIndex];
+    final previousOrder = image.sortOrder;
+    setState(() {
+      image.sortOrder = other.sortOrder;
+      other.sortOrder = previousOrder;
+    });
+    _notifyChanged();
+  }
+
+  void _handleImageAction(_EditableImage image, _ImageCardAction action) {
+    switch (action) {
+      case _ImageCardAction.editDetails:
+        _editImageDetails(image);
+      case _ImageCardAction.assignFront:
+        setState(() => _assignImageType(image, 'front_cover'));
+        _notifyChanged();
+      case _ImageCardAction.assignBack:
+        setState(() => _assignImageType(image, 'back_cover'));
+        _notifyChanged();
+      case _ImageCardAction.assignAuxiliary:
+        setState(() => _assignImageType(image, 'auxiliary'));
+        _notifyChanged();
+      case _ImageCardAction.rotateLeft:
+        _rotateImage(image, clockwise: false);
+      case _ImageCardAction.rotateRight:
+        _rotateImage(image, clockwise: true);
+      case _ImageCardAction.moveLeft:
+        _moveImage(image, -1);
+      case _ImageCardAction.moveRight:
+        _moveImage(image, 1);
+      case _ImageCardAction.delete:
+        _deleteImage(image);
+    }
+  }
 
   String _labelForType(String value) {
     switch (value) {
@@ -342,6 +453,55 @@ class _ImageCard extends StatelessWidget {
         return 'Auxiliary';
     }
   }
+}
+
+class _EditableImage {
+  _EditableImage({
+    required this.id,
+    required this.imageData,
+    required this.createdAt,
+    this.caption,
+    this.imageType = 'auxiliary',
+    this.sortOrder = 0,
+    this.isNew = false,
+    this.hasBinaryChanges = false,
+  });
+
+  final String id;
+  String imageData;
+  final DateTime createdAt;
+  String? caption;
+  String imageType;
+  int sortOrder;
+  final bool isNew;
+  bool hasBinaryChanges;
+  bool deleted = false;
+}
+
+enum _ImageCardAction {
+  editDetails,
+  assignFront,
+  assignBack,
+  assignAuxiliary,
+  rotateLeft,
+  rotateRight,
+  moveLeft,
+  moveRight,
+  delete,
+}
+
+class _ImageCard extends StatelessWidget {
+  const _ImageCard({
+    required this.image,
+    required this.canMoveLeft,
+    required this.canMoveRight,
+    required this.onAction,
+  });
+
+  final _EditableImage image;
+  final bool canMoveLeft;
+  final bool canMoveRight;
+  final ValueChanged<_ImageCardAction> onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -364,6 +524,7 @@ class _ImageCard extends StatelessWidget {
       );
       thumbnail = _placeholder();
     }
+
     return SizedBox(
       width: 120,
       child: Column(
@@ -377,19 +538,53 @@ class _ImageCard extends StatelessWidget {
                 Positioned(
                   top: 2,
                   right: 2,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _MiniAction(
-                        icon: Icons.edit,
-                        onPressed: onEditCaption,
+                  child: PopupMenuButton<_ImageCardAction>(
+                    tooltip: 'Image actions',
+                    onSelected: onAction,
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: _ImageCardAction.editDetails,
+                        child: Text('Edit details'),
                       ),
-                      const SizedBox(width: 2),
-                      _MiniAction(
-                        icon: Icons.close,
-                        onPressed: onDelete,
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.assignFront,
+                        child: Text('Use as front cover'),
+                      ),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.assignBack,
+                        child: Text('Use as back cover'),
+                      ),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.assignAuxiliary,
+                        child: Text('Use as auxiliary'),
+                      ),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.rotateLeft,
+                        child: Text('Rotate left'),
+                      ),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.rotateRight,
+                        child: Text('Rotate right'),
+                      ),
+                      if (canMoveLeft)
+                        const PopupMenuItem(
+                          value: _ImageCardAction.moveLeft,
+                          child: Text('Move earlier'),
+                        ),
+                      if (canMoveRight)
+                        const PopupMenuItem(
+                          value: _ImageCardAction.moveRight,
+                          child: Text('Move later'),
+                        ),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.delete,
+                        child: Text('Remove'),
                       ),
                     ],
+                    child: const _MiniAction(icon: Icons.more_vert),
                   ),
                 ),
               ],
@@ -408,7 +603,7 @@ class _ImageCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
-              _labelForType(image.imageType),
+              _typeLabel(image.imageType),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 11, color: kEditTextMuted),
@@ -417,6 +612,17 @@ class _ImageCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _typeLabel(String value) {
+    switch (value) {
+      case 'front_cover':
+        return 'Front cover';
+      case 'back_cover':
+        return 'Back cover';
+      default:
+        return 'Auxiliary';
+    }
   }
 
   Widget _placeholder() {
@@ -430,23 +636,18 @@ class _ImageCard extends StatelessWidget {
 }
 
 class _MiniAction extends StatelessWidget {
-  const _MiniAction({required this.icon, required this.onPressed});
+  const _MiniAction({required this.icon});
 
   final IconData icon;
-  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: const Color(0xCC000000),
       shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Icon(icon, size: 14, color: Colors.white),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Icon(icon, size: 14, color: Colors.white),
       ),
     );
   }

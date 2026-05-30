@@ -35,6 +35,9 @@ void main() {
         publisher: 'Image',
         releaseDate: DateTime.utc(2026, 1, 15),
         releaseYear: 2026,
+        crossover: 'Event Prelude',
+        plotSummary: 'Old summary',
+        plotDescription: 'Old description',
         series: const CatalogSeriesDetails(
           seriesId: 'series-1',
           seriesTitle: 'Saga',
@@ -250,10 +253,12 @@ void main() {
 
     expect(selection, isNotNull);
     expect(selection!.item.title, 'Saga Deluxe');
-    expect(selection!.item.storyArcs,
-        ['Crossover: Image United', 'Opening', 'Finale']);
+    expect(selection!.item.crossover, 'Image United');
+    expect(selection!.item.storyArcs, ['Opening', 'Finale']);
     expect(selection!.item.coverDate, DateTime(2026, 1, 1));
     expect(selection!.item.synopsis, 'Short summary\n\nLong plot description');
+    expect(selection!.item.plotSummary, 'Short summary');
+    expect(selection!.item.plotDescription, 'Long plot description');
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(
         selection!.item.trailerUrls.first.url, 'https://example.com/original');

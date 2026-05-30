@@ -5,7 +5,9 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ComicEditPanel extends StatefulWidget {
@@ -121,8 +123,6 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     'Major',
   ];
 
-  static const String _crossoverPrefix = 'Crossover: ';
-
   late final TextEditingController titleCtl;
   late final TextEditingController seriesCtl;
   late final TextEditingController barcodeCtl;
@@ -172,8 +172,8 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   late final TextEditingController notesCtl;
   late final TextEditingController coverUrlCtl;
   late final TextEditingController characterDraftCtl;
-  final List<Map<String, TextEditingController>> creators = [];
-  final List<TextEditingController> characters = [];
+  final List<_EditableComicCreator> _creators = [];
+  final List<_EditableComicCharacter> _characters = [];
   late final TextEditingController summaryCtl;
   late final TextEditingController descriptionCtl;
   final List<Map<String, TextEditingController>> links = [];
@@ -207,15 +207,12 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     publisherCtl = TextEditingController(text: item.publisher ?? '');
     imprintCtl = TextEditingController(text: publishing?.imprint ?? '');
     subtitleCtl = TextEditingController(text: item.titleExtension ?? '');
-    final crossover = (item.storyArcs ?? const <String>[])
-        .where((value) => value.startsWith(_crossoverPrefix))
-        .map((value) => value.substring(_crossoverPrefix.length).trim())
-        .firstOrNull;
-    crossoverCtl = TextEditingController(text: crossover ?? '');
+    final crossover = item.crossover?.trim();
+    crossoverCtl = TextEditingController(
+      text: crossover?.isNotEmpty == true ? crossover! : '',
+    );
     storyArcsCtl = TextEditingController(
-      text: (item.storyArcs ?? const <String>[])
-          .where((value) => !value.startsWith(_crossoverPrefix))
-          .join(', '),
+      text: (item.storyArcs ?? const <String>[]).join(', '),
     );
     countryCtl = TextEditingController(text: item.country ?? '');
     languageCtl = TextEditingController(text: item.language ?? '');
@@ -286,7 +283,11 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     coverUrlCtl = TextEditingController(
         text: item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
     characterDraftCtl = TextEditingController();
-    final decodedPlot = _decodePlotSynopsis(item.synopsis);
+    final decodedPlot = _decodePlotFields(
+      item.plotSummary,
+      item.plotDescription,
+      item.synopsis,
+    );
     summaryCtl = TextEditingController(text: decodedPlot.$1);
     descriptionCtl = TextEditingController(text: decodedPlot.$2);
     _keyComic = owned?.keyComic ?? false;
@@ -299,15 +300,17 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     };
 
     for (final creator in item.creators ?? const <Map<String, dynamic>>[]) {
-      creators.add({
-        'name': TextEditingController(text: creator['name']?.toString() ?? ''),
-        'role': TextEditingController(
-          text: creator['role']?.toString() ?? creator['job']?.toString() ?? '',
-        ),
-      });
+      _creators.add(_EditableComicCreator.fromMetadata(creator));
     }
-    for (final character in item.characters ?? const <String>[]) {
-      characters.add(TextEditingController(text: character));
+    final characterDetails = item.characterDetails;
+    if (characterDetails != null && characterDetails.isNotEmpty) {
+      for (final character in characterDetails) {
+        _characters.add(_EditableComicCharacter.fromMetadata(character));
+      }
+    } else {
+      for (final character in item.characters ?? const <String>[]) {
+        _characters.add(_EditableComicCharacter.custom(character));
+      }
     }
     for (final link in item.trailerUrls) {
       links.add({
@@ -370,11 +373,10 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     characterDraftCtl.dispose();
     summaryCtl.dispose();
     descriptionCtl.dispose();
-    for (final creator in creators) {
-      creator['name']?.dispose();
-      creator['role']?.dispose();
+    for (final creator in _creators) {
+      creator.dispose();
     }
-    for (final character in characters) {
+    for (final character in _characters) {
       character.dispose();
     }
     for (final link in links) {
@@ -385,19 +387,40 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   }
 
   void _addCreator() {
-    creators.add(_newCreatorControllers());
+    _creators.add(_EditableComicCreator.custom());
     setState(() {});
   }
 
   void _addCreatorWithRole(String role) {
-    creators.add(_newCreatorControllers(role: role));
+    _creators.add(_EditableComicCreator.custom(role: role));
+    setState(() {});
+  }
+
+  Future<void> _addCatalogCreator() async {
+    final creator = await _showLookupDialog(
+      title: 'Find creator',
+      searchHint: 'Search creators',
+      search: (query) => _lookupApi().searchCreators(query: query, limit: 24),
+      titleForResult: (result) => result['name']?.toString() ?? 'Creator',
+      subtitleForResult: (result) {
+        final itemCount = (result['item_count'] as num?)?.toInt();
+        final description = result['description']?.toString().trim();
+        return [
+          if (itemCount != null) '$itemCount credits',
+          if (description != null && description.isNotEmpty) description,
+        ].join(' · ');
+      },
+    );
+    if (creator == null) {
+      return;
+    }
+    _creators.add(_EditableComicCreator.fromLookupResult(creator));
     setState(() {});
   }
 
   void _removeCreator(int idx) {
-    final creator = creators.removeAt(idx);
-    creator['name']?.dispose();
-    creator['role']?.dispose();
+    final creator = _creators.removeAt(idx);
+    creator.dispose();
     setState(() {});
   }
 
@@ -406,27 +429,68 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     if (normalized.isEmpty) {
       return;
     }
-    final alreadyExists = characters.any(
-      (controller) =>
-          controller.text.trim().toLowerCase() == normalized.toLowerCase(),
+    final alreadyExists = _characters.any(
+      (character) =>
+          character.nameController.text.trim().toLowerCase() ==
+          normalized.toLowerCase(),
     );
     if (alreadyExists) {
       characterDraftCtl.clear();
       return;
     }
-    characters.add(TextEditingController(text: normalized));
+    _characters.add(_EditableComicCharacter.custom(normalized));
     characterDraftCtl.clear();
     setState(() {});
   }
 
+  Future<void> _addCatalogCharacter() async {
+    final character = await _showLookupDialog(
+      title: 'Find character',
+      searchHint: 'Search characters',
+      search: (query) => _lookupApi().searchCharacters(query: query, limit: 24),
+      titleForResult: (result) => result['name']?.toString() ?? 'Character',
+      subtitleForResult: (result) {
+        final appearanceCount = (result['appearance_count'] as num?)?.toInt();
+        final aliases = (result['aliases'] as List<dynamic>? ?? const [])
+            .map((value) => value.toString().trim())
+            .where((value) => value.isNotEmpty)
+            .take(3)
+            .toList(growable: false);
+        return [
+          if (appearanceCount != null) '$appearanceCount appearances',
+          if (aliases.isNotEmpty) aliases.join(', '),
+        ].join(' · ');
+      },
+    );
+    if (character == null) {
+      return;
+    }
+    final normalizedName = character['name']?.toString().trim() ?? '';
+    if (normalizedName.isEmpty) {
+      return;
+    }
+    final alreadyExists = _characters.any(
+      (entry) =>
+          entry.nameController.text.trim().toLowerCase() ==
+          normalizedName.toLowerCase(),
+    );
+    if (alreadyExists) {
+      return;
+    }
+    _characters.add(_EditableComicCharacter.fromLookupResult(character));
+    setState(() {});
+  }
+
   void _removeCharacter(int idx) {
-    final character = characters.removeAt(idx);
+    final character = _characters.removeAt(idx);
     character.dispose();
     setState(() {});
   }
 
   Future<void> _renameCharacter(int idx) async {
-    final controller = TextEditingController(text: characters[idx].text);
+    final controller = TextEditingController(
+      text: _characters[idx].nameController.text,
+    );
     final renamed = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -458,17 +522,10 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     if (normalized.isEmpty) {
       return;
     }
-    setState(() => characters[idx].text = normalized);
-  }
-
-  Map<String, TextEditingController> _newCreatorControllers({
-    String name = '',
-    String role = '',
-  }) {
-    return {
-      'name': TextEditingController(text: name),
-      'role': TextEditingController(text: role),
-    };
+    setState(() {
+      _characters[idx].nameController.text = normalized;
+      _characters[idx].markAsCustom();
+    });
   }
 
   void _addLink() {
@@ -484,6 +541,124 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     link['title']?.dispose();
     link['url']?.dispose();
     setState(() {});
+  }
+
+  Future<Map<String, dynamic>?> _showLookupDialog({
+    required String title,
+    required String searchHint,
+    required Future<List<Map<String, dynamic>>> Function(String query) search,
+    required String Function(Map<String, dynamic> result) titleForResult,
+    required String Function(Map<String, dynamic> result) subtitleForResult,
+  }) async {
+    final searchCtl = TextEditingController();
+    var results = const <Map<String, dynamic>>[];
+    var isLoading = false;
+    String? errorMessage;
+
+    Future<void> runSearch(StateSetter setDialogState) async {
+      setDialogState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+      try {
+        final rows = await search(searchCtl.text.trim());
+        setDialogState(() {
+          results = rows;
+          isLoading = false;
+        });
+      } catch (error) {
+        setDialogState(() {
+          errorMessage = error.toString();
+          isLoading = false;
+        });
+      }
+    }
+
+    final selection = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(title),
+          content: SizedBox(
+            width: 540,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: searchCtl,
+                        decoration: InputDecoration(
+                          labelText: searchHint,
+                          border: const OutlineInputBorder(),
+                        ),
+                        onSubmitted: (_) => runSearch(setDialogState),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton.icon(
+                      onPressed: () => runSearch(setDialogState),
+                      icon: const Icon(Icons.search),
+                      label: const Text('Search'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else if (errorMessage != null)
+                  Text(
+                    errorMessage!,
+                    style: TextStyle(
+                      color: Theme.of(dialogContext).colorScheme.error,
+                    ),
+                  )
+                else if (results.isEmpty)
+                  Text(
+                    'Search the metadata catalog and add a result as a core entry.',
+                    style: Theme.of(dialogContext).textTheme.bodySmall,
+                  )
+                else
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: results.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (dialogContext, index) {
+                        final result = results[index];
+                        final subtitle = subtitleForResult(result).trim();
+                        return ListTile(
+                          title: Text(titleForResult(result)),
+                          subtitle: subtitle.isEmpty
+                              ? null
+                              : Text(subtitle, maxLines: 2),
+                          trailing: const Icon(Icons.add_circle_outline),
+                          onTap: () => Navigator.of(dialogContext).pop(result),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
+    searchCtl.dispose();
+    return selection;
+  }
+
+  dynamic _lookupApi() {
+    return ProviderScope.containerOf(context, listen: false)
+        .read(apiClientProvider);
   }
 
   Widget _labelledField(
@@ -717,6 +892,19 @@ class ComicEditPanelState extends State<ComicEditPanel> {
         ),
       ],
     );
+  }
+
+  (String, String) _decodePlotFields(
+    String? summary,
+    String? description,
+    String? synopsis,
+  ) {
+    final normalizedSummary = summary?.trim() ?? '';
+    final normalizedDescription = description?.trim() ?? '';
+    if (normalizedSummary.isNotEmpty || normalizedDescription.isNotEmpty) {
+      return (normalizedSummary, normalizedDescription);
+    }
+    return _decodePlotSynopsis(synopsis);
   }
 
   (String, String) _decodePlotSynopsis(String? value) {
@@ -1014,7 +1202,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           _labelledField('Crossover',
               controller: crossoverCtl,
               key: const ValueKey('edit-crossover'),
-              hintText: 'Saved as a tagged story arc for now'),
+              hintText: 'Major crossover banner or event label'),
           const SizedBox(height: 12),
           _labelledField('Story Arcs',
               controller: storyArcsCtl,
@@ -1386,6 +1574,12 @@ class ComicEditPanelState extends State<ComicEditPanel> {
               icon: const Icon(Icons.add),
               label: const Text('Add Creator')),
           const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _addCatalogCreator,
+            icon: const Icon(Icons.manage_search_outlined),
+            label: const Text('Find in Catalog'),
+          ),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -1398,12 +1592,12 @@ class ComicEditPanelState extends State<ComicEditPanel> {
             ],
           ),
           const SizedBox(height: 8),
-          if (creators.isEmpty)
+          if (_creators.isEmpty)
             Text(
               'No creators yet. Add the main credits here.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
-          for (var i = 0; i < creators.length; i++)
+          for (var i = 0; i < _creators.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
@@ -1423,6 +1617,11 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                               .titleSmall
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
+                        const SizedBox(width: 8),
+                        Chip(
+                          visualDensity: VisualDensity.compact,
+                          label: Text(_creators[i].sourceLabel),
+                        ),
                         const Spacer(),
                         IconButton(
                             onPressed: () => _removeCreator(i),
@@ -1433,14 +1632,14 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                       children: [
                         Expanded(
                             child: TextField(
-                                controller: creators[i]['name'],
+                                controller: _creators[i].nameController,
                                 decoration:
                                     const InputDecoration(labelText: 'Name'),
                                 key: ValueKey('edit-creator-$i-name'))),
                         const SizedBox(width: 8),
                         Expanded(
                             child: TextField(
-                                controller: creators[i]['role'],
+                                controller: _creators[i].roleController,
                                 decoration:
                                     const InputDecoration(labelText: 'Role'),
                                 key: ValueKey('edit-creator-$i-role'))),
@@ -1457,7 +1656,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                             ActionChip(
                               label: Text(role),
                               onPressed: () {
-                                creators[i]['role']?.text = role;
+                                _creators[i].roleController.text = role;
                                 setState(() {});
                               },
                             ),
@@ -1499,7 +1698,13 @@ class ComicEditPanelState extends State<ComicEditPanel> {
             ],
           ),
           const SizedBox(height: 8),
-          if (characters.isEmpty)
+          OutlinedButton.icon(
+            onPressed: _addCatalogCharacter,
+            icon: const Icon(Icons.manage_search_outlined),
+            label: const Text('Find in Catalog'),
+          ),
+          const SizedBox(height: 8),
+          if (_characters.isEmpty)
             Text(
               'No characters yet. Add the main cast as quick chips.',
               style: Theme.of(context).textTheme.bodySmall,
@@ -1509,10 +1714,18 @@ class ComicEditPanelState extends State<ComicEditPanel> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (var i = 0; i < characters.length; i++)
+                for (var i = 0; i < _characters.length; i++)
                   InputChip(
                     key: ValueKey('edit-character-$i'),
-                    label: Text(characters[i].text),
+                    avatar: Icon(
+                      _characters[i].isCore
+                          ? Icons.verified_outlined
+                          : Icons.edit_outlined,
+                      size: 18,
+                    ),
+                    label: Text(
+                      '${_characters[i].nameController.text} · ${_characters[i].sourceLabel}',
+                    ),
                     onPressed: () => _renameCharacter(i),
                     onDeleted: () => _removeCharacter(i),
                   ),
@@ -1679,13 +1892,12 @@ class ComicEditPanelState extends State<ComicEditPanel> {
       'notes': notesCtl.text,
       'customFieldEdits': _customFieldValues,
       'coverUrl': coverUrlCtl.text,
-      'creators': creators
-          .map((creator) => <String, dynamic>{
-                'name': creator['name']?.text ?? '',
-                'role': creator['role']?.text ?? ''
-              })
+      'creators': _creators.map((creator) => creator.toMap()).toList(),
+      'characters': _characters
+          .map((character) => character.nameController.text)
           .toList(),
-      'characters': characters.map((character) => character.text).toList(),
+      'characterDetails':
+          _characters.map((character) => character.toMap()).toList(),
       'summary': summaryCtl.text,
       'description': descriptionCtl.text,
       'links': links
@@ -1696,6 +1908,161 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           .toList(),
       'itemImageEdits': _itemImageEdits,
     };
+  }
+}
+
+class _EditableComicCreator {
+  _EditableComicCreator({
+    required this.nameController,
+    required this.roleController,
+    Map<String, dynamic>? metadata,
+  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
+
+  factory _EditableComicCreator.custom({String name = '', String role = ''}) {
+    return _EditableComicCreator(
+      nameController: TextEditingController(text: name),
+      roleController: TextEditingController(text: role),
+      metadata: const {'source_type': 'custom'},
+    );
+  }
+
+  factory _EditableComicCreator.fromMetadata(Map<String, dynamic> metadata) {
+    return _EditableComicCreator(
+      nameController:
+          TextEditingController(text: metadata['name']?.toString() ?? ''),
+      roleController: TextEditingController(
+        text: metadata['role']?.toString() ?? metadata['job']?.toString() ?? '',
+      ),
+      metadata: metadata,
+    );
+  }
+
+  factory _EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
+    return _EditableComicCreator(
+      nameController:
+          TextEditingController(text: result['name']?.toString() ?? ''),
+      roleController: TextEditingController(),
+      metadata: {
+        ...result,
+        'source_type': 'core',
+      },
+    );
+  }
+
+  final TextEditingController nameController;
+  final TextEditingController roleController;
+  final Map<String, dynamic> metadata;
+
+  bool get isCore {
+    final explicit = metadata['source_type']?.toString().trim().toLowerCase();
+    if (explicit == 'core') {
+      return true;
+    }
+    if (explicit == 'custom') {
+      return false;
+    }
+    return metadata['id'] != null ||
+        metadata['api_detail_url'] != null ||
+        metadata['site_detail_url'] != null;
+  }
+
+  String get sourceLabel => isCore ? 'Core' : 'Custom';
+
+  Map<String, dynamic> toMap() {
+    final result = <String, dynamic>{
+      ...metadata,
+      'name': nameController.text.trim(),
+      'role': roleController.text.trim(),
+      'source_type': sourceLabel.toLowerCase(),
+    };
+    result.removeWhere(
+      (key, value) =>
+          value == null || (value is String && value.trim().isEmpty),
+    );
+    return result;
+  }
+
+  void dispose() {
+    nameController.dispose();
+    roleController.dispose();
+  }
+}
+
+class _EditableComicCharacter {
+  _EditableComicCharacter({
+    required this.nameController,
+    Map<String, dynamic>? metadata,
+  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
+
+  factory _EditableComicCharacter.custom(String name) {
+    return _EditableComicCharacter(
+      nameController: TextEditingController(text: name),
+      metadata: const {'source_type': 'custom'},
+    );
+  }
+
+  factory _EditableComicCharacter.fromMetadata(Map<String, dynamic> metadata) {
+    return _EditableComicCharacter(
+      nameController:
+          TextEditingController(text: metadata['name']?.toString() ?? ''),
+      metadata: metadata,
+    );
+  }
+
+  factory _EditableComicCharacter.fromLookupResult(
+      Map<String, dynamic> result) {
+    return _EditableComicCharacter(
+      nameController:
+          TextEditingController(text: result['name']?.toString() ?? ''),
+      metadata: {
+        ...result,
+        'source_type': 'core',
+      },
+    );
+  }
+
+  final TextEditingController nameController;
+  final Map<String, dynamic> metadata;
+
+  bool get isCore {
+    final explicit = metadata['source_type']?.toString().trim().toLowerCase();
+    if (explicit == 'core') {
+      return true;
+    }
+    if (explicit == 'custom') {
+      return false;
+    }
+    return metadata['id'] != null;
+  }
+
+  String get sourceLabel => isCore ? 'Core' : 'Custom';
+
+  void markAsCustom() {
+    metadata
+      ..remove('id')
+      ..remove('aliases')
+      ..remove('image_url')
+      ..remove('description')
+      ..remove('first_appearance_item_id')
+      ..remove('appearance_count')
+      ..['source_type'] = 'custom';
+  }
+
+  Map<String, dynamic> toMap() {
+    final result = <String, dynamic>{
+      ...metadata,
+      'name': nameController.text.trim(),
+      'source_type': sourceLabel.toLowerCase(),
+    };
+    result.removeWhere(
+      (key, value) =>
+          value == null || (value is String && value.trim().isEmpty),
+    );
+    return result;
+  }
+
+  void dispose() {
+    nameController.dispose();
   }
 }
 

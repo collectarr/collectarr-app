@@ -262,7 +262,7 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
             imageData: edit.imageData!,
             caption: edit.caption,
             sortOrder: edit.sortOrder,
-            createdAt: now,
+            createdAt: edit.createdAt ?? now,
           ));
         } else {
           await itemImageRepo.updateMetadata(

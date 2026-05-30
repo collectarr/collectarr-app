@@ -26,6 +26,9 @@ class LibraryMetadataItem {
     this.releaseYear,
     this.barcode,
     this.variant,
+    this.crossover,
+    this.plotSummary,
+    this.plotDescription,
     this.series,
     this.video,
     this.music,
@@ -33,6 +36,7 @@ class LibraryMetadataItem {
     this.publishing,
     this.creators,
     this.characters,
+    this.characterDetails,
     this.storyArcs,
     this.editions = const <CatalogEdition>[],
     this.genres,
@@ -68,6 +72,9 @@ class LibraryMetadataItem {
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? crossover;
+  final String? plotSummary;
+  final String? plotDescription;
   final CatalogSeriesDetails? series;
   final VideoCatalogDetails? video;
   final MusicCatalogDetails? music;
@@ -75,6 +82,7 @@ class LibraryMetadataItem {
   final CatalogPublishingDetails? publishing;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
+  final List<Map<String, dynamic>>? characterDetails;
   final List<String>? storyArcs;
   final List<CatalogEdition> editions;
   final List<String>? genres;
@@ -111,6 +119,9 @@ class LibraryMetadataItem {
       releaseYear: item.releaseYear,
       barcode: item.barcode,
       variant: item.variant,
+      crossover: item.crossover,
+      plotSummary: item.plotSummary,
+      plotDescription: item.plotDescription,
       series: item.series,
       video: item.video,
       music: item.music,
@@ -118,6 +129,7 @@ class LibraryMetadataItem {
       publishing: item.publishing,
       creators: item.creators,
       characters: item.characters,
+      characterDetails: item.characterDetails,
       storyArcs: item.storyArcs,
       editions: item.editions,
       genres: item.genres,
@@ -154,6 +166,9 @@ class LibraryMetadataItem {
     Object? releaseYear = _unset,
     Object? barcode = _unset,
     Object? variant = _unset,
+    Object? crossover = _unset,
+    Object? plotSummary = _unset,
+    Object? plotDescription = _unset,
     Object? series = _unset,
     Object? video = _unset,
     Object? music = _unset,
@@ -161,6 +176,7 @@ class LibraryMetadataItem {
     Object? publishing = _unset,
     Object? creators = _unset,
     Object? characters = _unset,
+    Object? characterDetails = _unset,
     Object? storyArcs = _unset,
     Object? editions = _unset,
     Object? genres = _unset,
@@ -227,6 +243,14 @@ class LibraryMetadataItem {
           : releaseYear as int?,
       barcode: identical(barcode, _unset) ? this.barcode : barcode as String?,
       variant: identical(variant, _unset) ? this.variant : variant as String?,
+      crossover:
+          identical(crossover, _unset) ? this.crossover : crossover as String?,
+      plotSummary: identical(plotSummary, _unset)
+          ? this.plotSummary
+          : plotSummary as String?,
+      plotDescription: identical(plotDescription, _unset)
+          ? this.plotDescription
+          : plotDescription as String?,
       series: identical(series, _unset)
           ? this.series
           : series as CatalogSeriesDetails?,
@@ -244,6 +268,9 @@ class LibraryMetadataItem {
       characters: identical(characters, _unset)
           ? this.characters
           : characters as List<String>?,
+      characterDetails: identical(characterDetails, _unset)
+          ? this.characterDetails
+          : characterDetails as List<Map<String, dynamic>>?,
       storyArcs: identical(storyArcs, _unset)
           ? this.storyArcs
           : storyArcs as List<String>?,
@@ -289,6 +316,9 @@ class LibraryMetadataItem {
       releaseYear: releaseYear,
       barcode: barcode,
       variant: variant,
+      crossover: crossover,
+      plotSummary: plotSummary,
+      plotDescription: plotDescription,
       series: series,
       video: video,
       music: music,
@@ -296,6 +326,7 @@ class LibraryMetadataItem {
       publishing: publishing,
       creators: creators,
       characters: characters,
+      characterDetails: characterDetails,
       storyArcs: storyArcs,
       editions: editions,
       rawPlatforms:

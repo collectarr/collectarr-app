@@ -455,8 +455,12 @@ sealed class CatalogItem {
     this.releaseYear,
     this.barcode,
     this.variant,
+    this.crossover,
+    this.plotSummary,
+    this.plotDescription,
     this.creators,
     this.characters,
+    this.characterDetails,
     this.storyArcs,
     this.editions = const <CatalogEdition>[],
     this.genres,
@@ -493,6 +497,9 @@ sealed class CatalogItem {
     int? releaseYear,
     String? barcode,
     String? variant,
+    String? crossover,
+    String? plotSummary,
+    String? plotDescription,
     CatalogSeriesDetails? series,
     VideoCatalogDetails? video,
     MusicCatalogDetails? music,
@@ -500,6 +507,7 @@ sealed class CatalogItem {
     CatalogPublishingDetails? publishing,
     List<Map<String, dynamic>>? creators,
     List<String>? characters,
+    List<Map<String, dynamic>>? characterDetails,
     List<String>? storyArcs,
     List<String>? rawPlatforms,
     List<TrailerLink>? trailerUrls,
@@ -535,8 +543,12 @@ sealed class CatalogItem {
       releaseYear: releaseYear,
       barcode: barcode,
       variant: variant,
+      crossover: crossover,
+      plotSummary: plotSummary,
+      plotDescription: plotDescription,
       creators: _normalizeMapList(creators),
       characters: _normalizeStringList(characters),
+      characterDetails: _normalizeMapList(characterDetails),
       storyArcs: _normalizeStringList(storyArcs),
       editions: _normalizeEditionList(editions),
       genres: _normalizeStringList(genres),
@@ -701,6 +713,9 @@ sealed class CatalogItem {
       releaseYear: json['release_year'] as int?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
+      crossover: json['crossover'] as String?,
+      plotSummary: json['plot_summary'] as String?,
+      plotDescription: json['plot_description'] as String?,
       series: series.hasData ? series : null,
       video: video.hasData ? video : null,
       music: music.hasData ? music : null,
@@ -711,6 +726,9 @@ sealed class CatalogItem {
           .toList(growable: false),
       characters: (json['characters'] as List<dynamic>?)
           ?.whereType<String>()
+          .toList(growable: false),
+      characterDetails: (json['character_details'] as List<dynamic>?)
+          ?.whereType<Map<String, dynamic>>()
           .toList(growable: false),
       storyArcs: (json['story_arcs'] as List<dynamic>?)
           ?.whereType<String>()
@@ -754,8 +772,12 @@ sealed class CatalogItem {
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? crossover;
+  final String? plotSummary;
+  final String? plotDescription;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
+  final List<Map<String, dynamic>>? characterDetails;
   final List<String>? storyArcs;
   final List<CatalogEdition> editions;
   final List<String>? genres;
@@ -829,6 +851,9 @@ sealed class CatalogItem {
       'release_year': releaseYear,
       'barcode': barcode,
       'variant': variant,
+      'crossover': crossover,
+      'plot_summary': plotSummary,
+      'plot_description': plotDescription,
       'series_id': series?.seriesId,
       'series_title': series?.seriesTitle,
       'volume_name': series?.volumeName,
@@ -850,7 +875,15 @@ sealed class CatalogItem {
       'editions':
           editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
+      'creators': creators,
+      'characters': characters,
+      'character_details': characterDetails,
+      'story_arcs': storyArcs,
+      'genres': genres,
       'release_status': music?.releaseStatus,
+      'country': country,
+      'language': language,
+      'age_rating': ageRating,
       'audience_rating': audienceRating,
       if (trailerUrls.isNotEmpty)
         'trailer_urls':
@@ -904,8 +937,12 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           releaseYear: common.releaseYear,
           barcode: common.barcode,
           variant: common.variant,
+          crossover: common.crossover,
+          plotSummary: common.plotSummary,
+          plotDescription: common.plotDescription,
           creators: common.creators,
           characters: common.characters,
+          characterDetails: common.characterDetails,
           storyArcs: common.storyArcs,
           editions: common.editions ?? const <CatalogEdition>[],
           genres: common.genres,
@@ -1102,8 +1139,12 @@ class _CatalogItemCommon {
     this.releaseYear,
     this.barcode,
     this.variant,
+    this.crossover,
+    this.plotSummary,
+    this.plotDescription,
     this.creators,
     this.characters,
+    this.characterDetails,
     this.storyArcs,
     this.editions,
     this.genres,
@@ -1138,8 +1179,12 @@ class _CatalogItemCommon {
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? crossover;
+  final String? plotSummary;
+  final String? plotDescription;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
+  final List<Map<String, dynamic>>? characterDetails;
   final List<String>? storyArcs;
   final List<CatalogEdition>? editions;
   final List<String>? genres;
