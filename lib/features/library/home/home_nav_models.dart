@@ -54,12 +54,12 @@ const _libraryNavGroupSpecs = [
   _LibraryNavGroupSpec(
     id: 'comic',
     label: 'Comics',
-    memberKinds: ['comic', 'manga'],
+    memberKinds: ['comic'],
   ),
   _LibraryNavGroupSpec(
     id: 'movie',
     label: 'Movies',
-    memberKinds: ['movie', 'tv', 'anime'],
+    memberKinds: ['movie', 'tv'],
   ),
 ];
 

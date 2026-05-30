@@ -23,12 +23,6 @@ const comicsLibraryEditPresentation = LibraryEditPresentation(
   ),
 );
 
-const mangaLibraryEditPresentation = LibraryEditPresentation(
-  builder: DefaultLibraryEditPresentationBuilder(
-    showOwnedGradingSection: true,
-  ),
-);
-
 const booksLibraryEditPresentation = LibraryEditPresentation(
   builder: BookLibraryEditPresentationBuilder(),
 );

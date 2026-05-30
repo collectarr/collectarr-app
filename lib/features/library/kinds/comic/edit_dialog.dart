@@ -6,17 +6,31 @@ Widget buildComicLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
-  return LibraryEditDialog(
-    type: request.type,
-    item: request.item,
-    ownedItem: request.ownedItem,
-    wishlistItem: request.wishlistItem,
-    trackingEntry: request.trackingEntry,
-    accent: request.accent,
-    availableBundleReleases: request.availableBundleReleases,
-    physicalFormats: request.physicalFormats,
-    customFieldDefinitions: request.customFieldDefinitions,
-    customFieldValues: request.customFieldValues,
-    itemImages: request.itemImages,
-  );
+  return ComicLibraryEditDialog(request: request);
+}
+
+class ComicLibraryEditDialog extends StatelessWidget {
+  const ComicLibraryEditDialog({
+    super.key,
+    required this.request,
+  });
+
+  final LibraryEditDialogRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    return LibraryEditDialog(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      wishlistItem: request.wishlistItem,
+      trackingEntry: request.trackingEntry,
+      accent: request.accent,
+      availableBundleReleases: request.availableBundleReleases,
+      physicalFormats: request.physicalFormats,
+      customFieldDefinitions: request.customFieldDefinitions,
+      customFieldValues: request.customFieldValues,
+      itemImages: request.itemImages,
+    );
+  }
 }

@@ -1,10 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -18,8 +16,6 @@ const double kPlannedMediaMaxCoverSize = 188;
 const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
-final mangaMediaAdapter = plannedMediaAdapter(mangaLibraryConfig);
-final animeMediaAdapter = plannedMediaAdapter(animeLibraryConfig);
 final booksMediaAdapter = plannedMediaAdapter(booksLibraryConfig);
 final gamesMediaAdapter = plannedMediaAdapter(gamesLibraryConfig);
 final boardGamesMediaAdapter = plannedMediaAdapter(boardGamesLibraryConfig);
@@ -28,8 +24,6 @@ final tvMediaAdapter = plannedMediaAdapter(tvLibraryConfig);
 final musicMediaAdapter = plannedMediaAdapter(musicLibraryConfig);
 
 final plannedMediaAdapters = LibraryMediaAdapterRegistry([
-  mangaMediaAdapter,
-  animeMediaAdapter,
   booksMediaAdapter,
   gamesMediaAdapter,
   boardGamesMediaAdapter,

@@ -8,14 +8,6 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 const genericLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
 const comicsLibraryMediaBuilder =
     DefaultLibraryMediaPresentationBuilder(showSummary: true);
-const mangaLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showVolumeHierarchy: true,
-);
-const animeLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showSeasonHierarchy: true,
-);
 const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
 const boardGamesLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
 const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/collection_defaults.dart'
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -43,10 +43,13 @@ const comicsLibraryConfig = LibraryTypeConfig(
   metadataProviders: [
     gcdMetadataProvider,
     comicVineMetadataProvider,
+    mangadexMetadataProvider,
+    anilistMetadataProvider,
+    hardcoverMetadataProvider,
   ],
   addDialogLauncher: showComicLibraryAddDialog,
   trackingProfile: comicTrackingProfile,
-  editDialogBuilder: buildGenericLibraryEditDialog,
+  editDialogBuilder: buildComicLibraryEditDialog,
   presentation: comicsLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
   mediaFields: MediaEditFields.print(

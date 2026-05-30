@@ -84,6 +84,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _numberController;
   late final TextEditingController _publisherController;
   late final TextEditingController _releaseDateController;
+  late final TextEditingController _releaseDateYearPartController;
+  late final TextEditingController _releaseDateMonthPartController;
+  late final TextEditingController _releaseDateDayPartController;
   late final TextEditingController _releaseYearController;
   late final TextEditingController _pageCountController;
   late final TextEditingController _editionTitleController;
@@ -205,7 +208,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     const videoKinds = {
       CatalogMediaKind.movie,
       CatalogMediaKind.tv,
-      CatalogMediaKind.anime,
     };
     return videoKinds.contains(widget.item.mediaKind);
   }
@@ -308,6 +310,19 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _publisherController = TextEditingController(text: item.publisher ?? '');
     _releaseDateController = TextEditingController(
       text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
+    );
+    _releaseDateYearPartController = TextEditingController(
+      text: item.releaseDate?.year.toString() ?? '',
+    );
+    _releaseDateMonthPartController = TextEditingController(
+      text: item.releaseDate == null
+          ? ''
+          : item.releaseDate!.month.toString().padLeft(2, '0'),
+    );
+    _releaseDateDayPartController = TextEditingController(
+      text: item.releaseDate == null
+          ? ''
+          : item.releaseDate!.day.toString().padLeft(2, '0'),
     );
     _releaseYearController = TextEditingController(
       text: item.releaseYear?.toString() ?? '',
@@ -499,6 +514,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _numberController.dispose();
     _publisherController.dispose();
     _releaseDateController.dispose();
+    _releaseDateYearPartController.dispose();
+    _releaseDateMonthPartController.dispose();
+    _releaseDateDayPartController.dispose();
     _releaseYearController.dispose();
     _pageCountController.dispose();
     _editionTitleController.dispose();
@@ -1374,9 +1392,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     },
                   ),
                 ),
+                _field(
+                  controller: _quantityController,
+                  label: 'Quantity',
+                  validator: positiveIntValidator,
+                ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
+                _readOnlyField(
+                  label: 'Index',
+                  value: widget.ownedItem?.indexNumber?.toString() ?? '—',
+                ),
                 _readOnlyField(
                   label: 'Added date',
                   value: _formatTimestamp(widget.ownedItem?.createdAt),
@@ -1462,6 +1489,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 ),
               ]),
               const SizedBox(height: 10),
+              _collectionStatusField(label: 'Collection status'),
+              const SizedBox(height: 10),
               _datePickerField(
                 label: 'Last bag & board date',
                 value: _lastBagBoardDate,
@@ -1522,11 +1551,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (_showPhysicalOwnedFields) ...[
-                _field(
-                  controller: _ownerLabelController,
-                  label: 'Owner',
-                  hint: 'Name of the owner',
-                ),
+                _responsiveFields([
+                  _locationField(label: 'Storage Box'),
+                  _field(
+                    controller: _ownerLabelController,
+                    label: 'Owner',
+                    hint: 'Name of the owner',
+                  ),
+                ]),
                 const SizedBox(height: 10),
               ] else ...[
                 Text(
@@ -1648,82 +1680,91 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _flexResponsiveFields(
-                [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 920;
+              final leftColumn = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   _field(
                     controller: _titleController,
                     label: 'Series',
                     validator: (value) =>
                         emptyToNull(value ?? '') == null ? 'Enter a title' : null,
                   ),
-                  _field(controller: _numberController, label: 'Issue No.'),
-                  _field(
-                    controller: _editionTitleController,
-                    label: 'Variant Description',
+                  const SizedBox(height: 10),
+                  _flexResponsiveFields(
+                    [
+                      _field(controller: _barcodeController, label: 'Barcode'),
+                      _field(controller: _variantController, label: 'Format'),
+                    ],
+                    flexes: const [1, 1],
+                    breakpoint: 520,
                   ),
-                ],
-                flexes: const [3, 1, 2],
-              ),
-              const SizedBox(height: 10),
-              _flexResponsiveFields(
-                [
-                  _field(controller: _barcodeController, label: 'Barcode'),
-                  _field(controller: _variantController, label: 'Format'),
-                  _field(
-                    controller: _releaseYearController,
-                    label: 'Cover Date',
-                    hint: 'YYYY',
-                    validator: optionalIntValidator,
-                  ),
-                  _field(
-                    controller: _releaseDateController,
-                    label: 'Release Date',
-                    hint: 'YYYY-MM-DD',
-                    validator: optionalDateValidator,
-                  ),
-                ],
-                flexes: const [2, 2, 1, 2],
-              ),
-              const SizedBox(height: 10),
-              _flexResponsiveFields(
-                [
-                  if (mediaFields.showSeriesGroup)
+                  if (mediaFields.showSeriesGroup) ...[
+                    const SizedBox(height: 10),
                     _field(
                       controller: _seriesGroupController,
                       label: 'Series Group',
                     ),
-                  _field(controller: _publisherController, label: 'Publisher'),
-                  if (mediaFields.showImprint)
-                    _field(controller: _imprintController, label: 'Imprint'),
+                  ],
                 ],
-                flexes: [
-                  if (mediaFields.showSeriesGroup) 2,
-                  2,
-                  if (mediaFields.showImprint) 2,
-                ],
-              ),
-              const SizedBox(height: 10),
-              _flexResponsiveFields(
-                [
-                  _collectionStatusField(label: 'Collection Status'),
-                  _readOnlyField(
-                    label: 'Index',
-                    value: widget.ownedItem?.indexNumber?.toString() ?? '—',
+              );
+              final rightColumn = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _flexResponsiveFields(
+                    [
+                      _placeholderField(label: 'Issue No.'),
+                      _field(controller: _numberController, label: 'Variant'),
+                      _field(
+                        controller: _editionTitleController,
+                        label: 'Variant Description',
+                      ),
+                    ],
+                    flexes: const [3, 2, 7],
+                    breakpoint: 720,
                   ),
-                  _field(
-                    controller: _quantityController,
-                    label: 'Quantity',
-                    validator: positiveIntValidator,
+                  const SizedBox(height: 10),
+                  _flexResponsiveFields(
+                    [
+                      _coverDatePartsField(),
+                      _releaseDatePartsField(),
+                    ],
+                    flexes: const [1, 1],
+                    breakpoint: 720,
                   ),
-                  if (_showPhysicalOwnedFields)
-                    _locationField(label: 'Storage Box'),
+                  const SizedBox(height: 10),
+                  _flexResponsiveFields(
+                    [
+                      _field(controller: _publisherController, label: 'Publisher'),
+                      if (mediaFields.showImprint)
+                        _field(controller: _imprintController, label: 'Imprint'),
+                    ],
+                    flexes: [1, if (mediaFields.showImprint) 1],
+                    breakpoint: 720,
+                  ),
                 ],
-                flexes: [2, 1, 1, if (_showPhysicalOwnedFields) 3],
-              ),
-            ],
+              );
+              if (stacked) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    leftColumn,
+                    const SizedBox(height: 10),
+                    rightColumn,
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 5, child: leftColumn),
+                  const SizedBox(width: 10),
+                  Expanded(flex: 7, child: rightColumn),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -2738,6 +2779,120 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       ],
       onChanged: (value) => setState(() => _collectionStatus = value),
     );
+  }
+
+  Widget _placeholderField({required String label, String? hint}) {
+    return TextFormField(
+      initialValue: '',
+      readOnly: true,
+      decoration: InputDecoration(labelText: label, hintText: hint),
+    );
+  }
+
+  Widget _coverDatePartsField() {
+    return _datePartsGroup(
+      label: 'Cover Date',
+      children: [
+        _datePartField(
+          controller: _releaseYearController,
+          placeholder: 'YYYY',
+          validator: optionalIntValidator,
+        ),
+        _datePartField(placeholder: 'MM', readOnly: true),
+        _datePartField(placeholder: 'DD', readOnly: true),
+      ],
+    );
+  }
+
+  Widget _releaseDatePartsField() {
+    return _datePartsGroup(
+      label: 'Release Date',
+      children: [
+        _datePartField(
+          controller: _releaseDateYearPartController,
+          placeholder: 'YYYY',
+          validator: optionalIntValidator,
+          onChanged: (_) => _syncReleaseDateFromParts(),
+        ),
+        _datePartField(
+          controller: _releaseDateMonthPartController,
+          placeholder: 'MM',
+          validator: optionalIntValidator,
+          onChanged: (_) => _syncReleaseDateFromParts(),
+        ),
+        _datePartField(
+          controller: _releaseDateDayPartController,
+          placeholder: 'DD',
+          validator: optionalIntValidator,
+          onChanged: (_) => _syncReleaseDateFromParts(),
+        ),
+      ],
+    );
+  }
+
+  Widget _datePartsGroup({
+    required String label,
+    required List<Widget> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: appPalette(context).textMuted,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < children.length; index++) ...[
+              Expanded(child: children[index]),
+              if (index != children.length - 1) const SizedBox(width: 6),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _datePartField({
+    TextEditingController? controller,
+    required String placeholder,
+    String? Function(String?)? validator,
+    ValueChanged<String>? onChanged,
+    bool readOnly = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      readOnly: readOnly,
+      onChanged: onChanged,
+      maxLength: placeholder.length,
+      validator: validator,
+      decoration: InputDecoration(
+        counterText: '',
+        hintText: placeholder,
+      ),
+    );
+  }
+
+  void _syncReleaseDateFromParts() {
+    final year = _releaseDateYearPartController.text.trim();
+    final month = _releaseDateMonthPartController.text.trim();
+    final day = _releaseDateDayPartController.text.trim();
+    if (year.isEmpty && month.isEmpty && day.isEmpty) {
+      _releaseDateController.text = '';
+      return;
+    }
+    if (year.length != 4 || month.length != 2 || day.length != 2) {
+      _releaseDateController.text = '';
+      return;
+    }
+    final parsed = DateTime.tryParse('$year-$month-$day');
+    _releaseDateController.text = parsed == null ? '' : formatDate(parsed);
   }
 
   String? get _selectedLocationLabel {

@@ -440,10 +440,16 @@ void main() {
     expect(find.text('#TP-1'), findsOneWidget);
     expect(find.text('Details'), findsOneWidget);
     expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Barcode'), findsOneWidget);
+    expect(find.text('Format'), findsOneWidget);
+    expect(find.text('Series Group'), findsOneWidget);
     expect(find.text('Issue No.'), findsOneWidget);
+    expect(find.text('Variant'), findsOneWidget);
     expect(find.text('Variant Description'), findsOneWidget);
-    expect(find.text('Collection Status'), findsOneWidget);
-    expect(find.text('Storage Box'), findsOneWidget);
+    expect(find.text('Cover Date'), findsOneWidget);
+    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Publisher'), findsOneWidget);
+    expect(find.text('Imprint'), findsOneWidget);
     expect(find.text('Age'), findsOneWidget);
     expect(find.text('Country'), findsOneWidget);
     expect(find.text('Language'), findsOneWidget);
@@ -457,6 +463,7 @@ void main() {
     expect(find.text('Added date'), findsOneWidget);
     expect(find.text('Modified date'), findsOneWidget);
     expect(find.text('Cover price'), findsOneWidget);
+    expect(find.text('Collection status'), findsOneWidget);
 
     await tester.drag(find.byType(ListView).first, const Offset(0, -900));
     await pumpUntilSettled(tester);
@@ -465,6 +472,7 @@ void main() {
     expect(find.text('Sale'), findsOneWidget);
     expect(find.text('Mark as sold'), findsOneWidget);
     expect(find.text('Storage & Notes'), findsOneWidget);
+    expect(find.text('Storage Box'), findsOneWidget);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {

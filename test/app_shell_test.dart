@@ -109,7 +109,7 @@ void main() {
           authControllerProvider.overrideWith(
             (ref) => _AuthenticatedAuthController(ref),
           ),
-          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('manga')),
+          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('comic')),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(

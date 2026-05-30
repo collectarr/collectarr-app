@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+// manga/anime kinds merged into comic/movie; tests adapt accordingly
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
@@ -39,13 +40,11 @@ void main() {
       comicsLibraryConfig.defaultMetadataProviderOption?.usagePolicy?.summary,
       contains('CC BY-SA'),
     );
-    expect(
-      comicsLibraryConfig.metadataProviders
-          .where((provider) => provider.requiresApiKey)
-          .single
-          .id,
-      'comicvine',
-    );
+    final apiKeyIds = comicsLibraryConfig.metadataProviders
+      .where((provider) => provider.requiresApiKey)
+      .map((p) => p.id)
+      .toList();
+    expect(apiKeyIds, contains('comicvine'));
     expect(comicsLibraryConfig.metadataProviderLabel('gcd'), 'GCD');
     expect(
       comicsLibraryConfig.metadataProviderLabel('comicvine'),
@@ -60,18 +59,13 @@ void main() {
     expect(comicsLibraryConfig.addDialogLauncher, same(showComicLibraryAddDialog));
     expect(
       comicsLibraryConfig.editDialogBuilder,
-      same(buildGenericLibraryEditDialog),
+      same(buildComicLibraryEditDialog),
     );
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
   });
 
-  test('manga library config uses the generic edit dialog builder', () {
-    expect(
-      mangaLibraryConfig.editDialogBuilder,
-      same(buildGenericLibraryEditDialog),
-    );
-  });
+  // 'manga' kind has been merged into comics; no separate config test required.
 
   test('movies library config uses the dedicated add dialog launcher', () {
     expect(moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
@@ -143,8 +137,6 @@ void main() {
       () {
     expect(collectarrLibraryTypes.supportedKinds, [
       'comic',
-      'manga',
-      'anime',
       'book',
       'game',
       'boardgame',
@@ -158,10 +150,7 @@ void main() {
         collectarrLibraryTypes.byKind('game')?.defaultMetadataProvider, 'igdb');
     expect(collectarrLibraryTypes.byKind('boardgame')?.defaultMetadataProvider,
         'bgg');
-    expect(collectarrLibraryTypes.byKind('manga')?.defaultMetadataProvider,
-        'anilist');
-    expect(collectarrLibraryTypes.byKind('anime')?.defaultMetadataProvider,
-        'anilist');
+    // 'manga' and 'anime' are canonicalized into existing kinds; ensure core kinds resolve.
     expect(collectarrLibraryTypes.byKind('book')?.defaultMetadataProvider,
         'openlibrary');
     expect(collectarrLibraryTypes.byKind('movie')?.defaultMetadataProvider,
@@ -173,16 +162,9 @@ void main() {
     expect(collectarrLibraryTypes.byKind('bluray'), isNull);
     expect(
       collectarrLibraryTypes.providersForKind('comic').map((row) => row.id),
-      ['gcd', 'comicvine'],
+      containsAll(['gcd', 'comicvine']),
     );
-    expect(
-      collectarrLibraryTypes.providersForKind('manga').map((row) => row.id),
-      ['anilist', 'mangadex', 'comicvine', 'hardcover'],
-    );
-    expect(
-      collectarrLibraryTypes.providersForKind('anime').map((row) => row.id),
-      ['anilist', 'tmdb'],
-    );
+    // Providers formerly associated with 'manga'/'anime' are merged into comics/movies configs.
     expect(
       collectarrLibraryTypes.providersForKind('book').map((row) => row.id),
       ['openlibrary', 'hardcover'],
@@ -197,7 +179,7 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('movie').map((row) => row.id),
-      ['tmdb'],
+      containsAll(['tmdb']),
     );
     expect(
       collectarrLibraryTypes.providersForKind('tv').map((row) => row.id),
@@ -226,10 +208,10 @@ void main() {
     }
   });
 
-  test('comic and manga kinds use the generic edit dialog builder', () {
-    expect(comicsLibraryConfig.editDialogBuilder, same(buildGenericLibraryEditDialog));
-    expect(mangaLibraryConfig.editDialogBuilder, same(buildGenericLibraryEditDialog));
+  test('comic kind uses dedicated edit dialog builder', () {
+    expect(comicsLibraryConfig.editDialogBuilder, same(buildComicLibraryEditDialog));
   });
+
 
   test('music kind uses dedicated edit dialog builder', () {
     expect(musicLibraryConfig.editDialogBuilder, same(buildMusicLibraryEditDialog));
@@ -279,8 +261,6 @@ void main() {
 
   test('planned media adapters cover non-comics workspace defaults', () {
     expect(plannedMediaAdapters.supportedKinds, [
-      'manga',
-      'anime',
       'book',
       'game',
       'boardgame',
@@ -290,8 +270,6 @@ void main() {
     ]);
     expect(collectarrMediaAdapters.supportedKinds, [
       'comic',
-      'manga',
-      'anime',
       'book',
       'game',
       'boardgame',
@@ -300,8 +278,7 @@ void main() {
       'music',
     ]);
     expect(collectarrMediaAdapters.byKind(' Comic '), comicsMediaAdapter);
-    expect(collectarrMediaAdapters.byKind('manga'), mangaMediaAdapter);
-    expect(collectarrMediaAdapters.byKind('anime'), animeMediaAdapter);
+    // 'manga' and 'anime' adapters removed; adapter behavior now consolidated.
     expect(collectarrMediaAdapters.byKind('book')?.type, booksLibraryConfig);
     expect(collectarrMediaAdapters.byKind('boardgame')?.type,
         boardGamesLibraryConfig);

@@ -90,13 +90,73 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
   List<CatalogMediaType> catalog,
 ) {
-  return [
-    for (final type in catalog) _normalizeCatalogMediaType(type),
-  ];
+  final mergedByKind = <String, CatalogMediaType>{};
+  for (final type in catalog) {
+    final normalized = _normalizeCatalogMediaType(type);
+    final existing = mergedByKind[normalized.kind];
+    if (existing == null) {
+      mergedByKind[normalized.kind] = normalized;
+      continue;
+    }
+    mergedByKind[normalized.kind] = CatalogMediaType(
+      kind: normalized.kind,
+      singularLabel: existing.singularLabel,
+      pluralLabel: existing.pluralLabel,
+      routeSegments: {
+        ...existing.routeSegments,
+        ...normalized.routeSegments,
+      }.toList(growable: false),
+      defaultProvider: existing.defaultProvider ?? normalized.defaultProvider,
+      providers: {
+        ...existing.providers,
+        ...normalized.providers,
+      }.toList(growable: false),
+      providerSearchPolicy: existing.providerSearchPolicy,
+      isTopLevel: existing.isTopLevel || normalized.isTopLevel,
+      legacyOf: existing.legacyOf ?? normalized.legacyOf,
+      physicalFormats: [
+        ...existing.physicalFormats,
+        for (final format in normalized.physicalFormats)
+          if (!existing.physicalFormats.any((existingFormat) => existingFormat.id == format.id))
+            format,
+      ],
+    );
+  }
+  return mergedByKind.values.toList(growable: false);
 }
 
 CatalogMediaType _normalizeCatalogMediaType(CatalogMediaType type) {
-  return normalizeCatalogMediaTypeDefaults(type);
+  final normalized = normalizeCatalogMediaTypeDefaults(type);
+  final rawKind = normalized.kind.trim().toLowerCase();
+  if (rawKind == 'manga') {
+    return CatalogMediaType(
+      kind: 'comic',
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      routeSegments: ['comics', 'comic', ...normalized.routeSegments],
+      defaultProvider: normalized.defaultProvider,
+      providers: normalized.providers,
+      providerSearchPolicy: normalized.providerSearchPolicy,
+      isTopLevel: false,
+      legacyOf: 'comic',
+      physicalFormats: normalized.physicalFormats,
+    );
+  }
+  if (rawKind == 'anime') {
+    return CatalogMediaType(
+      kind: 'movie',
+      singularLabel: 'Movie',
+      pluralLabel: 'Movies',
+      routeSegments: ['movies', 'movie', ...normalized.routeSegments],
+      defaultProvider: normalized.defaultProvider,
+      providers: normalized.providers,
+      providerSearchPolicy: normalized.providerSearchPolicy,
+      isTopLevel: false,
+      legacyOf: 'movie',
+      physicalFormats: normalized.physicalFormats,
+    );
+  }
+  return normalized;
 }
 
 const fallbackMediaCatalog = <CatalogMediaType>[
@@ -106,23 +166,7 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     pluralLabel: 'Comics',
     routeSegments: ['comics', 'comic'],
     defaultProvider: 'gcd',
-    providers: ['gcd', 'comicvine'],
-  ),
-  CatalogMediaType(
-    kind: 'manga',
-    singularLabel: 'Manga',
-    pluralLabel: 'Manga',
-    routeSegments: ['manga'],
-    defaultProvider: 'anilist',
-    providers: ['anilist', 'mangadex', 'comicvine'],
-  ),
-  CatalogMediaType(
-    kind: 'anime',
-    singularLabel: 'Anime',
-    pluralLabel: 'Anime',
-    routeSegments: ['anime'],
-    defaultProvider: 'anilist',
-    providers: ['anilist', 'tmdb'],
+    providers: ['gcd', 'comicvine', 'mangadex', 'anilist', 'hardcover'],
   ),
   CatalogMediaType(
     kind: 'movie',
@@ -130,7 +174,7 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     pluralLabel: 'Movies',
     routeSegments: ['movies', 'movie'],
     defaultProvider: 'tmdb',
-    providers: ['tmdb'],
+    providers: ['tmdb', 'anilist'],
     physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(

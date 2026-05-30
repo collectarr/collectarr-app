@@ -413,6 +413,13 @@ CatalogMediaKind catalogMediaKindFromValue(Object? value) {
 
 CatalogMediaKind catalogMediaKindFromApiValue(String? value) {
   final normalized = value?.trim().toLowerCase();
+  if (normalized == null) return CatalogMediaKind.unknown;
+
+  // Map legacy kinds to canonical kinds: treat 'anime' as 'movie' and
+  // 'manga' as 'comic' so the frontend uses consolidated kinds.
+  if (normalized == 'anime') return CatalogMediaKind.movie;
+  if (normalized == 'manga') return CatalogMediaKind.comic;
+
   for (final kind in CatalogMediaKind.values) {
     if (kind.apiValue == normalized) {
       return kind;

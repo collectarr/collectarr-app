@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -471,7 +470,7 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
 
   LibraryTypeConfig _resolvedTypeForEntry(TmdbImportEntry entry) {
     final config = entry.looksLikeAnime
-        ? animeLibraryConfig
+        ? moviesLibraryConfig
         : switch (entry.mediaType) {
             TmdbMediaType.movie => moviesLibraryConfig,
             TmdbMediaType.tv => tvLibraryConfig,

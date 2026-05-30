@@ -7,8 +7,9 @@ const Color kLibraryFallbackAccent = kAppAccent;
 Color libraryAccentForKind(Object? kind) {
   return switch (catalogMediaKindFromValue(kind)) {
     CatalogMediaKind.comic => kAppTopBar,
-    CatalogMediaKind.manga => const Color(0xFFE96BA8),
-    CatalogMediaKind.anime => const Color(0xFF00AFA5),
+    // `manga` and `anime` are treated as `comic` and `movie` respectively.
+    CatalogMediaKind.manga => kAppTopBar,
+    CatalogMediaKind.anime => const Color(0xFFE05252),
     CatalogMediaKind.book => const Color(0xFF48A868),
     CatalogMediaKind.game => const Color(0xFF7C68D8),
     CatalogMediaKind.boardgame => const Color(0xFFE0A52B),
@@ -60,12 +61,12 @@ Color libraryChromeBorderColor(
 
 IconData libraryIconForKind(Object? kind) {
   return switch (catalogMediaKindFromValue(kind)) {
-    CatalogMediaKind.anime => Icons.movie_filter_outlined,
+    CatalogMediaKind.anime => Icons.movie_outlined,
     CatalogMediaKind.book => Icons.menu_book_outlined,
     CatalogMediaKind.boardgame => Icons.casino_outlined,
     CatalogMediaKind.comic => Icons.library_books,
     CatalogMediaKind.game => Icons.sports_esports,
-    CatalogMediaKind.manga => Icons.auto_stories,
+    CatalogMediaKind.manga => Icons.library_books,
     CatalogMediaKind.movie => Icons.movie_outlined,
     CatalogMediaKind.music => Icons.music_note,
     CatalogMediaKind.tv => Icons.tv,
@@ -77,7 +78,7 @@ String librarySidebarTitleForKind(Object? kind) {
   return switch (catalogMediaKindFromValue(kind)) {
     CatalogMediaKind.movie => 'Years',
     CatalogMediaKind.music => 'Artists',
-    CatalogMediaKind.manga || CatalogMediaKind.anime || CatalogMediaKind.tv =>
+    CatalogMediaKind.comic || CatalogMediaKind.tv =>
       'Series',
     CatalogMediaKind.book ||
     CatalogMediaKind.game ||

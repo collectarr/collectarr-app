@@ -61,7 +61,6 @@ import 'package:uuid/uuid.dart';
 part 'library_add_mode_bar.dart';
 part 'library_add_search_pane.dart';
 part 'library_add_search_comic.dart';
-part 'library_add_search_manga.dart';
 part 'library_add_search_unified.dart';
 part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
@@ -131,6 +130,33 @@ class LibraryAddManualPaneRequest {
     required this.onAddOwned,
     required this.onAddWishlist,
     required this.onAddTrack,
+    required this.editionTitleController,
+    required this.releaseDateController,
+    required this.pageCountController,
+    required this.imprintController,
+    required this.seriesGroupController,
+    required this.countryController,
+    required this.languageController,
+    required this.ageRatingController,
+    required this.genresEditController,
+    required this.synopsisController,
+    required this.tagsController,
+    required this.rawOrSlabbedController,
+    required this.gradingCompanyController,
+    required this.graderNotesController,
+    required this.signedByController,
+    required this.labelTypeController,
+    required this.certificationNumberController,
+    required this.coverPriceController,
+    required this.purchasePriceController,
+    required this.purchaseDateController,
+    required this.purchaseStoreController,
+    required this.soldPriceController,
+    required this.soldDateController,
+    required this.ownerLabelController,
+    required this.customFieldDefinitions,
+    required this.customFieldValues,
+    required this.itemImages,
   });
 
   final LibraryTypeConfig type;
@@ -154,6 +180,39 @@ class LibraryAddManualPaneRequest {
   final VoidCallback onAddOwned;
   final VoidCallback onAddWishlist;
   final VoidCallback onAddTrack;
+
+  // Additional catalog & personal fields for the tabbed manual interface
+  final TextEditingController editionTitleController;
+  final TextEditingController releaseDateController;
+  final TextEditingController pageCountController;
+  final TextEditingController imprintController;
+  final TextEditingController seriesGroupController;
+  final TextEditingController countryController;
+  final TextEditingController languageController;
+  final TextEditingController ageRatingController;
+  final TextEditingController genresEditController;
+  final TextEditingController synopsisController;
+  final TextEditingController tagsController;
+
+  // Comics-specific / personal fields
+  final TextEditingController rawOrSlabbedController;
+  final TextEditingController gradingCompanyController;
+  final TextEditingController graderNotesController;
+  final TextEditingController signedByController;
+  final TextEditingController labelTypeController;
+  final TextEditingController certificationNumberController;
+  final TextEditingController coverPriceController;
+  final TextEditingController purchasePriceController;
+  final TextEditingController purchaseDateController;
+  final TextEditingController purchaseStoreController;
+  final TextEditingController soldPriceController;
+  final TextEditingController soldDateController;
+  final TextEditingController ownerLabelController;
+
+  // Custom fields and images
+  final List<CustomFieldDefinition> customFieldDefinitions;
+  final Map<String, String?> customFieldValues;
+  final List<ItemImage> itemImages;
 }
 
 class LibraryAddPreviewPaneRequest {
@@ -891,8 +950,34 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         defaultTags: _defaultTags,
                         onAddOwned: () => _addManual(LibraryAddTarget.owned),
                         onAddTrack: () => _addManual(LibraryAddTarget.track),
-                        onAddWishlist: () =>
-                            _addManual(LibraryAddTarget.wishlist),
+                        onAddWishlist: () => _addManual(LibraryAddTarget.wishlist),
+                        editionTitleController: _editionTitleController,
+                        releaseDateController: _releaseDateController,
+                        pageCountController: _pageCountController,
+                        imprintController: _imprintController,
+                        seriesGroupController: _seriesGroupController,
+                        countryController: _countryController,
+                        languageController: _languageController,
+                        ageRatingController: _ageRatingController,
+                        genresEditController: _genresEditController,
+                        synopsisController: _synopsisController,
+                        tagsController: _tagsController,
+                        rawOrSlabbedController: _rawOrSlabbedController,
+                        gradingCompanyController: _gradingCompanyController,
+                        graderNotesController: _graderNotesController,
+                        signedByController: _signedByController,
+                        labelTypeController: _labelTypeController,
+                        certificationNumberController: _certificationNumberController,
+                        coverPriceController: _coverPriceController,
+                        purchasePriceController: _priceController,
+                        purchaseDateController: _purchaseDateController,
+                        purchaseStoreController: _purchaseStoreController,
+                        soldPriceController: _sellPriceController,
+                        soldDateController: TextEditingController(text: _soldAt == null ? '' : formatDate(_soldAt!)),
+                        ownerLabelController: _ownerLabelController,
+                        customFieldDefinitions: widget.customFieldDefinitions,
+                        customFieldValues: Map.of(widget.customFieldValues.asMap().map((k, v) => MapEntry(v.definitionId, v.value))),
+                        itemImages: widget.itemImages,
                       );
                       final manualPane =
                           widget.manualPaneBuilder?.call(context, manualRequest) ??

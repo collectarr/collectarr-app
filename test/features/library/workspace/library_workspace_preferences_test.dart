@@ -19,7 +19,7 @@ void main() {
     },
   );
   const mangaConfig = LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.manga,
+    kind: CatalogMediaKind.comic,
     title: 'Manga',
     icon: Icons.auto_stories,
     preferencePrefix: 'manga',

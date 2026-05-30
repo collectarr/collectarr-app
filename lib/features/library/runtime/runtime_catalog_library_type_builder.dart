@@ -5,13 +5,11 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -20,7 +18,9 @@ import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
-  final normalizedType = normalizeCatalogMediaTypeDefaults(type);
+  final normalizedType = normalizeCatalogMediaTypeDefaults(
+    _canonicalizeCatalogType(type),
+  );
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
   final presentation = _presentationForCatalogKind(normalizedType.kind);
   final editPresentation = _editPresentationForCatalogKind(normalizedType.kind);
@@ -53,6 +53,39 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
     presentation: presentation,
     editPresentation: editPresentation,
   );
+}
+
+CatalogMediaType _canonicalizeCatalogType(CatalogMediaType type) {
+  final normalizedKind = type.kind.trim().toLowerCase();
+  if (normalizedKind == 'manga') {
+    return CatalogMediaType(
+      kind: 'comic',
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      routeSegments: ['comics', 'comic', ...type.routeSegments],
+      defaultProvider: type.defaultProvider,
+      providers: type.providers,
+      providerSearchPolicy: type.providerSearchPolicy,
+      isTopLevel: false,
+      legacyOf: 'comic',
+      physicalFormats: type.physicalFormats,
+    );
+  }
+  if (normalizedKind == 'anime') {
+    return CatalogMediaType(
+      kind: 'movie',
+      singularLabel: 'Movie',
+      pluralLabel: 'Movies',
+      routeSegments: ['movies', 'movie', ...type.routeSegments],
+      defaultProvider: type.defaultProvider,
+      providers: type.providers,
+      providerSearchPolicy: type.providerSearchPolicy,
+      isTopLevel: false,
+      legacyOf: 'movie',
+      physicalFormats: type.physicalFormats,
+    );
+  }
+  return type;
 }
 
 List<LibraryMetadataProviderOption> _resolveRuntimeMetadataProviders(
@@ -105,8 +138,6 @@ String _runtimeCatalogDisplayLabel(
 
 LibraryMediaPresentation _presentationForCatalogKind(String kind) {
   switch (kind.trim().toLowerCase()) {
-    case 'anime':
-      return animeLibraryMediaPresentation;
     case 'boardgame':
       return boardGamesLibraryMediaPresentation;
     case 'book':
@@ -115,8 +146,6 @@ LibraryMediaPresentation _presentationForCatalogKind(String kind) {
       return comicsLibraryMediaPresentation;
     case 'game':
       return gamesLibraryMediaPresentation;
-    case 'manga':
-      return mangaLibraryMediaPresentation;
     case 'movie':
       return moviesLibraryMediaPresentation;
     case 'music':
@@ -132,8 +161,6 @@ LibraryEditPresentation _editPresentationForCatalogKind(String kind) {
   switch (kind.trim().toLowerCase()) {
     case 'comic':
       return comicsLibraryEditPresentation;
-    case 'manga':
-      return mangaLibraryEditPresentation;
     default:
       return genericLibraryEditPresentation;
   }
