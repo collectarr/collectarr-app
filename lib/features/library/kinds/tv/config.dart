@@ -55,5 +55,6 @@ const tvLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.seasons,
+    supportsVideoKindFilters: true,
   ),
 );

@@ -185,11 +185,17 @@ class LibraryTypeCapabilities {
     this.showsSynopsis = false,
     this.showsTrackData = false,
     this.contentHierarchy = LibraryContentHierarchy.flat,
+    this.canScanCover = false,
+    this.supportsVideoKindFilters = false,
+    this.wideDialog = false,
   });
 
   final bool showsSynopsis;
   final bool showsTrackData;
   final LibraryContentHierarchy contentHierarchy;
+  final bool canScanCover;
+  final bool supportsVideoKindFilters;
+  final bool wideDialog;
 
   bool get usesSeasonHierarchy =>
       contentHierarchy == LibraryContentHierarchy.seasons;

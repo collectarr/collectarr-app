@@ -57,5 +57,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
+    supportsVideoKindFilters: true,
+    wideDialog: true,
   ),
 );

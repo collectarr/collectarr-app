@@ -62,6 +62,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
+    canScanCover: true,
   ),
   conditions: kComicConditions,
   grades: kComicGrades,

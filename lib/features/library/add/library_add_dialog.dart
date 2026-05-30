@@ -34,6 +34,11 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_librar
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -472,6 +477,9 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.modeBarBuilder,
     this.searchPaneBuilder,
     this.bottomBarBuilder,
+    this.customFieldDefinitions = const [],
+    this.customFieldValues = const [],
+    this.itemImages = const [],
   });
 
   final LibraryTypeConfig type;
@@ -486,6 +494,9 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final LibraryAddModeBarBuilder? modeBarBuilder;
   final LibraryAddSearchPaneBuilder? searchPaneBuilder;
   final LibraryAddBottomBarBuilder? bottomBarBuilder;
+  final List<CustomFieldDefinition> customFieldDefinitions;
+  final List<CustomFieldValue> customFieldValues;
+  final List<ItemImage> itemImages;
 
   @override
   ConsumerState<LibraryAddDialog> createState() => _LibraryAddDialogState();
@@ -507,6 +518,30 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _yearController = TextEditingController();
   final _variantController = TextEditingController();
   final _coverController = TextEditingController();
+  final _editionTitleController = TextEditingController();
+  final _releaseDateController = TextEditingController();
+  final _pageCountController = TextEditingController();
+  final _imprintController = TextEditingController();
+  final _seriesGroupController = TextEditingController();
+  final _countryController = TextEditingController();
+  final _languageController = TextEditingController();
+  final _ageRatingController = TextEditingController();
+  final _genresEditController = TextEditingController();
+  final _synopsisController = TextEditingController();
+  final _tagsController = TextEditingController();
+  final _rawOrSlabbedController = TextEditingController();
+  final _gradingCompanyController = TextEditingController();
+  final _graderNotesController = TextEditingController();
+  final _signedByController = TextEditingController();
+  final _labelTypeController = TextEditingController();
+  final _certificationNumberController = TextEditingController();
+  final _coverPriceController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _purchaseDateController = TextEditingController();
+  final _purchaseStoreController = TextEditingController();
+  final _sellPriceController = TextEditingController();
+  final _ownerLabelController = TextEditingController();
+  DateTime? _soldAt;
   final _uuid = const Uuid();
 
   // Advanced search fields
@@ -587,12 +622,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// Video-kind filter for movie library: allows searching across movie + tv.
   late final Set<String> _videoKindFilters;
 
-  bool get _isVideoKind =>
-      widget.type.workspace.kind == CatalogMediaKind.movie ||
-      widget.type.workspace.kind == CatalogMediaKind.tv;
+  bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
 
-    bool get _isMovieDesktopChrome =>
-      widget.type.workspace.kind == CatalogMediaKind.movie;
+  bool get _isMovieDesktopChrome => widget.type.capabilities.wideDialog;
 
   @override
   void initState() {
@@ -629,6 +661,29 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _yearController.dispose();
     _variantController.dispose();
     _coverController.dispose();
+    _editionTitleController.dispose();
+    _releaseDateController.dispose();
+    _pageCountController.dispose();
+    _imprintController.dispose();
+    _seriesGroupController.dispose();
+    _countryController.dispose();
+    _languageController.dispose();
+    _ageRatingController.dispose();
+    _genresEditController.dispose();
+    _synopsisController.dispose();
+    _tagsController.dispose();
+    _rawOrSlabbedController.dispose();
+    _gradingCompanyController.dispose();
+    _graderNotesController.dispose();
+    _signedByController.dispose();
+    _labelTypeController.dispose();
+    _certificationNumberController.dispose();
+    _coverPriceController.dispose();
+    _priceController.dispose();
+    _purchaseDateController.dispose();
+    _purchaseStoreController.dispose();
+    _sellPriceController.dispose();
+    _ownerLabelController.dispose();
     _searchSeriesController.dispose();
     _searchNumberController.dispose();
     _searchPublisherController.dispose();
@@ -694,7 +749,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       showSuggestions: _showSuggestions,
       onSelectSuggestion: _selectSuggestion,
       onDismissSuggestions: _dismissSuggestions,
-      canScanCover: widget.type.workspace.kind == CatalogMediaKind.comic,
+      canScanCover: widget.type.capabilities.canScanCover,
       isScanningCover: _isScanningCover,
       onScanCover: _scanCover,
       onLookupBarcode: _lookupBarcode,
@@ -976,7 +1031,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         soldDateController: TextEditingController(text: _soldAt == null ? '' : formatDate(_soldAt!)),
                         ownerLabelController: _ownerLabelController,
                         customFieldDefinitions: widget.customFieldDefinitions,
-                        customFieldValues: Map.of(widget.customFieldValues.asMap().map((k, v) => MapEntry(v.definitionId, v.value))),
+                        customFieldValues: Map.of(widget.customFieldValues.asMap().map((k, v) => MapEntry(v.fieldDefinitionId, v.value))),
                         itemImages: widget.itemImages,
                       );
                       final manualPane =
