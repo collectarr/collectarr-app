@@ -383,7 +383,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     try {
       final rotatedBase64 = await compute(
         _rotateImageBase64,
-        _RotateImageRequest(
+        _ImageTransformRequest.rotate(
           imageData: image.imageData,
           clockwise: clockwise,
         ),
@@ -467,7 +467,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       }
       final croppedBase64 = await compute(
         _cropImageBase64,
-        _CropImageRequest(
+        _ImageTransformRequest.crop(
           imageData: image.imageData,
           bounds: bounds,
         ),
@@ -535,33 +535,33 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 }
 
-String _rotateImageBase64(_RotateImageRequest request) {
-  final decoded = img.decodeImage(base64Decode(request.imageData));
-  if (decoded == null) {
-    throw StateError('Image decode returned null.');
-  }
+String _rotateImageBase64(_ImageTransformRequest request) {
+  final decoded = _decodeEditableImage(request.imageData);
+  final clockwise = request.clockwise!;
   final rotated = img.copyRotate(
     decoded,
-    angle: request.clockwise ? 90 : -90,
+    angle: clockwise ? 90 : -90,
   );
   return base64Encode(img.encodePng(rotated));
 }
 
 double _decodeImageAspectRatio(String imageData) {
+  final decoded = _decodeEditableImage(imageData);
+  return decoded.width / decoded.height;
+}
+
+String _cropImageBase64(_ImageTransformRequest request) {
+  final decoded = _decodeEditableImage(request.imageData);
+  final cropped = _applyCropBounds(decoded, request.bounds!);
+  return base64Encode(img.encodePng(cropped));
+}
+
+img.Image _decodeEditableImage(String imageData) {
   final decoded = img.decodeImage(base64Decode(imageData));
   if (decoded == null) {
     throw StateError('Image decode returned null.');
   }
-  return decoded.width / decoded.height;
-}
-
-String _cropImageBase64(_CropImageRequest request) {
-  final decoded = img.decodeImage(base64Decode(request.imageData));
-  if (decoded == null) {
-    throw StateError('Image decode returned null.');
-  }
-  final cropped = _applyCropBounds(decoded, request.bounds);
-  return base64Encode(img.encodePng(cropped));
+  return decoded;
 }
 
 img.Image _applyCropBounds(img.Image source, _ImageCropBounds bounds) {
@@ -574,24 +574,26 @@ img.Image _applyCropBounds(img.Image source, _ImageCropBounds bounds) {
   return img.copyCrop(source, x: x, y: y, width: width, height: height);
 }
 
-class _RotateImageRequest {
-  const _RotateImageRequest({
+class _ImageTransformRequest {
+  const _ImageTransformRequest._({
     required this.imageData,
-    required this.clockwise,
+    this.clockwise,
+    this.bounds,
   });
 
-  final String imageData;
-  final bool clockwise;
-}
+  const _ImageTransformRequest.rotate({
+    required String imageData,
+    required bool clockwise,
+  }) : this._(imageData: imageData, clockwise: clockwise);
 
-class _CropImageRequest {
-  const _CropImageRequest({
-    required this.imageData,
-    required this.bounds,
-  });
+  const _ImageTransformRequest.crop({
+    required String imageData,
+    required _ImageCropBounds bounds,
+  }) : this._(imageData: imageData, bounds: bounds);
 
   final String imageData;
-  final _ImageCropBounds bounds;
+  final bool? clockwise;
+  final _ImageCropBounds? bounds;
 }
 
 class _EditableImage {
