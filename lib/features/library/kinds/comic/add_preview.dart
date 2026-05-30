@@ -82,12 +82,12 @@ class _ComicAddPreviewPane extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: request.accent,
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.w900,
                           height: 1.02,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         'Issue identity',
                         style: TextStyle(
@@ -96,7 +96,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
@@ -126,7 +126,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                         ],
                       ),
                       if (synopsis != null && synopsis.trim().isNotEmpty) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         Text(
                           'Story summary',
                           style: TextStyle(
@@ -134,10 +134,10 @@ class _ComicAddPreviewPane extends StatelessWidget {
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Text(
                           synopsis,
-                          maxLines: 6,
+                          maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: palette.textPrimary,
@@ -176,7 +176,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             Expanded(
               child: ListView(
                 children: [

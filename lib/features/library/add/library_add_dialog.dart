@@ -88,6 +88,26 @@ typedef LibraryAddPreviewPaneBuilder = Widget Function(
   LibraryAddPreviewPaneRequest request,
 );
 
+typedef LibraryAddHeaderBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddHeaderRequest request,
+);
+
+typedef LibraryAddModeBarBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddModeBarRequest request,
+);
+
+typedef LibraryAddSearchPaneBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddSearchPaneRequest request,
+);
+
+typedef LibraryAddBottomBarBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddBottomBarRequest request,
+);
+
 class LibraryAddManualPaneRequest {
   const LibraryAddManualPaneRequest({
     required this.type,
@@ -184,6 +204,200 @@ class LibraryAddPreviewPaneRequest {
   final ValueChanged<String> onBundleReleaseSelected;
 }
 
+class LibraryAddHeaderRequest {
+  const LibraryAddHeaderRequest({
+    required this.type,
+    required this.accent,
+    required this.isMovieDesktopChrome,
+    required this.onClose,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final bool isMovieDesktopChrome;
+  final VoidCallback onClose;
+}
+
+class LibraryAddModeBarRequest {
+  const LibraryAddModeBarRequest({
+    required this.type,
+    required this.accent,
+    required this.isMovieDesktopChrome,
+    required this.mode,
+    required this.queryController,
+    required this.barcodeController,
+    required this.isSearching,
+    required this.isSearchingProvider,
+    required this.onModeChanged,
+    required this.onSearch,
+    required this.onQueryChanged,
+    required this.suggestions,
+    required this.showSuggestions,
+    required this.onSelectSuggestion,
+    required this.onDismissSuggestions,
+    required this.canScanCover,
+    required this.isScanningCover,
+    required this.onScanCover,
+    required this.onLookupBarcode,
+    required this.onManual,
+    required this.showAdvanced,
+    required this.onToggleAdvanced,
+    required this.seriesController,
+    required this.numberController,
+    required this.publisherController,
+    required this.yearController,
+    required this.videoKindFilters,
+    required this.onVideoKindFilterChanged,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final bool isMovieDesktopChrome;
+  final LibraryAddDialogMode mode;
+  final TextEditingController queryController;
+  final TextEditingController barcodeController;
+  final bool isSearching;
+  final bool isSearchingProvider;
+  final ValueChanged<LibraryAddDialogMode> onModeChanged;
+  final VoidCallback onSearch;
+  final ValueChanged<String> onQueryChanged;
+  final List<LibraryMetadataItem> suggestions;
+  final bool showSuggestions;
+  final ValueChanged<LibraryMetadataItem> onSelectSuggestion;
+  final VoidCallback onDismissSuggestions;
+  final bool canScanCover;
+  final bool isScanningCover;
+  final VoidCallback onScanCover;
+  final VoidCallback onLookupBarcode;
+  final VoidCallback onManual;
+  final bool showAdvanced;
+  final VoidCallback onToggleAdvanced;
+  final TextEditingController seriesController;
+  final TextEditingController numberController;
+  final TextEditingController publisherController;
+  final TextEditingController yearController;
+  final Set<String>? videoKindFilters;
+  final void Function(String kind, bool checked)? onVideoKindFilterChanged;
+}
+
+class LibraryAddSearchPaneRequest {
+  const LibraryAddSearchPaneRequest({
+    required this.type,
+    required this.isBusy,
+    required this.isMovieDesktopChrome,
+    required this.error,
+    required this.accent,
+    required this.results,
+    required this.providerResults,
+    required this.queuedProviderIngests,
+    required this.selectedProvider,
+    required this.searchedProvider,
+    required this.selectedResultId,
+    required this.selectedProviderCandidateId,
+    required this.checkedResultIds,
+    required this.checkedProviderIds,
+    required this.ownedCatalogItemIds,
+    required this.providerQueryText,
+    required this.providerSeriesText,
+    required this.providerNumberText,
+    required this.providerPublisherText,
+    required this.providerYearText,
+    required this.onSelectResult,
+    required this.onSelectProviderCandidate,
+    required this.onToggleResultCheck,
+    required this.onToggleProviderCheck,
+    required this.onSearchCore,
+  });
+
+  final LibraryTypeConfig type;
+  final bool isBusy;
+  final bool isMovieDesktopChrome;
+  final String? error;
+  final Color accent;
+  final List<LibraryMetadataItem> results;
+  final List<ProviderCandidate> providerResults;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
+  final String selectedProvider;
+  final bool searchedProvider;
+  final String? selectedResultId;
+  final String? selectedProviderCandidateId;
+  final Set<String> checkedResultIds;
+  final Set<String> checkedProviderIds;
+  final Set<String> ownedCatalogItemIds;
+  final String providerQueryText;
+  final String providerSeriesText;
+  final String providerNumberText;
+  final String providerPublisherText;
+  final String providerYearText;
+  final ValueChanged<String> onSelectResult;
+  final ValueChanged<String> onSelectProviderCandidate;
+  final ValueChanged<String> onToggleResultCheck;
+  final ValueChanged<String> onToggleProviderCheck;
+  final VoidCallback onSearchCore;
+}
+
+class LibraryAddBottomBarRequest {
+  const LibraryAddBottomBarRequest({
+    required this.type,
+    required this.isMovieDesktopChrome,
+    required this.conditions,
+    required this.grades,
+    required this.defaultTags,
+    required this.accent,
+    required this.selectedItem,
+    required this.selectedCandidate,
+    required this.selectedQueuedIngest,
+    required this.providerLabel,
+    required this.addTarget,
+    required this.addCount,
+    required this.isAdding,
+    required this.isQueueingIngest,
+    required this.isAdmin,
+    required this.defaultCondition,
+    required this.defaultGrade,
+    required this.defaultLocationLabel,
+    required this.defaultPurchaseDate,
+    required this.onAddTargetChanged,
+    required this.onDefaultConditionChanged,
+    required this.onDefaultGradeChanged,
+    required this.onEditDefaultTagsPressed,
+    required this.onDefaultLocationPressed,
+    required this.onDefaultPurchaseDateChanged,
+    required this.onAdd,
+    required this.onQueueIngest,
+    required this.onPropose,
+  });
+
+  final LibraryTypeConfig type;
+  final bool isMovieDesktopChrome;
+  final List<String> conditions;
+  final List<String> grades;
+  final String? defaultTags;
+  final Color accent;
+  final LibraryMetadataItem? selectedItem;
+  final ProviderCandidate? selectedCandidate;
+  final LibraryQueuedProviderIngest? selectedQueuedIngest;
+  final String providerLabel;
+  final LibraryAddTarget addTarget;
+  final int addCount;
+  final bool isAdding;
+  final bool isQueueingIngest;
+  final bool isAdmin;
+  final String defaultCondition;
+  final String defaultGrade;
+  final String? defaultLocationLabel;
+  final DateTime? defaultPurchaseDate;
+  final ValueChanged<LibraryAddTarget> onAddTargetChanged;
+  final ValueChanged<String> onDefaultConditionChanged;
+  final ValueChanged<String> onDefaultGradeChanged;
+  final VoidCallback onEditDefaultTagsPressed;
+  final VoidCallback onDefaultLocationPressed;
+  final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
+  final VoidCallback? onAdd;
+  final VoidCallback? onQueueIngest;
+  final VoidCallback? onPropose;
+}
+
 class LibraryAddDialog extends ConsumerStatefulWidget {
   const LibraryAddDialog({
     super.key,
@@ -195,6 +409,10 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.manualPaneBuilder,
     this.previewPaneBuilder,
+    this.headerBuilder,
+    this.modeBarBuilder,
+    this.searchPaneBuilder,
+    this.bottomBarBuilder,
   });
 
   final LibraryTypeConfig type;
@@ -205,6 +423,10 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final LibraryCoverScanService coverScanService;
   final LibraryAddManualPaneBuilder? manualPaneBuilder;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
+  final LibraryAddHeaderBuilder? headerBuilder;
+  final LibraryAddModeBarBuilder? modeBarBuilder;
+  final LibraryAddSearchPaneBuilder? searchPaneBuilder;
+  final LibraryAddBottomBarBuilder? bottomBarBuilder;
 
   @override
   ConsumerState<LibraryAddDialog> createState() => _LibraryAddDialogState();
@@ -388,6 +610,56 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final palette = appPalette(context);
     final movieDesktopWidth = _isMovieDesktopChrome ? 1540.0 : _defaultDialogWidth;
     final movieDesktopHeight = _isMovieDesktopChrome ? 920.0 : _defaultDialogHeight;
+    final headerRequest = LibraryAddHeaderRequest(
+      type: widget.type,
+      accent: accent,
+      isMovieDesktopChrome: _isMovieDesktopChrome,
+      onClose: () => Navigator.of(context).pop(),
+    );
+    final modeBarRequest = LibraryAddModeBarRequest(
+      type: widget.type,
+      accent: accent,
+      isMovieDesktopChrome: _isMovieDesktopChrome,
+      mode: _mode,
+      queryController: _queryController,
+      barcodeController: _barcodeController,
+      isSearching: _isSearching,
+      isSearchingProvider: _isSearchingProvider,
+      onModeChanged: (mode) => setState(() => _mode = mode),
+      onSearch: () {
+        _dismissSuggestions();
+        _search();
+      },
+      onQueryChanged: _onQueryChanged,
+      suggestions: _suggestions,
+      showSuggestions: _showSuggestions,
+      onSelectSuggestion: _selectSuggestion,
+      onDismissSuggestions: _dismissSuggestions,
+      canScanCover: widget.type.workspace.kind == CatalogMediaKind.comic,
+      isScanningCover: _isScanningCover,
+      onScanCover: _scanCover,
+      onLookupBarcode: _lookupBarcode,
+      onManual: () => setState(() => _mode = LibraryAddDialogMode.manual),
+      showAdvanced: _showAdvancedSearch,
+      onToggleAdvanced: () =>
+          setState(() => _showAdvancedSearch = !_showAdvancedSearch),
+      seriesController: _searchSeriesController,
+      numberController: _searchNumberController,
+      publisherController: _searchPublisherController,
+      yearController: _searchYearController,
+      videoKindFilters: _isVideoKind ? _videoKindFilters : null,
+      onVideoKindFilterChanged: _isVideoKind
+          ? (kind, checked) {
+              setState(() {
+                if (checked) {
+                  _videoKindFilters.add(kind);
+                } else {
+                  _videoKindFilters.remove(kind);
+                }
+              });
+            }
+          : null,
+    );
     return Theme(
       data: buildLibraryAddDialogTheme(accent, palette),
       child: Dialog(
@@ -414,57 +686,46 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             }),
             child: Column(
               children: [
-                _DialogHeader(
-                  type: widget.type,
-                  accent: accent,
-                  isMovieDesktopChrome: _isMovieDesktopChrome,
-                ),
-                _LibraryAddModeBar(
-                  type: widget.type,
-                  accent: accent,
-                  isMovieDesktopChrome: _isMovieDesktopChrome,
-                  mode: _mode,
-                  queryController: _queryController,
-                  barcodeController: _barcodeController,
-                  isSearching: _isSearching,
-                  isSearchingProvider: _isSearchingProvider,
-                  onModeChanged: (mode) => setState(() => _mode = mode),
-                  onSearch: () {
-                    _dismissSuggestions();
-                    _search();
-                  },
-                  onQueryChanged: _onQueryChanged,
-                  suggestions: _suggestions,
-                  showSuggestions: _showSuggestions,
-                  onSelectSuggestion: _selectSuggestion,
-                  onDismissSuggestions: _dismissSuggestions,
-                  canScanCover:
-                      widget.type.workspace.kind == CatalogMediaKind.comic,
-                  isScanningCover: _isScanningCover,
-                  onScanCover: _scanCover,
-                  onLookupBarcode: _lookupBarcode,
-                  onManual: () =>
-                      setState(() => _mode = LibraryAddDialogMode.manual),
-                  showAdvanced: _showAdvancedSearch,
-                  onToggleAdvanced: () => setState(
-                      () => _showAdvancedSearch = !_showAdvancedSearch),
-                  seriesController: _searchSeriesController,
-                  numberController: _searchNumberController,
-                  publisherController: _searchPublisherController,
-                  yearController: _searchYearController,
-                  videoKindFilters: _isVideoKind ? _videoKindFilters : null,
-                  onVideoKindFilterChanged: _isVideoKind
-                      ? (kind, checked) {
-                          setState(() {
-                            if (checked) {
-                              _videoKindFilters.add(kind);
-                            } else {
-                              _videoKindFilters.remove(kind);
-                            }
-                          });
-                        }
-                      : null,
-                ),
+                widget.headerBuilder?.call(context, headerRequest) ??
+                    _DialogHeader(
+                      type: headerRequest.type,
+                      accent: headerRequest.accent,
+                      isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
+                    ),
+                widget.modeBarBuilder?.call(context, modeBarRequest) ??
+                    _LibraryAddModeBar(
+                      type: modeBarRequest.type,
+                      accent: modeBarRequest.accent,
+                      isMovieDesktopChrome: modeBarRequest.isMovieDesktopChrome,
+                      mode: modeBarRequest.mode,
+                      queryController: modeBarRequest.queryController,
+                      barcodeController: modeBarRequest.barcodeController,
+                      isSearching: modeBarRequest.isSearching,
+                      isSearchingProvider:
+                          modeBarRequest.isSearchingProvider,
+                      onModeChanged: modeBarRequest.onModeChanged,
+                      onSearch: modeBarRequest.onSearch,
+                      onQueryChanged: modeBarRequest.onQueryChanged,
+                      suggestions: modeBarRequest.suggestions,
+                      showSuggestions: modeBarRequest.showSuggestions,
+                      onSelectSuggestion: modeBarRequest.onSelectSuggestion,
+                      onDismissSuggestions:
+                          modeBarRequest.onDismissSuggestions,
+                      canScanCover: modeBarRequest.canScanCover,
+                      isScanningCover: modeBarRequest.isScanningCover,
+                      onScanCover: modeBarRequest.onScanCover,
+                      onLookupBarcode: modeBarRequest.onLookupBarcode,
+                      onManual: modeBarRequest.onManual,
+                      showAdvanced: modeBarRequest.showAdvanced,
+                      onToggleAdvanced: modeBarRequest.onToggleAdvanced,
+                      seriesController: modeBarRequest.seriesController,
+                      numberController: modeBarRequest.numberController,
+                      publisherController: modeBarRequest.publisherController,
+                      yearController: modeBarRequest.yearController,
+                      videoKindFilters: modeBarRequest.videoKindFilters,
+                      onVideoKindFilterChanged:
+                          modeBarRequest.onVideoKindFilterChanged,
+                    ),
                 if (_barcodeController.text.trim().isNotEmpty)
                   _BarcodePrefillBanner(
                     type: widget.type,
@@ -475,7 +736,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final searchPane = _SearchPane(
+                      final searchPaneRequest = LibraryAddSearchPaneRequest(
                         type: widget.type,
                         isBusy: isBusy,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
@@ -515,6 +776,54 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         }),
                         onSearchCore: _search,
                       );
+                      final searchPane = widget.searchPaneBuilder
+                              ?.call(context, searchPaneRequest) ??
+                          _SearchPane(
+                            type: searchPaneRequest.type,
+                            isBusy: searchPaneRequest.isBusy,
+                            isMovieDesktopChrome:
+                                searchPaneRequest.isMovieDesktopChrome,
+                            error: searchPaneRequest.error,
+                            accent: searchPaneRequest.accent,
+                            results: searchPaneRequest.results,
+                            providerResults:
+                                searchPaneRequest.providerResults,
+                            queuedProviderIngests:
+                                searchPaneRequest.queuedProviderIngests,
+                            selectedProvider:
+                                searchPaneRequest.selectedProvider,
+                            searchedProvider:
+                                searchPaneRequest.searchedProvider,
+                            selectedResultId:
+                                searchPaneRequest.selectedResultId,
+                            selectedProviderCandidateId: searchPaneRequest
+                                .selectedProviderCandidateId,
+                            checkedResultIds:
+                                searchPaneRequest.checkedResultIds,
+                            checkedProviderIds:
+                                searchPaneRequest.checkedProviderIds,
+                            ownedCatalogItemIds:
+                                searchPaneRequest.ownedCatalogItemIds,
+                            providerQueryText:
+                                searchPaneRequest.providerQueryText,
+                            providerSeriesText:
+                                searchPaneRequest.providerSeriesText,
+                            providerNumberText:
+                                searchPaneRequest.providerNumberText,
+                            providerPublisherText:
+                                searchPaneRequest.providerPublisherText,
+                            providerYearText:
+                                searchPaneRequest.providerYearText,
+                            onSelectResult:
+                                searchPaneRequest.onSelectResult,
+                            onSelectProviderCandidate:
+                                searchPaneRequest.onSelectProviderCandidate,
+                            onToggleResultCheck:
+                                searchPaneRequest.onToggleResultCheck,
+                            onToggleProviderCheck:
+                                searchPaneRequest.onToggleProviderCheck,
+                            onSearchCore: searchPaneRequest.onSearchCore,
+                          );
                       final previewPane = _LibraryAddPreviewPane(
                         type: widget.type,
                         accent: accent,
@@ -653,7 +962,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             (addCount == 1 &&
                               selectedResult != null &&
                               selectedEditionSelection != null);
-                      return _LibraryAddBottomBar(
+                      final bottomBarRequest = LibraryAddBottomBarRequest(
                         type: widget.type,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
                         conditions: _conditionOptions,
@@ -691,8 +1000,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
                         onAdd: (addItems.isEmpty && selectedCandidate == null) ||
-                            !canAddBundleSelection ||
-                          !canAddEditionSelection
+                                !canAddBundleSelection ||
+                                !canAddEditionSelection
                             ? null
                             : () {
                                 if (addItems.isNotEmpty) {
@@ -700,17 +1009,17 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                     addItems,
                                     _addTarget,
                                     referenceType: _referenceType,
-                              editionSelectionsByItemId:
-                                selectedResult == null ||
-                                    selectedEditionSelection == null ||
-                                    addCount != 1
-                                  ? const <String,
-                                    LibraryAddEditionSelection>{}
-                                  : <String,
-                                    LibraryAddEditionSelection>{
-                                    selectedResult.id:
-                                      selectedEditionSelection,
-                                    },
+                                    editionSelectionsByItemId:
+                                        selectedResult == null ||
+                                                selectedEditionSelection == null ||
+                                                addCount != 1
+                                            ? const <String,
+                                                LibraryAddEditionSelection>{}
+                                            : <String,
+                                                LibraryAddEditionSelection>{
+                                                selectedResult.id:
+                                                    selectedEditionSelection,
+                                              },
                                     bundleReleaseIdsByItemId:
                                         selectedResult == null ||
                                                 _selectedBundleReleaseId == null
@@ -724,10 +1033,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 }
                                 final candidate = selectedCandidate;
                                 if (candidate != null) {
-                                  _addProviderCandidate(
-                                    candidate,
-                                    _addTarget,
-                                  );
+                                  _addProviderCandidate(candidate, _addTarget);
                                 }
                               },
                         onQueueIngest: selectedCandidate == null
@@ -737,6 +1043,51 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             ? null
                             : () => _proposeCandidate(selectedCandidate),
                       );
+                      return widget.bottomBarBuilder
+                              ?.call(context, bottomBarRequest) ??
+                          _LibraryAddBottomBar(
+                            type: bottomBarRequest.type,
+                            isMovieDesktopChrome:
+                                bottomBarRequest.isMovieDesktopChrome,
+                            conditions: bottomBarRequest.conditions,
+                            grades: bottomBarRequest.grades,
+                            defaultTags: bottomBarRequest.defaultTags,
+                            accent: bottomBarRequest.accent,
+                            selectedItem: bottomBarRequest.selectedItem,
+                            selectedCandidate:
+                                bottomBarRequest.selectedCandidate,
+                            selectedQueuedIngest:
+                                bottomBarRequest.selectedQueuedIngest,
+                            providerLabel: bottomBarRequest.providerLabel,
+                            addTarget: bottomBarRequest.addTarget,
+                            addCount: bottomBarRequest.addCount,
+                            isAdding: bottomBarRequest.isAdding,
+                            isQueueingIngest:
+                                bottomBarRequest.isQueueingIngest,
+                            isAdmin: bottomBarRequest.isAdmin,
+                            defaultCondition:
+                                bottomBarRequest.defaultCondition,
+                            defaultGrade: bottomBarRequest.defaultGrade,
+                            defaultLocationLabel:
+                                bottomBarRequest.defaultLocationLabel,
+                            defaultPurchaseDate:
+                                bottomBarRequest.defaultPurchaseDate,
+                            onAddTargetChanged:
+                                bottomBarRequest.onAddTargetChanged,
+                            onDefaultConditionChanged:
+                                bottomBarRequest.onDefaultConditionChanged,
+                            onDefaultGradeChanged:
+                                bottomBarRequest.onDefaultGradeChanged,
+                            onEditDefaultTagsPressed:
+                                bottomBarRequest.onEditDefaultTagsPressed,
+                            onDefaultLocationPressed:
+                                bottomBarRequest.onDefaultLocationPressed,
+                            onDefaultPurchaseDateChanged:
+                                bottomBarRequest.onDefaultPurchaseDateChanged,
+                            onAdd: bottomBarRequest.onAdd,
+                            onQueueIngest: bottomBarRequest.onQueueIngest,
+                            onPropose: bottomBarRequest.onPropose,
+                          );
                     },
                   ),
               ],

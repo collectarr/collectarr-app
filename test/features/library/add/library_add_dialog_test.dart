@@ -1123,10 +1123,71 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(find.text('423').first);
     await pumpUntilSettled(tester);
 
     expect(find.text('Issue identity'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses comic-specific search shell',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open comic add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic add'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add Comics'), findsOneWidget);
+    expect(find.text('Add Comics from Collectarr Core'), findsNothing);
+    expect(find.text('Variant Description'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Issue'), findsOneWidget);
+    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Format'), findsOneWidget);
+    expect(find.text('Batman'), findsWidgets);
+    expect(find.text('423'), findsOneWidget);
   });
 
   testWidgets('showLibraryAddDialog uses movie-specific manual add flow',
@@ -1226,6 +1287,58 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Release overview'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses movie-specific search shell',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: moviesLibraryConfig,
+                  );
+                },
+                child: const Text('Open movie add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie add'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add Movies'), findsOneWidget);
+    expect(find.text('Add Movies from Collectarr Core'), findsNothing);
+    expect(
+      find.text('Browse releases, compare covers, and add directly to your library.'),
+      findsOneWidget,
+    );
+    expect(find.text('Movies'), findsWidgets);
+    expect(find.text('TV'), findsOneWidget);
   });
 
   testWidgets('core search results explain why a movie matched', (
