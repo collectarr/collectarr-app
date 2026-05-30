@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
 
 enum _BulkAction { edit, owned, wishlist, remove, refreshMetadata, clear }
@@ -32,8 +30,10 @@ class LibrarySelectionControls extends StatelessWidget {
     if (selectedCount == 0) {
       return const SizedBox.shrink();
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         FilledButton.tonalIcon(
           onPressed: callbacks.onBulkEdit,
@@ -55,11 +55,14 @@ class LibrarySelectionControls extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
         ),
-        const SizedBox(width: 6),
         PopupMenuButton<_BulkAction>(
-          tooltip: 'Bulk actions',
+          tooltip: 'More bulk actions',
           enabled: selectedCount > 0,
-          icon: const Icon(Icons.more_vert),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+          icon: const Icon(Icons.more_horiz),
           onSelected: (action) {
             final callback = switch (action) {
               _BulkAction.edit => callbacks.onBulkEdit,
@@ -122,16 +125,6 @@ class LibrarySelectionControls extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(width: 4),
-        Tooltip(
-          message: 'Clear selection',
-          child: LibraryWorkspaceIconButton(
-            onPressed: callbacks.onClearSelection,
-            icon: Icons.close,
-          ),
-        ),
-        const SizedBox(width: 8),
-        LibraryToolbarStat(label: 'Selected', value: selectedCount),
       ],
     );
   }

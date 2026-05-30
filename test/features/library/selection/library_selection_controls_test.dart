@@ -31,7 +31,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Bulk actions'));
+    await tester.tap(find.byTooltip('More bulk actions'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Remove selected'));

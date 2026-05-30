@@ -373,25 +373,42 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
           bottom: BorderSide(color: palette.divider),
         ),
       ),
-      child: Row(
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: WrapAlignment.spaceBetween,
         children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: palette.surface.withValues(alpha: 0.38),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: palette.divider),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.checklist, size: 16, color: palette.textMuted),
+                const SizedBox(width: 6),
+                Text(
+                  '$selectedCount selected',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ],
+            ),
+          ),
           TextButton.icon(
             onPressed: callbacks.onClearSelection,
             icon: const Icon(Icons.close, size: 16),
-            label: const Text('Cancel'),
+            label: const Text('Clear selection'),
             style: TextButton.styleFrom(
               visualDensity: VisualDensity.compact,
               foregroundColor: palette.textMuted,
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            '$selectedCount selected',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const Spacer(),
           LibrarySelectionControls(
             selectedCount: selectedCount,
             callbacks: callbacks,
