@@ -1071,7 +1071,9 @@ void main() {
 
     expect(find.text('Manual comic issue'), findsOneWidget);
     expect(find.text('Collection defaults'), findsOneWidget);
-    expect(find.text('Series / Title'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Issue No.'), findsOneWidget);
   });
 
   testWidgets('showLibraryAddDialog uses comic-specific preview pane',

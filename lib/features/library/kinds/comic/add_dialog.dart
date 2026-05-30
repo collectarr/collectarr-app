@@ -62,8 +62,6 @@ class _ComicManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final media = request.type.mediaFields;
-    final release = request.type.releaseFields;
     final copyTypeLabel = ownedCopyTypeLabel(
       digitalPhysicalMediaFormatFlag(
         request.physicalFormatId,
@@ -80,138 +78,193 @@ class _ComicManualPane extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: palette.canvas,
-                  border: Border.all(color: palette.divider),
-                ),
-                child: ListView(
-                  padding: const EdgeInsets.all(12),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.panel,
+                border: Border.all(color: palette.divider),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _ManualKindHeader(
                       icon: request.type.workspace.icon,
                       accent: request.accent,
                       title: 'Manual comic issue',
                       subtitle:
-                          'Capture issue identity here, then review grading and ownership before saving.',
+                          'Use the core comic fields first, then apply your collection defaults when saving.',
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: request.titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Series / Title',
-                        prefixIcon: Icon(Icons.title),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
                       children: [
-                        Expanded(
-                          child: TextField(
-                            controller: request.numberController,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                              labelText: media.numberLabel,
-                              prefixIcon: const Icon(Icons.confirmation_number),
-                            ),
-                          ),
+                        const LibraryAddResultBadge('main'),
+                        LibraryAddResultBadge(
+                          copyTypeLabel ?? 'owned defaults',
+                          accent: request.accent,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: request.yearController,
-                            textAlign: TextAlign.center,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            decoration: const InputDecoration(
-                              labelText: 'Cover year',
-                              prefixIcon: Icon(Icons.calendar_today_outlined),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: request.publisherController,
-                      decoration: InputDecoration(
-                        labelText: media.publisherLabel,
-                        prefixIcon: const Icon(Icons.business_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: request.variantController,
-                      decoration: InputDecoration(
-                        labelText: release.variantLabel,
-                        prefixIcon:
-                            const Icon(Icons.auto_awesome_motion_outlined),
-                      ),
-                    ),
-                    if (request.physicalFormats.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: request.physicalFormatId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Physical format',
-                          prefixIcon: Icon(Icons.collections_bookmark_outlined),
-                        ),
-                        dropdownColor: palette.panelRaised,
-                        borderRadius: kAppMenuBorderRadius,
-                        items: [
-                          const DropdownMenuItem<String>(
-                            value: '',
-                            child: Text('No specific format'),
-                          ),
-                          for (final format in request.physicalFormats)
-                            DropdownMenuItem<String>(
-                              value: format.id,
-                              child: Text(format.label),
-                            ),
-                        ],
-                        onChanged: request.onPhysicalFormatChanged,
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: request.barcodeController,
-                      decoration: InputDecoration(
-                        labelText: release.barcodeLabel,
-                        prefixIcon: const Icon(Icons.qr_code_2),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: request.coverController,
-                      decoration: const InputDecoration(
-                        labelText: 'Cover image URL',
-                        prefixIcon: Icon(Icons.image_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _ManualDefaultsCard(
-                      accent: request.accent,
-                      title: 'Collection defaults',
-                      subtitle: copyTypeLabel == null
-                          ? 'Owned copies will inherit your current comic defaults.'
-                          : 'Owned copies will be saved as $copyTypeLabel.',
-                      values: [
-                        request.defaultCondition,
-                        request.defaultGrade,
                         if (request.defaultLocationLabel != null)
-                          request.defaultLocationLabel!,
-                        if (request.defaultPurchaseDate != null)
-                          _formatDate(request.defaultPurchaseDate!),
-                        if (request.defaultTags?.trim().isNotEmpty == true)
-                          'Tags: ${request.defaultTags!}',
+                          LibraryAddResultBadge(
+                            request.defaultLocationLabel!,
+                            accent: request.accent,
+                          ),
                       ],
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView(
+                children: [
+                  _ComicManualSection(
+                    title: 'Main',
+                    accent: request.accent,
+                    child: Column(
+                      children: [
+                        _ComicManualResponsiveRow(
+                          children: [
+                            _ComicManualResponsiveItem(
+                              flex: 3,
+                              child: TextField(
+                                controller: request.titleController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Series',
+                                  prefixIcon: Icon(Icons.title),
+                                ),
+                              ),
+                            ),
+                            _ComicManualResponsiveItem(
+                              child: TextField(
+                                controller: request.numberController,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  labelText: 'Issue No.',
+                                  prefixIcon:
+                                      Icon(Icons.confirmation_number_outlined),
+                                ),
+                              ),
+                            ),
+                            _ComicManualResponsiveItem(
+                              child: TextField(
+                                controller: request.variantController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Variant',
+                                  prefixIcon:
+                                      Icon(Icons.auto_awesome_motion_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _ComicManualResponsiveRow(
+                          children: [
+                            _ComicManualResponsiveItem(
+                              flex: 2,
+                              child: TextField(
+                                controller: request.barcodeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Barcode',
+                                  prefixIcon: Icon(Icons.qr_code_2),
+                                ),
+                              ),
+                            ),
+                            if (request.physicalFormats.isNotEmpty)
+                              _ComicManualResponsiveItem(
+                                flex: 2,
+                                child: DropdownButtonFormField<String>(
+                                  initialValue: request.physicalFormatId,
+                                  isExpanded: true,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Format',
+                                    prefixIcon: Icon(
+                                      Icons.collections_bookmark_outlined,
+                                    ),
+                                  ),
+                                  dropdownColor: palette.panelRaised,
+                                  borderRadius: kAppMenuBorderRadius,
+                                  items: [
+                                    const DropdownMenuItem<String>(
+                                      value: '',
+                                      child: Text('No specific format'),
+                                    ),
+                                    for (final format in request.physicalFormats)
+                                      DropdownMenuItem<String>(
+                                        value: format.id,
+                                        child: Text(format.label),
+                                      ),
+                                  ],
+                                  onChanged: request.onPhysicalFormatChanged,
+                                ),
+                              ),
+                            _ComicManualResponsiveItem(
+                              child: TextField(
+                                controller: request.yearController,
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                decoration: const InputDecoration(
+                                  labelText: 'Cover Date (YYYY)',
+                                  prefixIcon:
+                                      Icon(Icons.calendar_today_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _ComicManualResponsiveRow(
+                          children: [
+                            _ComicManualResponsiveItem(
+                              flex: 2,
+                              child: TextField(
+                                controller: request.publisherController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Publisher',
+                                  prefixIcon: Icon(Icons.business_outlined),
+                                ),
+                              ),
+                            ),
+                            _ComicManualResponsiveItem(
+                              flex: 2,
+                              child: TextField(
+                                controller: request.coverController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Cover image URL',
+                                  prefixIcon: Icon(Icons.image_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _ManualDefaultsCard(
+                    accent: request.accent,
+                    title: 'Collection defaults',
+                    subtitle: copyTypeLabel == null
+                        ? 'Owned copies will inherit your current comic defaults.'
+                        : 'Owned copies will be saved as $copyTypeLabel.',
+                    values: [
+                      request.defaultCondition,
+                      request.defaultGrade,
+                      if (request.defaultLocationLabel != null)
+                        request.defaultLocationLabel!,
+                      if (request.defaultPurchaseDate != null)
+                        _formatDate(request.defaultPurchaseDate!),
+                      if (request.defaultTags?.trim().isNotEmpty == true)
+                        'Tags: ${request.defaultTags!}',
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 10),
@@ -271,6 +324,94 @@ class _ManualKindHeader extends StatelessWidget {
       ],
     );
   }
+}
+
+class _ComicManualSection extends StatelessWidget {
+  const _ComicManualSection({
+    required this.title,
+    required this.accent,
+    required this.child,
+  });
+
+  final String title;
+  final Color accent;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.canvas,
+        border: Border.all(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: accent,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 10),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicManualResponsiveRow extends StatelessWidget {
+  const _ComicManualResponsiveRow({required this.children});
+
+  final List<_ComicManualResponsiveItem> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isStacked = constraints.maxWidth < 780;
+        if (isStacked) {
+          return Column(
+            children: [
+              for (var index = 0; index < children.length; index++) ...[
+                children[index].child,
+                if (index != children.length - 1) const SizedBox(height: 10),
+              ],
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < children.length; index++) ...[
+              Expanded(
+                flex: children[index].flex,
+                child: children[index].child,
+              ),
+              if (index != children.length - 1) const SizedBox(width: 10),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ComicManualResponsiveItem {
+  const _ComicManualResponsiveItem({
+    required this.child,
+    this.flex = 1,
+  });
+
+  final Widget child;
+  final int flex;
 }
 
 class _ManualDefaultsCard extends StatelessWidget {
