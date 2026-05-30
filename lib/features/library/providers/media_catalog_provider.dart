@@ -45,6 +45,11 @@ final mediaCatalogProvider =
 });
 
 final resolvedLibraryTypesProvider = Provider<LibraryTypeRegistry>((ref) {
+  // Ensure per-kind add builders are registered before resolving types.
+  // This is intentionally done here (rather than a top-level module call)
+  // so tests that interact with providers also initialize the registry.
+  registerLibraryAddBuilders();
+
   final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
   return collectarrLibraryTypes.resolveWithCatalog(catalog);
 });

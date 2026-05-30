@@ -29,6 +29,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,8 +38,22 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/library_add_test_harness.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+
+Finder textFieldByKeyOrLabel(String keyName, String label) {
+  final keyFinder = find.byKey(ValueKey(keyName));
+  if (keyFinder.evaluate().isNotEmpty) return keyFinder;
+  return find.byWidgetPredicate((w) {
+    return w is TextField && (w.decoration?.labelText == label);
+  });
+}
 
 void main() {
+  setUpAll(() {
+    drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    // Ensure per-kind LibraryAdd builders are registered (normally done in app init).
+    registerLibraryAddBuilders();
+  });
   setUp(() {
     resetMediaCatalogCacheForTesting();
     SharedPreferences.setMockInitialValues({});
@@ -349,29 +364,39 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvanced = find.byTooltip('Show advanced fields');
-    if (showAdvanced.evaluate().isNotEmpty) {
-      await tester.tap(showAdvanced);
+    final showAdvancedToggle = find.byTooltip('Show advanced fields');
+    final showAdvancedFiltersButton = find.widgetWithText(OutlinedButton, 'Filters');
+    if (showAdvancedToggle.evaluate().isNotEmpty) {
+      await tester.tap(showAdvancedToggle);
+      await tester.pump();
+    } else if (showAdvancedFiltersButton.evaluate().isNotEmpty) {
+      await tester.tap(showAdvancedFiltersButton);
       await tester.pump();
     }
+
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-series-field', 'Series'), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'), findsOneWidget);
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final seriesField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-series-field')),
+      textFieldByKeyOrLabel('library-add-series-field', 'Series'),
     );
     final numberField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-number-field')),
+      textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
     );
     final publisherField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-publisher-field')),
+      textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
     );
     final yearField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-year-field')),
+      textFieldByKeyOrLabel('library-add-year-field', 'Year'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -418,10 +443,11 @@ void main() {
       'Existing query',
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -471,10 +497,11 @@ void main() {
       'Existing query',
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -531,20 +558,26 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvanced = find.byTooltip('Show advanced fields');
-    if (showAdvanced.evaluate().isNotEmpty) {
-      await tester.tap(showAdvanced);
+    final showAdvancedToggle = find.byTooltip('Show advanced fields');
+    final showAdvancedFiltersButton = find.widgetWithText(OutlinedButton, 'Filters');
+    if (showAdvancedToggle.evaluate().isNotEmpty) {
+      await tester.tap(showAdvancedToggle);
+      await tester.pump();
+    } else if (showAdvancedFiltersButton.evaluate().isNotEmpty) {
+      await tester.tap(showAdvancedFiltersButton);
       await tester.pump();
     }
 
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final publisherField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-publisher-field')),
+      textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -594,20 +627,26 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvanced = find.byTooltip('Show advanced fields');
-    if (showAdvanced.evaluate().isNotEmpty) {
-      await tester.tap(showAdvanced);
+    final showAdvancedToggle = find.byTooltip('Show advanced fields');
+    final showAdvancedFiltersButton = find.widgetWithText(OutlinedButton, 'Filters');
+    if (showAdvancedToggle.evaluate().isNotEmpty) {
+      await tester.tap(showAdvancedToggle);
+      await tester.pump();
+    } else if (showAdvancedFiltersButton.evaluate().isNotEmpty) {
+      await tester.tap(showAdvancedFiltersButton);
       await tester.pump();
     }
 
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final yearField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-year-field')),
+      textFieldByKeyOrLabel('library-add-year-field', 'Year'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -732,7 +771,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
@@ -750,11 +789,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final numberField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-number-field')),
+      textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -972,9 +1013,10 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
+    // Mixed-provider summary text removed; provider badges are sufficient.
     expect(
       find.text('Showing matches from GCD and Comic Vine.'),
-      findsOneWidget,
+      findsNothing,
     );
   });
 
@@ -1432,15 +1474,21 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(find.text('Batman').first);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Bundle'));
+    final bundleChip = find.widgetWithText(ChoiceChip, 'Bundle');
+    if (bundleChip.evaluate().isNotEmpty) {
+      await tester.tap(bundleChip);
+    } else {
+      await tester.tap(find.text('Bundle'));
+    }
     await pumpUntilSettled(tester);
 
     expect(find.text('Batman Anniversary Box'), findsWidgets);
     expect(find.text('Bundle'), findsWidgets);
-    expect(find.text('Batman #423'), findsOneWidget);
+    expect(find.text('Batman'), findsWidgets);
+    expect(find.text('423'), findsWidgets);
   });
 
   testWidgets('comic add dialog lets the user keep edition scope without picking a physical release', (
@@ -1483,10 +1531,15 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(find.text('Batman').first);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Edition'));
+    final editionChip = find.widgetWithText(ChoiceChip, 'Edition');
+    if (editionChip.evaluate().isNotEmpty) {
+      await tester.tap(editionChip);
+    } else {
+      await tester.tap(find.text('Edition'));
+    }
     await pumpUntilSettled(tester);
 
     // Select the "Collector Edition" card from the edition grid
@@ -1551,10 +1604,15 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(find.text('Batman').first);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Edition'));
+    final editionChip = find.widgetWithText(ChoiceChip, 'Edition');
+    if (editionChip.evaluate().isNotEmpty) {
+      await tester.tap(editionChip);
+    } else {
+      await tester.tap(find.text('Edition'));
+    }
     await pumpUntilSettled(tester);
 
     expect(

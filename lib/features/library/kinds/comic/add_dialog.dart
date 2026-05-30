@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_add_registry.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 
 Future<LibraryAddDialogResult?> showComicLibraryAddDialog(
   BuildContext context,
@@ -52,6 +54,72 @@ Widget buildComicManualPane(
   LibraryAddManualPaneRequest request,
 ) {
   return _ComicManualPane(request: request);
+}
+
+// Register the comic add dialog builders so the generic dialog can use them.
+void registerComicAddBuilders() {
+  LibraryAddRegistry.registerHeaderBuilder(
+    CatalogMediaKind.comic,
+    buildComicAddHeader,
+  );
+  LibraryAddRegistry.registerModeBarBuilder(
+    CatalogMediaKind.comic,
+    buildComicAddModeBar,
+  );
+  LibraryAddRegistry.registerSearchBuilder(
+    CatalogMediaKind.comic,
+    buildComicAddSearchPane,
+  );
+  LibraryAddRegistry.registerManualBuilder(
+    CatalogMediaKind.comic,
+    buildComicManualPane,
+  );
+  // Provide comic-specific controllers so comics own their manual inputs.
+  LibraryAddRegistry.registerManualKindSpecificFactory(
+    CatalogMediaKind.comic,
+    () => {
+      'numberController': TextEditingController(),
+      'publisherController': TextEditingController(),
+      'yearController': TextEditingController(),
+      'barcodeController': TextEditingController(),
+      'variantController': TextEditingController(),
+      'coverController': TextEditingController(),
+      'editionTitleController': TextEditingController(),
+      'releaseDateController': TextEditingController(),
+      'pageCountController': TextEditingController(),
+      'imprintController': TextEditingController(),
+      'seriesGroupController': TextEditingController(),
+      'countryController': TextEditingController(),
+      'languageController': TextEditingController(),
+      'ageRatingController': TextEditingController(),
+      'genresEditController': TextEditingController(),
+      'synopsisController': TextEditingController(),
+      'tagsController': TextEditingController(),
+      'creatorsController': TextEditingController(),
+      'charactersController': TextEditingController(),
+      'linksController': TextEditingController(),
+      'rawOrSlabbedController': TextEditingController(),
+      'gradingCompanyController': TextEditingController(),
+      'graderNotesController': TextEditingController(),
+      'signedByController': TextEditingController(),
+      'labelTypeController': TextEditingController(),
+      'certificationNumberController': TextEditingController(),
+      'coverPriceController': TextEditingController(),
+      'purchasePriceController': TextEditingController(),
+      'purchaseDateController': TextEditingController(),
+      'purchaseStoreController': TextEditingController(),
+      'soldPriceController': TextEditingController(),
+      'ownerLabelController': TextEditingController(),
+    },
+  );
+  LibraryAddRegistry.registerPreviewBuilder(
+    CatalogMediaKind.comic,
+    buildComicAddPreviewPane,
+  );
+  LibraryAddRegistry.registerBottomBarBuilder(
+    CatalogMediaKind.comic,
+    buildComicAddBottomBar,
+  );
 }
 
 class _ComicManualPane extends StatelessWidget {

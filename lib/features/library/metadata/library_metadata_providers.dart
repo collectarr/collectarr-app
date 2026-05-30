@@ -15,7 +15,7 @@ const comicVineMetadataProvider = LibraryMetadataProviderOption(
   id: 'comicvine',
   label: 'Comic Vine',
   description: 'Personal non-commercial comics enrichment',
-  supportedKinds: {'comic'},
+  supportedKinds: {'comic', 'manga'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Personal non-commercial use only',
@@ -28,7 +28,7 @@ const mangadexMetadataProvider = LibraryMetadataProviderOption(
   id: 'mangadex',
   label: 'MangaDex',
   description: 'Live manga metadata and chapter feed provider for comics',
-  supportedKinds: {'comic'},
+  supportedKinds: {'manga'},
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Public manga metadata with attribution requirements',
     requiresAttribution: true,
@@ -75,7 +75,7 @@ const hardcoverMetadataProvider = LibraryMetadataProviderOption(
   id: 'hardcover',
   label: 'Hardcover',
   description: 'Live book and comic metadata provider',
-  supportedKinds: {'book', 'comic'},
+  supportedKinds: {'book', 'manga'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Book and comic metadata with attribution and API key requirements',
@@ -87,7 +87,7 @@ const anilistMetadataProvider = LibraryMetadataProviderOption(
   id: 'anilist',
   label: 'AniList',
   description: 'Live anime and manga metadata provider for movies and comics',
-  supportedKinds: {'comic', 'movie'},
+  supportedKinds: {'manga', 'anime'},
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Public anime/manga metadata with attribution requirements',
     requiresAttribution: true,
@@ -98,7 +98,7 @@ const tmdbMetadataProvider = LibraryMetadataProviderOption(
   id: 'tmdb',
   label: 'TMDb',
   description: 'Live movie and TV metadata provider',
-  supportedKinds: {'movie', 'tv'},
+  supportedKinds: {'movie', 'tv', 'anime'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary:

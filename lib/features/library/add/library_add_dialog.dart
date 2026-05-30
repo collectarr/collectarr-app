@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_add_registry.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -149,19 +150,7 @@ class LibraryAddManualPaneRequest {
     required this.genresEditController,
     required this.synopsisController,
     required this.tagsController,
-    required this.rawOrSlabbedController,
-    required this.gradingCompanyController,
-    required this.graderNotesController,
-    required this.signedByController,
-    required this.labelTypeController,
-    required this.certificationNumberController,
-    required this.coverPriceController,
-    required this.purchasePriceController,
-    required this.purchaseDateController,
-    required this.purchaseStoreController,
-    required this.soldPriceController,
-    required this.soldDateController,
-    required this.ownerLabelController,
+    this.kindSpecific = const {},
     required this.customFieldDefinitions,
     required this.customFieldValues,
     required this.onCustomFieldValuesChanged,
@@ -206,21 +195,7 @@ class LibraryAddManualPaneRequest {
   final TextEditingController genresEditController;
   final TextEditingController synopsisController;
   final TextEditingController tagsController;
-
-  // Comics-specific / personal fields
-  final TextEditingController rawOrSlabbedController;
-  final TextEditingController gradingCompanyController;
-  final TextEditingController graderNotesController;
-  final TextEditingController signedByController;
-  final TextEditingController labelTypeController;
-  final TextEditingController certificationNumberController;
-  final TextEditingController coverPriceController;
-  final TextEditingController purchasePriceController;
-  final TextEditingController purchaseDateController;
-  final TextEditingController purchaseStoreController;
-  final TextEditingController soldPriceController;
-  final TextEditingController soldDateController;
-  final TextEditingController ownerLabelController;
+  final Map<String, dynamic> kindSpecific;
 
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -228,6 +203,14 @@ class LibraryAddManualPaneRequest {
   final ValueChanged<Map<String, String?>> onCustomFieldValuesChanged;
   final List<ItemImage> itemImages;
   final ValueChanged<List<ItemImageEdit>> onItemImagesChanged;
+
+  // (kindSpecific declared above)
+}
+
+// Public default manual pane builder so kinds can register a fallback that
+// delegates to the generic tabbed manual UI implemented in this library.
+Widget buildDefaultManualPane(BuildContext context, LibraryAddManualPaneRequest request) {
+  return _ManualPane(request: request);
 }
 
 class LibraryAddPreviewPaneRequest {
@@ -531,6 +514,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _backCoverController = TextEditingController();
   final _creatorsController = TextEditingController();
   final _charactersController = TextEditingController();
+  final _linksController = TextEditingController();
   final _editionTitleController = TextEditingController();
   final _releaseDateController = TextEditingController();
   final _pageCountController = TextEditingController();
@@ -554,6 +538,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _purchaseStoreController = TextEditingController();
   final _sellPriceController = TextEditingController();
   final _ownerLabelController = TextEditingController();
+  // Holds the last-built manual pane kindSpecific map so helper accessors
+  // can prefer kind-owned controllers when present.
+  Map<String, dynamic> _manualKindSpecific = {};
+  // Controllers created by a kind-specific factory: tracked so we can dispose
+  // them safely (dialog disposes dialog-owned controllers separately).
+  final Set<TextEditingController> _manualKindSpecificCreatedControllers = {};
   DateTime? _soldAt;
   final _uuid = const Uuid();
 
@@ -683,6 +673,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _backCoverController.dispose();
     _creatorsController.dispose();
     _charactersController.dispose();
+    _linksController.dispose();
     _editionTitleController.dispose();
     _releaseDateController.dispose();
     _pageCountController.dispose();
@@ -710,6 +701,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _searchNumberController.dispose();
     _searchPublisherController.dispose();
     _searchYearController.dispose();
+    // Dispose any controllers created by kind-specific factories
+    for (final c in _manualKindSpecificCreatedControllers) {
+      try {
+        c.dispose();
+      } catch (_) {}
+    }
     super.dispose();
   }
 
@@ -823,13 +820,17 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             child: Column(
               children: [
                 widget.headerBuilder?.call(context, headerRequest) ??
-                    _DialogHeader(
-                      type: headerRequest.type,
-                      accent: headerRequest.accent,
-                      isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
-                    ),
+                  LibraryAddRegistry.headerBuilderFor(widget.type.workspace.kind)
+                    ?.call(context, headerRequest) ??
+                  _DialogHeader(
+                    type: headerRequest.type,
+                    accent: headerRequest.accent,
+                    isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
+                  ),
                 widget.modeBarBuilder?.call(context, modeBarRequest) ??
-                    _LibraryAddModeBar(
+                  LibraryAddRegistry.modeBarBuilderFor(widget.type.workspace.kind)
+                    ?.call(context, modeBarRequest) ??
+                  _LibraryAddModeBar(
                       type: modeBarRequest.type,
                       accent: modeBarRequest.accent,
                       isMovieDesktopChrome: modeBarRequest.isMovieDesktopChrome,
@@ -912,8 +913,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         }),
                         onSearchCore: _search,
                       );
-                      final searchPane = widget.searchPaneBuilder
-                              ?.call(context, searchPaneRequest) ??
+                        final searchPane = widget.searchPaneBuilder
+                            ?.call(context, searchPaneRequest) ??
+                          LibraryAddRegistry.searchBuilderFor(widget.type.workspace.kind)
+                            ?.call(context, searchPaneRequest) ??
                           _SearchPane(
                             type: searchPaneRequest.type,
                             isBusy: searchPaneRequest.isBusy,
@@ -964,7 +967,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         type: widget.type,
                         accent: accent,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
-                        previewPaneBuilder: widget.previewPaneBuilder,
+                        previewPaneBuilder: widget.previewPaneBuilder ??
+                            LibraryAddRegistry.previewBuilderFor(widget.type.workspace.kind),
                         item: selectedResult,
                         candidate: selectedCandidate,
                         candidatePreview: selectedCandidate == null
@@ -1006,7 +1010,55 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           _handleBundleReleaseSelected(bundleReleaseId);
                         },
                       );
-                      final manualRequest = LibraryAddManualPaneRequest(
+                      // Ensure per-kind add builders are registered so tests and
+                      // non-main contexts pick up custom manual panes.
+                      registerLibraryAddBuilders();
+
+                      final kindSpecificMap = {
+                          'rawOrSlabbedController': _rawOrSlabbedController,
+                          'gradingCompanyController': _gradingCompanyController,
+                          'graderNotesController': _graderNotesController,
+                          'signedByController': _signedByController,
+                          'labelTypeController': _labelTypeController,
+                          'certificationNumberController': _certificationNumberController,
+                          'coverPriceController': _coverPriceController,
+                          'purchasePriceController': _priceController,
+                          'purchaseDateController': _purchaseDateController,
+                          'purchaseStoreController': _purchaseStoreController,
+                          'soldPriceController': _sellPriceController,
+                          'soldDateController': TextEditingController(text: _soldAt == null ? '' : formatDate(_soldAt!)),
+                          'ownerLabelController': _ownerLabelController,
+                          'linksController': _linksController,
+                        };
+                        // If a kind provides a factory for kind-specific values,
+                        // invoke it and merge its results so the kind can own
+                        // controllers while the dialog remains responsible for
+                        // disposing them.
+                        final factory = LibraryAddRegistry.manualKindSpecificFactoryFor(widget.type.workspace.kind);
+                        final Map<String, dynamic> mergedKindSpecific;
+                        if (factory == null) {
+                          mergedKindSpecific = kindSpecificMap;
+                        } else {
+                          // Dispose any previously created kind-specific controllers
+                          for (final c in _manualKindSpecificCreatedControllers) {
+                            try {
+                              c.dispose();
+                            } catch (_) {}
+                          }
+                          _manualKindSpecificCreatedControllers.clear();
+
+                          final factoryMap = factory();
+                          for (final v in factoryMap.values) {
+                            if (v is TextEditingController) {
+                              _manualKindSpecificCreatedControllers.add(v);
+                            }
+                          }
+                          mergedKindSpecific = Map<String, dynamic>.from(kindSpecificMap)..addAll(factoryMap);
+                        }
+
+                        _manualKindSpecific = mergedKindSpecific;
+
+                        final manualRequest = LibraryAddManualPaneRequest(
                         type: widget.type,
                         accent: accent,
                         titleController: _titleController,
@@ -1042,19 +1094,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         genresEditController: _genresEditController,
                         synopsisController: _synopsisController,
                         tagsController: _tagsController,
-                        rawOrSlabbedController: _rawOrSlabbedController,
-                        gradingCompanyController: _gradingCompanyController,
-                        graderNotesController: _graderNotesController,
-                        signedByController: _signedByController,
-                        labelTypeController: _labelTypeController,
-                        certificationNumberController: _certificationNumberController,
-                        coverPriceController: _coverPriceController,
-                        purchasePriceController: _priceController,
-                        purchaseDateController: _purchaseDateController,
-                        purchaseStoreController: _purchaseStoreController,
-                        soldPriceController: _sellPriceController,
-                        soldDateController: TextEditingController(text: _soldAt == null ? '' : formatDate(_soldAt!)),
-                        ownerLabelController: _ownerLabelController,
+                        kindSpecific: mergedKindSpecific,
                         customFieldDefinitions: widget.customFieldDefinitions,
                         customFieldValues: _manualCustomFieldValues,
                         onCustomFieldValuesChanged: (m) => setState(() => _manualCustomFieldValues = Map.of(m)),
@@ -1089,9 +1129,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           });
                         },
                       );
-                      final manualPane =
+                        final manualPane =
                           widget.manualPaneBuilder?.call(context, manualRequest) ??
-                              _ManualPane(request: manualRequest);
+                              LibraryAddRegistry.manualBuilderFor(widget.type.workspace.kind)
+                                ?.call(context, manualRequest) ??
+                            _ManualPane(request: manualRequest);
                       if (_mode == LibraryAddDialogMode.manual) {
                         return manualPane;
                       }
@@ -1238,8 +1280,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             ? null
                             : () => _proposeCandidate(selectedCandidate),
                       );
-                      return widget.bottomBarBuilder
-                              ?.call(context, bottomBarRequest) ??
+                        return widget.bottomBarBuilder
+                            ?.call(context, bottomBarRequest) ??
+                          LibraryAddRegistry.bottomBarBuilderFor(widget.type.workspace.kind)
+                            ?.call(context, bottomBarRequest) ??
                           _LibraryAddBottomBar(
                             type: bottomBarRequest.type,
                             isMovieDesktopChrome:
@@ -1461,6 +1505,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         context: context,
         type: widget.type,
       );
+      // Debug: show what coverScanService returned during tests
+      // ignore: avoid_print
+      print('[debug] coverScan result: ' + (result == null ? 'null' : result.toString()));
       if (!mounted || result == null) {
         return;
       }
@@ -1607,54 +1654,69 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   LibraryMetadataItem _buildManualDraftItem() {
-    final year = int.tryParse(_yearController.text.trim());
-    final coverUrl = _emptyToNull(_coverController.text);
-    final releaseDate = parseDate(_releaseDateController.text);
-    final pageCount = parseInt(_pageCountController.text);
-        final genres = _genresEditController.text
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList(growable: false);
-        final creatorNames = _creatorsController.text
-          .split(',')
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList(growable: false);
-        final creators = creatorNames.isEmpty ? null : [for (final n in creatorNames) {'name': n}];
-        final characterNames = _charactersController.text
-          .split(',')
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList(growable: false);
-        final characters = characterNames.isEmpty ? null : characterNames;
+    TextEditingController _ctl(String key, TextEditingController fallback) {
+      final e = _manualKindSpecific[key];
+      if (e is TextEditingController) return e;
+      return fallback;
+    }
+
+    final year = int.tryParse(_ctl('yearController', _yearController).text.trim());
+    final coverUrl = _emptyToNull(_ctl('coverController', _coverController).text);
+    final releaseDate = parseDate(_ctl('releaseDateController', _releaseDateController).text);
+    final pageCount = parseInt(_ctl('pageCountController', _pageCountController).text);
+    final genres = _ctl('genresEditController', _genresEditController).text
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
+    final creatorNames = _ctl('creatorsController', _creatorsController).text
+      .split(',')
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList(growable: false);
+    final creators = creatorNames.isEmpty ? null : [for (final n in creatorNames) {'name': n}];
+    final characterNames = _ctl('charactersController', _charactersController).text
+      .split(',')
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList(growable: false);
+    final characters = characterNames.isEmpty ? null : characterNames;
+    final linkCandidates = _ctl('linksController', _linksController).text
+      .split(RegExp(r'[\n,]+'))
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList(growable: false);
+    final trailerUrls = linkCandidates.isEmpty
+      ? const <TrailerLink>[]
+      : [for (final u in linkCandidates) TrailerLink(url: u, isAutomatic: false)];
     return LibraryMetadataItem(
       id: 'local-${widget.type.workspace.kind.apiValue}-${_uuid.v4()}',
       kind: widget.type.workspace.kind.apiValue,
       title: _titleController.text.trim(),
-      itemNumber: _emptyToNull(_numberController.text),
-      editionTitle: _emptyToNull(_editionTitleController.text),
+      itemNumber: _emptyToNull(_ctl('numberController', _numberController).text),
+      editionTitle: _emptyToNull(_ctl('editionTitleController', _editionTitleController).text),
       physicalFormat: _physicalFormatId,
       physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
-      publisher: _emptyToNull(_publisherController.text),
+      publisher: _emptyToNull(_ctl('publisherController', _publisherController).text),
       releaseDate: releaseDate,
       releaseYear: year,
-      barcode: _emptyToNull(_barcodeController.text),
-      variant: _emptyToNull(_variantController.text),
+      barcode: _emptyToNull(_ctl('barcodeController', _barcodeController).text),
+      variant: _emptyToNull(_ctl('variantController', _variantController).text),
       coverImageUrl: coverUrl,
       thumbnailImageUrl: coverUrl,
-      synopsis: _emptyToNull(_synopsisController.text),
+      synopsis: _emptyToNull(_ctl('synopsisController', _synopsisController).text),
       genres: genres.isEmpty ? null : genres,
       creators: creators,
       characters: characters,
-      country: _emptyToNull(_countryController.text),
-      language: _emptyToNull(_languageController.text),
-      ageRating: _emptyToNull(_ageRatingController.text),
+      trailerUrls: trailerUrls,
+      country: _emptyToNull(_ctl('countryController', _countryController).text),
+      language: _emptyToNull(_ctl('languageController', _languageController).text),
+      ageRating: _emptyToNull(_ctl('ageRatingController', _ageRatingController).text),
       publishing: (pageCount != null || _imprintController.text.trim().isNotEmpty || _seriesGroupController.text.trim().isNotEmpty)
           ? CatalogPublishingDetails(
               pageCount: pageCount,
-              imprint: _emptyToNull(_imprintController.text),
-              seriesGroup: _emptyToNull(_seriesGroupController.text),
+              imprint: _emptyToNull(_ctl('imprintController', _imprintController).text),
+              seriesGroup: _emptyToNull(_ctl('seriesGroupController', _seriesGroupController).text),
             )
           : null,
     );
@@ -1667,10 +1729,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (target != LibraryAddTarget.owned) {
       return null;
     }
-    final purchaseDate = parseDate(_purchaseDateController.text) ?? _defaultPurchaseDate;
-    final pricePaidCents = parseMoneyCents(_priceController.text);
-    final coverPriceCents = parseMoneyCents(_coverPriceController.text);
-    final sellPriceCents = parseMoneyCents(_sellPriceController.text);
+    TextEditingController _ctl(String key, TextEditingController fallback) {
+      final e = _manualKindSpecific[key];
+      if (e is TextEditingController) return e;
+      return fallback;
+    }
+
+    final purchaseDate = parseDate(_ctl('purchaseDateController', _purchaseDateController).text) ?? _defaultPurchaseDate;
+    final pricePaidCents = parseMoneyCents(_ctl('purchasePriceController', _priceController).text);
+    final coverPriceCents = parseMoneyCents(_ctl('coverPriceController', _coverPriceController).text);
+    final sellPriceCents = parseMoneyCents(_ctl('soldPriceController', _sellPriceController).text);
     final soldAt = _soldAt;
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
@@ -1680,22 +1748,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       purchaseDate: purchaseDate,
       pricePaidCents: pricePaidCents,
       currency: null,
-      personalNotes: _graderNotesController.text.trim().isEmpty ? null : _graderNotesController.text.trim(),
+      personalNotes: _ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : _ctl('graderNotesController', _graderNotesController).text.trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
-      rawOrSlabbed: _rawOrSlabbedController.text.trim().isEmpty ? null : _rawOrSlabbedController.text.trim(),
-      gradingCompany: _gradingCompanyController.text.trim().isEmpty ? null : _gradingCompanyController.text.trim(),
-      graderNotes: _graderNotesController.text.trim().isEmpty ? null : _graderNotesController.text.trim(),
-      signedBy: _signedByController.text.trim().isEmpty ? null : _signedByController.text.trim(),
-      labelType: _labelTypeController.text.trim().isEmpty ? null : _labelTypeController.text.trim(),
-      certificationNumber: _certificationNumberController.text.trim().isEmpty ? null : _certificationNumberController.text.trim(),
+      rawOrSlabbed: _ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim().isEmpty ? null : _ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
+      gradingCompany: _ctl('gradingCompanyController', _gradingCompanyController).text.trim().isEmpty ? null : _ctl('gradingCompanyController', _gradingCompanyController).text.trim(),
+      graderNotes: _ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : _ctl('graderNotesController', _graderNotesController).text.trim(),
+      signedBy: _ctl('signedByController', _signedByController).text.trim().isEmpty ? null : _ctl('signedByController', _signedByController).text.trim(),
+      labelType: _ctl('labelTypeController', _labelTypeController).text.trim().isEmpty ? null : _ctl('labelTypeController', _labelTypeController).text.trim(),
+      certificationNumber: _ctl('certificationNumberController', _certificationNumberController).text.trim().isEmpty ? null : _ctl('certificationNumberController', _certificationNumberController).text.trim(),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
-      ownerLabel: _ownerLabelController.text.trim().isEmpty ? null : _ownerLabelController.text.trim(),
+      ownerLabel: _ctl('ownerLabelController', _ownerLabelController).text.trim().isEmpty ? null : _ctl('ownerLabelController', _ownerLabelController).text.trim(),
       locationId: _defaultLocationId,
-      tags: _tagsController.text.trim().isEmpty ? null : _tagsController.text.trim(),
-      purchaseStore: _purchaseStoreController.text.trim().isEmpty ? null : _purchaseStoreController.text.trim(),
+      tags: _ctl('tagsController', _tagsController).text.trim().isEmpty ? null : _ctl('tagsController', _tagsController).text.trim(),
+      purchaseStore: _ctl('purchaseStoreController', _purchaseStoreController).text.trim().isEmpty ? null : _ctl('purchaseStoreController', _purchaseStoreController).text.trim(),
     );
   }
 

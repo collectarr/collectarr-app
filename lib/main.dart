@@ -7,6 +7,7 @@ import 'package:collectarr_app/ui/app_zoom.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 
 void main() {
   final container = ProviderContainer();
@@ -24,6 +25,10 @@ void main() {
   // Capture uncaught async errors.
   runZonedGuarded(
     () {
+      // Register per-kind LibraryAdd builders so the generic add dialog
+      // can discover custom panes at runtime.
+      registerLibraryAddBuilders();
+
       runApp(
         UncontrolledProviderScope(
           container: container,

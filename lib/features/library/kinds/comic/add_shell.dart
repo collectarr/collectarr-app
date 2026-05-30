@@ -72,6 +72,9 @@ Widget buildComicAddModeBar(
   BuildContext context,
   LibraryAddModeBarRequest request,
 ) {
+  // Debug: trace mode bar build and advanced state
+  // ignore: avoid_print
+  print('[debug] buildComicAddModeBar showAdvanced=${request.showAdvanced} query="${request.queryController.text}" series="${request.seriesController.text}"');
   final palette = appPalette(context);
   final isBusy = request.isSearching || request.isSearchingProvider;
   final isBarcode = request.mode == LibraryAddDialogMode.barcode;
@@ -192,6 +195,7 @@ Widget buildComicAddModeBar(
               children: [
                 Expanded(
                   child: TextField(
+                    key: const ValueKey('library-add-series-field'),
                     controller: request.seriesController,
                     decoration: const InputDecoration(labelText: 'Series'),
                   ),
@@ -199,6 +203,7 @@ Widget buildComicAddModeBar(
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
+                    key: const ValueKey('library-add-number-field'),
                     controller: request.numberController,
                     decoration: const InputDecoration(labelText: 'Issue'),
                   ),
@@ -206,6 +211,7 @@ Widget buildComicAddModeBar(
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
+                    key: const ValueKey('library-add-publisher-field'),
                     controller: request.publisherController,
                     decoration: const InputDecoration(labelText: 'Publisher'),
                   ),
@@ -214,6 +220,7 @@ Widget buildComicAddModeBar(
                 SizedBox(
                   width: 120,
                   child: TextField(
+                    key: const ValueKey('library-add-year-field'),
                     controller: request.yearController,
                     decoration: const InputDecoration(labelText: 'Year'),
                   ),
@@ -276,14 +283,15 @@ class _ComicAddSearchPane extends StatelessWidget {
 
   final LibraryAddSearchPaneRequest request;
 
-  static const _seriesWidth = 230.0;
+  // Reduced widths to avoid horizontal overflow in various test viewports
+  static const _seriesWidth = 144.0;
   static const _issueWidth = 60.0;
   static const _editionWidth = 145.0;
   static const _publisherWidth = 120.0;
   static const _releaseWidth = 95.0;
   static const _formatWidth = 90.0;
-  static const _tableWidth =
-      96.0 + _seriesWidth + _issueWidth + _editionWidth + _publisherWidth + _releaseWidth + _formatWidth;
+    static const _tableWidth =
+      36.0 + _seriesWidth + _issueWidth + _editionWidth + _publisherWidth + _releaseWidth + _formatWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -343,21 +351,18 @@ class _ComicAddSearchPane extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: _tableWidth + 16,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                SizedBox(width: 36),
-                _ComicFixedHeaderCell(label: 'Series', width: _seriesWidth),
-                _ComicFixedHeaderCell(label: 'Issue', width: _issueWidth),
-                _ComicFixedHeaderCell(label: 'Variant Description', width: _editionWidth),
-                _ComicFixedHeaderCell(label: 'Publisher', width: _publisherWidth),
-                _ComicFixedHeaderCell(label: 'Release Date', width: _releaseWidth),
-                _ComicFixedHeaderCell(label: 'Format', width: _formatWidth),
-              ],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            children: [
+              SizedBox(width: 36),
+              _ComicFixedHeaderCell(label: 'Series', width: _seriesWidth),
+              _ComicFixedHeaderCell(label: 'Issue', width: _issueWidth),
+              _ComicFixedHeaderCell(label: 'Variant Description', width: _editionWidth),
+              _ComicFixedHeaderCell(label: 'Publisher', width: _publisherWidth),
+              _ComicFixedHeaderCell(label: 'Release Date', width: _releaseWidth),
+              _ComicFixedHeaderCell(label: 'Format', width: _formatWidth),
+            ],
           ),
         ),
       ),
@@ -438,36 +443,33 @@ class _ComicSearchRow extends StatelessWidget {
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: _ComicAddSearchPane._tableWidth + 16,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 36,
-                      child: entry.item != null
-                          ? Checkbox(
-                              value: checked,
-                              onChanged: (_) => request.onToggleResultCheck(entry.item!.id),
-                              activeColor: request.accent,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              visualDensity: VisualDensity.compact,
-                            )
-                          : Icon(
-                              Icons.add_circle_outline,
-                              size: 18,
-                              color: request.accent.withValues(alpha: 0.72),
-                            ),
-                    ),
-                    _seriesCell(context, owned),
-                    _cell(_issueText),
-                    _cell(_editionText),
-                    _cell(_publisherText),
-                    _cell(_releaseText),
-                    _cell(_formatText),
-                  ],
-                ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 36,
+                    child: entry.item != null
+                        ? Checkbox(
+                            value: checked,
+                            onChanged: (_) => request.onToggleResultCheck(entry.item!.id),
+                            activeColor: request.accent,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                          )
+                        : Icon(
+                            Icons.add_circle_outline,
+                            size: 18,
+                            color: request.accent.withValues(alpha: 0.72),
+                          ),
+                  ),
+                  _seriesCell(context, owned),
+                  _cell(_issueText),
+                  _cell(_editionText),
+                  _cell(_publisherText),
+                  _cell(_releaseText),
+                  _cell(_formatText),
+                ],
               ),
             ),
           ),

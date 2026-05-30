@@ -1,0 +1,3 @@
+00:00 +0: loading C:/Users/andrvoicu/Desktop/repos/collectarr-app/test/features/library/add/library_add_dialog_test.dart
+00:00 +0: movie add dialog exposes physical format edition data
+00:01 +1: All tests passed!

@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_add_registry.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 
 Future<LibraryAddDialogResult?> showMovieLibraryAddDialog(
   BuildContext context,
@@ -52,6 +54,34 @@ Widget buildMovieManualPane(
   LibraryAddManualPaneRequest request,
 ) {
   return _MovieManualPane(request: request);
+}
+
+// Register the movie add dialog builders so the generic dialog can use them.
+void registerMovieAddBuilders() {
+  LibraryAddRegistry.registerHeaderBuilder(
+    CatalogMediaKind.movie,
+    buildMovieAddHeader,
+  );
+  LibraryAddRegistry.registerModeBarBuilder(
+    CatalogMediaKind.movie,
+    buildMovieAddModeBar,
+  );
+  LibraryAddRegistry.registerSearchBuilder(
+    CatalogMediaKind.movie,
+    buildMovieAddSearchPane,
+  );
+  LibraryAddRegistry.registerManualBuilder(
+    CatalogMediaKind.movie,
+    buildMovieManualPane,
+  );
+  LibraryAddRegistry.registerPreviewBuilder(
+    CatalogMediaKind.movie,
+    buildMovieAddPreviewPane,
+  );
+  LibraryAddRegistry.registerBottomBarBuilder(
+    CatalogMediaKind.movie,
+    buildMovieAddBottomBar,
+  );
 }
 
 class _MovieManualPane extends StatelessWidget {
@@ -162,6 +192,17 @@ class _MovieManualPane extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
+                  if (copyTypeLabel != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Owned copies created from this draft will be saved as $copyTypeLabel.',
+                      style: TextStyle(
+                        color: palette.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                   Row(
                     children: [
                       Expanded(

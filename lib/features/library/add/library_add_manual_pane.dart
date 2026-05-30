@@ -207,15 +207,15 @@ class _ManualPaneState extends State<_ManualPane> {
                           accent: widget.request.accent,
                           child: Column(children: [
                             Row(children: [
-                              Expanded(child: TextField(controller: widget.request.purchasePriceController, decoration: const InputDecoration(labelText: 'Purchase Price'))),
+                              Expanded(child: TextField(controller: widget.request.kindSpecific['purchasePriceController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
-                              Expanded(child: TextField(controller: widget.request.purchaseDateController, decoration: const InputDecoration(labelText: 'Purchase Date'))),
+                              Expanded(child: TextField(controller: widget.request.kindSpecific['purchaseDateController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Purchase Date'))),
                             ]),
                             const SizedBox(height: 8),
                             Row(children: [
-                              Expanded(child: TextField(controller: widget.request.coverPriceController, decoration: const InputDecoration(labelText: 'Cover Price'))),
+                              Expanded(child: TextField(controller: widget.request.kindSpecific['coverPriceController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Cover Price'))),
                               const SizedBox(width: 8),
-                              Expanded(child: TextField(controller: widget.request.soldPriceController, decoration: const InputDecoration(labelText: 'Sold Price'))),
+                              Expanded(child: TextField(controller: widget.request.kindSpecific['soldPriceController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Sold Price'))),
                             ]),
                           ]),
                         )
@@ -228,12 +228,12 @@ class _ManualPaneState extends State<_ManualPane> {
                           accent: widget.request.accent,
                           child: Column(children: [
                             Row(children: [
-                              Expanded(child: TextField(controller: widget.request.ownerLabelController, decoration: const InputDecoration(labelText: 'Owner'))),
+                              Expanded(child: TextField(controller: widget.request.kindSpecific['ownerLabelController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Owner'))),
                               const SizedBox(width: 8),
                               Expanded(child: TextField(controller: widget.request.tagsController, decoration: const InputDecoration(labelText: 'Tags'))),
                             ]),
                             const SizedBox(height: 8),
-                            TextField(controller: widget.request.graderNotesController, decoration: const InputDecoration(labelText: 'Notes'), maxLines: 4),
+                            TextField(controller: widget.request.kindSpecific['graderNotesController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Notes'), maxLines: 4),
                           ]),
                         )
                       ]),
@@ -282,7 +282,7 @@ class _ManualPaneState extends State<_ManualPane> {
 
                       // Links
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Links', accent: widget.request.accent, child: TextField(controller: TextEditingController(), decoration: const InputDecoration(labelText: 'Website'))),
+                        EditSection(title: 'Links', accent: widget.request.accent, child: TextField(controller: widget.request.kindSpecific['linksController'] as TextEditingController? ?? TextEditingController(), maxLines: 3, decoration: const InputDecoration(labelText: 'Links (one per line)'))),
                       ]),
                     ],
                   ),

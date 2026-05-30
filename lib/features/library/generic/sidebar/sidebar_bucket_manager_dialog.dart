@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 const _bucketManagerUnset = Object();
 const _bucketManagerNoChange = Object();
@@ -132,6 +133,27 @@ class _LibraryBucketManagerDialog extends StatefulWidget {
 class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog> {
   final _searchController = TextEditingController();
   bool _submitting = false;
+  List<LibraryBucketManagerEntry> _sortedEntries = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _sortedEntries = List.from(widget.entries)
+      ..sort((left, right) => left.label.toLowerCase().compareTo(
+            right.label.toLowerCase(),
+          ));
+  }
+
+  @override
+  void didUpdateWidget(covariant _LibraryBucketManagerDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!listEquals(widget.entries, oldWidget.entries)) {
+      _sortedEntries = List.from(widget.entries)
+        ..sort((left, right) => left.label.toLowerCase().compareTo(
+              right.label.toLowerCase(),
+            ));
+    }
+  }
 
   @override
   void dispose() {
@@ -371,14 +393,9 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
   List<LibraryBucketManagerEntry> _filteredEntries() {
     final query = _searchController.text.trim().toLowerCase();
     final filtered = [
-      for (final entry in widget.entries)
+      for (final entry in _sortedEntries)
         if (query.isEmpty || entry.label.toLowerCase().contains(query)) entry,
     ];
-    filtered.sort(
-      (left, right) => left.label.toLowerCase().compareTo(
-            right.label.toLowerCase(),
-          ),
-    );
     return filtered;
   }
 

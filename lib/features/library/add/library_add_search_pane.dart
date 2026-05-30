@@ -296,7 +296,8 @@ class _SearchResultsList extends StatelessWidget {
       );
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
-    final mixedProviderSummary = _mixedProviderSummary();
+    // Hide mixed-provider summary; provider badges are sufficient.
+    // final mixedProviderSummary = _mixedProviderSummary();
     final groups = _buildUnifiedGroups(
       coreResults: results,
       providerResults: providerResults,
@@ -310,8 +311,7 @@ class _SearchResultsList extends StatelessWidget {
             requestedProvider: type.metadataProviderLabel(selectedProvider),
             fallbackProvider: fallbackProviderLabel,
           ),
-        if (mixedProviderSummary != null)
-          _ProviderMixedNotice(summary: mixedProviderSummary),
+        // mixed provider summary removed per UX preference.
         for (var i = 0; i < groups.length; i++) ...[
           _UnifiedGroupNode(
             key: ValueKey(groups[i].key),
@@ -463,7 +463,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
               ].whereType<String>().join(' · ')
             : [
                 providerLabel(candidate!.provider),
-              if (candidate.summary?.trim().isNotEmpty == true) candidate!.summary,
+              if (candidate!.summary?.trim().isNotEmpty == true) candidate!.summary,
               ].whereType<String>().join(' · ');
         final matchSummary = isCore
             ? _metadataItemMatchSummary(
