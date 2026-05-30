@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1795,26 +1796,49 @@ class ComicEditPanelState extends State<ComicEditPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DefaultTabController(
       length: 11,
       child: Column(
         children: [
-          Material(
-            color: Theme.of(context).cardColor,
+          Container(
+            height: 39,
+            decoration: BoxDecoration(
+              color: palette.panelRaised,
+              border: Border(bottom: BorderSide(color: palette.divider)),
+            ),
             child: TabBar(
               isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorWeight: 2,
+              indicatorColor: widget.request.accent,
+              dividerColor: Colors.transparent,
+              labelColor: palette.textPrimary,
+              unselectedLabelColor: palette.textMuted,
+              labelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              splashBorderRadius: BorderRadius.zero,
               tabs: const [
-                Tab(icon: Icon(Icons.book), text: 'Main'),
-                Tab(icon: Icon(Icons.search), text: 'Details'),
-                Tab(icon: Icon(Icons.attach_money), text: 'Value'),
-                Tab(icon: Icon(Icons.person), text: 'Personal'),
-                Tab(icon: Icon(Icons.edit), text: 'Custom Fields'),
-                Tab(icon: Icon(Icons.camera_alt), text: 'Covers'),
-                Tab(icon: Icon(Icons.image), text: 'My Images'),
-                Tab(icon: Icon(Icons.group), text: 'Creators'),
-                Tab(icon: Icon(Icons.face), text: 'Characters'),
-                Tab(icon: Icon(Icons.article), text: 'Plot'),
-                Tab(icon: Icon(Icons.link), text: 'Links'),
+                Tab(icon: Icon(Icons.book, size: 16), text: 'Main'),
+                Tab(icon: Icon(Icons.search, size: 16), text: 'Details'),
+                Tab(icon: Icon(Icons.attach_money, size: 16), text: 'Value'),
+                Tab(icon: Icon(Icons.person, size: 16), text: 'Personal'),
+                Tab(icon: Icon(Icons.edit, size: 16), text: 'Custom Fields'),
+                Tab(icon: Icon(Icons.camera_alt, size: 16), text: 'Covers'),
+                Tab(icon: Icon(Icons.image, size: 16), text: 'My Images'),
+                Tab(icon: Icon(Icons.group, size: 16), text: 'Creators'),
+                Tab(icon: Icon(Icons.face, size: 16), text: 'Characters'),
+                Tab(icon: Icon(Icons.article, size: 16), text: 'Plot'),
+                Tab(icon: Icon(Icons.link, size: 16), text: 'Links'),
               ],
             ),
           ),
