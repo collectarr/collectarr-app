@@ -79,7 +79,6 @@ class OwnedItemsCache extends Table {
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
   IntColumn get quantity => integer().withDefault(const Constant(1))();
-  TextColumn get storageBox => text().nullable()();
   IntColumn get indexNumber => integer().nullable()();
   IntColumn get coverPriceCents => integer().nullable()();
   TextColumn get rawOrSlabbed => text().nullable()();
@@ -392,7 +391,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {

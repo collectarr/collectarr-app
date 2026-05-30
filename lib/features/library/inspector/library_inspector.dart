@@ -474,7 +474,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           currency: item.currency,
           personalNotes: item.personalNotes,
           quantity: item.quantity,
-          storageBox: item.storageBox,
           indexNumber: item.indexNumber,
           coverPriceCents: item.coverPriceCents,
           rawOrSlabbed: item.rawOrSlabbed,

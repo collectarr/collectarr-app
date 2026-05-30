@@ -2538,12 +2538,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(1));
-  static const VerificationMeta _storageBoxMeta =
-      const VerificationMeta('storageBox');
-  @override
-  late final GeneratedColumn<String> storageBox = GeneratedColumn<String>(
-      'storage_box', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _indexNumberMeta =
       const VerificationMeta('indexNumber');
   @override
@@ -2800,7 +2794,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         currency,
         personalNotes,
         quantity,
-        storageBox,
         indexNumber,
         coverPriceCents,
         rawOrSlabbed,
@@ -2925,12 +2918,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     if (data.containsKey('quantity')) {
       context.handle(_quantityMeta,
           quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
-    }
-    if (data.containsKey('storage_box')) {
-      context.handle(
-          _storageBoxMeta,
-          storageBox.isAcceptableOrUnknown(
-              data['storage_box']!, _storageBoxMeta));
     }
     if (data.containsKey('index_number')) {
       context.handle(
@@ -3183,8 +3170,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
       quantity: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
-      storageBox: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}storage_box']),
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
       coverPriceCents: attachedDatabase.typeMapping
@@ -3291,7 +3276,6 @@ class OwnedItemsCacheData extends DataClass
   final String? currency;
   final String? personalNotes;
   final int quantity;
-  final String? storageBox;
   final int? indexNumber;
   final int? coverPriceCents;
   final String? rawOrSlabbed;
@@ -3348,7 +3332,6 @@ class OwnedItemsCacheData extends DataClass
       this.currency,
       this.personalNotes,
       required this.quantity,
-      this.storageBox,
       this.indexNumber,
       this.coverPriceCents,
       this.rawOrSlabbed,
@@ -3431,9 +3414,6 @@ class OwnedItemsCacheData extends DataClass
       map['personal_notes'] = Variable<String>(personalNotes);
     }
     map['quantity'] = Variable<int>(quantity);
-    if (!nullToAbsent || storageBox != null) {
-      map['storage_box'] = Variable<String>(storageBox);
-    }
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
@@ -3593,9 +3573,6 @@ class OwnedItemsCacheData extends DataClass
           ? const Value.absent()
           : Value(personalNotes),
       quantity: Value(quantity),
-      storageBox: storageBox == null && nullToAbsent
-          ? const Value.absent()
-          : Value(storageBox),
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
@@ -3728,7 +3705,6 @@ class OwnedItemsCacheData extends DataClass
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
       quantity: serializer.fromJson<int>(json['quantity']),
-      storageBox: serializer.fromJson<String?>(json['storageBox']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
       coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
       rawOrSlabbed: serializer.fromJson<String?>(json['rawOrSlabbed']),
@@ -3792,7 +3768,6 @@ class OwnedItemsCacheData extends DataClass
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
       'quantity': serializer.toJson<int>(quantity),
-      'storageBox': serializer.toJson<String?>(storageBox),
       'indexNumber': serializer.toJson<int?>(indexNumber),
       'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
       'rawOrSlabbed': serializer.toJson<String?>(rawOrSlabbed),
@@ -3852,7 +3827,6 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
           int? quantity,
-          Value<String?> storageBox = const Value.absent(),
           Value<int?> indexNumber = const Value.absent(),
           Value<int?> coverPriceCents = const Value.absent(),
           Value<String?> rawOrSlabbed = const Value.absent(),
@@ -3914,7 +3888,6 @@ class OwnedItemsCacheData extends DataClass
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
         quantity: quantity ?? this.quantity,
-        storageBox: storageBox.present ? storageBox.value : this.storageBox,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
         coverPriceCents: coverPriceCents.present
             ? coverPriceCents.value
@@ -3998,8 +3971,6 @@ class OwnedItemsCacheData extends DataClass
           ? data.personalNotes.value
           : this.personalNotes,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
-      storageBox:
-          data.storageBox.present ? data.storageBox.value : this.storageBox,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
       coverPriceCents: data.coverPriceCents.present
@@ -4097,7 +4068,6 @@ class OwnedItemsCacheData extends DataClass
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
           ..write('quantity: $quantity, ')
-          ..write('storageBox: $storageBox, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('coverPriceCents: $coverPriceCents, ')
           ..write('rawOrSlabbed: $rawOrSlabbed, ')
@@ -4159,7 +4129,6 @@ class OwnedItemsCacheData extends DataClass
         currency,
         personalNotes,
         quantity,
-        storageBox,
         indexNumber,
         coverPriceCents,
         rawOrSlabbed,
@@ -4220,7 +4189,6 @@ class OwnedItemsCacheData extends DataClass
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
           other.quantity == this.quantity &&
-          other.storageBox == this.storageBox &&
           other.indexNumber == this.indexNumber &&
           other.coverPriceCents == this.coverPriceCents &&
           other.rawOrSlabbed == this.rawOrSlabbed &&
@@ -4279,7 +4247,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> currency;
   final Value<String?> personalNotes;
   final Value<int> quantity;
-  final Value<String?> storageBox;
   final Value<int?> indexNumber;
   final Value<int?> coverPriceCents;
   final Value<String?> rawOrSlabbed;
@@ -4337,7 +4304,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
     this.quantity = const Value.absent(),
-    this.storageBox = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.coverPriceCents = const Value.absent(),
     this.rawOrSlabbed = const Value.absent(),
@@ -4396,7 +4362,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
     this.quantity = const Value.absent(),
-    this.storageBox = const Value.absent(),
     this.indexNumber = const Value.absent(),
     this.coverPriceCents = const Value.absent(),
     this.rawOrSlabbed = const Value.absent(),
@@ -4457,7 +4422,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? currency,
     Expression<String>? personalNotes,
     Expression<int>? quantity,
-    Expression<String>? storageBox,
     Expression<int>? indexNumber,
     Expression<int>? coverPriceCents,
     Expression<String>? rawOrSlabbed,
@@ -4516,7 +4480,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
       if (quantity != null) 'quantity': quantity,
-      if (storageBox != null) 'storage_box': storageBox,
       if (indexNumber != null) 'index_number': indexNumber,
       if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
       if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
@@ -4578,7 +4541,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? currency,
       Value<String?>? personalNotes,
       Value<int>? quantity,
-      Value<String?>? storageBox,
       Value<int?>? indexNumber,
       Value<int?>? coverPriceCents,
       Value<String?>? rawOrSlabbed,
@@ -4636,7 +4598,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
       quantity: quantity ?? this.quantity,
-      storageBox: storageBox ?? this.storageBox,
       indexNumber: indexNumber ?? this.indexNumber,
       coverPriceCents: coverPriceCents ?? this.coverPriceCents,
       rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
@@ -4728,9 +4689,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (quantity.present) {
       map['quantity'] = Variable<int>(quantity.value);
-    }
-    if (storageBox.present) {
-      map['storage_box'] = Variable<String>(storageBox.value);
     }
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
@@ -4876,7 +4834,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
           ..write('quantity: $quantity, ')
-          ..write('storageBox: $storageBox, ')
           ..write('indexNumber: $indexNumber, ')
           ..write('coverPriceCents: $coverPriceCents, ')
           ..write('rawOrSlabbed: $rawOrSlabbed, ')
@@ -13584,7 +13541,6 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> currency,
   Value<String?> personalNotes,
   Value<int> quantity,
-  Value<String?> storageBox,
   Value<int?> indexNumber,
   Value<int?> coverPriceCents,
   Value<String?> rawOrSlabbed,
@@ -13644,7 +13600,6 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> currency,
   Value<String?> personalNotes,
   Value<int> quantity,
-  Value<String?> storageBox,
   Value<int?> indexNumber,
   Value<int?> coverPriceCents,
   Value<String?> rawOrSlabbed,
@@ -13743,9 +13698,6 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<int> get quantity => $composableBuilder(
       column: $table.quantity, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get storageBox => $composableBuilder(
-      column: $table.storageBox, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
@@ -13934,9 +13886,6 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<int> get quantity => $composableBuilder(
       column: $table.quantity, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get storageBox => $composableBuilder(
-      column: $table.storageBox, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
 
@@ -14123,9 +14072,6 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<int> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
 
-  GeneratedColumn<String> get storageBox => $composableBuilder(
-      column: $table.storageBox, builder: (column) => column);
-
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
 
@@ -14290,7 +14236,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
             Value<int> quantity = const Value.absent(),
-            Value<String?> storageBox = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<int?> coverPriceCents = const Value.absent(),
             Value<String?> rawOrSlabbed = const Value.absent(),
@@ -14349,7 +14294,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             currency: currency,
             personalNotes: personalNotes,
             quantity: quantity,
-            storageBox: storageBox,
             indexNumber: indexNumber,
             coverPriceCents: coverPriceCents,
             rawOrSlabbed: rawOrSlabbed,
@@ -14408,7 +14352,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
             Value<int> quantity = const Value.absent(),
-            Value<String?> storageBox = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
             Value<int?> coverPriceCents = const Value.absent(),
             Value<String?> rawOrSlabbed = const Value.absent(),
@@ -14467,7 +14410,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             currency: currency,
             personalNotes: personalNotes,
             quantity: quantity,
-            storageBox: storageBox,
             indexNumber: indexNumber,
             coverPriceCents: coverPriceCents,
             rawOrSlabbed: rawOrSlabbed,

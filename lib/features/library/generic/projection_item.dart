@@ -93,7 +93,7 @@ class LibraryProjectionItem {
           source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
       pricePaidCents: source.ownedItem?.pricePaidCents,
       currency: source.ownedItem?.currency,
-      storageBox: source.locationPath ?? source.ownedItem?.storageBox,
+        storageBox: source.locationPath,
       series: series,
       video: video,
       music: music,

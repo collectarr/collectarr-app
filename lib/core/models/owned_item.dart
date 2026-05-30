@@ -20,7 +20,6 @@ class OwnedItem {
     this.currency,
     this.personalNotes,
     this.quantity = 1,
-    this.storageBox,
     this.indexNumber,
     this.coverPriceCents,
     this.rawOrSlabbed,
@@ -81,7 +80,6 @@ class OwnedItem {
   final String? currency;
   final String? personalNotes;
   final int quantity;
-  final String? storageBox;
   final int? indexNumber;
   final int? coverPriceCents;
   final String? rawOrSlabbed;
@@ -211,7 +209,6 @@ class OwnedItem {
       currency: json['currency'] as String?,
       personalNotes: json['personal_notes'] as String?,
       quantity: json['quantity'] as int? ?? 1,
-      storageBox: json['storage_box'] as String?,
       indexNumber: json['index_number'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
       rawOrSlabbed: json['raw_or_slabbed'] as String?,
@@ -285,7 +282,6 @@ class OwnedItem {
     String? currency,
     String? personalNotes,
     int? quantity,
-    String? storageBox,
     int? indexNumber,
     int? coverPriceCents,
     String? rawOrSlabbed,
@@ -349,7 +345,6 @@ class OwnedItem {
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
       quantity: quantity ?? this.quantity,
-      storageBox: storageBox ?? this.storageBox,
       indexNumber: indexNumber ?? this.indexNumber,
       coverPriceCents: coverPriceCents ?? this.coverPriceCents,
       rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,

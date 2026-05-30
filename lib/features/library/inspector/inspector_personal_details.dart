@@ -408,7 +408,6 @@ class _InspectorPersonalDetailsEditorState
           purchaseStore: _emptyToNull(_purchaseStoreController.text),
           boxSetName: _emptyToNull(_boxSetNameController.text),
           quantity: widget.ownedItem.quantity,
-          storageBox: null,
           locationId:
               _locationChanged ? _selectedLocationId : widget.ownedItem.locationId,
           indexNumber: widget.ownedItem.indexNumber,

@@ -37,7 +37,6 @@ void main() {
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
             itemId: 'movie-1',
-            storageBox: const Value('Legacy shelf'),
             locationId: const Value('loc-a'),
             updatedAt: DateTime.utc(2026, 5, 23),
           ),
@@ -46,7 +45,6 @@ void main() {
     final ownedItem = OwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
-      storageBox: 'Legacy shelf',
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
@@ -79,7 +77,6 @@ void main() {
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
     expect(updated.locationId, 'loc-b');
-    expect(updated.storageBox, isNull);
   });
 
   testWidgets('tracking details editor saves tracked-only entries',

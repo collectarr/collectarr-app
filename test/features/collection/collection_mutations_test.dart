@@ -776,7 +776,7 @@ void main() {
           itemId: 'comic-1',
           status: 'owned',
           grade: '7.5',
-          storageBox: 'Box 6',
+          locationId: 'loc-box-6',
         ),
       ],
     );
@@ -787,10 +787,10 @@ void main() {
     expect(owned.single.id, original.id);
     expect(owned.single.condition, 'Good');
     expect(owned.single.grade, '7.5');
-    expect(owned.single.storageBox, 'Box 6');
+    expect(owned.single.locationId, 'loc-box-6');
   });
 
-  test('collection import prefers structured location ids over storage box',
+  test('collection import preserves structured location ids',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -805,7 +805,6 @@ void main() {
           itemId: 'comic-1',
           status: 'owned',
           locationId: 'loc-short-box-6',
-          storageBox: 'Box 6',
         ),
       ],
     );
@@ -813,7 +812,6 @@ void main() {
     final owned = await db.select(db.ownedItemsCache).get();
     expect(imported, 1);
     expect(owned.single.locationId, 'loc-short-box-6');
-    expect(owned.single.storageBox, isNull);
   });
 
   test('collection mutations can keep unmatched tmdb items local-only',

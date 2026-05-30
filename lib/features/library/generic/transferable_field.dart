@@ -41,7 +41,7 @@ class TransferableField {
       case 'personalNotes':
         return item.personalNotes;
       case 'storageBox':
-        return item.storageBox;
+        return item.locationId;
       case 'tags':
         return item.tags;
       case 'currency':
@@ -103,7 +103,7 @@ class TransferableField {
       case 'personalNotes':
         return item.copyWith(personalNotes: value);
       case 'storageBox':
-        return item.copyWith(storageBox: value);
+        return item.copyWith(locationId: value);
       case 'tags':
         return item.copyWith(tags: value);
       case 'currency':

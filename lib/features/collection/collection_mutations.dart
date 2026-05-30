@@ -57,7 +57,6 @@ class CollectionMutations {
     String? currency,
     String? personalNotes,
     int quantity = 1,
-    String? storageBox,
     String? locationId,
     int? indexNumber,
     int? coverPriceCents,
@@ -119,7 +118,6 @@ class CollectionMutations {
       currency: currency,
       personalNotes: personalNotes,
       quantity: quantity,
-      storageBox: storageBox,
       locationId: locationId,
       indexNumber: indexNumber,
       coverPriceCents: coverPriceCents,
@@ -199,7 +197,6 @@ class CollectionMutations {
     String? currency,
     String? personalNotes,
     int? quantity,
-    String? storageBox,
     String? locationId,
     int? indexNumber,
     int? coverPriceCents,
@@ -270,8 +267,6 @@ class CollectionMutations {
       currency: currency,
       personalNotes: personalNotes,
       quantity: quantity ?? item.quantity,
-      storageBox: storageBox,
-      locationId: locationId,
       indexNumber: indexNumber,
       coverPriceCents: coverPriceCents,
       rawOrSlabbed: rawOrSlabbed,
@@ -296,6 +291,7 @@ class CollectionMutations {
       soldTo: soldTo,
       ownerUserId: item.ownerUserId ?? auth.userId,
       ownerLabel: ownerLabel ?? item.ownerLabel ?? auth.email,
+      locationId: locationId ?? item.locationId,
       updatedAt: now,
       deletedAt: item.deletedAt,
       features: features,
@@ -1357,7 +1353,6 @@ class CollectionMutations {
     OwnedItem? existing,
   }) {
     final hasLocationId = row.locationId?.trim().isNotEmpty ?? false;
-    final hasStorageBox = row.storageBox?.trim().isNotEmpty ?? false;
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
@@ -1373,16 +1368,7 @@ class CollectionMutations {
       currency: row.currency ?? existing?.currency,
       personalNotes: row.notes ?? existing?.personalNotes,
       quantity: row.quantity ?? existing?.quantity ?? 1,
-      storageBox: hasLocationId
-          ? null
-          : hasStorageBox
-              ? row.storageBox
-              : existing?.storageBox,
-      locationId: hasLocationId
-          ? row.locationId
-          : hasStorageBox
-              ? null
-              : existing?.locationId,
+        locationId: hasLocationId ? row.locationId : existing?.locationId,
       indexNumber: row.indexNumber ?? existing?.indexNumber,
       coverPriceCents: row.coverPriceCents ?? existing?.coverPriceCents,
       rawOrSlabbed: row.rawOrSlabbed ?? existing?.rawOrSlabbed,

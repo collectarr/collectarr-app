@@ -18,7 +18,6 @@ void main() {
         ownedItem: OwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
-          storageBox: 'Short Box 1',
           locationId: 'loc-1',
           personalNotes: 'Newsstand copy',
           rawOrSlabbed: 'Slabbed',

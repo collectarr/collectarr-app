@@ -209,7 +209,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           condition: updated.condition,
           grade: updated.grade,
           personalNotes: updated.personalNotes,
-          storageBox: updated.storageBox,
+          locationId: updated.locationId,
           tags: updated.tags,
           currency: updated.currency,
           rawOrSlabbed: updated.rawOrSlabbed,
@@ -261,7 +261,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             grade: src.key == 'grade' ? null : item.grade,
             personalNotes:
                 src.key == 'personalNotes' ? null : item.personalNotes,
-            storageBox: src.key == 'storageBox' ? null : item.storageBox,
+            locationId: src.key == 'storageBox' ? null : item.locationId,
             tags: src.key == 'tags' ? null : item.tags,
             currency: src.key == 'currency' ? null : item.currency,
             rawOrSlabbed: src.key == 'rawOrSlabbed' ? null : item.rawOrSlabbed,

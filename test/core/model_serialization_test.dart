@@ -425,7 +425,6 @@ void main() {
       coverPriceCents: 1599,
       currency: 'USD',
       quantity: 2,
-      storageBox: 'Box 6',
       keyComic: true,
       keyReason: 'First appearance',
       tags: 'signed,key',

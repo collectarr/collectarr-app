@@ -63,7 +63,7 @@ void main() {
             pricePaidCents: const Value(1299),
             currency: const Value('USD'),
             quantity: const Value(2),
-            storageBox: const Value('Box 6'),
+            locationId: const Value('loc-box-6'),
             keyComic: const Value(true),
             tags: const Value('signed,key'),
             updatedAt: DateTime.utc(2026, 5, 11),
@@ -87,7 +87,7 @@ void main() {
     expect(owned.purchaseDate?.toUtc(), DateTime.utc(2026, 5, 11));
     expect(owned.pricePaidCents, 1299);
     expect(owned.quantity, 2);
-    expect(owned.storageBox, 'Box 6');
+    expect(owned.locationId, 'loc-box-6');
     expect(owned.keyComic, isTrue);
     expect(owned.tags, 'signed,key');
     expect(wishlist.itemId, 'comic-2');
@@ -132,7 +132,6 @@ void main() {
         id: 'owned-1',
         itemId: 'comic-1',
         createdAt: DateTime.utc(2026, 5, 21),
-        storageBox: 'Short Box 1',
         ownerUserId: 'user-1',
         ownerLabel: 'user@example.com',
         locationId: 'loc-1',
