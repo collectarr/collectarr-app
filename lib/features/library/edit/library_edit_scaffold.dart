@@ -17,25 +17,33 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.icon,
     required this.title,
     required this.badges,
-    required this.tabController,
-    required this.tabs,
-    required this.views,
+    this.tabController,
+    this.tabs = const [],
+    this.views = const [],
+    this.body,
     required this.onClose,
     required this.onSave,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
     this.tabOrderKey,
     this.ebaySearchQuery,
-  });
+  }) : assert(
+          body != null ||
+              (tabController != null &&
+                  tabs.length > 0 &&
+                  tabs.length == views.length),
+          'Provide either a custom body or a tab controller with matching tabs and views.',
+        );
 
   final GlobalKey<FormState> formKey;
   final Color accent;
   final IconData icon;
   final String title;
   final List<Widget> badges;
-  final TabController tabController;
+  final TabController? tabController;
   final List<Widget> tabs;
   final List<Widget> views;
+  final Widget? body;
   final VoidCallback onClose;
   final VoidCallback onSave;
   final LibraryEditChromeVariant chromeVariant;
@@ -58,7 +66,7 @@ class _LibraryEditDialogScaffoldState
   void initState() {
     super.initState();
     _tabOrder = List.generate(widget.tabs.length, (i) => i);
-    if (widget.allowTabReorder) {
+    if (widget.allowTabReorder && widget.tabs.isNotEmpty) {
       _loadSavedTabOrder();
     }
   }
@@ -114,6 +122,7 @@ class _LibraryEditDialogScaffoldState
   Widget build(BuildContext context) {
     final isMovieDesktop =
         widget.chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final hasTabStrip = widget.body == null;
     final tabOrder = widget.allowTabReorder
         ? _tabOrder
         : List<int>.generate(widget.tabs.length, (i) => i);
@@ -164,27 +173,30 @@ class _LibraryEditDialogScaffoldState
                       chromeVariant: widget.chromeVariant,
                       ebaySearchQuery: widget.ebaySearchQuery,
                     ),
-                    ColoredBox(
-                      color: p.panelRaised,
-                      child: _ReorderableTabStrip(
-                        tabController: widget.tabController,
-                        tabOrder: tabOrder,
-                        tabs: orderedTabs,
-                        accent: widget.accent,
-                        labelColor: p.textPrimary,
-                        unselectedLabelColor: p.textMuted,
-                        dividerColor: p.divider,
-                        allowReorder: widget.allowTabReorder,
-                        onReorderItem: _onReorderItem,
+                    if (hasTabStrip)
+                      ColoredBox(
+                        color: p.panelRaised,
+                        child: _ReorderableTabStrip(
+                          tabController: widget.tabController!,
+                          tabOrder: tabOrder,
+                          tabs: orderedTabs,
+                          accent: widget.accent,
+                          labelColor: p.textPrimary,
+                          unselectedLabelColor: p.textMuted,
+                          dividerColor: p.divider,
+                          allowReorder: widget.allowTabReorder,
+                          onReorderItem: _onReorderItem,
+                        ),
                       ),
-                    ),
                     Expanded(
                       child: ColoredBox(
                         color: p.panel,
-                        child: TabBarView(
-                          controller: widget.tabController,
-                            children: widget.views,
-                        ),
+                        child: hasTabStrip
+                            ? TabBarView(
+                                controller: widget.tabController,
+                                children: widget.views,
+                              )
+                            : widget.body!,
                       ),
                     ),
                     _LibraryEditFooter(

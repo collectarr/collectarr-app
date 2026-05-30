@@ -248,7 +248,7 @@ void main() {
       'https://example.com/review',
     );
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Save').last);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
@@ -369,7 +369,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Save').last);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
