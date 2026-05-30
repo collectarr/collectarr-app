@@ -408,8 +408,10 @@ class _LibraryEditTitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final headerHeight =
+        (isMovieDesktop ? 54.0 : 58.0) + (badges.isNotEmpty ? 6.0 : 0.0);
     return Container(
-      height: isMovieDesktop ? 54 : 58,
+      height: headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: isMovieDesktop ? palette.toolbar : palette.surface,
