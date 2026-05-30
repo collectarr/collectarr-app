@@ -403,9 +403,22 @@ enum CatalogMediaKind {
   final String apiValue;
 }
 
+extension CatalogMediaKindLibrarySemantics on CatalogMediaKind {
+  CatalogMediaKind get libraryKind {
+    return switch (this) {
+      CatalogMediaKind.anime => CatalogMediaKind.movie,
+      CatalogMediaKind.manga => CatalogMediaKind.comic,
+      CatalogMediaKind.tv => CatalogMediaKind.movie,
+      _ => this,
+    };
+  }
+
+  bool get isVideoLibraryKind => libraryKind == CatalogMediaKind.movie;
+}
+
 CatalogMediaKind catalogMediaKindFromValue(Object? value) {
   if (value is CatalogMediaKind) {
-    return value;
+    return value.libraryKind;
   }
   if (value is String?) {
     return catalogMediaKindFromApiValue(value);
@@ -519,7 +532,8 @@ sealed class CatalogItem {
     String? ageRating,
     String? audienceRating,
   }) {
-    final resolvedMediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
+    final resolvedMediaKind =
+      mediaKind?.libraryKind ?? catalogMediaKindFromApiValue(kind);
     final common = _CatalogItemCommon(
       id: id,
       mediaKind: resolvedMediaKind,
@@ -573,12 +587,6 @@ sealed class CatalogItem {
           series: series,
           publishing: publishing,
         );
-      case CatalogMediaKind.manga:
-        return MangaCatalogItem._(
-          common: common,
-          series: series,
-          publishing: publishing,
-        );
       case CatalogMediaKind.book:
         return BookCatalogItem._(
           common: common,
@@ -587,20 +595,6 @@ sealed class CatalogItem {
         );
       case CatalogMediaKind.movie:
         return MovieCatalogItem._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          video: video,
-        );
-      case CatalogMediaKind.tv:
-        return TvCatalogItem._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          video: video,
-        );
-      case CatalogMediaKind.anime:
-        return AnimeCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
@@ -628,6 +622,15 @@ sealed class CatalogItem {
           game: game,
         );
       case CatalogMediaKind.unknown:
+        return GenericCatalogItem._(
+          common: common,
+          series: series,
+          publishing: publishing,
+          video: video,
+          music: music,
+          game: game,
+        );
+      default:
         return GenericCatalogItem._(
           common: common,
           series: series,

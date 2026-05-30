@@ -10,7 +10,7 @@ class GenericLibraryEditDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryEditDialog.fromDraft(
+    return LibraryEditRenderer.fromDraft(
       draft: LibraryEditDraft.fromRequest(request),
     );
   }

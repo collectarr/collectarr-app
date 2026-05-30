@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -26,13 +27,21 @@ Widget buildBookLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
-  return BookLibraryEditDialog(request: request);
+  return BookLibraryEditDialog(
+    request: request,
+    draft: LibraryEditDraft.fromRequest(request),
+  );
 }
 
 class BookLibraryEditDialog extends ConsumerStatefulWidget {
-  const BookLibraryEditDialog({super.key, required this.request});
+  const BookLibraryEditDialog({
+    super.key,
+    required this.request,
+    this.draft,
+  });
 
   final LibraryEditDialogRequest request;
+  final LibraryEditDraft? draft;
 
   @override
   ConsumerState<BookLibraryEditDialog> createState() =>
@@ -42,6 +51,7 @@ class BookLibraryEditDialog extends ConsumerStatefulWidget {
 class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  late final LibraryEditDraft _draft;
 
   late final TabController _tabController;
 
@@ -139,6 +149,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   @override
   void initState() {
     super.initState();
+    _draft = widget.draft ?? LibraryEditDraft.fromRequest(widget.request);
     final item = widget.request.item;
     final owned = widget.request.ownedItem;
     final tracking = widget.request.trackingEntry;
@@ -149,39 +160,31 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         }
       });
 
-    _titleController = TextEditingController(text: item.title);
-    _sortKeyController = TextEditingController(text: item.sortKey ?? '');
+    _titleController = _draft.titleController;
+    _sortKeyController = _draft.sortKeyController;
     _subtitleController =
         TextEditingController(text: item.publishing?.subtitle ?? '');
-    _numberController = TextEditingController(text: item.itemNumber ?? '');
-    _publisherController = TextEditingController(text: item.publisher ?? '');
-    _editionTitleController =
-        TextEditingController(text: item.editionTitle ?? '');
-    _countryController = TextEditingController(text: item.country ?? '');
-    _languageController = TextEditingController(text: item.language ?? '');
-    _imprintController =
-        TextEditingController(text: item.publishing?.imprint ?? '');
-    _seriesGroupController =
-        TextEditingController(text: item.publishing?.seriesGroup ?? '');
+    _numberController = _draft.numberController;
+    _publisherController = _draft.publisherController;
+    _editionTitleController = _draft.editionTitleController;
+    _countryController = _draft.countryController;
+    _languageController = _draft.languageController;
+    _imprintController = _draft.imprintController;
+    _seriesGroupController = _draft.seriesGroupController;
     _seriesTitleController =
         TextEditingController(text: item.series?.seriesTitle ?? '');
     _volumeNameController =
         TextEditingController(text: item.series?.volumeName ?? '');
     _volumeNumberController =
         TextEditingController(text: item.series?.volumeNumber?.toString() ?? '');
-    _releaseDateController = TextEditingController(
-      text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
-    );
-    _releaseYearController =
-        TextEditingController(text: item.releaseYear?.toString() ?? '');
-    _pageCountController =
-        TextEditingController(text: item.publishing?.pageCount?.toString() ?? '');
-    _barcodeController = TextEditingController(text: item.barcode ?? '');
-    _variantController = TextEditingController(text: item.variant ?? '');
-    _coverController = TextEditingController(text: item.coverImageUrl ?? '');
-    _thumbnailController =
-        TextEditingController(text: item.thumbnailImageUrl ?? '');
-    _synopsisController = TextEditingController(text: item.synopsis ?? '');
+    _releaseDateController = _draft.releaseDateController;
+    _releaseYearController = _draft.releaseYearController;
+    _pageCountController = _draft.pageCountController;
+    _barcodeController = _draft.barcodeController;
+    _variantController = _draft.variantController;
+    _coverController = _draft.coverController;
+    _thumbnailController = _draft.thumbnailController;
+    _synopsisController = _draft.synopsisController;
     _seriesTagsController =
         TextEditingController(text: (item.series?.tags ?? const []).join(', '));
     _creatorsController = TextEditingController(
@@ -194,48 +197,26 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _genresController =
         TextEditingController(text: (item.genres ?? const []).join(', '));
 
-    _conditionController = TextEditingController(text: owned?.condition ?? '');
-    _gradeController = TextEditingController(text: owned?.grade ?? '');
-    _purchaseDateController = TextEditingController(
-      text: owned?.purchaseDate == null ? '' : formatDate(owned!.purchaseDate!),
-    );
-    _priceController = TextEditingController(
-      text: owned?.pricePaidCents == null
-          ? ''
-          : (owned!.pricePaidCents! / 100).toStringAsFixed(2),
-    );
-    _currencyController = TextEditingController(text: owned?.currency ?? '');
-    _quantityController =
-        TextEditingController(text: (owned?.quantity ?? 1).toString());
-    _notesController = TextEditingController(text: owned?.personalNotes ?? '');
-    _ratingController =
-      TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
-    _trackingController =
-      TextEditingController(
-        text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
-      );
-    _tagsController = TextEditingController(text: owned?.tags ?? '');
-    _tagOptions = splitPickListValues(owned?.tags);
-    _sellPriceController = TextEditingController(
-      text: owned?.sellPriceCents == null
-          ? ''
-          : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
-    );
-    _soldToController = TextEditingController(text: owned?.soldTo ?? '');
-    final wishlist = widget.request.wishlistItem;
-    _wishlistPriceController = TextEditingController(
-      text: wishlist?.targetPriceCents == null
-          ? ''
-          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
-    );
-    _wishlistCurrencyController =
-        TextEditingController(text: wishlist?.currency ?? '');
-    _wishlistNotesController =
-        TextEditingController(text: wishlist?.notes ?? '');
-    _selectedLocationId = owned?.locationId;
-    _startedAt = tracking?.startedAt ?? owned?.startedAt;
-    _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
-    _soldAt = owned?.soldAt;
+    _conditionController = _draft.conditionController;
+    _gradeController = _draft.gradeController;
+    _purchaseDateController = _draft.purchaseDateController;
+    _priceController = _draft.priceController;
+    _currencyController = _draft.currencyController;
+    _quantityController = _draft.quantityController;
+    _notesController = _draft.notesController;
+    _ratingController = _draft.ratingController;
+    _trackingController = _draft.trackingController;
+    _tagsController = _draft.tagsController;
+    _tagOptions = List<String>.from(_draft.tagOptions);
+    _sellPriceController = _draft.sellPriceController;
+    _soldToController = _draft.soldToController;
+    _wishlistPriceController = _draft.wishlistPriceController;
+    _wishlistCurrencyController = _draft.wishlistCurrencyController;
+    _wishlistNotesController = _draft.wishlistNotesController;
+    _selectedLocationId = _draft.selectedLocationId;
+    _startedAt = _draft.startedAt;
+    _finishedAt = _draft.finishedAt;
+    _soldAt = _draft.soldAt;
     final editionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: owned?.editionId ?? tracking?.editionId,
@@ -245,10 +226,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
     _selectedEditionId = editionSelection.edition?.id;
     _selectedVariantId = editionSelection.variant?.id;
-    _customFieldEdits = {
-      for (final value in widget.request.customFieldValues)
-        value.fieldDefinitionId: value.value,
-    };
+    _customFieldEdits = Map<String, String?>.from(_draft.customFieldEdits);
+    _itemImageEdits = List<ItemImageEdit>.from(_draft.itemImageEdits);
 
     unawaited(_loadTagOptions());
 
@@ -277,47 +256,16 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   @override
   void dispose() {
     _tabController.dispose();
-    _titleController.dispose();
-    _sortKeyController.dispose();
     _subtitleController.dispose();
-    _numberController.dispose();
-    _publisherController.dispose();
-    _editionTitleController.dispose();
-    _countryController.dispose();
-    _languageController.dispose();
-    _imprintController.dispose();
-    _seriesGroupController.dispose();
     _seriesTitleController.dispose();
     _volumeNameController.dispose();
     _volumeNumberController.dispose();
-    _releaseDateController.dispose();
-    _releaseYearController.dispose();
-    _pageCountController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    _synopsisController.dispose();
     _seriesTagsController.dispose();
     _creatorsController.dispose();
     _charactersController.dispose();
     _storyArcsController.dispose();
     _genresController.dispose();
-    _conditionController.dispose();
-    _gradeController.dispose();
-    _purchaseDateController.dispose();
-    _priceController.dispose();
-    _currencyController.dispose();
-    _quantityController.dispose();
-    _notesController.dispose();
-    _ratingController.dispose();
-    _trackingController.dispose();
-    _tagsController.dispose();
-    _sellPriceController.dispose();
-    _soldToController.dispose();
-    _wishlistPriceController.dispose();
-    _wishlistCurrencyController.dispose();
-    _wishlistNotesController.dispose();
+    _draft.dispose();
     super.dispose();
   }
 
@@ -1128,6 +1076,17 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    _draft.tagOptions = List<String>.from(_tagOptions);
+    _draft.availableLocations = List<StorageLocation>.from(_availableLocations);
+    _draft.selectedLocationId = _selectedLocationId;
+    _draft.selectedEditionId = _selectedEditionId;
+    _draft.selectedVariantId = _selectedVariantId;
+    _draft.locationChanged = _locationChanged;
+    _draft.startedAt = _startedAt;
+    _draft.finishedAt = _finishedAt;
+    _draft.soldAt = _soldAt;
+    _draft.customFieldEdits = Map<String, String?>.from(_customFieldEdits);
+    _draft.itemImageEdits = List<ItemImageEdit>.from(_itemImageEdits);
     final updatedSeries = CatalogSeriesDetails(
       seriesId: widget.request.item.series?.seriesId,
       seriesTitle: emptyToNull(_seriesTitleController.text),

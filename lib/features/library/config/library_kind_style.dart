@@ -5,16 +5,12 @@ import 'package:flutter/material.dart';
 const Color kLibraryFallbackAccent = kAppAccent;
 
 Color libraryAccentForKind(Object? kind) {
-  return switch (catalogMediaKindFromValue(kind)) {
+  return switch (catalogMediaKindFromValue(kind).libraryKind) {
     CatalogMediaKind.comic => kAppTopBar,
-    // `manga` and `anime` are treated as `comic` and `movie` respectively.
-    CatalogMediaKind.manga => kAppTopBar,
-    CatalogMediaKind.anime => const Color(0xFFE05252),
     CatalogMediaKind.book => const Color(0xFF48A868),
     CatalogMediaKind.game => const Color(0xFF7C68D8),
     CatalogMediaKind.boardgame => const Color(0xFFE0A52B),
     CatalogMediaKind.movie => const Color(0xFFE05252),
-    CatalogMediaKind.tv => const Color(0xFF4E7FE5),
     CatalogMediaKind.music => const Color(0xFFE07A2D),
     _ => kLibraryFallbackAccent,
   };
@@ -60,26 +56,22 @@ Color libraryChromeBorderColor(
 }
 
 IconData libraryIconForKind(Object? kind) {
-  return switch (catalogMediaKindFromValue(kind)) {
-    CatalogMediaKind.anime => Icons.movie_outlined,
+  return switch (catalogMediaKindFromValue(kind).libraryKind) {
     CatalogMediaKind.book => Icons.menu_book_outlined,
     CatalogMediaKind.boardgame => Icons.casino_outlined,
     CatalogMediaKind.comic => Icons.library_books,
     CatalogMediaKind.game => Icons.sports_esports,
-    CatalogMediaKind.manga => Icons.library_books,
     CatalogMediaKind.movie => Icons.movie_outlined,
     CatalogMediaKind.music => Icons.music_note,
-    CatalogMediaKind.tv => Icons.tv,
     _ => Icons.category_outlined,
   };
 }
 
 String librarySidebarTitleForKind(Object? kind) {
-  return switch (catalogMediaKindFromValue(kind)) {
+  return switch (catalogMediaKindFromValue(kind).libraryKind) {
     CatalogMediaKind.movie => 'Years',
     CatalogMediaKind.music => 'Artists',
-    CatalogMediaKind.comic || CatalogMediaKind.tv =>
-      'Series',
+    CatalogMediaKind.comic => 'Series',
     CatalogMediaKind.book ||
     CatalogMediaKind.game ||
     CatalogMediaKind.boardgame => 'Publishers',

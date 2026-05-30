@@ -9,7 +9,7 @@ const _libraryEditCastRoles = {
   'narrator',
 };
 
-extension _LibraryEditDialogVideoTabs on _LibraryEditDialogState {
+extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
   Widget _videoMediaTab() {
     return EditTabShell(
       children: [
@@ -51,12 +51,6 @@ extension _LibraryEditDialogVideoTabs on _LibraryEditDialogState {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
-                ]),
-              ],
-              if (widget.item.mediaKind == CatalogMediaKind.tv) ...[
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _readOnlyField(label: 'Media type', value: 'TV Series'),
                 ]),
               ],
               const SizedBox(height: 10),

@@ -577,10 +577,7 @@ class LibraryEditDraft {
   bool get hasTrackingContext => isOwned || trackingEntry != null;
   bool get isTrackingOnly => !isOwned && trackingEntry != null;
   bool get hasWishlistContext => wishlistItem != null;
-  bool get isVideoKind {
-    const videoKinds = {CatalogMediaKind.movie, CatalogMediaKind.tv};
-    return videoKinds.contains(item.mediaKind);
-  }
+  bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
 
   PhysicalMediaFormat? physicalFormatForId(String? id) {
     final normalized = emptyToNull(id ?? '');

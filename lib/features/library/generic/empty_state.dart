@@ -108,8 +108,7 @@ String _emptyStateSummary(LibraryTypeConfig type) {
   }
   final providers =
       type.supportedMetadataProviders.map((p) => p.label).join(', ');
-    final suffix = type.workspace.kind == CatalogMediaKind.movie ||
-      type.workspace.kind == CatalogMediaKind.tv
+    final suffix = type.workspace.kind.libraryKind == CatalogMediaKind.movie
       ? ' Physical formats are tracked as editions.'
       : '';
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';

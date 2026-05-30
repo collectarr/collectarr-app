@@ -485,9 +485,8 @@ class CollectionCsv {
     }
     final media = type.mediaFields;
     final release = type.releaseFields;
-    final title = switch (type.workspace.kind) {
-      CatalogMediaKind.comic || CatalogMediaKind.manga => 'Series',
-      CatalogMediaKind.tv => 'Show',
+    final title = switch (type.workspace.kind.libraryKind) {
+      CatalogMediaKind.comic => 'Series',
       CatalogMediaKind.music => 'Release',
       _ => 'Title',
     };

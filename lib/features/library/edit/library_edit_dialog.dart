@@ -41,7 +41,7 @@ import 'package:url_launcher/url_launcher.dart';
 part 'library_edit_dialog_anchor_widgets.dart';
 part 'library_edit_dialog_video_tabs.dart';
 
-class LibraryEditDialog extends ConsumerStatefulWidget {
+class LibraryEditDialog extends StatelessWidget {
   const LibraryEditDialog({
     super.key,
     required this.type,
@@ -87,10 +87,75 @@ class LibraryEditDialog extends ConsumerStatefulWidget {
   final LibraryEditDraft? draft;
 
   @override
-  ConsumerState<LibraryEditDialog> createState() => _LibraryEditDialogState();
+  Widget build(BuildContext context) {
+    return draft == null
+        ? LibraryEditRenderer(
+            type: type,
+            item: item,
+            ownedItem: ownedItem,
+            wishlistItem: wishlistItem,
+            trackingEntry: trackingEntry,
+            accent: accent,
+            availableBundleReleases: availableBundleReleases,
+            physicalFormats: physicalFormats,
+            customFieldDefinitions: customFieldDefinitions,
+            customFieldValues: customFieldValues,
+            itemImages: itemImages,
+          )
+        : LibraryEditRenderer.fromDraft(draft: draft!);
+  }
 }
 
-class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
+class LibraryEditRenderer extends ConsumerStatefulWidget {
+  const LibraryEditRenderer({
+    super.key,
+    required this.type,
+    required this.item,
+    required this.ownedItem,
+    this.wishlistItem,
+    this.trackingEntry,
+    required this.accent,
+    this.availableBundleReleases = const [],
+    this.physicalFormats = const [],
+    this.customFieldDefinitions = const [],
+    this.customFieldValues = const [],
+    this.itemImages = const [],
+  }) : draft = null;
+
+  LibraryEditRenderer.fromDraft({
+    super.key,
+    required LibraryEditDraft draft,
+  })  : draft = draft,
+        type = draft.type,
+        item = draft.item,
+        ownedItem = draft.ownedItem,
+        wishlistItem = draft.wishlistItem,
+        trackingEntry = draft.trackingEntry,
+        accent = draft.accent,
+        availableBundleReleases = draft.availableBundleReleases,
+        physicalFormats = draft.physicalFormats,
+        customFieldDefinitions = draft.customFieldDefinitions,
+        customFieldValues = draft.customFieldValues,
+        itemImages = draft.itemImages;
+
+  final LibraryTypeConfig type;
+  final LibraryMetadataItem item;
+  final OwnedItem? ownedItem;
+  final WishlistItem? wishlistItem;
+  final TrackingEntry? trackingEntry;
+  final Color accent;
+  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<PhysicalMediaFormat> physicalFormats;
+  final List<CustomFieldDefinition> customFieldDefinitions;
+  final List<CustomFieldValue> customFieldValues;
+  final List<ItemImage> itemImages;
+  final LibraryEditDraft? draft;
+
+  @override
+  ConsumerState<LibraryEditRenderer> createState() => _LibraryEditRendererState();
+}
+
+class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final LibraryEditDraft _draft;
@@ -223,11 +288,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   bool get _hasWishlistContext => widget.wishlistItem != null;
 
   bool get _isVideoKind {
-    const videoKinds = {
-      CatalogMediaKind.movie,
-      CatalogMediaKind.tv,
-    };
-    return videoKinds.contains(widget.item.mediaKind);
+    return widget.item.mediaKind.isVideoLibraryKind;
   }
 
   bool get _isComicKind => widget.type.workspace.kind == CatalogMediaKind.comic;
@@ -505,13 +566,13 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       case 'media':
         return _mediaTab();
       case 'edition':
-        return _LibraryEditDialogVideoTabs(this)._editionTab();
+        return _LibraryEditRendererVideoTabs(this)._editionTab();
       case 'specs':
-        return _LibraryEditDialogVideoTabs(this)._specsTab();
+        return _LibraryEditRendererVideoTabs(this)._specsTab();
       case 'cast':
-        return _LibraryEditDialogVideoTabs(this)._castTab();
+        return _LibraryEditRendererVideoTabs(this)._castTab();
       case 'crew':
-        return _LibraryEditDialogVideoTabs(this)._crewTab();
+        return _LibraryEditRendererVideoTabs(this)._crewTab();
       case 'value':
         return _valueTab();
       case 'personal':
@@ -527,9 +588,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       case 'synopsis':
         return _synopsisTab();
       case 'discs':
-        return _LibraryEditDialogVideoTabs(this)._discsTab();
+        return _LibraryEditRendererVideoTabs(this)._discsTab();
       case 'links':
-        return _LibraryEditDialogVideoTabs(this)._linksTab();
+        return _LibraryEditRendererVideoTabs(this)._linksTab();
       default:
         throw StateError('Unsupported generic edit tab: $id');
     }
@@ -540,7 +601,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   Widget _mediaTab() {
-    if (_isVideoKind) return _LibraryEditDialogVideoTabs(this)._videoMediaTab();
+    if (_isVideoKind) return _LibraryEditRendererVideoTabs(this)._videoMediaTab();
     return _genericMediaTab();
   }
 
@@ -1477,7 +1538,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   Widget _personalTab() {
     if (_isVideoKind) {
-      return _LibraryEditDialogVideoTabs(this)._videoPersonalTab();
+      return _LibraryEditRendererVideoTabs(this)._videoPersonalTab();
     }
     return EditTabShell(
       children: [
