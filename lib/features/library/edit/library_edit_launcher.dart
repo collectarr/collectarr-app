@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -11,8 +10,12 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
-  final builder =
-      request.type.editDialogBuilder ?? buildGenericLibraryEditDialog;
+  final builder = request.type.editDialogBuilder;
+  if (builder == null) {
+    throw StateError(
+      'No edit dialog builder registered for ${request.type.workspace.kind.apiValue}.',
+    );
+  }
   return showDialog<LibraryEditSelection>(
     context: context,
     builder: (context) => requestLoader == null
