@@ -269,6 +269,8 @@ Color libraryCollectionStatusScopeColor(
   };
 }
 
+final RegExp _libraryToolbarLetterPattern = RegExp(r'[A-Z]');
+
 class LibraryToolbarAlphabetRow extends StatelessWidget {
   const LibraryToolbarAlphabetRow({
     super.key,
@@ -290,7 +292,8 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
           (letter) =>
               letter == '#' ||
               letter == '0-9' ||
-              (letter.length == 1 && RegExp(r'[A-Z]').hasMatch(letter)),
+          (letter.length == 1 &&
+            _libraryToolbarLetterPattern.hasMatch(letter)),
         )
         .toSet();
     const alphabet = [

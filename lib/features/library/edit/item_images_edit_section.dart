@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 
@@ -381,13 +381,18 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     required bool clockwise,
   }) async {
     try {
-      final decoded = img.decodeImage(base64Decode(image.imageData));
-      if (decoded == null) {
-        throw StateError('Image decode returned null.');
+      final rotatedBase64 = await compute(
+        _rotateImageBase64,
+        _RotateImageRequest(
+          imageData: image.imageData,
+          clockwise: clockwise,
+        ),
+      );
+      if (!mounted) {
+        return;
       }
-      final rotated = img.copyRotate(decoded, angle: clockwise ? 90 : -90);
       setState(() {
-        image.imageData = base64Encode(img.encodePng(rotated));
+        image.imageData = rotatedBase64;
         image.hasBinaryChanges = true;
       });
       _notifyChanged();
@@ -529,6 +534,28 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         return 'Auxiliary';
     }
   }
+}
+
+String _rotateImageBase64(_RotateImageRequest request) {
+  final decoded = img.decodeImage(base64Decode(request.imageData));
+  if (decoded == null) {
+    throw StateError('Image decode returned null.');
+  }
+  final rotated = img.copyRotate(
+    decoded,
+    angle: request.clockwise ? 90 : -90,
+  );
+  return base64Encode(img.encodePng(rotated));
+}
+
+class _RotateImageRequest {
+  const _RotateImageRequest({
+    required this.imageData,
+    required this.clockwise,
+  });
+
+  final String imageData;
+  final bool clockwise;
 }
 
 class _EditableImage {

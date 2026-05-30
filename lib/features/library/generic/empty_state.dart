@@ -30,73 +30,87 @@ class LibraryEmptyState extends StatelessWidget {
       builder: (context, color, _) {
         final animatedAccent = color ?? accent;
         final palette = appPalette(context);
-    return ColoredBox(
-      color: palette.canvas,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 44, color: animatedAccent),
-              const SizedBox(height: 12),
-              Text(
-                hasActiveFilter
-                    ? 'No matching ${type.pluralLabel.toLowerCase()}'
-                    : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: palette.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                hasActiveFilter
-                    ? 'Clear filters to return to your local shelf.'
-                    : _emptyStateSummary(type),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: palette.textMuted,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (hasActiveFilter)
-                OutlinedButton.icon(
-                  onPressed: onClearFilter,
-                  icon: const Icon(Icons.filter_alt_off),
-                  label: const Text('Clear filter'),
-                )
-              else
-                FilledButton.icon(
-                  onPressed: onAdd,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: animatedAccent,
-                    foregroundColor: Colors.white,
+        return ColoredBox(
+          color: palette.canvas,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add from Collectarr Core'),
-                ),
-              if (!hasActiveFilter && type.supportedMetadataProviders.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Manual add is enabled even without provider search.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: palette.textMuted,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(icon, size: 44, color: animatedAccent),
+                          const SizedBox(height: 12),
+                          Text(
+                            hasActiveFilter
+                                ? 'No matching ${type.pluralLabel.toLowerCase()}'
+                                : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: palette.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            hasActiveFilter
+                                ? 'Clear filters to return to your local shelf.'
+                                : _emptyStateSummary(type),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          if (hasActiveFilter)
+                            OutlinedButton.icon(
+                              onPressed: onClearFilter,
+                              icon: const Icon(Icons.filter_alt_off),
+                              label: const Text('Clear filter'),
+                            )
+                          else
+                            FilledButton.icon(
+                              onPressed: onAdd,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: animatedAccent,
+                                foregroundColor: Colors.white,
+                              ),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add from Collectarr Core'),
+                            ),
+                          if (!hasActiveFilter &&
+                              type.supportedMetadataProviders.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                'Manual add is enabled even without provider search.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: palette.textMuted,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-            ],
+              );
+            },
           ),
-        ),
-      ),
-    );
+        );
       },
     );
   }

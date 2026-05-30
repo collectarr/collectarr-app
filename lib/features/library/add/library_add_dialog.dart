@@ -641,6 +641,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void initState() {
     super.initState();
+    registerLibraryAddBuilders();
     _videoKindFilters = {
       _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
     };
@@ -1053,10 +1054,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           _handleBundleReleaseSelected(bundleReleaseId);
                         },
                       );
-                      // Ensure per-kind add builders are registered so tests and
-                      // non-main contexts pick up custom manual panes.
-                      registerLibraryAddBuilders();
-
                       final kindSpecificMap = {
                         'personalNotesController': _personalNotesController,
                         'rawOrSlabbedController': _rawOrSlabbedController,
