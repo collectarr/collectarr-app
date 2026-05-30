@@ -451,23 +451,32 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   Future<void> _cropImage(_EditableImage image) async {
     try {
       final bytes = base64Decode(image.imageData);
-      final decoded = img.decodeImage(bytes);
-      if (decoded == null) {
-        throw StateError('Image decode returned null.');
+      final aspectRatio = await compute(_decodeImageAspectRatio, image.imageData);
+      if (!mounted) {
+        return;
       }
       final bounds = await showDialog<_ImageCropBounds>(
         context: context,
         builder: (context) => _ImageCropDialog(
           imageBytes: bytes,
-          aspectRatio: decoded.width / decoded.height,
+          aspectRatio: aspectRatio,
         ),
       );
       if (bounds == null) {
         return;
       }
-      final cropped = _applyCropBounds(decoded, bounds);
+      final croppedBase64 = await compute(
+        _cropImageBase64,
+        _CropImageRequest(
+          imageData: image.imageData,
+          bounds: bounds,
+        ),
+      );
+      if (!mounted) {
+        return;
+      }
       setState(() {
-        image.imageData = base64Encode(img.encodePng(cropped));
+        image.imageData = croppedBase64;
         image.hasBinaryChanges = true;
       });
       _notifyChanged();
@@ -484,16 +493,6 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         );
       }
     }
-  }
-
-  img.Image _applyCropBounds(img.Image source, _ImageCropBounds bounds) {
-    final x = (source.width * bounds.left).round().clamp(0, source.width - 1);
-    final y = (source.height * bounds.top).round().clamp(0, source.height - 1);
-    final width =
-        (source.width * bounds.width).round().clamp(1, source.width - x);
-    final height =
-        (source.height * bounds.height).round().clamp(1, source.height - y);
-    return img.copyCrop(source, x: x, y: y, width: width, height: height);
   }
 
   void _handleImageAction(_EditableImage image, _ImageCardAction action) {
@@ -548,6 +547,33 @@ String _rotateImageBase64(_RotateImageRequest request) {
   return base64Encode(img.encodePng(rotated));
 }
 
+double _decodeImageAspectRatio(String imageData) {
+  final decoded = img.decodeImage(base64Decode(imageData));
+  if (decoded == null) {
+    throw StateError('Image decode returned null.');
+  }
+  return decoded.width / decoded.height;
+}
+
+String _cropImageBase64(_CropImageRequest request) {
+  final decoded = img.decodeImage(base64Decode(request.imageData));
+  if (decoded == null) {
+    throw StateError('Image decode returned null.');
+  }
+  final cropped = _applyCropBounds(decoded, request.bounds);
+  return base64Encode(img.encodePng(cropped));
+}
+
+img.Image _applyCropBounds(img.Image source, _ImageCropBounds bounds) {
+  final x = (source.width * bounds.left).round().clamp(0, source.width - 1);
+  final y = (source.height * bounds.top).round().clamp(0, source.height - 1);
+  final width =
+      (source.width * bounds.width).round().clamp(1, source.width - x);
+  final height =
+      (source.height * bounds.height).round().clamp(1, source.height - y);
+  return img.copyCrop(source, x: x, y: y, width: width, height: height);
+}
+
 class _RotateImageRequest {
   const _RotateImageRequest({
     required this.imageData,
@@ -556,6 +582,16 @@ class _RotateImageRequest {
 
   final String imageData;
   final bool clockwise;
+}
+
+class _CropImageRequest {
+  const _CropImageRequest({
+    required this.imageData,
+    required this.bounds,
+  });
+
+  final String imageData;
+  final _ImageCropBounds bounds;
 }
 
 class _EditableImage {
