@@ -600,6 +600,22 @@ class LibraryEditDraft {
 
   bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
 
+  ({Map<String, String?> customFieldEdits, List<ItemImageEdit> itemImageEdits})
+      cloneMediaEdits() {
+    return (
+      customFieldEdits: Map<String, String?>.from(customFieldEdits),
+      itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
+    );
+  }
+
+  void replaceMediaEdits({
+    required Map<String, String?> customFieldEdits,
+    required List<ItemImageEdit> itemImageEdits,
+  }) {
+    this.customFieldEdits = Map<String, String?>.from(customFieldEdits);
+    this.itemImageEdits = List<ItemImageEdit>.from(itemImageEdits);
+  }
+
   bool get showsEpisodeTrackingFields {
     final series = item.series;
     return type.trackingProfile.name == videoTrackingProfile.name ||

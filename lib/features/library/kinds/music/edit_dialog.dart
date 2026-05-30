@@ -219,8 +219,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
     _selectedEditionId = editionSelection.edition?.id;
     _selectedVariantId = editionSelection.variant?.id;
-    _customFieldEdits = Map<String, String?>.from(_draft.customFieldEdits);
-    _itemImageEdits = List<ItemImageEdit>.from(_draft.itemImageEdits);
+    final mediaEdits = _draft.cloneMediaEdits();
+    _customFieldEdits = mediaEdits.customFieldEdits;
+    _itemImageEdits = mediaEdits.itemImageEdits;
 
     unawaited(_loadAvailableLocations());
   }
@@ -1324,8 +1325,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _draft.finishedAt = _finishedAt;
     _draft.soldAt = _soldAt;
     _draft.physicalFormatId = _physicalFormatId;
-    _draft.customFieldEdits = Map<String, String?>.from(_customFieldEdits);
-    _draft.itemImageEdits = List<ItemImageEdit>.from(_itemImageEdits);
+    _draft.replaceMediaEdits(
+      customFieldEdits: _customFieldEdits,
+      itemImageEdits: _itemImageEdits,
+    );
     final currentTracks = _item.music?.tracks ?? const <CatalogTrack>[];
     final updatedSeries = CatalogSeriesDetails(
       seriesId: _item.series?.seriesId,
