@@ -642,6 +642,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void initState() {
     super.initState();
     registerLibraryAddBuilders();
+    _syncManualKindSpecificFactoryValues();
     _videoKindFilters = {
       _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
     };
@@ -668,6 +669,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
     } else if (_barcodeController.text.isNotEmpty) {
       _mode = LibraryAddDialogMode.barcode;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryAddDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.type.workspace.kind != widget.type.workspace.kind) {
+      _disposeManualKindSpecificControllers();
+      _syncManualKindSpecificFactoryValues();
     }
   }
 
@@ -729,25 +739,29 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualKindSpecificFactoryValues = {};
   }
 
-  Map<String, dynamic> _kindSpecificFactoryValues(
-    LibraryAddManualKindSpecificFactory? factory,
-  ) {
+  void _syncManualKindSpecificFactoryValues() {
+    final factory =
+        LibraryAddRegistry.manualKindSpecificFactoryFor(widget.type.workspace.kind);
     if (factory == null) {
       if (_manualKindSpecificFactoryValues.isNotEmpty ||
           _manualKindSpecificCreatedControllers.isNotEmpty) {
         _disposeManualKindSpecificControllers();
       }
-      return const <String, dynamic>{};
+      return;
     }
-    if (_manualKindSpecificFactoryValues.isEmpty) {
-      final factoryMap = factory();
-      for (final value in factoryMap.values) {
-        if (value is TextEditingController) {
-          _manualKindSpecificCreatedControllers.add(value);
-        }
+    if (_manualKindSpecificFactoryValues.isNotEmpty) {
+      return;
+    }
+    final factoryMap = factory();
+    for (final value in factoryMap.values) {
+      if (value is TextEditingController) {
+        _manualKindSpecificCreatedControllers.add(value);
       }
-      _manualKindSpecificFactoryValues = factoryMap;
     }
+    _manualKindSpecificFactoryValues = factoryMap;
+  }
+
+  Map<String, dynamic> _kindSpecificFactoryValues() {
     return _manualKindSpecificFactoryValues;
   }
 
@@ -1076,12 +1090,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       // invoke it and merge its results so the kind can own
                       // controllers while the dialog remains responsible for
                       // disposing them.
-                      final factory =
-                          LibraryAddRegistry.manualKindSpecificFactoryFor(
-                              widget.type.workspace.kind);
                       _manualKindSpecific = Map<String, dynamic>.from(
                         kindSpecificMap,
-                      )..addAll(_kindSpecificFactoryValues(factory));
+                      )..addAll(_kindSpecificFactoryValues());
 
                       final manualRequest = LibraryAddManualPaneRequest(
                         type: widget.type,

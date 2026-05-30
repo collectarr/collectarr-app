@@ -435,11 +435,15 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     if (oldIndex < 0 || oldIndex >= visible.length) {
       return;
     }
-    if (newIndex < 0 || newIndex >= visible.length) {
+    if (newIndex < 0 || newIndex > visible.length) {
       return;
     }
+    var targetIndex = newIndex;
+    if (oldIndex < targetIndex) {
+      targetIndex -= 1;
+    }
     final moved = visible.removeAt(oldIndex);
-    visible.insert(newIndex, moved);
+    visible.insert(targetIndex, moved);
     setState(() {
       for (var index = 0; index < visible.length; index++) {
         visible[index].sortOrder = index;
