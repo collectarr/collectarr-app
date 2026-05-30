@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_librar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
@@ -41,9 +40,9 @@ void main() {
       contains('CC BY-SA'),
     );
     final apiKeyIds = comicsLibraryConfig.metadataProviders
-      .where((provider) => provider.requiresApiKey)
-      .map((p) => p.id)
-      .toList();
+        .where((provider) => provider.requiresApiKey)
+        .map((p) => p.id)
+        .toList();
     expect(apiKeyIds, contains('comicvine'));
     expect(comicsLibraryConfig.metadataProviderLabel('gcd'), 'GCD');
     expect(
@@ -56,7 +55,8 @@ void main() {
     );
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(comicsLibraryConfig.presentation, comicsLibraryMediaPresentation);
-    expect(comicsLibraryConfig.addDialogLauncher, same(showComicLibraryAddDialog));
+    expect(
+        comicsLibraryConfig.addDialogLauncher, same(showComicLibraryAddDialog));
     expect(
       comicsLibraryConfig.editDialogBuilder,
       same(buildComicLibraryEditDialog),
@@ -68,7 +68,8 @@ void main() {
   // 'manga' kind has been merged into comics; no separate config test required.
 
   test('movies library config uses the dedicated add dialog launcher', () {
-    expect(moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
+    expect(
+        moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
   });
 
   test('library type config can carry an add dialog launcher override', () {
@@ -194,8 +195,10 @@ void main() {
       collectarrLibraryTypes.byKind('movie')?.addDialogLauncher,
       same(showMovieLibraryAddDialog),
     );
-    expect(collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNotNull);
-    expect(collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNotNull);
+    expect(
+        collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNotNull);
+    expect(
+        collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNotNull);
   });
 
   test('all registered kinds declare an explicit edit dialog builder', () {
@@ -209,12 +212,13 @@ void main() {
   });
 
   test('comic kind uses dedicated edit dialog builder', () {
-    expect(comicsLibraryConfig.editDialogBuilder, same(buildComicLibraryEditDialog));
+    expect(comicsLibraryConfig.editDialogBuilder,
+        same(buildComicLibraryEditDialog));
   });
 
-
   test('music kind uses dedicated edit dialog builder', () {
-    expect(musicLibraryConfig.editDialogBuilder, same(buildMusicLibraryEditDialog));
+    expect(musicLibraryConfig.editDialogBuilder,
+        same(buildMusicLibraryEditDialog));
   });
 
   test('video physical formats are variants under movies and tv', () {

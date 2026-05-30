@@ -120,7 +120,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 
   Future<void> _addImageFromClipboard() async {
-    final controller = TextEditingController();
+    var draftBase64 = '';
     final base64Data = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -128,8 +128,8 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         content: SizedBox(
           width: 400,
           child: TextField(
-            controller: controller,
             maxLines: 4,
+            onChanged: (value) => draftBase64 = value,
             decoration: const InputDecoration(
               labelText: 'Base64 image data',
               hintText: 'Paste base64-encoded image here...',
@@ -143,13 +143,12 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            onPressed: () => Navigator.of(context).pop(draftBase64.trim()),
             child: const Text('Add'),
           ),
         ],
       ),
     );
-    controller.dispose();
     if (base64Data == null || base64Data.isEmpty) return;
     // Validate base64
     try {

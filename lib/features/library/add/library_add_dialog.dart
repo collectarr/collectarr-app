@@ -209,7 +209,8 @@ class LibraryAddManualPaneRequest {
 
 // Public default manual pane builder so kinds can register a fallback that
 // delegates to the generic tabbed manual UI implemented in this library.
-Widget buildDefaultManualPane(BuildContext context, LibraryAddManualPaneRequest request) {
+Widget buildDefaultManualPane(
+    BuildContext context, LibraryAddManualPaneRequest request) {
   return _ManualPane(request: request);
 }
 
@@ -537,6 +538,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _purchaseDateController = TextEditingController();
   final _purchaseStoreController = TextEditingController();
   final _sellPriceController = TextEditingController();
+  final _soldDateController = TextEditingController();
   final _ownerLabelController = TextEditingController();
   // Holds the last-built manual pane kindSpecific map so helper accessors
   // can prefer kind-owned controllers when present.
@@ -648,8 +650,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _queryController.text = widget.initialQuery?.trim() ?? '';
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
+    _soldDateController.text = '';
     // Manual custom field edits and item images default from widget inputs
-    _manualCustomFieldValues = Map.of(widget.customFieldValues.asMap().map((k, v) => MapEntry(v.fieldDefinitionId, v.value)));
+    _manualCustomFieldValues = Map.of(widget.customFieldValues
+        .asMap()
+        .map((k, v) => MapEntry(v.fieldDefinitionId, v.value)));
     _manualItemImages = List.of(widget.itemImages);
     if (_barcodeController.text.isNotEmpty && widget.autoLookupInitialBarcode) {
       _mode = LibraryAddDialogMode.barcode;
@@ -696,6 +701,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _purchaseDateController.dispose();
     _purchaseStoreController.dispose();
     _sellPriceController.dispose();
+    _soldDateController.dispose();
     _ownerLabelController.dispose();
     _searchSeriesController.dispose();
     _searchNumberController.dispose();
@@ -722,7 +728,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
-    final accent = widget.accent ?? LibraryAccentScope.accentOf(context, fallback: kAppAccent);
+    final accent = widget.accent ??
+        LibraryAccentScope.accentOf(context, fallback: kAppAccent);
     final selectedResult = _selectedResult;
     final selectedCandidate = _selectedProviderCandidate;
     final selectedProviderLabel = selectedCandidate == null
@@ -731,18 +738,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedQueuedIngest = selectedCandidate == null
         ? null
         : _queuedProviderIngests[selectedCandidate.localCatalogId];
-      final isFetchingSelectedResultPreview =
-        selectedResult != null &&
+    final isFetchingSelectedResultPreview = selectedResult != null &&
         _pendingHydratedResultIds.contains(selectedResult.id) &&
         !_hydratedResults.containsKey(selectedResult.id);
-    final isFetchingSelectedCandidatePreview =
-      selectedCandidate != null &&
-      _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
-      !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
+    final isFetchingSelectedCandidatePreview = selectedCandidate != null &&
+        _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
+        !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
     final palette = appPalette(context);
-    final movieDesktopWidth = _isMovieDesktopChrome ? 1540.0 : _defaultDialogWidth;
-    final movieDesktopHeight = _isMovieDesktopChrome ? 920.0 : _defaultDialogHeight;
+    final movieDesktopWidth =
+        _isMovieDesktopChrome ? 1540.0 : _defaultDialogWidth;
+    final movieDesktopHeight =
+        _isMovieDesktopChrome ? 920.0 : _defaultDialogHeight;
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
       accent: accent,
@@ -820,17 +827,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             child: Column(
               children: [
                 widget.headerBuilder?.call(context, headerRequest) ??
-                  LibraryAddRegistry.headerBuilderFor(widget.type.workspace.kind)
-                    ?.call(context, headerRequest) ??
-                  _DialogHeader(
-                    type: headerRequest.type,
-                    accent: headerRequest.accent,
-                    isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
-                  ),
+                    LibraryAddRegistry.headerBuilderFor(
+                            widget.type.workspace.kind)
+                        ?.call(context, headerRequest) ??
+                    _DialogHeader(
+                      type: headerRequest.type,
+                      accent: headerRequest.accent,
+                      isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
+                    ),
                 widget.modeBarBuilder?.call(context, modeBarRequest) ??
-                  LibraryAddRegistry.modeBarBuilderFor(widget.type.workspace.kind)
-                    ?.call(context, modeBarRequest) ??
-                  _LibraryAddModeBar(
+                    LibraryAddRegistry.modeBarBuilderFor(
+                            widget.type.workspace.kind)
+                        ?.call(context, modeBarRequest) ??
+                    _LibraryAddModeBar(
                       type: modeBarRequest.type,
                       accent: modeBarRequest.accent,
                       isMovieDesktopChrome: modeBarRequest.isMovieDesktopChrome,
@@ -838,16 +847,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       queryController: modeBarRequest.queryController,
                       barcodeController: modeBarRequest.barcodeController,
                       isSearching: modeBarRequest.isSearching,
-                      isSearchingProvider:
-                          modeBarRequest.isSearchingProvider,
+                      isSearchingProvider: modeBarRequest.isSearchingProvider,
                       onModeChanged: modeBarRequest.onModeChanged,
                       onSearch: modeBarRequest.onSearch,
                       onQueryChanged: modeBarRequest.onQueryChanged,
                       suggestions: modeBarRequest.suggestions,
                       showSuggestions: modeBarRequest.showSuggestions,
                       onSelectSuggestion: modeBarRequest.onSelectSuggestion,
-                      onDismissSuggestions:
-                          modeBarRequest.onDismissSuggestions,
+                      onDismissSuggestions: modeBarRequest.onDismissSuggestions,
                       canScanCover: modeBarRequest.canScanCover,
                       isScanningCover: modeBarRequest.isScanningCover,
                       onScanCover: modeBarRequest.onScanCover,
@@ -913,10 +920,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         }),
                         onSearchCore: _search,
                       );
-                        final searchPane = widget.searchPaneBuilder
-                            ?.call(context, searchPaneRequest) ??
-                          LibraryAddRegistry.searchBuilderFor(widget.type.workspace.kind)
-                            ?.call(context, searchPaneRequest) ??
+                      final searchPane = widget.searchPaneBuilder
+                              ?.call(context, searchPaneRequest) ??
+                          LibraryAddRegistry.searchBuilderFor(
+                                  widget.type.workspace.kind)
+                              ?.call(context, searchPaneRequest) ??
                           _SearchPane(
                             type: searchPaneRequest.type,
                             isBusy: searchPaneRequest.isBusy,
@@ -925,8 +933,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             error: searchPaneRequest.error,
                             accent: searchPaneRequest.accent,
                             results: searchPaneRequest.results,
-                            providerResults:
-                                searchPaneRequest.providerResults,
+                            providerResults: searchPaneRequest.providerResults,
                             queuedProviderIngests:
                                 searchPaneRequest.queuedProviderIngests,
                             selectedProvider:
@@ -935,8 +942,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.searchedProvider,
                             selectedResultId:
                                 searchPaneRequest.selectedResultId,
-                            selectedProviderCandidateId: searchPaneRequest
-                                .selectedProviderCandidateId,
+                            selectedProviderCandidateId:
+                                searchPaneRequest.selectedProviderCandidateId,
                             checkedResultIds:
                                 searchPaneRequest.checkedResultIds,
                             checkedProviderIds:
@@ -953,8 +960,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.providerPublisherText,
                             providerYearText:
                                 searchPaneRequest.providerYearText,
-                            onSelectResult:
-                                searchPaneRequest.onSelectResult,
+                            onSelectResult: searchPaneRequest.onSelectResult,
                             onSelectProviderCandidate:
                                 searchPaneRequest.onSelectProviderCandidate,
                             onToggleResultCheck:
@@ -968,12 +974,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         accent: accent,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
                         previewPaneBuilder: widget.previewPaneBuilder ??
-                            LibraryAddRegistry.previewBuilderFor(widget.type.workspace.kind),
+                            LibraryAddRegistry.previewBuilderFor(
+                                widget.type.workspace.kind),
                         item: selectedResult,
                         candidate: selectedCandidate,
                         candidatePreview: selectedCandidate == null
                             ? null
-                            : _providerPreviews[selectedCandidate.localCatalogId],
+                            : _providerPreviews[
+                                selectedCandidate.localCatalogId],
                         isFetchingPreview: isFetchingSelectedCandidatePreview ||
                             isFetchingSelectedResultPreview,
                         providerLabel: selectedProviderLabel,
@@ -986,16 +994,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 const <BundleReleaseSummary>[],
                         selectedBundleReleaseId: _selectedBundleReleaseId,
                         selectedBundleReleaseDetail:
-                          _selectedBundleReleaseDetail,
+                            _selectedBundleReleaseDetail,
                         selectedEditionId: _selectedReferenceEditionId,
                         selectedVariantId: _selectedReferenceVariantId,
                         isLoadingBundleReleases: selectedResult != null &&
                             _pendingBundleReleaseItemIds
                                 .contains(selectedResult.id),
                         isLoadingBundleReleaseDetail:
-                          _selectedBundleReleaseId != null &&
-                            _pendingBundleReleaseDetailIds
-                              .contains(_selectedBundleReleaseId),
+                            _selectedBundleReleaseId != null &&
+                                _pendingBundleReleaseDetailIds
+                                    .contains(_selectedBundleReleaseId),
                         onReferenceTypeChanged: (value) {
                           _handleReferenceTypeChanged(selectedResult, value);
                         },
@@ -1015,50 +1023,55 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       registerLibraryAddBuilders();
 
                       final kindSpecificMap = {
-                          'rawOrSlabbedController': _rawOrSlabbedController,
-                          'gradingCompanyController': _gradingCompanyController,
-                          'graderNotesController': _graderNotesController,
-                          'signedByController': _signedByController,
-                          'labelTypeController': _labelTypeController,
-                          'certificationNumberController': _certificationNumberController,
-                          'coverPriceController': _coverPriceController,
-                          'purchasePriceController': _priceController,
-                          'purchaseDateController': _purchaseDateController,
-                          'purchaseStoreController': _purchaseStoreController,
-                          'soldPriceController': _sellPriceController,
-                          'soldDateController': TextEditingController(text: _soldAt == null ? '' : formatDate(_soldAt!)),
-                          'ownerLabelController': _ownerLabelController,
-                          'linksController': _linksController,
-                        };
-                        // If a kind provides a factory for kind-specific values,
-                        // invoke it and merge its results so the kind can own
-                        // controllers while the dialog remains responsible for
-                        // disposing them.
-                        final factory = LibraryAddRegistry.manualKindSpecificFactoryFor(widget.type.workspace.kind);
-                        final Map<String, dynamic> mergedKindSpecific;
-                        if (factory == null) {
-                          mergedKindSpecific = kindSpecificMap;
-                        } else {
-                          // Dispose any previously created kind-specific controllers
-                          for (final c in _manualKindSpecificCreatedControllers) {
-                            try {
-                              c.dispose();
-                            } catch (_) {}
-                          }
-                          _manualKindSpecificCreatedControllers.clear();
-
-                          final factoryMap = factory();
-                          for (final v in factoryMap.values) {
-                            if (v is TextEditingController) {
-                              _manualKindSpecificCreatedControllers.add(v);
-                            }
-                          }
-                          mergedKindSpecific = Map<String, dynamic>.from(kindSpecificMap)..addAll(factoryMap);
+                        'rawOrSlabbedController': _rawOrSlabbedController,
+                        'gradingCompanyController': _gradingCompanyController,
+                        'graderNotesController': _graderNotesController,
+                        'signedByController': _signedByController,
+                        'labelTypeController': _labelTypeController,
+                        'certificationNumberController':
+                            _certificationNumberController,
+                        'coverPriceController': _coverPriceController,
+                        'purchasePriceController': _priceController,
+                        'purchaseDateController': _purchaseDateController,
+                        'purchaseStoreController': _purchaseStoreController,
+                        'soldPriceController': _sellPriceController,
+                        'soldDateController': _soldDateController,
+                        'ownerLabelController': _ownerLabelController,
+                        'linksController': _linksController,
+                      };
+                      // If a kind provides a factory for kind-specific values,
+                      // invoke it and merge its results so the kind can own
+                      // controllers while the dialog remains responsible for
+                      // disposing them.
+                      final factory =
+                          LibraryAddRegistry.manualKindSpecificFactoryFor(
+                              widget.type.workspace.kind);
+                      final Map<String, dynamic> mergedKindSpecific;
+                      if (factory == null) {
+                        mergedKindSpecific = kindSpecificMap;
+                      } else {
+                        // Dispose any previously created kind-specific controllers
+                        for (final c in _manualKindSpecificCreatedControllers) {
+                          try {
+                            c.dispose();
+                          } catch (_) {}
                         }
+                        _manualKindSpecificCreatedControllers.clear();
 
-                        _manualKindSpecific = mergedKindSpecific;
+                        final factoryMap = factory();
+                        for (final v in factoryMap.values) {
+                          if (v is TextEditingController) {
+                            _manualKindSpecificCreatedControllers.add(v);
+                          }
+                        }
+                        mergedKindSpecific =
+                            Map<String, dynamic>.from(kindSpecificMap)
+                              ..addAll(factoryMap);
+                      }
 
-                        final manualRequest = LibraryAddManualPaneRequest(
+                      _manualKindSpecific = mergedKindSpecific;
+
+                      final manualRequest = LibraryAddManualPaneRequest(
                         type: widget.type,
                         accent: accent,
                         titleController: _titleController,
@@ -1082,7 +1095,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         defaultTags: _defaultTags,
                         onAddOwned: () => _addManual(LibraryAddTarget.owned),
                         onAddTrack: () => _addManual(LibraryAddTarget.track),
-                        onAddWishlist: () => _addManual(LibraryAddTarget.wishlist),
+                        onAddWishlist: () =>
+                            _addManual(LibraryAddTarget.wishlist),
                         editionTitleController: _editionTitleController,
                         releaseDateController: _releaseDateController,
                         pageCountController: _pageCountController,
@@ -1097,11 +1111,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         kindSpecific: mergedKindSpecific,
                         customFieldDefinitions: widget.customFieldDefinitions,
                         customFieldValues: _manualCustomFieldValues,
-                        onCustomFieldValuesChanged: (m) => setState(() => _manualCustomFieldValues = Map.of(m)),
+                        onCustomFieldValuesChanged: (m) => setState(
+                            () => _manualCustomFieldValues = Map.of(m)),
                         itemImages: _manualItemImages,
                         onItemImagesChanged: (edits) {
                           setState(() {
-                            final byId = {for (final img in _manualItemImages) img.id: img};
+                            final byId = {
+                              for (final img in _manualItemImages) img.id: img
+                            };
                             final next = <ItemImage>[];
                             for (final e in edits) {
                               if (e.deleted) continue;
@@ -1129,17 +1146,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           });
                         },
                       );
-                        final manualPane =
-                          widget.manualPaneBuilder?.call(context, manualRequest) ??
-                              LibraryAddRegistry.manualBuilderFor(widget.type.workspace.kind)
-                                ?.call(context, manualRequest) ??
-                            _ManualPane(request: manualRequest);
+                      final manualPane = widget.manualPaneBuilder
+                              ?.call(context, manualRequest) ??
+                          LibraryAddRegistry.manualBuilderFor(
+                                  widget.type.workspace.kind)
+                              ?.call(context, manualRequest) ??
+                          _ManualPane(request: manualRequest);
                       if (_mode == LibraryAddDialogMode.manual) {
                         return manualPane;
                       }
                       if (constraints.maxWidth < 720) {
-                        final searchHeight =
-                            constraints.maxHeight > 400 ? 300.0 : constraints.maxHeight * 0.5;
+                        final searchHeight = constraints.maxHeight > 400
+                            ? 300.0
+                            : constraints.maxHeight * 0.5;
                         return Column(
                           children: [
                             SizedBox(height: searchHeight, child: searchPane),
@@ -1179,26 +1198,25 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           ? checkedItems
                           : [if (selectedResult != null) selectedResult];
                       final addCount = addItems.length;
-                        final selectedEditionSelection = selectedResult == null
+                      final selectedEditionSelection = selectedResult == null
                           ? null
                           : _selectedEditionSelectionForItem(selectedResult);
-                        final requiresBundleSelection =
+                      final requiresBundleSelection =
                           _addTarget != LibraryAddTarget.track &&
-                            _referenceType ==
-                              LibraryAddReferenceType.bundleRelease;
-                        final requiresEditionSelection =
+                              _referenceType ==
+                                  LibraryAddReferenceType.bundleRelease;
+                      final requiresEditionSelection =
                           _addTarget != LibraryAddTarget.track &&
-                            _referenceType ==
-                              LibraryAddReferenceType.edition;
-                        final canAddBundleSelection = !requiresBundleSelection ||
+                              _referenceType == LibraryAddReferenceType.edition;
+                      final canAddBundleSelection = !requiresBundleSelection ||
                           (addCount == 1 &&
-                            selectedResult != null &&
-                            _selectedBundleReleaseId != null);
-                        final canAddEditionSelection =
-                          !requiresEditionSelection ||
-                            (addCount == 1 &&
                               selectedResult != null &&
-                              selectedEditionSelection != null);
+                              _selectedBundleReleaseId != null);
+                      final canAddEditionSelection =
+                          !requiresEditionSelection ||
+                              (addCount == 1 &&
+                                  selectedResult != null &&
+                                  selectedEditionSelection != null);
                       final bottomBarRequest = LibraryAddBottomBarRequest(
                         type: widget.type,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
@@ -1236,7 +1254,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onDefaultLocationPressed: _pickDefaultLocation,
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
-                        onAdd: (addItems.isEmpty && selectedCandidate == null) ||
+                        onAdd: (addItems.isEmpty &&
+                                    selectedCandidate == null) ||
                                 !canAddBundleSelection ||
                                 !canAddEditionSelection
                             ? null
@@ -1246,17 +1265,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                     addItems,
                                     _addTarget,
                                     referenceType: _referenceType,
-                                    editionSelectionsByItemId:
-                                        selectedResult == null ||
-                                                selectedEditionSelection == null ||
-                                                addCount != 1
-                                            ? const <String,
-                                                LibraryAddEditionSelection>{}
-                                            : <String,
-                                                LibraryAddEditionSelection>{
-                                                selectedResult.id:
-                                                    selectedEditionSelection,
-                                              },
+                                    editionSelectionsByItemId: selectedResult ==
+                                                null ||
+                                            selectedEditionSelection == null ||
+                                            addCount != 1
+                                        ? const <String,
+                                            LibraryAddEditionSelection>{}
+                                        : <String, LibraryAddEditionSelection>{
+                                            selectedResult.id:
+                                                selectedEditionSelection,
+                                          },
                                     bundleReleaseIdsByItemId:
                                         selectedResult == null ||
                                                 _selectedBundleReleaseId == null
@@ -1280,10 +1298,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             ? null
                             : () => _proposeCandidate(selectedCandidate),
                       );
-                        return widget.bottomBarBuilder
-                            ?.call(context, bottomBarRequest) ??
-                          LibraryAddRegistry.bottomBarBuilderFor(widget.type.workspace.kind)
-                            ?.call(context, bottomBarRequest) ??
+                      return widget.bottomBarBuilder
+                              ?.call(context, bottomBarRequest) ??
+                          LibraryAddRegistry.bottomBarBuilderFor(
+                                  widget.type.workspace.kind)
+                              ?.call(context, bottomBarRequest) ??
                           _LibraryAddBottomBar(
                             type: bottomBarRequest.type,
                             isMovieDesktopChrome:
@@ -1301,11 +1320,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             addTarget: bottomBarRequest.addTarget,
                             addCount: bottomBarRequest.addCount,
                             isAdding: bottomBarRequest.isAdding,
-                            isQueueingIngest:
-                                bottomBarRequest.isQueueingIngest,
+                            isQueueingIngest: bottomBarRequest.isQueueingIngest,
                             isAdmin: bottomBarRequest.isAdmin,
-                            defaultCondition:
-                                bottomBarRequest.defaultCondition,
+                            defaultCondition: bottomBarRequest.defaultCondition,
                             defaultGrade: bottomBarRequest.defaultGrade,
                             defaultLocationLabel:
                                 bottomBarRequest.defaultLocationLabel,
@@ -1575,11 +1592,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _selectedProviderCandidateId = null;
           _resetReferenceSelection();
           _clearSelectionCaches();
-          _error =
-              lookupResult.items.isEmpty &&
-                      widget.type.supportedMetadataProviders.isEmpty
-                  ? 'No item found for barcode $barcode.'
-                  : null;
+          _error = lookupResult.items.isEmpty &&
+                  widget.type.supportedMetadataProviders.isEmpty
+              ? 'No item found for barcode $barcode.'
+              : null;
         });
         _precacheMetadataCovers(lookupResult.items);
       }
@@ -1657,63 +1673,87 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return fallback;
     }
 
-    final year = int.tryParse(ctl('yearController', _yearController).text.trim());
-    final coverUrl = _emptyToNull(ctl('coverController', _coverController).text);
-    final releaseDate = parseDate(ctl('releaseDateController', _releaseDateController).text);
-    final pageCount = parseInt(ctl('pageCountController', _pageCountController).text);
-    final genres = ctl('genresEditController', _genresEditController).text
+    final year =
+        int.tryParse(ctl('yearController', _yearController).text.trim());
+    final coverUrl =
+        _emptyToNull(ctl('coverController', _coverController).text);
+    final releaseDate =
+        parseDate(ctl('releaseDateController', _releaseDateController).text);
+    final pageCount =
+        parseInt(ctl('pageCountController', _pageCountController).text);
+    final genres = ctl('genresEditController', _genresEditController)
+        .text
         .split(',')
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList(growable: false);
-    final creatorNames = ctl('creatorsController', _creatorsController).text
-      .split(',')
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .toList(growable: false);
-    final creators = creatorNames.isEmpty ? null : [for (final n in creatorNames) {'name': n}];
-    final characterNames = ctl('charactersController', _charactersController).text
-      .split(',')
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .toList(growable: false);
+    final creatorNames = ctl('creatorsController', _creatorsController)
+        .text
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
+    final creators = creatorNames.isEmpty
+        ? null
+        : [
+            for (final n in creatorNames) {'name': n}
+          ];
+    final characterNames = ctl('charactersController', _charactersController)
+        .text
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
     final characters = characterNames.isEmpty ? null : characterNames;
-    final linkCandidates = ctl('linksController', _linksController).text
-      .split(RegExp(r'[\n,]+'))
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .toList(growable: false);
+    final linkCandidates = ctl('linksController', _linksController)
+        .text
+        .split(RegExp(r'[\n,]+'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
     final trailerUrls = linkCandidates.isEmpty
-      ? const <TrailerLink>[]
-      : [for (final u in linkCandidates) TrailerLink(url: u, isAutomatic: false)];
+        ? const <TrailerLink>[]
+        : [
+            for (final u in linkCandidates)
+              TrailerLink(url: u, isAutomatic: false)
+          ];
     return LibraryMetadataItem(
       id: 'local-${widget.type.workspace.kind.apiValue}-${_uuid.v4()}',
       kind: widget.type.workspace.kind.apiValue,
       title: _titleController.text.trim(),
       itemNumber: _emptyToNull(ctl('numberController', _numberController).text),
-      editionTitle: _emptyToNull(ctl('editionTitleController', _editionTitleController).text),
+      editionTitle: _emptyToNull(
+          ctl('editionTitleController', _editionTitleController).text),
       physicalFormat: _physicalFormatId,
       physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
-      publisher: _emptyToNull(ctl('publisherController', _publisherController).text),
+      publisher:
+          _emptyToNull(ctl('publisherController', _publisherController).text),
       releaseDate: releaseDate,
       releaseYear: year,
       barcode: _emptyToNull(ctl('barcodeController', _barcodeController).text),
       variant: _emptyToNull(ctl('variantController', _variantController).text),
       coverImageUrl: coverUrl,
       thumbnailImageUrl: coverUrl,
-      synopsis: _emptyToNull(ctl('synopsisController', _synopsisController).text),
+      synopsis:
+          _emptyToNull(ctl('synopsisController', _synopsisController).text),
       genres: genres.isEmpty ? null : genres,
       creators: creators,
       characters: characters,
       trailerUrls: trailerUrls,
       country: _emptyToNull(ctl('countryController', _countryController).text),
-      language: _emptyToNull(ctl('languageController', _languageController).text),
-      ageRating: _emptyToNull(ctl('ageRatingController', _ageRatingController).text),
-      publishing: (pageCount != null || _imprintController.text.trim().isNotEmpty || _seriesGroupController.text.trim().isNotEmpty)
+      language:
+          _emptyToNull(ctl('languageController', _languageController).text),
+      ageRating:
+          _emptyToNull(ctl('ageRatingController', _ageRatingController).text),
+      publishing: (pageCount != null ||
+              _imprintController.text.trim().isNotEmpty ||
+              _seriesGroupController.text.trim().isNotEmpty)
           ? CatalogPublishingDetails(
               pageCount: pageCount,
-              imprint: _emptyToNull(ctl('imprintController', _imprintController).text),
-              seriesGroup: _emptyToNull(ctl('seriesGroupController', _seriesGroupController).text),
+              imprint: _emptyToNull(
+                  ctl('imprintController', _imprintController).text),
+              seriesGroup: _emptyToNull(
+                  ctl('seriesGroupController', _seriesGroupController).text),
             )
           : null,
     );
@@ -1732,10 +1772,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return fallback;
     }
 
-    final purchaseDate = parseDate(ctl('purchaseDateController', _purchaseDateController).text) ?? _defaultPurchaseDate;
-    final pricePaidCents = parseMoneyCents(ctl('purchasePriceController', _priceController).text);
-    final coverPriceCents = parseMoneyCents(ctl('coverPriceController', _coverPriceController).text);
-    final sellPriceCents = parseMoneyCents(ctl('soldPriceController', _sellPriceController).text);
+    final purchaseDate = parseDate(
+            ctl('purchaseDateController', _purchaseDateController).text) ??
+        _defaultPurchaseDate;
+    final pricePaidCents =
+        parseMoneyCents(ctl('purchasePriceController', _priceController).text);
+    final coverPriceCents = parseMoneyCents(
+        ctl('coverPriceController', _coverPriceController).text);
+    final sellPriceCents =
+        parseMoneyCents(ctl('soldPriceController', _sellPriceController).text);
     final soldAt = _soldAt;
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
@@ -1745,22 +1790,70 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       purchaseDate: purchaseDate,
       pricePaidCents: pricePaidCents,
       currency: null,
-      personalNotes: ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : ctl('graderNotesController', _graderNotesController).text.trim(),
+      personalNotes: ctl('graderNotesController', _graderNotesController)
+              .text
+              .trim()
+              .isEmpty
+          ? null
+          : ctl('graderNotesController', _graderNotesController).text.trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
-      rawOrSlabbed: ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim().isEmpty ? null : ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
-      gradingCompany: ctl('gradingCompanyController', _gradingCompanyController).text.trim().isEmpty ? null : ctl('gradingCompanyController', _gradingCompanyController).text.trim(),
-      graderNotes: ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : ctl('graderNotesController', _graderNotesController).text.trim(),
-      signedBy: ctl('signedByController', _signedByController).text.trim().isEmpty ? null : ctl('signedByController', _signedByController).text.trim(),
-      labelType: ctl('labelTypeController', _labelTypeController).text.trim().isEmpty ? null : ctl('labelTypeController', _labelTypeController).text.trim(),
-      certificationNumber: ctl('certificationNumberController', _certificationNumberController).text.trim().isEmpty ? null : ctl('certificationNumberController', _certificationNumberController).text.trim(),
+      rawOrSlabbed: ctl('rawOrSlabbedController', _rawOrSlabbedController)
+              .text
+              .trim()
+              .isEmpty
+          ? null
+          : ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
+      gradingCompany: ctl('gradingCompanyController', _gradingCompanyController)
+              .text
+              .trim()
+              .isEmpty
+          ? null
+          : ctl('gradingCompanyController', _gradingCompanyController)
+              .text
+              .trim(),
+      graderNotes: ctl('graderNotesController', _graderNotesController)
+              .text
+              .trim()
+              .isEmpty
+          ? null
+          : ctl('graderNotesController', _graderNotesController).text.trim(),
+      signedBy:
+          ctl('signedByController', _signedByController).text.trim().isEmpty
+              ? null
+              : ctl('signedByController', _signedByController).text.trim(),
+      labelType:
+          ctl('labelTypeController', _labelTypeController).text.trim().isEmpty
+              ? null
+              : ctl('labelTypeController', _labelTypeController).text.trim(),
+      certificationNumber: ctl('certificationNumberController',
+                  _certificationNumberController)
+              .text
+              .trim()
+              .isEmpty
+          ? null
+          : ctl('certificationNumberController', _certificationNumberController)
+              .text
+              .trim(),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
-      ownerLabel: ctl('ownerLabelController', _ownerLabelController).text.trim().isEmpty ? null : ctl('ownerLabelController', _ownerLabelController).text.trim(),
+      ownerLabel:
+          ctl('ownerLabelController', _ownerLabelController).text.trim().isEmpty
+              ? null
+              : ctl('ownerLabelController', _ownerLabelController).text.trim(),
       locationId: _defaultLocationId,
-      tags: ctl('tagsController', _tagsController).text.trim().isEmpty ? null : ctl('tagsController', _tagsController).text.trim(),
-      purchaseStore: ctl('purchaseStoreController', _purchaseStoreController).text.trim().isEmpty ? null : ctl('purchaseStoreController', _purchaseStoreController).text.trim(),
+      tags: ctl('tagsController', _tagsController).text.trim().isEmpty
+          ? null
+          : ctl('tagsController', _tagsController).text.trim(),
+      purchaseStore: ctl('purchaseStoreController', _purchaseStoreController)
+              .text
+              .trim()
+              .isEmpty
+          ? null
+          : ctl('purchaseStoreController', _purchaseStoreController)
+              .text
+              .trim(),
     );
   }
 
@@ -2229,7 +2322,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _addProviderCandidate(
     ProviderCandidate candidate,
     LibraryAddTarget target,
-  ) => addProviderCandidate(candidate, target);
+  ) =>
+      addProviderCandidate(candidate, target);
 
   Future<void> _proposeCandidate(ProviderCandidate candidate) =>
       proposeCandidate(candidate);
@@ -2315,17 +2409,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<void> _addItems(
     List<LibraryMetadataItem> items,
-    LibraryAddTarget target,
-    {
+    LibraryAddTarget target, {
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults? defaults,
     Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId =
         const <String, LibraryAddOwnedDetails>{},
     Map<String, LibraryAddEditionSelection> editionSelectionsByItemId =
-      const <String, LibraryAddEditionSelection>{},
+        const <String, LibraryAddEditionSelection>{},
     Map<String, String> bundleReleaseIdsByItemId = const <String, String>{},
-    }
-  ) async {
+  }) async {
     if (items.isEmpty || _isAdding) {
       return;
     }
@@ -2491,7 +2583,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final match = locations.cast<StorageLocation?>().firstWhere(
           (location) =>
               location != null &&
-              (location.fullPath(locations) == legacy || location.name == legacy),
+              (location.fullPath(locations) == legacy ||
+                  location.name == legacy),
           orElse: () => null,
         );
     if (match != null) {
@@ -2523,4 +2616,3 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
   }
 }
-

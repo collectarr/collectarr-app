@@ -353,18 +353,6 @@ class _SearchResultsList extends StatelessWidget {
     return null;
   }
 
-  String? _mixedProviderSummary() {
-    final providers = _providerIdsInOrder();
-    if (providers.length <= 1) {
-      return null;
-    }
-    final labels = providers.map(type.metadataProviderLabel).toList(growable: false);
-    if (providers.contains(selectedProvider)) {
-      return 'Showing matches from ${_joinLabels(labels)}.';
-    }
-    return 'Requested ${type.metadataProviderLabel(selectedProvider)}, but showing matches from ${_joinLabels(labels)}.';
-  }
-
   List<String> _providerIdsInOrder() {
     final providers = <String>[];
     for (final item in providerResults) {
@@ -373,17 +361,6 @@ class _SearchResultsList extends StatelessWidget {
       }
     }
     return providers;
-  }
-
-  String _joinLabels(List<String> labels) {
-    if (labels.length <= 1) {
-      return labels.isEmpty ? 'providers' : labels.first;
-    }
-    if (labels.length == 2) {
-      return '${labels.first} and ${labels.last}';
-    }
-    final leading = labels.take(labels.length - 1).join(', ');
-    return '$leading, and ${labels.last}';
   }
 }
 
@@ -462,8 +439,9 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                 if (item.publisher != null) item.publisher,
               ].whereType<String>().join(' · ')
             : [
-                providerLabel(candidate!.provider),
-              if (candidate!.summary?.trim().isNotEmpty == true) candidate!.summary,
+                if (candidate != null) providerLabel(candidate.provider),
+                if (candidate?.summary?.trim().isNotEmpty == true)
+                  candidate?.summary,
               ].whereType<String>().join(' · ');
         final matchSummary = isCore
             ? _metadataItemMatchSummary(
@@ -494,7 +472,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
             child: Ink(
               decoration: BoxDecoration(
                 color: selected
-                    ? Color.alphaBlend(accent.withValues(alpha: 0.22), palette.selection)
+                    ? Color.alphaBlend(
+                        accent.withValues(alpha: 0.22), palette.selection)
                     : palette.tableEvenRow,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
@@ -523,7 +502,9 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                             left: 6,
                             bottom: 6,
                             child: LibraryAddResultBadge(
-                              isCore ? 'core' : providerLabel(candidate!.provider),
+                              isCore
+                                  ? 'core'
+                                  : providerLabel(candidate!.provider),
                               accent: accent,
                             ),
                           ),
@@ -550,7 +531,9 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                                 ),
                               ),
                             )
-                          else if (queuedProviderIngests[candidate!.localCatalogId] != null)
+                          else if (queuedProviderIngests[
+                                  candidate!.localCatalogId] !=
+                              null)
                             Positioned(
                               right: 6,
                               top: 6,
@@ -645,9 +628,8 @@ class _SearchSkeletonList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: index.isEven
-                    ? palette.tableEvenRow
-                    : palette.tableOddRow,
+                color:
+                    index.isEven ? palette.tableEvenRow : palette.tableOddRow,
                 border: Border.all(color: palette.tableBottomBorder),
               ),
               child: const Padding(
@@ -736,43 +718,6 @@ class _ProviderFallbackNotice extends StatelessWidget {
   }
 }
 
-class _ProviderMixedNotice extends StatelessWidget {
-  const _ProviderMixedNotice({required this.summary});
-
-  final String summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final bannerTextColor = ThemeData.estimateBrightnessForColor(kAppBannerInfoBackground) == Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: kAppBannerInfoBackground,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.layers_outlined, size: 18, color: palette.textMuted),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              summary,
-              style: TextStyle(
-                color: bannerTextColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ResultSectionHeader extends StatelessWidget {
   const _ResultSectionHeader({required this.label});
 
@@ -844,20 +789,22 @@ class _SearchResultTile extends StatelessWidget {
     );
     final musicDisplay =
         item.kind == 'music' ? _musicSearchResultDisplay(item) : null;
-    final subtitle = musicDisplay?.secondaryLine ?? [
-      if (item.publisher != null) item.publisher,
-      if (item.releaseYear != null) item.releaseYear.toString(),
-      if (item.physicalFormatLabel != null) item.physicalFormatLabel,
-      if (item.variant != null) item.variant,
-      if (item.barcode != null) item.barcode,
-    ].whereType<String>().join(' | ');
+    final subtitle = musicDisplay?.secondaryLine ??
+        [
+          if (item.publisher != null) item.publisher,
+          if (item.releaseYear != null) item.releaseYear.toString(),
+          if (item.physicalFormatLabel != null) item.physicalFormatLabel,
+          if (item.variant != null) item.variant,
+          if (item.barcode != null) item.barcode,
+        ].whereType<String>().join(' | ');
     final detailLine = musicDisplay?.detailLine;
     return InkWell(
       onTap: onSelect,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              ? Color.alphaBlend(
+                  accent.withValues(alpha: 0.46), palette.selection)
               : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
@@ -1058,8 +1005,11 @@ _MusicSearchResultDisplay _musicSearchResultDisplay(LibraryMetadataItem item) {
   final subtitle = _firstMeaningfulMusicValue([
     item.publishing?.subtitle,
     item.series?.volumeName,
-    if ((item.series?.volumeNumber ?? 0) > 1) 'Disc ${item.series!.volumeNumber}',
-  ], disallow: {item.title.trim().toLowerCase()});
+    if ((item.series?.volumeNumber ?? 0) > 1)
+      'Disc ${item.series!.volumeNumber}',
+  ], disallow: {
+    item.title.trim().toLowerCase()
+  });
   final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
   final artist = item.series?.seriesTitle?.trim();
   final format = item.physicalFormatLabel?.trim().isNotEmpty == true
@@ -1093,7 +1043,9 @@ String _stripTrailingMusicDescriptor(String title, String? descriptor) {
   for (final separator in [' - ', ' – ', ' — ', ': ', ' ']) {
     final suffix = '$separator$trimmedDescriptor';
     if (lowerTitle.endsWith(suffix.toLowerCase())) {
-      return trimmedTitle.substring(0, trimmedTitle.length - suffix.length).trimRight();
+      return trimmedTitle
+          .substring(0, trimmedTitle.length - suffix.length)
+          .trimRight();
     }
   }
   if (lowerTitle == lowerDescriptor) {
@@ -1183,7 +1135,8 @@ class _ProviderCandidateTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              ? Color.alphaBlend(
+                  accent.withValues(alpha: 0.46), palette.selection)
               : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
@@ -1317,7 +1270,8 @@ String? _providerCandidateMatchSummary({
 
   final generalQuery = queryText.trim();
   if (generalQuery.isNotEmpty) {
-    addIfMatch(groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
+    addIfMatch(
+        groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
     addIfMatch(groupLabels.publisher, generalQuery, [candidate.publisher]);
     addIfMatch(fieldLabels.numberLabel, generalQuery, [
       candidate.issueNumber,

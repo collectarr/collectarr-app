@@ -40,7 +40,8 @@ bool libraryGroupModeSupportsBucketManagement(LibraryGroupMode mode) {
     LibraryGroupMode.country ||
     LibraryGroupMode.language ||
     LibraryGroupMode.ageRating ||
-    LibraryGroupMode.audienceRating => true,
+    LibraryGroupMode.audienceRating =>
+      true,
     _ => false,
   };
 }
@@ -121,7 +122,7 @@ class _LibraryBucketManagerDialog extends StatefulWidget {
   final List<LibraryBucketManagerEntry> entries;
   final Future<int> Function(String currentLabel, String nextLabel)
       onRenameBucket;
-    final Future<int> Function(String currentLabel, String targetLabel)
+  final Future<int> Function(String currentLabel, String targetLabel)
       onMergeBucket;
   final Future<int> Function(String currentLabel) onDeleteBucket;
 
@@ -130,7 +131,8 @@ class _LibraryBucketManagerDialog extends StatefulWidget {
       _LibraryBucketManagerDialogState();
 }
 
-class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog> {
+class _LibraryBucketManagerDialogState
+    extends State<_LibraryBucketManagerDialog> {
   final _searchController = TextEditingController();
   bool _submitting = false;
   List<LibraryBucketManagerEntry> _sortedEntries = [];
@@ -165,7 +167,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final filteredEntries = _filteredEntries();
-    final title = 'Manage ${genericGroupModeSidebarTitle(widget.groupMode, widget.type)}';
+    final title =
+        'Manage ${genericGroupModeSidebarTitle(widget.groupMode, widget.type)}';
     final listLabel = libraryBucketManagerListLabel(
       widget.groupMode,
       widget.type,
@@ -194,9 +197,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
                   ),
                   IconButton(
                     tooltip: 'Close',
-                    onPressed: _submitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed:
+                        _submitting ? null : () => Navigator.of(context).pop(),
                     icon: Icon(
                       Icons.close,
                       color: _foregroundForAccent(widget.accent),
@@ -238,8 +240,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
                   ),
                   const SizedBox(width: 12),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       border: Border.all(color: palette.divider),
                       borderRadius: BorderRadius.circular(10),
@@ -267,7 +269,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Container(
                 color: palette.panel,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Row(
                   children: [
                     const SizedBox(width: 40),
@@ -301,9 +304,10 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
                     ? Center(
                         child: Text(
                           'No ${genericGroupModeSidebarTitle(widget.groupMode, widget.type).toLowerCase()} found.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: palette.textMuted,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: palette.textMuted,
+                                  ),
                         ),
                       )
                     : ListView.builder(
@@ -322,18 +326,22 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
                                   onPressed: _submitting
                                       ? null
                                       : () => _renameEntry(entry),
-                                  icon: const Icon(Icons.edit_outlined, size: 18),
+                                  icon:
+                                      const Icon(Icons.edit_outlined, size: 18),
                                 ),
                                 IconButton(
                                   tooltip: 'Merge ${entry.label}',
-                                  onPressed: _submitting || widget.entries.length < 2
-                                      ? null
-                                      : () => _mergeEntry(entry),
-                                  icon: const Icon(Icons.merge_type_outlined, size: 18),
+                                  onPressed:
+                                      _submitting || widget.entries.length < 2
+                                          ? null
+                                          : () => _mergeEntry(entry),
+                                  icon: const Icon(Icons.merge_type_outlined,
+                                      size: 18),
                                 ),
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
                                     child: Text(
                                       entry.label,
                                       maxLines: 1,
@@ -341,7 +349,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyLarge
-                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ),
@@ -376,9 +385,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _submitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed:
+                        _submitting ? null : () => Navigator.of(context).pop(),
                     child: const Text('Close'),
                   ),
                 ],
@@ -404,7 +412,8 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
     final nextLabel = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Rename ${genericGroupModeLabel(widget.groupMode, widget.type)}'),
+        title: Text(
+            'Rename ${genericGroupModeLabel(widget.groupMode, widget.type)}'),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -493,8 +502,7 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
     final candidates = [
       for (final candidate in widget.entries)
         if (candidate.label != entry.label) candidate,
-    ]
-      ..sort(
+    ]..sort(
         (left, right) => left.label.toLowerCase().compareTo(
               right.label.toLowerCase(),
             ),
@@ -509,7 +517,7 @@ class _LibraryBucketManagerDialogState extends State<_LibraryBucketManagerDialog
         builder: (context, setState) => AlertDialog(
           title: Text('Merge ${entry.label} into...'),
           content: DropdownButtonFormField<String>(
-            value: targetLabel,
+            initialValue: targetLabel,
             decoration: const InputDecoration(
               labelText: 'Target bucket',
               border: OutlineInputBorder(),
@@ -819,7 +827,9 @@ Object? _updatedCreators(
   if (!changed) {
     return _bucketManagerNoChange;
   }
-  return result.isEmpty ? null : List<Map<String, dynamic>>.unmodifiable(result);
+  return result.isEmpty
+      ? null
+      : List<Map<String, dynamic>>.unmodifiable(result);
 }
 
 String? _creatorDedupKey(Map<String, dynamic> creator) {
@@ -839,14 +849,12 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, LibraryGroupMode mode) {
   return switch (mode) {
     LibraryGroupMode.actor => role.contains('actor') || role.contains('cast'),
     LibraryGroupMode.director => role.contains('director'),
-    LibraryGroupMode.musician =>
-      role.contains('musician') ||
-      role.contains('music') ||
-      role.contains('composer'),
-    LibraryGroupMode.photography =>
-      role.contains('photography') ||
-      role.contains('director of photography') ||
-      role.contains('cinemat'),
+    LibraryGroupMode.musician => role.contains('musician') ||
+        role.contains('music') ||
+        role.contains('composer'),
+    LibraryGroupMode.photography => role.contains('photography') ||
+        role.contains('director of photography') ||
+        role.contains('cinemat'),
     LibraryGroupMode.producer => role.contains('producer'),
     LibraryGroupMode.writer => role.contains('writer'),
     LibraryGroupMode.artist =>
