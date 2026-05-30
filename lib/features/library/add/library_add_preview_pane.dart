@@ -796,6 +796,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _ReferenceChip(
+                  chipKey: const ValueKey('library-add-reference-media'),
                   accent: accent,
                   selected: true,
                   enabled: !selectionLocked,
@@ -805,6 +806,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 ),
                 if (!selectionLocked) ...[
                   _ReferenceChip(
+                    chipKey: const ValueKey('library-add-reference-edition'),
                     accent: accent,
                     selected: referenceType == LibraryAddReferenceType.edition,
                     enabled: editionAvailable,
@@ -814,6 +816,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                     ),
                   ),
                   _ReferenceChip(
+                    chipKey: const ValueKey('library-add-reference-bundle'),
                     accent: accent,
                     selected:
                         referenceType == LibraryAddReferenceType.bundleRelease,
@@ -917,6 +920,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
 
 class _ReferenceChip extends StatelessWidget {
   const _ReferenceChip({
+    this.chipKey,
     required this.accent,
     required this.selected,
     required this.enabled,
@@ -924,6 +928,7 @@ class _ReferenceChip extends StatelessWidget {
     required this.onPressed,
   });
 
+  final Key? chipKey;
   final Color accent;
   final bool selected;
   final bool enabled;
@@ -934,6 +939,7 @@ class _ReferenceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return ChoiceChip(
+      key: chipKey,
       label: Text(label),
       selected: selected,
       onSelected: enabled ? (_) => onPressed() : null,
@@ -1826,6 +1832,7 @@ class _EditionGrid extends StatelessWidget {
       children: [
         for (final edition in editions)
           _EditionCard(
+            key: ValueKey('library-add-edition-card-${edition.id}'),
             edition: edition,
             selected: edition.id == selectedEditionId,
             accent: accent,
@@ -1838,6 +1845,7 @@ class _EditionGrid extends StatelessWidget {
 
 class _EditionCard extends StatelessWidget {
   const _EditionCard({
+    super.key,
     required this.edition,
     required this.selected,
     required this.accent,
@@ -1999,6 +2007,7 @@ class _VariantGrid extends StatelessWidget {
           runSpacing: 8,
           children: [
             _VariantChip(
+              key: const ValueKey('library-add-variant-card-any'),
               label: 'Any',
               selected: selectedVariantId == null ||
                   selectedVariantId!.isEmpty,
@@ -2007,6 +2016,7 @@ class _VariantGrid extends StatelessWidget {
             ),
             for (final variant in variants)
               _VariantChip(
+                key: ValueKey('library-add-variant-card-${variant.id}'),
                 label: variant.name,
                 coverUrl: variant.coverImageUrl,
                 barcode: variant.barcode,
@@ -2024,6 +2034,7 @@ class _VariantGrid extends StatelessWidget {
 
 class _VariantChip extends StatelessWidget {
   const _VariantChip({
+    super.key,
     required this.label,
     required this.selected,
     required this.accent,

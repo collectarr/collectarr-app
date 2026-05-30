@@ -210,9 +210,6 @@ class _LibraryAddModeBar extends StatelessWidget {
     final isBusy = isSearching || isSearchingProvider;
     final searchLabels = libraryMediaSearchFieldLabels(type);
     final palette = appPalette(context);
-    // Debug: trace generic mode bar build and advanced state
-    // ignore: avoid_print
-    print('[debug] _LibraryAddModeBar build showAdvanced=$showAdvanced query="${queryController.text}" series="${seriesController.text}"');
     if (isMovieDesktopChrome) {
       return DecoratedBox(
         decoration: BoxDecoration(

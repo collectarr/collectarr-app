@@ -24,10 +24,6 @@ const collectarrLibraryTypes = LibraryTypeRegistry([
 // Register LibraryAdd builders from kinds so the generic dialog can remain
 // decoupled and discover per-kind custom panes.
 void registerLibraryAddBuilders() {
-  // Debug: trace when registration happens during tests
-  // (temporary; removed once tests are fixed)
-  // ignore: avoid_print
-  print('[debug] registerLibraryAddBuilders() called');
   // Register a default manual builder for all known library kinds so the
   // per-kind registry has a sane fallback and kinds can fully own their
   // manual UI when they choose to override it.

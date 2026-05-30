@@ -1505,9 +1505,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         context: context,
         type: widget.type,
       );
-      // Debug: show what coverScanService returned during tests
-      // ignore: avoid_print
-      print('[debug] coverScan result: ' + (result == null ? 'null' : result.toString()));
       if (!mounted || result == null) {
         return;
       }
@@ -1654,34 +1651,34 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   LibraryMetadataItem _buildManualDraftItem() {
-    TextEditingController _ctl(String key, TextEditingController fallback) {
+    TextEditingController ctl(String key, TextEditingController fallback) {
       final e = _manualKindSpecific[key];
       if (e is TextEditingController) return e;
       return fallback;
     }
 
-    final year = int.tryParse(_ctl('yearController', _yearController).text.trim());
-    final coverUrl = _emptyToNull(_ctl('coverController', _coverController).text);
-    final releaseDate = parseDate(_ctl('releaseDateController', _releaseDateController).text);
-    final pageCount = parseInt(_ctl('pageCountController', _pageCountController).text);
-    final genres = _ctl('genresEditController', _genresEditController).text
+    final year = int.tryParse(ctl('yearController', _yearController).text.trim());
+    final coverUrl = _emptyToNull(ctl('coverController', _coverController).text);
+    final releaseDate = parseDate(ctl('releaseDateController', _releaseDateController).text);
+    final pageCount = parseInt(ctl('pageCountController', _pageCountController).text);
+    final genres = ctl('genresEditController', _genresEditController).text
         .split(',')
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList(growable: false);
-    final creatorNames = _ctl('creatorsController', _creatorsController).text
+    final creatorNames = ctl('creatorsController', _creatorsController).text
       .split(',')
       .map((s) => s.trim())
       .where((s) => s.isNotEmpty)
       .toList(growable: false);
     final creators = creatorNames.isEmpty ? null : [for (final n in creatorNames) {'name': n}];
-    final characterNames = _ctl('charactersController', _charactersController).text
+    final characterNames = ctl('charactersController', _charactersController).text
       .split(',')
       .map((s) => s.trim())
       .where((s) => s.isNotEmpty)
       .toList(growable: false);
     final characters = characterNames.isEmpty ? null : characterNames;
-    final linkCandidates = _ctl('linksController', _linksController).text
+    final linkCandidates = ctl('linksController', _linksController).text
       .split(RegExp(r'[\n,]+'))
       .map((s) => s.trim())
       .where((s) => s.isNotEmpty)
@@ -1693,30 +1690,30 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       id: 'local-${widget.type.workspace.kind.apiValue}-${_uuid.v4()}',
       kind: widget.type.workspace.kind.apiValue,
       title: _titleController.text.trim(),
-      itemNumber: _emptyToNull(_ctl('numberController', _numberController).text),
-      editionTitle: _emptyToNull(_ctl('editionTitleController', _editionTitleController).text),
+      itemNumber: _emptyToNull(ctl('numberController', _numberController).text),
+      editionTitle: _emptyToNull(ctl('editionTitleController', _editionTitleController).text),
       physicalFormat: _physicalFormatId,
       physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
-      publisher: _emptyToNull(_ctl('publisherController', _publisherController).text),
+      publisher: _emptyToNull(ctl('publisherController', _publisherController).text),
       releaseDate: releaseDate,
       releaseYear: year,
-      barcode: _emptyToNull(_ctl('barcodeController', _barcodeController).text),
-      variant: _emptyToNull(_ctl('variantController', _variantController).text),
+      barcode: _emptyToNull(ctl('barcodeController', _barcodeController).text),
+      variant: _emptyToNull(ctl('variantController', _variantController).text),
       coverImageUrl: coverUrl,
       thumbnailImageUrl: coverUrl,
-      synopsis: _emptyToNull(_ctl('synopsisController', _synopsisController).text),
+      synopsis: _emptyToNull(ctl('synopsisController', _synopsisController).text),
       genres: genres.isEmpty ? null : genres,
       creators: creators,
       characters: characters,
       trailerUrls: trailerUrls,
-      country: _emptyToNull(_ctl('countryController', _countryController).text),
-      language: _emptyToNull(_ctl('languageController', _languageController).text),
-      ageRating: _emptyToNull(_ctl('ageRatingController', _ageRatingController).text),
+      country: _emptyToNull(ctl('countryController', _countryController).text),
+      language: _emptyToNull(ctl('languageController', _languageController).text),
+      ageRating: _emptyToNull(ctl('ageRatingController', _ageRatingController).text),
       publishing: (pageCount != null || _imprintController.text.trim().isNotEmpty || _seriesGroupController.text.trim().isNotEmpty)
           ? CatalogPublishingDetails(
               pageCount: pageCount,
-              imprint: _emptyToNull(_ctl('imprintController', _imprintController).text),
-              seriesGroup: _emptyToNull(_ctl('seriesGroupController', _seriesGroupController).text),
+              imprint: _emptyToNull(ctl('imprintController', _imprintController).text),
+              seriesGroup: _emptyToNull(ctl('seriesGroupController', _seriesGroupController).text),
             )
           : null,
     );
@@ -1729,16 +1726,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (target != LibraryAddTarget.owned) {
       return null;
     }
-    TextEditingController _ctl(String key, TextEditingController fallback) {
+    TextEditingController ctl(String key, TextEditingController fallback) {
       final e = _manualKindSpecific[key];
       if (e is TextEditingController) return e;
       return fallback;
     }
 
-    final purchaseDate = parseDate(_ctl('purchaseDateController', _purchaseDateController).text) ?? _defaultPurchaseDate;
-    final pricePaidCents = parseMoneyCents(_ctl('purchasePriceController', _priceController).text);
-    final coverPriceCents = parseMoneyCents(_ctl('coverPriceController', _coverPriceController).text);
-    final sellPriceCents = parseMoneyCents(_ctl('soldPriceController', _sellPriceController).text);
+    final purchaseDate = parseDate(ctl('purchaseDateController', _purchaseDateController).text) ?? _defaultPurchaseDate;
+    final pricePaidCents = parseMoneyCents(ctl('purchasePriceController', _priceController).text);
+    final coverPriceCents = parseMoneyCents(ctl('coverPriceController', _coverPriceController).text);
+    final sellPriceCents = parseMoneyCents(ctl('soldPriceController', _sellPriceController).text);
     final soldAt = _soldAt;
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
@@ -1748,22 +1745,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       purchaseDate: purchaseDate,
       pricePaidCents: pricePaidCents,
       currency: null,
-      personalNotes: _ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : _ctl('graderNotesController', _graderNotesController).text.trim(),
+      personalNotes: ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : ctl('graderNotesController', _graderNotesController).text.trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
-      rawOrSlabbed: _ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim().isEmpty ? null : _ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
-      gradingCompany: _ctl('gradingCompanyController', _gradingCompanyController).text.trim().isEmpty ? null : _ctl('gradingCompanyController', _gradingCompanyController).text.trim(),
-      graderNotes: _ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : _ctl('graderNotesController', _graderNotesController).text.trim(),
-      signedBy: _ctl('signedByController', _signedByController).text.trim().isEmpty ? null : _ctl('signedByController', _signedByController).text.trim(),
-      labelType: _ctl('labelTypeController', _labelTypeController).text.trim().isEmpty ? null : _ctl('labelTypeController', _labelTypeController).text.trim(),
-      certificationNumber: _ctl('certificationNumberController', _certificationNumberController).text.trim().isEmpty ? null : _ctl('certificationNumberController', _certificationNumberController).text.trim(),
+      rawOrSlabbed: ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim().isEmpty ? null : ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
+      gradingCompany: ctl('gradingCompanyController', _gradingCompanyController).text.trim().isEmpty ? null : ctl('gradingCompanyController', _gradingCompanyController).text.trim(),
+      graderNotes: ctl('graderNotesController', _graderNotesController).text.trim().isEmpty ? null : ctl('graderNotesController', _graderNotesController).text.trim(),
+      signedBy: ctl('signedByController', _signedByController).text.trim().isEmpty ? null : ctl('signedByController', _signedByController).text.trim(),
+      labelType: ctl('labelTypeController', _labelTypeController).text.trim().isEmpty ? null : ctl('labelTypeController', _labelTypeController).text.trim(),
+      certificationNumber: ctl('certificationNumberController', _certificationNumberController).text.trim().isEmpty ? null : ctl('certificationNumberController', _certificationNumberController).text.trim(),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
-      ownerLabel: _ctl('ownerLabelController', _ownerLabelController).text.trim().isEmpty ? null : _ctl('ownerLabelController', _ownerLabelController).text.trim(),
+      ownerLabel: ctl('ownerLabelController', _ownerLabelController).text.trim().isEmpty ? null : ctl('ownerLabelController', _ownerLabelController).text.trim(),
       locationId: _defaultLocationId,
-      tags: _ctl('tagsController', _tagsController).text.trim().isEmpty ? null : _ctl('tagsController', _tagsController).text.trim(),
-      purchaseStore: _ctl('purchaseStoreController', _purchaseStoreController).text.trim().isEmpty ? null : _ctl('purchaseStoreController', _purchaseStoreController).text.trim(),
+      tags: ctl('tagsController', _tagsController).text.trim().isEmpty ? null : ctl('tagsController', _tagsController).text.trim(),
+      purchaseStore: ctl('purchaseStoreController', _purchaseStoreController).text.trim().isEmpty ? null : ctl('purchaseStoreController', _purchaseStoreController).text.trim(),
     );
   }
 

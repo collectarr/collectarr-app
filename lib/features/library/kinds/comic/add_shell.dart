@@ -2,11 +2,9 @@ import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/shared/add_bottom_bar.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -72,9 +70,6 @@ Widget buildComicAddModeBar(
   BuildContext context,
   LibraryAddModeBarRequest request,
 ) {
-  // Debug: trace mode bar build and advanced state
-  // ignore: avoid_print
-  print('[debug] buildComicAddModeBar showAdvanced=${request.showAdvanced} query="${request.queryController.text}" series="${request.seriesController.text}"');
   final palette = appPalette(context);
   final isBusy = request.isSearching || request.isSearchingProvider;
   final isBarcode = request.mode == LibraryAddDialogMode.barcode;
@@ -176,6 +171,7 @@ Widget buildComicAddModeBar(
               if (isSearch) ...[
                 const SizedBox(width: 8),
                 OutlinedButton.icon(
+                  key: const ValueKey('library-add-filters-toggle'),
                   onPressed: request.onToggleAdvanced,
                   style: libraryAddOutlinedButtonStyle(request.accent),
                   icon: Icon(
@@ -290,8 +286,6 @@ class _ComicAddSearchPane extends StatelessWidget {
   static const _publisherWidth = 120.0;
   static const _releaseWidth = 95.0;
   static const _formatWidth = 90.0;
-    static const _tableWidth =
-      36.0 + _seriesWidth + _issueWidth + _editionWidth + _publisherWidth + _releaseWidth + _formatWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -426,6 +420,9 @@ class _ComicSearchRow extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        key: ValueKey(
+          'library-add-search-result-${entry.item?.id ?? entry.candidate!.localCatalogId}',
+        ),
         onTap: entry.item != null
             ? () => request.onSelectResult(entry.item!.id)
             : () => request.onSelectProviderCandidate(entry.candidate!.localCatalogId),

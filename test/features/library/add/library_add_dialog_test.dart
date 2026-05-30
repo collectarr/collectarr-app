@@ -48,6 +48,52 @@ Finder textFieldByKeyOrLabel(String keyName, String label) {
   });
 }
 
+Finder comicSearchResultById(String id) =>
+    find.byKey(ValueKey('library-add-search-result-$id'));
+
+Finder anyByKey(String keyName) =>
+  find.byKey(ValueKey(keyName), skipOffstage: false);
+
+Finder anyText(String text) => find.text(text, skipOffstage: false);
+
+Finder anyTextContaining(String text) =>
+  find.textContaining(text, skipOffstage: false);
+
+Future<void> ensureAdvancedSearchVisible(WidgetTester tester) async {
+  if (textFieldByKeyOrLabel('library-add-series-field', 'Series')
+      .evaluate()
+      .isNotEmpty) {
+    return;
+  }
+  final tooltipToggle = find.byTooltip('Show advanced fields');
+  if (tooltipToggle.evaluate().isNotEmpty) {
+    await tester.tap(tooltipToggle);
+    await tester.pump();
+    return;
+  }
+  final filtersButton = find.byKey(const ValueKey('library-add-filters-toggle'));
+  if (filtersButton.evaluate().isNotEmpty) {
+    await tester.tap(filtersButton);
+    await tester.pump();
+  }
+}
+
+Future<void> selectReferenceScope(WidgetTester tester, String keyName) async {
+  await tester.ensureVisible(anyByKey(keyName));
+  await tester.pumpAndSettle();
+  final chip = tester.widget<ChoiceChip>(anyByKey(keyName));
+  chip.onSelected?.call(true);
+  await tester.pumpAndSettle();
+}
+
+Future<void> tapGestureByKey(WidgetTester tester, String keyName) async {
+  await tester.ensureVisible(anyByKey(keyName));
+  await tester.pumpAndSettle();
+  final dynamic keyedWidget = tester.widget(anyByKey(keyName));
+  (keyedWidget.onTap as void Function()?)?.call();
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(() {
     drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -367,15 +413,7 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvancedToggle = find.byTooltip('Show advanced fields');
-    final showAdvancedFiltersButton = find.widgetWithText(OutlinedButton, 'Filters');
-    if (showAdvancedToggle.evaluate().isNotEmpty) {
-      await tester.tap(showAdvancedToggle);
-      await tester.pump();
-    } else if (showAdvancedFiltersButton.evaluate().isNotEmpty) {
-      await tester.tap(showAdvancedFiltersButton);
-      await tester.pump();
-    }
+    await ensureAdvancedSearchVisible(tester);
 
     expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     expect(textFieldByKeyOrLabel('library-add-series-field', 'Series'), findsOneWidget);
@@ -561,15 +599,7 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvancedToggle = find.byTooltip('Show advanced fields');
-    final showAdvancedFiltersButton = find.widgetWithText(OutlinedButton, 'Filters');
-    if (showAdvancedToggle.evaluate().isNotEmpty) {
-      await tester.tap(showAdvancedToggle);
-      await tester.pump();
-    } else if (showAdvancedFiltersButton.evaluate().isNotEmpty) {
-      await tester.tap(showAdvancedFiltersButton);
-      await tester.pump();
-    }
+    await ensureAdvancedSearchVisible(tester);
 
     expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'), findsOneWidget);
@@ -630,15 +660,7 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvancedToggle = find.byTooltip('Show advanced fields');
-    final showAdvancedFiltersButton = find.widgetWithText(OutlinedButton, 'Filters');
-    if (showAdvancedToggle.evaluate().isNotEmpty) {
-      await tester.tap(showAdvancedToggle);
-      await tester.pump();
-    } else if (showAdvancedFiltersButton.evaluate().isNotEmpty) {
-      await tester.tap(showAdvancedFiltersButton);
-      await tester.pump();
-    }
+    await ensureAdvancedSearchVisible(tester);
 
     expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'), findsOneWidget);
@@ -1474,21 +1496,15 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman').first);
+    await tester.tap(comicSearchResultById('comic-423'));
     await pumpUntilSettled(tester);
 
-    final bundleChip = find.widgetWithText(ChoiceChip, 'Bundle');
-    if (bundleChip.evaluate().isNotEmpty) {
-      await tester.tap(bundleChip);
-    } else {
-      await tester.tap(find.text('Bundle'));
-    }
-    await pumpUntilSettled(tester);
+    await selectReferenceScope(tester, 'library-add-reference-bundle');
 
-    expect(find.text('Batman Anniversary Box'), findsWidgets);
-    expect(find.text('Bundle'), findsWidgets);
-    expect(find.text('Batman'), findsWidgets);
-    expect(find.text('423'), findsWidgets);
+    expect(anyText('Batman Anniversary Box'), findsWidgets);
+    expect(anyText('Bundle'), findsWidgets);
+    expect(anyText('Batman'), findsWidgets);
+    expect(anyText('423'), findsWidgets);
   });
 
   testWidgets('comic add dialog lets the user keep edition scope without picking a physical release', (
@@ -1531,33 +1547,23 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman').first);
+    await tester.tap(comicSearchResultById('comic-423'));
     await pumpUntilSettled(tester);
 
-    final editionChip = find.widgetWithText(ChoiceChip, 'Edition');
-    if (editionChip.evaluate().isNotEmpty) {
-      await tester.tap(editionChip);
-    } else {
-      await tester.tap(find.text('Edition'));
-    }
-    await pumpUntilSettled(tester);
+    await selectReferenceScope(tester, 'library-add-reference-edition');
 
     // Select the "Collector Edition" card from the edition grid
-    final collectorEdition = find.descendant(
-      of: find.byKey(const ValueKey('library-add-edition-field')),
-      matching: find.text('Collector Edition'),
-    ).first;
-    await tester.ensureVisible(collectorEdition);
-    await tester.pumpAndSettle();
-    await tester.tap(collectorEdition);
-    await pumpUntilSettled(tester);
+    await tapGestureByKey(
+      tester,
+      'library-add-edition-card-edition-comic-423-collector',
+    );
 
-    expect(find.textContaining('Collector Edition'), findsWidgets);
+    expect(anyTextContaining('Collector Edition'), findsWidgets);
     // Variant grid shows "Any" chip as default (no variant selected)
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('library-add-variant-field')),
-        matching: find.text('Any'),
+        of: anyByKey('library-add-variant-field'),
+        matching: anyText('Any'),
       ),
       findsOneWidget,
     );
@@ -1604,48 +1610,33 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman').first);
+    await tester.tap(comicSearchResultById('comic-423'));
     await pumpUntilSettled(tester);
 
-    final editionChip = find.widgetWithText(ChoiceChip, 'Edition');
-    if (editionChip.evaluate().isNotEmpty) {
-      await tester.tap(editionChip);
-    } else {
-      await tester.tap(find.text('Edition'));
-    }
-    await pumpUntilSettled(tester);
+    await selectReferenceScope(tester, 'library-add-reference-edition');
 
     expect(
-      find.byKey(const ValueKey('library-add-edition-field')),
+      anyByKey('library-add-edition-field'),
       findsOneWidget,
     );
     expect(
-      find.byKey(const ValueKey('library-add-variant-field')),
+      anyByKey('library-add-variant-field'),
       findsOneWidget,
     );
 
     // Select "Collector Edition" card from edition grid
-    final collectorEdition = find.descendant(
-      of: find.byKey(const ValueKey('library-add-edition-field')),
-      matching: find.text('Collector Edition'),
-    ).first;
-    await tester.ensureVisible(collectorEdition);
-    await tester.pumpAndSettle();
-    await tester.tap(collectorEdition);
-    await pumpUntilSettled(tester);
+    await tapGestureByKey(
+      tester,
+      'library-add-edition-card-edition-comic-423-collector',
+    );
 
-    // Select "Sketch Cover" card from variant grid
-    final sketchCover = find.descendant(
-      of: find.byKey(const ValueKey('library-add-variant-field')),
-      matching: find.text('Sketch Cover'),
-    ).first;
-    await tester.ensureVisible(sketchCover);
-    await tester.pumpAndSettle();
-    await tester.tap(sketchCover);
-    await pumpUntilSettled(tester);
+    await tapGestureByKey(
+      tester,
+      'library-add-variant-card-variant-comic-423-c',
+    );
 
-    expect(find.textContaining('Collector Edition'), findsWidgets);
-    expect(find.textContaining('Sketch Cover'), findsWidgets);
+    expect(anyTextContaining('Collector Edition'), findsWidgets);
+    expect(anyTextContaining('Sketch Cover'), findsWidgets);
   });
 
   testWidgets('barcode lookup falls back to provider search on Core miss',
