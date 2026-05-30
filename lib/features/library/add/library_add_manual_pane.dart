@@ -26,6 +26,34 @@ class _ManualPaneState extends State<_ManualPane> {
     EditTab(icon: Icons.link, label: 'Links'),
   ];
 
+  final _fallbackPurchasePriceController = TextEditingController();
+  final _fallbackPurchaseDateController = TextEditingController();
+  final _fallbackCoverPriceController = TextEditingController();
+  final _fallbackSoldPriceController = TextEditingController();
+  final _fallbackOwnerLabelController = TextEditingController();
+  final _fallbackPersonalNotesController = TextEditingController();
+  final _fallbackLinksController = TextEditingController();
+
+  TextEditingController _kindSpecificController(
+    String key,
+    TextEditingController fallback,
+  ) {
+    final controller = widget.request.kindSpecific[key];
+    return controller is TextEditingController ? controller : fallback;
+  }
+
+  @override
+  void dispose() {
+    _fallbackPurchasePriceController.dispose();
+    _fallbackPurchaseDateController.dispose();
+    _fallbackCoverPriceController.dispose();
+    _fallbackSoldPriceController.dispose();
+    _fallbackOwnerLabelController.dispose();
+    _fallbackPersonalNotesController.dispose();
+    _fallbackLinksController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
@@ -256,19 +284,19 @@ class _ManualPaneState extends State<_ManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                      controller: widget.request.kindSpecific[
-                                                  'purchasePriceController']
-                                              as TextEditingController? ??
-                                          TextEditingController(),
+                                    controller: _kindSpecificController(
+                                    'purchasePriceController',
+                                    _fallbackPurchasePriceController,
+                                    ),
                                       decoration: const InputDecoration(
                                           labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
                               Expanded(
                                   child: TextField(
-                                      controller: widget.request.kindSpecific[
-                                                  'purchaseDateController']
-                                              as TextEditingController? ??
-                                          TextEditingController(),
+                                    controller: _kindSpecificController(
+                                    'purchaseDateController',
+                                    _fallbackPurchaseDateController,
+                                    ),
                                       decoration: const InputDecoration(
                                           labelText: 'Purchase Date'))),
                             ]),
@@ -276,19 +304,19 @@ class _ManualPaneState extends State<_ManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                      controller: widget.request.kindSpecific[
-                                                  'coverPriceController']
-                                              as TextEditingController? ??
-                                          TextEditingController(),
+                                    controller: _kindSpecificController(
+                                    'coverPriceController',
+                                    _fallbackCoverPriceController,
+                                    ),
                                       decoration: const InputDecoration(
                                           labelText: 'Cover Price'))),
                               const SizedBox(width: 8),
                               Expanded(
                                   child: TextField(
-                                      controller: widget.request.kindSpecific[
-                                                  'soldPriceController']
-                                              as TextEditingController? ??
-                                          TextEditingController(),
+                                    controller: _kindSpecificController(
+                                    'soldPriceController',
+                                    _fallbackSoldPriceController,
+                                    ),
                                       decoration: const InputDecoration(
                                           labelText: 'Sold Price'))),
                             ]),
@@ -305,10 +333,10 @@ class _ManualPaneState extends State<_ManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                      controller: widget.request.kindSpecific[
-                                                  'ownerLabelController']
-                                              as TextEditingController? ??
-                                          TextEditingController(),
+                                    controller: _kindSpecificController(
+                                    'ownerLabelController',
+                                    _fallbackOwnerLabelController,
+                                    ),
                                       decoration: const InputDecoration(
                                           labelText: 'Owner'))),
                               const SizedBox(width: 8),
@@ -320,10 +348,10 @@ class _ManualPaneState extends State<_ManualPane> {
                             ]),
                             const SizedBox(height: 8),
                             TextField(
-                                controller: widget.request.kindSpecific[
-                                            'personalNotesController']
-                                        as TextEditingController? ??
-                                    TextEditingController(),
+                              controller: _kindSpecificController(
+                                'personalNotesController',
+                                _fallbackPersonalNotesController,
+                              ),
                                 decoration:
                                     const InputDecoration(labelText: 'Notes'),
                                 maxLines: 4),
@@ -407,10 +435,10 @@ class _ManualPaneState extends State<_ManualPane> {
                             title: 'Links',
                             accent: widget.request.accent,
                             child: TextField(
-                                controller: widget.request
-                                            .kindSpecific['linksController']
-                                        as TextEditingController? ??
-                                    TextEditingController(),
+                            controller: _kindSpecificController(
+                              'linksController',
+                              _fallbackLinksController,
+                            ),
                                 maxLines: 3,
                                 decoration: const InputDecoration(
                                     labelText: 'Links (one per line)'))),

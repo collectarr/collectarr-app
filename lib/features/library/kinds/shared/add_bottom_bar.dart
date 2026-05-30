@@ -155,7 +155,9 @@ Widget buildKindAddBottomBar(
                             firstDate: DateTime(1900),
                             lastDate: DateTime(now.year + 3, 12, 31),
                           );
-                          request.onDefaultPurchaseDateChanged(picked);
+                          if (picked != null) {
+                            request.onDefaultPurchaseDateChanged(picked);
+                          }
                         },
                   style: _kindOutlinedButtonStyle(request.accent),
                   icon: const Icon(Icons.event_outlined, size: 16),

@@ -544,6 +544,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   // Holds the last-built manual pane kindSpecific map so helper accessors
   // can prefer kind-owned controllers when present.
   Map<String, dynamic> _manualKindSpecific = {};
+  Map<String, dynamic> _manualKindSpecificFactoryValues = {};
   // Controllers created by a kind-specific factory: tracked so we can dispose
   // them safely (dialog disposes dialog-owned controllers separately).
   final Set<TextEditingController> _manualKindSpecificCreatedControllers = {};
@@ -708,13 +709,40 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _searchNumberController.dispose();
     _searchPublisherController.dispose();
     _searchYearController.dispose();
-    // Dispose any controllers created by kind-specific factories
+    _disposeManualKindSpecificControllers();
+    super.dispose();
+  }
+
+  void _disposeManualKindSpecificControllers() {
     for (final c in _manualKindSpecificCreatedControllers) {
       try {
         c.dispose();
       } catch (_) {}
     }
-    super.dispose();
+    _manualKindSpecificCreatedControllers.clear();
+    _manualKindSpecificFactoryValues = {};
+  }
+
+  Map<String, dynamic> _kindSpecificFactoryValues(
+    LibraryAddManualKindSpecificFactory? factory,
+  ) {
+    if (factory == null) {
+      if (_manualKindSpecificFactoryValues.isNotEmpty ||
+          _manualKindSpecificCreatedControllers.isNotEmpty) {
+        _disposeManualKindSpecificControllers();
+      }
+      return const <String, dynamic>{};
+    }
+    if (_manualKindSpecificFactoryValues.isEmpty) {
+      final factoryMap = factory();
+      for (final value in factoryMap.values) {
+        if (value is TextEditingController) {
+          _manualKindSpecificCreatedControllers.add(value);
+        }
+      }
+      _manualKindSpecificFactoryValues = factoryMap;
+    }
+    return _manualKindSpecificFactoryValues;
   }
 
   @override
@@ -1048,30 +1076,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       final factory =
                           LibraryAddRegistry.manualKindSpecificFactoryFor(
                               widget.type.workspace.kind);
-                      final Map<String, dynamic> mergedKindSpecific;
-                      if (factory == null) {
-                        mergedKindSpecific = kindSpecificMap;
-                      } else {
-                        // Dispose any previously created kind-specific controllers
-                        for (final c in _manualKindSpecificCreatedControllers) {
-                          try {
-                            c.dispose();
-                          } catch (_) {}
-                        }
-                        _manualKindSpecificCreatedControllers.clear();
-
-                        final factoryMap = factory();
-                        for (final v in factoryMap.values) {
-                          if (v is TextEditingController) {
-                            _manualKindSpecificCreatedControllers.add(v);
-                          }
-                        }
-                        mergedKindSpecific =
-                            Map<String, dynamic>.from(kindSpecificMap)
-                              ..addAll(factoryMap);
-                      }
-
-                      _manualKindSpecific = mergedKindSpecific;
+                      _manualKindSpecific = Map<String, dynamic>.from(
+                        kindSpecificMap,
+                      )..addAll(_kindSpecificFactoryValues(factory));
 
                       final manualRequest = LibraryAddManualPaneRequest(
                         type: widget.type,
@@ -1110,7 +1117,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         genresEditController: _genresEditController,
                         synopsisController: _synopsisController,
                         tagsController: _tagsController,
-                        kindSpecific: mergedKindSpecific,
+                        kindSpecific: _manualKindSpecific,
                         customFieldDefinitions: widget.customFieldDefinitions,
                         customFieldValues: _manualCustomFieldValues,
                         onCustomFieldValuesChanged: (m) => setState(

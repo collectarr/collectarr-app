@@ -114,7 +114,9 @@ class _LibraryAddBottomBar extends StatelessWidget {
                           : 'Queued ${selectedQueuedIngest!.shortId}',
                       accent: accent,
                       onPressed:
-                          selectedQueuedIngest != null || isQueueingIngest
+                          selectedQueuedIngest != null ||
+                              isQueueingIngest ||
+                              isAdding
                               ? null
                               : onQueueIngest,
                     ),

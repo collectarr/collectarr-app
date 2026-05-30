@@ -1139,6 +1139,45 @@ void main() {
     expect(find.text('Issue No.'), findsOneWidget);
   });
 
+  testWidgets('comic manual inputs survive dialog rebuilds', (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    Widget buildSubject() {
+      return ProviderScope(
+        overrides: [
+          mediaCatalogProvider.overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(buildSubject());
+
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(textFieldByKeyOrLabel('', 'Issue No.'), '423A');
+    await tester.pump();
+
+    await tester.pumpWidget(buildSubject());
+    await pumpUntilSettled(tester);
+
+    expect(find.text('423A'), findsOneWidget);
+  });
+
   testWidgets('showLibraryAddDialog uses comic-specific preview pane',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
