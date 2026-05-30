@@ -13,12 +13,12 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
@@ -55,7 +55,23 @@ class LibraryEditDialog extends ConsumerStatefulWidget {
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
     this.itemImages = const [],
-  });
+  }) : draft = null;
+
+  LibraryEditDialog.fromDraft({
+    super.key,
+    required LibraryEditDraft draft,
+  })  : draft = draft,
+        type = draft.type,
+        item = draft.item,
+        ownedItem = draft.ownedItem,
+        wishlistItem = draft.wishlistItem,
+        trackingEntry = draft.trackingEntry,
+        accent = draft.accent,
+        availableBundleReleases = draft.availableBundleReleases,
+        physicalFormats = draft.physicalFormats,
+        customFieldDefinitions = draft.customFieldDefinitions,
+        customFieldValues = draft.customFieldValues,
+        itemImages = draft.itemImages;
 
   final LibraryTypeConfig type;
   final LibraryMetadataItem item;
@@ -68,6 +84,7 @@ class LibraryEditDialog extends ConsumerStatefulWidget {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
+  final LibraryEditDraft? draft;
 
   @override
   ConsumerState<LibraryEditDialog> createState() => _LibraryEditDialogState();
@@ -76,6 +93,7 @@ class LibraryEditDialog extends ConsumerStatefulWidget {
 class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  late final LibraryEditDraft _draft;
 
   late final TabController _tabController;
 
@@ -302,10 +320,20 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   @override
   void initState() {
     super.initState();
-    final item = widget.item;
-    final owned = widget.ownedItem;
-    final wishlist = widget.wishlistItem;
-    final tracking = widget.trackingEntry;
+    _draft = widget.draft ??
+        LibraryEditDraft.fromFields(
+          type: widget.type,
+          item: widget.item,
+          ownedItem: widget.ownedItem,
+          wishlistItem: widget.wishlistItem,
+          trackingEntry: widget.trackingEntry,
+          accent: widget.accent,
+          availableBundleReleases: widget.availableBundleReleases,
+          physicalFormats: widget.physicalFormats,
+          customFieldDefinitions: widget.customFieldDefinitions,
+          customFieldValues: widget.customFieldValues,
+          itemImages: widget.itemImages,
+        );
     _tabController = TabController(
       length: widget.type.editPresentation.builder
           .buildTabs(context: _initialEditPresentationContext)
@@ -315,216 +343,102 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         if (mounted) setState(() {});
       });
 
-    _titleController = TextEditingController(text: item.title);
-    _numberController = TextEditingController(text: item.itemNumber ?? '');
-    _publisherController = TextEditingController(text: item.publisher ?? '');
-    _releaseDateController = TextEditingController(
-      text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
-    );
-    _releaseDateYearPartController = TextEditingController(
-      text: item.releaseDate?.year.toString() ?? '',
-    );
-    _releaseDateMonthPartController = TextEditingController(
-      text: item.releaseDate == null
-          ? ''
-          : item.releaseDate!.month.toString().padLeft(2, '0'),
-    );
-    _releaseDateDayPartController = TextEditingController(
-      text: item.releaseDate == null
-          ? ''
-          : item.releaseDate!.day.toString().padLeft(2, '0'),
-    );
-    _releaseYearController = TextEditingController(
-      text: item.releaseYear?.toString() ?? '',
-    );
-    _pageCountController = TextEditingController(
-      text: item.publishing?.pageCount?.toString() ?? '',
-    );
-    _editionTitleController =
-        TextEditingController(text: item.editionTitle ?? '');
-    _barcodeController = TextEditingController(text: item.barcode ?? '');
-    _variantController = TextEditingController(text: item.variant ?? '');
-    _coverController = TextEditingController(text: item.coverImageUrl ?? '');
-    _thumbnailController =
-        TextEditingController(text: item.thumbnailImageUrl ?? '');
-    _synopsisController = TextEditingController(text: item.synopsis ?? '');
-
-    // Video / CLZ Main fields
-    _sortKeyController = TextEditingController(text: item.sortKey ?? '');
-    _originalTitleController =
-        TextEditingController(text: item.originalTitle ?? '');
-    _runtimeController = TextEditingController(
-      text: item.video?.runtimeMinutes?.toString() ?? '',
-    );
-    _audienceRatingController =
-        TextEditingController(text: item.audienceRating ?? '');
-    _countryController = TextEditingController(text: item.country ?? '');
-    _languageController = TextEditingController(text: item.language ?? '');
-    _ageRatingController = TextEditingController(text: item.ageRating ?? '');
-    _genresEditController =
-        TextEditingController(text: item.genres?.join(', ') ?? '');
-    _titleExtensionController =
-        TextEditingController(text: item.titleExtension ?? '');
-    _ownerLabelController =
-        TextEditingController(text: owned?.ownerLabel ?? '');
-
-    _imprintController = TextEditingController(
-      text: item.publishing?.imprint ?? '',
-    );
-    _seriesGroupController = TextEditingController(
-      text: item.publishing?.seriesGroup ?? '',
-    );
-
-    _conditionController = TextEditingController(text: owned?.condition ?? '');
-    _gradeController = TextEditingController(text: owned?.grade ?? '');
-    _purchaseDateController = TextEditingController(
-      text: owned?.purchaseDate == null ? '' : formatDate(owned!.purchaseDate!),
-    );
-    _priceController = TextEditingController(
-      text: owned?.pricePaidCents == null
-          ? ''
-          : (owned!.pricePaidCents! / 100).toStringAsFixed(2),
-    );
-    _currencyController = TextEditingController(text: owned?.currency ?? '');
-    _quantityController = TextEditingController(
-      text: (owned?.quantity ?? 1).toString(),
-    );
-    _notesController = TextEditingController(text: owned?.personalNotes ?? '');
-    _wishlistPriceController = TextEditingController(
-      text: wishlist?.targetPriceCents == null
-          ? ''
-          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
-    );
-    _wishlistCurrencyController =
-        TextEditingController(text: wishlist?.currency ?? '');
-    _wishlistNotesController =
-        TextEditingController(text: wishlist?.notes ?? '');
-    _ratingController = TextEditingController(
-        text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
-    _trackingController = TextEditingController(
-      text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
-    );
-    _progressCurrentController = TextEditingController(
-      text: tracking?.progressCurrent?.toString() ?? '',
-    );
-    _progressTotalController = TextEditingController(
-      text: tracking?.progressTotal?.toString() ?? '',
-    );
-    _timesCompletedController = TextEditingController(
-      text: tracking?.timesCompleted?.toString() ?? '',
-    );
-    _seasonNumberController = TextEditingController(
-      text: (tracking?.seasonNumber ?? item.series?.seasonNumber)?.toString() ??
-          '',
-    );
-    _episodeNumberController = TextEditingController(
-      text:
-          (tracking?.episodeNumber ?? item.series?.episodeNumber)?.toString() ??
-              '',
-    );
-    _trackingNotesController =
-        TextEditingController(text: tracking?.notes ?? '');
-    _tagsController = TextEditingController(text: owned?.tags ?? '');
-    _tagOptions = splitPickListValues(owned?.tags);
-    _selectedLocationId = owned?.locationId;
-
-    _sellPriceController = TextEditingController(
-      text: owned?.sellPriceCents == null
-          ? ''
-          : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
-    );
-    _soldToController = TextEditingController(text: owned?.soldTo ?? '');
-    _soldAt = owned?.soldAt;
-    _startedAt = tracking?.startedAt ?? owned?.startedAt;
-    _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
-    _episodeRatings =
-        Map<String, int>.from(tracking?.episodeRatings ?? const {});
-
-    _rawOrSlabbedController =
-        TextEditingController(text: owned?.rawOrSlabbed ?? '');
-    _gradingCompanyController =
-        TextEditingController(text: owned?.gradingCompany ?? '');
-    _graderNotesController =
-        TextEditingController(text: owned?.graderNotes ?? '');
-    _signedByController = TextEditingController(text: owned?.signedBy ?? '');
-    _labelTypeController = TextEditingController(text: owned?.labelType ?? '');
-    _certificationNumberController =
-        TextEditingController(text: owned?.certificationNumber ?? '');
-    _coverPriceController = TextEditingController(
-      text: owned?.coverPriceCents == null
-          ? ''
-          : (owned!.coverPriceCents! / 100).toStringAsFixed(2),
-    );
-    _keyComic = owned?.keyComic ?? false;
-    _keyReasonController = TextEditingController(text: owned?.keyReason ?? '');
-    _featuresController = TextEditingController(text: owned?.features ?? '');
-    _hdrFormats = List<String>.from(owned?.hdrFormats ?? const <String>[]);
-    _purchaseStoreController =
-        TextEditingController(text: owned?.purchaseStore ?? '');
-    _boxSetNameController =
-        TextEditingController(text: owned?.boxSetName ?? '');
-    _storageDeviceController =
-        TextEditingController(text: owned?.storageDevice ?? '');
-    _storageSlotController =
-        TextEditingController(text: owned?.storageSlot ?? '');
-    _regionController = TextEditingController(text: owned?.region ?? '');
-    _packagingController = TextEditingController(text: owned?.packaging ?? '');
-    _distributorController =
-        TextEditingController(text: owned?.distributor ?? '');
-    _collectionStatus = owned?.collectionStatus;
-    _lastBagBoardDate = owned?.lastBagBoardDate;
-    _marketValueController = TextEditingController(
-      text: owned?.marketValueCents == null
-          ? ''
-          : (owned!.marketValueCents! / 100).toStringAsFixed(2),
-    );
-    final catalogVideo = widget.item.video;
-    _screenRatioController =
-        TextEditingController(text: catalogVideo?.screenRatio ?? '');
-    _audioTracksController =
-        TextEditingController(text: catalogVideo?.audioTracks ?? '');
-    _subtitlesController =
-        TextEditingController(text: catalogVideo?.subtitles ?? '');
-    _layersController = TextEditingController(text: catalogVideo?.layers ?? '');
-    _colorController = TextEditingController(text: catalogVideo?.color ?? '');
-    _nrDiscsController =
-        TextEditingController(text: catalogVideo?.nrDiscs?.toString() ?? '');
-    final editionSelection = resolveLibraryEditionSelection(
-      item.editions,
-      editionId: owned?.editionId ?? tracking?.editionId,
-      editionTitle: item.editionTitle,
-      variantId: owned?.variantId ?? tracking?.variantId,
-      variantName: item.variant,
-    );
-    final wishlistEditionSelection = resolveLibraryEditionSelection(
-      item.editions,
-      editionId: wishlist?.editionId,
-      editionTitle: item.editionTitle,
-      variantId: wishlist?.variantId,
-      variantName: item.variant,
-    );
-    _selectedOwnedAnchorType =
-        owned?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
-    _selectedEditionId = editionSelection.edition?.id;
-    _selectedVariantId = editionSelection.variant?.id;
-    _selectedBundleReleaseId = normalizeLibrarySelectionId(
-      owned?.bundleReleaseId,
-    );
-    _selectedTrackingEditionId = tracking?.editionId ?? _selectedEditionId;
-    _selectedTrackingVariantId = tracking?.variantId ?? _selectedVariantId;
-    _selectedWishlistAnchorType = wishlist?.personalAnchor?.apiValue ??
-        PersonalItemAnchorType.item.apiValue;
-    _selectedWishlistEditionId = wishlistEditionSelection.edition?.id;
-    _selectedWishlistVariantId = wishlistEditionSelection.variant?.id;
-    _selectedWishlistBundleReleaseId = normalizeLibrarySelectionId(
-      wishlist?.bundleReleaseId,
-    );
-
-    _physicalFormatId = _initialPhysicalFormatId(item);
-
-    _customFieldEdits = {
-      for (final v in widget.customFieldValues) v.fieldDefinitionId: v.value,
-    };
+    _titleController = _draft.titleController;
+    _numberController = _draft.numberController;
+    _publisherController = _draft.publisherController;
+    _releaseDateController = _draft.releaseDateController;
+    _releaseDateYearPartController = _draft.releaseDateYearPartController;
+    _releaseDateMonthPartController = _draft.releaseDateMonthPartController;
+    _releaseDateDayPartController = _draft.releaseDateDayPartController;
+    _releaseYearController = _draft.releaseYearController;
+    _pageCountController = _draft.pageCountController;
+    _editionTitleController = _draft.editionTitleController;
+    _barcodeController = _draft.barcodeController;
+    _variantController = _draft.variantController;
+    _coverController = _draft.coverController;
+    _thumbnailController = _draft.thumbnailController;
+    _synopsisController = _draft.synopsisController;
+    _sortKeyController = _draft.sortKeyController;
+    _originalTitleController = _draft.originalTitleController;
+    _runtimeController = _draft.runtimeController;
+    _audienceRatingController = _draft.audienceRatingController;
+    _countryController = _draft.countryController;
+    _languageController = _draft.languageController;
+    _ageRatingController = _draft.ageRatingController;
+    _genresEditController = _draft.genresEditController;
+    _titleExtensionController = _draft.titleExtensionController;
+    _ownerLabelController = _draft.ownerLabelController;
+    _imprintController = _draft.imprintController;
+    _seriesGroupController = _draft.seriesGroupController;
+    _conditionController = _draft.conditionController;
+    _gradeController = _draft.gradeController;
+    _purchaseDateController = _draft.purchaseDateController;
+    _priceController = _draft.priceController;
+    _currencyController = _draft.currencyController;
+    _quantityController = _draft.quantityController;
+    _notesController = _draft.notesController;
+    _wishlistPriceController = _draft.wishlistPriceController;
+    _wishlistCurrencyController = _draft.wishlistCurrencyController;
+    _wishlistNotesController = _draft.wishlistNotesController;
+    _ratingController = _draft.ratingController;
+    _trackingController = _draft.trackingController;
+    _progressCurrentController = _draft.progressCurrentController;
+    _progressTotalController = _draft.progressTotalController;
+    _timesCompletedController = _draft.timesCompletedController;
+    _seasonNumberController = _draft.seasonNumberController;
+    _episodeNumberController = _draft.episodeNumberController;
+    _trackingNotesController = _draft.trackingNotesController;
+    _tagsController = _draft.tagsController;
+    _tagOptions = _draft.tagOptions;
+    _availableLocations = _draft.availableLocations;
+    _selectedLocationId = _draft.selectedLocationId;
+    _selectedOwnedAnchorType = _draft.selectedOwnedAnchorType;
+    _selectedEditionId = _draft.selectedEditionId;
+    _selectedVariantId = _draft.selectedVariantId;
+    _selectedBundleReleaseId = _draft.selectedBundleReleaseId;
+    _selectedTrackingEditionId = _draft.selectedTrackingEditionId;
+    _selectedTrackingVariantId = _draft.selectedTrackingVariantId;
+    _selectedWishlistAnchorType = _draft.selectedWishlistAnchorType;
+    _selectedWishlistEditionId = _draft.selectedWishlistEditionId;
+    _selectedWishlistVariantId = _draft.selectedWishlistVariantId;
+    _selectedWishlistBundleReleaseId = _draft.selectedWishlistBundleReleaseId;
+    _locationChanged = _draft.locationChanged;
+    _sellPriceController = _draft.sellPriceController;
+    _soldToController = _draft.soldToController;
+    _soldAt = _draft.soldAt;
+    _startedAt = _draft.startedAt;
+    _finishedAt = _draft.finishedAt;
+    _episodeRatings = _draft.episodeRatings;
+    _rawOrSlabbedController = _draft.rawOrSlabbedController;
+    _gradingCompanyController = _draft.gradingCompanyController;
+    _graderNotesController = _draft.graderNotesController;
+    _signedByController = _draft.signedByController;
+    _labelTypeController = _draft.labelTypeController;
+    _certificationNumberController = _draft.certificationNumberController;
+    _coverPriceController = _draft.coverPriceController;
+    _keyComic = _draft.keyComic;
+    _keyReasonController = _draft.keyReasonController;
+    _featuresController = _draft.featuresController;
+    _purchaseStoreController = _draft.purchaseStoreController;
+    _boxSetNameController = _draft.boxSetNameController;
+    _storageDeviceController = _draft.storageDeviceController;
+    _storageSlotController = _draft.storageSlotController;
+    _hdrFormats = _draft.hdrFormats;
+    _regionController = _draft.regionController;
+    _packagingController = _draft.packagingController;
+    _distributorController = _draft.distributorController;
+    _screenRatioController = _draft.screenRatioController;
+    _collectionStatus = _draft.collectionStatus;
+    _lastBagBoardDate = _draft.lastBagBoardDate;
+    _marketValueController = _draft.marketValueController;
+    _audioTracksController = _draft.audioTracksController;
+    _subtitlesController = _draft.subtitlesController;
+    _layersController = _draft.layersController;
+    _colorController = _draft.colorController;
+    _nrDiscsController = _draft.nrDiscsController;
+    _physicalFormatId = _draft.physicalFormatId;
+    _customFieldEdits = _draft.customFieldEdits;
+    _itemImageEdits = _draft.itemImageEdits;
 
     if (_isOwned) {
       unawaited(_loadAvailableLocations());
@@ -535,77 +449,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   @override
   void dispose() {
     _tabController.dispose();
-    _titleController.dispose();
-    _numberController.dispose();
-    _publisherController.dispose();
-    _releaseDateController.dispose();
-    _releaseDateYearPartController.dispose();
-    _releaseDateMonthPartController.dispose();
-    _releaseDateDayPartController.dispose();
-    _releaseYearController.dispose();
-    _pageCountController.dispose();
-    _editionTitleController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    _synopsisController.dispose();
-    _sortKeyController.dispose();
-    _originalTitleController.dispose();
-    _runtimeController.dispose();
-    _audienceRatingController.dispose();
-    _countryController.dispose();
-    _languageController.dispose();
-    _ageRatingController.dispose();
-    _genresEditController.dispose();
-    _titleExtensionController.dispose();
-    _ownerLabelController.dispose();
-    _imprintController.dispose();
-    _seriesGroupController.dispose();
-    _conditionController.dispose();
-    _gradeController.dispose();
-    _purchaseDateController.dispose();
-    _priceController.dispose();
-    _currencyController.dispose();
-    _quantityController.dispose();
-    _notesController.dispose();
-    _wishlistPriceController.dispose();
-    _wishlistCurrencyController.dispose();
-    _wishlistNotesController.dispose();
-    _ratingController.dispose();
-    _trackingController.dispose();
-    _progressCurrentController.dispose();
-    _progressTotalController.dispose();
-    _timesCompletedController.dispose();
-    _seasonNumberController.dispose();
-    _episodeNumberController.dispose();
-    _trackingNotesController.dispose();
-    _tagsController.dispose();
-    _sellPriceController.dispose();
-    _marketValueController.dispose();
-    _soldToController.dispose();
-    _rawOrSlabbedController.dispose();
-    _gradingCompanyController.dispose();
-    _graderNotesController.dispose();
-    _signedByController.dispose();
-    _labelTypeController.dispose();
-    _certificationNumberController.dispose();
-    _coverPriceController.dispose();
-    _keyReasonController.dispose();
-    _featuresController.dispose();
-    _purchaseStoreController.dispose();
-    _boxSetNameController.dispose();
-    _storageDeviceController.dispose();
-    _storageSlotController.dispose();
-    _regionController.dispose();
-    _packagingController.dispose();
-    _distributorController.dispose();
-    _screenRatioController.dispose();
-    _audioTracksController.dispose();
-    _subtitlesController.dispose();
-    _layersController.dispose();
-    _colorController.dispose();
-    _nrDiscsController.dispose();
+    _draft.dispose();
     super.dispose();
   }
 
@@ -2514,186 +2358,33 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final updatedPublishing = CatalogPublishingDetails(
-      pageCount: parseInt(_pageCountController.text),
-      coverPriceCents: widget.item.publishing?.coverPriceCents,
-      currency: widget.item.publishing?.currency,
-      imprint: emptyToNull(_imprintController.text),
-      subtitle: widget.item.publishing?.subtitle,
-      seriesGroup: emptyToNull(_seriesGroupController.text),
-    );
-    final updatedVideo = VideoCatalogDetails(
-      runtimeMinutes: int.tryParse(_runtimeController.text),
-      color: emptyToNull(_colorController.text),
-      nrDiscs: int.tryParse(_nrDiscsController.text),
-      screenRatio: emptyToNull(_screenRatioController.text),
-      audioTracks: emptyToNull(_audioTracksController.text),
-      subtitles: emptyToNull(_subtitlesController.text),
-      layers: emptyToNull(_layersController.text),
-    );
-    final parsedGenres = _genresEditController.text
-        .split(',')
-        .map((g) => g.trim())
-        .where((g) => g.isNotEmpty)
-        .toList();
-    final selection = LibraryEditSelection(
-      item: widget.item.copyWith(
-        title: _titleController.text.trim(),
-        sortKey: emptyToNull(_sortKeyController.text),
-        originalTitle: emptyToNull(_originalTitleController.text),
-        titleExtension: emptyToNull(_titleExtensionController.text),
-        itemNumber: emptyToNull(_numberController.text),
-        synopsis: emptyToNull(_synopsisController.text),
-        coverImageUrl: emptyToNull(_coverController.text),
-        thumbnailImageUrl: emptyToNull(_thumbnailController.text),
-        editionTitle: emptyToNull(_editionTitleController.text),
-        physicalFormat: _physicalFormatId,
-        physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
-        publisher: emptyToNull(_publisherController.text),
-        releaseDate: parseDate(_releaseDateController.text),
-        releaseYear: parseInt(_releaseYearController.text),
-        barcode: emptyToNull(_barcodeController.text),
-        variant: emptyToNull(_variantController.text),
-        country: emptyToNull(_countryController.text),
-        language: emptyToNull(_languageController.text),
-        ageRating: emptyToNull(_ageRatingController.text),
-        audienceRating: emptyToNull(_audienceRatingController.text),
-        genres: parsedGenres.isEmpty ? null : parsedGenres,
-        publishing: updatedPublishing.hasData ? updatedPublishing : null,
-        video: updatedVideo.hasData ? updatedVideo : null,
-      ),
-      personal: widget.ownedItem == null
-          ? null
-          : LibraryPersonalEditSelection(
-              anchorType: _selectedOwnedAnchorType,
-              editionId: _selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.edition.apiValue ||
-                      _selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.variant.apiValue
-                  ? _selectedEditionId
-                  : null,
-              variantId: _selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.variant.apiValue
-                  ? _selectedVariantId
-                  : null,
-              bundleReleaseId: _selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.bundleRelease.apiValue
-                  ? _selectedBundleReleaseId
-                  : null,
-              condition: _showPhysicalOwnedFields
-                  ? emptyToNull(_conditionController.text)
-                  : null,
-              grade: _showPhysicalOwnedFields
-                  ? emptyToNull(_gradeController.text)
-                  : null,
-              purchaseDate: parseDate(_purchaseDateController.text),
-              pricePaidCents: parseMoneyCents(_priceController.text),
-              currency: emptyToNull(_currencyController.text),
-              personalNotes: emptyToNull(_notesController.text),
-              quantity: parseInt(_quantityController.text) ?? 1,
-              locationId: _showPhysicalOwnedFields ? _selectedLocationId : null,
-              locationChanged:
-                  _showPhysicalOwnedFields ? _locationChanged : false,
-              tags: emptyToNull(_tagsController.text),
-              soldAt: _soldAt,
-              sellPriceCents: parseMoneyCents(_sellPriceController.text),
-              soldTo: emptyToNull(_soldToController.text),
-              rawOrSlabbed: _isDigitalFormat
-                  ? null
-                  : emptyToNull(_rawOrSlabbedController.text),
-              gradingCompany: _isDigitalFormat
-                  ? null
-                  : emptyToNull(_gradingCompanyController.text),
-              graderNotes: _isDigitalFormat
-                  ? null
-                  : emptyToNull(_graderNotesController.text),
-              signedBy: _isDigitalFormat
-                  ? null
-                  : emptyToNull(_signedByController.text),
-              labelType: _isDigitalFormat
-                  ? null
-                  : emptyToNull(_labelTypeController.text),
-              certificationNumber: _isDigitalFormat
-                  ? null
-                  : emptyToNull(_certificationNumberController.text),
-              keyComic: _keyComic,
-              keyReason: emptyToNull(_keyReasonController.text),
-              coverPriceCents: _isDigitalFormat
-                  ? null
-                  : parseMoneyCents(_coverPriceController.text),
-              features: emptyToNull(_featuresController.text),
-              hdrFormats: _hdrFormats.isEmpty ? null : _hdrFormats,
-              purchaseStore: emptyToNull(_purchaseStoreController.text),
-              boxSetName: emptyToNull(_boxSetNameController.text),
-              storageDevice: emptyToNull(_storageDeviceController.text),
-              storageSlot: emptyToNull(_storageSlotController.text),
-              region: emptyToNull(_regionController.text),
-              packaging: emptyToNull(_packagingController.text),
-              distributor: emptyToNull(_distributorController.text),
-              screenRatio: emptyToNull(_screenRatioController.text),
-              audioTracks: emptyToNull(_audioTracksController.text),
-              subtitles: emptyToNull(_subtitlesController.text),
-              layers: emptyToNull(_layersController.text),
-              color: emptyToNull(_colorController.text),
-              nrDiscs: int.tryParse(_nrDiscsController.text),
-              collectionStatus: _collectionStatus,
-              lastBagBoardDate: _lastBagBoardDate,
-              marketValueCents: parseMoneyCents(_marketValueController.text),
-              ownerLabel: emptyToNull(_ownerLabelController.text),
-            ),
-      wishlist: widget.wishlistItem == null
-          ? null
-          : LibraryWishlistEditSelection(
-              anchorType: _selectedWishlistAnchorType,
-              editionId: _selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.edition.apiValue ||
-                      _selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.variant.apiValue
-                  ? _selectedWishlistEditionId
-                  : null,
-              variantId: _selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.variant.apiValue
-                  ? _selectedWishlistVariantId
-                  : null,
-              bundleReleaseId: _selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.bundleRelease.apiValue
-                  ? _selectedWishlistBundleReleaseId
-                  : null,
-              targetPriceCents: parseMoneyCents(_wishlistPriceController.text),
-              currency: emptyToNull(_wishlistCurrencyController.text),
-              notes: emptyToNull(_wishlistNotesController.text),
-            ),
-      tracking: !_hasTrackingContext
-          ? null
-          : LibraryTrackingEditSelection(
-              editionId: _selectedTrackingEditionId,
-              variantId: _selectedTrackingVariantId,
-              rating: parseInt(_ratingController.text),
-              readStatus: emptyToNull(_trackingController.text),
-              startedAt: _startedAt,
-              finishedAt: _finishedAt,
-              progressCurrent: parseInt(_progressCurrentController.text),
-              progressTotal: parseInt(_progressTotalController.text),
-              timesCompleted: parseInt(_timesCompletedController.text),
-              notes: emptyToNull(_trackingNotesController.text),
-              seasonNumber: parseInt(_seasonNumberController.text),
-              episodeNumber: parseInt(_episodeNumberController.text),
-              episodeRatings: _episodeRatings.isEmpty ? null : _episodeRatings,
-            ),
-      customFieldEdits: _customFieldEdits,
-      itemImageEdits: _itemImageEdits,
-    );
+    _draft.tagOptions = _tagOptions;
+    _draft.availableLocations = _availableLocations;
+    _draft.selectedLocationId = _selectedLocationId;
+    _draft.selectedOwnedAnchorType = _selectedOwnedAnchorType;
+    _draft.selectedEditionId = _selectedEditionId;
+    _draft.selectedVariantId = _selectedVariantId;
+    _draft.selectedBundleReleaseId = _selectedBundleReleaseId;
+    _draft.selectedTrackingEditionId = _selectedTrackingEditionId;
+    _draft.selectedTrackingVariantId = _selectedTrackingVariantId;
+    _draft.selectedWishlistAnchorType = _selectedWishlistAnchorType;
+    _draft.selectedWishlistEditionId = _selectedWishlistEditionId;
+    _draft.selectedWishlistVariantId = _selectedWishlistVariantId;
+    _draft.selectedWishlistBundleReleaseId = _selectedWishlistBundleReleaseId;
+    _draft.locationChanged = _locationChanged;
+    _draft.soldAt = _soldAt;
+    _draft.startedAt = _startedAt;
+    _draft.finishedAt = _finishedAt;
+    _draft.episodeRatings = _episodeRatings;
+    _draft.keyComic = _keyComic;
+    _draft.hdrFormats = _hdrFormats;
+    _draft.collectionStatus = _collectionStatus;
+    _draft.lastBagBoardDate = _lastBagBoardDate;
+    _draft.physicalFormatId = _physicalFormatId;
+    _draft.customFieldEdits = _customFieldEdits;
+    _draft.itemImageEdits = _itemImageEdits;
+    final selection = _draft.buildSelection();
     Navigator.of(context).pop(selection);
-  }
-
-  String? _initialPhysicalFormatId(LibraryMetadataItem item) {
-    final configured = _physicalFormatForId(item.physicalFormat);
-    if (configured != null) return configured.id;
-    final byLabel = physicalMediaFormatByLabelOrId(
-      item.physicalFormatLabel ?? item.variant,
-      formats: widget.physicalFormats,
-    );
-    return byLabel?.id;
   }
 
   PhysicalMediaFormat? _physicalFormatForId(String? id) {
