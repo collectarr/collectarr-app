@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -13,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -55,6 +57,7 @@ void main() {
     );
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(comicsLibraryConfig.presentation, comicsLibraryMediaPresentation);
+    expect(comicsLibraryConfig.addDialogLauncher, same(showComicLibraryAddDialog));
     expect(
       comicsLibraryConfig.editDialogBuilder,
       same(buildGenericLibraryEditDialog),
@@ -68,6 +71,10 @@ void main() {
       mangaLibraryConfig.editDialogBuilder,
       same(buildGenericLibraryEditDialog),
     );
+  });
+
+  test('movies library config uses the dedicated add dialog launcher', () {
+    expect(moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
   });
 
   test('library type config can carry an add dialog launcher override', () {
@@ -201,7 +208,10 @@ void main() {
       ['musicbrainz'],
     );
     expect(collectarrLibraryTypes.providersForKind('bluray'), isEmpty);
-    expect(collectarrLibraryTypes.byKind('movie')?.addDialogLauncher, isNull);
+    expect(
+      collectarrLibraryTypes.byKind('movie')?.addDialogLauncher,
+      same(showMovieLibraryAddDialog),
+    );
     expect(collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNotNull);
     expect(collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNotNull);
   });

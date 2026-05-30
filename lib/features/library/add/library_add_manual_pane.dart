@@ -2,48 +2,21 @@ part of 'library_add_dialog.dart';
 
 class _ManualPane extends StatelessWidget {
   const _ManualPane({
-    required this.type,
-    required this.titleController,
-    required this.numberController,
-    required this.publisherController,
-    required this.yearController,
-    required this.barcodeController,
-    required this.variantController,
-    required this.coverController,
-    required this.physicalFormats,
-    required this.physicalFormatId,
-    required this.onPhysicalFormatChanged,
-    required this.isAdding,
-    required this.onAddOwned,
-    required this.onAddWishlist,
-    required this.onAddTrack,
+    required this.request,
   });
 
-  final LibraryTypeConfig type;
-  final TextEditingController titleController;
-  final TextEditingController numberController;
-  final TextEditingController publisherController;
-  final TextEditingController yearController;
-  final TextEditingController barcodeController;
-  final TextEditingController variantController;
-  final TextEditingController coverController;
-  final List<PhysicalMediaFormat> physicalFormats;
-  final String? physicalFormatId;
-  final ValueChanged<String?> onPhysicalFormatChanged;
-  final bool isAdding;
-  final VoidCallback onAddOwned;
-  final VoidCallback onAddWishlist;
-  final VoidCallback onAddTrack;
+  final LibraryAddManualPaneRequest request;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final type = request.type;
     final media = type.mediaFields;
     final release = type.releaseFields;
     final copyTypeLabel = ownedCopyTypeLabel(
       digitalPhysicalMediaFormatFlag(
-        physicalFormatId,
-        formats: physicalFormats,
+        request.physicalFormatId,
+        formats: request.physicalFormats,
       ),
     );
     return DecoratedBox(
@@ -71,7 +44,7 @@ class _ManualPane extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      controller: titleController,
+                      controller: request.titleController,
                       decoration: const InputDecoration(
                         labelText: 'Title',
                         prefixIcon: Icon(Icons.title),
@@ -82,7 +55,7 @@ class _ManualPane extends StatelessWidget {
                       children: [
                         Expanded(
                           child: TextField(
-                            controller: numberController,
+                            controller: request.numberController,
                             textAlign: TextAlign.center,
                             decoration:
                                 InputDecoration(labelText: media.numberLabel),
@@ -91,7 +64,7 @@ class _ManualPane extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
-                            controller: yearController,
+                            controller: request.yearController,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
@@ -105,7 +78,7 @@ class _ManualPane extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
-                      controller: publisherController,
+                      controller: request.publisherController,
                       decoration: InputDecoration(
                         labelText: media.publisherLabel,
                         prefixIcon: const Icon(Icons.business_outlined),
@@ -113,17 +86,17 @@ class _ManualPane extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
-                      controller: variantController,
+                      controller: request.variantController,
                       decoration: InputDecoration(
                         labelText: release.variantLabel,
                         prefixIcon:
                             const Icon(Icons.auto_awesome_motion_outlined),
                       ),
                     ),
-                    if (physicalFormats.isNotEmpty) ...[
+                    if (request.physicalFormats.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        initialValue: physicalFormatId,
+                        initialValue: request.physicalFormatId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Physical format',
@@ -136,18 +109,18 @@ class _ManualPane extends StatelessWidget {
                             value: '',
                             child: Text('No specific format'),
                           ),
-                          for (final format in physicalFormats)
+                          for (final format in request.physicalFormats)
                             DropdownMenuItem<String>(
                               value: format.id,
                               child: Text(format.label),
                             ),
                         ],
-                        onChanged: onPhysicalFormatChanged,
+                        onChanged: request.onPhysicalFormatChanged,
                       ),
                     ],
                     const SizedBox(height: 8),
                     TextField(
-                      controller: barcodeController,
+                      controller: request.barcodeController,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         labelText: release.barcodeLabel,
@@ -156,7 +129,7 @@ class _ManualPane extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
-                      controller: coverController,
+                      controller: request.coverController,
                       decoration: const InputDecoration(
                         labelText: 'Cover image URL',
                         prefixIcon: Icon(Icons.image_outlined),
@@ -213,7 +186,7 @@ class _ManualPane extends StatelessWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: isAdding ? null : onAddTrack,
+                            onPressed: request.isAdding ? null : request.onAddTrack,
                             style: libraryAddOutlinedButtonStyle(),
                             icon: const Icon(Icons.visibility_outlined, size: 18),
                             label: Text(
@@ -229,7 +202,8 @@ class _ManualPane extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: isAdding ? null : onAddWishlist,
+                            onPressed:
+                                request.isAdding ? null : request.onAddWishlist,
                             style: libraryAddOutlinedButtonStyle(),
                             icon: const Icon(Icons.star_outline, size: 18),
                             label: Text(
@@ -245,9 +219,9 @@ class _ManualPane extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: FilledButton.icon(
-                            onPressed: isAdding ? null : onAddOwned,
+                            onPressed: request.isAdding ? null : request.onAddOwned,
                             style: libraryAddFilledButtonStyle(),
-                            icon: isAdding
+                            icon: request.isAdding
                                 ? const SizedBox.square(
                                     dimension: 16,
                                     child: CircularProgressIndicator(

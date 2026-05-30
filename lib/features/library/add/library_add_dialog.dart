@@ -78,6 +78,59 @@ String buildPreviewCatalogItemId({
   return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
 }
 
+typedef LibraryAddManualPaneBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+);
+
+class LibraryAddManualPaneRequest {
+  const LibraryAddManualPaneRequest({
+    required this.type,
+    required this.accent,
+    required this.titleController,
+    required this.numberController,
+    required this.publisherController,
+    required this.yearController,
+    required this.barcodeController,
+    required this.variantController,
+    required this.coverController,
+    required this.physicalFormats,
+    required this.physicalFormatId,
+    required this.onPhysicalFormatChanged,
+    required this.isAdding,
+    required this.defaultCondition,
+    required this.defaultGrade,
+    required this.defaultLocationLabel,
+    required this.defaultPurchaseDate,
+    required this.defaultTags,
+    required this.onAddOwned,
+    required this.onAddWishlist,
+    required this.onAddTrack,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final TextEditingController titleController;
+  final TextEditingController numberController;
+  final TextEditingController publisherController;
+  final TextEditingController yearController;
+  final TextEditingController barcodeController;
+  final TextEditingController variantController;
+  final TextEditingController coverController;
+  final List<PhysicalMediaFormat> physicalFormats;
+  final String? physicalFormatId;
+  final ValueChanged<String?> onPhysicalFormatChanged;
+  final bool isAdding;
+  final String defaultCondition;
+  final String defaultGrade;
+  final String? defaultLocationLabel;
+  final DateTime? defaultPurchaseDate;
+  final String? defaultTags;
+  final VoidCallback onAddOwned;
+  final VoidCallback onAddWishlist;
+  final VoidCallback onAddTrack;
+}
+
 class LibraryAddDialog extends ConsumerStatefulWidget {
   const LibraryAddDialog({
     super.key,
@@ -87,6 +140,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.initialBarcode,
     this.autoLookupInitialBarcode = true,
     this.coverScanService = const LocalLibraryCoverScanService(),
+    this.manualPaneBuilder,
   });
 
   final LibraryTypeConfig type;
@@ -95,6 +149,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final String? initialBarcode;
   final bool autoLookupInitialBarcode;
   final LibraryCoverScanService coverScanService;
+  final LibraryAddManualPaneBuilder? manualPaneBuilder;
 
   @override
   ConsumerState<LibraryAddDialog> createState() => _LibraryAddDialogState();
@@ -450,8 +505,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           _handleBundleReleaseSelected(bundleReleaseId);
                         },
                       );
-                      final manualPane = _ManualPane(
+                      final manualRequest = LibraryAddManualPaneRequest(
                         type: widget.type,
+                        accent: accent,
                         titleController: _titleController,
                         numberController: _numberController,
                         publisherController: _publisherController,
@@ -463,11 +519,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         physicalFormatId: _physicalFormatId,
                         onPhysicalFormatChanged: _setPhysicalFormat,
                         isAdding: _isAdding,
+                        defaultCondition: _defaultCondition,
+                        defaultGrade: _defaultGrade,
+                        defaultLocationLabel: _defaultLocationLabel,
+                        defaultPurchaseDate: _defaultPurchaseDate,
+                        defaultTags: _defaultTags,
                         onAddOwned: () => _addManual(LibraryAddTarget.owned),
                         onAddTrack: () => _addManual(LibraryAddTarget.track),
                         onAddWishlist: () =>
                             _addManual(LibraryAddTarget.wishlist),
                       );
+                      final manualPane =
+                          widget.manualPaneBuilder?.call(context, manualRequest) ??
+                              _ManualPane(request: manualRequest);
                       if (_mode == LibraryAddDialogMode.manual) {
                         return manualPane;
                       }

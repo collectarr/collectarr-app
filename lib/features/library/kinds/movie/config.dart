@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
@@ -38,6 +39,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   metadataProviders: [
     tmdbMetadataProvider,
   ],
+  addDialogLauncher: showMovieLibraryAddDialog,
   trackingProfile: videoTrackingProfile,
   editDialogBuilder: buildVideoLibraryEditDialog,
   detailPageBuilder: buildVideoLibraryDetailPage,

@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -1027,6 +1028,94 @@ void main() {
     expect(find.text('Studio'), findsOneWidget);
     expect(find.text('Format / Edition'), findsOneWidget);
     expect(find.text('UPC / Barcode'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses comic-specific manual add flow',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open comic add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic add'));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Manual comic issue'), findsOneWidget);
+    expect(find.text('Collection defaults'), findsOneWidget);
+    expect(find.text('Series / Title'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses movie-specific manual add flow',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: moviesLibraryConfig,
+                  );
+                },
+                child: const Text('Open movie add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie add'));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Manual movie setup'), findsOneWidget);
+    expect(find.text('Poster / cover URL'), findsOneWidget);
+    expect(find.text('Release year'), findsOneWidget);
   });
 
   testWidgets('core search results explain why a movie matched', (
