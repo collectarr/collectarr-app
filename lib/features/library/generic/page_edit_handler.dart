@@ -87,22 +87,6 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         context: context,
         request: baseRequest,
         requestLoader: () async {
-          final bundleReleasesFuture = (() async {
-            try {
-              return await ref
-                  .read(apiClientProvider)
-                  .getItemBundleReleases(catalogItem.id);
-            } catch (error, stackTrace) {
-              logRecoverableError(
-                source: 'library_page',
-                message:
-                    'Failed to load bundle releases while opening edit dialog for ${catalogItem.id}.',
-                error: error,
-                stackTrace: stackTrace,
-              );
-              return const <BundleReleaseSummary>[];
-            }
-          })();
           final definitionsFuture = customFieldRepo.listDefinitions(
             mediaKind: widget.type.workspace.kind.apiValue,
           );
@@ -116,7 +100,6 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
           final definitions = await definitionsFuture;
           final cfValues = await cfValuesFuture;
           final images = await imagesFuture;
-          final availableBundleReleases = await bundleReleasesFuture;
 
           return LibraryEditDialogRequest(
             type: baseRequest.type,
@@ -126,7 +109,6 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
             trackingEntry: baseRequest.trackingEntry,
             accent: baseRequest.accent,
             physicalFormats: baseRequest.physicalFormats,
-            availableBundleReleases: availableBundleReleases,
             customFieldDefinitions: definitions,
             customFieldValues: cfValues,
             itemImages: images,

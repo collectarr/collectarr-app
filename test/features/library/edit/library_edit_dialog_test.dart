@@ -739,6 +739,75 @@ void main() {
     expect(selection?.tracking?.variantId, isNull);
   });
 
+  testWidgets(
+      'generic edit dialog preserves existing bundle anchor without bundle summaries',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-bundle-existing-1',
+        kind: 'movie',
+        title: 'Alien',
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-bundle-existing-1',
+      itemId: 'movie-bundle-existing-1',
+      anchorType: 'bundle_release',
+      bundleReleaseId: 'bundle-existing-1',
+      updatedAt: DateTime.utc(2026, 5, 31),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.orange,
+                    ),
+                  );
+                },
+                child: const Text('Open existing bundle'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open existing bundle'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Edition'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Bundle release'), findsOneWidget);
+    expect(find.text('Current bundle release'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(selection?.personal?.anchorType, 'bundle_release');
+    expect(selection?.personal?.bundleReleaseId, 'bundle-existing-1');
+  });
+
   testWidgets('generic edit dialog hides physical-only owned fields for digital items',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 860);

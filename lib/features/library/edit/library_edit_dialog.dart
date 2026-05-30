@@ -217,6 +217,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     return _selectedOwnedAnchorType != PersonalItemAnchorType.item.apiValue;
   }
 
+  bool get _hasBundleAnchorContext {
+    return widget.availableBundleReleases.isNotEmpty ||
+        widget.ownedItem?.bundleReleaseId != null ||
+        widget.wishlistItem?.bundleReleaseId != null ||
+        _selectedBundleReleaseId != null ||
+        _selectedWishlistBundleReleaseId != null;
+  }
+
   /// Release-level fields (edition title, variant, barcode, physical format)
   /// are visible when editing a catalog-only item or when the ownership
   /// anchor targets a specific release rather than the abstract media work.
@@ -234,7 +242,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       isDigitalFormat: _isDigitalFormat,
       hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
       hasEditionAnchors: widget.item.editions.isNotEmpty,
-      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+      hasBundleReleaseAnchors: _hasBundleAnchorContext,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
     );
   }
@@ -248,7 +256,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       isDigitalFormat: false,
       hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
       hasEditionAnchors: widget.item.editions.isNotEmpty,
-      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty ||
+          widget.ownedItem?.bundleReleaseId != null ||
+          widget.wishlistItem?.bundleReleaseId != null,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
     );
   }
@@ -3335,7 +3345,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: label,
       value: value,
       editionAvailable: widget.item.editions.isNotEmpty,
-      bundleAvailable: widget.availableBundleReleases.isNotEmpty,
+      bundleAvailable: widget.availableBundleReleases.isNotEmpty ||
+          value == PersonalItemAnchorType.bundleRelease.apiValue,
       onChanged: onChanged,
     );
   }
