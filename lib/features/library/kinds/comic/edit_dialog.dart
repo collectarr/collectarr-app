@@ -100,6 +100,9 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                       final parsedReleaseDate = parseDate(
                         map['releaseDate'] ?? '',
                       );
+                      final parsedCoverDate = parseDate(
+                        map['coverDate'] ?? '',
+                      );
                       final seriesTitle = emptyToNull(map['series'] ?? '');
                       final updatedPublishing = CatalogPublishingDetails(
                         pageCount: parseInt(map['pages'] as String? ?? ''),
@@ -154,9 +157,10 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                         titleExtension: emptyToNull(map['subtitle'] ?? ''),
                         itemNumber: emptyToNull(map['issueNumber'] ?? ''),
                         synopsis: emptyToNull(
-                          (map['summary'] as String?) ??
-                              (map['description'] as String?) ??
-                              '',
+                          ((map['description'] as String?)?.trim().isNotEmpty ??
+                                  false)
+                              ? (map['description'] as String? ?? '')
+                              : (map['summary'] as String? ?? ''),
                         ),
                         coverImageUrl: emptyToNull(map['coverUrl'] ?? ''),
                         thumbnailImageUrl: emptyToNull(map['coverUrl'] ?? ''),
@@ -186,6 +190,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                                     const [],
                               ),
                         publisher: emptyToNull(map['publisher'] ?? ''),
+                        coverDate: parsedCoverDate,
                         releaseDate: parsedReleaseDate,
                         releaseYear: parsedReleaseDate?.year ??
                             widget.request.item.releaseYear,
@@ -241,11 +246,19 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                                   emptyToNull(map['graderNotes'] ?? ''),
                               signedBy: emptyToNull(map['signedBy'] ?? ''),
                               labelType: emptyToNull(map['labelType'] ?? ''),
+                              customLabel:
+                                  emptyToNull(map['customLabel'] ?? ''),
+                              pageQuality:
+                                  emptyToNull(map['pageQuality'] ?? ''),
                               certificationNumber: emptyToNull(
                                 map['certificationNumber'] ?? '',
                               ),
                               keyComic: map['keyComic'] == true,
                               keyReason: emptyToNull(map['keyReason'] ?? ''),
+                              keyCategory:
+                                  emptyToNull(map['keyCategory'] ?? ''),
+                              keySeverity:
+                                  emptyToNull(map['keySeverity'] ?? ''),
                               coverPriceCents: parseMoneyCents(
                                 map['coverPrice'] ?? '',
                               ),
@@ -274,7 +287,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                               rating: parseInt(map['rating'] ?? ''),
                               readStatus: emptyToNull(map['status'] ?? ''),
                               finishedAt: parseDate(map['readDate'] ?? ''),
-                              notes: emptyToNull(map['notes'] ?? ''),
+                              notes: widget.request.trackingEntry?.notes,
                             );
 
                       final customFieldEdits = Map<String, String?>.from(

@@ -71,7 +71,9 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
     );
     final bundleReleasesFuture = (() async {
       try {
-        return await ref.read(apiClientProvider).getItemBundleReleases(catalogItem.id);
+        return await ref
+            .read(apiClientProvider)
+            .getItemBundleReleases(catalogItem.id);
       } catch (error, stackTrace) {
         logRecoverableError(
           source: 'library_page',
@@ -183,9 +185,13 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         graderNotes: personal.graderNotes,
         signedBy: personal.signedBy,
         labelType: personal.labelType,
+        customLabel: personal.customLabel,
+        pageQuality: personal.pageQuality,
         certificationNumber: personal.certificationNumber,
         keyComic: personal.keyComic,
         keyReason: personal.keyReason,
+        keyCategory: personal.keyCategory,
+        keySeverity: personal.keySeverity,
         rating: result.tracking?.rating,
         readStatus: result.tracking?.readStatus,
         startedAt: result.tracking?.startedAt,
@@ -218,19 +224,19 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         rating: result.tracking?.rating,
         startedAt: result.tracking?.startedAt,
         finishedAt: result.tracking?.finishedAt,
-        progressCurrent:
-          result.tracking?.progressCurrent ?? activeTrackingEntry?.progressCurrent,
-        progressTotal:
-          result.tracking?.progressTotal ?? activeTrackingEntry?.progressTotal,
-        timesCompleted:
-          result.tracking?.timesCompleted ?? activeTrackingEntry?.timesCompleted,
+        progressCurrent: result.tracking?.progressCurrent ??
+            activeTrackingEntry?.progressCurrent,
+        progressTotal: result.tracking?.progressTotal ??
+            activeTrackingEntry?.progressTotal,
+        timesCompleted: result.tracking?.timesCompleted ??
+            activeTrackingEntry?.timesCompleted,
         notes: result.tracking?.notes ?? activeTrackingEntry?.notes,
         seasonNumber:
-          result.tracking?.seasonNumber ?? activeTrackingEntry?.seasonNumber,
-        episodeNumber:
-          result.tracking?.episodeNumber ?? activeTrackingEntry?.episodeNumber,
-        episodeRatings:
-          result.tracking?.episodeRatings ?? activeTrackingEntry?.episodeRatings,
+            result.tracking?.seasonNumber ?? activeTrackingEntry?.seasonNumber,
+        episodeNumber: result.tracking?.episodeNumber ??
+            activeTrackingEntry?.episodeNumber,
+        episodeRatings: result.tracking?.episodeRatings ??
+            activeTrackingEntry?.episodeRatings,
       );
       // Save custom field values
       final now = DateTime.now();
@@ -275,7 +281,9 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         notify: false,
       );
     }
-    if (owned == null && activeTrackingEntry != null && result.tracking != null) {
+    if (owned == null &&
+        activeTrackingEntry != null &&
+        result.tracking != null) {
       await mutations.upsertTrackingEntry(
         catalogItem.id,
         editionId: result.tracking!.editionId,
@@ -285,17 +293,17 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         rating: result.tracking!.rating,
         startedAt: result.tracking!.startedAt,
         finishedAt: result.tracking!.finishedAt,
-        progressCurrent:
-          result.tracking!.progressCurrent ?? activeTrackingEntry.progressCurrent,
+        progressCurrent: result.tracking!.progressCurrent ??
+            activeTrackingEntry.progressCurrent,
         progressTotal:
-          result.tracking!.progressTotal ?? activeTrackingEntry.progressTotal,
-        timesCompleted:
-          result.tracking!.timesCompleted ?? activeTrackingEntry.timesCompleted,
+            result.tracking!.progressTotal ?? activeTrackingEntry.progressTotal,
+        timesCompleted: result.tracking!.timesCompleted ??
+            activeTrackingEntry.timesCompleted,
         notes: result.tracking!.notes ?? activeTrackingEntry.notes,
         seasonNumber:
-          result.tracking!.seasonNumber ?? activeTrackingEntry.seasonNumber,
+            result.tracking!.seasonNumber ?? activeTrackingEntry.seasonNumber,
         episodeNumber:
-          result.tracking!.episodeNumber ?? activeTrackingEntry.episodeNumber,
+            result.tracking!.episodeNumber ?? activeTrackingEntry.episodeNumber,
         notify: false,
       );
     }
@@ -343,14 +351,16 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selected = items.where((item) => item.entry.id == selectedReleaseId).firstOrNull ??
-        (items.isEmpty ? null : items.first);
+    final selected =
+        items.where((item) => item.entry.id == selectedReleaseId).firstOrNull ??
+            (items.isEmpty ? null : items.first);
     return Column(
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
             color: kAppPanel,
-            border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.28))),
+            border: Border(
+                bottom: BorderSide(color: accent.withValues(alpha: 0.28))),
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -368,10 +378,11 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                     children: [
                       Text(
                         'Shelf releases',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: appPalette(context).textPrimary,
-                              fontWeight: FontWeight.w800,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: appPalette(context).textPrimary,
+                                  fontWeight: FontWeight.w800,
+                                ),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -419,7 +430,10 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                           Text(
                             'No release-specific copies or wishlist entries are anchored in your shelf for this title yet.',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
                                   color: appPalette(context).textPrimary,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -428,7 +442,10 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                           Text(
                             'Use Search releases in Core to refresh editions, or add a release-specific copy or wishlist entry from the detail browser.',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
                                   color: appPalette(context).textMuted,
                                 ),
                           ),
@@ -446,23 +463,27 @@ class _VideoShelfReleaseDrilldown extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             '${selected.entry.variant ?? selected.entry.title} · ${selected.ownedCount} copies · ${selected.wishlistCount} wishlist · ${selected.sourceLabel}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: appPalette(context).textMuted,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: appPalette(context).textMuted,
+                                    ),
                           ),
                         ),
                       ),
                     Expanded(
-                      child: LibraryWorkspaceGrid<_VideoShelfReleaseDrilldownItem>(
+                      child:
+                          LibraryWorkspaceGrid<_VideoShelfReleaseDrilldownItem>(
                         items: items,
                         emptyBuilder: (_) => const SizedBox.shrink(),
                         maxCrossAxisExtent: 430,
-                        mainAxisExtent: (coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+                        mainAxisExtent:
+                            (coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
                         backgroundColor: kAppGridCanvas,
                         itemBuilder: (context, item) => LibraryWorkspaceCard(
                           key: ValueKey(item.entry.id),
                           entry: item.entry,
-                          selected: item.entry.id == (selected?.entry.id ?? selectedReleaseId),
+                          selected: item.entry.id ==
+                              (selected?.entry.id ?? selectedReleaseId),
                           onTap: () => onSelectRelease(item.entry.id),
                           dateFormatter: formatDate,
                           moneyFormatter: formatMoney,

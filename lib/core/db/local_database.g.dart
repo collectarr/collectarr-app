@@ -78,6 +78,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
       'publisher', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverDateMeta =
+      const VerificationMeta('coverDate');
+  @override
+  late final GeneratedColumn<DateTime> coverDate = GeneratedColumn<DateTime>(
+      'cover_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _releaseDateMeta =
       const VerificationMeta('releaseDate');
   @override
@@ -336,6 +342,7 @@ class $CatalogCacheTable extends CatalogCache
         physicalFormat,
         physicalFormatLabel,
         publisher,
+        coverDate,
         releaseDate,
         releaseYear,
         barcode,
@@ -452,6 +459,10 @@ class $CatalogCacheTable extends CatalogCache
     if (data.containsKey('publisher')) {
       context.handle(_publisherMeta,
           publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('cover_date')) {
+      context.handle(_coverDateMeta,
+          coverDate.isAcceptableOrUnknown(data['cover_date']!, _coverDateMeta));
     }
     if (data.containsKey('release_date')) {
       context.handle(
@@ -708,6 +719,8 @@ class $CatalogCacheTable extends CatalogCache
           DriftSqlType.string, data['${effectivePrefix}physical_format_label']),
       publisher: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      coverDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}cover_date']),
       releaseDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
       releaseYear: attachedDatabase.typeMapping
@@ -813,6 +826,7 @@ class CatalogCacheData extends DataClass
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final DateTime? coverDate;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? barcode;
@@ -867,6 +881,7 @@ class CatalogCacheData extends DataClass
       this.physicalFormat,
       this.physicalFormatLabel,
       this.publisher,
+      this.coverDate,
       this.releaseDate,
       this.releaseYear,
       this.barcode,
@@ -940,6 +955,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || publisher != null) {
       map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || coverDate != null) {
+      map['cover_date'] = Variable<DateTime>(coverDate);
     }
     if (!nullToAbsent || releaseDate != null) {
       map['release_date'] = Variable<DateTime>(releaseDate);
@@ -1097,6 +1115,9 @@ class CatalogCacheData extends DataClass
       publisher: publisher == null && nullToAbsent
           ? const Value.absent()
           : Value(publisher),
+      coverDate: coverDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverDate),
       releaseDate: releaseDate == null && nullToAbsent
           ? const Value.absent()
           : Value(releaseDate),
@@ -1237,6 +1258,7 @@ class CatalogCacheData extends DataClass
       physicalFormatLabel:
           serializer.fromJson<String?>(json['physicalFormatLabel']),
       publisher: serializer.fromJson<String?>(json['publisher']),
+      coverDate: serializer.fromJson<DateTime?>(json['coverDate']),
       releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
       releaseYear: serializer.fromJson<int?>(json['releaseYear']),
       barcode: serializer.fromJson<String?>(json['barcode']),
@@ -1296,6 +1318,7 @@ class CatalogCacheData extends DataClass
       'physicalFormat': serializer.toJson<String?>(physicalFormat),
       'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
       'publisher': serializer.toJson<String?>(publisher),
+      'coverDate': serializer.toJson<DateTime?>(coverDate),
       'releaseDate': serializer.toJson<DateTime?>(releaseDate),
       'releaseYear': serializer.toJson<int?>(releaseYear),
       'barcode': serializer.toJson<String?>(barcode),
@@ -1353,6 +1376,7 @@ class CatalogCacheData extends DataClass
           Value<String?> physicalFormat = const Value.absent(),
           Value<String?> physicalFormatLabel = const Value.absent(),
           Value<String?> publisher = const Value.absent(),
+          Value<DateTime?> coverDate = const Value.absent(),
           Value<DateTime?> releaseDate = const Value.absent(),
           Value<int?> releaseYear = const Value.absent(),
           Value<String?> barcode = const Value.absent(),
@@ -1414,6 +1438,7 @@ class CatalogCacheData extends DataClass
             ? physicalFormatLabel.value
             : this.physicalFormatLabel,
         publisher: publisher.present ? publisher.value : this.publisher,
+        coverDate: coverDate.present ? coverDate.value : this.coverDate,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
         releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
         barcode: barcode.present ? barcode.value : this.barcode,
@@ -1505,6 +1530,7 @@ class CatalogCacheData extends DataClass
           ? data.physicalFormatLabel.value
           : this.physicalFormatLabel,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      coverDate: data.coverDate.present ? data.coverDate.value : this.coverDate,
       releaseDate:
           data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
       releaseYear:
@@ -1611,6 +1637,7 @@ class CatalogCacheData extends DataClass
           ..write('physicalFormat: $physicalFormat, ')
           ..write('physicalFormatLabel: $physicalFormatLabel, ')
           ..write('publisher: $publisher, ')
+          ..write('coverDate: $coverDate, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('releaseYear: $releaseYear, ')
           ..write('barcode: $barcode, ')
@@ -1670,6 +1697,7 @@ class CatalogCacheData extends DataClass
         physicalFormat,
         physicalFormatLabel,
         publisher,
+        coverDate,
         releaseDate,
         releaseYear,
         barcode,
@@ -1728,6 +1756,7 @@ class CatalogCacheData extends DataClass
           other.physicalFormat == this.physicalFormat &&
           other.physicalFormatLabel == this.physicalFormatLabel &&
           other.publisher == this.publisher &&
+          other.coverDate == this.coverDate &&
           other.releaseDate == this.releaseDate &&
           other.releaseYear == this.releaseYear &&
           other.barcode == this.barcode &&
@@ -1784,6 +1813,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> physicalFormat;
   final Value<String?> physicalFormatLabel;
   final Value<String?> publisher;
+  final Value<DateTime?> coverDate;
   final Value<DateTime?> releaseDate;
   final Value<int?> releaseYear;
   final Value<String?> barcode;
@@ -1839,6 +1869,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.physicalFormat = const Value.absent(),
     this.physicalFormatLabel = const Value.absent(),
     this.publisher = const Value.absent(),
+    this.coverDate = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.releaseYear = const Value.absent(),
     this.barcode = const Value.absent(),
@@ -1895,6 +1926,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.physicalFormat = const Value.absent(),
     this.physicalFormatLabel = const Value.absent(),
     this.publisher = const Value.absent(),
+    this.coverDate = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.releaseYear = const Value.absent(),
     this.barcode = const Value.absent(),
@@ -1954,6 +1986,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? physicalFormat,
     Expression<String>? physicalFormatLabel,
     Expression<String>? publisher,
+    Expression<DateTime>? coverDate,
     Expression<DateTime>? releaseDate,
     Expression<int>? releaseYear,
     Expression<String>? barcode,
@@ -2011,6 +2044,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
       if (publisher != null) 'publisher': publisher,
+      if (coverDate != null) 'cover_date': coverDate,
       if (releaseDate != null) 'release_date': releaseDate,
       if (releaseYear != null) 'release_year': releaseYear,
       if (barcode != null) 'barcode': barcode,
@@ -2069,6 +2103,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? physicalFormat,
       Value<String?>? physicalFormatLabel,
       Value<String?>? publisher,
+      Value<DateTime?>? coverDate,
       Value<DateTime?>? releaseDate,
       Value<int?>? releaseYear,
       Value<String?>? barcode,
@@ -2124,6 +2159,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       physicalFormat: physicalFormat ?? this.physicalFormat,
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
+      coverDate: coverDate ?? this.coverDate,
       releaseDate: releaseDate ?? this.releaseDate,
       releaseYear: releaseYear ?? this.releaseYear,
       barcode: barcode ?? this.barcode,
@@ -2208,6 +2244,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (publisher.present) {
       map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (coverDate.present) {
+      map['cover_date'] = Variable<DateTime>(coverDate.value);
     }
     if (releaseDate.present) {
       map['release_date'] = Variable<DateTime>(releaseDate.value);
@@ -2353,6 +2392,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('physicalFormat: $physicalFormat, ')
           ..write('physicalFormatLabel: $physicalFormatLabel, ')
           ..write('publisher: $publisher, ')
+          ..write('coverDate: $coverDate, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('releaseYear: $releaseYear, ')
           ..write('barcode: $barcode, ')
@@ -2546,6 +2586,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> labelType = GeneratedColumn<String>(
       'label_type', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _customLabelMeta =
+      const VerificationMeta('customLabel');
+  @override
+  late final GeneratedColumn<String> customLabel = GeneratedColumn<String>(
+      'custom_label', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pageQualityMeta =
+      const VerificationMeta('pageQuality');
+  @override
+  late final GeneratedColumn<String> pageQuality = GeneratedColumn<String>(
+      'page_quality', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _certificationNumberMeta =
       const VerificationMeta('certificationNumber');
   @override
@@ -2567,6 +2619,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   @override
   late final GeneratedColumn<String> keyReason = GeneratedColumn<String>(
       'key_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keyCategoryMeta =
+      const VerificationMeta('keyCategory');
+  @override
+  late final GeneratedColumn<String> keyCategory = GeneratedColumn<String>(
+      'key_category', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keySeverityMeta =
+      const VerificationMeta('keySeverity');
+  @override
+  late final GeneratedColumn<String> keySeverity = GeneratedColumn<String>(
+      'key_severity', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
   @override
@@ -2744,9 +2808,13 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         graderNotes,
         signedBy,
         labelType,
+        customLabel,
+        pageQuality,
         certificationNumber,
         keyComic,
         keyReason,
+        keyCategory,
+        keySeverity,
         rating,
         readStatus,
         startedAt,
@@ -2902,6 +2970,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
       context.handle(_labelTypeMeta,
           labelType.isAcceptableOrUnknown(data['label_type']!, _labelTypeMeta));
     }
+    if (data.containsKey('custom_label')) {
+      context.handle(
+          _customLabelMeta,
+          customLabel.isAcceptableOrUnknown(
+              data['custom_label']!, _customLabelMeta));
+    }
+    if (data.containsKey('page_quality')) {
+      context.handle(
+          _pageQualityMeta,
+          pageQuality.isAcceptableOrUnknown(
+              data['page_quality']!, _pageQualityMeta));
+    }
     if (data.containsKey('certification_number')) {
       context.handle(
           _certificationNumberMeta,
@@ -2915,6 +2995,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     if (data.containsKey('key_reason')) {
       context.handle(_keyReasonMeta,
           keyReason.isAcceptableOrUnknown(data['key_reason']!, _keyReasonMeta));
+    }
+    if (data.containsKey('key_category')) {
+      context.handle(
+          _keyCategoryMeta,
+          keyCategory.isAcceptableOrUnknown(
+              data['key_category']!, _keyCategoryMeta));
+    }
+    if (data.containsKey('key_severity')) {
+      context.handle(
+          _keySeverityMeta,
+          keySeverity.isAcceptableOrUnknown(
+              data['key_severity']!, _keySeverityMeta));
     }
     if (data.containsKey('rating')) {
       context.handle(_ratingMeta,
@@ -3107,12 +3199,20 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
       labelType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}label_type']),
+      customLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}custom_label']),
+      pageQuality: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}page_quality']),
       certificationNumber: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}certification_number']),
       keyComic: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
       keyReason: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}key_reason']),
+      keyCategory: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_category']),
+      keySeverity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_severity']),
       rating: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rating']),
       readStatus: attachedDatabase.typeMapping
@@ -3199,9 +3299,13 @@ class OwnedItemsCacheData extends DataClass
   final String? graderNotes;
   final String? signedBy;
   final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
   final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
+  final String? keyCategory;
+  final String? keySeverity;
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;
@@ -3252,9 +3356,13 @@ class OwnedItemsCacheData extends DataClass
       this.graderNotes,
       this.signedBy,
       this.labelType,
+      this.customLabel,
+      this.pageQuality,
       this.certificationNumber,
       required this.keyComic,
       this.keyReason,
+      this.keyCategory,
+      this.keySeverity,
       this.rating,
       this.readStatus,
       this.startedAt,
@@ -3347,12 +3455,24 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || labelType != null) {
       map['label_type'] = Variable<String>(labelType);
     }
+    if (!nullToAbsent || customLabel != null) {
+      map['custom_label'] = Variable<String>(customLabel);
+    }
+    if (!nullToAbsent || pageQuality != null) {
+      map['page_quality'] = Variable<String>(pageQuality);
+    }
     if (!nullToAbsent || certificationNumber != null) {
       map['certification_number'] = Variable<String>(certificationNumber);
     }
     map['key_comic'] = Variable<bool>(keyComic);
     if (!nullToAbsent || keyReason != null) {
       map['key_reason'] = Variable<String>(keyReason);
+    }
+    if (!nullToAbsent || keyCategory != null) {
+      map['key_category'] = Variable<String>(keyCategory);
+    }
+    if (!nullToAbsent || keySeverity != null) {
+      map['key_severity'] = Variable<String>(keySeverity);
     }
     if (!nullToAbsent || rating != null) {
       map['rating'] = Variable<int>(rating);
@@ -3497,6 +3617,12 @@ class OwnedItemsCacheData extends DataClass
       labelType: labelType == null && nullToAbsent
           ? const Value.absent()
           : Value(labelType),
+      customLabel: customLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customLabel),
+      pageQuality: pageQuality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageQuality),
       certificationNumber: certificationNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(certificationNumber),
@@ -3504,6 +3630,12 @@ class OwnedItemsCacheData extends DataClass
       keyReason: keyReason == null && nullToAbsent
           ? const Value.absent()
           : Value(keyReason),
+      keyCategory: keyCategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyCategory),
+      keySeverity: keySeverity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keySeverity),
       rating:
           rating == null && nullToAbsent ? const Value.absent() : Value(rating),
       readStatus: readStatus == null && nullToAbsent
@@ -3604,10 +3736,14 @@ class OwnedItemsCacheData extends DataClass
       graderNotes: serializer.fromJson<String?>(json['graderNotes']),
       signedBy: serializer.fromJson<String?>(json['signedBy']),
       labelType: serializer.fromJson<String?>(json['labelType']),
+      customLabel: serializer.fromJson<String?>(json['customLabel']),
+      pageQuality: serializer.fromJson<String?>(json['pageQuality']),
       certificationNumber:
           serializer.fromJson<String?>(json['certificationNumber']),
       keyComic: serializer.fromJson<bool>(json['keyComic']),
       keyReason: serializer.fromJson<String?>(json['keyReason']),
+      keyCategory: serializer.fromJson<String?>(json['keyCategory']),
+      keySeverity: serializer.fromJson<String?>(json['keySeverity']),
       rating: serializer.fromJson<int?>(json['rating']),
       readStatus: serializer.fromJson<String?>(json['readStatus']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
@@ -3664,9 +3800,13 @@ class OwnedItemsCacheData extends DataClass
       'graderNotes': serializer.toJson<String?>(graderNotes),
       'signedBy': serializer.toJson<String?>(signedBy),
       'labelType': serializer.toJson<String?>(labelType),
+      'customLabel': serializer.toJson<String?>(customLabel),
+      'pageQuality': serializer.toJson<String?>(pageQuality),
       'certificationNumber': serializer.toJson<String?>(certificationNumber),
       'keyComic': serializer.toJson<bool>(keyComic),
       'keyReason': serializer.toJson<String?>(keyReason),
+      'keyCategory': serializer.toJson<String?>(keyCategory),
+      'keySeverity': serializer.toJson<String?>(keySeverity),
       'rating': serializer.toJson<int?>(rating),
       'readStatus': serializer.toJson<String?>(readStatus),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
@@ -3720,9 +3860,13 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> graderNotes = const Value.absent(),
           Value<String?> signedBy = const Value.absent(),
           Value<String?> labelType = const Value.absent(),
+          Value<String?> customLabel = const Value.absent(),
+          Value<String?> pageQuality = const Value.absent(),
           Value<String?> certificationNumber = const Value.absent(),
           bool? keyComic,
           Value<String?> keyReason = const Value.absent(),
+          Value<String?> keyCategory = const Value.absent(),
+          Value<String?> keySeverity = const Value.absent(),
           Value<int?> rating = const Value.absent(),
           Value<String?> readStatus = const Value.absent(),
           Value<DateTime?> startedAt = const Value.absent(),
@@ -3782,11 +3926,15 @@ class OwnedItemsCacheData extends DataClass
         graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
         signedBy: signedBy.present ? signedBy.value : this.signedBy,
         labelType: labelType.present ? labelType.value : this.labelType,
+        customLabel: customLabel.present ? customLabel.value : this.customLabel,
+        pageQuality: pageQuality.present ? pageQuality.value : this.pageQuality,
         certificationNumber: certificationNumber.present
             ? certificationNumber.value
             : this.certificationNumber,
         keyComic: keyComic ?? this.keyComic,
         keyReason: keyReason.present ? keyReason.value : this.keyReason,
+        keyCategory: keyCategory.present ? keyCategory.value : this.keyCategory,
+        keySeverity: keySeverity.present ? keySeverity.value : this.keySeverity,
         rating: rating.present ? rating.value : this.rating,
         readStatus: readStatus.present ? readStatus.value : this.readStatus,
         startedAt: startedAt.present ? startedAt.value : this.startedAt,
@@ -3867,11 +4015,19 @@ class OwnedItemsCacheData extends DataClass
           data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
       signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
       labelType: data.labelType.present ? data.labelType.value : this.labelType,
+      customLabel:
+          data.customLabel.present ? data.customLabel.value : this.customLabel,
+      pageQuality:
+          data.pageQuality.present ? data.pageQuality.value : this.pageQuality,
       certificationNumber: data.certificationNumber.present
           ? data.certificationNumber.value
           : this.certificationNumber,
       keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
       keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
+      keyCategory:
+          data.keyCategory.present ? data.keyCategory.value : this.keyCategory,
+      keySeverity:
+          data.keySeverity.present ? data.keySeverity.value : this.keySeverity,
       rating: data.rating.present ? data.rating.value : this.rating,
       readStatus:
           data.readStatus.present ? data.readStatus.value : this.readStatus,
@@ -3949,9 +4105,13 @@ class OwnedItemsCacheData extends DataClass
           ..write('graderNotes: $graderNotes, ')
           ..write('signedBy: $signedBy, ')
           ..write('labelType: $labelType, ')
+          ..write('customLabel: $customLabel, ')
+          ..write('pageQuality: $pageQuality, ')
           ..write('certificationNumber: $certificationNumber, ')
           ..write('keyComic: $keyComic, ')
           ..write('keyReason: $keyReason, ')
+          ..write('keyCategory: $keyCategory, ')
+          ..write('keySeverity: $keySeverity, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
           ..write('startedAt: $startedAt, ')
@@ -4007,9 +4167,13 @@ class OwnedItemsCacheData extends DataClass
         graderNotes,
         signedBy,
         labelType,
+        customLabel,
+        pageQuality,
         certificationNumber,
         keyComic,
         keyReason,
+        keyCategory,
+        keySeverity,
         rating,
         readStatus,
         startedAt,
@@ -4064,9 +4228,13 @@ class OwnedItemsCacheData extends DataClass
           other.graderNotes == this.graderNotes &&
           other.signedBy == this.signedBy &&
           other.labelType == this.labelType &&
+          other.customLabel == this.customLabel &&
+          other.pageQuality == this.pageQuality &&
           other.certificationNumber == this.certificationNumber &&
           other.keyComic == this.keyComic &&
           other.keyReason == this.keyReason &&
+          other.keyCategory == this.keyCategory &&
+          other.keySeverity == this.keySeverity &&
           other.rating == this.rating &&
           other.readStatus == this.readStatus &&
           other.startedAt == this.startedAt &&
@@ -4119,9 +4287,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> graderNotes;
   final Value<String?> signedBy;
   final Value<String?> labelType;
+  final Value<String?> customLabel;
+  final Value<String?> pageQuality;
   final Value<String?> certificationNumber;
   final Value<bool> keyComic;
   final Value<String?> keyReason;
+  final Value<String?> keyCategory;
+  final Value<String?> keySeverity;
   final Value<int?> rating;
   final Value<String?> readStatus;
   final Value<DateTime?> startedAt;
@@ -4173,9 +4345,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.graderNotes = const Value.absent(),
     this.signedBy = const Value.absent(),
     this.labelType = const Value.absent(),
+    this.customLabel = const Value.absent(),
+    this.pageQuality = const Value.absent(),
     this.certificationNumber = const Value.absent(),
     this.keyComic = const Value.absent(),
     this.keyReason = const Value.absent(),
+    this.keyCategory = const Value.absent(),
+    this.keySeverity = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -4228,9 +4404,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.graderNotes = const Value.absent(),
     this.signedBy = const Value.absent(),
     this.labelType = const Value.absent(),
+    this.customLabel = const Value.absent(),
+    this.pageQuality = const Value.absent(),
     this.certificationNumber = const Value.absent(),
     this.keyComic = const Value.absent(),
     this.keyReason = const Value.absent(),
+    this.keyCategory = const Value.absent(),
+    this.keySeverity = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -4285,9 +4465,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? graderNotes,
     Expression<String>? signedBy,
     Expression<String>? labelType,
+    Expression<String>? customLabel,
+    Expression<String>? pageQuality,
     Expression<String>? certificationNumber,
     Expression<bool>? keyComic,
     Expression<String>? keyReason,
+    Expression<String>? keyCategory,
+    Expression<String>? keySeverity,
     Expression<int>? rating,
     Expression<String>? readStatus,
     Expression<DateTime>? startedAt,
@@ -4340,10 +4524,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (graderNotes != null) 'grader_notes': graderNotes,
       if (signedBy != null) 'signed_by': signedBy,
       if (labelType != null) 'label_type': labelType,
+      if (customLabel != null) 'custom_label': customLabel,
+      if (pageQuality != null) 'page_quality': pageQuality,
       if (certificationNumber != null)
         'certification_number': certificationNumber,
       if (keyComic != null) 'key_comic': keyComic,
       if (keyReason != null) 'key_reason': keyReason,
+      if (keyCategory != null) 'key_category': keyCategory,
+      if (keySeverity != null) 'key_severity': keySeverity,
       if (rating != null) 'rating': rating,
       if (readStatus != null) 'read_status': readStatus,
       if (startedAt != null) 'started_at': startedAt,
@@ -4398,9 +4586,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? graderNotes,
       Value<String?>? signedBy,
       Value<String?>? labelType,
+      Value<String?>? customLabel,
+      Value<String?>? pageQuality,
       Value<String?>? certificationNumber,
       Value<bool>? keyComic,
       Value<String?>? keyReason,
+      Value<String?>? keyCategory,
+      Value<String?>? keySeverity,
       Value<int?>? rating,
       Value<String?>? readStatus,
       Value<DateTime?>? startedAt,
@@ -4452,9 +4644,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
       labelType: labelType ?? this.labelType,
+      customLabel: customLabel ?? this.customLabel,
+      pageQuality: pageQuality ?? this.pageQuality,
       certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
+      keyCategory: keyCategory ?? this.keyCategory,
+      keySeverity: keySeverity ?? this.keySeverity,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       startedAt: startedAt ?? this.startedAt,
@@ -4557,6 +4753,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (labelType.present) {
       map['label_type'] = Variable<String>(labelType.value);
     }
+    if (customLabel.present) {
+      map['custom_label'] = Variable<String>(customLabel.value);
+    }
+    if (pageQuality.present) {
+      map['page_quality'] = Variable<String>(pageQuality.value);
+    }
     if (certificationNumber.present) {
       map['certification_number'] = Variable<String>(certificationNumber.value);
     }
@@ -4565,6 +4767,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (keyReason.present) {
       map['key_reason'] = Variable<String>(keyReason.value);
+    }
+    if (keyCategory.present) {
+      map['key_category'] = Variable<String>(keyCategory.value);
+    }
+    if (keySeverity.present) {
+      map['key_severity'] = Variable<String>(keySeverity.value);
     }
     if (rating.present) {
       map['rating'] = Variable<int>(rating.value);
@@ -4676,9 +4884,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('graderNotes: $graderNotes, ')
           ..write('signedBy: $signedBy, ')
           ..write('labelType: $labelType, ')
+          ..write('customLabel: $customLabel, ')
+          ..write('pageQuality: $pageQuality, ')
           ..write('certificationNumber: $certificationNumber, ')
           ..write('keyComic: $keyComic, ')
           ..write('keyReason: $keyReason, ')
+          ..write('keyCategory: $keyCategory, ')
+          ..write('keySeverity: $keySeverity, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
           ..write('startedAt: $startedAt, ')
@@ -12425,6 +12637,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> physicalFormat,
   Value<String?> physicalFormatLabel,
   Value<String?> publisher,
+  Value<DateTime?> coverDate,
   Value<DateTime?> releaseDate,
   Value<int?> releaseYear,
   Value<String?> barcode,
@@ -12482,6 +12695,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> physicalFormat,
   Value<String?> physicalFormatLabel,
   Value<String?> publisher,
+  Value<DateTime?> coverDate,
   Value<DateTime?> releaseDate,
   Value<int?> releaseYear,
   Value<String?> barcode,
@@ -12573,6 +12787,9 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get coverDate => $composableBuilder(
+      column: $table.coverDate, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get releaseDate => $composableBuilder(
       column: $table.releaseDate, builder: (column) => ColumnFilters(column));
@@ -12756,6 +12973,9 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get coverDate => $composableBuilder(
+      column: $table.coverDate, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
       column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
@@ -12945,6 +13165,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get publisher =>
       $composableBuilder(column: $table.publisher, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get coverDate =>
+      $composableBuilder(column: $table.coverDate, builder: (column) => column);
+
   GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
       column: $table.releaseDate, builder: (column) => column);
 
@@ -13107,6 +13330,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> physicalFormat = const Value.absent(),
             Value<String?> physicalFormatLabel = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
+            Value<DateTime?> coverDate = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
             Value<int?> releaseYear = const Value.absent(),
             Value<String?> barcode = const Value.absent(),
@@ -13163,6 +13387,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             physicalFormat: physicalFormat,
             physicalFormatLabel: physicalFormatLabel,
             publisher: publisher,
+            coverDate: coverDate,
             releaseDate: releaseDate,
             releaseYear: releaseYear,
             barcode: barcode,
@@ -13219,6 +13444,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> physicalFormat = const Value.absent(),
             Value<String?> physicalFormatLabel = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
+            Value<DateTime?> coverDate = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
             Value<int?> releaseYear = const Value.absent(),
             Value<String?> barcode = const Value.absent(),
@@ -13275,6 +13501,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             physicalFormat: physicalFormat,
             physicalFormatLabel: physicalFormatLabel,
             publisher: publisher,
+            coverDate: coverDate,
             releaseDate: releaseDate,
             releaseYear: releaseYear,
             barcode: barcode,
@@ -13365,9 +13592,13 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> graderNotes,
   Value<String?> signedBy,
   Value<String?> labelType,
+  Value<String?> customLabel,
+  Value<String?> pageQuality,
   Value<String?> certificationNumber,
   Value<bool> keyComic,
   Value<String?> keyReason,
+  Value<String?> keyCategory,
+  Value<String?> keySeverity,
   Value<int?> rating,
   Value<String?> readStatus,
   Value<DateTime?> startedAt,
@@ -13421,9 +13652,13 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> graderNotes,
   Value<String?> signedBy,
   Value<String?> labelType,
+  Value<String?> customLabel,
+  Value<String?> pageQuality,
   Value<String?> certificationNumber,
   Value<bool> keyComic,
   Value<String?> keyReason,
+  Value<String?> keyCategory,
+  Value<String?> keySeverity,
   Value<int?> rating,
   Value<String?> readStatus,
   Value<DateTime?> startedAt,
@@ -13535,6 +13770,12 @@ class $$OwnedItemsCacheTableFilterComposer
   ColumnFilters<String> get labelType => $composableBuilder(
       column: $table.labelType, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get certificationNumber => $composableBuilder(
       column: $table.certificationNumber,
       builder: (column) => ColumnFilters(column));
@@ -13544,6 +13785,12 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get keyReason => $composableBuilder(
       column: $table.keyReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyCategory => $composableBuilder(
+      column: $table.keyCategory, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keySeverity => $composableBuilder(
+      column: $table.keySeverity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnFilters(column));
@@ -13714,6 +13961,12 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get labelType => $composableBuilder(
       column: $table.labelType, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get certificationNumber => $composableBuilder(
       column: $table.certificationNumber,
       builder: (column) => ColumnOrderings(column));
@@ -13723,6 +13976,12 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get keyReason => $composableBuilder(
       column: $table.keyReason, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyCategory => $composableBuilder(
+      column: $table.keyCategory, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keySeverity => $composableBuilder(
+      column: $table.keySeverity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnOrderings(column));
@@ -13888,6 +14147,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get labelType =>
       $composableBuilder(column: $table.labelType, builder: (column) => column);
 
+  GeneratedColumn<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => column);
+
   GeneratedColumn<String> get certificationNumber => $composableBuilder(
       column: $table.certificationNumber, builder: (column) => column);
 
@@ -13896,6 +14161,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get keyReason =>
       $composableBuilder(column: $table.keyReason, builder: (column) => column);
+
+  GeneratedColumn<String> get keyCategory => $composableBuilder(
+      column: $table.keyCategory, builder: (column) => column);
+
+  GeneratedColumn<String> get keySeverity => $composableBuilder(
+      column: $table.keySeverity, builder: (column) => column);
 
   GeneratedColumn<int> get rating =>
       $composableBuilder(column: $table.rating, builder: (column) => column);
@@ -14027,9 +14298,13 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> graderNotes = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
             Value<String?> labelType = const Value.absent(),
+            Value<String?> customLabel = const Value.absent(),
+            Value<String?> pageQuality = const Value.absent(),
             Value<String?> certificationNumber = const Value.absent(),
             Value<bool> keyComic = const Value.absent(),
             Value<String?> keyReason = const Value.absent(),
+            Value<String?> keyCategory = const Value.absent(),
+            Value<String?> keySeverity = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -14082,9 +14357,13 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             graderNotes: graderNotes,
             signedBy: signedBy,
             labelType: labelType,
+            customLabel: customLabel,
+            pageQuality: pageQuality,
             certificationNumber: certificationNumber,
             keyComic: keyComic,
             keyReason: keyReason,
+            keyCategory: keyCategory,
+            keySeverity: keySeverity,
             rating: rating,
             readStatus: readStatus,
             startedAt: startedAt,
@@ -14137,9 +14416,13 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> graderNotes = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
             Value<String?> labelType = const Value.absent(),
+            Value<String?> customLabel = const Value.absent(),
+            Value<String?> pageQuality = const Value.absent(),
             Value<String?> certificationNumber = const Value.absent(),
             Value<bool> keyComic = const Value.absent(),
             Value<String?> keyReason = const Value.absent(),
+            Value<String?> keyCategory = const Value.absent(),
+            Value<String?> keySeverity = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -14192,9 +14475,13 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             graderNotes: graderNotes,
             signedBy: signedBy,
             labelType: labelType,
+            customLabel: customLabel,
+            pageQuality: pageQuality,
             certificationNumber: certificationNumber,
             keyComic: keyComic,
             keyReason: keyReason,
+            keyCategory: keyCategory,
+            keySeverity: keySeverity,
             rating: rating,
             readStatus: readStatus,
             startedAt: startedAt,

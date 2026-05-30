@@ -42,6 +42,7 @@ class CatalogCacheRepository {
                 physicalFormat: Value(item.physicalFormat),
                 physicalFormatLabel: Value(item.physicalFormatLabel),
                 publisher: Value(item.publisher),
+                coverDate: Value(item.coverDate),
                 releaseDate: Value(item.releaseDate),
                 releaseYear: Value(item.releaseYear),
                 barcode: Value(item.barcode),
@@ -156,8 +157,7 @@ class CatalogCacheRepository {
     }
 
     return {
-      for (final row in rows)
-        row.id: _itemFromRow(row),
+      for (final row in rows) row.id: _itemFromRow(row),
     };
   }
 
@@ -248,7 +248,8 @@ class CatalogCacheRepository {
       catalogNumber: row.catalogNumber,
       releaseStatus: row.releaseStatus,
     );
-    final game = GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
+    final game =
+        GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
     final publishing = CatalogPublishingDetails(
       pageCount: row.pageCount,
       coverPriceCents: row.coverPriceCents,
@@ -270,6 +271,7 @@ class CatalogCacheRepository {
       physicalFormat: row.physicalFormat,
       physicalFormatLabel: row.physicalFormatLabel,
       publisher: row.publisher,
+      coverDate: row.coverDate,
       releaseDate: row.releaseDate,
       releaseYear: row.releaseYear,
       barcode: row.barcode,

@@ -28,9 +28,13 @@ class OwnedItem {
     this.graderNotes,
     this.signedBy,
     this.labelType,
+    this.customLabel,
+    this.pageQuality,
     this.certificationNumber,
     this.keyComic = false,
     this.keyReason,
+    this.keyCategory,
+    this.keySeverity,
     this.rating,
     this.readStatus,
     this.startedAt,
@@ -85,9 +89,13 @@ class OwnedItem {
   final String? graderNotes;
   final String? signedBy;
   final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
   final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
+  final String? keyCategory;
+  final String? keySeverity;
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;
@@ -120,8 +128,7 @@ class OwnedItem {
   String? get variantId => anchor?.variantId;
   String? get bundleReleaseId => anchor?.bundleReleaseId;
 
-  PersonalItemAnchorType? get personalAnchor =>
-      anchor?.type;
+  PersonalItemAnchorType? get personalAnchor => anchor?.type;
 
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
@@ -147,9 +154,13 @@ class OwnedItem {
       'grader_notes': graderNotes,
       'signed_by': signedBy,
       'label_type': labelType,
+      'custom_label': customLabel,
+      'page_quality': pageQuality,
       'certification_number': certificationNumber,
       'key_comic': keyComic,
       'key_reason': keyReason,
+      'key_category': keyCategory,
+      'key_severity': keySeverity,
       'rating': rating,
       'read_status': readStatus,
       'started_at': startedAt?.toUtc().toIso8601String(),
@@ -162,8 +173,7 @@ class OwnedItem {
       if (ownerLabel != null) 'owner_label': ownerLabel,
       'location_id': locationId,
       if (features != null) 'features': features,
-      if (hdrFormats.isNotEmpty)
-        'hdr_formats': hdrFormats,
+      if (hdrFormats.isNotEmpty) 'hdr_formats': hdrFormats,
       if (purchaseStore != null) 'purchase_store': purchaseStore,
       if (boxSetId != null) 'box_set_id': boxSetId,
       if (boxSetName != null) 'box_set_name': boxSetName,
@@ -210,9 +220,13 @@ class OwnedItem {
       graderNotes: json['grader_notes'] as String?,
       signedBy: json['signed_by'] as String?,
       labelType: json['label_type'] as String?,
+      customLabel: json['custom_label'] as String?,
+      pageQuality: json['page_quality'] as String?,
       certificationNumber: json['certification_number'] as String?,
       keyComic: json['key_comic'] as bool? ?? false,
       keyReason: json['key_reason'] as String?,
+      keyCategory: json['key_category'] as String?,
+      keySeverity: json['key_severity'] as String?,
       rating: json['rating'] as int?,
       readStatus: json['read_status'] as String?,
       startedAt: json['started_at'] == null
@@ -231,8 +245,8 @@ class OwnedItem {
           : DateTime.parse(json['sold_at'] as String),
       sellPriceCents: json['sell_price_cents'] as int?,
       soldTo: json['sold_to'] as String?,
-        ownerUserId: json['owner_user_id'] as String?,
-        ownerLabel: json['owner_label'] as String?,
+      ownerUserId: json['owner_user_id'] as String?,
+      ownerLabel: json['owner_label'] as String?,
       locationId: json['location_id'] as String?,
       features: json['features'] as String?,
       hdrFormats: (json['hdr_formats'] as List<dynamic>?)
@@ -280,9 +294,13 @@ class OwnedItem {
     String? graderNotes,
     String? signedBy,
     String? labelType,
+    String? customLabel,
+    String? pageQuality,
     String? certificationNumber,
     bool? keyComic,
     String? keyReason,
+    String? keyCategory,
+    String? keySeverity,
     int? rating,
     String? readStatus,
     DateTime? startedAt,
@@ -340,9 +358,13 @@ class OwnedItem {
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
       labelType: labelType ?? this.labelType,
+      customLabel: customLabel ?? this.customLabel,
+      pageQuality: pageQuality ?? this.pageQuality,
       certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
+      keyCategory: keyCategory ?? this.keyCategory,
+      keySeverity: keySeverity ?? this.keySeverity,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       startedAt: startedAt ?? this.startedAt,

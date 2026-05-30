@@ -45,10 +45,14 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   late final TextEditingController rawOrSlabbedCtl;
   late final TextEditingController gradingCompanyCtl;
   late final TextEditingController labelTypeCtl;
+  late final TextEditingController customLabelCtl;
+  late final TextEditingController pageQualityCtl;
   late final TextEditingController certificationNumberCtl;
   late final TextEditingController graderNotesCtl;
   late final TextEditingController signedByCtl;
   late final TextEditingController keyReasonCtl;
+  late final TextEditingController keyCategoryCtl;
+  late final TextEditingController keySeverityCtl;
   late final TextEditingController statusCtl;
   late final TextEditingController ratingCtl;
   late final TextEditingController ownerCtl;
@@ -57,6 +61,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   late final TextEditingController tagsCtl;
   late final TextEditingController notesCtl;
   late final TextEditingController coverUrlCtl;
+  late final TextEditingController characterDraftCtl;
   final List<Map<String, TextEditingController>> creators = [];
   final List<TextEditingController> characters = [];
   late final TextEditingController summaryCtl;
@@ -66,6 +71,17 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   late Map<String, String?> _customFieldValues;
   List<ItemImageEdit> _itemImageEdits = const [];
   bool _keyComic = false;
+
+  static const List<String> _commonCreatorRoles = <String>[
+    'Writer',
+    'Artist',
+    'Cover',
+    'Penciller',
+    'Inker',
+    'Colorist',
+    'Letterer',
+    'Editor',
+  ];
 
   @override
   void initState() {
@@ -83,7 +99,9 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     issueNumberCtl = TextEditingController(text: item.itemNumber ?? '');
     variantCtl = TextEditingController(text: item.variant ?? '');
     variantDescCtl = TextEditingController(text: item.editionTitle ?? '');
-    coverDateCtl = TextEditingController();
+    coverDateCtl = TextEditingController(
+      text: item.coverDate == null ? '' : formatDate(item.coverDate!),
+    );
     releaseDateCtl = TextEditingController(
       text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
     );
@@ -131,11 +149,15 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     gradingCompanyCtl =
         TextEditingController(text: owned?.gradingCompany ?? '');
     labelTypeCtl = TextEditingController(text: owned?.labelType ?? '');
+    customLabelCtl = TextEditingController(text: owned?.customLabel ?? '');
+    pageQualityCtl = TextEditingController(text: owned?.pageQuality ?? '');
     certificationNumberCtl =
         TextEditingController(text: owned?.certificationNumber ?? '');
     graderNotesCtl = TextEditingController(text: owned?.graderNotes ?? '');
     signedByCtl = TextEditingController(text: owned?.signedBy ?? '');
     keyReasonCtl = TextEditingController(text: owned?.keyReason ?? '');
+    keyCategoryCtl = TextEditingController(text: owned?.keyCategory ?? '');
+    keySeverityCtl = TextEditingController(text: owned?.keySeverity ?? '');
     statusCtl = TextEditingController(
         text: tracking?.statusStorageValue ?? owned?.readStatus ?? '');
     ratingCtl = TextEditingController(
@@ -153,12 +175,12 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           : formatDate(owned!.lastBagBoardDate!),
     );
     tagsCtl = TextEditingController(text: owned?.tags ?? '');
-    notesCtl = TextEditingController(
-        text: tracking?.notes ?? owned?.personalNotes ?? '');
+    notesCtl = TextEditingController(text: owned?.personalNotes ?? '');
     coverUrlCtl = TextEditingController(
         text: item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
+    characterDraftCtl = TextEditingController();
     summaryCtl = TextEditingController(text: item.synopsis ?? '');
-    descriptionCtl = TextEditingController(text: item.synopsis ?? '');
+    descriptionCtl = TextEditingController();
     _keyComic = owned?.keyComic ?? false;
     _customFieldValues = {
       for (final definition in widget.request.customFieldDefinitions)
@@ -220,10 +242,14 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     rawOrSlabbedCtl.dispose();
     gradingCompanyCtl.dispose();
     labelTypeCtl.dispose();
+    customLabelCtl.dispose();
+    pageQualityCtl.dispose();
     certificationNumberCtl.dispose();
     graderNotesCtl.dispose();
     signedByCtl.dispose();
     keyReasonCtl.dispose();
+    keyCategoryCtl.dispose();
+    keySeverityCtl.dispose();
     statusCtl.dispose();
     ratingCtl.dispose();
     ownerCtl.dispose();
@@ -232,6 +258,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     tagsCtl.dispose();
     notesCtl.dispose();
     coverUrlCtl.dispose();
+    characterDraftCtl.dispose();
     summaryCtl.dispose();
     descriptionCtl.dispose();
     for (final creator in creators) {
@@ -249,10 +276,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   }
 
   void _addCreator() {
-    creators.add({
-      'name': TextEditingController(),
-      'role': TextEditingController(),
-    });
+    creators.add(_newCreatorControllers());
     setState(() {});
   }
 
@@ -263,8 +287,21 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     setState(() {});
   }
 
-  void _addCharacter() {
-    characters.add(TextEditingController());
+  void _addCharacter([String? value]) {
+    final normalized = (value ?? characterDraftCtl.text).trim();
+    if (normalized.isEmpty) {
+      return;
+    }
+    final alreadyExists = characters.any(
+      (controller) =>
+          controller.text.trim().toLowerCase() == normalized.toLowerCase(),
+    );
+    if (alreadyExists) {
+      characterDraftCtl.clear();
+      return;
+    }
+    characters.add(TextEditingController(text: normalized));
+    characterDraftCtl.clear();
     setState(() {});
   }
 
@@ -272,6 +309,52 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     final character = characters.removeAt(idx);
     character.dispose();
     setState(() {});
+  }
+
+  Future<void> _renameCharacter(int idx) async {
+    final controller = TextEditingController(text: characters[idx].text);
+    final renamed = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename character'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Character',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (renamed == null) {
+      return;
+    }
+    final normalized = renamed.trim();
+    if (normalized.isEmpty) {
+      return;
+    }
+    setState(() => characters[idx].text = normalized);
+  }
+
+  Map<String, TextEditingController> _newCreatorControllers({
+    String name = '',
+    String role = '',
+  }) {
+    return {
+      'name': TextEditingController(text: name),
+      'role': TextEditingController(text: role),
+    };
   }
 
   void _addLink() {
@@ -553,6 +636,20 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                       key: const ValueKey('edit-label-type'))),
               const SizedBox(width: 8),
               Expanded(
+                  child: _labelledField('Custom Label',
+                      controller: customLabelCtl,
+                      key: const ValueKey('edit-custom-label'))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                  child: _labelledField('Page Quality',
+                      controller: pageQualityCtl,
+                      key: const ValueKey('edit-page-quality'))),
+              const SizedBox(width: 8),
+              Expanded(
                   child: _labelledField('Certification Number',
                       controller: certificationNumberCtl,
                       key: const ValueKey('edit-certification-number'))),
@@ -575,6 +672,20 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           ),
           if (_keyComic) ...[
             const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                    child: _labelledField('Key Category',
+                        controller: keyCategoryCtl,
+                        key: const ValueKey('edit-key-category'))),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: _labelledField('Key Severity',
+                        controller: keySeverityCtl,
+                        key: const ValueKey('edit-key-severity'))),
+              ],
+            ),
+            const SizedBox(height: 12),
             _labelledField('Key Reason',
                 controller: keyReasonCtl,
                 key: const ValueKey('edit-key-reason')),
@@ -649,6 +760,11 @@ class ComicEditPanelState extends State<ComicEditPanel> {
 
   Widget _buildCoversTab() {
     final coverUrl = coverUrlCtl.text.trim();
+    final imageCount = _itemImageEdits.where((edit) => !edit.deleted).length +
+        widget.request.itemImages.where((image) {
+          return !_itemImageEdits
+              .any((edit) => edit.id == image.id && edit.deleted);
+        }).length;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -684,9 +800,42 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                   ),
           ),
           const SizedBox(height: 12),
-          Text(
-            'Back cover upload/crop tooling is still missing in the comic-specific dialog.',
-            style: Theme.of(context).textTheme.bodySmall,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cover workflow',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Use the metadata cover above for the primary front cover. Use My Images for back covers, slab shots, signatures, and detail photos.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Attached personal images: $imageCount',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () =>
+                      DefaultTabController.of(context).animateTo(6),
+                  icon: const Icon(Icons.collections_outlined),
+                  label: const Text('Manage My Images'),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -715,26 +864,74 @@ class ComicEditPanelState extends State<ComicEditPanel> {
               icon: const Icon(Icons.add),
               label: const Text('Add Creator')),
           const SizedBox(height: 8),
+          if (creators.isEmpty)
+            Text(
+              'No creators yet. Add the main credits here.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           for (var i = 0; i < creators.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                          controller: creators[i]['name'],
-                          decoration: const InputDecoration(labelText: 'Name'),
-                          key: ValueKey('edit-creator-$i-name'))),
-                  const SizedBox(width: 8),
-                  Expanded(
-                      child: TextField(
-                          controller: creators[i]['role'],
-                          decoration: const InputDecoration(labelText: 'Role'),
-                          key: ValueKey('edit-creator-$i-role'))),
-                  IconButton(
-                      onPressed: () => _removeCreator(i),
-                      icon: const Icon(Icons.delete)),
-                ],
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Creator ${i + 1}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                            onPressed: () => _removeCreator(i),
+                            icon: const Icon(Icons.delete_outline)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: TextField(
+                                controller: creators[i]['name'],
+                                decoration:
+                                    const InputDecoration(labelText: 'Name'),
+                                key: ValueKey('edit-creator-$i-name'))),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: TextField(
+                                controller: creators[i]['role'],
+                                decoration:
+                                    const InputDecoration(labelText: 'Role'),
+                                key: ValueKey('edit-creator-$i-role'))),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final role in _commonCreatorRoles)
+                            ActionChip(
+                              label: Text(role),
+                              onPressed: () {
+                                creators[i]['role']?.text = role;
+                                setState(() {});
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
         ],
@@ -748,27 +945,44 @@ class ComicEditPanelState extends State<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ElevatedButton.icon(
-              onPressed: _addCharacter,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Character')),
-          const SizedBox(height: 8),
-          for (var i = 0; i < characters.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                          controller: characters[i],
-                          decoration:
-                              const InputDecoration(labelText: 'Character'),
-                          key: ValueKey('edit-character-$i'))),
-                  IconButton(
-                      onPressed: () => _removeCharacter(i),
-                      icon: const Icon(Icons.delete)),
-                ],
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: characterDraftCtl,
+                  decoration: const InputDecoration(
+                    labelText: 'Add character',
+                    hintText: 'Name',
+                  ),
+                  onSubmitted: (_) => _addCharacter(),
+                ),
               ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                  onPressed: _addCharacter,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add')),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (characters.isEmpty)
+            Text(
+              'No characters yet. Add the main cast as quick chips.',
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (var i = 0; i < characters.length; i++)
+                  InputChip(
+                    key: ValueKey('edit-character-$i'),
+                    label: Text(characters[i].text),
+                    onPressed: () => _renameCharacter(i),
+                    onDeleted: () => _removeCharacter(i),
+                  ),
+              ],
             ),
         ],
       ),
@@ -912,11 +1126,15 @@ class ComicEditPanelState extends State<ComicEditPanel> {
       'rawOrSlabbed': rawOrSlabbedCtl.text,
       'gradingCompany': gradingCompanyCtl.text,
       'labelType': labelTypeCtl.text,
+      'customLabel': customLabelCtl.text,
+      'pageQuality': pageQualityCtl.text,
       'certificationNumber': certificationNumberCtl.text,
       'graderNotes': graderNotesCtl.text,
       'signedBy': signedByCtl.text,
       'keyComic': _keyComic,
       'keyReason': keyReasonCtl.text,
+      'keyCategory': keyCategoryCtl.text,
+      'keySeverity': keySeverityCtl.text,
       'status': statusCtl.text,
       'rating': ratingCtl.text,
       'owner': ownerCtl.text,

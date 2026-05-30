@@ -253,12 +253,14 @@ class CatalogEdition {
       if (upc != null) 'upc': upc,
       if (language != null) 'language': language,
       if (region != null) 'region': region,
-      if (releaseDate != null) 'release_date': releaseDate!.toUtc().toIso8601String(),
+      if (releaseDate != null)
+        'release_date': releaseDate!.toUtc().toIso8601String(),
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
       if (metadata != null) 'metadata_json': metadata,
-      'variants': variants.map((variant) => variant.toJson()).toList(growable: false),
+      'variants':
+          variants.map((variant) => variant.toJson()).toList(growable: false),
       if (discs.isNotEmpty)
         'discs': discs.map((disc) => disc.toJson()).toList(growable: false),
     };
@@ -448,6 +450,7 @@ sealed class CatalogItem {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
+    this.coverDate,
     this.releaseDate,
     this.releaseYear,
     this.barcode,
@@ -485,6 +488,7 @@ sealed class CatalogItem {
     String? physicalFormat,
     String? physicalFormatLabel,
     String? publisher,
+    DateTime? coverDate,
     DateTime? releaseDate,
     int? releaseYear,
     String? barcode,
@@ -526,6 +530,7 @@ sealed class CatalogItem {
       physicalFormat: physicalFormat,
       physicalFormatLabel: physicalFormatLabel,
       publisher: publisher,
+      coverDate: coverDate,
       releaseDate: releaseDate,
       releaseYear: releaseYear,
       barcode: barcode,
@@ -656,7 +661,8 @@ sealed class CatalogItem {
     final rawPlatforms = (json['platforms'] as List<dynamic>?)
         ?.whereType<String>()
         .toList(growable: false);
-    final game = GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
+    final game =
+        GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
@@ -690,15 +696,16 @@ sealed class CatalogItem {
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       publisher: json['publisher'] as String?,
+      coverDate: _parseDate(json['cover_date'] as String?),
       releaseDate: _parseDate(json['release_date'] as String?),
       releaseYear: json['release_year'] as int?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
-        series: series.hasData ? series : null,
-        video: video.hasData ? video : null,
-        music: music.hasData ? music : null,
-        game: game.hasData ? game : null,
-        publishing: publishing.hasData ? publishing : null,
+      series: series.hasData ? series : null,
+      video: video.hasData ? video : null,
+      music: music.hasData ? music : null,
+      game: game.hasData ? game : null,
+      publishing: publishing.hasData ? publishing : null,
       creators: (json['creators'] as List<dynamic>?)
           ?.whereType<Map<String, dynamic>>()
           .toList(growable: false),
@@ -709,7 +716,7 @@ sealed class CatalogItem {
           ?.whereType<String>()
           .toList(growable: false),
       editions: editions,
-        rawPlatforms: rawPlatforms,
+      rawPlatforms: rawPlatforms,
       genres: (json['genres'] as List<dynamic>?)
           ?.whereType<String>()
           .toList(growable: false),
@@ -742,6 +749,7 @@ sealed class CatalogItem {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final DateTime? coverDate;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? barcode;
@@ -816,6 +824,7 @@ sealed class CatalogItem {
       'physical_format': physicalFormat,
       'physical_format_label': physicalFormatLabel,
       'publisher': publisher,
+      'cover_date': coverDate?.toUtc().toIso8601String(),
       'release_date': releaseDate?.toUtc().toIso8601String(),
       'release_year': releaseYear,
       'barcode': barcode,
@@ -838,7 +847,8 @@ sealed class CatalogItem {
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
       'catalog_number': music?.catalogNumber,
-      'editions': editions.map((edition) => edition.toJson()).toList(growable: false),
+      'editions':
+          editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
       'release_status': music?.releaseStatus,
       'audience_rating': audienceRating,
@@ -872,13 +882,13 @@ abstract base class _TypedCatalogItem extends CatalogItem {
     this.gameDetails,
   }) : super._(
           id: common.id,
-      mediaKind: common.mediaKind,
+          mediaKind: common.mediaKind,
           title: common.title,
-        displayTitle: common.displayTitle,
-        localizedTitle: common.localizedTitle,
-        originalTitle: common.originalTitle,
-        titleExtension: common.titleExtension,
-        searchAliases: common.searchAliases,
+          displayTitle: common.displayTitle,
+          localizedTitle: common.localizedTitle,
+          originalTitle: common.originalTitle,
+          titleExtension: common.titleExtension,
+          searchAliases: common.searchAliases,
           sortKey: common.sortKey,
           itemNumber: common.itemNumber,
           synopsis: common.synopsis,
@@ -889,6 +899,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           physicalFormat: common.physicalFormat,
           physicalFormatLabel: common.physicalFormatLabel,
           publisher: common.publisher,
+          coverDate: common.coverDate,
           releaseDate: common.releaseDate,
           releaseYear: common.releaseYear,
           barcode: common.barcode,
@@ -1086,6 +1097,7 @@ class _CatalogItemCommon {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
+    this.coverDate,
     this.releaseDate,
     this.releaseYear,
     this.barcode,
@@ -1121,6 +1133,7 @@ class _CatalogItemCommon {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final DateTime? coverDate;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? barcode;
@@ -1172,7 +1185,8 @@ List<CatalogEdition>? _normalizeEditionList(List<CatalogEdition>? values) {
   return values.toList(growable: false);
 }
 
-List<Map<String, dynamic>>? _normalizeMapList(List<Map<String, dynamic>>? values) {
+List<Map<String, dynamic>>? _normalizeMapList(
+    List<Map<String, dynamic>>? values) {
   if (values == null || values.isEmpty) {
     return null;
   }

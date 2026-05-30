@@ -1,17 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
 class LibraryMetadataItem {
-    LibraryMetadataItem({
+  LibraryMetadataItem({
     required this.id,
-        String? kind,
-        CatalogMediaKind? mediaKind,
+    String? kind,
+    CatalogMediaKind? mediaKind,
     required this.title,
     this.displayTitle,
     this.localizedTitle,
     this.originalTitle,
     this.titleExtension,
     this.searchAliases,
-        this.sortKey,
+    this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -21,6 +21,7 @@ class LibraryMetadataItem {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
+    this.coverDate,
     this.releaseDate,
     this.releaseYear,
     this.barcode,
@@ -40,19 +41,19 @@ class LibraryMetadataItem {
     this.ageRating,
     this.audienceRating,
     this.trailerUrls = const <TrailerLink>[],
-    }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
+  }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
   static const _unset = Object();
 
   final String id;
-    final CatalogMediaKind mediaKind;
+  final CatalogMediaKind mediaKind;
   final String title;
-    final String? displayTitle;
-    final String? localizedTitle;
-    final String? originalTitle;
-    final String? titleExtension;
-    final List<String>? searchAliases;
-    final String? sortKey;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final String? titleExtension;
+  final List<String>? searchAliases;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -62,6 +63,7 @@ class LibraryMetadataItem {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final DateTime? coverDate;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? barcode;
@@ -74,27 +76,27 @@ class LibraryMetadataItem {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
-    final List<CatalogEdition> editions;
+  final List<CatalogEdition> editions;
   final List<String>? genres;
   final String? country;
   final String? language;
   final String? ageRating;
-    final String? audienceRating;
-    final List<TrailerLink> trailerUrls;
+  final String? audienceRating;
+  final List<TrailerLink> trailerUrls;
 
-    String get kind => mediaKind.apiValue;
+  String get kind => mediaKind.apiValue;
 
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     return LibraryMetadataItem(
       id: item.id,
-            mediaKind: item.mediaKind,
+      mediaKind: item.mediaKind,
       title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
-    titleExtension: item.titleExtension,
-    searchAliases: item.searchAliases,
-    sortKey: item.sortKey,
+      displayTitle: item.displayTitle,
+      localizedTitle: item.localizedTitle,
+      originalTitle: item.originalTitle,
+      titleExtension: item.titleExtension,
+      searchAliases: item.searchAliases,
+      sortKey: item.sortKey,
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
       coverImageUrl: item.coverImageUrl,
@@ -104,6 +106,7 @@ class LibraryMetadataItem {
       physicalFormat: item.physicalFormat,
       physicalFormatLabel: item.physicalFormatLabel,
       publisher: item.publisher,
+      coverDate: item.coverDate,
       releaseDate: item.releaseDate,
       releaseYear: item.releaseYear,
       barcode: item.barcode,
@@ -116,12 +119,12 @@ class LibraryMetadataItem {
       creators: item.creators,
       characters: item.characters,
       storyArcs: item.storyArcs,
-    editions: item.editions,
+      editions: item.editions,
       genres: item.genres,
       country: item.country,
       language: item.language,
       ageRating: item.ageRating,
-            audienceRating: item.audienceRating,
+      audienceRating: item.audienceRating,
       trailerUrls: item.trailerUrls,
     );
   }
@@ -129,7 +132,7 @@ class LibraryMetadataItem {
   LibraryMetadataItem copyWith({
     String? id,
     String? kind,
-        CatalogMediaKind? mediaKind,
+    CatalogMediaKind? mediaKind,
     String? title,
     Object? displayTitle = _unset,
     Object? localizedTitle = _unset,
@@ -146,6 +149,7 @@ class LibraryMetadataItem {
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
     Object? publisher = _unset,
+    Object? coverDate = _unset,
     Object? releaseDate = _unset,
     Object? releaseYear = _unset,
     Object? barcode = _unset,
@@ -163,13 +167,13 @@ class LibraryMetadataItem {
     Object? country = _unset,
     Object? language = _unset,
     Object? ageRating = _unset,
-        Object? audienceRating = _unset,
+    Object? audienceRating = _unset,
     List<TrailerLink>? trailerUrls,
   }) {
     return LibraryMetadataItem(
       id: id ?? this.id,
-        mediaKind: mediaKind ??
-            (kind != null ? catalogMediaKindFromApiValue(kind) : this.mediaKind),
+      mediaKind: mediaKind ??
+          (kind != null ? catalogMediaKindFromApiValue(kind) : this.mediaKind),
       title: title ?? this.title,
       displayTitle: identical(displayTitle, _unset)
           ? this.displayTitle
@@ -190,9 +194,8 @@ class LibraryMetadataItem {
       itemNumber: identical(itemNumber, _unset)
           ? this.itemNumber
           : itemNumber as String?,
-      synopsis: identical(synopsis, _unset)
-          ? this.synopsis
-          : synopsis as String?,
+      synopsis:
+          identical(synopsis, _unset) ? this.synopsis : synopsis as String?,
       coverImageUrl: identical(coverImageUrl, _unset)
           ? this.coverImageUrl
           : coverImageUrl as String?,
@@ -211,33 +214,27 @@ class LibraryMetadataItem {
       physicalFormatLabel: identical(physicalFormatLabel, _unset)
           ? this.physicalFormatLabel
           : physicalFormatLabel as String?,
-      publisher: identical(publisher, _unset)
-          ? this.publisher
-          : publisher as String?,
+      publisher:
+          identical(publisher, _unset) ? this.publisher : publisher as String?,
+      coverDate: identical(coverDate, _unset)
+          ? this.coverDate
+          : coverDate as DateTime?,
       releaseDate: identical(releaseDate, _unset)
           ? this.releaseDate
           : releaseDate as DateTime?,
       releaseYear: identical(releaseYear, _unset)
           ? this.releaseYear
           : releaseYear as int?,
-      barcode: identical(barcode, _unset)
-          ? this.barcode
-          : barcode as String?,
-      variant: identical(variant, _unset)
-          ? this.variant
-          : variant as String?,
+      barcode: identical(barcode, _unset) ? this.barcode : barcode as String?,
+      variant: identical(variant, _unset) ? this.variant : variant as String?,
       series: identical(series, _unset)
           ? this.series
           : series as CatalogSeriesDetails?,
-      video: identical(video, _unset)
-          ? this.video
-          : video as VideoCatalogDetails?,
-      music: identical(music, _unset)
-          ? this.music
-          : music as MusicCatalogDetails?,
-      game: identical(game, _unset)
-          ? this.game
-          : game as GameCatalogDetails?,
+      video:
+          identical(video, _unset) ? this.video : video as VideoCatalogDetails?,
+      music:
+          identical(music, _unset) ? this.music : music as MusicCatalogDetails?,
+      game: identical(game, _unset) ? this.game : game as GameCatalogDetails?,
       publishing: identical(publishing, _unset)
           ? this.publishing
           : publishing as CatalogPublishingDetails?,
@@ -253,18 +250,12 @@ class LibraryMetadataItem {
       editions: identical(editions, _unset)
           ? this.editions
           : editions as List<CatalogEdition>,
-      genres: identical(genres, _unset)
-          ? this.genres
-          : genres as List<String>?,
-      country: identical(country, _unset)
-          ? this.country
-          : country as String?,
-      language: identical(language, _unset)
-          ? this.language
-          : language as String?,
-      ageRating: identical(ageRating, _unset)
-          ? this.ageRating
-          : ageRating as String?,
+      genres: identical(genres, _unset) ? this.genres : genres as List<String>?,
+      country: identical(country, _unset) ? this.country : country as String?,
+      language:
+          identical(language, _unset) ? this.language : language as String?,
+      ageRating:
+          identical(ageRating, _unset) ? this.ageRating : ageRating as String?,
       audienceRating: identical(audienceRating, _unset)
           ? this.audienceRating
           : audienceRating as String?,
@@ -273,17 +264,17 @@ class LibraryMetadataItem {
   }
 
   CatalogItem toCatalogItem() {
-        final platformList = game?.platforms;
+    final platformList = game?.platforms;
     return CatalogItem(
       id: id,
-            mediaKind: mediaKind,
+      mediaKind: mediaKind,
       title: title,
-    displayTitle: displayTitle,
-    localizedTitle: localizedTitle,
-    originalTitle: originalTitle,
-    titleExtension: titleExtension,
-    searchAliases: searchAliases,
-    sortKey: sortKey,
+      displayTitle: displayTitle,
+      localizedTitle: localizedTitle,
+      originalTitle: originalTitle,
+      titleExtension: titleExtension,
+      searchAliases: searchAliases,
+      sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
@@ -293,26 +284,27 @@ class LibraryMetadataItem {
       physicalFormat: physicalFormat,
       physicalFormatLabel: physicalFormatLabel,
       publisher: publisher,
+      coverDate: coverDate,
       releaseDate: releaseDate,
       releaseYear: releaseYear,
       barcode: barcode,
       variant: variant,
-            series: series,
-            video: video,
-            music: music,
-            game: game,
-            publishing: publishing,
+      series: series,
+      video: video,
+      music: music,
+      game: game,
+      publishing: publishing,
       creators: creators,
       characters: characters,
       storyArcs: storyArcs,
-    editions: editions,
-            rawPlatforms:
-                    platformList != null && platformList.isNotEmpty ? platformList : null,
+      editions: editions,
+      rawPlatforms:
+          platformList != null && platformList.isNotEmpty ? platformList : null,
       genres: genres,
       country: country,
       language: language,
       ageRating: ageRating,
-            audienceRating: audienceRating,
+      audienceRating: audienceRating,
       trailerUrls: trailerUrls,
     );
   }

@@ -47,9 +47,13 @@ class LibraryPersonalEditSelection {
     this.graderNotes,
     this.signedBy,
     this.labelType,
+    this.customLabel,
+    this.pageQuality,
     this.certificationNumber,
     this.keyComic,
     this.keyReason,
+    this.keyCategory,
+    this.keySeverity,
     this.coverPriceCents,
     this.features,
     this.hdrFormats,
@@ -94,9 +98,13 @@ class LibraryPersonalEditSelection {
   final String? graderNotes;
   final String? signedBy;
   final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
   final String? certificationNumber;
   final bool? keyComic;
   final String? keyReason;
+  final String? keyCategory;
+  final String? keySeverity;
   final int? coverPriceCents;
   final String? features;
   final List<String>? hdrFormats;

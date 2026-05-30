@@ -16,6 +16,7 @@ class CatalogCache extends Table {
   TextColumn get physicalFormat => text().nullable()();
   TextColumn get physicalFormatLabel => text().nullable()();
   TextColumn get publisher => text().nullable()();
+  DateTimeColumn get coverDate => dateTime().nullable()();
   DateTimeColumn get releaseDate => dateTime().nullable()();
   IntColumn get releaseYear => integer().nullable()();
   TextColumn get barcode => text().nullable()();
@@ -86,9 +87,13 @@ class OwnedItemsCache extends Table {
   TextColumn get graderNotes => text().nullable()();
   TextColumn get signedBy => text().nullable()();
   TextColumn get labelType => text().nullable()();
+  TextColumn get customLabel => text().nullable()();
+  TextColumn get pageQuality => text().nullable()();
   TextColumn get certificationNumber => text().nullable()();
   BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
   TextColumn get keyReason => text().nullable()();
+  TextColumn get keyCategory => text().nullable()();
+  TextColumn get keySeverity => text().nullable()();
   IntColumn get rating => integer().nullable()();
   TextColumn get readStatus => text().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
@@ -147,8 +152,8 @@ class CustomFieldValuesCache extends Table {
 class ItemImagesCache extends Table {
   TextColumn get id => text()();
   TextColumn get ownedItemId => text()();
-  TextColumn get imageType =>
-      text().withDefault(const Constant('front_cover'))(); // front_cover, back_cover, auxiliary
+  TextColumn get imageType => text().withDefault(
+      const Constant('front_cover'))(); // front_cover, back_cover, auxiliary
   TextColumn get imageData => text()(); // base64-encoded image data
   TextColumn get caption => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
@@ -387,7 +392,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -424,6 +429,13 @@ class LocalDatabase extends _$LocalDatabase {
             watchSessionsCache,
             watchSessionsCache.seenWhere,
           );
+        }
+        if (from < 6) {
+          await m.addColumn(catalogCache, catalogCache.coverDate);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.customLabel);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.pageQuality);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.keyCategory);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.keySeverity);
         }
       },
     );

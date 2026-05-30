@@ -67,6 +67,7 @@ void main() {
       quantity: 1,
       currency: 'USD',
       pricePaidCents: 499,
+      personalNotes: 'Old personal note',
       ownerLabel: 'Andrei',
       purchaseStore: 'Old Shop',
       updatedAt: DateTime.utc(2026, 5, 30),
@@ -80,6 +81,7 @@ void main() {
       sourceType: 'physical',
       status: 'Reading',
       rating: 7,
+      notes: 'Tracking note',
       updatedAt: DateTime.utc(2026, 5, 30),
     );
     final customField = CustomFieldDefinition(
@@ -132,6 +134,11 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-coverdate')),
+      '2026-01-01',
+    );
+
     await tester.tap(find.text('Details').last);
     await pumpUntilSettled(tester);
     await tester.enterText(
@@ -141,6 +148,27 @@ void main() {
     await tester.enterText(
       find.byKey(const ValueKey('edit-storyarcs')),
       'Opening, Finale',
+    );
+    await tester.tap(find.text('Value').first);
+    await pumpUntilSettled(tester);
+    await tester.ensureVisible(find.byKey(const ValueKey('edit-custom-label')));
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-custom-label')),
+      'Silver Foil',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-page-quality')),
+      'White Pages',
+    );
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Key issue'));
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-key-category')),
+      'Origin',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-key-severity')),
+      'Major',
     );
 
     await tester.tap(find.text('Personal').last);
@@ -160,6 +188,22 @@ void main() {
     await tester.enterText(
       find.byKey(const ValueKey('edit-owner')),
       'Desk Box',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-notes')),
+      'Shelf note',
+    );
+
+    await tester.ensureVisible(find.text('Plot').first);
+    await tester.tap(find.text('Plot').first);
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-summary')),
+      'Short summary',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-description')),
+      'Long plot description',
     );
 
     await tester.tap(find.text('Custom Fields').last);
@@ -193,6 +237,8 @@ void main() {
     expect(selection, isNotNull);
     expect(selection!.item.title, 'Saga Deluxe');
     expect(selection!.item.storyArcs, ['Opening', 'Finale']);
+    expect(selection!.item.coverDate, DateTime(2026, 1, 1));
+    expect(selection!.item.synopsis, 'Long plot description');
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(
         selection!.item.trailerUrls.first.url, 'https://example.com/original');
@@ -201,9 +247,15 @@ void main() {
     expect(selection!.item.trailerUrls.last.title, 'Review');
     expect(selection!.item.trailerUrls.last.isAutomatic, isFalse);
     expect(selection!.personal?.ownerLabel, 'Desk Box');
+    expect(selection!.personal?.personalNotes, 'Shelf note');
+    expect(selection!.personal?.customLabel, 'Silver Foil');
+    expect(selection!.personal?.pageQuality, 'White Pages');
+    expect(selection!.personal?.keyCategory, 'Origin');
+    expect(selection!.personal?.keySeverity, 'Major');
     expect(selection!.tracking?.readStatus, 'Finished');
     expect(selection!.tracking?.rating, 9);
     expect(selection!.tracking?.finishedAt, DateTime(2026, 5, 30));
+    expect(selection!.tracking?.notes, 'Tracking note');
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 
