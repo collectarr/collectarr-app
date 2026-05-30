@@ -256,7 +256,7 @@ class _ManualPaneState extends State<_ManualPane> {
                           child: Column(children: [
                             TextField(controller: widget.request.coverController, decoration: const InputDecoration(labelText: 'Front cover URL')),
                             const SizedBox(height: 8),
-                            TextField(controller: TextEditingController(), decoration: const InputDecoration(labelText: 'Back cover URL')),
+                            TextField(controller: widget.request.backCoverController, decoration: const InputDecoration(labelText: 'Back cover URL')),
                           ]),
                         )
                       ]),

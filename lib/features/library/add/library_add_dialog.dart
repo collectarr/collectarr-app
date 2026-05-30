@@ -123,6 +123,7 @@ class LibraryAddManualPaneRequest {
     required this.barcodeController,
     required this.variantController,
     required this.coverController,
+    required this.backCoverController,
     required this.physicalFormats,
     required this.physicalFormatId,
     required this.onPhysicalFormatChanged,
@@ -175,6 +176,7 @@ class LibraryAddManualPaneRequest {
   final TextEditingController barcodeController;
   final TextEditingController variantController;
   final TextEditingController coverController;
+  final TextEditingController backCoverController;
   final List<PhysicalMediaFormat> physicalFormats;
   final String? physicalFormatId;
   final ValueChanged<String?> onPhysicalFormatChanged;
@@ -522,6 +524,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _yearController = TextEditingController();
   final _variantController = TextEditingController();
   final _coverController = TextEditingController();
+  final _backCoverController = TextEditingController();
   final _editionTitleController = TextEditingController();
   final _releaseDateController = TextEditingController();
   final _pageCountController = TextEditingController();
@@ -671,6 +674,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _yearController.dispose();
     _variantController.dispose();
     _coverController.dispose();
+    _backCoverController.dispose();
     _editionTitleController.dispose();
     _releaseDateController.dispose();
     _pageCountController.dispose();
@@ -1004,6 +1008,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         barcodeController: _barcodeController,
                         variantController: _variantController,
                         coverController: _coverController,
+                        backCoverController: _backCoverController,
                         physicalFormats: physicalFormats,
                         physicalFormatId: _physicalFormatId,
                         onPhysicalFormatChanged: _setPhysicalFormat,
