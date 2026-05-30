@@ -268,14 +268,13 @@ class _ManualPaneState extends State<_ManualPane> {
 
                       // Creators (placeholder simple tag field)
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Creators', accent: widget.request.accent, child: TagPickListField(controller: TextEditingController(), options: const [], label: 'Creators')),
+                        EditSection(title: 'Creators', accent: widget.request.accent, child: TagPickListField(controller: widget.request.creatorsController, options: const [], label: 'Creators')),
                       ]),
 
                       // Characters (placeholder)
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Characters', accent: widget.request.accent, child: TagPickListField(controller: TextEditingController(), options: const [], label: 'Characters')),
+                        EditSection(title: 'Characters', accent: widget.request.accent, child: TagPickListField(controller: widget.request.charactersController, options: const [], label: 'Characters')),
                       ]),
-
                       // Plot
                       ListView(padding: const EdgeInsets.all(10), children: [
                         EditSection(title: 'Plot', accent: widget.request.accent, child: TextField(controller: widget.request.synopsisController, maxLines: 6, decoration: const InputDecoration(labelText: 'Synopsis'))),

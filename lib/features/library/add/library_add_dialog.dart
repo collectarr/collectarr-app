@@ -124,6 +124,8 @@ class LibraryAddManualPaneRequest {
     required this.variantController,
     required this.coverController,
     required this.backCoverController,
+    required this.creatorsController,
+    required this.charactersController,
     required this.physicalFormats,
     required this.physicalFormatId,
     required this.onPhysicalFormatChanged,
@@ -177,6 +179,8 @@ class LibraryAddManualPaneRequest {
   final TextEditingController variantController;
   final TextEditingController coverController;
   final TextEditingController backCoverController;
+  final TextEditingController creatorsController;
+  final TextEditingController charactersController;
   final List<PhysicalMediaFormat> physicalFormats;
   final String? physicalFormatId;
   final ValueChanged<String?> onPhysicalFormatChanged;
@@ -525,6 +529,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _variantController = TextEditingController();
   final _coverController = TextEditingController();
   final _backCoverController = TextEditingController();
+  final _creatorsController = TextEditingController();
+  final _charactersController = TextEditingController();
   final _editionTitleController = TextEditingController();
   final _releaseDateController = TextEditingController();
   final _pageCountController = TextEditingController();
@@ -675,6 +681,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _variantController.dispose();
     _coverController.dispose();
     _backCoverController.dispose();
+    _creatorsController.dispose();
+    _charactersController.dispose();
     _editionTitleController.dispose();
     _releaseDateController.dispose();
     _pageCountController.dispose();
@@ -1009,6 +1017,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         variantController: _variantController,
                         coverController: _coverController,
                         backCoverController: _backCoverController,
+                        creatorsController: _creatorsController,
+                        charactersController: _charactersController,
                         physicalFormats: physicalFormats,
                         physicalFormatId: _physicalFormatId,
                         onPhysicalFormatChanged: _setPhysicalFormat,
@@ -1601,11 +1611,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final coverUrl = _emptyToNull(_coverController.text);
     final releaseDate = parseDate(_releaseDateController.text);
     final pageCount = parseInt(_pageCountController.text);
-    final genres = _genresEditController.text
+        final genres = _genresEditController.text
             .split(',')
             .map((s) => s.trim())
             .where((s) => s.isNotEmpty)
             .toList(growable: false);
+        final creatorNames = _creatorsController.text
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList(growable: false);
+        final creators = creatorNames.isEmpty ? null : [for (final n in creatorNames) {'name': n}];
+        final characterNames = _charactersController.text
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList(growable: false);
+        final characters = characterNames.isEmpty ? null : characterNames;
     return LibraryMetadataItem(
       id: 'local-${widget.type.workspace.kind.apiValue}-${_uuid.v4()}',
       kind: widget.type.workspace.kind.apiValue,
@@ -1623,6 +1645,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       thumbnailImageUrl: coverUrl,
       synopsis: _emptyToNull(_synopsisController.text),
       genres: genres.isEmpty ? null : genres,
+      creators: creators,
+      characters: characters,
       country: _emptyToNull(_countryController.text),
       language: _emptyToNull(_languageController.text),
       ageRating: _emptyToNull(_ageRatingController.text),
