@@ -140,7 +140,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       viewMode: viewState.viewMode,
                       onChanged: onViewModeChanged,
                     ),
-                    if (viewState.viewMode.supportsCoverSize) ...[
+                    if (viewState.viewMode == LibraryViewMode.list) ...[
+                      const SizedBox(width: 6),
+                      Tooltip(
+                        message: 'Select columns',
+                        child: LibraryWorkspaceIconButton(
+                          onPressed: onEditColumns,
+                          icon: Icons.view_column,
+                        ),
+                      ),
+                    ] else if (viewState.viewMode.supportsCoverSize) ...[
                       const SizedBox(width: 6),
                       LibraryCoverSizeSlider(
                         viewMode: viewState.viewMode,
@@ -174,15 +183,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                 LibraryDetailsLayoutDropdown(
                   detailsLayout: viewState.detailsLayout,
                   onChanged: onDetailsLayoutChanged,
-                ),
-                Tooltip(
-                  message: 'Select columns',
-                  child: LibraryWorkspaceIconButton(
-                    onPressed: viewState.viewMode == LibraryViewMode.list
-                        ? onEditColumns
-                        : null,
-                    icon: Icons.view_column,
-                  ),
                 ),
                 if (onEditFilters != null)
                   LibraryFilterButton(
