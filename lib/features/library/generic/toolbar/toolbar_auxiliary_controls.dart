@@ -632,6 +632,27 @@ class LibraryItemCountLabel extends StatelessWidget {
   }
 }
 
+class LibraryToolbarScopeChip extends StatelessWidget {
+  const LibraryToolbarScopeChip({
+    super.key,
+    required this.label,
+    required this.onClear,
+  });
+
+  final String label;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return InputChip(
+      visualDensity: VisualDensity.compact,
+      backgroundColor: appPalette(context).selection,
+      label: Text(label),
+      onDeleted: onClear,
+    );
+  }
+}
+
 class LibraryCollectionValueChip extends StatelessWidget {
   const LibraryCollectionValueChip({
     super.key,

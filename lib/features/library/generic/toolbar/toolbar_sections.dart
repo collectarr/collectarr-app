@@ -28,6 +28,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
+    required this.onClearBucket,
     required this.quickView,
     required this.hasActiveFilters,
     required this.onQuickViewSelected,
@@ -67,6 +68,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
   final String? selectedBucket;
+  final VoidCallback onClearBucket;
   final LibraryQuickView? quickView;
   final bool hasActiveFilters;
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
@@ -140,6 +142,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       viewMode: viewState.viewMode,
                       onChanged: onViewModeChanged,
                     ),
+                    const SizedBox(width: 6),
+                    LibraryDetailsLayoutDropdown(
+                      detailsLayout: viewState.detailsLayout,
+                      onChanged: onDetailsLayoutChanged,
+                    ),
                     if (viewState.viewMode == LibraryViewMode.list) ...[
                       const SizedBox(width: 6),
                       Tooltip(
@@ -171,6 +178,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   total: counts.total,
                   pluralLabel: type.pluralLabel,
                 ),
+                if (selectedBucket != null)
+                  LibraryToolbarScopeChip(
+                    label: selectedBucket!,
+                    onClear: onClearBucket,
+                  ),
                 if (counts.totalPricePaidCents > 0 ||
                     counts.totalCoverPriceCents > 0 ||
                     counts.totalSellPriceCents > 0)
@@ -180,10 +192,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     totalSellCents: counts.totalSellPriceCents,
                     currency: counts.priceCurrency,
                   ),
-                LibraryDetailsLayoutDropdown(
-                  detailsLayout: viewState.detailsLayout,
-                  onChanged: onDetailsLayoutChanged,
-                ),
                 if (onEditFilters != null)
                   LibraryFilterButton(
                     activeCount: activeFilterCount,
@@ -215,6 +223,115 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class LibraryDesktopFilteringToolbar extends StatelessWidget {
+  const LibraryDesktopFilteringToolbar({
+    super.key,
+    required this.type,
+    required this.accent,
+    required this.searchController,
+    required this.collectionStatusScope,
+    required this.availableLetters,
+    required this.selectedBucket,
+    required this.onAdd,
+    required this.onScan,
+    required this.onRefreshMetadata,
+    required this.onSearchChanged,
+    required this.onClearBucket,
+    this.onCollectionStatusScopeChanged,
+    this.selectedLetter,
+    this.onLetterSelected,
+    this.onRandomPick,
+    this.onScanCover,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final TextEditingController searchController;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
+  final Set<String> availableLetters;
+  final String? selectedLetter;
+  final ValueChanged<String?>? onLetterSelected;
+  final String? selectedBucket;
+  final VoidCallback onAdd;
+  final VoidCallback onScan;
+  final VoidCallback onRefreshMetadata;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onClearBucket;
+  final VoidCallback? onRandomPick;
+  final VoidCallback? onScanCover;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final showChromeRow = onCollectionStatusScopeChanged != null;
+    final showAlphabetRow = onLetterSelected != null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      child: Row(
+        children: [
+          LibraryToolbarPrimaryActions(
+            addLabel: 'Add ${type.pluralLabel}',
+            onAdd: onAdd,
+            onScanBarcode: onScan,
+            onRefreshMetadata: onRefreshMetadata,
+            onRandomPick: onRandomPick,
+            onScanCover: onScanCover,
+            addBackgroundColor: accent,
+            addForegroundColor: Colors.white,
+          ),
+          if (showChromeRow) ...[
+            const SizedBox(width: 8),
+            LibraryCollectionStatusScopeDropdown(
+              collectionStatusScope: collectionStatusScope,
+              onCollectionStatusScopeChanged:
+                  onCollectionStatusScopeChanged!,
+            ),
+          ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Row(
+              children: [
+                if (showAlphabetRow)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: LibraryToolbarAlphabetRow(
+                        letters: availableLetters,
+                        selectedLetter: selectedLetter,
+                        onLetterSelected: onLetterSelected!,
+                      ),
+                    ),
+                  )
+                else
+                  const Spacer(),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: LibraryToolbarSearch(
+                      controller: searchController,
+                      hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                      onScanBarcode: onScan,
+                      onScanCover: onScanCover,
+                      selectedFilterLabel: selectedBucket,
+                      onSearch: onSearchChanged,
+                      onClearFilter: onClearBucket,
+                      onChanged: onSearchChanged,
+                      selectionColor: palette.selection,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
