@@ -334,11 +334,12 @@ void main() {
     await tester.tap(find.text('Main').last);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Release date'), findsOneWidget);
+    expect(find.text('Release Date'), findsOneWidget);
     expect(find.text('Release year'), findsNothing);
     expect(find.text('Page count'), findsNothing);
     expect(find.text('Imprint'), findsNothing);
     expect(find.text('Series group'), findsNothing);
+    expect(find.text('Episodes'), findsNothing);
   });
 
   testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout', (
@@ -880,9 +881,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(
-      find.text(
-        'Wishlist-only and digital copies do not expose storage location fields.',
-      ),
+      find.text('Digital copies do not expose physical storage fields.'),
       findsOneWidget,
     );
     expect(find.widgetWithText(TextField, 'Condition'), findsNothing);

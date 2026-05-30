@@ -745,30 +745,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
               if (widget.item.mediaKind == CatalogMediaKind.tv) ...[
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Icon(Icons.tv,
-                        size: 18, color: appPalette(context).textMuted),
-                    const SizedBox(width: 6),
-                    Text(
-                      'TV Series',
-                      style: TextStyle(
-                        color: appPalette(context).textMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+                _responsiveFields([
+                  _readOnlyField(label: 'Media type', value: 'TV Series'),
+                ]),
               ],
               const SizedBox(height: 10),
               _responsiveFields([
+                _releaseDatePartsField(),
                 _field(controller: _publisherController, label: 'Studios'),
-                _field(
-                  controller: _releaseDateController,
-                  label: 'Release date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
-                ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
@@ -1874,7 +1858,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Release details',
+          title: 'Edition',
           accent: widget.accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1929,31 +1913,53 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   },
                 ),
               ],
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Packaging & set',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
-                  controller: _packagingController,
-                  label: 'Packaging',
-                  hint: 'e.g. Keep Case, Steelbook, Digibook',
-                ),
-                _field(
-                  controller: _colorController,
-                  label: 'Color',
-                  hint: 'B&W, Color, or Both',
-                ),
-              ]),
+              _flexResponsiveFields(
+                [
+                  _field(
+                    controller: _boxSetNameController,
+                    label: 'Box set',
+                    hint: 'Name of the box set this disc belongs to',
+                  ),
+                  _field(
+                    controller: _packagingController,
+                    label: 'Packaging',
+                    hint: 'e.g. Keep Case, Steelbook, Digibook',
+                  ),
+                ],
+                flexes: const [1, 1],
+                breakpoint: 720,
+              ),
               const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
-                  controller: _distributorController,
-                  label: 'Distributor',
-                ),
-                _field(
-                  controller: _nrDiscsController,
-                  label: 'Nr. of Discs',
-                  validator: optionalIntValidator,
-                ),
-              ]),
+              _flexResponsiveFields(
+                [
+                  _field(
+                    controller: _distributorController,
+                    label: 'Distributor',
+                  ),
+                  _field(
+                    controller: _nrDiscsController,
+                    label: 'Nr. of Discs',
+                    validator: optionalIntValidator,
+                  ),
+                  _field(
+                    controller: _colorController,
+                    label: 'Color',
+                    hint: 'B&W, Color, or Both',
+                  ),
+                ],
+                flexes: const [3, 2, 2],
+                breakpoint: 820,
+              ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _featuresController,
@@ -2006,18 +2012,303 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _videoPersonalTab() {
+    return EditTabShell(
+      children: [
         EditSection(
-          title: 'Box Set',
+          title: _isOwned
+              ? 'Ownership'
+              : _hasWishlistContext
+                  ? 'Personal'
+                  : 'Tracking',
           accent: widget.accent,
-          child: TextFormField(
-            controller: _boxSetNameController,
-            decoration: const InputDecoration(
-              labelText: 'Box Set Name',
-              hintText: 'Name of the box set this disc belongs to',
-              border: OutlineInputBorder(),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_showPhysicalOwnedFields) ...[
+                _responsiveFields([
+                  _locationField(),
+                  _field(
+                    controller: _ownerLabelController,
+                    label: 'Owner',
+                    hint: 'Name of the owner',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  TextFormField(
+                    controller: _storageDeviceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Storage Device',
+                      hintText: 'e.g. DVD Shelf, Blu-ray Cabinet',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _storageSlotController,
+                    decoration: const InputDecoration(
+                      labelText: 'Storage Slot',
+                      hintText: 'e.g. Row 3, Slot 5',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 10),
+              ] else if (_isOwned) ...[
+                Text(
+                  'Digital copies do not expose physical storage fields.',
+                  style: TextStyle(color: appPalette(context).textMuted),
+                ),
+                const SizedBox(height: 10),
+              ],
+              if (_isOwned) ...[
+                TagPickListField(
+                  controller: _tagsController,
+                  options: _tagOptions,
+                  label: 'Tags',
+                  hint: 'Comma-separated tags',
+                ),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  if (_showPhysicalOwnedFields) ...[
+                    _field(controller: _conditionController, label: 'Condition'),
+                    _field(controller: _gradeController, label: 'Grade'),
+                  ],
+                  _field(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+                ]),
+              ],
+            ],
           ),
         ),
+        EditSection(
+          title: 'Watch history',
+          accent: widget.accent,
+          child: Column(
+            children: [
+              if (_isTrackingOnly && widget.item.editions.isNotEmpty) ...[
+                _responsiveFields([
+                  _trackingEditionSelectionField(),
+                  _trackingVariantSelectionField(),
+                ]),
+                const SizedBox(height: 10),
+              ],
+              _responsiveFields([
+                SizedBox(
+                  width: 120,
+                  child: MediaRatingField(controller: _ratingController),
+                ),
+                SizedBox(
+                  width: 180,
+                  child: MediaTrackingStatusField(
+                    profile: widget.type.trackingProfile,
+                    value: _trackingController.text,
+                    label: 'Tracking status',
+                    onChanged: (value) {
+                      _trackingController.text = value ?? '';
+                    },
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields(
+                buildTrackingProgressFieldWidgets(
+                  progressCurrentController: _progressCurrentController,
+                  progressTotalController: _progressTotalController,
+                  timesCompletedController: _timesCompletedController,
+                  buildField: (controller, label) => _field(
+                    controller: controller,
+                    label: label,
+                    validator: optionalIntValidator,
+                  ),
+                ),
+              ),
+              if (_showsEpisodeTrackingFields) ...[
+                const SizedBox(height: 10),
+                _responsiveFields(
+                  buildTrackingEpisodeFieldWidgets(
+                    seasonNumberController: _seasonNumberController,
+                    episodeNumberController: _episodeNumberController,
+                    buildField: (controller, label) => _field(
+                      controller: controller,
+                      label: label,
+                      validator: optionalIntValidator,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _datePickerField(
+                  label: 'Started',
+                  value: _startedAt,
+                  onChanged: (v) => setState(() => _startedAt = v),
+                ),
+                _datePickerField(
+                  label: 'Finished',
+                  value: _finishedAt,
+                  onChanged: (v) => setState(() => _finishedAt = v),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _trackingNotesController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Tracking notes',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_showsEpisodeTrackingFields)
+          VideoSeasonTrackingSection(
+            itemId: widget.item.id,
+            accent: widget.accent,
+          ),
+        if (_showsEpisodeTrackingFields)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: VideoEpisodeRatingSection(
+              itemId: widget.item.id,
+              accent: widget.accent,
+              trackingEntry: widget.trackingEntry?.copyWith(
+                episodeRatings: _episodeRatings,
+              ),
+              onEpisodeRatingsChanged: (updated) {
+                setState(() => _episodeRatings = updated);
+              },
+            ),
+          ),
+        if (_hasWishlistContext)
+          EditSection(
+            title: 'Wishlist reference',
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _wishlistAnchorSelectionField(),
+                if (_selectedWishlistAnchorType ==
+                        PersonalItemAnchorType.edition.apiValue ||
+                    _selectedWishlistAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _wishlistEditionSelectionField(),
+                    if (_selectedWishlistAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue)
+                      _wishlistVariantSelectionField(),
+                  ]),
+                ],
+                if (_selectedWishlistAnchorType ==
+                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _bundleReleaseSelectionField(
+                    fieldKey: const Key('library-edit-wishlist-bundle-field'),
+                    label: 'Wishlist bundle',
+                    selectedBundleReleaseId: _selectedWishlistBundleReleaseId,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedWishlistBundleReleaseId =
+                            normalizeLibrarySelectionId(value);
+                      });
+                    },
+                  ),
+                ],
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _wishlistPriceController,
+                    label: 'Target price',
+                    validator: optionalMoneyValidator,
+                  ),
+                  _field(
+                    controller: _wishlistCurrencyController,
+                    label: 'Currency',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _wishlistNotesController,
+                  minLines: 3,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    labelText: 'Wishlist notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (_isOwned && !_hasValueTab)
+          EditSection(
+            title: 'Purchase & value',
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _responsiveFields([
+                  _field(
+                    controller: _priceController,
+                    label: 'Purchase price',
+                    validator: optionalMoneyValidator,
+                  ),
+                  _field(controller: _currencyController, label: 'Currency'),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _purchaseDateController,
+                    label: 'Purchase date',
+                    hint: 'YYYY-MM-DD',
+                    validator: optionalDateValidator,
+                  ),
+                  _field(
+                    controller: _purchaseStoreController,
+                    label: 'Purchase store',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _marketValueController,
+                    label: 'Current value',
+                    validator: optionalMoneyValidator,
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        if (_isOwned)
+          EditSection(
+            title: 'Notes',
+            accent: widget.accent,
+            child: TextFormField(
+              controller: _notesController,
+              minLines: 5,
+              maxLines: 8,
+              decoration: const InputDecoration(
+                labelText: 'Personal notes',
+                alignLabelWithHint: true,
+              ),
+            ),
+          )
+        else if (!_hasWishlistContext)
+          EditSection(
+            title: 'Collection fields',
+            accent: widget.accent,
+            child: Text(
+              'Storage, value, quantity and personal notes are only available once the item has an owned copy. Tracking progress stays editable here.',
+              style: TextStyle(color: appPalette(context).textMuted),
+            ),
+          ),
       ],
     );
   }
@@ -2178,6 +2469,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   Widget _personalTab() {
+    if (_isVideoKind) {
+      return _videoPersonalTab();
+    }
     return EditTabShell(
       children: [
         EditSection(
