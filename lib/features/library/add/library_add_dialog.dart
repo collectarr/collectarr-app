@@ -1586,16 +1586,35 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (target != LibraryAddTarget.owned) {
       return null;
     }
+    final purchaseDate = parseDate(_purchaseDateController.text) ?? _defaultPurchaseDate;
+    final pricePaidCents = parseMoneyCents(_priceController.text);
+    final coverPriceCents = parseMoneyCents(_coverPriceController.text);
+    final sellPriceCents = parseMoneyCents(_sellPriceController.text);
+    final soldAt = _soldAt;
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
       itemId: item.id,
       condition: _defaultCondition,
       grade: _defaultGrade,
-      purchaseDate: _defaultPurchaseDate,
-      readStatus: _defaultReadStatus,
-      tags: _defaultTags,
-      locationId: _defaultLocationId,
+      purchaseDate: purchaseDate,
+      pricePaidCents: pricePaidCents,
+      currency: null,
+      personalNotes: _graderNotesController.text.trim().isEmpty ? null : _graderNotesController.text.trim(),
+      quantity: 1,
+      coverPriceCents: coverPriceCents,
+      rawOrSlabbed: _rawOrSlabbedController.text.trim().isEmpty ? null : _rawOrSlabbedController.text.trim(),
+      gradingCompany: _gradingCompanyController.text.trim().isEmpty ? null : _gradingCompanyController.text.trim(),
+      graderNotes: _graderNotesController.text.trim().isEmpty ? null : _graderNotesController.text.trim(),
+      signedBy: _signedByController.text.trim().isEmpty ? null : _signedByController.text.trim(),
+      labelType: _labelTypeController.text.trim().isEmpty ? null : _labelTypeController.text.trim(),
+      certificationNumber: _certificationNumberController.text.trim().isEmpty ? null : _certificationNumberController.text.trim(),
       updatedAt: DateTime.now().toUtc(),
+      soldAt: soldAt,
+      sellPriceCents: sellPriceCents,
+      ownerLabel: _ownerLabelController.text.trim().isEmpty ? null : _ownerLabelController.text.trim(),
+      locationId: _defaultLocationId,
+      tags: _tagsController.text.trim().isEmpty ? null : _tagsController.text.trim(),
+      purchaseStore: _purchaseStoreController.text.trim().isEmpty ? null : _purchaseStoreController.text.trim(),
     );
   }
 
