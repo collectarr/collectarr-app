@@ -34,6 +34,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     required this.type,
     required this.accent,
     required this.isMovieDesktopChrome,
+    required this.previewPaneBuilder,
     required this.item,
     required this.candidate,
     required this.candidatePreview,
@@ -58,6 +59,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   final LibraryTypeConfig type;
   final Color accent;
   final bool isMovieDesktopChrome;
+  final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
@@ -129,6 +131,33 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
             preview: preview,
           )
         : const <_PreviewTrackData>[];
+    final previewRequest = LibraryAddPreviewPaneRequest(
+      type: type,
+      accent: accent,
+      item: selectedItem,
+      candidate: selectedCandidate,
+      candidatePreview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+      searched: searched,
+      addTarget: addTarget,
+      referenceType: referenceType,
+      availableBundleReleases: availableBundleReleases,
+      selectedBundleReleaseId: selectedBundleReleaseId,
+      selectedBundleReleaseDetail: selectedBundleReleaseDetail,
+      selectedEditionId: selectedEditionId,
+      selectedVariantId: selectedVariantId,
+      isLoadingBundleReleases: isLoadingBundleReleases,
+      isLoadingBundleReleaseDetail: isLoadingBundleReleaseDetail,
+      onReferenceTypeChanged: onReferenceTypeChanged,
+      onEditionSelected: onEditionSelected,
+      onVariantSelected: onVariantSelected,
+      onBundleReleaseSelected: onBundleReleaseSelected,
+    );
+    final launcherPreview = previewPaneBuilder?.call(context, previewRequest);
+    if (launcherPreview != null) {
+      return launcherPreview;
+    }
     final customPreview = type.presentation.builder.buildAddPreviewPane(
       context: context,
       accent: accent,
@@ -144,157 +173,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     );
     if (customPreview != null) {
       return customPreview;
-    }
-    if (isMovieDesktopChrome) {
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          color: palette.panel,
-          border: Border(left: BorderSide(color: palette.divider)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 132,
-                    child: AspectRatio(
-                      aspectRatio: 2 / 3,
-                      child: LibraryInteractiveCover(
-                        title: title,
-                        itemNumber: itemNumber,
-                        imageUrl: coverUrl,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          itemNumber == null ? title : '$title #$itemNumber',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: palette.textPrimary,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            height: 1.02,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            LibraryAddResultBadge(
-                              selectedItem == null ? providerLabel : 'library',
-                              accent: accent,
-                            ),
-                            if (selectedItem?.releaseYear != null)
-                              LibraryAddResultBadge(
-                                selectedItem!.releaseYear.toString(),
-                                accent: accent,
-                              ),
-                            if (selectedItem?.physicalFormatLabel?.trim().isNotEmpty == true)
-                              LibraryAddResultBadge(
-                                selectedItem!.physicalFormatLabel!,
-                                accent: accent,
-                              ),
-                          ],
-                        ),
-                        if (synopsis != null && synopsis.trim().isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            synopsis,
-                            maxLines: 8,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: palette.textPrimary,
-                              fontSize: 12,
-                              height: 1.35,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Expanded(
-                child: ListView(
-                  children: [
-                    if (selectedItem != null) ...[
-                      _LibraryAddReferenceSelector(
-                        accent: accent,
-                        addTarget: addTarget,
-                        referenceType: referenceType,
-                        item: selectedItem,
-                        bundleReleases: availableBundleReleases,
-                        selectedBundleReleaseId: selectedBundleReleaseId,
-                        selectedEditionId: selectedEditionId,
-                        selectedVariantId: selectedVariantId,
-                        isLoadingBundleReleases: isLoadingBundleReleases,
-                        onReferenceTypeChanged: onReferenceTypeChanged,
-                        onEditionSelected: onEditionSelected,
-                        onVariantSelected: onVariantSelected,
-                        onBundleReleaseSelected: onBundleReleaseSelected,
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    Text(
-                      'Details',
-                      style: TextStyle(color: accent, fontWeight: FontWeight.w900),
-                    ),
-                    const SizedBox(height: 8),
-                    for (final row in rows)
-                      if (row.$2 != null && row.$2!.trim().isNotEmpty)
-                        _LibraryAddPreviewMetadataRow(
-                          label: row.$1,
-                          value: row.$2!,
-                        ),
-                    if (discoverySections.isNotEmpty) ...[
-                      const SizedBox(height: 14),
-                      Text(
-                        'Discovery',
-                        style: TextStyle(color: accent, fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 8),
-                      for (final section in discoverySections)
-                        _LibraryAddPreviewDiscoverySection(
-                          title: section.title,
-                          values: section.values,
-                          accent: accent,
-                        ),
-                    ],
-                    if (isFetchingPreview) ...[
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          const SizedBox.square(
-                            dimension: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Fetching full metadata...',
-                            style: TextStyle(color: palette.textMuted),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
     }
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -509,6 +387,25 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   }
 }
 
+class BundleReleaseDetailCard extends StatelessWidget {
+  const BundleReleaseDetailCard({
+    super.key,
+    required this.detail,
+    required this.accent,
+  });
+
+  final BundleReleaseDetail detail;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return _BundleReleaseDetailCard(
+      detail: detail,
+      accent: accent,
+    );
+  }
+}
+
 class _BundleReleaseDetailCard extends StatelessWidget {
   const _BundleReleaseDetailCard({
     required this.detail,
@@ -573,6 +470,92 @@ class _BundleReleaseDetailCard extends StatelessWidget {
   }
 }
 
+class LibraryAddReferenceSelector extends StatelessWidget {
+  const LibraryAddReferenceSelector({
+    super.key,
+    required this.accent,
+    required this.addTarget,
+    required this.referenceType,
+    required this.item,
+    required this.bundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.selectedEditionId,
+    required this.selectedVariantId,
+    required this.isLoadingBundleReleases,
+    required this.onReferenceTypeChanged,
+    required this.onEditionSelected,
+    required this.onVariantSelected,
+    required this.onBundleReleaseSelected,
+  });
+
+  final Color accent;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final LibraryMetadataItem item;
+  final List<BundleReleaseSummary> bundleReleases;
+  final String? selectedBundleReleaseId;
+  final String? selectedEditionId;
+  final String? selectedVariantId;
+  final bool isLoadingBundleReleases;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onEditionSelected;
+  final ValueChanged<String> onVariantSelected;
+  final ValueChanged<String> onBundleReleaseSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return _LibraryAddReferenceSelector(
+      accent: accent,
+      addTarget: addTarget,
+      referenceType: referenceType,
+      item: item,
+      bundleReleases: bundleReleases,
+      selectedBundleReleaseId: selectedBundleReleaseId,
+      selectedEditionId: selectedEditionId,
+      selectedVariantId: selectedVariantId,
+      isLoadingBundleReleases: isLoadingBundleReleases,
+      onReferenceTypeChanged: onReferenceTypeChanged,
+      onEditionSelected: onEditionSelected,
+      onVariantSelected: onVariantSelected,
+      onBundleReleaseSelected: onBundleReleaseSelected,
+    );
+  }
+}
+
+
+List<(String, String?)> libraryAddMetadataRowsForItem(
+  LibraryMetadataItem item,
+  LibraryTypeConfig type,
+) => _metadataRowsForItem(item, type);
+
+List<(String, String?)> libraryAddMetadataRowsForCandidate(
+  ProviderCandidate candidate,
+  LibraryTypeConfig type,
+) => _metadataRowsForCandidate(candidate, type);
+
+List<(String, String?)> libraryAddMetadataRowsForFullPreview(
+  AdminProviderPreview preview,
+  LibraryTypeConfig type,
+) => _metadataRowsForFullPreview(preview, type);
+
+class LibraryAddPreviewMetadataRow extends StatelessWidget {
+  const LibraryAddPreviewMetadataRow({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return _LibraryAddPreviewMetadataRow(
+      label: label,
+      value: value,
+    );
+  }
+}
 String _bundleMemberTitle(BundleReleaseMember member) {
   final number = member.itemNumber;
   if (number != null && number.trim().isNotEmpty) {
@@ -1335,6 +1318,56 @@ class _PreviewDiscoverySectionData {
 
   final String title;
   final List<String> values;
+}
+
+class LibraryAddPreviewDiscoverySectionData {
+  const LibraryAddPreviewDiscoverySectionData({
+    required this.title,
+    required this.values,
+  });
+
+  final String title;
+  final List<String> values;
+}
+
+List<LibraryAddPreviewDiscoverySectionData> libraryAddPreviewDiscoverySections({
+  required LibraryMetadataItem? item,
+  required ProviderCandidate? candidate,
+  required AdminProviderPreview? preview,
+}) {
+  return [
+    for (final section in _discoverySections(
+      item: item,
+      candidate: candidate,
+      preview: preview,
+    ))
+      LibraryAddPreviewDiscoverySectionData(
+        title: section.title,
+        values: section.values,
+      ),
+  ];
+}
+
+class LibraryAddPreviewDiscoverySection extends StatelessWidget {
+  const LibraryAddPreviewDiscoverySection({
+    super.key,
+    required this.title,
+    required this.values,
+    required this.accent,
+  });
+
+  final String title;
+  final List<String> values;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return _LibraryAddPreviewDiscoverySection(
+      title: title,
+      values: values,
+      accent: accent,
+    );
+  }
 }
 
 class _LibraryAddPreviewDiscoverySection extends StatelessWidget {

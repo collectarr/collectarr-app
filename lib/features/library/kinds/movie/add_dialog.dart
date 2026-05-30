@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +37,7 @@ class MovieLibraryAddDialog extends StatelessWidget {
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
       manualPaneBuilder: buildMovieManualPane,
+      previewPaneBuilder: buildMovieAddPreviewPane,
     );
   }
 }

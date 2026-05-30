@@ -83,6 +83,11 @@ typedef LibraryAddManualPaneBuilder = Widget Function(
   LibraryAddManualPaneRequest request,
 );
 
+typedef LibraryAddPreviewPaneBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddPreviewPaneRequest request,
+);
+
 class LibraryAddManualPaneRequest {
   const LibraryAddManualPaneRequest({
     required this.type,
@@ -131,6 +136,54 @@ class LibraryAddManualPaneRequest {
   final VoidCallback onAddTrack;
 }
 
+class LibraryAddPreviewPaneRequest {
+  const LibraryAddPreviewPaneRequest({
+    required this.type,
+    required this.accent,
+    required this.item,
+    required this.candidate,
+    required this.candidatePreview,
+    required this.isFetchingPreview,
+    required this.providerLabel,
+    required this.searched,
+    required this.addTarget,
+    required this.referenceType,
+    required this.availableBundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.selectedBundleReleaseDetail,
+    required this.selectedEditionId,
+    required this.selectedVariantId,
+    required this.isLoadingBundleReleases,
+    required this.isLoadingBundleReleaseDetail,
+    required this.onReferenceTypeChanged,
+    required this.onEditionSelected,
+    required this.onVariantSelected,
+    required this.onBundleReleaseSelected,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final LibraryMetadataItem? item;
+  final ProviderCandidate? candidate;
+  final AdminProviderPreview? candidatePreview;
+  final bool isFetchingPreview;
+  final String providerLabel;
+  final bool searched;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final List<BundleReleaseSummary> availableBundleReleases;
+  final String? selectedBundleReleaseId;
+  final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final String? selectedEditionId;
+  final String? selectedVariantId;
+  final bool isLoadingBundleReleases;
+  final bool isLoadingBundleReleaseDetail;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onEditionSelected;
+  final ValueChanged<String> onVariantSelected;
+  final ValueChanged<String> onBundleReleaseSelected;
+}
+
 class LibraryAddDialog extends ConsumerStatefulWidget {
   const LibraryAddDialog({
     super.key,
@@ -141,6 +194,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.autoLookupInitialBarcode = true,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.manualPaneBuilder,
+    this.previewPaneBuilder,
   });
 
   final LibraryTypeConfig type;
@@ -150,6 +204,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final bool autoLookupInitialBarcode;
   final LibraryCoverScanService coverScanService;
   final LibraryAddManualPaneBuilder? manualPaneBuilder;
+  final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
 
   @override
   ConsumerState<LibraryAddDialog> createState() => _LibraryAddDialogState();
@@ -464,6 +519,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         type: widget.type,
                         accent: accent,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
+                        previewPaneBuilder: widget.previewPaneBuilder,
                         item: selectedResult,
                         candidate: selectedCandidate,
                         candidatePreview: selectedCandidate == null

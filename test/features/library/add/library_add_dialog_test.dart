@@ -1074,6 +1074,61 @@ void main() {
     expect(find.text('Series / Title'), findsOneWidget);
   });
 
+  testWidgets('showLibraryAddDialog uses comic-specific preview pane',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open comic add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic add'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Batman #423'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Issue identity'), findsOneWidget);
+  });
+
   testWidgets('showLibraryAddDialog uses movie-specific manual add flow',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1116,6 +1171,61 @@ void main() {
     expect(find.text('Manual movie setup'), findsOneWidget);
     expect(find.text('Poster / cover URL'), findsOneWidget);
     expect(find.text('Release year'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses movie-specific preview pane',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: moviesLibraryConfig,
+                  );
+                },
+                child: const Text('Open movie add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie add'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Blade Runner',
+    );
+    await tester.tap(find.text('Search Movies'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Blade Runner 2049').first);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Release overview'), findsOneWidget);
   });
 
   testWidgets('core search results explain why a movie matched', (
