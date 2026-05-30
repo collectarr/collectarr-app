@@ -600,9 +600,30 @@ class LibraryEditDraft {
 
   bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
 
-  ({Map<String, String?> customFieldEdits, List<ItemImageEdit> itemImageEdits})
-      cloneMediaEdits() {
+  ({
+    String? selectedLocationId,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    DateTime? soldAt,
+    String? selectedEditionId,
+    String? selectedVariantId,
+    Map<String, String?> customFieldEdits,
+    List<ItemImageEdit> itemImageEdits,
+  }) cloneDialogState() {
+    final editionSelection = resolveLibraryEditionSelection(
+      item.editions,
+      editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
+      editionTitle: item.editionTitle,
+      variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
+      variantName: item.variant,
+    );
     return (
+      selectedLocationId: selectedLocationId,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      soldAt: soldAt,
+      selectedEditionId: editionSelection.edition?.id,
+      selectedVariantId: editionSelection.variant?.id,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );

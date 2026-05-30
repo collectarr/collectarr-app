@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -117,7 +116,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 
   LibraryMetadataItem get _item => widget.request.item;
-  OwnedItem? get _owned => widget.request.ownedItem;
   Color get _accent => widget.request.accent;
 
   LibraryEditPresentationContext get _editPresentationContext {
@@ -150,8 +148,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     super.initState();
     _draft = widget.draft ?? LibraryEditDraft.fromRequest(widget.request);
     final item = _item;
-    final owned = _owned;
-    final tracking = widget.request.trackingEntry;
     _tabController = TabController(length: _tabSpecs.length, vsync: this)
       ..addListener(() {
         if (mounted) {
@@ -205,23 +201,16 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _wishlistCurrencyController = _draft.wishlistCurrencyController;
     _wishlistNotesController = _draft.wishlistNotesController;
 
-    _selectedLocationId = _draft.selectedLocationId;
-    _startedAt = _draft.startedAt;
-    _finishedAt = _draft.finishedAt;
-    _soldAt = _draft.soldAt;
     _physicalFormatId = _draft.physicalFormatId;
-    final editionSelection = resolveLibraryEditionSelection(
-      item.editions,
-      editionId: owned?.editionId ?? tracking?.editionId,
-      editionTitle: item.editionTitle,
-      variantId: owned?.variantId ?? tracking?.variantId,
-      variantName: item.variant,
-    );
-    _selectedEditionId = editionSelection.edition?.id;
-    _selectedVariantId = editionSelection.variant?.id;
-    final mediaEdits = _draft.cloneMediaEdits();
-    _customFieldEdits = mediaEdits.customFieldEdits;
-    _itemImageEdits = mediaEdits.itemImageEdits;
+    final dialogState = _draft.cloneDialogState();
+    _selectedLocationId = dialogState.selectedLocationId;
+    _startedAt = dialogState.startedAt;
+    _finishedAt = dialogState.finishedAt;
+    _soldAt = dialogState.soldAt;
+    _selectedEditionId = dialogState.selectedEditionId;
+    _selectedVariantId = dialogState.selectedVariantId;
+    _customFieldEdits = dialogState.customFieldEdits;
+    _itemImageEdits = dialogState.itemImageEdits;
 
     unawaited(_loadAvailableLocations());
   }

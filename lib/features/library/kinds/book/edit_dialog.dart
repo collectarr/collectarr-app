@@ -151,8 +151,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     super.initState();
     _draft = widget.draft ?? LibraryEditDraft.fromRequest(widget.request);
     final item = widget.request.item;
-    final owned = widget.request.ownedItem;
-    final tracking = widget.request.trackingEntry;
     _tabController = TabController(length: _tabSpecs.length, vsync: this)
       ..addListener(() {
         if (mounted) {
@@ -213,22 +211,15 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _wishlistPriceController = _draft.wishlistPriceController;
     _wishlistCurrencyController = _draft.wishlistCurrencyController;
     _wishlistNotesController = _draft.wishlistNotesController;
-    _selectedLocationId = _draft.selectedLocationId;
-    _startedAt = _draft.startedAt;
-    _finishedAt = _draft.finishedAt;
-    _soldAt = _draft.soldAt;
-    final editionSelection = resolveLibraryEditionSelection(
-      item.editions,
-      editionId: owned?.editionId ?? tracking?.editionId,
-      editionTitle: item.editionTitle,
-      variantId: owned?.variantId ?? tracking?.variantId,
-      variantName: item.variant,
-    );
-    _selectedEditionId = editionSelection.edition?.id;
-    _selectedVariantId = editionSelection.variant?.id;
-    final mediaEdits = _draft.cloneMediaEdits();
-    _customFieldEdits = mediaEdits.customFieldEdits;
-    _itemImageEdits = mediaEdits.itemImageEdits;
+    final dialogState = _draft.cloneDialogState();
+    _selectedLocationId = dialogState.selectedLocationId;
+    _startedAt = dialogState.startedAt;
+    _finishedAt = dialogState.finishedAt;
+    _soldAt = dialogState.soldAt;
+    _selectedEditionId = dialogState.selectedEditionId;
+    _selectedVariantId = dialogState.selectedVariantId;
+    _customFieldEdits = dialogState.customFieldEdits;
+    _itemImageEdits = dialogState.itemImageEdits;
 
     unawaited(_loadTagOptions());
 
