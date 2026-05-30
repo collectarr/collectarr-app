@@ -160,8 +160,8 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] Inspector assignment flow supports picking and clearing a hierarchical location without accidental clears on cancel
 - [x] Workspace filtering can target resolved location paths
 - [x] Add a dedicated location management surface for rename / delete / reparent / description editing
-- [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
-- [x] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
+- [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to the old free-text location entry
+- [x] Introduce a first-class location group mode / sidebar bucket instead of reusing the old free-text location column path
 - [x] Location definitions sync as first-class personal metadata alongside `location_id` assignments
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating

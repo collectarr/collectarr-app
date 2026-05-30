@@ -119,7 +119,7 @@ The remaining UX gaps fall into three buckets:
 | **Sell price/date/buyer** | ✅ | ✅ (soldAt, sellPriceCents, soldTo) | ≈ Parity |
 | **Grade + grading company + label type** | ✅ CGC/CBCS-specific with custom labels | 🟡 Basic condition field | 🔴 Gap for comic collectors |
 | **Custom fields** | ✅ New Feb 2026 — user-defined fields | ✅ Per-media-type custom fields, searchable, CSV support | ✅ Collectarr better (per-type + CSV) |
-| **Location / storage box** | ✅ | ✅ Hierarchical locations with rename/reparent/sync | ✅ Collectarr better |
+| **Location organization** | ✅ | ✅ Hierarchical locations with rename/reparent/sync | ✅ Collectarr better |
 | **Loan tracking** | 🟡 Basic | ✅ Full loan tracking with overdue highlighting | ✅ Collectarr better |
 | **Collection value totals** | ✅ Via CovrPrice integration | ❌ No summed value dashboard | 🟡 Gap — easy to compute from existing price fields |
 | **Reading/watch tracking** | ❌ CLZ is catalog-only | ✅ Tracking status (planned/in-progress/completed/paused/dropped/repeating) | ✅ Collectarr better |

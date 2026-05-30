@@ -121,7 +121,7 @@ Not default at media level:
 
 - condition
 - price
-- storage box
+- location
 - barcode
 
 Those belong to release or copy surfaces.

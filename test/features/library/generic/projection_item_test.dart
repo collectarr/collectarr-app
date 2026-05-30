@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('library projection prefers structured location path over storage box', () {
+  test('library projection prefers structured location path', () {
     final projection = LibraryProjectionItem.fromShelf(
       ShelfEntry(
         itemId: 'comic-1',

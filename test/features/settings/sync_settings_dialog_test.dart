@@ -31,7 +31,7 @@ void main() {
 
     expect(find.text('Location'), findsOneWidget);
     expect(find.text('Storage Box'), findsNothing);
-  expect(find.text('Update empty fields only'), findsWidgets);
+    expect(find.text('Update empty fields only'), findsWidgets);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Sync Now'));
     await pumpUntilSettled(tester);
