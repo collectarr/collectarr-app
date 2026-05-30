@@ -1542,20 +1542,40 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   LibraryMetadataItem _buildManualDraftItem() {
     final year = int.tryParse(_yearController.text.trim());
     final coverUrl = _emptyToNull(_coverController.text);
+    final releaseDate = parseDate(_releaseDateController.text);
+    final pageCount = parseInt(_pageCountController.text);
+    final genres = _genresEditController.text
+            .split(',')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toList(growable: false);
     return LibraryMetadataItem(
       id: 'local-${widget.type.workspace.kind.apiValue}-${_uuid.v4()}',
       kind: widget.type.workspace.kind.apiValue,
       title: _titleController.text.trim(),
       itemNumber: _emptyToNull(_numberController.text),
-      editionTitle: _emptyToNull(_variantController.text),
+      editionTitle: _emptyToNull(_editionTitleController.text),
       physicalFormat: _physicalFormatId,
       physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
       publisher: _emptyToNull(_publisherController.text),
+      releaseDate: releaseDate,
       releaseYear: year,
       barcode: _emptyToNull(_barcodeController.text),
       variant: _emptyToNull(_variantController.text),
       coverImageUrl: coverUrl,
       thumbnailImageUrl: coverUrl,
+      synopsis: _emptyToNull(_synopsisController.text),
+      genres: genres.isEmpty ? null : genres,
+      country: _emptyToNull(_countryController.text),
+      language: _emptyToNull(_languageController.text),
+      ageRating: _emptyToNull(_ageRatingController.text),
+      publishing: (pageCount != null || _imprintController.text.trim().isNotEmpty || _seriesGroupController.text.trim().isNotEmpty)
+          ? CatalogPublishingDetails(
+              pageCount: pageCount,
+              imprint: _emptyToNull(_imprintController.text),
+              seriesGroup: _emptyToNull(_seriesGroupController.text),
+            )
+          : null,
     );
   }
 
