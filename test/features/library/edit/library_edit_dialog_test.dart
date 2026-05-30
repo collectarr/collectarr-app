@@ -113,7 +113,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -231,7 +231,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -311,7 +311,7 @@ void main() {
                 onPressed: () {
                   showDialog<void>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: null,
@@ -412,7 +412,7 @@ void main() {
                 onPressed: () {
                   showDialog<void>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -610,7 +610,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: null,
@@ -689,7 +689,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -777,7 +777,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -856,7 +856,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -937,7 +937,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: null,
