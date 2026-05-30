@@ -628,8 +628,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   static const _autocompleteDebounce = Duration(milliseconds: 350);
   static const _autocompleteLimit = 8;
 
-  /// Video-kind filter for movie library: allows searching across movie + tv.
+  /// Video-kind filter for movie library: allows searching across releases and box sets.
   late final Set<String> _videoKindFilters;
+
+  String _canonicalVideoSearchKind(String kind) =>
+      kind == 'tv' ? 'movie' : kind;
 
   bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
 
@@ -638,7 +641,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void initState() {
     super.initState();
-    _videoKindFilters = {widget.type.workspace.kind.apiValue};
+    _videoKindFilters = {
+      _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
+    };
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
     }
@@ -819,11 +824,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       videoKindFilters: _isVideoKind ? _videoKindFilters : null,
       onVideoKindFilterChanged: _isVideoKind
           ? (kind, checked) {
+              final canonicalKind = _canonicalVideoSearchKind(kind);
               setState(() {
                 if (checked) {
-                  _videoKindFilters.add(kind);
+                  _videoKindFilters.add(canonicalKind);
                 } else {
-                  _videoKindFilters.remove(kind);
+                  _videoKindFilters.remove(canonicalKind);
                 }
               });
             }
@@ -1987,7 +1993,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final kindsToSearch = _isVideoKind
           ? (_videoKindFilters.isEmpty
               ? _VideoKindFilterRow.allKinds
-              : _videoKindFilters.toList())
+            : _videoKindFilters.map(_canonicalVideoSearchKind).toSet().toList())
           : <String>[];
       final seriesText = _searchSeriesController.text.trim().isNotEmpty
           ? _searchSeriesController.text.trim()

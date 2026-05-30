@@ -184,10 +184,10 @@ Widget buildMovieAddModeBar(
                       request.onVideoKindFilterChanged?.call('movie', value),
                 ),
                 FilterChip(
-                  selected: request.videoKindFilters!.contains('tv'),
-                  label: const Text('TV'),
+                  selected: request.videoKindFilters!.contains('collection'),
+                  label: const Text('Box Sets'),
                   onSelected: (value) =>
-                      request.onVideoKindFilterChanged?.call('tv', value),
+                      request.onVideoKindFilterChanged?.call('collection', value),
                 ),
               ],
             ),

@@ -1447,7 +1447,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Movies'), findsWidgets);
-    expect(find.text('TV'), findsOneWidget);
+    expect(find.text('TV'), findsNothing);
+    expect(find.text('Box Sets'), findsOneWidget);
   });
 
   testWidgets('core search results explain why a movie matched', (

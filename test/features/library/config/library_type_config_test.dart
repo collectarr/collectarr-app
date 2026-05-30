@@ -11,8 +11,11 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 // manga/anime kinds merged into comic/movie; tests adapt accordingly
+import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
@@ -211,6 +214,13 @@ void main() {
   test('music kind uses dedicated edit dialog builder', () {
     expect(musicLibraryConfig.editDialogBuilder,
         same(buildMusicLibraryEditDialog));
+  });
+
+  test('game kinds use dedicated edit dialog builders', () {
+    expect(gamesLibraryConfig.editDialogBuilder,
+        same(buildGameLibraryEditDialog));
+    expect(boardGamesLibraryConfig.editDialogBuilder,
+        same(buildBoardGameLibraryEditDialog));
   });
 
   test('video physical formats are variants under movies', () {

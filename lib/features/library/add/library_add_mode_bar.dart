@@ -1060,7 +1060,6 @@ class _VideoKindFilterRow extends StatelessWidget {
 
   static const _options = [
     (kind: 'movie', label: 'Movies', icon: Icons.movie_outlined),
-    (kind: 'tv', label: 'TV Series', icon: Icons.live_tv_outlined),
     (kind: 'collection', label: 'Box Sets', icon: Icons.collections_bookmark_outlined),
   ];
 
