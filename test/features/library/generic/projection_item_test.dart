@@ -30,7 +30,7 @@ void main() {
       ),
     );
 
-    expect(projection.entry.storageBox, 'Office › Shelf 2 › Short Box 1');
+    expect(projection.entry.locationPath, 'Office › Shelf 2 › Short Box 1');
     expect(projection.entry.rawOrSlabbed, 'Slabbed');
     expect(projection.entry.gradingCompany, 'CGC');
     expect(projection.entry.keyComic, isTrue);

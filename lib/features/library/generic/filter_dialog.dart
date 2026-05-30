@@ -302,8 +302,8 @@ class LibraryFilterOptions {
       if (seriesTitle != null && seriesTitle.isNotEmpty) {
         series.add(seriesTitle);
       }
-      if (entry.storageBox?.trim().isNotEmpty == true) {
-        locations.add(entry.storageBox!.trim());
+      if (entry.locationPath?.trim().isNotEmpty == true) {
+        locations.add(entry.locationPath!.trim());
       }
       for (final tag in splitPickListValues(entry.tags)) {
         final normalized = tag.trim().toLowerCase();
@@ -424,7 +424,7 @@ bool libraryFilterMatches(
       entry.series?.seriesTitle?.trim() != filters.series) {
     return false;
   }
-  if (filters.location != null && entry.storageBox?.trim() != filters.location) {
+  if (filters.location != null && entry.locationPath?.trim() != filters.location) {
     return false;
   }
   if (filters.tag != null &&

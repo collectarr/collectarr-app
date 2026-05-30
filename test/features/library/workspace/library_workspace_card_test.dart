@@ -30,7 +30,7 @@ void main() {
               keyReason: 'First appearance',
               pricePaidCents: 399,
               currency: 'USD',
-              storageBox: 'Box 6',
+              locationPath: 'Box 6',
               isOwned: true,
               isWishlisted: true,
               updatedAt: DateTime.utc(2026),

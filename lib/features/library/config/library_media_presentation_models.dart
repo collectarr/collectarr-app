@@ -307,7 +307,7 @@ class LibraryMediaPresentation {
       LibraryTableColumn.barcode,
       LibraryTableColumn.condition,
       LibraryTableColumn.price,
-      LibraryTableColumn.storageBox,
+      LibraryTableColumn.location,
       LibraryTableColumn.wishlist,
       LibraryTableColumn.updated,
     },

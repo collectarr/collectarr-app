@@ -433,7 +433,7 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryTableColumn.condition => LibraryTableCellText(entry.condition),
       LibraryTableColumn.price =>
         Text(formatMoney(entry.pricePaidCents, entry.currency)),
-      LibraryTableColumn.storageBox => LibraryTableCellText(entry.storageBox),
+      LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
       LibraryTableColumn.wishlist =>
         entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
       LibraryTableColumn.updated => Text(

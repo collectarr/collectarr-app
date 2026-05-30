@@ -118,7 +118,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           LibraryTableColumn.releaseDate,
           LibraryTableColumn.condition,
           LibraryTableColumn.price,
-          LibraryTableColumn.storageBox,
+          LibraryTableColumn.location,
           LibraryTableColumn.updated,
         },
       ),
@@ -179,7 +179,7 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.grade => 88.0,
     LibraryTableColumn.condition => 124.0,
     LibraryTableColumn.price => 92.0,
-    LibraryTableColumn.storageBox => 118.0,
+    LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.updated => 112.0,
     LibraryTableColumn.country => 100.0,
@@ -243,7 +243,7 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.grade => 'Grade',
     LibraryTableColumn.condition => 'Condition',
     LibraryTableColumn.price => 'Price',
-    LibraryTableColumn.storageBox => 'Location',
+    LibraryTableColumn.location => 'Location',
     LibraryTableColumn.wishlist => 'Wishlist',
     LibraryTableColumn.updated => 'Updated',
     LibraryTableColumn.country => 'Country',
@@ -305,7 +305,7 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
     LibraryTableColumn.condition ||
     LibraryTableColumn.price =>
       LibraryTableColumnGroup.value,
-    LibraryTableColumn.storageBox ||
+    LibraryTableColumn.location ||
     LibraryTableColumn.wishlist =>
       LibraryTableColumnGroup.personal,
     LibraryTableColumn.country ||
@@ -349,7 +349,7 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.grade => LibrarySortColumn.grade,
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,
-    LibraryTableColumn.storageBox => LibrarySortColumn.storageBox,
+    LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,

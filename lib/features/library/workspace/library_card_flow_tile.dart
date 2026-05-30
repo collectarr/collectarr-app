@@ -257,10 +257,10 @@ class LibraryCardFlowTile extends StatelessWidget {
                                   'Collector copy',
                               accentColor: accentColor,
                             ),
-                          if (entry.storageBox != null)
+                          if (entry.locationPath != null)
                             _MetaPill(
                               icon: Icons.inventory_2_outlined,
-                              label: entry.storageBox!,
+                              label: entry.locationPath!,
                               accentColor: accentColor,
                             ),
                           if (entry.pricePaidCents != null)

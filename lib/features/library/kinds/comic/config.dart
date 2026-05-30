@@ -29,7 +29,7 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.grade,
     LibraryTableColumn.condition,
     LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
+    LibraryTableColumn.location,
     LibraryTableColumn.wishlist,
     LibraryTableColumn.updated,
   },

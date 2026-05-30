@@ -263,10 +263,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   'Collector copy',
                               accentColor: accentColor,
                             ),
-                          if (entry.storageBox != null)
+                          if (entry.locationPath != null)
                             _LibraryCompactMetaPill(
                               icon: Icons.inventory_2_outlined,
-                              label: entry.storageBox!,
+                              label: entry.locationPath!,
                               accentColor: accentColor,
                             ),
                           if (entry.pricePaidCents != null)

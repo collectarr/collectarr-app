@@ -52,7 +52,7 @@ sealed class LibraryWorkspaceEntry {
     this.lastBagBoardDate,
     this.pricePaidCents,
     this.currency,
-    this.storageBox,
+    this.locationPath,
     this.creators,
     this.characters,
     this.storyArcs,
@@ -114,7 +114,7 @@ sealed class LibraryWorkspaceEntry {
     DateTime? lastBagBoardDate,
     int? pricePaidCents,
     String? currency,
-    String? storageBox,
+    String? locationPath,
     CatalogSeriesDetails? series,
     VideoCatalogDetails? video,
     MusicCatalogDetails? music,
@@ -180,7 +180,7 @@ sealed class LibraryWorkspaceEntry {
       lastBagBoardDate: lastBagBoardDate,
       pricePaidCents: pricePaidCents,
       currency: currency,
-      storageBox: storageBox,
+      locationPath: locationPath,
       creators: _copyMapList(creators),
       characters: _copyStringList(characters),
       storyArcs: _copyStringList(storyArcs),
@@ -411,7 +411,7 @@ sealed class LibraryWorkspaceEntry {
   final DateTime? lastBagBoardDate;
   final int? pricePaidCents;
   final String? currency;
-  final String? storageBox;
+  final String? locationPath;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
@@ -510,7 +510,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           lastBagBoardDate: common.lastBagBoardDate,
           pricePaidCents: common.pricePaidCents,
           currency: common.currency,
-          storageBox: common.storageBox,
+          locationPath: common.locationPath,
           creators: common.creators,
           characters: common.characters,
           storyArcs: common.storyArcs,
@@ -733,7 +733,7 @@ class _LibraryWorkspaceCommon {
     required this.lastBagBoardDate,
     required this.pricePaidCents,
     required this.currency,
-    required this.storageBox,
+    required this.locationPath,
     required this.creators,
     required this.characters,
     required this.storyArcs,
@@ -794,7 +794,7 @@ class _LibraryWorkspaceCommon {
   final DateTime? lastBagBoardDate;
   final int? pricePaidCents;
   final String? currency;
-  final String? storageBox;
+  final String? locationPath;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
@@ -905,8 +905,8 @@ int _compareLibraryWorkspaceEntriesByColumn(
       _compareNullableStrings(left.condition, right.condition),
     LibrarySortColumn.price =>
       _compareNullableInts(left.pricePaidCents, right.pricePaidCents),
-    LibrarySortColumn.storageBox =>
-      _compareNullableStrings(left.storageBox, right.storageBox),
+    LibrarySortColumn.location =>
+      _compareNullableStrings(left.locationPath, right.locationPath),
     LibrarySortColumn.wishlist =>
       _compareBools(left.isWishlisted, right.isWishlisted),
     LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),

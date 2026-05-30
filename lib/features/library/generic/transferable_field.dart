@@ -40,7 +40,7 @@ class TransferableField {
         return item.grade;
       case 'personalNotes':
         return item.personalNotes;
-      case 'storageBox':
+      case 'locationId':
         return item.locationId;
       case 'tags':
         return item.tags;
@@ -102,7 +102,7 @@ class TransferableField {
         return item.copyWith(grade: value);
       case 'personalNotes':
         return item.copyWith(personalNotes: value);
-      case 'storageBox':
+      case 'locationId':
         return item.copyWith(locationId: value);
       case 'tags':
         return item.copyWith(tags: value);
@@ -187,7 +187,7 @@ class TransferableField {
       type: TransferableFieldType.text,
     ),
     TransferableField._(
-      key: 'storageBox',
+      key: 'locationId',
       label: 'Location',
       icon: Icons.shelves,
       type: TransferableFieldType.text,

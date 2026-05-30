@@ -21,7 +21,7 @@ void main() {
           containsAll(<LibraryTableColumn>{
             LibraryTableColumn.condition,
             LibraryTableColumn.price,
-            LibraryTableColumn.storageBox,
+            LibraryTableColumn.location,
           }),
         ),
       );

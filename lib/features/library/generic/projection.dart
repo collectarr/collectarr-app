@@ -569,7 +569,7 @@ String genericBucketForItemMode(
     LibraryGroupMode.letterer => _creatorBucketByRole(entry, 'letterer'),
     LibraryGroupMode.coverArtist => _creatorBucketByRole(entry, 'cover'),
     LibraryGroupMode.editor => _creatorBucketByRole(entry, 'editor'),
-    LibraryGroupMode.location => _locationBucket(entry.storageBox),
+    LibraryGroupMode.location => _locationBucket(entry.locationPath),
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
         : entry.isWishlisted
@@ -1114,7 +1114,7 @@ bool _matchesQuery(
       _containsQuery(entry.releaseYear?.toString(), query) ||
       _containsQuery(entry.condition, query) ||
       _containsQuery(entry.grade, query) ||
-      _containsQuery(entry.storageBox, query)) {
+      _containsQuery(entry.locationPath, query)) {
     return true;
   }
   if (entry.searchAliases case final aliases?) {

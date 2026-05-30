@@ -234,7 +234,7 @@ void main() {
         'Series');
     expect(comicsMediaAdapter.columnLabel(LibraryTableColumn.cover), '');
     expect(
-      comicsMediaAdapter.columnGroup(LibraryTableColumn.storageBox),
+      comicsMediaAdapter.columnGroup(LibraryTableColumn.location),
       LibraryTableColumnGroup.personal,
     );
     expect(
