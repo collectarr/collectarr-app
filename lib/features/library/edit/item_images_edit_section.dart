@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -86,17 +87,24 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           else
             SizedBox(
               height: 156,
-              child: ListView.separated(
+              child: ReorderableListView.builder(
+                buildDefaultDragHandles: false,
                 scrollDirection: Axis.horizontal,
                 itemCount: visible.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                onReorderItem: _reorderImages,
                 itemBuilder: (context, index) {
                   final image = visible[index];
-                  return _ImageCard(
-                    image: image,
-                    canMoveLeft: index > 0,
-                    canMoveRight: index < visible.length - 1,
-                    onAction: (action) => _handleImageAction(image, action),
+                  return Padding(
+                    key: ValueKey('item-image-${image.id}'),
+                    padding: EdgeInsets.only(
+                        right: index == visible.length - 1 ? 0 : 8),
+                    child: _ImageCard(
+                      image: image,
+                      reorderIndex: index,
+                      canMoveLeft: index > 0,
+                      canMoveRight: index < visible.length - 1,
+                      onAction: (action) => _handleImageAction(image, action),
+                    ),
                   );
                 },
               ),
@@ -417,6 +425,72 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     _notifyChanged();
   }
 
+  void _reorderImages(int oldIndex, int newIndex) {
+    final visible = _visibleImages().toList(growable: true);
+    if (oldIndex < 0 || oldIndex >= visible.length) {
+      return;
+    }
+    if (newIndex < 0 || newIndex >= visible.length) {
+      return;
+    }
+    final moved = visible.removeAt(oldIndex);
+    visible.insert(newIndex, moved);
+    setState(() {
+      for (var index = 0; index < visible.length; index++) {
+        visible[index].sortOrder = index;
+      }
+    });
+    _notifyChanged();
+  }
+
+  Future<void> _cropImage(_EditableImage image) async {
+    try {
+      final bytes = base64Decode(image.imageData);
+      final decoded = img.decodeImage(bytes);
+      if (decoded == null) {
+        throw StateError('Image decode returned null.');
+      }
+      final bounds = await showDialog<_ImageCropBounds>(
+        context: context,
+        builder: (context) => _ImageCropDialog(
+          imageBytes: bytes,
+          aspectRatio: decoded.width / decoded.height,
+        ),
+      );
+      if (bounds == null) {
+        return;
+      }
+      final cropped = _applyCropBounds(decoded, bounds);
+      setState(() {
+        image.imageData = base64Encode(img.encodePng(cropped));
+        image.hasBinaryChanges = true;
+      });
+      _notifyChanged();
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'item_images',
+        message: 'Failed to crop item image in edit dialog.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to crop that image.')),
+        );
+      }
+    }
+  }
+
+  img.Image _applyCropBounds(img.Image source, _ImageCropBounds bounds) {
+    final x = (source.width * bounds.left).round().clamp(0, source.width - 1);
+    final y = (source.height * bounds.top).round().clamp(0, source.height - 1);
+    final width =
+        (source.width * bounds.width).round().clamp(1, source.width - x);
+    final height =
+        (source.height * bounds.height).round().clamp(1, source.height - y);
+    return img.copyCrop(source, x: x, y: y, width: width, height: height);
+  }
+
   void _handleImageAction(_EditableImage image, _ImageCardAction action) {
     switch (action) {
       case _ImageCardAction.editDetails:
@@ -434,6 +508,8 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         _rotateImage(image, clockwise: false);
       case _ImageCardAction.rotateRight:
         _rotateImage(image, clockwise: true);
+      case _ImageCardAction.crop:
+        _cropImage(image);
       case _ImageCardAction.moveLeft:
         _moveImage(image, -1);
       case _ImageCardAction.moveRight:
@@ -485,20 +561,62 @@ enum _ImageCardAction {
   assignAuxiliary,
   rotateLeft,
   rotateRight,
+  crop,
   moveLeft,
   moveRight,
   delete,
 }
 
+class _ImageCropBounds {
+  const _ImageCropBounds({
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+  });
+
+  const _ImageCropBounds.fullFrame()
+      : left = 0,
+        top = 0,
+        right = 1,
+        bottom = 1;
+
+  final double left;
+  final double top;
+  final double right;
+  final double bottom;
+
+  double get width => right - left;
+  double get height => bottom - top;
+
+  bool get isFullFrame => left == 0 && top == 0 && right == 1 && bottom == 1;
+
+  _ImageCropBounds copyWith({
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+  }) {
+    return _ImageCropBounds(
+      left: left ?? this.left,
+      top: top ?? this.top,
+      right: right ?? this.right,
+      bottom: bottom ?? this.bottom,
+    );
+  }
+}
+
 class _ImageCard extends StatelessWidget {
   const _ImageCard({
     required this.image,
+    required this.reorderIndex,
     required this.canMoveLeft,
     required this.canMoveRight,
     required this.onAction,
   });
 
   final _EditableImage image;
+  final int reorderIndex;
   final bool canMoveLeft;
   final bool canMoveRight;
   final ValueChanged<_ImageCardAction> onAction;
@@ -568,6 +686,10 @@ class _ImageCard extends StatelessWidget {
                         value: _ImageCardAction.rotateRight,
                         child: Text('Rotate right'),
                       ),
+                      const PopupMenuItem(
+                        value: _ImageCardAction.crop,
+                        child: Text('Crop'),
+                      ),
                       if (canMoveLeft)
                         const PopupMenuItem(
                           value: _ImageCardAction.moveLeft,
@@ -585,6 +707,17 @@ class _ImageCard extends StatelessWidget {
                       ),
                     ],
                     child: const _MiniAction(icon: Icons.more_vert),
+                  ),
+                ),
+                Positioned(
+                  right: 2,
+                  bottom: 2,
+                  child: Tooltip(
+                    message: 'Drag to reorder',
+                    child: ReorderableDragStartListener(
+                      index: reorderIndex,
+                      child: const _MiniAction(icon: Icons.drag_indicator),
+                    ),
                   ),
                 ),
               ],
@@ -631,6 +764,195 @@ class _ImageCard extends StatelessWidget {
       height: 100,
       color: kEditPanelRaised,
       child: const Icon(Icons.broken_image_outlined, color: kEditTextMuted),
+    );
+  }
+}
+
+class _ImageCropDialog extends StatefulWidget {
+  const _ImageCropDialog({
+    required this.imageBytes,
+    required this.aspectRatio,
+  });
+
+  final Uint8List imageBytes;
+  final double aspectRatio;
+
+  @override
+  State<_ImageCropDialog> createState() => _ImageCropDialogState();
+}
+
+class _ImageCropDialogState extends State<_ImageCropDialog> {
+  static const double _cropStep = 0.05;
+  static const double _minCropSpan = 0.35;
+
+  _ImageCropBounds _bounds = const _ImageCropBounds.fullFrame();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Crop image'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Trim away borders or extra framing before saving the local image.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: kEditTextMuted,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            _CropPreview(
+              imageBytes: widget.imageBytes,
+              aspectRatio: widget.aspectRatio,
+              bounds: _bounds,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Crop: ${(_bounds.width * 100).round()}% width x ${(_bounds.height * 100).round()}% height',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: kEditTextMuted,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => _trim(left: _cropStep),
+                  icon: const Icon(Icons.keyboard_double_arrow_right),
+                  label: const Text('Trim left'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _trim(right: -_cropStep),
+                  icon: const Icon(Icons.keyboard_double_arrow_left),
+                  label: const Text('Trim right'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _trim(top: _cropStep),
+                  icon: const Icon(Icons.keyboard_double_arrow_down),
+                  label: const Text('Trim top'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _trim(bottom: -_cropStep),
+                  icon: const Icon(Icons.keyboard_double_arrow_up),
+                  label: const Text('Trim bottom'),
+                ),
+                TextButton.icon(
+                  onPressed: _bounds.isFullFrame
+                      ? null
+                      : () => setState(
+                            () => _bounds = const _ImageCropBounds.fullFrame(),
+                          ),
+                  icon: const Icon(Icons.crop_free),
+                  label: const Text('Reset crop'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_bounds),
+          child: const Text('Apply crop'),
+        ),
+      ],
+    );
+  }
+
+  void _trim({
+    double left = 0,
+    double top = 0,
+    double right = 0,
+    double bottom = 0,
+  }) {
+    final nextLeft =
+        (_bounds.left + left).clamp(0.0, _bounds.right - _minCropSpan);
+    final nextTop =
+        (_bounds.top + top).clamp(0.0, _bounds.bottom - _minCropSpan);
+    final nextRight =
+        (_bounds.right + right).clamp(nextLeft + _minCropSpan, 1.0);
+    final nextBottom =
+        (_bounds.bottom + bottom).clamp(nextTop + _minCropSpan, 1.0);
+    setState(() {
+      _bounds = _ImageCropBounds(
+        left: nextLeft,
+        top: nextTop,
+        right: nextRight,
+        bottom: nextBottom,
+      );
+    });
+  }
+}
+
+class _CropPreview extends StatelessWidget {
+  const _CropPreview({
+    required this.imageBytes,
+    required this.aspectRatio,
+    required this.bounds,
+  });
+
+  final Uint8List imageBytes;
+  final double aspectRatio;
+  final _ImageCropBounds bounds;
+
+  @override
+  Widget build(BuildContext context) {
+    final previewAspectRatio = aspectRatio <= 0 ? 1.0 : aspectRatio;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: AspectRatio(
+        aspectRatio: previewAspectRatio,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.memory(imageBytes, fit: BoxFit.cover),
+            Container(color: const Color(0x66000000)),
+            Align(
+              alignment: Alignment(
+                (bounds.left + bounds.right) - 1,
+                (bounds.top + bounds.bottom) - 1,
+              ),
+              child: FractionallySizedBox(
+                widthFactor: bounds.width,
+                heightFactor: bounds.height,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ClipRect(
+                    child: Align(
+                      alignment: Alignment(
+                        ((bounds.left + bounds.right) - 1) / bounds.width,
+                        ((bounds.top + bounds.bottom) - 1) / bounds.height,
+                      ),
+                      widthFactor: 1 / bounds.width,
+                      heightFactor: 1 / bounds.height,
+                      child: Image.memory(imageBytes, fit: BoxFit.cover),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
