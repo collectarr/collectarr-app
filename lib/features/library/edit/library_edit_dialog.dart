@@ -1324,11 +1324,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   Widget _ownedComicMainTab() {
     final mediaFields = widget.type.mediaFields;
-    final releaseFields = widget.type.releaseFields;
     final editPresentation = _editPresentation;
     return EditTabShell(
       cover: _comicCoverPreview(),
       children: [
+        _ownedComicMainOverviewCard(),
         EditSection(
           title: 'Details',
           accent: widget.accent,
@@ -1337,64 +1337,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             children: [
               _responsiveFields([
                 _field(controller: _ageRatingController, label: 'Age'),
-                _field(controller: _variantController, label: 'Format'),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
                 _field(controller: _countryController, label: 'Country'),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
                 _field(controller: _languageController, label: 'Language'),
+                if (mediaFields.showPageCount)
+                  _field(
+                    controller: _pageCountController,
+                    label: 'Page count',
+                    validator: optionalIntValidator,
+                  ),
               ]),
-            ],
-          ),
-        ),
-        EditSection(
-          title: 'Issue',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _responsiveFields([
-                _field(
-                  controller: _titleController,
-                  label: 'Title',
-                  validator: (value) =>
-                      emptyToNull(value ?? '') == null ? 'Enter a title' : null,
-                ),
-                _field(controller: _numberController, label: mediaFields.numberLabel),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _field(controller: _publisherController, label: mediaFields.publisherLabel),
-                _field(
-                  controller: _releaseDateController,
-                  label: 'Release date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
-                  controller: _editionTitleController,
-                  label: releaseFields.editionTitleLabel,
-                ),
-                _field(controller: _barcodeController, label: releaseFields.barcodeLabel),
-              ]),
-              if (mediaFields.showPageCount || mediaFields.showImprint || mediaFields.showSeriesGroup) ...[
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  if (mediaFields.showPageCount)
-                    _field(
-                      controller: _pageCountController,
-                      label: 'Page count',
-                      validator: optionalIntValidator,
-                    ),
-                  if (mediaFields.showImprint)
-                    _field(controller: _imprintController, label: 'Imprint'),
-                  if (mediaFields.showSeriesGroup)
-                    _field(controller: _seriesGroupController, label: 'Series group'),
-                ]),
-              ],
             ],
           ),
         ),
@@ -1420,18 +1374,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     },
                   ),
                 ),
-                _field(
-                  controller: _quantityController,
-                  label: 'Quantity',
-                  validator: positiveIntValidator,
-                ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _readOnlyField(
-                  label: 'Index',
-                  value: widget.ownedItem?.indexNumber?.toString() ?? '—',
-                ),
                 _readOnlyField(
                   label: 'Added date',
                   value: _formatTimestamp(widget.ownedItem?.createdAt),
@@ -1517,20 +1462,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 ),
               ]),
               const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                initialValue: _collectionStatus,
-                isExpanded: true,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kEditMenuBorderRadius,
-                decoration: const InputDecoration(labelText: 'Collection status'),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('In collection')),
-                  DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
-                  DropdownMenuItem(value: 'on_order', child: Text('On order')),
-                ],
-                onChanged: (value) => setState(() => _collectionStatus = value),
-              ),
-              const SizedBox(height: 10),
               _datePickerField(
                 label: 'Last bag & board date',
                 value: _lastBagBoardDate,
@@ -1591,14 +1522,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (_showPhysicalOwnedFields) ...[
-                _responsiveFields([
-                  _locationField(),
-                  _field(
-                    controller: _ownerLabelController,
-                    label: 'Owner',
-                    hint: 'Name of the owner',
-                  ),
-                ]),
+                _field(
+                  controller: _ownerLabelController,
+                  label: 'Owner',
+                  hint: 'Name of the owner',
+                ),
                 const SizedBox(height: 10),
               ] else ...[
                 Text(
@@ -1702,6 +1630,103 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _ownedComicMainOverviewCard() {
+    final mediaFields = widget.type.mediaFields;
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: palette.gridCanvas,
+        shape: Border(
+          left: BorderSide(color: widget.accent, width: 2),
+          top: BorderSide(color: palette.surfaceBright),
+          right: BorderSide(color: palette.surfaceBright),
+          bottom: BorderSide(color: palette.surfaceBright),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _flexResponsiveFields(
+                [
+                  _field(
+                    controller: _titleController,
+                    label: 'Series',
+                    validator: (value) =>
+                        emptyToNull(value ?? '') == null ? 'Enter a title' : null,
+                  ),
+                  _field(controller: _numberController, label: 'Issue No.'),
+                  _field(
+                    controller: _editionTitleController,
+                    label: 'Variant Description',
+                  ),
+                ],
+                flexes: const [3, 1, 2],
+              ),
+              const SizedBox(height: 10),
+              _flexResponsiveFields(
+                [
+                  _field(controller: _barcodeController, label: 'Barcode'),
+                  _field(controller: _variantController, label: 'Format'),
+                  _field(
+                    controller: _releaseYearController,
+                    label: 'Cover Date',
+                    hint: 'YYYY',
+                    validator: optionalIntValidator,
+                  ),
+                  _field(
+                    controller: _releaseDateController,
+                    label: 'Release Date',
+                    hint: 'YYYY-MM-DD',
+                    validator: optionalDateValidator,
+                  ),
+                ],
+                flexes: const [2, 2, 1, 2],
+              ),
+              const SizedBox(height: 10),
+              _flexResponsiveFields(
+                [
+                  if (mediaFields.showSeriesGroup)
+                    _field(
+                      controller: _seriesGroupController,
+                      label: 'Series Group',
+                    ),
+                  _field(controller: _publisherController, label: 'Publisher'),
+                  if (mediaFields.showImprint)
+                    _field(controller: _imprintController, label: 'Imprint'),
+                ],
+                flexes: [
+                  if (mediaFields.showSeriesGroup) 2,
+                  2,
+                  if (mediaFields.showImprint) 2,
+                ],
+              ),
+              const SizedBox(height: 10),
+              _flexResponsiveFields(
+                [
+                  _collectionStatusField(label: 'Collection Status'),
+                  _readOnlyField(
+                    label: 'Index',
+                    value: widget.ownedItem?.indexNumber?.toString() ?? '—',
+                  ),
+                  _field(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+                  if (_showPhysicalOwnedFields)
+                    _locationField(label: 'Storage Box'),
+                ],
+                flexes: [2, 1, 1, if (_showPhysicalOwnedFields) 3],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -2553,6 +2578,39 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
   }
 
+  Widget _flexResponsiveFields(
+    List<Widget> children, {
+    required List<int> flexes,
+    double breakpoint = 880,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < breakpoint) {
+          return Column(
+            children: [
+              for (var index = 0; index < children.length; index++) ...[
+                if (index > 0) const SizedBox(height: 10),
+                children[index],
+              ],
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < children.length; index++) ...[
+              if (index > 0) const SizedBox(width: 10),
+              Expanded(
+                flex: flexes[index],
+                child: children[index],
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
   Widget _field({
     required TextEditingController controller,
     required String label,
@@ -2644,23 +2702,41 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   }
 
 
-  Widget _locationField() {
-    final label = _selectedLocationLabel;
+  Widget _locationField({String label = 'Location'}) {
+    final selectedLabel = _selectedLocationLabel;
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: _pickLocation,
       child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Location',
+        decoration: InputDecoration(
+          labelText: label,
           suffixIcon: Icon(Icons.place),
         ),
         child: Text(
-          label ?? 'No location selected',
+          selectedLabel ?? 'No location selected',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: label == null ? appPalette(context).textMuted : null,
+                color: selectedLabel == null
+                    ? appPalette(context).textMuted
+                    : null,
               ),
         ),
       ),
+    );
+  }
+
+  Widget _collectionStatusField({String label = 'Collection status'}) {
+    return DropdownButtonFormField<String>(
+      initialValue: _collectionStatus,
+      isExpanded: true,
+      dropdownColor: appPalette(context).panelRaised,
+      borderRadius: kEditMenuBorderRadius,
+      decoration: InputDecoration(labelText: label),
+      items: const [
+        DropdownMenuItem(value: null, child: Text('In collection')),
+        DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
+        DropdownMenuItem(value: 'on_order', child: Text('On order')),
+      ],
+      onChanged: (value) => setState(() => _collectionStatus = value),
     );
   }
 
