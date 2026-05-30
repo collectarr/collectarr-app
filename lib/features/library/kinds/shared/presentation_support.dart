@@ -14,10 +14,6 @@ const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
   showSummary: true,
 );
 const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder();
-const tvLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showSeasonHierarchy: true,
-);
 
 const defaultPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
@@ -30,10 +26,6 @@ const issuesPreviewLabels = LibraryMediaPreviewLabels(
 const volumesPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
   itemCount: 'Volumes',
-);
-const seasonsPreviewLabels = LibraryMediaPreviewLabels(
-  series: 'Series',
-  itemCount: 'Seasons',
 );
 const releasesPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Artist',

@@ -55,12 +55,12 @@ const _libraryNavGroupSpecs = [
   _LibraryNavGroupSpec(
     id: 'comic',
     label: 'Comics',
-    memberKinds: ['comic', 'manga'],
+    memberKinds: ['comic'],
   ),
   _LibraryNavGroupSpec(
     id: 'movie',
     label: 'Movies',
-    memberKinds: ['movie', 'tv', 'anime'],
+    memberKinds: ['movie'],
   ),
 ];
 
@@ -69,8 +69,7 @@ String? canonicalLibraryNavKind(String? kind) {
   if (normalized == null || normalized.isEmpty) {
     return null;
   }
-  final spec = _libraryNavGroupSpecForKind(normalized);
-  return spec?.id ?? normalized;
+  return normalized;
 }
 
 class NavTypeSplit {

@@ -1,10 +1,8 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -25,11 +23,7 @@ void main() {
   });
 
   test('print media kinds enable page count, imprint, and series group', () {
-    for (final type in [
-      comicsLibraryConfig,
-      mangaLibraryConfig,
-      booksLibraryConfig
-    ]) {
+    for (final type in [comicsLibraryConfig, booksLibraryConfig]) {
       expect(type.mediaFields.showPageCount, isTrue,
           reason: '${type.singularLabel} should show page count');
       expect(type.mediaFields.showImprint, isTrue,
@@ -42,7 +36,6 @@ void main() {
   test('non-print media kinds disable book-specific fields', () {
     for (final type in [
       moviesLibraryConfig,
-      animeLibraryConfig,
       gamesLibraryConfig,
       boardGamesLibraryConfig,
       musicLibraryConfig,
@@ -65,10 +58,9 @@ void main() {
         collectarrLibraryTypes.supportedKinds, containsAll(['comic', 'movie']));
   });
 
-  test('legacy video and print configs still map to merged labels', () {
+  test('merged movie and comic configs expose the kept labels', () {
     expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
-    expect(animeLibraryConfig.mediaFields.publisherLabel, 'Studio');
-    expect(mangaLibraryConfig.mediaFields.publisherLabel,
+    expect(comicsLibraryConfig.mediaFields.publisherLabel,
         'Publisher / Studio / Creator');
   });
 

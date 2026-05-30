@@ -392,51 +392,19 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
       onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          for (final table in allTables) {
-            await customStatement(
-              'DROP TABLE IF EXISTS ${table.actualTableName}',
-            );
-          }
-          await m.createAll();
-          return;
-        }
-        if (from < 3) {
-          await m.addColumn(ownedItemsCache, ownedItemsCache.createdAt);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.ownerUserId);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.ownerLabel);
+        for (final table in allTables) {
           await customStatement(
-            'UPDATE owned_items_cache SET created_at = updated_at WHERE created_at IS NULL',
+            'DROP TABLE IF EXISTS ${table.actualTableName}',
           );
         }
-        if (from < 4) {
-          await m.addColumn(catalogCache, catalogCache.audienceRating);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.labelType);
-          await m.addColumn(
-            ownedItemsCache,
-            ownedItemsCache.certificationNumber,
-          );
-        }
-        if (from < 5) {
-          await m.addColumn(
-            watchSessionsCache,
-            watchSessionsCache.seenWhere,
-          );
-        }
-        if (from < 6) {
-          await m.addColumn(catalogCache, catalogCache.coverDate);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.customLabel);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.pageQuality);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.keyCategory);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.keySeverity);
-        }
+        await m.createAll();
       },
     );
   }

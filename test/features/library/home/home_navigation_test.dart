@@ -18,12 +18,6 @@ void main() {
         routeSegments: ['comics'],
       ),
       CatalogMediaType(
-        kind: 'manga',
-        singularLabel: 'Manga',
-        pluralLabel: 'Manga',
-        routeSegments: ['manga'],
-      ),
-      CatalogMediaType(
         kind: 'game',
         singularLabel: 'Game',
         pluralLabel: 'Games',
@@ -40,7 +34,7 @@ void main() {
     final split = splitLibraryNavTypes(types, 'movie', 2);
 
     expect(split.visible.map((type) => type.kind), ['comic', 'movie']);
-    expect(split.overflow.map((type) => type.kind), ['manga', 'game']);
+    expect(split.overflow.map((type) => type.kind), ['game']);
   });
 
   test('catalog-defined config carries unknown provider and fallback labels',
@@ -132,18 +126,15 @@ void main() {
     );
   });
 
-  test('canonical library nav kinds collapse legacy grouped children', () {
-    expect(canonicalLibraryNavKind('manga'), 'comic');
-    expect(canonicalLibraryNavKind('tv'), 'movie');
-    expect(canonicalLibraryNavKind('anime'), 'movie');
+  test('canonical library nav kinds only normalize whitespace and case', () {
     expect(canonicalLibraryNavKind('movie'), 'movie');
     expect(canonicalLibraryNavKind('comic'), 'comic');
     expect(canonicalLibraryNavKind('book'), 'book');
-    expect(canonicalLibraryNavKind('  TV  '), 'movie');
+    expect(canonicalLibraryNavKind('  MOVIE  '), 'movie');
     expect(canonicalLibraryNavKind(null), isNull);
   });
 
-  test('library nav groups collapse comics and movies families', () {
+  test('library nav groups follow the top-level catalog kinds', () {
     const types = [
       CatalogMediaType(
         kind: 'comic',
@@ -170,8 +161,7 @@ void main() {
     expect(groups.map((group) => group.label), ['Comics', 'Movies', 'Books']);
     expect(groups[0].types.map((type) => type.kind), ['comic']);
     expect(groups[1].types.map((type) => type.kind), ['movie']);
-    expect(selectedLibraryNavGroup(groups, 'anime').label, 'Movies');
-    expect(
-        selectedLibraryNavGroup(groups, 'manga').containsKind('comic'), isTrue);
+    expect(selectedLibraryNavGroup(groups, 'movie').label, 'Movies');
+    expect(selectedLibraryNavGroup(groups, 'comic').containsKind('comic'), isTrue);
   });
 }

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,12 +17,12 @@ void main() {
         providers: ['musicbrainz'],
       ),
     ]);
-    final resolvedTv = tvLibraryConfig.resolveWithCatalog(const [
+    final resolvedMovies = moviesLibraryConfig.resolveWithCatalog(const [
       CatalogMediaType(
-        kind: 'tv',
-        singularLabel: 'Show',
-        pluralLabel: 'Shows',
-        routeSegments: ['tv'],
+        kind: 'movie',
+        singularLabel: 'Film',
+        pluralLabel: 'Films',
+        routeSegments: ['movies'],
         defaultProvider: 'tmdb',
         providers: ['tmdb'],
       ),
@@ -30,8 +30,8 @@ void main() {
 
     expect(resolvedMusic.singularLabel, 'Music');
     expect(resolvedMusic.pluralLabel, 'Music');
-    expect(resolvedTv.singularLabel, 'TV Show');
-    expect(resolvedTv.pluralLabel, 'TV Shows');
+    expect(resolvedMovies.singularLabel, 'Film');
+    expect(resolvedMovies.pluralLabel, 'Films');
   });
 
   test('catalog resolution titleizes unknown provider ids', () {

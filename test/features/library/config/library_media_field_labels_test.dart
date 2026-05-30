@@ -1,10 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,7 +11,7 @@ void main() {
     expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
     expect(moviesLibraryConfig.releaseFields.variantLabel, 'Format / Edition');
     expect(moviesLibraryConfig.releaseFields.barcodeLabel, 'UPC / Barcode');
-    expect(tvLibraryConfig.mediaFields.numberLabel, 'Season / Volume');
+    expect(moviesLibraryConfig.mediaFields.numberLabel, 'Edition no.');
   });
 
   test('books and games use media-specific barcode and edition labels', () {
@@ -65,13 +64,13 @@ void main() {
 
   test('preview labels vary by media type', () {
     final musicLabels = libraryMediaPreviewLabels(musicLibraryConfig);
-    final tvLabels = libraryMediaPreviewLabels(tvLibraryConfig);
+    final movieLabels = libraryMediaPreviewLabels(moviesLibraryConfig);
     final bookLabels = libraryMediaPreviewLabels(booksLibraryConfig);
 
     expect(musicLabels.series, 'Artist');
     expect(musicLabels.itemCount, 'Releases');
-    expect(tvLabels.series, 'Series');
-    expect(tvLabels.itemCount, 'Seasons');
+    expect(movieLabels.series, 'Series');
+    expect(movieLabels.itemCount, 'Items');
     expect(bookLabels.itemCount, 'Volumes');
   });
 
@@ -81,7 +80,7 @@ void main() {
     expect(moviesLibraryConfig.presentation.statsLabels.topSeries, 'Top Franchises');
     expect(gamesLibraryConfig.presentation.statsLabels.topPublisher,
         'Top Publishers / Studios');
-    expect(mangaLibraryConfig.presentation.usesTreeProviderCandidates, isTrue);
+    expect(comicsLibraryConfig.presentation.usesTreeProviderCandidates, isTrue);
     expect(booksLibraryConfig.presentation.usesTreeProviderCandidates, isFalse);
   });
 }

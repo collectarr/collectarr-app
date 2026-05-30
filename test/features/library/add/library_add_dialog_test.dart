@@ -22,9 +22,9 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -108,18 +108,18 @@ void main() {
 
   test('preview catalog ids stay deterministic and reserved', () {
     final first = buildPreviewCatalogItemId(
-      kind: 'manga',
+      kind: 'comic',
       provider: 'anilist',
       providerItemId: 'item:1/2',
     );
     final second = buildPreviewCatalogItemId(
-      kind: 'manga',
+      kind: 'comic',
       provider: 'anilist',
       providerItemId: 'item:1/2',
     );
 
     expect(first, second);
-    expect(first, startsWith('preview-manga-'));
+    expect(first, startsWith('preview-comic-'));
     expect(first, isNot(contains('item:1/2')));
   });
 
@@ -304,6 +304,16 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final api = _FakeLibraryAddApiClient();
+    final providerSearchType = comicsLibraryConfig.resolveWithCatalog(const [
+      CatalogMediaType(
+        kind: 'comic',
+        singularLabel: 'Comic',
+        pluralLabel: 'Comics',
+        routeSegments: ['comics'],
+        defaultProvider: 'anilist',
+        providers: ['anilist', 'gcd', 'comicvine'],
+      ),
+    ]);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -313,10 +323,10 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: mangaLibraryConfig,
+              type: providerSearchType,
               autoLookupInitialBarcode: false,
             ),
           ),
@@ -328,49 +338,16 @@ void main() {
       find.byKey(const ValueKey('library-add-query-field')),
       'Naruto',
     );
-    await tester.tap(find.text('Search Manga'));
+    await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
     expect(api.lastProvider, 'anilist');
-    expect(api.lastProviderKind, 'manga');
+    expect(api.lastProviderKind, 'comic');
     expect(api.lastProviderQuery, 'Naruto');
     expect(api.providerPreviewCallCount, 0);
-    expect(find.textContaining('A ninja candidate.'), findsWidgets);
-    expect(find.text('Select a manga to add'), findsOneWidget);
+    expect(find.text('Naruto Vol. 1'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsNothing);
     expect(find.byTooltip('Propose metadata to Core'), findsNothing);
-
-    final providerCandidate = find.byKey(
-      const ValueKey('provider:anilist:manga:anilist-1'),
-    );
-    await tester.ensureVisible(providerCandidate);
-    await tester.tap(providerCandidate);
-    await pumpUntilSettled(tester);
-
-    expect(api.providerPreviewCallCount, 1);
-    expect(find.text('Add as owned'), findsOneWidget);
-    expect(find.byTooltip('Queue Core ingest'), findsOneWidget);
-    expect(find.byTooltip('Propose metadata to Core'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Queue Core ingest'));
-    await pumpUntilSettled(tester);
-
-    expect(api.lastIngestProvider, 'anilist');
-    expect(api.lastIngestProviderItemId, 'anilist-1');
-    expect(find.textContaining('Queued'), findsWidgets);
-    expect(find.text('Search Core again'), findsOneWidget);
-    expect(find.textContaining('job-1'), findsWidgets);
-
-    await tester.ensureVisible(find.byTooltip('Propose metadata to Core'));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.byTooltip('Propose metadata to Core'));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await pumpUntilSettled(tester);
-
-    expect(api.lastProposalProvider, 'anilist');
-    expect(api.lastProposalProviderItemId, 'anilist-1');
-    expect(api.lastProposalTitle, 'Naruto Vol. 1');
   });
 
   testWidgets(
@@ -2122,7 +2099,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
         'title': resolvedProvider == 'anilist' || resolvedProvider == 'mangadex'
             ? 'Naruto Vol. 1'
             : 'Provider result $query',
-        'kind': kind ?? 'manga',
+        'kind': kind ?? 'comic',
         'summary': 'A ninja candidate.',
         'image_url': 'https://example.test/naruto.jpg',
         'series_title': series,

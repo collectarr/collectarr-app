@@ -14,13 +14,10 @@ import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
-import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
-  final normalizedType = normalizeCatalogMediaTypeDefaults(
-    _canonicalizeCatalogType(type),
-  );
+  final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
   final presentation = _presentationForCatalogKind(normalizedType.kind);
   final editPresentation = _editPresentationForCatalogKind(normalizedType.kind);
@@ -53,39 +50,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
     presentation: presentation,
     editPresentation: editPresentation,
   );
-}
-
-CatalogMediaType _canonicalizeCatalogType(CatalogMediaType type) {
-  final normalizedKind = type.kind.trim().toLowerCase();
-  if (normalizedKind == 'manga') {
-    return CatalogMediaType(
-      kind: 'comic',
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-      routeSegments: ['comics', 'comic', ...type.routeSegments],
-      defaultProvider: type.defaultProvider,
-      providers: type.providers,
-      providerSearchPolicy: type.providerSearchPolicy,
-      isTopLevel: false,
-      legacyOf: 'comic',
-      physicalFormats: type.physicalFormats,
-    );
-  }
-  if (normalizedKind == 'anime') {
-    return CatalogMediaType(
-      kind: 'movie',
-      singularLabel: 'Movie',
-      pluralLabel: 'Movies',
-      routeSegments: ['movies', 'movie', ...type.routeSegments],
-      defaultProvider: type.defaultProvider,
-      providers: type.providers,
-      providerSearchPolicy: type.providerSearchPolicy,
-      isTopLevel: false,
-      legacyOf: 'movie',
-      physicalFormats: type.physicalFormats,
-    );
-  }
-  return type;
 }
 
 List<LibraryMetadataProviderOption> _resolveRuntimeMetadataProviders(
@@ -150,8 +114,6 @@ LibraryMediaPresentation _presentationForCatalogKind(String kind) {
       return moviesLibraryMediaPresentation;
     case 'music':
       return musicLibraryMediaPresentation;
-    case 'tv':
-      return tvLibraryMediaPresentation;
     default:
       return genericLibraryMediaPresentation;
   }

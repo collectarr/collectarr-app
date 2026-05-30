@@ -37,7 +37,6 @@ class CatalogMediaType {
     this.providers = const [],
     this.providerSearchPolicy = 'core_miss_then_configured_providers',
     this.isTopLevel = true,
-    this.legacyOf,
     this.physicalFormats = const [],
   });
 
@@ -49,7 +48,6 @@ class CatalogMediaType {
   final List<String> providers;
   final String providerSearchPolicy;
   final bool isTopLevel;
-  final String? legacyOf;
   final List<CatalogPhysicalFormat> physicalFormats;
 
   factory CatalogMediaType.fromJson(Map<String, dynamic> json) {
@@ -69,7 +67,6 @@ class CatalogMediaType {
       providerSearchPolicy: json['provider_search_policy'] as String? ??
           'core_miss_then_configured_providers',
       isTopLevel: json['is_top_level'] as bool? ?? true,
-      legacyOf: json['legacy_of'] as String?,
       physicalFormats: [
         for (final format in (json['physical_formats'] as List<dynamic>? ?? []))
           CatalogPhysicalFormat.fromJson(format as Map<String, dynamic>),

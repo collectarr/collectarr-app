@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -142,7 +141,6 @@ void main() {
       'game',
       'boardgame',
       'movie',
-      'tv',
       'music',
     ]);
     expect(collectarrLibraryTypes.byKind('comic'), comicsLibraryConfig);
@@ -156,8 +154,6 @@ void main() {
         'openlibrary');
     expect(collectarrLibraryTypes.byKind('movie')?.defaultMetadataProvider,
         'tmdb');
-    expect(
-        collectarrLibraryTypes.byKind('tv')?.defaultMetadataProvider, 'tmdb');
     expect(collectarrLibraryTypes.byKind('music')?.defaultMetadataProvider,
         'musicbrainz');
     expect(collectarrLibraryTypes.byKind('bluray'), isNull);
@@ -180,10 +176,6 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('movie').map((row) => row.id),
-      containsAll(['tmdb']),
-    );
-    expect(
-      collectarrLibraryTypes.providersForKind('tv').map((row) => row.id),
       ['tmdb'],
     );
     expect(
@@ -221,7 +213,7 @@ void main() {
         same(buildMusicLibraryEditDialog));
   });
 
-  test('video physical formats are variants under movies and tv', () {
+  test('video physical formats are variants under movies', () {
     expect(
       videoPhysicalMediaFormats.map((format) => format.id),
       ['dvd', 'blu-ray', '4k-uhd', 'vhs', 'laserdisc', 'digital'],
@@ -269,7 +261,6 @@ void main() {
       'game',
       'boardgame',
       'movie',
-      'tv',
       'music',
     ]);
     expect(collectarrMediaAdapters.supportedKinds, [
@@ -278,7 +269,6 @@ void main() {
       'game',
       'boardgame',
       'movie',
-      'tv',
       'music',
     ]);
     expect(collectarrMediaAdapters.byKind(' Comic '), comicsMediaAdapter);
@@ -295,7 +285,6 @@ void main() {
           .contains(LibraryTableColumn.title),
       isTrue,
     );
-    expect(collectarrMediaAdapters.byKind('tv')?.type, tvLibraryConfig);
     expect(collectarrMediaAdapters.byKind('music')?.type, musicLibraryConfig);
     expect(
       gamesMediaAdapter.columnSort(LibraryTableColumn.releaseDate),

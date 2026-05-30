@@ -353,7 +353,7 @@ void main() {
     await tester.pump();
   });
 
-  testWidgets('legacy grouped route kinds normalize to movies page',
+  testWidgets('unknown route kinds fall back to the first catalog page',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1220, 900);
@@ -391,9 +391,8 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.text('Add Movies'), findsOneWidget);
-    expect(find.text('Search movies...'), findsOneWidget);
-    expect(find.text('Add TV Shows'), findsNothing);
-    expect(find.text('Search TV shows...'), findsNothing);
+    expect(find.text('Add Comics'), findsOneWidget);
+    expect(find.text('Search comics...'), findsOneWidget);
+    expect(find.text('Add Movies'), findsNothing);
   });
 }

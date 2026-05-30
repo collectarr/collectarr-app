@@ -26,10 +26,8 @@ void main() {
       catalog.firstWhere((type) => type.kind == 'comic').providers,
       containsAll(['comicvine', 'mangadex', 'anilist']),
     );
-    expect(
-      catalog.firstWhere((type) => type.kind == 'movie').routeSegments,
-      containsAll(['movies', 'tv', 'shows', 'series']),
-    );
+    expect(catalog.firstWhere((type) => type.kind == 'movie').routeSegments,
+        ['movies', 'movie']);
   });
 
   test('resolved library type uses Core provider defaults', () async {
@@ -145,10 +143,10 @@ void main() {
               providers: ['musicbrainz'],
             ),
             const CatalogMediaType(
-              kind: 'tv',
-              singularLabel: 'Show',
-              pluralLabel: 'Shows',
-              routeSegments: ['tv'],
+              kind: 'movie',
+              singularLabel: 'Film',
+              pluralLabel: 'Films',
+              routeSegments: ['movies'],
               defaultProvider: 'tmdb',
               providers: ['tmdb'],
             ),
@@ -174,9 +172,8 @@ void main() {
     );
     expect(
       catalog.firstWhere((type) => type.kind == 'movie').pluralLabel,
-      'Movies',
+      'Films',
     );
-    expect(catalog.map((type) => type.kind), isNot(contains('tv')));
     expect(
       catalog.firstWhere((type) => type.kind == 'boardgame').pluralLabel,
       'Board Games',
