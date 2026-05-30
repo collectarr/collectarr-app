@@ -98,6 +98,7 @@ void registerComicAddBuilders() {
       'creatorsController': TextEditingController(),
       'charactersController': TextEditingController(),
       'linksController': TextEditingController(),
+      'personalNotesController': TextEditingController(),
       'rawOrSlabbedController': TextEditingController(),
       'gradingCompanyController': TextEditingController(),
       'graderNotesController': TextEditingController(),
@@ -260,7 +261,8 @@ class _ComicManualPane extends StatelessWidget {
                                       value: '',
                                       child: Text('No specific format'),
                                     ),
-                                    for (final format in request.physicalFormats)
+                                    for (final format
+                                        in request.physicalFormats)
                                       DropdownMenuItem<String>(
                                         value: format.id,
                                         child: Text(format.label),

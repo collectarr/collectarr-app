@@ -52,12 +52,12 @@ Finder comicSearchResultById(String id) =>
     find.byKey(ValueKey('library-add-search-result-$id'));
 
 Finder anyByKey(String keyName) =>
-  find.byKey(ValueKey(keyName), skipOffstage: false);
+    find.byKey(ValueKey(keyName), skipOffstage: false);
 
 Finder anyText(String text) => find.text(text, skipOffstage: false);
 
 Finder anyTextContaining(String text) =>
-  find.textContaining(text, skipOffstage: false);
+    find.textContaining(text, skipOffstage: false);
 
 Future<void> ensureAdvancedSearchVisible(WidgetTester tester) async {
   if (textFieldByKeyOrLabel('library-add-series-field', 'Series')
@@ -71,7 +71,8 @@ Future<void> ensureAdvancedSearchVisible(WidgetTester tester) async {
     await tester.pump();
     return;
   }
-  final filtersButton = find.byKey(const ValueKey('library-add-filters-toggle'));
+  final filtersButton =
+      find.byKey(const ValueKey('library-add-filters-toggle'));
   if (filtersButton.evaluate().isNotEmpty) {
     await tester.tap(filtersButton);
     await tester.pump();
@@ -159,7 +160,8 @@ void main() {
     expect(merged.creators, isNotEmpty);
     expect(merged.creators!.first['name'], 'J.R.R. Tolkien');
     expect(merged.creators!.first['role'], 'Author');
-    expect(merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(
+        merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
     expect(merged.genres, contains('Fantasy'));
   });
 
@@ -371,7 +373,8 @@ void main() {
     expect(api.lastProposalTitle, 'Naruto Vol. 1');
   });
 
-  testWidgets('comic add dialog applies local cover scan hints to search fields',
+  testWidgets(
+      'comic add dialog applies local cover scan hints to search fields',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -415,11 +418,16 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await ensureAdvancedSearchVisible(tester);
 
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-series-field', 'Series'), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-series-field', 'Series'),
+        findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
+        findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
+        findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'),
+        findsOneWidget);
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
@@ -444,7 +452,8 @@ void main() {
     expect(yearField.controller!.text, '1988');
   });
 
-  testWidgets('comic add dialog leaves search untouched when cover scan is cancelled',
+  testWidgets(
+      'comic add dialog leaves search untouched when cover scan is cancelled',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -485,7 +494,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -539,7 +549,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -601,8 +612,10 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await ensureAdvancedSearchVisible(tester);
 
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
+        findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -614,7 +627,8 @@ void main() {
     expect(publisherField.controller!.text, 'DC');
   });
 
-  testWidgets('comic add dialog uses reviewed cover text when filename is generic',
+  testWidgets(
+      'comic add dialog uses reviewed cover text when filename is generic',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -662,8 +676,10 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await ensureAdvancedSearchVisible(tester);
 
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'),
+        findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -686,25 +702,25 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () {
-                DialogLibraryCoverImageReview(
-                  imagePreprocessor: const _FakeCoverImagePreprocessor(),
-                  textRecognizer: const _FakeCoverTextRecognizer(
-                    text: 'Batman 423 1988 DC',
-                  ),
-                ).reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () {
+                  DialogLibraryCoverImageReview(
+                    imagePreprocessor: const _FakeCoverImagePreprocessor(),
+                    textRecognizer: const _FakeCoverTextRecognizer(
+                      text: 'Batman 423 1988 DC',
+                    ),
+                  ).reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
 
@@ -758,7 +774,8 @@ void main() {
     expect(ranked.first.title, 'Batman #423 (match)');
   });
 
-  testWidgets('comic add dialog applies edited review label from real review dialog',
+  testWidgets(
+      'comic add dialog applies edited review label from real review dialog',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -811,8 +828,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
-    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
+        findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -840,8 +859,8 @@ void main() {
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () async {
-                  reviewedImage = await const DialogLibraryCoverImageReview()
-                      .reviewImage(
+                  reviewedImage =
+                      await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
                     type: comicsLibraryConfig,
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
@@ -908,8 +927,8 @@ void main() {
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () async {
-                  reviewedImage = await const DialogLibraryCoverImageReview()
-                      .reviewImage(
+                  reviewedImage =
+                      await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
                     type: comicsLibraryConfig,
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
@@ -932,9 +951,11 @@ void main() {
     await tester.ensureVisible(
       find.byKey(const ValueKey('library-cover-review-trim-left')),
     );
-    await tester.tap(find.byKey(const ValueKey('library-cover-review-trim-left')));
+    await tester
+        .tap(find.byKey(const ValueKey('library-cover-review-trim-left')));
     await tester.pump(const Duration(milliseconds: 50));
-    await tester.tap(find.byKey(const ValueKey('library-cover-review-trim-top')));
+    await tester
+        .tap(find.byKey(const ValueKey('library-cover-review-trim-top')));
     await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text('Crop: 95% width x 95% height'), findsOneWidget);
@@ -967,8 +988,8 @@ void main() {
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () async {
-                  reviewedImage = await const DialogLibraryCoverImageReview()
-                      .reviewImage(
+                  reviewedImage =
+                      await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
                     type: comicsLibraryConfig,
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
@@ -1034,7 +1055,8 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
+    expect(
+        find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
     // Mixed-provider summary text removed; provider badges are sufficient.
     expect(
       find.text('Showing matches from GCD and Comic Vine.'),
@@ -1156,7 +1178,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1211,7 +1234,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1316,7 +1340,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1371,7 +1396,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1400,7 +1426,8 @@ void main() {
     expect(find.text('Add Movies'), findsOneWidget);
     expect(find.text('Add Movies from Collectarr Core'), findsNothing);
     expect(
-      find.text('Browse releases, compare covers, and add directly to your library.'),
+      find.text(
+          'Browse releases, compare covers, and add directly to your library.'),
       findsOneWidget,
     );
     expect(find.text('Movies'), findsWidgets);
@@ -1424,7 +1451,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1456,6 +1484,52 @@ void main() {
     expect(find.text('Matched on: Title'), findsOneWidget);
   });
 
+  testWidgets('generic add search results avoid overflow in narrow panes', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => TestAdminAuthController(ref),
+          ),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    expect(find.textContaining('Batman'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('comic add dialog previews selected bundle release members', (
     tester,
   ) async {
@@ -1473,7 +1547,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1507,7 +1582,9 @@ void main() {
     expect(anyText('423'), findsWidgets);
   });
 
-  testWidgets('comic add dialog lets the user keep edition scope without picking a physical release', (
+  testWidgets(
+      'comic add dialog lets the user keep edition scope without picking a physical release',
+      (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1524,7 +1601,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1570,7 +1648,8 @@ void main() {
     expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
   });
 
-  testWidgets('comic add dialog lets the user pick an explicit physical release', (
+  testWidgets(
+      'comic add dialog lets the user pick an explicit physical release', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1587,7 +1666,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1747,7 +1827,6 @@ void main() {
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
     expect(find.text('Matched on: Artist'), findsOneWidget);
   });
-
 }
 
 class _FakeLibraryAddApiClient extends ApiClient {
@@ -1872,7 +1951,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
   }
 
   @override
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     if (itemId == 'comic-423') {
       return [
         BundleReleaseSummary.fromJson(const {
@@ -2083,7 +2163,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String providerItemId,
   }) async {
     providerPreviewCallCount += 1;
-    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+    return _providerPreviewFor(
+        provider: provider, providerItemId: providerItemId);
   }
 
   @override
@@ -2091,7 +2172,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String provider,
     required String providerItemId,
   }) async {
-    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+    return _providerPreviewFor(
+        provider: provider, providerItemId: providerItemId);
   }
 
   @override

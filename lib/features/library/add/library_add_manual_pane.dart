@@ -82,7 +82,9 @@ class _ManualPaneState extends State<_ManualPane> {
                                 child: TextField(
                                   controller: widget.request.numberController,
                                   textAlign: TextAlign.center,
-                                  decoration: InputDecoration(labelText: widget.request.type.mediaFields.numberLabel),
+                                  decoration: InputDecoration(
+                                      labelText: widget.request.type.mediaFields
+                                          .numberLabel),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -94,7 +96,8 @@ class _ManualPaneState extends State<_ManualPane> {
                                     FilteringTextInputFormatter.digitsOnly,
                                   ],
                                   textAlign: TextAlign.center,
-                                  decoration: const InputDecoration(labelText: 'Year'),
+                                  decoration:
+                                      const InputDecoration(labelText: 'Year'),
                                 ),
                               ),
                             ],
@@ -103,7 +106,8 @@ class _ManualPaneState extends State<_ManualPane> {
                           TextField(
                             controller: widget.request.publisherController,
                             decoration: InputDecoration(
-                              labelText: widget.request.type.mediaFields.publisherLabel,
+                              labelText: widget
+                                  .request.type.mediaFields.publisherLabel,
                               prefixIcon: const Icon(Icons.business_outlined),
                             ),
                           ),
@@ -111,8 +115,10 @@ class _ManualPaneState extends State<_ManualPane> {
                           TextField(
                             controller: widget.request.variantController,
                             decoration: InputDecoration(
-                              labelText: widget.request.type.releaseFields.variantLabel,
-                              prefixIcon: const Icon(Icons.auto_awesome_motion_outlined),
+                              labelText: widget
+                                  .request.type.releaseFields.variantLabel,
+                              prefixIcon: const Icon(
+                                  Icons.auto_awesome_motion_outlined),
                             ),
                           ),
                           if (widget.request.physicalFormats.isNotEmpty) ...[
@@ -131,7 +137,8 @@ class _ManualPaneState extends State<_ManualPane> {
                                   value: '',
                                   child: Text('No specific format'),
                                 ),
-                                for (final format in widget.request.physicalFormats)
+                                for (final format
+                                    in widget.request.physicalFormats)
                                   DropdownMenuItem<String>(
                                     value: format.id,
                                     child: Text(format.label),
@@ -145,7 +152,8 @@ class _ManualPaneState extends State<_ManualPane> {
                             controller: widget.request.barcodeController,
                             textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
-                              labelText: widget.request.type.releaseFields.barcodeLabel,
+                              labelText: widget
+                                  .request.type.releaseFields.barcodeLabel,
                               prefixIcon: const Icon(Icons.qr_code_2),
                             ),
                           ),
@@ -171,29 +179,68 @@ class _ManualPaneState extends State<_ManualPane> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextField(
-                                  controller: widget.request.editionTitleController,
-                                  decoration: const InputDecoration(labelText: 'Edition Title'),
+                                  controller:
+                                      widget.request.editionTitleController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Edition Title'),
                                 ),
                                 const SizedBox(height: 8),
                                 Row(children: [
-                                  Expanded(child: TextField(controller: widget.request.releaseDateController, decoration: const InputDecoration(labelText: 'Release Date (YYYY-MM-DD)'))),
+                                  Expanded(
+                                      child: TextField(
+                                          controller: widget
+                                              .request.releaseDateController,
+                                          decoration: const InputDecoration(
+                                              labelText:
+                                                  'Release Date (YYYY-MM-DD)'))),
                                   const SizedBox(width: 8),
-                                  Expanded(child: TextField(controller: widget.request.pageCountController, decoration: const InputDecoration(labelText: 'Page Count'))),
+                                  Expanded(
+                                      child: TextField(
+                                          controller: widget
+                                              .request.pageCountController,
+                                          decoration: const InputDecoration(
+                                              labelText: 'Page Count'))),
                                 ]),
                                 const SizedBox(height: 8),
-                                TextField(controller: widget.request.imprintController, decoration: const InputDecoration(labelText: 'Imprint')),
+                                TextField(
+                                    controller:
+                                        widget.request.imprintController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Imprint')),
                                 const SizedBox(height: 8),
-                                TextField(controller: widget.request.seriesGroupController, decoration: const InputDecoration(labelText: 'Series Group')),
+                                TextField(
+                                    controller:
+                                        widget.request.seriesGroupController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Series Group')),
                                 const SizedBox(height: 8),
                                 Row(children: [
-                                  Expanded(child: TextField(controller: widget.request.countryController, decoration: const InputDecoration(labelText: 'Country'))),
+                                  Expanded(
+                                      child: TextField(
+                                          controller:
+                                              widget.request.countryController,
+                                          decoration: const InputDecoration(
+                                              labelText: 'Country'))),
                                   const SizedBox(width: 8),
-                                  Expanded(child: TextField(controller: widget.request.languageController, decoration: const InputDecoration(labelText: 'Language'))),
+                                  Expanded(
+                                      child: TextField(
+                                          controller:
+                                              widget.request.languageController,
+                                          decoration: const InputDecoration(
+                                              labelText: 'Language'))),
                                 ]),
                                 const SizedBox(height: 8),
-                                TextField(controller: widget.request.ageRatingController, decoration: const InputDecoration(labelText: 'Age Rating')),
+                                TextField(
+                                    controller:
+                                        widget.request.ageRatingController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Age Rating')),
                                 const SizedBox(height: 8),
-                                TagPickListField(controller: widget.request.genresEditController, options: const [], label: 'Genres'),
+                                TagPickListField(
+                                    controller:
+                                        widget.request.genresEditController,
+                                    options: const [],
+                                    label: 'Genres'),
                               ],
                             ),
                           ),
@@ -207,15 +254,43 @@ class _ManualPaneState extends State<_ManualPane> {
                           accent: widget.request.accent,
                           child: Column(children: [
                             Row(children: [
-                              Expanded(child: TextField(controller: widget.request.kindSpecific['purchasePriceController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Purchase Price'))),
+                              Expanded(
+                                  child: TextField(
+                                      controller: widget.request.kindSpecific[
+                                                  'purchasePriceController']
+                                              as TextEditingController? ??
+                                          TextEditingController(),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
-                              Expanded(child: TextField(controller: widget.request.kindSpecific['purchaseDateController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Purchase Date'))),
+                              Expanded(
+                                  child: TextField(
+                                      controller: widget.request.kindSpecific[
+                                                  'purchaseDateController']
+                                              as TextEditingController? ??
+                                          TextEditingController(),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Purchase Date'))),
                             ]),
                             const SizedBox(height: 8),
                             Row(children: [
-                              Expanded(child: TextField(controller: widget.request.kindSpecific['coverPriceController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Cover Price'))),
+                              Expanded(
+                                  child: TextField(
+                                      controller: widget.request.kindSpecific[
+                                                  'coverPriceController']
+                                              as TextEditingController? ??
+                                          TextEditingController(),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Cover Price'))),
                               const SizedBox(width: 8),
-                              Expanded(child: TextField(controller: widget.request.kindSpecific['soldPriceController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Sold Price'))),
+                              Expanded(
+                                  child: TextField(
+                                      controller: widget.request.kindSpecific[
+                                                  'soldPriceController']
+                                              as TextEditingController? ??
+                                          TextEditingController(),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Sold Price'))),
                             ]),
                           ]),
                         )
@@ -228,12 +303,30 @@ class _ManualPaneState extends State<_ManualPane> {
                           accent: widget.request.accent,
                           child: Column(children: [
                             Row(children: [
-                              Expanded(child: TextField(controller: widget.request.kindSpecific['ownerLabelController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Owner'))),
+                              Expanded(
+                                  child: TextField(
+                                      controller: widget.request.kindSpecific[
+                                                  'ownerLabelController']
+                                              as TextEditingController? ??
+                                          TextEditingController(),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Owner'))),
                               const SizedBox(width: 8),
-                              Expanded(child: TextField(controller: widget.request.tagsController, decoration: const InputDecoration(labelText: 'Tags'))),
+                              Expanded(
+                                  child: TextField(
+                                      controller: widget.request.tagsController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Tags'))),
                             ]),
                             const SizedBox(height: 8),
-                            TextField(controller: widget.request.kindSpecific['graderNotesController'] as TextEditingController? ?? TextEditingController(), decoration: const InputDecoration(labelText: 'Notes'), maxLines: 4),
+                            TextField(
+                                controller: widget.request.kindSpecific[
+                                            'personalNotesController']
+                                        as TextEditingController? ??
+                                    TextEditingController(),
+                                decoration:
+                                    const InputDecoration(labelText: 'Notes'),
+                                maxLines: 4),
                           ]),
                         )
                       ]),
@@ -254,41 +347,78 @@ class _ManualPaneState extends State<_ManualPane> {
                           title: 'Covers',
                           accent: widget.request.accent,
                           child: Column(children: [
-                            TextField(controller: widget.request.coverController, decoration: const InputDecoration(labelText: 'Front cover URL')),
+                            TextField(
+                                controller: widget.request.coverController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Front cover URL')),
                             const SizedBox(height: 8),
-                            TextField(controller: widget.request.backCoverController, decoration: const InputDecoration(labelText: 'Back cover URL')),
+                            TextField(
+                                controller: widget.request.backCoverController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Back cover URL')),
                           ]),
                         )
                       ]),
 
                       // My Images
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        ItemImagesEditSection(images: widget.request.itemImages, accent: widget.request.accent, onChanged: widget.request.onItemImagesChanged),
+                        ItemImagesEditSection(
+                            images: widget.request.itemImages,
+                            accent: widget.request.accent,
+                            onChanged: widget.request.onItemImagesChanged),
                       ]),
 
                       // Creators (placeholder simple tag field)
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Creators', accent: widget.request.accent, child: TagPickListField(controller: widget.request.creatorsController, options: const [], label: 'Creators')),
+                        EditSection(
+                            title: 'Creators',
+                            accent: widget.request.accent,
+                            child: TagPickListField(
+                                controller: widget.request.creatorsController,
+                                options: const [],
+                                label: 'Creators')),
                       ]),
 
                       // Characters (placeholder)
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Characters', accent: widget.request.accent, child: TagPickListField(controller: widget.request.charactersController, options: const [], label: 'Characters')),
+                        EditSection(
+                            title: 'Characters',
+                            accent: widget.request.accent,
+                            child: TagPickListField(
+                                controller: widget.request.charactersController,
+                                options: const [],
+                                label: 'Characters')),
                       ]),
                       // Plot
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Plot', accent: widget.request.accent, child: TextField(controller: widget.request.synopsisController, maxLines: 6, decoration: const InputDecoration(labelText: 'Synopsis'))),
+                        EditSection(
+                            title: 'Plot',
+                            accent: widget.request.accent,
+                            child: TextField(
+                                controller: widget.request.synopsisController,
+                                maxLines: 6,
+                                decoration: const InputDecoration(
+                                    labelText: 'Synopsis'))),
                       ]),
 
                       // Links
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        EditSection(title: 'Links', accent: widget.request.accent, child: TextField(controller: widget.request.kindSpecific['linksController'] as TextEditingController? ?? TextEditingController(), maxLines: 3, decoration: const InputDecoration(labelText: 'Links (one per line)'))),
+                        EditSection(
+                            title: 'Links',
+                            accent: widget.request.accent,
+                            child: TextField(
+                                controller: widget.request
+                                            .kindSpecific['linksController']
+                                        as TextEditingController? ??
+                                    TextEditingController(),
+                                maxLines: 3,
+                                decoration: const InputDecoration(
+                                    labelText: 'Links (one per line)'))),
                       ]),
                     ],
                   ),
                 ),
               ),
-
               const SizedBox(height: 8),
               DecoratedBox(
                 decoration: BoxDecoration(
@@ -322,11 +452,17 @@ class _ManualPaneState extends State<_ManualPane> {
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: widget.request.isAdding ? null : widget.request.onAddTrack,
+                              onPressed: widget.request.isAdding
+                                  ? null
+                                  : widget.request.onAddTrack,
                               style: libraryAddOutlinedButtonStyle(),
-                              icon: const Icon(Icons.visibility_outlined, size: 18),
+                              icon: const Icon(Icons.visibility_outlined,
+                                  size: 18),
                               label: Text(
-                                LibraryAddCopy.addToTargetLabel(count: 1, type: widget.request.type, target: LibraryAddTarget.track),
+                                LibraryAddCopy.addToTargetLabel(
+                                    count: 1,
+                                    type: widget.request.type,
+                                    target: LibraryAddTarget.track),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -334,11 +470,16 @@ class _ManualPaneState extends State<_ManualPane> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: widget.request.isAdding ? null : widget.request.onAddWishlist,
+                              onPressed: widget.request.isAdding
+                                  ? null
+                                  : widget.request.onAddWishlist,
                               style: libraryAddOutlinedButtonStyle(),
                               icon: const Icon(Icons.star_outline, size: 18),
                               label: Text(
-                                LibraryAddCopy.addToTargetLabel(count: 1, type: widget.request.type, target: LibraryAddTarget.wishlist),
+                                LibraryAddCopy.addToTargetLabel(
+                                    count: 1,
+                                    type: widget.request.type,
+                                    target: LibraryAddTarget.wishlist),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -346,13 +487,22 @@ class _ManualPaneState extends State<_ManualPane> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: FilledButton.icon(
-                              onPressed: widget.request.isAdding ? null : widget.request.onAddOwned,
+                              onPressed: widget.request.isAdding
+                                  ? null
+                                  : widget.request.onAddOwned,
                               style: libraryAddFilledButtonStyle(),
                               icon: widget.request.isAdding
-                                  ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                                  : const Icon(Icons.inventory_2_outlined, size: 18),
+                                  ? const SizedBox.square(
+                                      dimension: 16,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2))
+                                  : const Icon(Icons.inventory_2_outlined,
+                                      size: 18),
                               label: Text(
-                                LibraryAddCopy.addToTargetLabel(count: 1, type: widget.request.type, target: LibraryAddTarget.owned),
+                                LibraryAddCopy.addToTargetLabel(
+                                    count: 1,
+                                    type: widget.request.type,
+                                    target: LibraryAddTarget.owned),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

@@ -527,6 +527,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _genresEditController = TextEditingController();
   final _synopsisController = TextEditingController();
   final _tagsController = TextEditingController();
+  final _personalNotesController = TextEditingController();
   final _rawOrSlabbedController = TextEditingController();
   final _gradingCompanyController = TextEditingController();
   final _graderNotesController = TextEditingController();
@@ -690,6 +691,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _genresEditController.dispose();
     _synopsisController.dispose();
     _tagsController.dispose();
+    _personalNotesController.dispose();
     _rawOrSlabbedController.dispose();
     _gradingCompanyController.dispose();
     _graderNotesController.dispose();
@@ -1023,6 +1025,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       registerLibraryAddBuilders();
 
                       final kindSpecificMap = {
+                        'personalNotesController': _personalNotesController,
                         'rawOrSlabbedController': _rawOrSlabbedController,
                         'gradingCompanyController': _gradingCompanyController,
                         'graderNotesController': _graderNotesController,
@@ -1790,12 +1793,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       purchaseDate: purchaseDate,
       pricePaidCents: pricePaidCents,
       currency: null,
-      personalNotes: ctl('graderNotesController', _graderNotesController)
+      personalNotes: ctl('personalNotesController', _personalNotesController)
               .text
               .trim()
               .isEmpty
           ? null
-          : ctl('graderNotesController', _graderNotesController).text.trim(),
+          : ctl('personalNotesController', _personalNotesController)
+              .text
+              .trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
       rawOrSlabbed: ctl('rawOrSlabbedController', _rawOrSlabbedController)
