@@ -8,6 +8,17 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_panel.dart';
 import 'package:flutter/material.dart';
 
+const String _comicCrossoverPrefix = 'Crossover: ';
+
+String? _buildComicSynopsis(String? summary, String? description) {
+  final normalizedSummary = emptyToNull(summary ?? '');
+  final normalizedDescription = emptyToNull(description ?? '');
+  if (normalizedSummary != null && normalizedDescription != null) {
+    return '$normalizedSummary\n\n$normalizedDescription';
+  }
+  return normalizedDescription ?? normalizedSummary;
+}
+
 Widget buildComicLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
@@ -97,6 +108,15 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                               .map((storyArc) => storyArc.trim())
                               .where((storyArc) => storyArc.isNotEmpty)
                               .toList();
+                      final parsedCrossover = emptyToNull(
+                        map['crossover'] ?? '',
+                      );
+                      if (parsedCrossover != null) {
+                        parsedStoryArcs.insert(
+                          0,
+                          '$_comicCrossoverPrefix$parsedCrossover',
+                        );
+                      }
                       final parsedReleaseDate = parseDate(
                         map['releaseDate'] ?? '',
                       );
@@ -156,11 +176,9 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                             widget.request.item.title,
                         titleExtension: emptyToNull(map['subtitle'] ?? ''),
                         itemNumber: emptyToNull(map['issueNumber'] ?? ''),
-                        synopsis: emptyToNull(
-                          ((map['description'] as String?)?.trim().isNotEmpty ??
-                                  false)
-                              ? (map['description'] as String? ?? '')
-                              : (map['summary'] as String? ?? ''),
+                        synopsis: _buildComicSynopsis(
+                          map['summary'] as String?,
+                          map['description'] as String?,
                         ),
                         coverImageUrl: emptyToNull(map['coverUrl'] ?? ''),
                         thumbnailImageUrl: emptyToNull(map['coverUrl'] ?? ''),

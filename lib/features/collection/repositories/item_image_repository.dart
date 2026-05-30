@@ -33,7 +33,9 @@ class ItemImageRepository {
         .get();
     final grouped = <String, List<ItemImage>>{};
     for (final row in rows) {
-      grouped.putIfAbsent(row.ownedItemId, () => <ItemImage>[]).add(_fromRow(row));
+      grouped
+          .putIfAbsent(row.ownedItemId, () => <ItemImage>[])
+          .add(_fromRow(row));
     }
     return grouped;
   }
@@ -53,9 +55,20 @@ class ItemImageRepository {
         );
   }
 
-  Future<void> updateCaption(String id, String? caption) async {
+  Future<void> updateMetadata(
+    String id, {
+    String? caption,
+    String? imageType,
+    int? sortOrder,
+  }) async {
     await (_db.update(_db.itemImagesCache)..where((row) => row.id.equals(id)))
-        .write(ItemImagesCacheCompanion(caption: Value(caption)));
+        .write(
+      ItemImagesCacheCompanion(
+        caption: Value(caption),
+        imageType: imageType == null ? const Value.absent() : Value(imageType),
+        sortOrder: sortOrder == null ? const Value.absent() : Value(sortOrder),
+      ),
+    );
   }
 
   Future<void> delete(String id) {

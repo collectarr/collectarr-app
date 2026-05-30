@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
 /// Gallery / carousel section for item images within an edit dialog.
@@ -31,6 +32,7 @@ class ItemImageEdit {
     required this.id,
     this.imageData,
     this.caption,
+    this.imageType = 'auxiliary',
     this.sortOrder = 0,
     this.deleted = false,
   });
@@ -38,6 +40,7 @@ class ItemImageEdit {
   final String id;
   final String? imageData; // base64, null for unchanged/deleted
   final String? caption;
+  final String imageType;
   final int sortOrder;
   final bool deleted;
 }
@@ -54,6 +57,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           id: img.id,
           imageData: img.imageData,
           caption: img.caption,
+          imageType: img.imageType,
           sortOrder: img.sortOrder,
           isNew: false,
           deleted: false,
@@ -68,6 +72,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           id: img.id,
           imageData: img.isNew ? img.imageData : null,
           caption: img.caption,
+          imageType: img.imageType,
           sortOrder: img.sortOrder,
           deleted: img.deleted,
         ),
@@ -77,8 +82,9 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   @override
   Widget build(BuildContext context) {
     final visible = _images.where((img) => !img.deleted).toList();
+    final canAddMore = visible.length < 5;
     return EditSection(
-      title: 'Item photos (${visible.length})',
+      title: 'Item photos (${visible.length}/5)',
       accent: widget.accent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,21 +108,51 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
                   final img = visible[index];
                   return _ImageCard(
                     image: img,
-                    onEditCaption: () => _editCaption(img),
+                    onEditCaption: () => _editImageDetails(img),
                     onDelete: () => _deleteImage(img),
                   );
                 },
               ),
             ),
           const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: _addImageFromClipboard,
-            icon: const Icon(Icons.add_photo_alternate_outlined),
-            label: const Text('Paste base64 image'),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: canAddMore ? _addImageFromFile : null,
+                icon: const Icon(Icons.upload_file_outlined),
+                label: const Text('Upload image'),
+              ),
+              OutlinedButton.icon(
+                onPressed: canAddMore ? _addImageFromClipboard : null,
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+                label: const Text('Paste base64 image'),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _addImageFromFile() async {
+    if (_images.where((img) => !img.deleted).length >= 5) {
+      return;
+    }
+    final file = await openFile(
+      acceptedTypeGroups: const [
+        XTypeGroup(
+          label: 'images',
+          extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
+        ),
+      ],
+    );
+    if (file == null) {
+      return;
+    }
+    final bytes = await file.readAsBytes();
+    _addImage(base64Encode(bytes));
   }
 
   Future<void> _addImageFromClipboard() async {
@@ -167,11 +203,19 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       }
       return;
     }
+    _addImage(base64Data);
+  }
+
+  void _addImage(String base64Data) {
+    if (_images.where((img) => !img.deleted).length >= 5) {
+      return;
+    }
     setState(() {
       _images.add(_EditableImage(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         imageData: base64Data,
         caption: null,
+        imageType: 'auxiliary',
         sortOrder: _images.length,
         isNew: true,
         deleted: false,
@@ -180,17 +224,51 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     _notifyChanged();
   }
 
-  Future<void> _editCaption(_EditableImage img) async {
+  Future<void> _editImageDetails(_EditableImage img) async {
     final controller = TextEditingController(text: img.caption ?? '');
-    final newCaption = await showDialog<String>(
+    var selectedType = img.imageType;
+    final result = await showDialog<({String caption, String imageType})>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit caption'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Caption',
-            border: OutlineInputBorder(),
+        title: const Text('Edit image details'),
+        content: SizedBox(
+          width: 360,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: selectedType,
+                decoration: const InputDecoration(
+                  labelText: 'Image type',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'front_cover',
+                    child: Text('Front cover'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'back_cover',
+                    child: Text('Back cover'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'auxiliary',
+                    child: Text('Auxiliary'),
+                  ),
+                ],
+                onChanged: (value) {
+                  selectedType = value ?? 'auxiliary';
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  labelText: 'Caption',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
@@ -199,16 +277,20 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            onPressed: () => Navigator.of(context).pop((
+              caption: controller.text.trim(),
+              imageType: selectedType,
+            )),
             child: const Text('Save'),
           ),
         ],
       ),
     );
     controller.dispose();
-    if (newCaption == null) return;
+    if (result == null) return;
     setState(() {
-      img.caption = newCaption.isEmpty ? null : newCaption;
+      img.caption = result.caption.isEmpty ? null : result.caption;
+      img.imageType = result.imageType;
     });
     _notifyChanged();
   }
@@ -224,6 +306,7 @@ class _EditableImage {
     required this.id,
     required this.imageData,
     this.caption,
+    this.imageType = 'auxiliary',
     this.sortOrder = 0,
     this.isNew = false,
     this.deleted = false,
@@ -232,6 +315,7 @@ class _EditableImage {
   final String id;
   final String imageData;
   String? caption;
+  String imageType;
   int sortOrder;
   final bool isNew;
   bool deleted;
@@ -247,6 +331,17 @@ class _ImageCard extends StatelessWidget {
   final _EditableImage image;
   final VoidCallback onEditCaption;
   final VoidCallback onDelete;
+
+  String _labelForType(String value) {
+    switch (value) {
+      case 'front_cover':
+        return 'Front cover';
+      case 'back_cover':
+        return 'Back cover';
+      default:
+        return 'Auxiliary';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -310,6 +405,15 @@ class _ImageCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 11, color: kEditTextMuted),
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              _labelForType(image.imageType),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11, color: kEditTextMuted),
+            ),
+          ),
         ],
       ),
     );

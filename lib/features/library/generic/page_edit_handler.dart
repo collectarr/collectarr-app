@@ -258,13 +258,19 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
           await itemImageRepo.add(ItemImage(
             id: edit.id,
             ownedItemId: owned.id,
+            imageType: edit.imageType,
             imageData: edit.imageData!,
             caption: edit.caption,
             sortOrder: edit.sortOrder,
             createdAt: now,
           ));
         } else {
-          await itemImageRepo.updateCaption(edit.id, edit.caption);
+          await itemImageRepo.updateMetadata(
+            edit.id,
+            caption: edit.caption,
+            imageType: edit.imageType,
+            sortOrder: edit.sortOrder,
+          );
         }
       }
     }

@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ComicEditPanel extends StatefulWidget {
   const ComicEditPanel({super.key, required this.request});
@@ -14,6 +18,111 @@ class ComicEditPanel extends StatefulWidget {
 }
 
 class ComicEditPanelState extends State<ComicEditPanel> {
+  static const List<String> _commonCreatorRoles = <String>[
+    'Writer',
+    'Artist',
+    'Cover',
+    'Penciller',
+    'Inker',
+    'Colorist',
+    'Letterer',
+    'Editor',
+  ];
+
+  static const List<String> _commonFormats = <String>[
+    'Single Issue',
+    'Trade Paperback',
+    'Hardcover',
+    'Omnibus',
+    'Graphic Novel',
+    'Deluxe Edition',
+  ];
+
+  static const List<String> _commonPublishers = <String>[
+    'Marvel',
+    'DC',
+    'Image',
+    'Dark Horse',
+    'BOOM! Studios',
+    'IDW',
+  ];
+
+  static const List<String> _commonImprints = <String>[
+    'Skybound',
+    'Vertigo',
+    'Black Label',
+    'Icon',
+    'Epic',
+  ];
+
+  static const List<String> _commonGrades = <String>[
+    '10.0',
+    '9.8',
+    '9.6',
+    '9.4',
+    '9.2',
+    '9.0',
+    '8.5',
+    '8.0',
+    '7.5',
+  ];
+
+  static const List<String> _rawOrSlabbedOptions = <String>[
+    'Raw',
+    'Slabbed',
+    'Raw + Signed',
+  ];
+
+  static const List<String> _gradingCompanies = <String>[
+    'CGC',
+    'CBCS',
+    'PGX',
+  ];
+
+  static const List<String> _labelTypeOptions = <String>[
+    'Universal',
+    'Signature Series',
+    'Qualified',
+    'Restored',
+    'Verified',
+  ];
+
+  static const List<String> _customLabelOptions = <String>[
+    'Blue',
+    'Yellow',
+    'Red',
+    'Green',
+    'Silver',
+  ];
+
+  static const List<String> _pageQualityOptions = <String>[
+    'White Pages',
+    'Off-White to White Pages',
+    'Cream to Off-White Pages',
+    'Brittle Pages',
+  ];
+
+  static const List<String> _purchaseStoreOptions = <String>[
+    'LCS',
+    'Convention',
+    'eBay',
+    'Whatnot',
+    'Online shop',
+  ];
+
+  static const List<String> _statusOptions = <String>[
+    'Unread',
+    'Reading',
+    'Finished',
+  ];
+
+  static const List<String> _keySeverityOptions = <String>[
+    'Minor',
+    'Major',
+  ];
+
+  static const String _crossoverPrefix = 'Crossover: ';
+
   late final TextEditingController titleCtl;
   late final TextEditingController seriesCtl;
   late final TextEditingController barcodeCtl;
@@ -27,6 +136,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   late final TextEditingController publisherCtl;
   late final TextEditingController imprintCtl;
   late final TextEditingController subtitleCtl;
+  late final TextEditingController crossoverCtl;
   late final TextEditingController storyArcsCtl;
   late final TextEditingController countryCtl;
   late final TextEditingController languageCtl;
@@ -72,17 +182,6 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   List<ItemImageEdit> _itemImageEdits = const [];
   bool _keyComic = false;
 
-  static const List<String> _commonCreatorRoles = <String>[
-    'Writer',
-    'Artist',
-    'Cover',
-    'Penciller',
-    'Inker',
-    'Colorist',
-    'Letterer',
-    'Editor',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -108,8 +207,16 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     publisherCtl = TextEditingController(text: item.publisher ?? '');
     imprintCtl = TextEditingController(text: publishing?.imprint ?? '');
     subtitleCtl = TextEditingController(text: item.titleExtension ?? '');
-    storyArcsCtl =
-        TextEditingController(text: item.storyArcs?.join(', ') ?? '');
+    final crossover = (item.storyArcs ?? const <String>[])
+        .where((value) => value.startsWith(_crossoverPrefix))
+        .map((value) => value.substring(_crossoverPrefix.length).trim())
+        .firstOrNull;
+    crossoverCtl = TextEditingController(text: crossover ?? '');
+    storyArcsCtl = TextEditingController(
+      text: (item.storyArcs ?? const <String>[])
+          .where((value) => !value.startsWith(_crossoverPrefix))
+          .join(', '),
+    );
     countryCtl = TextEditingController(text: item.country ?? '');
     languageCtl = TextEditingController(text: item.language ?? '');
     ageCtl = TextEditingController(text: item.ageRating ?? '');
@@ -179,8 +286,9 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     coverUrlCtl = TextEditingController(
         text: item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
     characterDraftCtl = TextEditingController();
-    summaryCtl = TextEditingController(text: item.synopsis ?? '');
-    descriptionCtl = TextEditingController();
+    final decodedPlot = _decodePlotSynopsis(item.synopsis);
+    summaryCtl = TextEditingController(text: decodedPlot.$1);
+    descriptionCtl = TextEditingController(text: decodedPlot.$2);
     _keyComic = owned?.keyComic ?? false;
     _customFieldValues = {
       for (final definition in widget.request.customFieldDefinitions)
@@ -224,6 +332,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     publisherCtl.dispose();
     imprintCtl.dispose();
     subtitleCtl.dispose();
+    crossoverCtl.dispose();
     storyArcsCtl.dispose();
     countryCtl.dispose();
     languageCtl.dispose();
@@ -277,6 +386,11 @@ class ComicEditPanelState extends State<ComicEditPanel> {
 
   void _addCreator() {
     creators.add(_newCreatorControllers());
+    setState(() {});
+  }
+
+  void _addCreatorWithRole(String role) {
+    creators.add(_newCreatorControllers(role: role));
     setState(() {});
   }
 
@@ -394,6 +508,347 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     );
   }
 
+  Widget _labelledDateField(
+    String label, {
+    required TextEditingController controller,
+    Key? key,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        _StructuredDateField(
+          controller: controller,
+          fieldKey: key,
+          label: label,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickChoiceField(
+    String label, {
+    required TextEditingController controller,
+    required List<String> suggestions,
+    Key? key,
+    int maxLines = 1,
+    String? hintText,
+  }) {
+    final normalizedSuggestions = suggestions
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toSet()
+        .toList(growable: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _labelledField(
+          label,
+          controller: controller,
+          key: key,
+          maxLines: maxLines,
+          hintText: hintText,
+        ),
+        if (normalizedSuggestions.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final suggestion in normalizedSuggestions)
+                ActionChip(
+                  label: Text(suggestion),
+                  onPressed: () {
+                    _setControllerText(controller, suggestion);
+                    setState(() {});
+                  },
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _setControllerText(TextEditingController controller, String value) {
+    controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+  }
+
+  Widget _buildReadStatusSection() {
+    final currentStatus = _statusOptions.contains(statusCtl.text.trim())
+        ? statusCtl.text.trim()
+        : 'Unread';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Read Status',
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        SegmentedButton<String>(
+          segments: const [
+            ButtonSegment<String>(
+              value: 'Unread',
+              label: Text('Unread', key: ValueKey('edit-status-unread')),
+            ),
+            ButtonSegment<String>(
+              value: 'Reading',
+              label: Text('Reading', key: ValueKey('edit-status-reading')),
+            ),
+            ButtonSegment<String>(
+              value: 'Finished',
+              label: Text('Finished', key: ValueKey('edit-status-finished')),
+            ),
+          ],
+          selected: {currentStatus},
+          onSelectionChanged: (selection) {
+            final value = selection.firstOrNull ?? 'Unread';
+            _setControllerText(statusCtl, value);
+            setState(() {});
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRatingSection() {
+    final rating = int.tryParse(ratingCtl.text.trim())?.clamp(0, 10) ?? 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text('Rating', style: TextStyle(fontWeight: FontWeight.w700)),
+            const Spacer(),
+            if (rating > 0)
+              TextButton(
+                onPressed: () {
+                  _setControllerText(ratingCtl, '');
+                  setState(() {});
+                },
+                child: const Text('Clear'),
+              ),
+          ],
+        ),
+        Slider(
+          key: const ValueKey('edit-rating-slider'),
+          value: rating.toDouble(),
+          min: 0,
+          max: 10,
+          divisions: 10,
+          label: rating == 0 ? 'Not rated' : '$rating / 10',
+          onChanged: (value) {
+            final normalized = value.round();
+            _setControllerText(
+              ratingCtl,
+              normalized == 0 ? '' : normalized.toString(),
+            );
+            setState(() {});
+          },
+        ),
+        Text(
+          rating == 0 ? 'Not rated' : '$rating / 10',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (var value = 1; value <= 10; value++)
+              ActionChip(
+                key: ValueKey('edit-rating-choice-$value'),
+                label: Text('$value'),
+                onPressed: () {
+                  _setControllerText(ratingCtl, value.toString());
+                  setState(() {});
+                },
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildKeySeveritySection() {
+    final currentSeverity = !_keyComic
+        ? 'No'
+        : (_keySeverityOptions.contains(keySeverityCtl.text.trim())
+            ? keySeverityCtl.text.trim()
+            : 'Major');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Key Issue Severity',
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 6),
+        SegmentedButton<String>(
+          segments: const [
+            ButtonSegment<String>(
+              value: 'No',
+              label: Text('No', key: ValueKey('edit-key-no')),
+            ),
+            ButtonSegment<String>(
+              value: 'Minor',
+              label: Text('Minor', key: ValueKey('edit-key-minor')),
+            ),
+            ButtonSegment<String>(
+              value: 'Major',
+              label: Text('Major', key: ValueKey('edit-key-major')),
+            ),
+          ],
+          selected: {currentSeverity},
+          onSelectionChanged: (selection) {
+            final value = selection.firstOrNull ?? 'No';
+            if (value == 'No') {
+              _keyComic = false;
+              _setControllerText(keySeverityCtl, '');
+            } else {
+              _keyComic = true;
+              _setControllerText(keySeverityCtl, value);
+            }
+            setState(() {});
+          },
+        ),
+      ],
+    );
+  }
+
+  (String, String) _decodePlotSynopsis(String? value) {
+    final synopsis = value?.trim() ?? '';
+    if (synopsis.isEmpty) {
+      return ('', '');
+    }
+    final parts = synopsis.split(RegExp(r'\r?\n\r?\n'));
+    if (parts.length <= 1) {
+      return (synopsis, '');
+    }
+    return (parts.first.trim(), parts.skip(1).join('\n\n').trim());
+  }
+
+  String _buildMarketSearchQuery() {
+    final series = seriesCtl.text.trim();
+    final title = titleCtl.text.trim();
+    final issue = issueNumberCtl.text.trim();
+    final variant = variantCtl.text.trim();
+    return [
+      if (series.isNotEmpty) series else title,
+      if (issue.isNotEmpty) '#$issue',
+      if (variant.isNotEmpty) variant,
+    ].join(' ').trim();
+  }
+
+  Future<void> _openCovrPriceHome() async {
+    final uri = Uri.parse('https://covrprice.com');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // Ignore platform URL failures.
+    }
+  }
+
+  List<_ResolvedComicImage> _resolvedImages() {
+    final existing = {
+      for (final image in widget.request.itemImages) image.id: image
+    };
+    final editsById = {
+      for (final edit in _itemImageEdits) edit.id: edit,
+    };
+    final images = <_ResolvedComicImage>[];
+    for (final image in widget.request.itemImages) {
+      final edit = editsById[image.id];
+      if (edit?.deleted == true) {
+        continue;
+      }
+      images.add(
+        _ResolvedComicImage(
+          id: image.id,
+          imageData: edit?.imageData ?? image.imageData,
+          imageType: edit?.imageType ?? image.imageType,
+          caption: edit?.caption ?? image.caption,
+          sortOrder: edit?.sortOrder ?? image.sortOrder,
+        ),
+      );
+    }
+    for (final edit in _itemImageEdits) {
+      if (existing.containsKey(edit.id) ||
+          edit.deleted ||
+          edit.imageData == null) {
+        continue;
+      }
+      images.add(
+        _ResolvedComicImage(
+          id: edit.id,
+          imageData: edit.imageData!,
+          imageType: edit.imageType,
+          caption: edit.caption,
+          sortOrder: edit.sortOrder,
+        ),
+      );
+    }
+    images.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return images;
+  }
+
+  _ResolvedComicImage? _firstImageOfType(String type) {
+    return _resolvedImages()
+        .where((image) => image.imageType == type)
+        .firstOrNull;
+  }
+
+  Widget _buildImagePreviewCard(
+    String title, {
+    String? networkUrl,
+    String? imageData,
+    String emptyLabel = 'No image',
+  }) {
+    Widget child;
+    if (imageData != null && imageData.isNotEmpty) {
+      try {
+        child = Image.memory(
+          base64Decode(imageData),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
+        );
+      } catch (_) {
+        child = Center(child: Text(emptyLabel));
+      }
+    } else if (networkUrl != null && networkUrl.isNotEmpty) {
+      child = Image.network(
+        networkUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
+      );
+    } else {
+      child = Center(child: Text(emptyLabel));
+    }
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Container(
+            height: 220,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.black12,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.black12),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: child,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMainTab(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
@@ -405,8 +860,15 @@ class ComicEditPanelState extends State<ComicEditPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _labelledField('Series',
-                    controller: seriesCtl, key: const ValueKey('edit-series')),
+                _buildQuickChoiceField(
+                  'Series',
+                  controller: seriesCtl,
+                  key: const ValueKey('edit-series'),
+                  suggestions: [
+                    widget.request.item.series?.seriesTitle ?? '',
+                    widget.request.item.title,
+                  ],
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -416,15 +878,23 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                             key: const ValueKey('edit-barcode'))),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: _labelledField('Format',
-                            controller: formatCtl,
-                            key: const ValueKey('edit-format'))),
+                        child: _buildQuickChoiceField(
+                      'Format',
+                      controller: formatCtl,
+                      key: const ValueKey('edit-format'),
+                      suggestions: _commonFormats,
+                    )),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _labelledField('Series Group',
-                    controller: seriesGroupCtl,
-                    key: const ValueKey('edit-seriesgroup')),
+                _buildQuickChoiceField(
+                  'Series Group',
+                  controller: seriesGroupCtl,
+                  key: const ValueKey('edit-seriesgroup'),
+                  suggestions: [
+                    widget.request.item.publishing?.seriesGroup ?? ''
+                  ],
+                ),
               ],
             ),
           ),
@@ -458,30 +928,34 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                 Row(
                   children: [
                     Expanded(
-                        child: _labelledField('Cover Date',
+                        child: _labelledDateField('Cover Date',
                             controller: coverDateCtl,
-                            key: const ValueKey('edit-coverdate'),
-                            hintText: 'YYYY-MM-DD')),
+                            key: const ValueKey('edit-coverdate'))),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: _labelledField('Release Date',
+                        child: _labelledDateField('Release Date',
                             controller: releaseDateCtl,
-                            key: const ValueKey('edit-releasedate'),
-                            hintText: 'YYYY-MM-DD')),
+                            key: const ValueKey('edit-releasedate'))),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
-                        child: _labelledField('Publisher',
-                            controller: publisherCtl,
-                            key: const ValueKey('edit-publisher'))),
+                        child: _buildQuickChoiceField(
+                      'Publisher',
+                      controller: publisherCtl,
+                      key: const ValueKey('edit-publisher'),
+                      suggestions: _commonPublishers,
+                    )),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: _labelledField('Imprint',
-                            controller: imprintCtl,
-                            key: const ValueKey('edit-imprint'))),
+                        child: _buildQuickChoiceField(
+                      'Imprint',
+                      controller: imprintCtl,
+                      key: const ValueKey('edit-imprint'),
+                      suggestions: _commonImprints,
+                    )),
                   ],
                 ),
               ],
@@ -537,6 +1011,11 @@ class ComicEditPanelState extends State<ComicEditPanel> {
             ],
           ),
           const SizedBox(height: 12),
+          _labelledField('Crossover',
+              controller: crossoverCtl,
+              key: const ValueKey('edit-crossover'),
+              hintText: 'Saved as a tagged story arc for now'),
+          const SizedBox(height: 12),
           _labelledField('Story Arcs',
               controller: storyArcsCtl,
               key: const ValueKey('edit-storyarcs'),
@@ -569,10 +1048,9 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                       key: const ValueKey('edit-purchase-currency'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Purchase Date',
+                  child: _labelledDateField('Purchase Date',
                       controller: purchaseDateCtl,
-                      key: const ValueKey('edit-purchase-date'),
-                      hintText: 'YYYY-MM-DD')),
+                      key: const ValueKey('edit-purchase-date'))),
             ],
           ),
           const SizedBox(height: 12),
@@ -584,8 +1062,10 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                       key: const ValueKey('edit-current-value'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Grade',
-                      controller: gradeCtl, key: const ValueKey('edit-grade'))),
+                  child: _buildQuickChoiceField('Grade',
+                      controller: gradeCtl,
+                      suggestions: _commonGrades,
+                      key: const ValueKey('edit-grade'))),
               const SizedBox(width: 8),
               Expanded(
                   child: _labelledField('Cover Price',
@@ -602,14 +1082,14 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                       key: const ValueKey('edit-sold-price'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Sold Date',
+                  child: _labelledDateField('Sold Date',
                       controller: soldDateCtl,
-                      key: const ValueKey('edit-sold-date'),
-                      hintText: 'YYYY-MM-DD')),
+                      key: const ValueKey('edit-sold-date'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Purchase Store',
+                  child: _buildQuickChoiceField('Purchase Store',
                       controller: purchaseStoreCtl,
+                      suggestions: _purchaseStoreOptions,
                       key: const ValueKey('edit-purchase-store'))),
             ],
           ),
@@ -617,13 +1097,15 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           Row(
             children: [
               Expanded(
-                  child: _labelledField('Raw / Slabbed',
+                  child: _buildQuickChoiceField('Raw / Slabbed',
                       controller: rawOrSlabbedCtl,
+                      suggestions: _rawOrSlabbedOptions,
                       key: const ValueKey('edit-raw-slabbed'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Grading Company',
+                  child: _buildQuickChoiceField('Grading Company',
                       controller: gradingCompanyCtl,
+                      suggestions: _gradingCompanies,
                       key: const ValueKey('edit-grading-company'))),
             ],
           ),
@@ -631,13 +1113,15 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           Row(
             children: [
               Expanded(
-                  child: _labelledField('Label Type',
+                  child: _buildQuickChoiceField('Label Type',
                       controller: labelTypeCtl,
+                      suggestions: _labelTypeOptions,
                       key: const ValueKey('edit-label-type'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Custom Label',
+                  child: _buildQuickChoiceField('Custom Label',
                       controller: customLabelCtl,
+                      suggestions: _customLabelOptions,
                       key: const ValueKey('edit-custom-label'))),
             ],
           ),
@@ -645,8 +1129,9 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           Row(
             children: [
               Expanded(
-                  child: _labelledField('Page Quality',
+                  child: _buildQuickChoiceField('Page Quality',
                       controller: pageQualityCtl,
+                      suggestions: _pageQualityOptions,
                       key: const ValueKey('edit-page-quality'))),
               const SizedBox(width: 8),
               Expanded(
@@ -664,12 +1149,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           _labelledField('Signed by',
               controller: signedByCtl, key: const ValueKey('edit-signed-by')),
           const SizedBox(height: 12),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Key issue'),
-            value: _keyComic,
-            onChanged: (value) => setState(() => _keyComic = value ?? false),
-          ),
+          _buildKeySeveritySection(),
           if (_keyComic) ...[
             const SizedBox(height: 8),
             Row(
@@ -690,6 +1170,51 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                 controller: keyReasonCtl,
                 key: const ValueKey('edit-key-reason')),
           ],
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Market Tools',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Jump to sold listings or external price references while editing your grading and value notes.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () => launchEbaySearch(
+                        '${_buildMarketSearchQuery()} sold',
+                      ),
+                      icon: const Icon(Icons.shopping_bag_outlined),
+                      label: const Text('Sold Listings'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: _openCovrPriceHome,
+                      icon: const Icon(Icons.open_in_new),
+                      label: const Text('Open CovrPrice'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -701,16 +1226,11 @@ class ComicEditPanelState extends State<ComicEditPanel> {
       child: Column(
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  child: _labelledField('Status',
-                      controller: statusCtl,
-                      key: const ValueKey('edit-status'))),
+              Expanded(child: _buildReadStatusSection()),
               const SizedBox(width: 8),
-              Expanded(
-                  child: _labelledField('Rating',
-                      controller: ratingCtl,
-                      key: const ValueKey('edit-rating'))),
+              Expanded(child: _buildRatingSection()),
               const SizedBox(width: 8),
               Expanded(
                   child: _labelledField('Owner',
@@ -721,16 +1241,14 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           Row(
             children: [
               Expanded(
-                  child: _labelledField('Read Date',
+                  child: _labelledDateField('Read Date',
                       controller: readDateCtl,
-                      key: const ValueKey('edit-read-date'),
-                      hintText: 'YYYY-MM-DD')),
+                      key: const ValueKey('edit-read-date'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Bag/Board Date',
+                  child: _labelledDateField('Bag/Board Date',
                       controller: bagBoardDateCtl,
-                      key: const ValueKey('edit-bagboard-date'),
-                      hintText: 'YYYY-MM-DD')),
+                      key: const ValueKey('edit-bagboard-date'))),
             ],
           ),
           const SizedBox(height: 12),
@@ -760,11 +1278,12 @@ class ComicEditPanelState extends State<ComicEditPanel> {
 
   Widget _buildCoversTab() {
     final coverUrl = coverUrlCtl.text.trim();
-    final imageCount = _itemImageEdits.where((edit) => !edit.deleted).length +
-        widget.request.itemImages.where((image) {
-          return !_itemImageEdits
-              .any((edit) => edit.id == image.id && edit.deleted);
-        }).length;
+    final resolvedImages = _resolvedImages();
+    final imageCount = resolvedImages.length;
+    final backCover = _firstImageOfType('back_cover');
+    final frontAlt = _firstImageOfType('front_cover');
+    final auxiliaryCount =
+        resolvedImages.where((image) => image.imageType == 'auxiliary').length;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -773,31 +1292,22 @@ class ComicEditPanelState extends State<ComicEditPanel> {
           _labelledField('Front Cover URL',
               controller: coverUrlCtl, key: const ValueKey('edit-cover-url')),
           const SizedBox(height: 12),
-          Text('Front Cover',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Container(
-            width: 220,
-            height: 320,
-            decoration: BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.black12),
-            ),
-            child: coverUrl.isEmpty
-                ? const Center(child: Text('No cover'))
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      coverUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          const Center(child: Text('Preview unavailable')),
-                    ),
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildImagePreviewCard(
+                'Front Cover',
+                networkUrl: coverUrl,
+                imageData: frontAlt?.imageData,
+                emptyLabel: 'No front cover',
+              ),
+              const SizedBox(width: 12),
+              _buildImagePreviewCard(
+                'Back Cover',
+                imageData: backCover?.imageData,
+                emptyLabel: 'No back cover',
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Container(
@@ -819,20 +1329,32 @@ class ComicEditPanelState extends State<ComicEditPanel> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Use the metadata cover above for the primary front cover. Use My Images for back covers, slab shots, signatures, and detail photos.',
+                  'Use the metadata cover above for the primary front cover. Use My Images to assign front cover overrides, back covers, slab shots, signatures, and detail photos.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Attached personal images: $imageCount',
+                  'Attached personal images: $imageCount total, $auxiliaryCount auxiliary.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: () =>
-                      DefaultTabController.of(context).animateTo(6),
-                  icon: const Icon(Icons.collections_outlined),
-                  label: const Text('Manage My Images'),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () =>
+                          DefaultTabController.of(context).animateTo(6),
+                      icon: const Icon(Icons.collections_outlined),
+                      label: const Text('Manage My Images'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: () =>
+                          launchEbaySearch(_buildMarketSearchQuery()),
+                      icon: const Icon(Icons.search),
+                      label: const Text('Find Better Cover'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -863,6 +1385,18 @@ class ComicEditPanelState extends State<ComicEditPanel> {
               onPressed: _addCreator,
               icon: const Icon(Icons.add),
               label: const Text('Add Creator')),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final role in _commonCreatorRoles)
+                ActionChip(
+                  label: Text('Add $role'),
+                  onPressed: () => _addCreatorWithRole(role),
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
           if (creators.isEmpty)
             Text(
@@ -1108,6 +1642,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
       'publisher': publisherCtl.text,
       'imprint': imprintCtl.text,
       'subtitle': subtitleCtl.text,
+      'crossover': crossoverCtl.text,
       'storyArcs': storyArcsCtl.text,
       'country': countryCtl.text,
       'language': languageCtl.text,
@@ -1162,4 +1697,187 @@ class ComicEditPanelState extends State<ComicEditPanel> {
       'itemImageEdits': _itemImageEdits,
     };
   }
+}
+
+class _StructuredDateField extends StatefulWidget {
+  const _StructuredDateField({
+    required this.controller,
+    required this.label,
+    this.fieldKey,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final Key? fieldKey;
+
+  @override
+  State<_StructuredDateField> createState() => _StructuredDateFieldState();
+}
+
+class _StructuredDateFieldState extends State<_StructuredDateField> {
+  late final TextEditingController _yearCtl;
+  late final TextEditingController _monthCtl;
+  late final TextEditingController _dayCtl;
+  bool _syncing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final parsed = _splitDate(widget.controller.text);
+    _yearCtl = TextEditingController(text: parsed.$1);
+    _monthCtl = TextEditingController(text: parsed.$2);
+    _dayCtl = TextEditingController(text: parsed.$3);
+    widget.controller.addListener(_syncFromMainController);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_syncFromMainController);
+    _yearCtl.dispose();
+    _monthCtl.dispose();
+    _dayCtl.dispose();
+    super.dispose();
+  }
+
+  void _syncFromMainController() {
+    if (_syncing) {
+      return;
+    }
+    final parsed = _splitDate(widget.controller.text);
+    if (_yearCtl.text == parsed.$1 &&
+        _monthCtl.text == parsed.$2 &&
+        _dayCtl.text == parsed.$3) {
+      return;
+    }
+    _yearCtl.text = parsed.$1;
+    _monthCtl.text = parsed.$2;
+    _dayCtl.text = parsed.$3;
+  }
+
+  static (String, String, String) _splitDate(String value) {
+    final parts = value.trim().split('-');
+    if (parts.length != 3) {
+      return ('', '', '');
+    }
+    return (parts[0], parts[1], parts[2]);
+  }
+
+  void _writeBack() {
+    _syncing = true;
+    final year = _yearCtl.text.trim();
+    final month = _monthCtl.text.trim();
+    final day = _dayCtl.text.trim();
+    final value =
+        year.isEmpty && month.isEmpty && day.isEmpty ? '' : '$year-$month-$day';
+    widget.controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+    _syncing = false;
+  }
+
+  Future<void> _pickDate() async {
+    final initialDate = _tryParseDate(widget.controller.text) ?? DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+      helpText: widget.label,
+    );
+    if (picked == null || !mounted) {
+      return;
+    }
+    _yearCtl.text = picked.year.toString().padLeft(4, '0');
+    _monthCtl.text = picked.month.toString().padLeft(2, '0');
+    _dayCtl.text = picked.day.toString().padLeft(2, '0');
+    _writeBack();
+    setState(() {});
+  }
+
+  DateTime? _tryParseDate(String value) {
+    final normalized = value.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(normalized);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final keyPrefix = widget.fieldKey is ValueKey<String>
+        ? (widget.fieldKey as ValueKey<String>).value
+        : null;
+    return Row(
+      key: widget.fieldKey,
+      children: [
+        Expanded(
+          flex: 4,
+          child: TextField(
+            key: keyPrefix == null ? null : ValueKey('$keyPrefix-year'),
+            controller: _yearCtl,
+            keyboardType: TextInputType.number,
+            maxLength: 4,
+            decoration: const InputDecoration(
+              counterText: '',
+              hintText: 'YYYY',
+            ),
+            onChanged: (_) => _writeBack(),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 3,
+          child: TextField(
+            key: keyPrefix == null ? null : ValueKey('$keyPrefix-month'),
+            controller: _monthCtl,
+            keyboardType: TextInputType.number,
+            maxLength: 2,
+            decoration: const InputDecoration(
+              counterText: '',
+              hintText: 'MM',
+            ),
+            onChanged: (_) => _writeBack(),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 3,
+          child: TextField(
+            key: keyPrefix == null ? null : ValueKey('$keyPrefix-day'),
+            controller: _dayCtl,
+            keyboardType: TextInputType.number,
+            maxLength: 2,
+            decoration: const InputDecoration(
+              counterText: '',
+              hintText: 'DD',
+            ),
+            onChanged: (_) => _writeBack(),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          tooltip: 'Pick date',
+          onPressed: _pickDate,
+          icon: const Icon(Icons.calendar_today_outlined),
+        ),
+      ],
+    );
+  }
+}
+
+class _ResolvedComicImage {
+  const _ResolvedComicImage({
+    required this.id,
+    required this.imageData,
+    required this.imageType,
+    required this.caption,
+    required this.sortOrder,
+  });
+
+  final String id;
+  final String imageData;
+  final String imageType;
+  final String? caption;
+  final int sortOrder;
 }

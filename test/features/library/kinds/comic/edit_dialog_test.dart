@@ -135,8 +135,16 @@ void main() {
     await pumpUntilSettled(tester);
 
     await tester.enterText(
-      find.byKey(const ValueKey('edit-coverdate')),
-      '2026-01-01',
+      find.byKey(const ValueKey('edit-coverdate-year')),
+      '2026',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-coverdate-month')),
+      '01',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-coverdate-day')),
+      '01',
     );
 
     await tester.tap(find.text('Details').last);
@@ -144,6 +152,10 @@ void main() {
     await tester.enterText(
       find.byKey(const ValueKey('edit-title')),
       'Saga Deluxe',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('edit-crossover')),
+      'Image United',
     );
     await tester.enterText(
       find.byKey(const ValueKey('edit-storyarcs')),
@@ -160,30 +172,32 @@ void main() {
       find.byKey(const ValueKey('edit-page-quality')),
       'White Pages',
     );
-    await tester.tap(find.widgetWithText(CheckboxListTile, 'Key issue'));
+    await tester.ensureVisible(find.byKey(const ValueKey('edit-key-major')));
+    await tester.tap(find.byKey(const ValueKey('edit-key-major')));
     await pumpUntilSettled(tester);
+    await tester.ensureVisible(find.byKey(const ValueKey('edit-key-category')));
     await tester.enterText(
       find.byKey(const ValueKey('edit-key-category')),
       'Origin',
     );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-key-severity')),
-      'Major',
-    );
 
     await tester.tap(find.text('Personal').last);
     await pumpUntilSettled(tester);
+    await tester.tap(find.byKey(const ValueKey('edit-status-finished')));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.byKey(const ValueKey('edit-rating-choice-9')));
+    await pumpUntilSettled(tester);
     await tester.enterText(
-      find.byKey(const ValueKey('edit-status')),
-      'Finished',
+      find.byKey(const ValueKey('edit-read-date-year')),
+      '2026',
     );
     await tester.enterText(
-      find.byKey(const ValueKey('edit-rating')),
-      '9',
+      find.byKey(const ValueKey('edit-read-date-month')),
+      '05',
     );
     await tester.enterText(
-      find.byKey(const ValueKey('edit-read-date')),
-      '2026-05-30',
+      find.byKey(const ValueKey('edit-read-date-day')),
+      '30',
     );
     await tester.enterText(
       find.byKey(const ValueKey('edit-owner')),
@@ -236,9 +250,10 @@ void main() {
 
     expect(selection, isNotNull);
     expect(selection!.item.title, 'Saga Deluxe');
-    expect(selection!.item.storyArcs, ['Opening', 'Finale']);
+    expect(selection!.item.storyArcs,
+        ['Crossover: Image United', 'Opening', 'Finale']);
     expect(selection!.item.coverDate, DateTime(2026, 1, 1));
-    expect(selection!.item.synopsis, 'Long plot description');
+    expect(selection!.item.synopsis, 'Short summary\n\nLong plot description');
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(
         selection!.item.trailerUrls.first.url, 'https://example.com/original');
@@ -357,6 +372,7 @@ void main() {
     expect(selection!.itemImageEdits, hasLength(1));
     expect(selection!.itemImageEdits.single.imageData, imageBase64);
     expect(selection!.itemImageEdits.single.caption, isNull);
+    expect(selection!.itemImageEdits.single.imageType, 'auxiliary');
     expect(selection!.itemImageEdits.single.deleted, isFalse);
   });
 }
