@@ -161,7 +161,9 @@ class LibraryAddManualPaneRequest {
     required this.ownerLabelController,
     required this.customFieldDefinitions,
     required this.customFieldValues,
+    required this.onCustomFieldValuesChanged,
     required this.itemImages,
+    required this.onItemImagesChanged,
   });
 
   final LibraryTypeConfig type;
@@ -217,7 +219,9 @@ class LibraryAddManualPaneRequest {
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, String?> customFieldValues;
+  final ValueChanged<Map<String, String?>> onCustomFieldValuesChanged;
   final List<ItemImage> itemImages;
+  final ValueChanged<List<ItemImageEdit>> onItemImagesChanged;
 }
 
 class LibraryAddPreviewPaneRequest {
@@ -595,6 +599,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   List<String> _gradeOptions = const [];
   List<String> _tagOptions = const [];
   String? _defaultLocationId;
+  // Manual pane transient state
+  late Map<String, String?> _manualCustomFieldValues;
+  late List<ItemImage> _manualItemImages;
   LibraryCoverScanResult? _coverScanPrefill;
   bool _isScanningCover = false;
   double _resultsPaneWidth = 480;
@@ -642,6 +649,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _queryController.text = widget.initialQuery?.trim() ?? '';
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
+    // Manual custom field edits and item images default from widget inputs
+    _manualCustomFieldValues = Map.of(widget.customFieldValues.asMap().map((k, v) => MapEntry(v.fieldDefinitionId, v.value)));
+    _manualItemImages = List.of(widget.itemImages);
     if (_barcodeController.text.isNotEmpty && widget.autoLookupInitialBarcode) {
       _mode = LibraryAddDialogMode.barcode;
       WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
@@ -1031,8 +1041,38 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         soldDateController: TextEditingController(text: _soldAt == null ? '' : formatDate(_soldAt!)),
                         ownerLabelController: _ownerLabelController,
                         customFieldDefinitions: widget.customFieldDefinitions,
-                        customFieldValues: Map.of(widget.customFieldValues.asMap().map((k, v) => MapEntry(v.fieldDefinitionId, v.value))),
-                        itemImages: widget.itemImages,
+                        customFieldValues: _manualCustomFieldValues,
+                        onCustomFieldValuesChanged: (m) => setState(() => _manualCustomFieldValues = Map.of(m)),
+                        itemImages: _manualItemImages,
+                        onItemImagesChanged: (edits) {
+                          setState(() {
+                            final byId = {for (final img in _manualItemImages) img.id: img};
+                            final next = <ItemImage>[];
+                            for (final e in edits) {
+                              if (e.deleted) continue;
+                              final existing = byId[e.id];
+                              if (existing != null) {
+                                next.add(existing.copyWith(
+                                  imageData: e.imageData ?? existing.imageData,
+                                  caption: e.caption ?? existing.caption,
+                                  sortOrder: e.sortOrder,
+                                ));
+                              } else {
+                                if (e.imageData != null) {
+                                  next.add(ItemImage(
+                                    id: e.id,
+                                    ownedItemId: '',
+                                    imageData: e.imageData!,
+                                    caption: e.caption,
+                                    sortOrder: e.sortOrder,
+                                    createdAt: DateTime.now().toUtc(),
+                                  ));
+                                }
+                              }
+                            }
+                            _manualItemImages = next;
+                          });
+                        },
                       );
                       final manualPane =
                           widget.manualPaneBuilder?.call(context, manualRequest) ??
@@ -1514,6 +1554,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return;
     }
     final draft = _buildManualDraftItem();
+    final customFieldValuesForEdit = _manualCustomFieldValues.entries
+        .map((e) => CustomFieldValue(
+              id: 'local-${e.key}-${_uuid.v4()}',
+              ownedItemId: '',
+              fieldDefinitionId: e.key,
+              value: e.value,
+              updatedAt: DateTime.now().toUtc(),
+            ))
+        .toList(growable: false);
     final result = await showLibraryEditDialog(
       context: context,
       request: LibraryEditDialogRequest(
@@ -1522,6 +1571,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ownedItem: _manualDraftOwnedItem(draft, target),
         accent: LibraryAccentScope.accentOf(context),
         physicalFormats: _currentPhysicalFormats(),
+        customFieldDefinitions: widget.customFieldDefinitions,
+        customFieldValues: customFieldValuesForEdit,
+        itemImages: _manualItemImages,
       ),
     );
     if (result == null || !mounted) {

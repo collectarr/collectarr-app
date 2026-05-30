@@ -244,7 +244,7 @@ class _ManualPaneState extends State<_ManualPane> {
                           definitions: widget.request.customFieldDefinitions,
                           values: widget.request.customFieldValues,
                           accent: widget.request.accent,
-                          onChanged: (m) {},
+                          onChanged: widget.request.onCustomFieldValuesChanged,
                         )
                       ]),
 
@@ -263,7 +263,7 @@ class _ManualPaneState extends State<_ManualPane> {
 
                       // My Images
                       ListView(padding: const EdgeInsets.all(10), children: [
-                        ItemImagesEditSection(images: widget.request.itemImages, accent: widget.request.accent, onChanged: (_) {}),
+                        ItemImagesEditSection(images: widget.request.itemImages, accent: widget.request.accent, onChanged: widget.request.onItemImagesChanged),
                       ]),
 
                       // Creators (placeholder simple tag field)
