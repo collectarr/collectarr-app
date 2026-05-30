@@ -69,55 +69,69 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
           const <TrackingEntry>[],
       owned,
     );
-    final bundleReleasesFuture = (() async {
-      try {
-        return await ref
-            .read(apiClientProvider)
-            .getItemBundleReleases(catalogItem.id);
-      } catch (error, stackTrace) {
-        logRecoverableError(
-          source: 'library_page',
-          message:
-              'Failed to load bundle releases while opening edit dialog for ${catalogItem.id}.',
-          error: error,
-          stackTrace: stackTrace,
-        );
-        return const <BundleReleaseSummary>[];
-      }
-    })();
-    final definitionsFuture = customFieldRepo.listDefinitions(
-      mediaKind: widget.type.workspace.kind.apiValue,
+    final baseRequest = LibraryEditDialogRequest(
+      type: widget.type,
+      item: LibraryMetadataItem.fromCatalogItem(catalogItem),
+      ownedItem: owned,
+      wishlistItem: wishlist,
+      trackingEntry: activeTrackingEntry,
+      accent: widget.accent,
+      physicalFormats: physicalMediaFormatsForKind(
+        catalog,
+        widget.type.workspace.kind,
+      ),
     );
-    final cfValuesFuture = owned != null
-        ? customFieldRepo.listValuesForItem(owned.id)
-        : Future.value(const <CustomFieldValue>[]);
-    final imagesFuture = owned != null
-        ? itemImageRepo.listForItem(owned.id)
-        : Future.value(const <ItemImage>[]);
     try {
-      final definitions = await definitionsFuture;
-      final cfValues = await cfValuesFuture;
-      final images = await imagesFuture;
-      final availableBundleReleases = await bundleReleasesFuture;
       if (!mounted) return;
       final result = await showLibraryEditDialog(
         context: context,
-        request: LibraryEditDialogRequest(
-          type: widget.type,
-          item: LibraryMetadataItem.fromCatalogItem(catalogItem),
-          ownedItem: owned,
-          wishlistItem: wishlist,
-          trackingEntry: activeTrackingEntry,
-          accent: widget.accent,
-          availableBundleReleases: availableBundleReleases,
-          physicalFormats: physicalMediaFormatsForKind(
-            catalog,
-            widget.type.workspace.kind,
-          ),
-          customFieldDefinitions: definitions,
-          customFieldValues: cfValues,
-          itemImages: images,
-        ),
+        request: baseRequest,
+        requestLoader: () async {
+          final bundleReleasesFuture = (() async {
+            try {
+              return await ref
+                  .read(apiClientProvider)
+                  .getItemBundleReleases(catalogItem.id);
+            } catch (error, stackTrace) {
+              logRecoverableError(
+                source: 'library_page',
+                message:
+                    'Failed to load bundle releases while opening edit dialog for ${catalogItem.id}.',
+                error: error,
+                stackTrace: stackTrace,
+              );
+              return const <BundleReleaseSummary>[];
+            }
+          })();
+          final definitionsFuture = customFieldRepo.listDefinitions(
+            mediaKind: widget.type.workspace.kind.apiValue,
+          );
+          final cfValuesFuture = owned != null
+              ? customFieldRepo.listValuesForItem(owned.id)
+              : Future.value(const <CustomFieldValue>[]);
+          final imagesFuture = owned != null
+              ? itemImageRepo.listForItem(owned.id)
+              : Future.value(const <ItemImage>[]);
+
+          final definitions = await definitionsFuture;
+          final cfValues = await cfValuesFuture;
+          final images = await imagesFuture;
+          final availableBundleReleases = await bundleReleasesFuture;
+
+          return LibraryEditDialogRequest(
+            type: baseRequest.type,
+            item: baseRequest.item,
+            ownedItem: baseRequest.ownedItem,
+            wishlistItem: baseRequest.wishlistItem,
+            trackingEntry: baseRequest.trackingEntry,
+            accent: baseRequest.accent,
+            physicalFormats: baseRequest.physicalFormats,
+            availableBundleReleases: availableBundleReleases,
+            customFieldDefinitions: definitions,
+            customFieldValues: cfValues,
+            itemImages: images,
+          );
+        },
       );
       if (result == null || !mounted) {
         return;
