@@ -48,7 +48,6 @@ class PrefillDefaults {
     await set('condition', condition);
     await set('grade', grade);
     await set('location_id', locationId);
-    await prefs.remove('${_prefsPrefix}storage_box');
     await set('read_status', readStatus);
     await set('tags', tags);
   }

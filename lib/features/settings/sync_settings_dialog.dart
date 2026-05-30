@@ -91,7 +91,6 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
     for (final entry in _policies.entries) {
       await prefs.setString('$_prefsPrefix${entry.key}', entry.value.name);
     }
-    await prefs.remove('${_prefsPrefix}storage_box');
   }
 
   @override

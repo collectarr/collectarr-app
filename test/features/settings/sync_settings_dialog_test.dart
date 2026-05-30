@@ -10,12 +10,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('sync settings ignores storage box policy legacy key',
+  testWidgets('sync settings shows location policy and saves current value',
       (tester) async {
-    SharedPreferences.setMockInitialValues({
-      'collectarr.sync_field_policy.storage_box': 'overwrite',
-    });
-
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -44,10 +40,6 @@ void main() {
     expect(
       prefs.getString('collectarr.sync_field_policy.location_id'),
       'updateEmpty',
-    );
-    expect(
-      prefs.getString('collectarr.sync_field_policy.storage_box'),
-      isNull,
     );
   });
 }
