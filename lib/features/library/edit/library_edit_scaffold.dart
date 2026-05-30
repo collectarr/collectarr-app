@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -174,16 +175,12 @@ class _LibraryEditDialogScaffoldState
                       ebaySearchQuery: widget.ebaySearchQuery,
                     ),
                     if (hasTabStrip)
-                      ColoredBox(
-                        color: p.panelRaised,
+                      LibraryEditTabStripFrame(
                         child: _ReorderableTabStrip(
                           tabController: widget.tabController!,
                           tabOrder: tabOrder,
                           tabs: orderedTabs,
                           accent: widget.accent,
-                          labelColor: p.textPrimary,
-                          unselectedLabelColor: p.textMuted,
-                          dividerColor: p.divider,
                           allowReorder: widget.allowTabReorder,
                           onReorderItem: _onReorderItem,
                         ),
@@ -225,9 +222,6 @@ class _ReorderableTabStrip extends StatelessWidget {
     required this.tabOrder,
     required this.tabs,
     required this.accent,
-    required this.labelColor,
-    required this.unselectedLabelColor,
-    required this.dividerColor,
     required this.allowReorder,
     required this.onReorderItem,
   });
@@ -236,47 +230,8 @@ class _ReorderableTabStrip extends StatelessWidget {
   final List<int> tabOrder;
   final List<Widget> tabs;
   final Color accent;
-  final Color labelColor;
-  final Color unselectedLabelColor;
-  final Color dividerColor;
   final bool allowReorder;
   final void Function(int oldIndex, int newIndex) onReorderItem;
-
-  Widget _tabChild({
-    required int index,
-    required Widget tab,
-    required bool selected,
-    required bool highlighted,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: highlighted ? accent.withValues(alpha: 0.12) : Colors.transparent,
-        border: Border(
-          bottom: BorderSide(
-            color: selected ? accent : Colors.transparent,
-            width: 2,
-          ),
-        ),
-      ),
-      alignment: Alignment.center,
-      child: DefaultTextStyle.merge(
-        style: TextStyle(
-          color: selected ? labelColor : unselectedLabelColor,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          fontSize: 12,
-        ),
-        child: IconTheme.merge(
-          data: IconThemeData(
-            color: selected ? labelColor : unselectedLabelColor,
-            size: 16,
-          ),
-          child: tab,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +242,7 @@ class _ReorderableTabStrip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: 38,
+              height: kLibraryEditTabStripHeight,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -308,25 +263,24 @@ class _ReorderableTabStrip extends StatelessWidget {
                               feedback: Material(
                                 elevation: 4,
                                 color: Colors.transparent,
-                                child: _DraggableTabContent(
+                                child: LibraryEditDraggedTabLabel(
                                   tab: tabs[i],
                                   accent: accent,
-                                  labelColor: labelColor,
                                 ),
                               ),
                               childWhenDragging: Opacity(
                                 opacity: 0.3,
-                                child: _DraggableTabContent(
+                                child: LibraryEditDraggedTabLabel(
                                   tab: tabs[i],
                                   accent: accent,
-                                  labelColor: unselectedLabelColor,
+                                  muted: true,
                                 ),
                               ),
                               child: GestureDetector(
                                 onTap: () => tabController.animateTo(tabOrder[i]),
-                                child: _tabChild(
-                                  index: i,
+                                child: LibraryEditStyledTabLabel(
                                   tab: tabs[i],
+                                  accent: accent,
                                   selected: tabController.index == tabOrder[i],
                                   highlighted: candidateData.isNotEmpty,
                                 ),
@@ -336,9 +290,9 @@ class _ReorderableTabStrip extends StatelessWidget {
                         )
                       : GestureDetector(
                           onTap: () => tabController.animateTo(tabOrder[i]),
-                          child: _tabChild(
-                            index: i,
+                          child: LibraryEditStyledTabLabel(
                             tab: tabs[i],
+                            accent: accent,
                             selected: tabController.index == tabOrder[i],
                             highlighted: false,
                           ),
@@ -347,46 +301,9 @@ class _ReorderableTabStrip extends StatelessWidget {
             ),
           ),
         ),
-            Divider(height: 1, thickness: 1, color: dividerColor),
           ],
         );
       },
-    );
-  }
-}
-
-class _DraggableTabContent extends StatelessWidget {
-  const _DraggableTabContent({
-    required this.tab,
-    required this.accent,
-    required this.labelColor,
-  });
-
-  final Widget tab;
-  final Color accent;
-  final Color labelColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 38,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      alignment: Alignment.center,
-      child: DefaultTextStyle.merge(
-        style: TextStyle(
-          color: labelColor,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
-        child: IconTheme.merge(
-          data: IconThemeData(color: labelColor, size: 16),
-          child: tab,
-        ),
-      ),
     );
   }
 }
