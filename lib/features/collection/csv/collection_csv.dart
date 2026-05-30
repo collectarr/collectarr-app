@@ -531,7 +531,7 @@ class CollectionCsv {
       'Currency',
       'Cover Price',
       'Quantity',
-      'Storage Box',
+      'Location ID',
       'Index',
       'Raw / Slabbed',
       'Grading Company',

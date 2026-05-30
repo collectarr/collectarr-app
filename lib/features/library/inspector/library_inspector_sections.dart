@@ -262,7 +262,7 @@ class InspectorPersonalSection extends StatelessWidget {
             ),
             if (ownedIsDigital != true)
               LibraryInspectorFactData(
-                'Storage',
+                'Location',
                 genericLibraryDash(entry.locationPath),
               ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),

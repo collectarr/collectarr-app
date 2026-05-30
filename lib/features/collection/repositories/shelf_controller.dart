@@ -60,7 +60,7 @@ class ShelfState {
     this.gradeCounts = const {},
     this.conditionCounts = const {},
     this.readStatusCounts = const {},
-    this.storageBoxCounts = const {},
+    this.locationCounts = const {},
     this.seriesCounts = const {},
     this.coverPricedCount = 0,
     this.totalCoverPriceCents,
@@ -178,7 +178,7 @@ class ShelfState {
       readStatusCounts: _counts(
         entries.map((entry) => entry.tracking.statusLabel),
       ),
-      storageBoxCounts: _counts(
+      locationCounts: _counts(
         entries
             .where((entry) => entry.isOwned)
             .map((entry) => entry.locationPath ?? 'No location'),
@@ -230,7 +230,7 @@ class ShelfState {
   final Map<String, int> gradeCounts;
   final Map<String, int> conditionCounts;
   final Map<String, int> readStatusCounts;
-  final Map<String, int> storageBoxCounts;
+  final Map<String, int> locationCounts;
   final Map<String, int> seriesCounts;
   final int coverPricedCount;
   final int? totalCoverPriceCents;
