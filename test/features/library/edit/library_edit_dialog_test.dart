@@ -472,7 +472,7 @@ void main() {
     expect(find.text('Sale'), findsOneWidget);
     expect(find.text('Mark as sold'), findsOneWidget);
     expect(find.text('Storage & Notes'), findsOneWidget);
-    expect(find.text('Storage Box'), findsOneWidget);
+    expect(find.text('Location'), findsOneWidget);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {

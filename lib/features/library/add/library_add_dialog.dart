@@ -587,7 +587,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   DateTime? _defaultPurchaseDate;
   String? _defaultReadStatus;
   String? _defaultTags;
-  String? _pendingLegacyLocationPrefill;
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
   int _coreSearchGeneration = 0;
@@ -2477,7 +2476,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     setState(() {
       _availableLocations = locations;
-      _tryResolvePendingLegacyPrefill(locations);
     });
   }
 
@@ -2506,8 +2504,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _defaultReadStatus = defaults.readStatus;
       _defaultTags = defaults.tags;
       _defaultLocationId = defaults.locationId;
-      _pendingLegacyLocationPrefill = defaults.legacyStorageBox;
-      _tryResolvePendingLegacyPrefill(_availableLocations);
     });
     await _loadPickListOptions();
   }
@@ -2574,27 +2570,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       });
     } finally {
       controller.dispose();
-    }
-  }
-
-  void _tryResolvePendingLegacyPrefill(List<StorageLocation> locations) {
-    if (_defaultLocationId != null || locations.isEmpty) {
-      return;
-    }
-    final legacy = _pendingLegacyLocationPrefill?.trim();
-    if (legacy == null || legacy.isEmpty) {
-      return;
-    }
-    final match = locations.cast<StorageLocation?>().firstWhere(
-          (location) =>
-              location != null &&
-              (location.fullPath(locations) == legacy ||
-                  location.name == legacy),
-          orElse: () => null,
-        );
-    if (match != null) {
-      _defaultLocationId = match.id;
-      _pendingLegacyLocationPrefill = null;
     }
   }
 

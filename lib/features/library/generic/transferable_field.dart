@@ -188,7 +188,7 @@ class TransferableField {
     ),
     TransferableField._(
       key: 'storageBox',
-      label: 'Storage box',
+      label: 'Location',
       icon: Icons.shelves,
       type: TransferableFieldType.text,
     ),

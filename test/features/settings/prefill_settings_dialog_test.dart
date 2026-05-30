@@ -53,6 +53,7 @@ void main() {
 
     final defaults = await PrefillDefaults.load();
     expect(defaults.locationId, 'loc-1');
-    expect(defaults.legacyStorageBox, isNull);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('collectarr.prefill.storage_box'), isNull);
   });
 }

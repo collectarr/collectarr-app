@@ -181,7 +181,7 @@ class ShelfState {
       storageBoxCounts: _counts(
         entries
             .where((entry) => entry.isOwned)
-            .map((entry) => entry.locationPath ?? entry.ownedItem?.storageBox ?? 'No location'),
+            .map((entry) => entry.locationPath ?? 'No location'),
       ),
       seriesCounts: _counts(
         entries

@@ -146,7 +146,6 @@ class OwnedItem {
       'currency': currency,
       'personal_notes': personalNotes,
       'quantity': quantity,
-      'storage_box': storageBox,
       'index_number': indexNumber,
       'cover_price_cents': coverPriceCents,
       'raw_or_slabbed': rawOrSlabbed,

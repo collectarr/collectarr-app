@@ -986,14 +986,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     if (locationLabel != null) {
       return locationLabel;
     }
-    if (_locationChanged) {
-      return null;
-    }
-    final legacyLabel = widget.request.ownedItem?.storageBox?.trim();
-    if (legacyLabel == null || legacyLabel.isEmpty) {
-      return null;
-    }
-    return legacyLabel;
+    return null;
   }
 
   Future<void> _loadAvailableLocations() async {

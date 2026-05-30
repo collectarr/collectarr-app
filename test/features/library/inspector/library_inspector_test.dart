@@ -25,14 +25,14 @@ void main() {
         home: Scaffold(
           body: LibraryInspectorSection(
             title: 'Personal',
-            children: [Text('Storage box')],
+            children: [Text('Location')],
           ),
         ),
       ),
     );
 
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Storage box'), findsOneWidget);
+    expect(find.text('Location'), findsOneWidget);
   });
 
   testWidgets('inspector fact grid renders fact labels and values',

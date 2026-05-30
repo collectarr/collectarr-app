@@ -54,7 +54,6 @@ class LibraryBulkActions {
     String? defaultCondition,
     String? defaultGrade,
     String? defaultLocationId,
-    String? defaultStorageBox,
     String? defaultReadStatus,
     String? defaultTags,
   }) async {
@@ -78,7 +77,6 @@ class LibraryBulkActions {
         condition: defaultCondition,
         grade: defaultGrade,
         locationId: defaultLocationId,
-        storageBox: defaultStorageBox,
         readStatus: defaultReadStatus,
         tags: defaultTags,
         notify:

@@ -1629,7 +1629,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             children: [
               if (_showPhysicalOwnedFields) ...[
                 _responsiveFields([
-                  _locationField(label: 'Storage Box'),
+                  _locationField(label: 'Location'),
                   _field(
                     controller: _ownerLabelController,
                     label: 'Owner',
@@ -2989,14 +2989,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     if (locationLabel != null) {
       return locationLabel;
     }
-    if (_locationChanged) {
-      return null;
-    }
-    final legacyLabel = widget.ownedItem?.storageBox?.trim();
-    if (legacyLabel == null || legacyLabel.isEmpty) {
-      return null;
-    }
-    return legacyLabel;
+    return null;
   }
 
   Future<void> _loadAvailableLocations() async {

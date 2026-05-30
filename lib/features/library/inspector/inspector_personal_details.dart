@@ -342,14 +342,7 @@ class _InspectorPersonalDetailsEditorState
     if (locationLabel != null) {
       return locationLabel;
     }
-    if (_locationChanged) {
-      return null;
-    }
-    final legacyLabel = widget.ownedItem.storageBox?.trim();
-    if (legacyLabel == null || legacyLabel.isEmpty) {
-      return null;
-    }
-    return legacyLabel;
+    return null;
   }
 
   Future<void> _loadAvailableLocations() async {
@@ -415,8 +408,8 @@ class _InspectorPersonalDetailsEditorState
           purchaseStore: _emptyToNull(_purchaseStoreController.text),
           boxSetName: _emptyToNull(_boxSetNameController.text),
           quantity: widget.ownedItem.quantity,
-            storageBox: _locationChanged ? null : widget.ownedItem.storageBox,
-            locationId:
+          storageBox: null,
+          locationId:
               _locationChanged ? _selectedLocationId : widget.ownedItem.locationId,
           indexNumber: widget.ownedItem.indexNumber,
           coverPriceCents: widget.ownedItem.coverPriceCents,

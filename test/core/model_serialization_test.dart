@@ -448,7 +448,7 @@ void main() {
     expect(payload['price_paid_cents'], 1299);
     expect(payload['cover_price_cents'], 1599);
     expect(payload['quantity'], 2);
-    expect(payload['storage_box'], 'Box 6');
+    expect(payload.containsKey('storage_box'), isFalse);
     expect(payload['key_comic'], isTrue);
     expect(payload['key_reason'], 'First appearance');
     expect(payload['tags'], 'signed,key');

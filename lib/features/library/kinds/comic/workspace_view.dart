@@ -268,7 +268,7 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.grade => 'Personal grade for owned copies',
     LibraryTableColumn.condition => 'Personal condition for owned copies',
     LibraryTableColumn.price => 'Personal purchase price',
-    LibraryTableColumn.storageBox => 'Assigned location path or legacy storage box',
+    LibraryTableColumn.storageBox => 'Assigned location path',
     LibraryTableColumn.wishlist => 'Wishlist status',
     LibraryTableColumn.updated => 'Most recent local update',
     LibraryTableColumn.country => 'Country of publication',
