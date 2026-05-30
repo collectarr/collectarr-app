@@ -140,6 +140,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Set<String> _pinnedColumnFavoriteKeys = const {};
   List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
   List<LibrarySidebarScopeSnapshot> _scopeHistory = const [];
+  bool _isEditDialogInFlight = false;
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;

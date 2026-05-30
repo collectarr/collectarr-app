@@ -47,10 +47,14 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
     LibraryProjectionItem item,
     OwnedItem? ownedItemOverride,
   ) async {
+    if (_isEditDialogInFlight) {
+      return;
+    }
     final catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
     }
+    _isEditDialogInFlight = true;
     final catalog = ref.read(mediaCatalogProvider).maybeWhen(
           data: (value) => value,
           orElse: () => fallbackMediaCatalog,
@@ -65,7 +69,7 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
           const <TrackingEntry>[],
       owned,
     );
-    final Future<List<BundleReleaseSummary>> bundleReleases = (() async {
+    final bundleReleasesFuture = (() async {
       try {
         return await ref.read(apiClientProvider).getItemBundleReleases(catalogItem.id);
       } catch (error, stackTrace) {
@@ -79,57 +83,65 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         return const <BundleReleaseSummary>[];
       }
     })();
-    final definitions = await customFieldRepo.listDefinitions(
+    final definitionsFuture = customFieldRepo.listDefinitions(
       mediaKind: widget.type.workspace.kind.apiValue,
     );
-    final cfValues = owned != null
-        ? await customFieldRepo.listValuesForItem(owned.id)
-        : <dynamic>[];
-    final images =
-        owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
-    final availableBundleReleases = await bundleReleases;
-    if (!mounted) return;
-    final result = await showLibraryEditDialog(
-      context: context,
-      request: LibraryEditDialogRequest(
-        type: widget.type,
-        item: LibraryMetadataItem.fromCatalogItem(catalogItem),
-        ownedItem: owned,
-        wishlistItem: wishlist,
-        trackingEntry: activeTrackingEntry,
-        accent: widget.accent,
-        availableBundleReleases: availableBundleReleases,
-        physicalFormats: physicalMediaFormatsForKind(
-          catalog,
-          widget.type.workspace.kind,
+    final cfValuesFuture = owned != null
+        ? customFieldRepo.listValuesForItem(owned.id)
+        : Future.value(const <CustomFieldValue>[]);
+    final imagesFuture = owned != null
+        ? itemImageRepo.listForItem(owned.id)
+        : Future.value(const <ItemImage>[]);
+    try {
+      final definitions = await definitionsFuture;
+      final cfValues = await cfValuesFuture;
+      final images = await imagesFuture;
+      final availableBundleReleases = await bundleReleasesFuture;
+      if (!mounted) return;
+      final result = await showLibraryEditDialog(
+        context: context,
+        request: LibraryEditDialogRequest(
+          type: widget.type,
+          item: LibraryMetadataItem.fromCatalogItem(catalogItem),
+          ownedItem: owned,
+          wishlistItem: wishlist,
+          trackingEntry: activeTrackingEntry,
+          accent: widget.accent,
+          availableBundleReleases: availableBundleReleases,
+          physicalFormats: physicalMediaFormatsForKind(
+            catalog,
+            widget.type.workspace.kind,
+          ),
+          customFieldDefinitions: definitions,
+          customFieldValues: cfValues,
+          itemImages: images,
         ),
-        customFieldDefinitions: definitions,
-        customFieldValues: cfValues.cast(),
-        itemImages: images.cast(),
-      ),
-    );
-    if (result == null || !mounted) {
-      return;
+      );
+      if (result == null || !mounted) {
+        return;
+      }
+      await _persistEditResult(
+        result,
+        owned: owned,
+        wishlist: wishlist,
+        activeTrackingEntry: activeTrackingEntry,
+        catalogItem: catalogItem,
+        customFieldRepo: customFieldRepo,
+        itemImageRepo: itemImageRepo,
+      );
+      if (!mounted) {
+        return;
+      }
+      ref.invalidate(shelfProvider);
+      unawaited(
+        loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${widget.type.singularLabel} updated')),
+      );
+    } finally {
+      _isEditDialogInFlight = false;
     }
-    await _persistEditResult(
-      result,
-      owned: owned,
-      wishlist: wishlist,
-      activeTrackingEntry: activeTrackingEntry,
-      catalogItem: catalogItem,
-      customFieldRepo: customFieldRepo,
-      itemImageRepo: itemImageRepo,
-    );
-    if (!mounted) {
-      return;
-    }
-    ref.invalidate(shelfProvider);
-    unawaited(
-      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${widget.type.singularLabel} updated')),
-    );
   }
 
   Future<void> _persistEditResult(
