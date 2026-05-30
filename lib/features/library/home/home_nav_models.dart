@@ -29,7 +29,8 @@ class LibraryNavGroup {
     if (!hasChildren) {
       return null;
     }
-    final selected = _firstWhereOrNull(types, (type) => type.kind == selectedKind);
+    final selected =
+        _firstWhereOrNull(types, (type) => type.kind == selectedKind);
     if (selected == null) {
       return null;
     }
@@ -54,12 +55,12 @@ const _libraryNavGroupSpecs = [
   _LibraryNavGroupSpec(
     id: 'comic',
     label: 'Comics',
-    memberKinds: ['comic'],
+    memberKinds: ['comic', 'manga'],
   ),
   _LibraryNavGroupSpec(
     id: 'movie',
     label: 'Movies',
-    memberKinds: ['movie', 'tv'],
+    memberKinds: ['movie', 'tv', 'anime'],
   ),
 ];
 
@@ -130,8 +131,10 @@ LibraryNavGroup selectedLibraryNavGroup(
   List<LibraryNavGroup> groups,
   String selectedKind,
 ) {
+  final canonicalSelectedKind =
+      canonicalLibraryNavKind(selectedKind) ?? selectedKind;
   for (final group in groups) {
-    if (group.containsKind(selectedKind)) {
+    if (group.containsKind(canonicalSelectedKind)) {
       return group;
     }
   }
@@ -146,10 +149,13 @@ NavTypeSplit splitLibraryNavTypes(
   if (types.length <= maxVisible) {
     return NavTypeSplit(visible: types, overflow: const []);
   }
+  final canonicalSelectedKind =
+      canonicalLibraryNavKind(selectedKind) ?? selectedKind;
   final visible = types.take(maxVisible).toList();
   final selected =
-      _firstWhereOrNull(types, (type) => type.kind == selectedKind);
-  if (selected != null && !visible.any((type) => type.kind == selectedKind)) {
+      _firstWhereOrNull(types, (type) => type.kind == canonicalSelectedKind);
+  if (selected != null &&
+      !visible.any((type) => type.kind == canonicalSelectedKind)) {
     visible[visible.length - 1] = selected;
   }
   final visibleKinds = {for (final type in visible) type.kind};

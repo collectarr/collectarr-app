@@ -36,7 +36,8 @@ final mediaCatalogProvider =
   } catch (error, stackTrace) {
     logRecoverableError(
       source: 'media_catalog',
-      message: 'Failed to load media catalog from metadata server; using fallback catalog.',
+      message:
+          'Failed to load media catalog from metadata server; using fallback catalog.',
       error: error,
       stackTrace: stackTrace,
     );
@@ -122,7 +123,8 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
       physicalFormats: [
         ...existing.physicalFormats,
         for (final format in normalized.physicalFormats)
-          if (!existing.physicalFormats.any((existingFormat) => existingFormat.id == format.id))
+          if (!existing.physicalFormats
+              .any((existingFormat) => existingFormat.id == format.id))
             format,
       ],
     );
@@ -147,16 +149,23 @@ CatalogMediaType _normalizeCatalogMediaType(CatalogMediaType type) {
       physicalFormats: normalized.physicalFormats,
     );
   }
-  if (rawKind == 'anime') {
+  if (rawKind == 'anime' || rawKind == 'tv') {
     return CatalogMediaType(
       kind: 'movie',
       singularLabel: 'Movie',
       pluralLabel: 'Movies',
-      routeSegments: ['movies', 'movie', ...normalized.routeSegments],
+      routeSegments: [
+        'movies',
+        'movie',
+        'tv',
+        'shows',
+        'series',
+        ...normalized.routeSegments
+      ],
       defaultProvider: normalized.defaultProvider,
       providers: normalized.providers,
       providerSearchPolicy: normalized.providerSearchPolicy,
-      isTopLevel: false,
+      isTopLevel: rawKind != 'tv' ? false : normalized.isTopLevel,
       legacyOf: 'movie',
       physicalFormats: normalized.physicalFormats,
     );
@@ -177,18 +186,9 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     kind: 'movie',
     singularLabel: 'Movie',
     pluralLabel: 'Movies',
-    routeSegments: ['movies', 'movie'],
+    routeSegments: ['movies', 'movie', 'tv', 'shows', 'series'],
     defaultProvider: 'tmdb',
     providers: ['tmdb', 'anilist'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
-  ),
-  CatalogMediaType(
-    kind: 'tv',
-    singularLabel: 'TV Show',
-    pluralLabel: 'TV Shows',
-    routeSegments: ['tv', 'shows', 'series'],
-    defaultProvider: 'tmdb',
-    providers: ['tmdb'],
     physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(

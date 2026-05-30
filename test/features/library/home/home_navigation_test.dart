@@ -65,10 +65,11 @@ void main() {
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
     expect(config.workspace.defaultVisibleColumns,
-      genericLibraryMediaPresentation.defaultVisibleColumns);
+        genericLibraryMediaPresentation.defaultVisibleColumns);
     expect(config.trackingProfile.name, readingTrackingProfile.name);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
-    expect(config.supportedMetadataProviders.single.supportsKind(null), isFalse);
+    expect(
+        config.supportedMetadataProviders.single.supportsKind(null), isFalse);
     expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
         isTrue);
   });
@@ -99,13 +100,13 @@ void main() {
     expect(
       libraryNavLabel(
         const CatalogMediaType(
-          kind: 'tv',
-          singularLabel: 'Show',
-          pluralLabel: 'Shows',
-          routeSegments: ['tv'],
+          kind: 'movie',
+          singularLabel: 'Movie',
+          pluralLabel: 'Movies',
+          routeSegments: ['movies'],
         ),
       ),
-      'TV Shows',
+      'Movies',
     );
     expect(
       libraryNavLabel(
@@ -151,28 +152,10 @@ void main() {
         routeSegments: ['comics'],
       ),
       CatalogMediaType(
-        kind: 'manga',
-        singularLabel: 'Manga',
-        pluralLabel: 'Manga',
-        routeSegments: ['manga'],
-      ),
-      CatalogMediaType(
         kind: 'movie',
         singularLabel: 'Movie',
         pluralLabel: 'Movies',
         routeSegments: ['movies'],
-      ),
-      CatalogMediaType(
-        kind: 'tv',
-        singularLabel: 'Show',
-        pluralLabel: 'Shows',
-        routeSegments: ['tv'],
-      ),
-      CatalogMediaType(
-        kind: 'anime',
-        singularLabel: 'Anime',
-        pluralLabel: 'Anime',
-        routeSegments: ['anime'],
       ),
       CatalogMediaType(
         kind: 'book',
@@ -185,9 +168,10 @@ void main() {
     final groups = buildLibraryNavGroups(types);
 
     expect(groups.map((group) => group.label), ['Comics', 'Movies', 'Books']);
-    expect(groups[0].types.map((type) => type.kind), ['comic', 'manga']);
-    expect(groups[1].types.map((type) => type.kind), ['movie', 'tv', 'anime']);
+    expect(groups[0].types.map((type) => type.kind), ['comic']);
+    expect(groups[1].types.map((type) => type.kind), ['movie']);
     expect(selectedLibraryNavGroup(groups, 'anime').label, 'Movies');
-    expect(selectedLibraryNavGroup(groups, 'manga').containsKind('manga'), isTrue);
+    expect(
+        selectedLibraryNavGroup(groups, 'manga').containsKind('comic'), isTrue);
   });
 }

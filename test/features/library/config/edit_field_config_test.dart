@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -26,7 +25,11 @@ void main() {
   });
 
   test('print media kinds enable page count, imprint, and series group', () {
-    for (final type in [comicsLibraryConfig, mangaLibraryConfig, booksLibraryConfig]) {
+    for (final type in [
+      comicsLibraryConfig,
+      mangaLibraryConfig,
+      booksLibraryConfig
+    ]) {
       expect(type.mediaFields.showPageCount, isTrue,
           reason: '${type.singularLabel} should show page count');
       expect(type.mediaFields.showImprint, isTrue,
@@ -39,7 +42,6 @@ void main() {
   test('non-print media kinds disable book-specific fields', () {
     for (final type in [
       moviesLibraryConfig,
-      tvLibraryConfig,
       animeLibraryConfig,
       gamesLibraryConfig,
       boardGamesLibraryConfig,
@@ -54,10 +56,20 @@ void main() {
     }
   });
 
-  test('video kinds use studio/network publisher labels', () {
+  test('top-level library registry does not expose split manga/anime/tv kinds',
+      () {
+    expect(collectarrLibraryTypes.supportedKinds, isNot(contains('manga')));
+    expect(collectarrLibraryTypes.supportedKinds, isNot(contains('anime')));
+    expect(collectarrLibraryTypes.supportedKinds, isNot(contains('tv')));
+    expect(
+        collectarrLibraryTypes.supportedKinds, containsAll(['comic', 'movie']));
+  });
+
+  test('legacy video and print configs still map to merged labels', () {
     expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
-    expect(tvLibraryConfig.mediaFields.publisherLabel, 'Network / Studio');
-    expect(animeLibraryConfig.mediaFields.publisherLabel, 'Studio / Publisher');
+    expect(animeLibraryConfig.mediaFields.publisherLabel, 'Studio');
+    expect(mangaLibraryConfig.mediaFields.publisherLabel,
+        'Publisher / Studio / Creator');
   });
 
   test('MediaEditFields.print constructor sets all print flags', () {
@@ -69,7 +81,8 @@ void main() {
     expect(fields.publisherLabel, 'Publisher');
   });
 
-  test('field config labels are the single source of truth for display labels', () {
+  test('field config labels are the single source of truth for display labels',
+      () {
     // Verify that the labels on mediaFields/releaseFields are the single
     // source of truth for all display label needs.
     expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');

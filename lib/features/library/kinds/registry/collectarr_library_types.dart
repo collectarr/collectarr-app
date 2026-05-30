@@ -5,11 +5,12 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_add_registry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart' as comic_add;
-import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart' as movie_add;
+import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
+    as comic_add;
+import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
+    as movie_add;
 
 const collectarrLibraryTypes = LibraryTypeRegistry([
   comicsLibraryConfig,
@@ -17,7 +18,6 @@ const collectarrLibraryTypes = LibraryTypeRegistry([
   gamesLibraryConfig,
   boardGamesLibraryConfig,
   moviesLibraryConfig,
-  tvLibraryConfig,
   musicLibraryConfig,
 ]);
 
@@ -28,10 +28,12 @@ void registerLibraryAddBuilders() {
   // per-kind registry has a sane fallback and kinds can fully own their
   // manual UI when they choose to override it.
   for (final t in collectarrLibraryTypes.types) {
-    LibraryAddRegistry.registerManualBuilder(t.workspace.kind, buildDefaultManualPane);
+    LibraryAddRegistry.registerManualBuilder(
+        t.workspace.kind, buildDefaultManualPane);
     // Provide an empty default kindSpecific factory so callers can always
     // invoke and merge results without null checks.
-    LibraryAddRegistry.registerManualKindSpecificFactory(t.workspace.kind, () => <String, dynamic>{});
+    LibraryAddRegistry.registerManualKindSpecificFactory(
+        t.workspace.kind, () => <String, dynamic>{});
   }
   comic_add.registerComicAddBuilders();
   movie_add.registerMovieAddBuilders();

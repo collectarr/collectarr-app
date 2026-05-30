@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -20,7 +19,6 @@ final booksMediaAdapter = plannedMediaAdapter(booksLibraryConfig);
 final gamesMediaAdapter = plannedMediaAdapter(gamesLibraryConfig);
 final boardGamesMediaAdapter = plannedMediaAdapter(boardGamesLibraryConfig);
 final moviesMediaAdapter = plannedMediaAdapter(moviesLibraryConfig);
-final tvMediaAdapter = plannedMediaAdapter(tvLibraryConfig);
 final musicMediaAdapter = plannedMediaAdapter(musicLibraryConfig);
 
 final plannedMediaAdapters = LibraryMediaAdapterRegistry([
@@ -28,7 +26,6 @@ final plannedMediaAdapters = LibraryMediaAdapterRegistry([
   gamesMediaAdapter,
   boardGamesMediaAdapter,
   moviesMediaAdapter,
-  tvMediaAdapter,
   musicMediaAdapter,
 ]);
 

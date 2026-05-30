@@ -19,10 +19,16 @@ void main() {
 
     final catalog = await container.read(mediaCatalogProvider.future);
 
-    expect(catalog.map((type) => type.kind), containsAll(['comic', 'manga']));
+    expect(catalog.map((type) => type.kind), containsAll(['comic', 'movie']));
+    expect(catalog.map((type) => type.kind), isNot(contains('manga')));
+    expect(catalog.map((type) => type.kind), isNot(contains('tv')));
     expect(
-      catalog.firstWhere((type) => type.kind == 'manga').providers,
-      ['anilist', 'mangadex', 'comicvine'],
+      catalog.firstWhere((type) => type.kind == 'comic').providers,
+      containsAll(['comicvine', 'mangadex', 'anilist']),
+    );
+    expect(
+      catalog.firstWhere((type) => type.kind == 'movie').routeSegments,
+      containsAll(['movies', 'tv', 'shows', 'series']),
     );
   });
 
@@ -167,9 +173,10 @@ void main() {
       'Music',
     );
     expect(
-      catalog.firstWhere((type) => type.kind == 'tv').pluralLabel,
-      'TV Shows',
+      catalog.firstWhere((type) => type.kind == 'movie').pluralLabel,
+      'Movies',
     );
+    expect(catalog.map((type) => type.kind), isNot(contains('tv')));
     expect(
       catalog.firstWhere((type) => type.kind == 'boardgame').pluralLabel,
       'Board Games',
