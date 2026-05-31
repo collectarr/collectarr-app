@@ -71,6 +71,10 @@ class ItemImageRepository {
     );
   }
 
+  Future<void> updateCaption(String id, String? caption) {
+    return updateMetadata(id, caption: caption);
+  }
+
   Future<void> delete(String id) {
     return (_db.delete(_db.itemImagesCache)..where((row) => row.id.equals(id)))
         .go();

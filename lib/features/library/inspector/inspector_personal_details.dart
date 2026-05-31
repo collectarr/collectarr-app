@@ -464,7 +464,6 @@ class _InspectorTrackingDetailsEditorState
   DateTime? _finishedAt;
   String? _selectedEditionId;
   String? _selectedVariantId;
-  bool _expanded = true;
 
   bool get _showsEpisodeFields {
     return widget.profile.name == videoTrackingProfile.name ||
@@ -514,247 +513,202 @@ class _InspectorTrackingDetailsEditorState
   Widget build(BuildContext context) {
     final accent = widget.accent;
     final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: appPalette(context).surfaceSubtle,
-        border: Border.all(color: accent.withValues(alpha: 0.33)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LibraryInspectorSection(
+      title: 'Tracking details',
+      accentColor: accent,
+      children: [
+        Text(
+          'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: palette.textMuted,
+              ),
+        ),
+        if (widget.editions.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          _TrackingEditionBrowser(
+            editions: widget.editions,
+            selectedEditionId: _selectedEditionId,
+            selectedVariantId: _selectedVariantId,
+            accent: accent,
+            onEditionSelected: (editionId) {
+              final edition = resolveLibraryEditionSelection(
+                widget.editions,
+                editionId: editionId,
+              ).edition;
+              setState(() {
+                _selectedEditionId = edition?.id;
+                _selectedVariantId = resolveVariantForEdition(edition)?.id;
+              });
+            },
+            onVariantSelected: (variantId) {
+              setState(() => _selectedVariantId = variantId);
+            },
+          ),
+        ],
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: _createEdition,
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('Add edition'),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
           children: [
-            InkWell(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Row(
-                children: [
-                  Icon(Icons.equalizer, size: 17, color: accent),
-                  const SizedBox(width: 7),
-                  Text(
-                    'Tracking details',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
-                        ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    _expanded
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_right,
-                    size: 16,
-                    color: palette.textMuted,
-                  ),
-                ],
-              ),
+            Expanded(
+              child: MediaRatingField(controller: _ratingController),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                  ),
-            ),
-            AnimatedCrossFade(
-              firstChild: const SizedBox.shrink(),
-              secondChild: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-            if (widget.editions.isNotEmpty) ...[
-              const SizedBox(height: 9),
-              _TrackingEditionBrowser(
-                editions: widget.editions,
-                selectedEditionId: _selectedEditionId,
-                selectedVariantId: _selectedVariantId,
-                accent: accent,
-                onEditionSelected: (editionId) {
-                  final edition = resolveLibraryEditionSelection(
-                    widget.editions,
-                    editionId: editionId,
-                  ).edition;
-                  setState(() {
-                    _selectedEditionId = edition?.id;
-                    _selectedVariantId = resolveVariantForEdition(edition)?.id;
-                  });
-                },
-                onVariantSelected: (variantId) {
-                  setState(() => _selectedVariantId = variantId);
+            const SizedBox(width: 10),
+            Expanded(
+              child: MediaTrackingStatusField(
+                profile: widget.profile,
+                value: _statusController.text,
+                label: 'Tracking status',
+                onChanged: (value) {
+                  _statusController.text = value ?? '';
                 },
               ),
-            ],
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: _createEdition,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add edition'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            ),
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  child: MediaRatingField(controller: _ratingController),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: MediaTrackingStatusField(
-                    profile: widget.profile,
-                    value: _statusController.text,
-                    label: 'Tracking status',
-                    onChanged: (value) {
-                      _statusController.text = value ?? '';
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            TrackingQuickAdjustments(
-              accent: accent,
-              progressCurrentController: _progressCurrentController,
-              progressTotalController: _progressTotalController,
-              seasonNumberController: _seasonNumberController,
-              episodeNumberController: _episodeNumberController,
-              showsEpisodeFields: _showsEpisodeFields,
-              onDecrementProgress: () => _bumpProgress(-1),
-              onIncrementProgress: () => _bumpProgress(1),
-              onDecrementEpisode: () => _bumpEpisode(-1),
-              onIncrementEpisode: () => _bumpEpisode(1),
-            ),
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _progressCurrentController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Progress current',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _progressTotalController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Progress total',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _timesCompletedController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Times completed',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            if (_showsEpisodeFields) ...[
-              const SizedBox(height: 9),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _seasonNumberController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Season',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _episodeNumberController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Episode',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-                TextField(
-                  controller: _trackingNotesController,
-                  minLines: 2,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Tracking notes',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 9),
-            ],
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  child: _dateField(
-                    context,
-                    label: 'Started',
-                    value: _startedAt,
-                    onChanged: (value) => setState(() => _startedAt = value),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _dateField(
-                    context,
-                    label: 'Finished',
-                    value: _finishedAt,
-                    onChanged: (value) => setState(() => _finishedAt = value),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: _stopTracking,
-                    icon: const Icon(Icons.playlist_remove, size: 18),
-                    label: const Text('Stop tracking'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: _save,
-                    icon: const Icon(Icons.save_outlined),
-                    label: const Text('Apply tracking changes'),
-                  ),
-                ],
-              ),
-            ),
-                ],
-              ),
-              crossFadeState: _expanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 180),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 10),
+        TrackingQuickAdjustments(
+          accent: accent,
+          progressCurrentController: _progressCurrentController,
+          progressTotalController: _progressTotalController,
+          seasonNumberController: _seasonNumberController,
+          episodeNumberController: _episodeNumberController,
+          showsEpisodeFields: _showsEpisodeFields,
+          onDecrementProgress: () => _bumpProgress(-1),
+          onIncrementProgress: () => _bumpProgress(1),
+          onDecrementEpisode: () => _bumpEpisode(-1),
+          onIncrementEpisode: () => _bumpEpisode(1),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _progressCurrentController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Progress current',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _progressTotalController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Progress total',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _timesCompletedController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Times completed',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        if (_showsEpisodeFields) ...[
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _seasonNumberController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Season',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _episodeNumberController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Episode',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 10),
+        TextField(
+          controller: _trackingNotesController,
+          minLines: 2,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            labelText: 'Tracking notes',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _dateField(
+                context,
+                label: 'Started',
+                value: _startedAt,
+                onChanged: (value) => setState(() => _startedAt = value),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _dateField(
+                context,
+                label: 'Finished',
+                value: _finishedAt,
+                onChanged: (value) => setState(() => _finishedAt = value),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: _stopTracking,
+                icon: const Icon(Icons.playlist_remove, size: 18),
+                label: const Text('Stop tracking'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: _save,
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Apply tracking changes'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
