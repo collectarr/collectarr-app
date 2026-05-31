@@ -85,12 +85,12 @@ class ComicInspectorHero extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final stacked = constraints.maxWidth < 720;
+        final stacked = constraints.maxWidth < 700;
         final cover = Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: stacked ? 150 : 160,
+              width: stacked ? 144 : 152,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: border, width: 0.8),
@@ -251,7 +251,7 @@ class ComicInspectorHero extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     cover,
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(child: infoColumn),
                   ],
                 ),
@@ -293,8 +293,8 @@ class _ComicHeroBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 30,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
+            height: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             decoration: BoxDecoration(
               color: headerSurface,
               border: Border(bottom: BorderSide(color: border)),
@@ -309,22 +309,31 @@ class _ComicHeroBlock extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w800,
+                          height: 1,
                         ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  referenceLabel,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: appPalette(context).textPrimary,
-                        fontWeight: FontWeight.w800,
-                      ),
+                const SizedBox(width: 5),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: border),
+                    color: Colors.transparent,
+                  ),
+                  child: Text(
+                    referenceLabel,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: appPalette(context).textPrimary,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                        ),
+                  ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(5),
             child: child,
           ),
         ],
