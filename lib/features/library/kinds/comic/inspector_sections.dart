@@ -52,14 +52,14 @@ class _ComicInspectorDashboard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= 780 ? 2 : 1;
-        const spacing = 10.0;
+        const spacing = 8.0;
         final panelWidth = columns == 1
             ? constraints.maxWidth
             : (constraints.maxWidth - spacing) / 2;
 
         return Wrap(
           spacing: spacing,
-          runSpacing: 10,
+          runSpacing: 8,
           children: [
             for (final panel in panels)
               SizedBox(
@@ -128,11 +128,11 @@ class _ComicPanelState extends State<_ComicPanel> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final surface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.03 : 0.012),
+      widget.accent.withValues(alpha: palette.isDark ? 0.02 : 0.008),
       palette.surface,
     );
     final headerSurface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.06 : 0.03),
+      widget.accent.withValues(alpha: palette.isDark ? 0.03 : 0.014),
       palette.surface,
     );
     final altSurface = palette.isDark
@@ -141,7 +141,7 @@ class _ComicPanelState extends State<_ComicPanel> {
             palette.surfaceSubtle,
           )
         : const Color(0xFFF4F5F7);
-    final border = palette.divider.withValues(alpha: palette.isDark ? 0.92 : 0.72);
+    final border = palette.divider.withValues(alpha: palette.isDark ? 0.86 : 0.64);
 
     final canCollapse = widget.initialVisibleRows != null &&
         widget.rows.length > widget.initialVisibleRows!;
@@ -158,8 +158,8 @@ class _ComicPanelState extends State<_ComicPanel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 30,
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            height: 26,
+            padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
             decoration: BoxDecoration(
               color: headerSurface,
               border: Border(bottom: BorderSide(color: border)),
@@ -168,7 +168,7 @@ class _ComicPanelState extends State<_ComicPanel> {
               children: [
                 Text(
                   widget.title,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: widget.accent,
                         fontWeight: FontWeight.w800,
                       ),
@@ -178,7 +178,7 @@ class _ComicPanelState extends State<_ComicPanel> {
                   InkWell(
                     onTap: () => setState(() => _expanded = !_expanded),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
                       child: Row(
                         children: [
                           Text(
@@ -248,7 +248,7 @@ class _ComicTableRow extends StatelessWidget {
           color: shaded ? altSurface : surface,
           border: Border(top: BorderSide(color: border)),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -297,12 +297,12 @@ class _ComicTableRow extends StatelessWidget {
         color: shaded ? altSurface : surface,
         border: Border(top: BorderSide(color: border)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 88,
+            width: 84,
             child: Text(
               row.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
