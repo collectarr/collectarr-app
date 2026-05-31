@@ -14,6 +14,7 @@ class SingleValuePickField extends StatefulWidget {
     this.onManage,
     this.manageTooltip,
     this.showPickerListAction = false,
+    this.showInlineLabel = true,
     this.enabled = true,
   });
 
@@ -27,6 +28,7 @@ class SingleValuePickField extends StatefulWidget {
   final VoidCallback? onManage;
   final String? manageTooltip;
   final bool showPickerListAction;
+  final bool showInlineLabel;
   final bool enabled;
 
   @override
@@ -233,7 +235,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         validator: widget.validator,
         enabled: widget.enabled,
         decoration: InputDecoration(
-          labelText: widget.label,
+          labelText: widget.showInlineLabel ? widget.label : null,
           hintText: widget.hint,
           suffixIconConstraints: BoxConstraints(
             minWidth: actionCount == 0 ? 0 : suffixWidth,

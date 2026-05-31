@@ -712,6 +712,36 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     );
   }
 
+  Widget _labelledSingleValuePickField(
+    String label, {
+    required TextEditingController controller,
+    required List<String> options,
+    Key? key,
+    ValueChanged<String?>? onChanged,
+    VoidCallback? onManage,
+    String? manageTooltip,
+    String? hintText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        SingleValuePickField(
+          fieldKey: key,
+          controller: controller,
+          options: options,
+          label: label,
+          hint: hintText,
+          onChanged: onChanged,
+          onManage: onManage,
+          manageTooltip: manageTooltip,
+          showInlineLabel: false,
+        ),
+      ],
+    );
+  }
+
   Widget _buildQuickChoiceField(
     String label, {
     required TextEditingController controller,
@@ -1094,11 +1124,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
             children: [
               Expanded(
                 flex: 5,
-                child: SingleValuePickField(
-                  fieldKey: const ValueKey('edit-series'),
+                child: _labelledSingleValuePickField(
+                  'Series',
+                  key: const ValueKey('edit-series'),
                   controller: seriesCtl,
                   options: [for (final entry in _seriesEntries) entry.title],
-                  label: 'Series',
                   onChanged: _syncSelectedSeriesId,
                   onManage: _openSeriesPicker,
                   manageTooltip: 'Manage Series',
