@@ -20,7 +20,7 @@ class ComicInspectorPanel extends StatelessWidget {
     final palette = appPalette(context);
     final accent = request.inspector.accent;
     final themedPanel = Color.alphaBlend(
-      accent.withValues(alpha: palette.isDark ? 0.06 : 0.03),
+      accent.withValues(alpha: palette.isDark ? 0.03 : 0.015),
       palette.panel,
     );
 
@@ -31,7 +31,7 @@ class ComicInspectorPanel extends StatelessWidget {
           _ComicInspectorToolbar(request: request),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 14),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
               children: [
                 request.hero,
                 if (request.primarySections.isNotEmpty) ...[
@@ -81,138 +81,129 @@ class _ComicInspectorToolbar extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color.alphaBlend(accent.withValues(alpha: 0.1), palette.toolbar),
+        color: Color.alphaBlend(
+          accent.withValues(alpha: palette.isDark ? 0.05 : 0.03),
+          palette.toolbar,
+        ),
         border: Border(
           bottom: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.5 : 0.28),
+            color: accent.withValues(alpha: palette.isDark ? 0.34 : 0.18),
           ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+        padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final compact = constraints.maxWidth < 900;
-            final leading = Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            final leading = _ComicToolbarGroup(
               children: [
-                _ComicToolbarGroup(
-                  children: [
-                    _ComicToolbarButton(
-                      label: 'Edit',
-                      icon: Icons.edit_outlined,
-                      onPressed: request.onEdit,
+                _ComicToolbarButton(
+                  label: 'Edit',
+                  icon: Icons.edit_outlined,
+                  onPressed: request.onEdit,
+                ),
+                _ComicToolbarButton(
+                  label: entry.isOwned ? 'Remove' : 'Collect',
+                  icon: entry.isOwned
+                      ? Icons.remove_circle_outline
+                      : Icons.add_circle_outline,
+                  onPressed: request.onToggleOwned,
+                ),
+                const _ComicToolbarSeparator(),
+                _ComicToolbarMenuButton(
+                  buttonKey: const ValueKey('comic-toolbar-share-menu'),
+                  label: 'Share',
+                  icon: Icons.share_outlined,
+                  entries: const [
+                    _ComicToolbarMenuEntry(
+                      label: 'Share comic',
+                      icon: Icons.ios_share_outlined,
+                      enabled: false,
                     ),
-                    _ComicToolbarButton(
-                      label: entry.isOwned ? 'Remove' : 'Collect',
-                      icon: entry.isOwned
-                          ? Icons.remove_circle_outline
-                          : Icons.add_circle_outline,
-                      onPressed: request.onToggleOwned,
+                    _ComicToolbarMenuEntry(
+                      label: 'Duplicate',
+                      icon: Icons.copy_all_outlined,
+                      enabled: false,
                     ),
                   ],
                 ),
-                _ComicToolbarGroup(
-                  children: [
-                    _ComicToolbarMenuButton(
-                      buttonKey: const ValueKey('comic-toolbar-share-menu'),
-                      label: 'Share',
-                      icon: Icons.share_outlined,
-                      entries: const [
-                        _ComicToolbarMenuEntry(
-                          label: 'Share comic',
-                          icon: Icons.ios_share_outlined,
-                          enabled: false,
-                        ),
-                        _ComicToolbarMenuEntry(
-                          label: 'Duplicate',
-                          icon: Icons.copy_all_outlined,
-                          enabled: false,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                if (hasBarcode)
-                  _ComicToolbarGroup(
-                    children: [
-                      _ComicToolbarBadgeButton(
-                        label: 'eBay',
-                        icon: Icons.storefront_outlined,
-                        accent: accent,
-                      ),
-                    ],
+                if (hasBarcode) ...[
+                  const _ComicToolbarSeparator(),
+                  _ComicToolbarBadgeButton(
+                    label: 'eBay',
+                    icon: Icons.storefront_outlined,
+                    accent: accent,
                   ),
-                _ComicToolbarGroup(
-                  children: [
-                    _ComicToolbarMenuButton(
-                      buttonKey: const ValueKey('comic-toolbar-more-menu'),
-                      label: 'More',
-                      icon: Icons.more_vert,
-                      entries: [
-                        _ComicToolbarMenuEntry(
-                          label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
-                          icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-                          onSelected: request.onToggleWishlist,
-                        ),
-                        _ComicToolbarMenuEntry(
-                          label: 'Open details',
-                          icon: Icons.open_in_new,
-                          onSelected: request.onOpenDetails,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Loan',
-                          icon: Icons.handshake_outlined,
-                          enabled: false,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Update value',
-                          icon: Icons.trending_up_outlined,
-                          enabled: false,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Update Key Info',
-                          icon: Icons.key_outlined,
-                          enabled: false,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Update from Core',
-                          icon: Icons.sync_outlined,
-                          enabled: false,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Relink Core variant',
-                          icon: Icons.link_outlined,
-                          enabled: false,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Unlink from Core',
-                          icon: Icons.link_off_outlined,
-                          enabled: false,
-                        ),
-                        const _ComicToolbarMenuEntry(
-                          label: 'Submit to Core',
-                          icon: Icons.upload_outlined,
-                          enabled: false,
-                        ),
-                        _ComicToolbarMenuEntry(
-                          label: 'Add copy',
-                          icon: Icons.copy_outlined,
-                          onSelected: request.onAddCopy,
-                        ),
-                        if (request.onCorrectMetadata != null)
-                          _ComicToolbarMenuEntry(
-                            label: 'Correct metadata',
-                            icon: Icons.fact_check_outlined,
-                            onSelected: request.onCorrectMetadata,
-                          ),
-                      ],
+                ],
+                const _ComicToolbarSeparator(),
+                _ComicToolbarMenuButton(
+                  buttonKey: const ValueKey('comic-toolbar-more-menu'),
+                  label: 'More',
+                  icon: Icons.more_vert,
+                  entries: [
+                    _ComicToolbarMenuEntry(
+                      label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
+                      icon: entry.isWishlisted ? Icons.star : Icons.star_border,
+                      onSelected: request.onToggleWishlist,
                     ),
-                    if (request.extraActions.isNotEmpty) ...request.extraActions,
+                    _ComicToolbarMenuEntry(
+                      label: 'Open details',
+                      icon: Icons.open_in_new,
+                      onSelected: request.onOpenDetails,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Loan',
+                      icon: Icons.handshake_outlined,
+                      enabled: false,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Update value',
+                      icon: Icons.trending_up_outlined,
+                      enabled: false,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Update Key Info',
+                      icon: Icons.key_outlined,
+                      enabled: false,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Update from Core',
+                      icon: Icons.sync_outlined,
+                      enabled: false,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Relink Core variant',
+                      icon: Icons.link_outlined,
+                      enabled: false,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Unlink from Core',
+                      icon: Icons.link_off_outlined,
+                      enabled: false,
+                    ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'Submit to Core',
+                      icon: Icons.upload_outlined,
+                      enabled: false,
+                    ),
+                    _ComicToolbarMenuEntry(
+                      label: 'Add copy',
+                      icon: Icons.copy_outlined,
+                      onSelected: request.onAddCopy,
+                    ),
+                    if (request.onCorrectMetadata != null)
+                      _ComicToolbarMenuEntry(
+                        label: 'Correct metadata',
+                        icon: Icons.fact_check_outlined,
+                        onSelected: request.onCorrectMetadata,
+                      ),
                   ],
                 ),
+                if (request.extraActions.isNotEmpty) ...[
+                  const _ComicToolbarSeparator(),
+                  ...request.extraActions,
+                ],
               ],
             );
 
@@ -248,7 +239,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
             return Row(
               children: [
                 Expanded(child: leading),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 trailing,
               ],
             );
@@ -266,15 +257,12 @@ class _ComicToolbarGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.panelRaised.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.divider),
+        border: Border.all(color: appPalette(context).divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(3),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
         child: Wrap(
           spacing: 4,
           runSpacing: 4,
@@ -303,7 +291,24 @@ class _ComicToolbarButton extends StatelessWidget {
       label: label,
       icon: icon,
       onPressed: onPressed,
-      tone: LibraryDenseButtonTone.surface,
+      tone: LibraryDenseButtonTone.subtle,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+    );
+  }
+}
+
+class _ComicToolbarSeparator extends StatelessWidget {
+  const _ComicToolbarSeparator();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 18,
+      child: VerticalDivider(
+        width: 8,
+        thickness: 1,
+        color: appPalette(context).divider,
+      ),
     );
   }
 }
@@ -341,7 +346,7 @@ class _ComicToolbarMenuButton extends StatelessWidget {
       key: buttonKey,
       label: label,
       icon: icon,
-      tone: LibraryDenseButtonTone.surface,
+      tone: LibraryDenseButtonTone.subtle,
       entries: [
         for (final entry in entries)
           LibraryDenseMenuEntry<_ComicToolbarMenuEntry>(
@@ -374,6 +379,7 @@ class _ComicToolbarBadgeButton extends StatelessWidget {
       icon: icon,
       tone: LibraryDenseButtonTone.subtle,
       onPressed: null,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     );
   }
 }
