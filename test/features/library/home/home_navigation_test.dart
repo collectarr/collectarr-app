@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -60,6 +62,8 @@ void main() {
     expect(config.presentation, genericLibraryMediaPresentation);
     expect(config.workspace.defaultVisibleColumns,
         genericLibraryMediaPresentation.defaultVisibleColumns);
+    expect(config.workspace.icon, Icons.category_outlined);
+    expect(config.workspace.accent, kLibraryFallbackAccent);
     expect(config.trackingProfile.name, readingTrackingProfile.name);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
     expect(

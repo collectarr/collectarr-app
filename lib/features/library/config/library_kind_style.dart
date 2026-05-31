@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -52,16 +51,4 @@ Color libraryChromeBorderColor(
 IconData libraryIconForKind(Object? kind) {
   return collectarrLibraryTypes.byKind(kind)?.workspace.icon ??
       Icons.category_outlined;
-}
-
-String librarySidebarTitleForKind(Object? kind) {
-  return switch (catalogMediaKindFromValue(kind).libraryKind) {
-    CatalogMediaKind.movie => 'Years',
-    CatalogMediaKind.music => 'Artists',
-    CatalogMediaKind.comic => 'Series',
-    CatalogMediaKind.book ||
-    CatalogMediaKind.game ||
-    CatalogMediaKind.boardgame => 'Publishers',
-    _ => 'Titles',
-  };
 }

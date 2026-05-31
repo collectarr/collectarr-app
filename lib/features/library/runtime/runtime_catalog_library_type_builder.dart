@@ -1,27 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
-  final presentation = _presentationForCatalogKind(normalizedType.kind);
-  final editPresentation = _editPresentationForCatalogKind(normalizedType.kind);
+  final knownType = collectarrLibraryTypes.byKind(normalizedType.kind);
+  final presentation = knownType?.presentation ?? genericLibraryMediaPresentation;
+  final editPresentation =
+      knownType?.editPresentation ?? genericLibraryEditPresentation;
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: mediaKind,
@@ -31,6 +25,7 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
         plural: true,
       ),
       icon: libraryIconForKind(mediaKind),
+      accent: libraryAccentForKind(mediaKind),
       preferencePrefix: 'catalog_${normalizedType.kind}',
       defaultSortColumn: LibrarySortColumn.title,
       defaultVisibleColumns: presentation.defaultVisibleColumns,
@@ -99,32 +94,4 @@ String _runtimeCatalogDisplayLabel(
   }
   final label = catalogTitleFromToken(rawKind, emptyLabel: 'Library');
   return plural ? '${label}s' : label;
-}
-
-LibraryMediaPresentation _presentationForCatalogKind(String kind) {
-  switch (kind.trim().toLowerCase()) {
-    case 'boardgame':
-      return boardGamesLibraryMediaPresentation;
-    case 'book':
-      return booksLibraryMediaPresentation;
-    case 'comic':
-      return comicsLibraryMediaPresentation;
-    case 'game':
-      return gamesLibraryMediaPresentation;
-    case 'movie':
-      return moviesLibraryMediaPresentation;
-    case 'music':
-      return musicLibraryMediaPresentation;
-    default:
-      return genericLibraryMediaPresentation;
-  }
-}
-
-LibraryEditPresentation _editPresentationForCatalogKind(String kind) {
-  switch (kind.trim().toLowerCase()) {
-    case 'comic':
-      return comicsLibraryEditPresentation;
-    default:
-      return genericLibraryEditPresentation;
-  }
 }
