@@ -82,6 +82,13 @@ void main() {
     expect(moviesWorkspaceConfig.accent, const Color(0xFFE05252));
     expect(libraryAccentForKind('anime'), const Color(0xFFE05252));
     expect(libraryIconForKind('tv'), Icons.movie_outlined);
+    expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
+  });
+
+  test('collection export title labels are kind-owned', () {
+    expect(comicsLibraryConfig.collectionExportTitleLabel, 'Series');
+    expect(musicLibraryConfig.collectionExportTitleLabel, 'Release');
+    expect(booksLibraryConfig.collectionExportTitleLabel, 'Title');
   });
 
   test('books library config enables creator spotlight in shared hero chrome', () {

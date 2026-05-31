@@ -1,5 +1,4 @@
 import 'package:csv/csv.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -489,13 +488,8 @@ class CollectionCsv {
     }
     final media = type.mediaFields;
     final release = type.releaseFields;
-    final title = switch (type.workspace.kind.libraryKind) {
-      CatalogMediaKind.comic => 'Series',
-      CatalogMediaKind.music => 'Release',
-      _ => 'Title',
-    };
     return _clzFriendlyHeader(
-      title: title,
+      title: type.collectionExportTitleLabel,
       number: media.numberLabel,
       variant: release.variantLabel,
       editionTitle: 'Edition Title',

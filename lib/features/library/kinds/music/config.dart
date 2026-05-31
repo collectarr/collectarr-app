@@ -55,6 +55,7 @@ const musicLibraryConfig = LibraryTypeConfig(
     numberLabel: 'Disc / Volume',
     publisherLabel: 'Label / Artist',
   ),
+  collectionExportTitleLabel: 'Release',
   releaseFields: ReleaseEditFields(
     variantLabel: 'Format / Edition',
     barcodeLabel: 'Barcode / Catalog no.',

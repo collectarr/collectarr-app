@@ -320,6 +320,7 @@ class LibraryTypeConfig {
     this.editChrome = const LibraryEditChromeConfig(),
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
+    this.collectionExportTitleLabel = 'Title',
     this.manualAddUsesTitleAsSeries = false,
     this.editUsesTitleAsSeries = false,
     this.transferableFieldKeys = kDefaultTransferableFieldKeys,
@@ -346,6 +347,7 @@ class LibraryTypeConfig {
   final LibraryEditChromeConfig editChrome;
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
+  final String collectionExportTitleLabel;
   final bool manualAddUsesTitleAsSeries;
   final bool editUsesTitleAsSeries;
   final List<String> transferableFieldKeys;
