@@ -251,6 +251,15 @@ void main() {
       moviesLibraryConfig.capabilities.videoShelfDrilldownEntryTypes,
       {'movie', 'tv', 'anime'},
     );
+    expect(
+      moviesLibraryConfig.addChrome.videoKindFilterOptions
+          .map((option) => option.label),
+      ['Movies', 'Box Sets'],
+    );
+    expect(
+      moviesLibraryConfig.addChrome.defaultVideoKindFilters,
+      {'movie'},
+    );
   });
 
   test('comic kind uses dedicated edit dialog builder', () {

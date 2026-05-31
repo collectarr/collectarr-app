@@ -276,12 +276,28 @@ class LibraryAddChromeConfig {
     this.mediaReferenceHelperLabel = 'Track or save the canonical item itself.',
     this.editionReferenceHelperLabel =
         'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
+    this.videoKindFilterOptions = const [],
+    this.defaultVideoKindFilters = const {},
   });
 
   final String mediaReferenceLabel;
   final String trackScopeSummary;
   final String mediaReferenceHelperLabel;
   final String editionReferenceHelperLabel;
+  final List<LibraryAddVideoKindFilterOption> videoKindFilterOptions;
+  final Set<String> defaultVideoKindFilters;
+}
+
+class LibraryAddVideoKindFilterOption {
+  const LibraryAddVideoKindFilterOption({
+    required this.kind,
+    required this.label,
+    required this.icon,
+  });
+
+  final String kind;
+  final String label;
+  final IconData icon;
 }
 
 class LibraryTypeConfig {

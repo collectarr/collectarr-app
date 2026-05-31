@@ -45,6 +45,21 @@ const moviesLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildMovieLibraryEditDialog,
   detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: moviesLibraryMediaPresentation,
+  addChrome: LibraryAddChromeConfig(
+    videoKindFilterOptions: [
+      LibraryAddVideoKindFilterOption(
+        kind: 'movie',
+        label: 'Movies',
+        icon: Icons.movie_outlined,
+      ),
+      LibraryAddVideoKindFilterOption(
+        kind: 'collection',
+        label: 'Box Sets',
+        icon: Icons.collections_bookmark_outlined,
+      ),
+    ],
+    defaultVideoKindFilters: {'movie'},
+  ),
   editPresentation: movieLibraryEditPresentation,
   inspectorSectionsBuilder: buildVideoInspectorSections,
   mediaFields: MediaEditFields(

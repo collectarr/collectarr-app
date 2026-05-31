@@ -348,6 +348,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                   onVideoKindFilterChanged != null) ...[
                 const SizedBox(height: 6),
                 _VideoKindFilterRow(
+                  options: type.addChrome.videoKindFilterOptions,
                   filters: videoKindFilters!,
                   accent: accent,
                   onChanged: onVideoKindFilterChanged!,
@@ -445,6 +446,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     if (videoKindFilters != null &&
                         onVideoKindFilterChanged != null)
                       _VideoKindFilterRow(
+                        options: type.addChrome.videoKindFilterOptions,
                         filters: videoKindFilters!,
                         accent: accent,
                         onChanged: onVideoKindFilterChanged!,
@@ -1049,22 +1051,16 @@ class _SuggestionTile extends StatelessWidget {
 
 class _VideoKindFilterRow extends StatelessWidget {
   const _VideoKindFilterRow({
+    required this.options,
     required this.filters,
     required this.accent,
     required this.onChanged,
   });
 
+  final List<LibraryAddVideoKindFilterOption> options;
   final Set<String> filters;
   final Color accent;
   final void Function(String kind, bool checked) onChanged;
-
-  static const _options = [
-    (kind: 'movie', label: 'Movies', icon: Icons.movie_outlined),
-    (kind: 'collection', label: 'Box Sets', icon: Icons.collections_bookmark_outlined),
-  ];
-
-  static List<String> get allKinds =>
-      _options.map((o) => o.kind).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -1073,7 +1069,7 @@ class _VideoKindFilterRow extends StatelessWidget {
       padding: const EdgeInsets.only(top: 6),
       child: Row(
         children: [
-          for (final option in _options) ...[
+          for (final option in options) ...[
             _VideoKindCheckbox(
               label: option.label,
               icon: option.icon,

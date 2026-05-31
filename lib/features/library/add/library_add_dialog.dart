@@ -673,6 +673,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
 
+      bool get _showsVideoKindFilters =>
+        _isVideoKind && widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
+
+      List<String> get _allVideoSearchKinds {
+      final configured = widget.type.addChrome.videoKindFilterOptions
+        .map((option) => _canonicalVideoSearchKind(option.kind))
+        .toSet()
+        .toList();
+      return configured.isEmpty
+        ? [_canonicalVideoSearchKind(widget.type.workspace.kind.apiValue)]
+        : configured;
+      }
+
   bool get _isMovieDesktopChrome => widget.type.capabilities.wideDialog;
 
   @override
@@ -680,9 +693,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     super.initState();
     registerLibraryAddBuilders();
     _syncManualKindSpecificFactoryValues();
-    _videoKindFilters = {
-      _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
-    };
+    final defaultFilters = widget.type.addChrome.defaultVideoKindFilters
+        .map(_canonicalVideoSearchKind)
+        .toSet();
+    _videoKindFilters = defaultFilters.isEmpty
+        ? {
+            _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
+          }
+        : defaultFilters;
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
     }
@@ -874,8 +892,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       numberController: _searchNumberController,
       publisherController: _searchPublisherController,
       yearController: _searchYearController,
-      videoKindFilters: _isVideoKind ? _videoKindFilters : null,
-      onVideoKindFilterChanged: _isVideoKind
+        videoKindFilters: _showsVideoKindFilters ? _videoKindFilters : null,
+        onVideoKindFilterChanged: _showsVideoKindFilters
           ? (kind, checked) {
               final canonicalKind = _canonicalVideoSearchKind(kind);
               setState(() {
@@ -2092,7 +2110,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final api = ref.read(apiClientProvider);
       final kindsToSearch = _isVideoKind
           ? (_videoKindFilters.isEmpty
-              ? _VideoKindFilterRow.allKinds
+              ? _allVideoSearchKinds
             : _videoKindFilters.map(_canonicalVideoSearchKind).toSet().toList())
           : <String>[];
       final seriesText = _searchSeriesController.text.trim().isNotEmpty
