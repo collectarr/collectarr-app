@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -13,6 +15,10 @@ const _authEmailKey = 'collectarr.auth.email';
 const _authUserIdKey = 'collectarr.auth.user_id';
 const _authIsAdminKey = 'collectarr.auth.is_admin';
 const _authSecureStorage = FlutterSecureStorage();
+const _authRestoreTimeout = Duration(seconds: 3);
+const _secureStorageReadTimeout = Duration(seconds: 2);
+const _debugWebPreviewToken =
+  'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjQxMDI0NDQ4MDB9.';
 
 class AuthState {
   const AuthState({
@@ -64,10 +70,26 @@ class AuthState {
 
 class AuthController extends StateNotifier<AuthState> {
   AuthController(this.ref) : super(const AuthState(isRestoring: true)) {
-    _restoreSession();
+    _startRestoreSession();
   }
 
   final Ref ref;
+
+  Future<void> _startRestoreSession() async {
+    try {
+      await _restoreSession().timeout(_authRestoreTimeout);
+    } on TimeoutException catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Timed out restoring the persisted auth session.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      ref.read(apiAuthTokenProvider.notifier).set(null);
+      ref.read(apiClientProvider).clearToken();
+      state = const AuthState();
+    }
+  }
 
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -179,6 +201,20 @@ class AuthController extends StateNotifier<AuthState> {
           isAdmin: isAdmin,
         );
       } else {
+        if (kDebugMode && kIsWeb) {
+          final debugEmail = email ?? 'user@example.com';
+          final debugExpiresAt = _jwtExpiresAt(_debugWebPreviewToken);
+          ref.read(apiAuthTokenProvider.notifier).set(_debugWebPreviewToken);
+          ref.read(apiClientProvider).setToken(_debugWebPreviewToken);
+          state = AuthState(
+            token: _debugWebPreviewToken,
+            userId: userId ?? 'debug-web-preview',
+            email: debugEmail,
+            expiresAt: debugExpiresAt,
+            isAdmin: true,
+          );
+          return;
+        }
         ref.read(apiAuthTokenProvider.notifier).set(null);
         state = AuthState(userId: userId, email: email);
       }
@@ -258,14 +294,17 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<String?> _readStoredToken(SharedPreferences prefs) async {
     try {
-      final secureToken = await _authSecureStorage.read(key: _authTokenKey);
+      final secureToken = await _authSecureStorage
+          .read(key: _authTokenKey)
+          .timeout(_secureStorageReadTimeout);
       if (secureToken != null && secureToken.isNotEmpty) {
         return secureToken;
       }
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'auth',
-        message: 'Failed to read secure token; falling back to legacy token.',
+        message:
+            'Failed to read secure token within the restore window; falling back to legacy token.',
         error: error,
         stackTrace: stackTrace,
       );
