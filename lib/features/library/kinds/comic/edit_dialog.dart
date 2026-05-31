@@ -196,7 +196,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                 pricePaidCents: parseMoneyCents(map['purchasePrice'] ?? ''),
                 currency: emptyToNull(map['purchaseCurrency'] ?? ''),
                 personalNotes: emptyToNull(map['notes'] ?? ''),
-                quantity: widget.request.ownedItem?.quantity ?? 1,
+                quantity: parseInt(map['quantity'] ?? '') ?? widget.request.ownedItem?.quantity ?? 1,
                 locationId: null,
                 locationChanged: false,
                 tags: emptyToNull(map['tags'] ?? ''),
@@ -221,6 +221,8 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                 marketValueCents: parseMoneyCents(map['currentValue'] ?? ''),
                 ownerLabel: emptyToNull(map['owner'] ?? ''),
                 lastBagBoardDate: parseDate(map['bagBoardDate'] ?? ''),
+                collectionStatus: emptyToNull(map['collectionStatus'] ?? ''),
+                storageDevice: emptyToNull(map['storageBox'] ?? ''),
               ),
         tracking: normalizedStatus == null && widget.request.trackingEntry == null
             ? null
@@ -270,7 +272,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
       onClose: () => Navigator.of(context).pop(null),
       onSave: _submit,
       tabOrderKey: null,
-      allowTabReorder: false,
+      allowTabReorder: true,
       ebaySearchQuery: widget.request.item.itemNumber != null
           ? '${widget.request.item.title} #${widget.request.item.itemNumber}'
           : widget.request.item.title,
