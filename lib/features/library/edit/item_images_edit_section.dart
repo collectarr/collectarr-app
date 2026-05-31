@@ -239,7 +239,11 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     }
     Uint8List bytes;
     try {
-      bytes = base64Decode(base64Data);
+      var normalizedData = base64Data.trim();
+      if (normalizedData.contains(',')) {
+        normalizedData = normalizedData.split(',').last;
+      }
+      bytes = base64Decode(normalizedData);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'item_images',
