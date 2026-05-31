@@ -61,6 +61,8 @@ class _ComicInspectorDashboard extends StatelessWidget {
                   title: panel.title,
                   rows: panel.rows,
                   accent: request.accent,
+                  initialVisibleRows:
+                      panel.title == 'Creators' ? 5 : null,
                 ),
               ),
           ],
@@ -85,28 +87,43 @@ class _ComicRowData {
   final Widget? valueWidget;
 }
 
-class _ComicPanel extends StatelessWidget {
+class _ComicPanel extends StatefulWidget {
   const _ComicPanel({
     required this.title,
     required this.rows,
     required this.accent,
+    this.initialVisibleRows,
   });
 
   final String title;
   final List<_ComicRowData> rows;
   final Color accent;
+  final int? initialVisibleRows;
+
+  @override
+  State<_ComicPanel> createState() => _ComicPanelState();
+}
+
+class _ComicPanelState extends State<_ComicPanel> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final surface = Color.alphaBlend(
-      accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
+      widget.accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
       palette.isDark ? palette.panelRaised : Colors.white,
     );
     final altSurface = palette.isDark
         ? Color.alphaBlend(Colors.white.withValues(alpha: 0.03), palette.surface)
         : const Color(0xFFF2F4F6);
     final border = palette.divider.withValues(alpha: palette.isDark ? 1 : 0.55);
+
+    final canCollapse = widget.initialVisibleRows != null &&
+        widget.rows.length > widget.initialVisibleRows!;
+    final visibleRows = canCollapse && !_expanded
+        ? widget.rows.take(widget.initialVisibleRows!).toList()
+        : widget.rows;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -119,17 +136,42 @@ class _ComicPanel extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w800,
+            child: Row(
+              children: [
+                Text(
+                  widget.title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: widget.accent,
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                if (canCollapse) ...[
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => setState(() => _expanded = !_expanded),
+                    child: Text(
+                      _expanded ? 'Collapse' : 'View all',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: palette.textMuted,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
                   ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    _expanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size: 16,
+                    color: palette.textMuted,
+                  ),
+                ],
+              ],
             ),
           ),
-          for (var index = 0; index < rows.length; index++)
+          for (var index = 0; index < visibleRows.length; index++)
             _ComicTableRow(
-              row: rows[index],
+              row: visibleRows[index],
               shaded: index.isEven,
               surface: surface,
               altSurface: altSurface,

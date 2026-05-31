@@ -55,11 +55,12 @@ class ComicInspectorHero extends ConsumerWidget {
             .value;
     final db = ownedItemId == null ? null : ref.watch(localDatabaseProvider);
     final referenceLabel =
-        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
-            entry.primaryReferenceLabel ??
-            (entry.itemNumber?.trim().isNotEmpty == true
+        (entry.itemNumber?.trim().isNotEmpty == true
                 ? '#${entry.itemNumber!.trim()}'
-                : request.type.singularLabel.toUpperCase());
+                : null) ??
+            entry.primaryReferenceLabel ??
+            libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+            request.type.singularLabel.toUpperCase();
     final editionLabel =
         entry.publishing?.subtitle?.trim().isNotEmpty == true
             ? entry.publishing!.subtitle!.trim()
@@ -77,20 +78,14 @@ class ComicInspectorHero extends ConsumerWidget {
     ].join(' / ');
     final synopsis = entry.synopsis?.trim();
     final hasBackCover = localBack != null || ownedItemId != null;
-    final statusLabel = entry.isOwned
-        ? 'In Collection'
-        : entry.isWishlisted
-            ? 'Wish list'
-            : 'Catalog only';
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 760;
         final cover = Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: wide ? 210 : 180,
+              width: 180,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: border, width: 0.8),
@@ -142,97 +137,67 @@ class ComicInspectorHero extends ConsumerWidget {
           ],
         );
 
-        final detailsColumn = ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 260),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                editionLabel,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: ink,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const SizedBox(height: 10),
-              if (publisherLabel.isNotEmpty)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _ComicPublisherMark(
-                      label: _publisherMarkLabel(entry.publisher, imprint),
-                      accent: request.accent,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Publisher',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: muted,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            publisherLabel,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: ink,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.2,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 12),
-              _ComicDetailLine(label: 'Release', value: releaseLabel),
-              if (imprint != null && imprint.isNotEmpty)
-                _ComicDetailLine(label: 'Imprint', value: imprint),
-              if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
-                _ComicDetailLine(
-                  label: 'Format',
-                  value: entry.referenceFormatLabel!.trim(),
-                ),
-              if (entry.barcode?.trim().isNotEmpty == true) ...[
-                const SizedBox(height: 12),
-                _ComicBarcodeCard(
-                  barcode: entry.barcode!.trim(),
-                  accent: request.accent,
-                  border: border,
-                  palette: palette,
-                ),
-              ],
-            ],
-          ),
-        );
-
-        final plotColumn = Column(
+        final infoColumn = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
+                Expanded(
+                  child: Text(
+                    editionLabel,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: ink,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 _ComicCollectionStatusIcon(
                   owned: entry.isOwned,
                   wishlisted: entry.isWishlisted,
                   accent: request.accent,
                   muted: muted,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  statusLabel,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: muted,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
               ],
             ),
+            const SizedBox(height: 10),
+            _ComicDetailLine(label: 'Release', value: releaseLabel),
+            if (publisherLabel.isNotEmpty)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _ComicPublisherMark(
+                    label: _publisherMarkLabel(entry.publisher, imprint),
+                    accent: request.accent,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          publisherLabel,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: ink,
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            if (entry.barcode?.trim().isNotEmpty == true) ...[
+              const SizedBox(height: 12),
+              _ComicBarcodeCard(
+                barcode: entry.barcode!.trim(),
+                accent: request.accent,
+                border: border,
+                palette: palette,
+              ),
+            ],
             const SizedBox(height: 12),
             Text(
               synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
@@ -240,7 +205,10 @@ class ComicInspectorHero extends ConsumerWidget {
                     color: ink,
                     height: 1.45,
                     fontWeight: FontWeight.w500,
+                    // ignore: deprecated_member_use
+                    textBaseline: TextBaseline.alphabetic,
                   ),
+              textAlign: TextAlign.justify,
             ),
           ],
         );
@@ -248,32 +216,14 @@ class ComicInspectorHero extends ConsumerWidget {
         final mainBody = _ComicHeroBlock(
           surface: surface,
           border: border,
-          child: wide
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    cover,
-                    const SizedBox(width: 16),
-                    detailsColumn,
-                    const SizedBox(width: 20),
-                    Expanded(child: plotColumn),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        cover,
-                        const SizedBox(width: 12),
-                        Expanded(child: detailsColumn),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    plotColumn,
-                  ],
-                ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              cover,
+              const SizedBox(width: 16),
+              Expanded(child: infoColumn),
+            ],
+          ),
         );
 
         return Column(

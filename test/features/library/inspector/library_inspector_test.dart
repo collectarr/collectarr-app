@@ -114,8 +114,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Imprint:'), findsOneWidget);
-    expect(find.text('IDW'), findsOneWidget);
+    expect(find.textContaining('IDW'), findsWidgets);
     expect(find.text('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
   });
@@ -261,7 +260,7 @@ void main() {
     expect(find.text('Share'), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
-    expect(find.text('In Collection'), findsWidgets);
+    expect(find.byIcon(Icons.check_circle), findsWidgets);
     expect(find.text('Overview'), findsNothing);
     expect(find.byType(LibraryDenseButton), findsWidgets);
     expect(find.text('Collection tools'), findsNothing);
