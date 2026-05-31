@@ -684,17 +684,10 @@ class _InspectorDialogActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: SizedBox.square(
-        dimension: 28,
-        child: IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          onPressed: onPressed,
-          icon: Icon(icon, size: 16),
-        ),
-      ),
+    return InspectorToolIconButton(
+      tooltip: tooltip,
+      icon: icon,
+      onPressed: onPressed,
     );
   }
 }
@@ -767,21 +760,10 @@ class _InspectorReadingQueueActionButtonState
         : _inQueue
             ? 'Reading queue · position #$_position'
             : 'Add to reading queue';
-    return Tooltip(
-      message: tooltip,
-      child: SizedBox.square(
-        dimension: 28,
-        child: IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          onPressed: _openDialog,
-          icon: Icon(
-            _inQueue ? Icons.bookmark : Icons.bookmark_border,
-            size: 16,
-            color: _inQueue ? widget.accent : null,
-          ),
-        ),
-      ),
+    return InspectorToolIconButton(
+      tooltip: tooltip,
+      onPressed: _openDialog,
+      icon: _inQueue ? Icons.bookmark : Icons.bookmark_border,
     );
   }
 }

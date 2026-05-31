@@ -204,6 +204,7 @@ void main() {
       );
 
       expect(find.textContaining('Select'), findsOneWidget);
+      expect(find.text('Details panel'), findsOneWidget);
     });
   });
 }

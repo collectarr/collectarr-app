@@ -181,7 +181,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
-    expect(find.text('OWNED'), findsOneWidget);
+    expect(find.text('Quick actions'), findsOneWidget);
+    expect(find.text('Owned'), findsOneWidget);
+    expect(find.text('Wish list'), findsOneWidget);
   });
 
   testWidgets('book inspector hides the item images section', (tester) async {

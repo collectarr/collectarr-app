@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/collection/repositories/loan_repository.
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -660,6 +659,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           (state) => state.copyWith(coverSize: size),
         ),
         selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+        onClearBucket: _clearToolbarSearchChip,
         quickView: _quickView,
         hasActiveFilters: _hasActiveFilter,
         onQuickViewSelected: (view) =>
