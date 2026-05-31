@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('single value pick field exposes a picker dialog',
+  testWidgets('single value pick field exposes an inline picker menu',
       (tester) async {
     final controller = TextEditingController(text: 'Publisher A');
     addTearDown(controller.dispose);
@@ -25,17 +25,16 @@ void main() {
     await tester.tap(find.byTooltip('Pick Publisher'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Pick Publisher'), findsOneWidget);
     expect(find.text('Publisher B'), findsOneWidget);
 
-    await tester.tap(find.text('Publisher B').last);
+    await tester.tap(find.text('Publisher B'));
     await tester.pumpAndSettle();
 
     expect(controller.text, 'Publisher B');
     expect(find.byTooltip('Browse Publisher'), findsNothing);
   });
 
-  testWidgets('single value pick field shows picker and browse actions',
+  testWidgets('single value pick field browse action opens picker dialog',
       (tester) async {
     final controller = TextEditingController(text: 'Publisher A');
     addTearDown(controller.dispose);
@@ -55,6 +54,11 @@ void main() {
 
     expect(find.byTooltip('Pick Publisher'), findsOneWidget);
     expect(find.byTooltip('Browse Publisher'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Browse Publisher'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pick Publisher'), findsOneWidget);
   });
 
   testWidgets('single value pick field does not auto-list options on focus',

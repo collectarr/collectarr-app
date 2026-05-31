@@ -6,13 +6,16 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ComicEditPanel extends StatefulWidget {
+class ComicEditPanel extends ConsumerStatefulWidget {
   const ComicEditPanel({super.key, required this.request});
 
   final LibraryEditDialogRequest request;
@@ -21,7 +24,7 @@ class ComicEditPanel extends StatefulWidget {
   ComicEditPanelState createState() => ComicEditPanelState();
 }
 
-class ComicEditPanelState extends State<ComicEditPanel> {
+class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   static const List<String> _commonCreatorRoles = <String>[
     'Writer',
     'Artist',
@@ -183,6 +186,8 @@ class ComicEditPanelState extends State<ComicEditPanel> {
   late Map<String, String?> _customFieldValues;
   List<ItemImageEdit> _itemImageEdits = const [];
   bool _keyComic = false;
+  List<SeriesRegistryEntry> _seriesEntries = const [];
+  String? _selectedSeriesId;
 
   @override
   void initState() {
@@ -191,6 +196,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     final owned = widget.request.ownedItem;
     final tracking = widget.request.trackingEntry;
     final publishing = item.publishing;
+    _selectedSeriesId = item.series?.seriesId;
 
     titleCtl = TextEditingController(text: item.title);
     seriesCtl = TextEditingController(text: item.series?.seriesTitle ?? '');
@@ -320,6 +326,8 @@ class ComicEditPanelState extends State<ComicEditPanel> {
         'url': TextEditingController(text: link.url),
       });
     }
+
+    _loadSeriesOptions();
   }
 
   @override
@@ -737,6 +745,53 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     );
   }
 
+  Future<void> _loadSeriesOptions() async {
+    final registry = SeriesRegistryRepository(ref.read(localDatabaseProvider));
+    final entries = await registry.searchEntries(
+      mediaKind: widget.request.type.workspace.kind.apiValue,
+      selectedTitle: seriesCtl.text,
+      selectedSeriesId: _selectedSeriesId,
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _seriesEntries = List<SeriesRegistryEntry>.from(entries);
+    });
+  }
+
+  void _syncSelectedSeriesId(String? value) {
+    final normalized = value?.trim();
+    final matchingEntry = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+          (entry) =>
+              entry != null &&
+              entry.title.trim().toLowerCase() ==
+                  (normalized?.toLowerCase() ?? ''),
+          orElse: () => null,
+        );
+    setState(() {
+      _selectedSeriesId = matchingEntry?.coreSeriesId;
+    });
+  }
+
+  Future<void> _openSeriesPicker() async {
+    final selected = await showSeriesPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      mediaKind: widget.request.type.workspace.kind.apiValue,
+      selectedTitle: seriesCtl.text,
+      selectedSeriesId: _selectedSeriesId,
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    _setControllerText(seriesCtl, selected.title);
+    setState(() {
+      _selectedSeriesId = selected.coreSeriesId;
+    });
+    await _loadSeriesOptions();
+  }
+
   void _setControllerText(TextEditingController controller, String value) {
     controller.value = TextEditingValue(
       text: value,
@@ -1039,14 +1094,14 @@ class ComicEditPanelState extends State<ComicEditPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildQuickChoiceField(
-                  'Series',
+                SingleValuePickField(
+                  fieldKey: const ValueKey('edit-series'),
                   controller: seriesCtl,
-                  key: const ValueKey('edit-series'),
-                  suggestions: [
-                    widget.request.item.series?.seriesTitle ?? '',
-                    widget.request.item.title,
-                  ],
+                  options: [for (final entry in _seriesEntries) entry.title],
+                  label: 'Series',
+                  onChanged: _syncSelectedSeriesId,
+                  onManage: _openSeriesPicker,
+                  manageTooltip: 'Manage Series',
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -1832,6 +1887,7 @@ class ComicEditPanelState extends State<ComicEditPanel> {
     return {
       'title': titleCtl.text,
       'series': seriesCtl.text,
+      'seriesId': _selectedSeriesId,
       'barcode': barcodeCtl.text,
       'format': formatCtl.text,
       'seriesGroup': seriesGroupCtl.text,

@@ -1,14 +1,19 @@
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../helpers/test_constants.dart';
 
@@ -20,6 +25,30 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    final catalog = CatalogCacheRepository(db);
+    addTearDown(db.close);
+
+    await catalog.upsertAll([
+      CatalogItem(
+        id: 'catalog-1',
+        kind: 'comic',
+        title: 'Saga #1',
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-1',
+          seriesTitle: 'Saga',
+        ),
+      ),
+      CatalogItem(
+        id: 'catalog-2',
+        kind: 'comic',
+        title: 'OTGW #1',
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-2',
+          seriesTitle: 'Over the Garden Wall',
+        ),
+      ),
+    ]);
 
     final type = collectarrLibraryTypes.byKind('comic')!;
     final item = LibraryMetadataItem.fromCatalogItem(
@@ -114,20 +143,23 @@ void main() {
     LibraryEditSelection? selection;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                selection = await showDialog<LibraryEditSelection>(
-                  context: context,
-                  builder: (context) => buildComicLibraryEditDialog(
-                    context,
-                    request,
-                  ),
-                );
-              },
-              child: const Text('Open'),
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => buildComicLibraryEditDialog(
+                      context,
+                      request,
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
             ),
           ),
         ),
@@ -138,8 +170,28 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.byTooltip('Pick Series'), findsOneWidget);
-    expect(find.byTooltip('Browse Series'), findsOneWidget);
+    expect(find.byTooltip('Manage Series'), findsOneWidget);
     expect(find.byType(ActionChip), findsNothing);
+
+    await tester.tap(find.byTooltip('Pick Series'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Over the Garden Wall'), findsOneWidget);
+
+    await tester.tap(find.text('Over the Garden Wall'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Over the Garden Wall'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Manage Series'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select Series'), findsOneWidget);
+    expect(find.text('New Series'), findsOneWidget);
+    expect(find.text('Manage Series'), findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
 
     await tester.enterText(
       find.byKey(const ValueKey('edit-coverdate-year')),
@@ -290,6 +342,8 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
 
     const imageBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS1cAAAAASUVORK5CYII=';
@@ -329,20 +383,23 @@ void main() {
     LibraryEditSelection? selection;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                selection = await showDialog<LibraryEditSelection>(
-                  context: context,
-                  builder: (context) => buildComicLibraryEditDialog(
-                    context,
-                    request,
-                  ),
-                );
-              },
-              child: const Text('Open'),
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => buildComicLibraryEditDialog(
+                      context,
+                      request,
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
             ),
           ),
         ),

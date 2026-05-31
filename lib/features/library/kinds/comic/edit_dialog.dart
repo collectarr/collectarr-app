@@ -60,6 +60,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
     final parsedDescription = emptyToNull(map['description'] ?? '');
     final parsedReleaseDate = parseDate(map['releaseDate'] ?? '');
     final parsedCoverDate = parseDate(map['coverDate'] ?? '');
+    final seriesId = emptyToNull(map['seriesId'] ?? '');
     final seriesTitle = emptyToNull(map['series'] ?? '');
     final updatedPublishing = CatalogPublishingDetails(
       pageCount: parseInt(map['pages'] as String? ?? ''),
@@ -146,7 +147,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
       series: seriesTitle == null && widget.request.item.series == null
           ? null
           : CatalogSeriesDetails(
-              seriesId: widget.request.item.series?.seriesId,
+            seriesId: seriesId ?? widget.request.item.series?.seriesId,
               seriesTitle: seriesTitle,
               volumeName: widget.request.item.series?.volumeName,
               volumeNumber: widget.request.item.series?.volumeNumber,

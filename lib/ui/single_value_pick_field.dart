@@ -35,6 +35,7 @@ class SingleValuePickField extends StatefulWidget {
 
 class _SingleValuePickFieldState extends State<SingleValuePickField> {
   late final FocusNode _focusNode;
+  final GlobalKey _fieldAnchorKey = GlobalKey();
   static const _suffixButtonExtent = 32.0;
   static const _suffixHorizontalPadding = 8.0;
 
@@ -118,6 +119,59 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     _focusNode.requestFocus();
   }
 
+  Future<void> _openInlinePicker(List<String> options) async {
+    if (!widget.enabled || options.isEmpty) {
+      return;
+    }
+    final fieldBox =
+        _fieldAnchorKey.currentContext?.findRenderObject() as RenderBox?;
+    final overlayBox =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (fieldBox == null || overlayBox == null) {
+      await _openPickerDialog(options);
+      return;
+    }
+    final fieldOffset = fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final currentValue = _emptyToNull(widget.controller.text);
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        fieldOffset.dx,
+        fieldOffset.dy + fieldBox.size.height,
+        overlayBox.size.width - fieldOffset.dx - fieldBox.size.width,
+        overlayBox.size.height - fieldOffset.dy - fieldBox.size.height,
+      ),
+      constraints: BoxConstraints(
+        minWidth: fieldBox.size.width,
+        maxWidth: fieldBox.size.width,
+        maxHeight: 280,
+      ),
+      items: [
+        for (final option in options)
+          PopupMenuItem<String>(
+            value: option,
+            child: Row(
+              children: [
+                Icon(
+                  currentValue?.toLowerCase() == option.toLowerCase()
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 18,
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(option)),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    _applySelection(selected);
+    _focusNode.requestFocus();
+  }
+
   Widget _suffixAction({
     required String tooltip,
     required VoidCallback? onPressed,
@@ -170,54 +224,57 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     ].length;
     final suffixWidth =
         actionCount * _suffixButtonExtent + (_suffixHorizontalPadding * 2);
-    return TextFormField(
-      key: widget.fieldKey,
-      controller: widget.controller,
-      focusNode: _focusNode,
-      validator: widget.validator,
-      enabled: widget.enabled,
-      decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: widget.hint,
-        suffixIconConstraints: BoxConstraints(
-          minWidth: actionCount == 0 ? 0 : suffixWidth,
-          maxWidth: actionCount == 0 ? 0 : suffixWidth,
-          minHeight: 40,
-        ),
-        suffixIcon: actionCount == 0
-            ? null
-            : SizedBox(
-                width: suffixWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    if (normalizedOptions.isNotEmpty)
-                      _suffixAction(
-                        tooltip: 'Pick ${widget.label}',
-                        onPressed: () => _openPickerDialog(normalizedOptions),
-                        icon: Icons.arrow_drop_down,
-                      ),
-                    if (hasBrowseAction)
-                      _suffixAction(
-                        tooltip:
-                            widget.manageTooltip ?? 'Browse ${widget.label}',
-                        onPressed: widget.enabled
-                            ? (widget.onManage ??
-                                () => _openPickerDialog(normalizedOptions))
-                            : null,
-                        icon: Icons.view_list_outlined,
-                        showDivider: normalizedOptions.isNotEmpty,
-                      ),
-                  ],
+    return KeyedSubtree(
+      key: _fieldAnchorKey,
+      child: TextFormField(
+        key: widget.fieldKey,
+        controller: widget.controller,
+        focusNode: _focusNode,
+        validator: widget.validator,
+        enabled: widget.enabled,
+        decoration: InputDecoration(
+          labelText: widget.label,
+          hintText: widget.hint,
+          suffixIconConstraints: BoxConstraints(
+            minWidth: actionCount == 0 ? 0 : suffixWidth,
+            maxWidth: actionCount == 0 ? 0 : suffixWidth,
+            minHeight: 40,
+          ),
+          suffixIcon: actionCount == 0
+              ? null
+              : SizedBox(
+                  width: suffixWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      if (normalizedOptions.isNotEmpty)
+                        _suffixAction(
+                          tooltip: 'Pick ${widget.label}',
+                          onPressed: () => _openInlinePicker(normalizedOptions),
+                          icon: Icons.arrow_drop_down,
+                        ),
+                      if (hasBrowseAction)
+                        _suffixAction(
+                          tooltip:
+                              widget.manageTooltip ?? 'Browse ${widget.label}',
+                          onPressed: widget.enabled
+                              ? (widget.onManage ??
+                                  () => _openPickerDialog(normalizedOptions))
+                              : null,
+                          icon: Icons.view_list_outlined,
+                          showDivider: normalizedOptions.isNotEmpty,
+                        ),
+                    ],
+                  ),
                 ),
-              ),
+        ),
+        onTap: () => setState(() {}),
+        onChanged: (value) {
+          widget.onChanged?.call(_emptyToNull(value));
+          setState(() {});
+        },
       ),
-      onTap: () => setState(() {}),
-      onChanged: (value) {
-        widget.onChanged?.call(_emptyToNull(value));
-        setState(() {});
-      },
     );
   }
 
