@@ -24,6 +24,8 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Studio',
     publisherPlural: 'Studios',
     unknownPublisher: 'Unknown studio',
+    publisherMode: 'Studios',
+    genre: 'Genres',
   ),
   builder: moviesLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,

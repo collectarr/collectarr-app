@@ -51,7 +51,10 @@ class LibraryMediaGroupLabels {
     required this.publisher,
     required this.publisherPlural,
     required this.unknownPublisher,
-  });
+    String? publisherMode,
+    this.genre = 'Genre',
+    this.genrePlural = 'Genres',
+  }) : publisherMode = publisherMode ?? publisher;
 
   final String series;
   final String seriesPlural;
@@ -59,6 +62,9 @@ class LibraryMediaGroupLabels {
   final String publisher;
   final String publisherPlural;
   final String unknownPublisher;
+  final String publisherMode;
+  final String genre;
+  final String genrePlural;
 }
 
 class LibraryMediaPreviewLabels {

@@ -34,17 +34,16 @@ String genericGroupModeLabel(
   LibraryTypeConfig type,
 ) {
   final labels = libraryMediaGroupLabels(type);
-  final isMovieType = type.workspace.kind == CatalogMediaKind.movie;
   return switch (mode) {
     LibraryGroupMode.series => labels.series,
     LibraryGroupMode.storyArc => 'Story Arc',
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.title => 'Title',
-    LibraryGroupMode.publisher => isMovieType ? labels.publisherPlural : labels.publisher,
+    LibraryGroupMode.publisher => labels.publisherMode,
     LibraryGroupMode.year => 'Year',
     LibraryGroupMode.audienceRating => 'Audience Rating',
     LibraryGroupMode.color => 'Color',
-    LibraryGroupMode.genre => isMovieType ? 'Genres' : 'Genre',
+    LibraryGroupMode.genre => labels.genre,
     LibraryGroupMode.country => 'Country',
     LibraryGroupMode.language => 'Language',
     LibraryGroupMode.ageRating => 'Age Rating',
@@ -120,7 +119,7 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.year => 'Years',
     LibraryGroupMode.audienceRating => 'Audience Ratings',
     LibraryGroupMode.color => 'Colors',
-    LibraryGroupMode.genre => 'Genres',
+    LibraryGroupMode.genre => labels.genrePlural,
     LibraryGroupMode.country => 'Countries',
     LibraryGroupMode.language => 'Languages',
     LibraryGroupMode.ageRating => 'Age Ratings',
