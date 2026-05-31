@@ -61,6 +61,12 @@ void main() {
       'comicvine',
       'gcd',
     ]);
+    expect(type.inspectorHeroBuilder, same(comicsLibraryConfig.inspectorHeroBuilder));
+    expect(
+      type.inspectorSectionsBuilder,
+      same(comicsLibraryConfig.inspectorSectionsBuilder),
+    );
+    expect(type.showsDefaultInspectorPersonalSection, isFalse);
   });
 
   test('media catalog cache is reused for the same base url', () async {

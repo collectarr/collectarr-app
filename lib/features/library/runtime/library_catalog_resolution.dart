@@ -41,9 +41,21 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       capabilities: capabilities,
       presentation: presentation,
       editPresentation: editPresentation,
+      addChrome: addChrome,
+      editChrome: editChrome,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
+      collectionExportTitleLabel: collectionExportTitleLabel,
+      manualAddUsesTitleAsSeries: manualAddUsesTitleAsSeries,
+      editUsesTitleAsSeries: editUsesTitleAsSeries,
+      transferableFieldKeys: transferableFieldKeys,
       addDialogLauncher: addDialogLauncher,
       editDialogBuilder: editDialogBuilder,
       detailPageBuilder: detailPageBuilder,
+      inspectorHeroBuilder: inspectorHeroBuilder,
+      inspectorSectionsBuilder: inspectorSectionsBuilder,
+      showsDefaultInspectorPersonalSection:
+          showsDefaultInspectorPersonalSection,
     );
   }
 }
