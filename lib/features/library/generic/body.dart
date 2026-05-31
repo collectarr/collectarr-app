@@ -162,20 +162,27 @@ class LibraryBody extends StatelessWidget {
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
                 : viewState.detailsLayout;
-        final maxSidebarWidth = maxLibraryPaneWidthForViewport(
+        final requestedDetailsWidth = clampLibraryPaneWidth(
+          viewState.detailsWidth,
+          minWidth: kLibraryDetailsMinWidth,
+          maxWidth: kLibraryPaneStoredMaxWidth,
+        );
+        final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
           viewportWidth: constraints.maxWidth,
-          preferredMaxWidth: kLibrarySidebarMaxWidth,
-          viewportFraction: compact ? 0.4 : 0.34,
+          workspaceMinWidth: kLibraryWorkspaceMinWidth,
+          hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
+          rightDetailsWidth: requestedDetailsWidth,
         );
         final sidebarWidth = clampLibraryPaneWidth(
           viewState.sidebarWidth,
           minWidth: kLibrarySidebarMinWidth,
           maxWidth: maxSidebarWidth,
         );
-        final maxDetailsWidth = maxLibraryPaneWidthForViewport(
+        final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
           viewportWidth: constraints.maxWidth,
-          preferredMaxWidth: kLibraryDetailsMaxWidth,
-          viewportFraction: 0.38,
+          workspaceMinWidth: kLibraryWorkspaceMinWidth,
+          hasSidebar: showSidebar,
+          sidebarWidth: sidebarWidth,
         );
         final letterFilteredItems = selectedLetter == null
             ? projection.filteredItems

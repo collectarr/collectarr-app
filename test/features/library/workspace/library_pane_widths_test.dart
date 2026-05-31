@@ -2,37 +2,27 @@ import 'package:collectarr_app/features/library/workspace/library_pane_widths.da
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('clampLibraryPaneWidth keeps pane widths inside bounds', () {
-    expect(
-      clampLibraryPaneWidth(100, minWidth: 180, maxWidth: 360),
-      180,
+  test('sidebar max width can exceed the old hard cap when viewport allows it', () {
+    final maxWidth = resolveLibrarySidebarMaxWidth(
+      viewportWidth: 1680,
+      workspaceMinWidth: kLibraryWorkspaceMinWidth,
+      hasRightDetails: true,
+      rightDetailsWidth: 520,
     );
-    expect(
-      clampLibraryPaneWidth(260, minWidth: 180, maxWidth: 360),
-      260,
-    );
-    expect(
-      clampLibraryPaneWidth(800, minWidth: 180, maxWidth: 360),
-      360,
-    );
+
+    expect(maxWidth, 816);
+    expect(maxWidth, greaterThan(kLibrarySidebarMaxWidth));
   });
 
-  test('maxLibraryPaneWidthForViewport caps by viewport fraction', () {
-    expect(
-      maxLibraryPaneWidthForViewport(
-        viewportWidth: 900,
-        preferredMaxWidth: 520,
-        viewportFraction: 0.38,
-      ),
-      342,
+  test('details max width can exceed the old hard cap when viewport allows it', () {
+    final maxWidth = resolveLibraryDetailsMaxWidth(
+      viewportWidth: 1680,
+      workspaceMinWidth: kLibraryWorkspaceMinWidth,
+      hasSidebar: true,
+      sidebarWidth: 360,
     );
-    expect(
-      maxLibraryPaneWidthForViewport(
-        viewportWidth: 2000,
-        preferredMaxWidth: 520,
-        viewportFraction: 0.38,
-      ),
-      520,
-    );
+
+    expect(maxWidth, 976);
+    expect(maxWidth, greaterThan(kLibraryDetailsMaxWidth));
   });
 }

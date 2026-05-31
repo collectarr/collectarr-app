@@ -121,12 +121,12 @@ class LibraryWorkspacePreferences {
       sidebarWidth: clampLibraryPaneWidth(
         sidebarWidth,
         minWidth: kLibrarySidebarMinWidth,
-        maxWidth: kLibrarySidebarMaxWidth,
+        maxWidth: kLibraryPaneStoredMaxWidth,
       ),
       detailsWidth: clampLibraryPaneWidth(
         detailsWidth,
         minWidth: kLibraryDetailsMinWidth,
-        maxWidth: kLibraryDetailsMaxWidth,
+        maxWidth: kLibraryPaneStoredMaxWidth,
       ),
       visibleColumns: _decodeVisibleColumns(
         prefs.getStringList(_key('visible_columns')),

@@ -10,6 +10,7 @@ void main() {
     kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
+    accent: Colors.red,
     preferencePrefix: 'comics',
     defaultSortColumn: LibrarySortColumn.title,
     defaultVisibleColumns: {
@@ -22,6 +23,7 @@ void main() {
     kind: CatalogMediaKind.comic,
     title: 'Manga',
     icon: Icons.auto_stories,
+    accent: Colors.orange,
     preferencePrefix: 'manga',
     defaultSortColumn: LibrarySortColumn.title,
     defaultVisibleColumns: {
@@ -146,5 +148,37 @@ void main() {
       LibraryTableColumn.publisher,
     });
     expect(restored.columnWidths, isEmpty);
+  });
+
+  test('library workspace preferences keep pane widths beyond the old caps',
+      () async {
+    const store = LibraryWorkspacePreferences(config);
+
+    await store.write(
+      const LibraryWorkspacePreferenceSnapshot(
+        viewMode: LibraryViewMode.grid,
+        detailsLayout: LibraryDetailsLayout.right,
+        isSidebarVisible: true,
+        sortColumn: LibrarySortColumn.title,
+        sortAscending: true,
+        coverSize: 144,
+        sidebarWidth: 640,
+        detailsWidth: 980,
+        visibleColumns: {
+          LibraryTableColumn.title,
+          LibraryTableColumn.issue,
+        },
+        columnWidths: {},
+      ),
+    );
+
+    final restored = await store.read(
+      defaultCoverSize: 128,
+      minCoverSize: 104,
+      maxCoverSize: 188,
+    );
+
+    expect(restored.sidebarWidth, 640);
+    expect(restored.detailsWidth, 980);
   });
 }
