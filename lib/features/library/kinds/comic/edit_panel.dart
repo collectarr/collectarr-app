@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
+import 'package:collectarr_app/features/library/edit/text_controller_group.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
@@ -129,6 +130,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     'Major',
   ];
 
+  final TextControllerGroup _textControllers = TextControllerGroup();
+
   late final TextEditingController titleCtl;
   late final TextEditingController seriesCtl;
   late final TextEditingController barcodeCtl;
@@ -196,6 +199,25 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   List<String> _genreOptions = const [];
   String? _selectedSeriesId;
 
+  TextEditingController _createController([String text = '']) {
+    return _textControllers.create(text: text);
+  }
+
+  Map<String, TextEditingController> _createLinkControllers({
+    String title = '',
+    String url = '',
+  }) {
+    return {
+      'title': _createController(title),
+      'url': _createController(url),
+    };
+  }
+
+  void _disposeLinkControllers(Map<String, TextEditingController> link) {
+    _textControllers.disposeController(link['title']);
+    _textControllers.disposeController(link['url']);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -205,106 +227,99 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     final publishing = item.publishing;
     _selectedSeriesId = item.series?.seriesId;
 
-    titleCtl = TextEditingController(text: item.title);
-    seriesCtl = TextEditingController(text: item.series?.seriesTitle ?? '');
-    barcodeCtl = TextEditingController(text: item.barcode ?? '');
-    formatCtl = TextEditingController(text: item.physicalFormatLabel ?? '');
-    seriesGroupCtl = TextEditingController(text: publishing?.seriesGroup ?? '');
-    issueNumberCtl = TextEditingController(text: item.itemNumber ?? '');
-    variantCtl = TextEditingController(text: item.variant ?? '');
-    variantDescCtl = TextEditingController(text: item.editionTitle ?? '');
-    coverDateCtl = TextEditingController(
-      text: item.coverDate == null ? '' : formatDate(item.coverDate!),
+    titleCtl = _createController(item.title);
+    seriesCtl = _createController(item.series?.seriesTitle ?? '');
+    barcodeCtl = _createController(item.barcode ?? '');
+    formatCtl = _createController(item.physicalFormatLabel ?? '');
+    seriesGroupCtl = _createController(publishing?.seriesGroup ?? '');
+    issueNumberCtl = _createController(item.itemNumber ?? '');
+    variantCtl = _createController(item.variant ?? '');
+    variantDescCtl = _createController(item.editionTitle ?? '');
+    coverDateCtl = _createController(
+      item.coverDate == null ? '' : formatDate(item.coverDate!),
     );
-    releaseDateCtl = TextEditingController(
-      text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
+    releaseDateCtl = _createController(
+      item.releaseDate == null ? '' : formatDate(item.releaseDate!),
     );
-    publisherCtl = TextEditingController(text: item.publisher ?? '');
-    imprintCtl = TextEditingController(text: publishing?.imprint ?? '');
-    subtitleCtl = TextEditingController(text: item.titleExtension ?? '');
+    publisherCtl = _createController(item.publisher ?? '');
+    imprintCtl = _createController(publishing?.imprint ?? '');
+    subtitleCtl = _createController(item.titleExtension ?? '');
     final crossover = item.crossover?.trim();
-    crossoverCtl = TextEditingController(
-      text: crossover?.isNotEmpty == true ? crossover! : '',
-    );
-    storyArcsCtl = TextEditingController(
-      text: (item.storyArcs ?? const <String>[]).join(', '),
-    );
-    countryCtl = TextEditingController(text: item.country ?? '');
-    languageCtl = TextEditingController(text: item.language ?? '');
-    ageCtl = TextEditingController(text: item.ageRating ?? '');
-    pagesCtl =
-        TextEditingController(text: publishing?.pageCount?.toString() ?? '');
-    genresCtl = TextEditingController(text: item.genres?.join(', ') ?? '');
-    purchasePriceCtl = TextEditingController(
-      text: owned?.pricePaidCents == null
+    crossoverCtl = _createController(crossover?.isNotEmpty == true ? crossover! : '');
+    storyArcsCtl = _createController((item.storyArcs ?? const <String>[]).join(', '));
+    countryCtl = _createController(item.country ?? '');
+    languageCtl = _createController(item.language ?? '');
+    ageCtl = _createController(item.ageRating ?? '');
+    pagesCtl = _createController(publishing?.pageCount?.toString() ?? '');
+    genresCtl = _createController(item.genres?.join(', ') ?? '');
+    purchasePriceCtl = _createController(
+      owned?.pricePaidCents == null
           ? ''
           : (owned!.pricePaidCents! / 100).toStringAsFixed(2),
     );
-    purchaseCurrencyCtl = TextEditingController(text: owned?.currency ?? '');
-    purchaseDateCtl = TextEditingController(
-      text: owned?.purchaseDate == null ? '' : formatDate(owned!.purchaseDate!),
+    purchaseCurrencyCtl = _createController(owned?.currency ?? '');
+    purchaseDateCtl = _createController(
+      owned?.purchaseDate == null ? '' : formatDate(owned!.purchaseDate!),
     );
-    currentValueCtl = TextEditingController(
-      text: owned?.marketValueCents == null
+    currentValueCtl = _createController(
+      owned?.marketValueCents == null
           ? ''
           : (owned!.marketValueCents! / 100).toStringAsFixed(2),
     );
-    gradeCtl = TextEditingController(text: owned?.grade ?? '');
-    coverPriceCtl = TextEditingController(
-      text: owned?.coverPriceCents == null
+    gradeCtl = _createController(owned?.grade ?? '');
+    coverPriceCtl = _createController(
+      owned?.coverPriceCents == null
           ? ''
           : (owned!.coverPriceCents! / 100).toStringAsFixed(2),
     );
-    soldPriceCtl = TextEditingController(
-      text: owned?.sellPriceCents == null
+    soldPriceCtl = _createController(
+      owned?.sellPriceCents == null
           ? ''
           : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
     );
-    soldDateCtl = TextEditingController(
-      text: owned?.soldAt == null ? '' : formatDate(owned!.soldAt!),
+    soldDateCtl = _createController(
+      owned?.soldAt == null ? '' : formatDate(owned!.soldAt!),
     );
-    purchaseStoreCtl = TextEditingController(text: owned?.purchaseStore ?? '');
-    rawOrSlabbedCtl = TextEditingController(text: owned?.rawOrSlabbed ?? '');
-    gradingCompanyCtl =
-        TextEditingController(text: owned?.gradingCompany ?? '');
-    labelTypeCtl = TextEditingController(text: owned?.labelType ?? '');
-    customLabelCtl = TextEditingController(text: owned?.customLabel ?? '');
-    pageQualityCtl = TextEditingController(text: owned?.pageQuality ?? '');
-    certificationNumberCtl =
-        TextEditingController(text: owned?.certificationNumber ?? '');
-    graderNotesCtl = TextEditingController(text: owned?.graderNotes ?? '');
-    signedByCtl = TextEditingController(text: owned?.signedBy ?? '');
-    keyReasonCtl = TextEditingController(text: owned?.keyReason ?? '');
-    keyCategoryCtl = TextEditingController(text: owned?.keyCategory ?? '');
-    keySeverityCtl = TextEditingController(text: owned?.keySeverity ?? '');
-    statusCtl = TextEditingController(
-        text: tracking?.statusStorageValue ?? owned?.readStatus ?? '');
-    ratingCtl = TextEditingController(
-      text: tracking?.rating?.toString() ?? owned?.rating?.toString() ?? '',
+    purchaseStoreCtl = _createController(owned?.purchaseStore ?? '');
+    rawOrSlabbedCtl = _createController(owned?.rawOrSlabbed ?? '');
+    gradingCompanyCtl = _createController(owned?.gradingCompany ?? '');
+    labelTypeCtl = _createController(owned?.labelType ?? '');
+    customLabelCtl = _createController(owned?.customLabel ?? '');
+    pageQualityCtl = _createController(owned?.pageQuality ?? '');
+    certificationNumberCtl = _createController(owned?.certificationNumber ?? '');
+    graderNotesCtl = _createController(owned?.graderNotes ?? '');
+    signedByCtl = _createController(owned?.signedBy ?? '');
+    keyReasonCtl = _createController(owned?.keyReason ?? '');
+    keyCategoryCtl = _createController(owned?.keyCategory ?? '');
+    keySeverityCtl = _createController(owned?.keySeverity ?? '');
+    statusCtl = _createController(
+      tracking?.statusStorageValue ?? owned?.readStatus ?? '',
     );
-    ownerCtl = TextEditingController(text: owned?.ownerLabel ?? '');
-    readDateCtl = TextEditingController(
-      text: tracking?.finishedAt == null && owned?.finishedAt == null
+    ratingCtl = _createController(
+      tracking?.rating?.toString() ?? owned?.rating?.toString() ?? '',
+    );
+    ownerCtl = _createController(owned?.ownerLabel ?? '');
+    readDateCtl = _createController(
+      tracking?.finishedAt == null && owned?.finishedAt == null
           ? ''
           : formatDate(tracking?.finishedAt ?? owned!.finishedAt!),
     );
-    bagBoardDateCtl = TextEditingController(
-      text: owned?.lastBagBoardDate == null
+    bagBoardDateCtl = _createController(
+      owned?.lastBagBoardDate == null
           ? ''
           : formatDate(owned!.lastBagBoardDate!),
     );
-    tagsCtl = TextEditingController(text: owned?.tags ?? '');
-    notesCtl = TextEditingController(text: owned?.personalNotes ?? '');
-    coverUrlCtl = TextEditingController(
-        text: item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
-    characterDraftCtl = TextEditingController();
+    tagsCtl = _createController(owned?.tags ?? '');
+    notesCtl = _createController(owned?.personalNotes ?? '');
+    coverUrlCtl = _createController(item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
+    characterDraftCtl = _createController();
     final decodedPlot = _decodePlotFields(
       item.plotSummary,
       item.plotDescription,
       item.synopsis,
     );
-    summaryCtl = TextEditingController(text: decodedPlot.$1);
-    descriptionCtl = TextEditingController(text: decodedPlot.$2);
+    summaryCtl = _createController(decodedPlot.$1);
+    descriptionCtl = _createController(decodedPlot.$2);
     _keyComic = owned?.keyComic ?? false;
     _customFieldValues = {
       for (final definition in widget.request.customFieldDefinitions)
@@ -328,10 +343,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       }
     }
     for (final link in item.trailerUrls) {
-      links.add({
-        'title': TextEditingController(text: link.title ?? link.source ?? ''),
-        'url': TextEditingController(text: link.url),
-      });
+      links.add(
+        _createLinkControllers(
+          title: link.title ?? link.source ?? '',
+          url: link.url,
+        ),
+      );
     }
 
     _loadSeriesOptions();
@@ -340,66 +357,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
 
   @override
   void dispose() {
-    titleCtl.dispose();
-    seriesCtl.dispose();
-    barcodeCtl.dispose();
-    formatCtl.dispose();
-    seriesGroupCtl.dispose();
-    issueNumberCtl.dispose();
-    variantCtl.dispose();
-    variantDescCtl.dispose();
-    coverDateCtl.dispose();
-    releaseDateCtl.dispose();
-    publisherCtl.dispose();
-    imprintCtl.dispose();
-    subtitleCtl.dispose();
-    crossoverCtl.dispose();
-    storyArcsCtl.dispose();
-    countryCtl.dispose();
-    languageCtl.dispose();
-    ageCtl.dispose();
-    pagesCtl.dispose();
-    genresCtl.dispose();
-    purchasePriceCtl.dispose();
-    purchaseCurrencyCtl.dispose();
-    purchaseDateCtl.dispose();
-    currentValueCtl.dispose();
-    gradeCtl.dispose();
-    coverPriceCtl.dispose();
-    soldPriceCtl.dispose();
-    soldDateCtl.dispose();
-    purchaseStoreCtl.dispose();
-    rawOrSlabbedCtl.dispose();
-    gradingCompanyCtl.dispose();
-    labelTypeCtl.dispose();
-    customLabelCtl.dispose();
-    pageQualityCtl.dispose();
-    certificationNumberCtl.dispose();
-    graderNotesCtl.dispose();
-    signedByCtl.dispose();
-    keyReasonCtl.dispose();
-    keyCategoryCtl.dispose();
-    keySeverityCtl.dispose();
-    statusCtl.dispose();
-    ratingCtl.dispose();
-    ownerCtl.dispose();
-    readDateCtl.dispose();
-    bagBoardDateCtl.dispose();
-    tagsCtl.dispose();
-    notesCtl.dispose();
-    coverUrlCtl.dispose();
-    characterDraftCtl.dispose();
-    summaryCtl.dispose();
-    descriptionCtl.dispose();
+    _textControllers.dispose();
     for (final creator in _creators) {
       creator.dispose();
     }
     for (final character in _characters) {
       character.dispose();
-    }
-    for (final link in links) {
-      link['title']?.dispose();
-      link['url']?.dispose();
     }
     super.dispose();
   }
@@ -547,17 +510,13 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   }
 
   void _addLink() {
-    links.add({
-      'title': TextEditingController(),
-      'url': TextEditingController(),
-    });
+    links.add(_createLinkControllers());
     setState(() {});
   }
 
   void _removeLink(int idx) {
     final link = links.removeAt(idx);
-    link['title']?.dispose();
-    link['url']?.dispose();
+    _disposeLinkControllers(link);
     setState(() {});
   }
 

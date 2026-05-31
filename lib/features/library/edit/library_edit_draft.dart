@@ -15,12 +15,14 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/text_controller_group.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
 class LibraryEditDraft {
   LibraryEditDraft._({
+    required TextControllerGroup textControllers,
     required this.type,
     required this.item,
     required this.ownedItem,
@@ -136,7 +138,9 @@ class LibraryEditDraft {
     required this.seriesId,
     required this.customFieldEdits,
     required this.itemImageEdits,
-  });
+  }) : _textControllers = textControllers;
+
+  final TextControllerGroup _textControllers;
 
   factory LibraryEditDraft.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditDraft.fromFields(
@@ -171,203 +175,164 @@ class LibraryEditDraft {
     final effectiveFormats = physicalFormats.isEmpty
         ? allKnownPhysicalMediaFormats
         : physicalFormats;
-    final titleController = TextEditingController(text: item.title);
-    final numberController = TextEditingController(text: item.itemNumber ?? '');
-    final publisherController = TextEditingController(text: item.publisher ?? '');
-    final coverDateController = TextEditingController(
-      text: item.coverDate == null ? '' : formatDate(item.coverDate!),
+    final textControllers = TextControllerGroup();
+    TextEditingController create([String text = '']) =>
+        textControllers.create(text: text);
+
+    final titleController = create(item.title);
+    final numberController = create(item.itemNumber ?? '');
+    final publisherController = create(item.publisher ?? '');
+    final coverDateController = create(
+      item.coverDate == null ? '' : formatDate(item.coverDate!),
     );
-    final coverDateYearPartController = TextEditingController(
-      text: item.coverDate?.year.toString() ?? '',
-    );
-    final coverDateMonthPartController = TextEditingController(
-      text: item.coverDate == null
+    final coverDateYearPartController = create(item.coverDate?.year.toString() ?? '');
+    final coverDateMonthPartController = create(
+      item.coverDate == null
           ? ''
           : item.coverDate!.month.toString().padLeft(2, '0'),
     );
-    final coverDateDayPartController = TextEditingController(
-      text: item.coverDate == null
+    final coverDateDayPartController = create(
+      item.coverDate == null
           ? ''
           : item.coverDate!.day.toString().padLeft(2, '0'),
     );
-    final releaseDateController = TextEditingController(
-      text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
+    final releaseDateController = create(
+      item.releaseDate == null ? '' : formatDate(item.releaseDate!),
     );
-    final releaseDateYearPartController = TextEditingController(
-      text: item.releaseDate?.year.toString() ?? '',
+    final releaseDateYearPartController = create(
+      item.releaseDate?.year.toString() ?? '',
     );
-    final releaseDateMonthPartController = TextEditingController(
-      text: item.releaseDate == null
+    final releaseDateMonthPartController = create(
+      item.releaseDate == null
           ? ''
           : item.releaseDate!.month.toString().padLeft(2, '0'),
     );
-    final releaseDateDayPartController = TextEditingController(
-      text: item.releaseDate == null
+    final releaseDateDayPartController = create(
+      item.releaseDate == null
           ? ''
           : item.releaseDate!.day.toString().padLeft(2, '0'),
     );
-    final releaseYearController = TextEditingController(
-      text: item.releaseYear?.toString() ?? '',
+    final releaseYearController = create(item.releaseYear?.toString() ?? '');
+    final pageCountController = create(
+      item.publishing?.pageCount?.toString() ?? '',
     );
-    final pageCountController = TextEditingController(
-      text: item.publishing?.pageCount?.toString() ?? '',
-    );
-    final editionTitleController =
-        TextEditingController(text: item.editionTitle ?? '');
-    final barcodeController = TextEditingController(text: item.barcode ?? '');
-    final variantController = TextEditingController(text: item.variant ?? '');
-    final physicalFormatLabelController = TextEditingController(
-      text: item.physicalFormatLabel ??
+    final editionTitleController = create(item.editionTitle ?? '');
+    final barcodeController = create(item.barcode ?? '');
+    final variantController = create(item.variant ?? '');
+    final physicalFormatLabelController = create(
+      item.physicalFormatLabel ??
           (type.workspace.kind.apiValue == 'comic' ? item.variant : null) ??
           (initialPhysicalFormatId == null
               ? null
               : physicalMediaFormatById(
                   initialPhysicalFormatId,
                   formats: effectiveFormats,
-            )?.label) ??
+                )?.label) ??
           '',
     );
-    final coverController = TextEditingController(text: item.coverImageUrl ?? '');
-    final thumbnailController =
-        TextEditingController(text: item.thumbnailImageUrl ?? '');
-    final synopsisController = TextEditingController(text: item.synopsis ?? '');
-    final sortKeyController = TextEditingController(text: item.sortKey ?? '');
-    final originalTitleController =
-        TextEditingController(text: item.originalTitle ?? '');
-    final runtimeController = TextEditingController(
-      text: item.video?.runtimeMinutes?.toString() ?? '',
+    final coverController = create(item.coverImageUrl ?? '');
+    final thumbnailController = create(item.thumbnailImageUrl ?? '');
+    final synopsisController = create(item.synopsis ?? '');
+    final sortKeyController = create(item.sortKey ?? '');
+    final originalTitleController = create(item.originalTitle ?? '');
+    final runtimeController = create(
+      item.video?.runtimeMinutes?.toString() ?? '',
     );
-    final audienceRatingController =
-        TextEditingController(text: item.audienceRating ?? '');
-    final countryController = TextEditingController(text: item.country ?? '');
-    final languageController = TextEditingController(text: item.language ?? '');
-    final ageRatingController = TextEditingController(text: item.ageRating ?? '');
-    final genresEditController =
-        TextEditingController(text: item.genres?.join(', ') ?? '');
-    final titleExtensionController =
-        TextEditingController(text: item.titleExtension ?? '');
-    final crossoverController =
-      TextEditingController(text: item.crossover?.trim() ?? '');
-    final storyArcsController = TextEditingController(
-      text: (item.storyArcs ?? const <String>[]).join(', '),
+    final audienceRatingController = create(item.audienceRating ?? '');
+    final countryController = create(item.country ?? '');
+    final languageController = create(item.language ?? '');
+    final ageRatingController = create(item.ageRating ?? '');
+    final genresEditController = create(item.genres?.join(', ') ?? '');
+    final titleExtensionController = create(item.titleExtension ?? '');
+    final crossoverController = create(item.crossover?.trim() ?? '');
+    final storyArcsController = create(
+      (item.storyArcs ?? const <String>[]).join(', '),
     );
-    final ownerLabelController =
-        TextEditingController(text: ownedItem?.ownerLabel ?? '');
-    final imprintController =
-        TextEditingController(text: item.publishing?.imprint ?? '');
-    final seriesGroupController =
-        TextEditingController(text: item.publishing?.seriesGroup ?? '');
-    final conditionController =
-        TextEditingController(text: ownedItem?.condition ?? '');
-    final gradeController = TextEditingController(text: ownedItem?.grade ?? '');
-    final purchaseDateController = TextEditingController(
-      text: ownedItem?.purchaseDate == null
-          ? ''
-          : formatDate(ownedItem!.purchaseDate!),
+    final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
+    final imprintController = create(item.publishing?.imprint ?? '');
+    final seriesGroupController = create(item.publishing?.seriesGroup ?? '');
+    final conditionController = create(ownedItem?.condition ?? '');
+    final gradeController = create(ownedItem?.grade ?? '');
+    final purchaseDateController = create(
+      ownedItem?.purchaseDate == null ? '' : formatDate(ownedItem!.purchaseDate!),
     );
-    final priceController = TextEditingController(
-      text: ownedItem?.pricePaidCents == null
+    final priceController = create(
+      ownedItem?.pricePaidCents == null
           ? ''
           : (ownedItem!.pricePaidCents! / 100).toStringAsFixed(2),
     );
-    final currencyController = TextEditingController(text: ownedItem?.currency ?? '');
-    final quantityController = TextEditingController(
-      text: (ownedItem?.quantity ?? 1).toString(),
-    );
-    final notesController =
-        TextEditingController(text: ownedItem?.personalNotes ?? '');
-    final wishlistPriceController = TextEditingController(
-      text: wishlistItem?.targetPriceCents == null
+    final currencyController = create(ownedItem?.currency ?? '');
+    final quantityController = create((ownedItem?.quantity ?? 1).toString());
+    final notesController = create(ownedItem?.personalNotes ?? '');
+    final wishlistPriceController = create(
+      wishlistItem?.targetPriceCents == null
           ? ''
           : (wishlistItem!.targetPriceCents! / 100).toStringAsFixed(2),
     );
-    final wishlistCurrencyController =
-        TextEditingController(text: wishlistItem?.currency ?? '');
-    final wishlistNotesController =
-        TextEditingController(text: wishlistItem?.notes ?? '');
-    final ratingController = TextEditingController(
-      text: (trackingEntry?.rating ?? ownedItem?.rating)?.toString() ?? '',
+    final wishlistCurrencyController = create(wishlistItem?.currency ?? '');
+    final wishlistNotesController = create(wishlistItem?.notes ?? '');
+    final ratingController = create(
+      (trackingEntry?.rating ?? ownedItem?.rating)?.toString() ?? '',
     );
-    final trackingController = TextEditingController(
-      text: trackingEntry?.statusStorageValue ?? ownedItem?.readStatus ?? '',
+    final trackingController = create(
+      trackingEntry?.statusStorageValue ?? ownedItem?.readStatus ?? '',
     );
-    final progressCurrentController = TextEditingController(
-      text: trackingEntry?.progressCurrent?.toString() ?? '',
+    final progressCurrentController = create(
+      trackingEntry?.progressCurrent?.toString() ?? '',
     );
-    final progressTotalController = TextEditingController(
-      text: trackingEntry?.progressTotal?.toString() ?? '',
+    final progressTotalController = create(
+      trackingEntry?.progressTotal?.toString() ?? '',
     );
-    final timesCompletedController = TextEditingController(
-      text: trackingEntry?.timesCompleted?.toString() ?? '',
+    final timesCompletedController = create(
+      trackingEntry?.timesCompleted?.toString() ?? '',
     );
-    final seasonNumberController = TextEditingController(
-      text: (trackingEntry?.seasonNumber ?? item.series?.seasonNumber)
-              ?.toString() ??
-          '',
+    final seasonNumberController = create(
+      (trackingEntry?.seasonNumber ?? item.series?.seasonNumber)?.toString() ?? '',
     );
-    final episodeNumberController = TextEditingController(
-      text: (trackingEntry?.episodeNumber ?? item.series?.episodeNumber)
-              ?.toString() ??
-          '',
+    final episodeNumberController = create(
+      (trackingEntry?.episodeNumber ?? item.series?.episodeNumber)?.toString() ?? '',
     );
-    final trackingNotesController =
-        TextEditingController(text: trackingEntry?.notes ?? '');
-    final tagsController = TextEditingController(text: ownedItem?.tags ?? '');
-    final sellPriceController = TextEditingController(
-      text: ownedItem?.sellPriceCents == null
+    final trackingNotesController = create(trackingEntry?.notes ?? '');
+    final tagsController = create(ownedItem?.tags ?? '');
+    final sellPriceController = create(
+      ownedItem?.sellPriceCents == null
           ? ''
           : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
     );
-    final soldToController = TextEditingController(text: ownedItem?.soldTo ?? '');
-    final rawOrSlabbedController =
-        TextEditingController(text: ownedItem?.rawOrSlabbed ?? '');
-    final gradingCompanyController =
-        TextEditingController(text: ownedItem?.gradingCompany ?? '');
-    final graderNotesController =
-        TextEditingController(text: ownedItem?.graderNotes ?? '');
-    final signedByController =
-        TextEditingController(text: ownedItem?.signedBy ?? '');
-    final labelTypeController =
-        TextEditingController(text: ownedItem?.labelType ?? '');
-    final certificationNumberController =
-        TextEditingController(text: ownedItem?.certificationNumber ?? '');
-    final coverPriceController = TextEditingController(
-      text: ownedItem?.coverPriceCents == null
+    final soldToController = create(ownedItem?.soldTo ?? '');
+    final rawOrSlabbedController = create(ownedItem?.rawOrSlabbed ?? '');
+    final gradingCompanyController = create(ownedItem?.gradingCompany ?? '');
+    final graderNotesController = create(ownedItem?.graderNotes ?? '');
+    final signedByController = create(ownedItem?.signedBy ?? '');
+    final labelTypeController = create(ownedItem?.labelType ?? '');
+    final certificationNumberController = create(
+      ownedItem?.certificationNumber ?? '',
+    );
+    final coverPriceController = create(
+      ownedItem?.coverPriceCents == null
           ? ''
           : (ownedItem!.coverPriceCents! / 100).toStringAsFixed(2),
     );
-    final keyReasonController =
-        TextEditingController(text: ownedItem?.keyReason ?? '');
-    final featuresController =
-        TextEditingController(text: ownedItem?.features ?? '');
-    final purchaseStoreController =
-        TextEditingController(text: ownedItem?.purchaseStore ?? '');
-    final boxSetNameController =
-        TextEditingController(text: ownedItem?.boxSetName ?? '');
-    final storageDeviceController =
-        TextEditingController(text: ownedItem?.storageDevice ?? '');
-    final storageSlotController =
-        TextEditingController(text: ownedItem?.storageSlot ?? '');
-    final regionController = TextEditingController(text: ownedItem?.region ?? '');
-    final packagingController =
-        TextEditingController(text: ownedItem?.packaging ?? '');
-    final distributorController =
-        TextEditingController(text: ownedItem?.distributor ?? '');
-    final marketValueController = TextEditingController(
-      text: ownedItem?.marketValueCents == null
+    final keyReasonController = create(ownedItem?.keyReason ?? '');
+    final featuresController = create(ownedItem?.features ?? '');
+    final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
+    final boxSetNameController = create(ownedItem?.boxSetName ?? '');
+    final storageDeviceController = create(ownedItem?.storageDevice ?? '');
+    final storageSlotController = create(ownedItem?.storageSlot ?? '');
+    final regionController = create(ownedItem?.region ?? '');
+    final packagingController = create(ownedItem?.packaging ?? '');
+    final distributorController = create(ownedItem?.distributor ?? '');
+    final marketValueController = create(
+      ownedItem?.marketValueCents == null
           ? ''
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
-    final screenRatioController =
-        TextEditingController(text: item.video?.screenRatio ?? '');
-    final audioTracksController =
-        TextEditingController(text: item.video?.audioTracks ?? '');
-    final subtitlesController =
-        TextEditingController(text: item.video?.subtitles ?? '');
-    final layersController = TextEditingController(text: item.video?.layers ?? '');
-    final colorController = TextEditingController(text: item.video?.color ?? '');
-    final nrDiscsController =
-        TextEditingController(text: item.video?.nrDiscs?.toString() ?? '');
+    final screenRatioController = create(item.video?.screenRatio ?? '');
+    final audioTracksController = create(item.video?.audioTracks ?? '');
+    final subtitlesController = create(item.video?.subtitles ?? '');
+    final layersController = create(item.video?.layers ?? '');
+    final colorController = create(item.video?.color ?? '');
+    final nrDiscsController = create(item.video?.nrDiscs?.toString() ?? '');
 
     final editionSelection = resolveLibraryEditionSelection(
       item.editions,
@@ -385,6 +350,7 @@ class LibraryEditDraft {
     );
 
     return LibraryEditDraft._(
+      textControllers: textControllers,
       type: type,
       item: item,
       ownedItem: ownedItem,
@@ -526,7 +492,6 @@ class LibraryEditDraft {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
-
   final TextEditingController titleController;
   final TextEditingController numberController;
   final TextEditingController publisherController;
@@ -605,7 +570,6 @@ class LibraryEditDraft {
   final TextEditingController layersController;
   final TextEditingController colorController;
   final TextEditingController nrDiscsController;
-
   List<String> tagOptions;
   List<StorageLocation> availableLocations;
   String? selectedLocationId;
@@ -885,88 +849,7 @@ class LibraryEditDraft {
   }
 
   void dispose() {
-    for (final controller in [
-      titleController,
-      numberController,
-      publisherController,
-      coverDateController,
-      coverDateYearPartController,
-      coverDateMonthPartController,
-      coverDateDayPartController,
-      releaseDateController,
-      releaseDateYearPartController,
-      releaseDateMonthPartController,
-      releaseDateDayPartController,
-      releaseYearController,
-      pageCountController,
-      editionTitleController,
-      barcodeController,
-      variantController,
-      physicalFormatLabelController,
-      coverController,
-      thumbnailController,
-      synopsisController,
-      sortKeyController,
-      originalTitleController,
-      runtimeController,
-      audienceRatingController,
-      countryController,
-      languageController,
-      ageRatingController,
-      genresEditController,
-      titleExtensionController,
-      crossoverController,
-      storyArcsController,
-      ownerLabelController,
-      imprintController,
-      seriesGroupController,
-      conditionController,
-      gradeController,
-      purchaseDateController,
-      priceController,
-      currencyController,
-      quantityController,
-      notesController,
-      wishlistPriceController,
-      wishlistCurrencyController,
-      wishlistNotesController,
-      ratingController,
-      trackingController,
-      progressCurrentController,
-      progressTotalController,
-      timesCompletedController,
-      seasonNumberController,
-      episodeNumberController,
-      trackingNotesController,
-      tagsController,
-      sellPriceController,
-      soldToController,
-      rawOrSlabbedController,
-      gradingCompanyController,
-      graderNotesController,
-      signedByController,
-      labelTypeController,
-      certificationNumberController,
-      coverPriceController,
-      keyReasonController,
-      featuresController,
-      purchaseStoreController,
-      boxSetNameController,
-      storageDeviceController,
-      storageSlotController,
-      regionController,
-      packagingController,
-      distributorController,
-      screenRatioController,
-      marketValueController,
-      audioTracksController,
-      subtitlesController,
-      layersController,
-      colorController,
-      nrDiscsController,
-    ]) {
-      controller.dispose();
-    }
+    _textControllers.dispose();
   }
 
   CatalogSeriesDetails? _buildUpdatedSeries() {
