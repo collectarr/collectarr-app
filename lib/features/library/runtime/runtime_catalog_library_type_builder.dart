@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
