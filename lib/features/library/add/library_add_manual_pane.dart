@@ -131,13 +131,12 @@ class _ManualPaneState extends State<_ManualPane> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SingleValuePickField(
                             controller: widget.request.publisherController,
-                            decoration: InputDecoration(
-                              labelText: widget
-                                  .request.type.mediaFields.publisherLabel,
-                              prefixIcon: const Icon(Icons.business_outlined),
-                            ),
+                            options: widget.request.publisherOptions,
+                            label:
+                                widget.request.type.mediaFields.publisherLabel,
+                            onManage: widget.request.onManagePublishers,
                           ),
                           const SizedBox(height: 8),
                           TextField(
@@ -149,30 +148,18 @@ class _ManualPaneState extends State<_ManualPane> {
                                   Icons.auto_awesome_motion_outlined),
                             ),
                           ),
-                          if (widget.request.physicalFormats.isNotEmpty) ...[
+                          if (widget.request.physicalFormats.isNotEmpty ||
+                              widget.request.physicalFormatOptions.isNotEmpty ||
+                              widget.request.physicalFormatLabelController.text
+                                  .trim()
+                                  .isNotEmpty) ...[
                             const SizedBox(height: 8),
-                            DropdownButtonFormField<String>(
-                              initialValue: widget.request.physicalFormatId,
-                              isExpanded: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Physical format',
-                                prefixIcon: Icon(Icons.album_outlined),
-                              ),
-                              dropdownColor: palette.panelRaised,
-                              borderRadius: kAppMenuBorderRadius,
-                              items: [
-                                const DropdownMenuItem<String>(
-                                  value: '',
-                                  child: Text('No specific format'),
-                                ),
-                                for (final format
-                                    in widget.request.physicalFormats)
-                                  DropdownMenuItem<String>(
-                                    value: format.id,
-                                    child: Text(format.label),
-                                  ),
-                              ],
-                              onChanged: widget.request.onPhysicalFormatChanged,
+                            SingleValuePickField(
+                              controller: widget.request.physicalFormatLabelController,
+                              options: widget.request.physicalFormatOptions,
+                              label: 'Physical format',
+                              onChanged: widget.request.onPhysicalFormatLabelChanged,
+                              onManage: widget.request.onManagePhysicalFormats,
                             ),
                           ],
                           const SizedBox(height: 8),
@@ -230,17 +217,19 @@ class _ManualPaneState extends State<_ManualPane> {
                                               labelText: 'Page Count'))),
                                 ]),
                                 const SizedBox(height: 8),
-                                TextField(
-                                    controller:
-                                        widget.request.imprintController,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Imprint')),
+                                SingleValuePickField(
+                                  controller: widget.request.imprintController,
+                                  options: widget.request.imprintOptions,
+                                  label: 'Imprint',
+                                  onManage: widget.request.onManageImprints,
+                                ),
                                 const SizedBox(height: 8),
-                                TextField(
-                                    controller:
-                                        widget.request.seriesGroupController,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Series Group')),
+                                SingleValuePickField(
+                                  controller: widget.request.seriesGroupController,
+                                  options: widget.request.seriesGroupOptions,
+                                  label: 'Series Group',
+                                  onManage: widget.request.onManageSeriesGroups,
+                                ),
                                 const SizedBox(height: 8),
                                 Row(children: [
                                   Expanded(

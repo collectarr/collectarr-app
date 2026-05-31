@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -198,12 +199,16 @@ class _ComicManualPane extends StatelessWidget {
                           children: [
                             _ComicManualResponsiveItem(
                               flex: 3,
-                              child: TextField(
+                              child: SingleValuePickField(
                                 controller: request.titleController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Series',
-                                  prefixIcon: Icon(Icons.title),
-                                ),
+                                options: [
+                                  for (final entry in request.seriesEntries)
+                                    entry.title,
+                                ],
+                                label: 'Series',
+                                onChanged: request.onSeriesChanged,
+                                onManage: request.onManageSeries,
+                                manageTooltip: 'Select or manage series',
                               ),
                             ),
                             _ComicManualResponsiveItem(
@@ -242,33 +247,19 @@ class _ComicManualPane extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (request.physicalFormats.isNotEmpty)
+                            if (request.physicalFormats.isNotEmpty ||
+                                request.physicalFormatOptions.isNotEmpty ||
+                                request.physicalFormatLabelController.text
+                                    .trim()
+                                    .isNotEmpty)
                               _ComicManualResponsiveItem(
                                 flex: 2,
-                                child: DropdownButtonFormField<String>(
-                                  initialValue: request.physicalFormatId,
-                                  isExpanded: true,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Format',
-                                    prefixIcon: Icon(
-                                      Icons.collections_bookmark_outlined,
-                                    ),
-                                  ),
-                                  dropdownColor: palette.panelRaised,
-                                  borderRadius: kAppMenuBorderRadius,
-                                  items: [
-                                    const DropdownMenuItem<String>(
-                                      value: '',
-                                      child: Text('No specific format'),
-                                    ),
-                                    for (final format
-                                        in request.physicalFormats)
-                                      DropdownMenuItem<String>(
-                                        value: format.id,
-                                        child: Text(format.label),
-                                      ),
-                                  ],
-                                  onChanged: request.onPhysicalFormatChanged,
+                                child: SingleValuePickField(
+                                  controller: request.physicalFormatLabelController,
+                                  options: request.physicalFormatOptions,
+                                  label: 'Format',
+                                  onChanged: request.onPhysicalFormatLabelChanged,
+                                  onManage: request.onManagePhysicalFormats,
                                 ),
                               ),
                             _ComicManualResponsiveItem(
@@ -293,12 +284,11 @@ class _ComicManualPane extends StatelessWidget {
                           children: [
                             _ComicManualResponsiveItem(
                               flex: 2,
-                              child: TextField(
+                              child: SingleValuePickField(
                                 controller: request.publisherController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Publisher',
-                                  prefixIcon: Icon(Icons.business_outlined),
-                                ),
+                                options: request.publisherOptions,
+                                label: 'Publisher',
+                                onManage: request.onManagePublishers,
                               ),
                             ),
                             _ComicManualResponsiveItem(

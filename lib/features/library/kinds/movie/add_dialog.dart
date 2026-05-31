@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -233,12 +234,11 @@ class _MovieManualPane extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  SingleValuePickField(
                     controller: request.publisherController,
-                    decoration: InputDecoration(
-                      labelText: media.publisherLabel,
-                      prefixIcon: const Icon(Icons.apartment_outlined),
-                    ),
+                    options: request.publisherOptions,
+                    label: media.publisherLabel,
+                    onManage: request.onManagePublishers,
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -253,30 +253,19 @@ class _MovieManualPane extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (request.physicalFormats.isNotEmpty) ...[
+                      if (request.physicalFormats.isNotEmpty ||
+                          request.physicalFormatOptions.isNotEmpty ||
+                          request.physicalFormatLabelController.text
+                              .trim()
+                              .isNotEmpty) ...[
                         const SizedBox(width: 8),
                         Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: request.physicalFormatId,
-                            isExpanded: true,
-                            decoration: const InputDecoration(
-                              labelText: 'Physical format',
-                              prefixIcon: Icon(Icons.disc_full_outlined),
-                            ),
-                            dropdownColor: palette.panelRaised,
-                            borderRadius: kAppMenuBorderRadius,
-                            items: [
-                              const DropdownMenuItem<String>(
-                                value: '',
-                                child: Text('No specific format'),
-                              ),
-                              for (final format in request.physicalFormats)
-                                DropdownMenuItem<String>(
-                                  value: format.id,
-                                  child: Text(format.label),
-                                ),
-                            ],
-                            onChanged: request.onPhysicalFormatChanged,
+                          child: SingleValuePickField(
+                            controller: request.physicalFormatLabelController,
+                            options: request.physicalFormatOptions,
+                            label: 'Physical format',
+                            onChanged: request.onPhysicalFormatLabelChanged,
+                            onManage: request.onManagePhysicalFormats,
                           ),
                         ),
                       ],

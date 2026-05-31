@@ -1075,12 +1075,10 @@ void main() {
     expect(find.text('Add Movies from Collectarr Core'), findsNothing);
     expect(find.text('Add Movies'), findsOneWidget);
     expect(find.text('Search by'), findsNothing);
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await pumpUntilSettled(tester);
-    expect(find.text('Blu-ray'), findsOneWidget);
-    expect(find.text('4K UHD'), findsOneWidget);
-    expect(find.text('Digital'), findsOneWidget);
-    await tester.tap(find.text('Digital').last);
+    await tester.enterText(
+      textFieldByKeyOrLabel('', 'Physical format'),
+      'Digital',
+    );
     await pumpUntilSettled(tester);
     expect(
       find.text(
@@ -1137,6 +1135,7 @@ void main() {
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Series'), findsOneWidget);
     expect(find.text('Issue No.'), findsOneWidget);
+    expect(find.byTooltip('Select or manage series'), findsOneWidget);
   });
 
   testWidgets('comic manual inputs survive dialog rebuilds', (tester) async {

@@ -122,78 +122,99 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
       backgroundColor: kAppPanel,
-      title: const Text('Select Series'),
+      titlePadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      title: _SeriesDialogHeader(
+        title: 'Select Series',
+        subtitle: 'Choose the series entry this comic should use.',
+        icon: Icons.collections_bookmark_outlined,
+        accent: Theme.of(context).colorScheme.primary,
+        badgeLabel: '${_entries.length} series',
+      ),
       content: SizedBox(
         width: 720,
-        height: 440,
+        height: 500,
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: const InputDecoration(
-                            hintText: 'Search...',
-                            isDense: true,
-                            prefixIcon: Icon(Icons.search),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: palette.panelRaised,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: palette.divider),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                hintText: 'Search by series name or sort name',
+                                isDense: true,
+                                prefixIcon: Icon(Icons.search),
+                              ),
+                              onChanged: (_) => _load(),
+                            ),
                           ),
-                          onChanged: (_) => _load(),
-                        ),
+                          const SizedBox(width: 12),
+                          FilledButton.icon(
+                            onPressed: _createSeries,
+                            icon: const Icon(Icons.add),
+                            label: const Text('New Series'),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: _openManager,
+                            icon: const Icon(Icons.tune),
+                            label: const Text('Manage Series'),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      FilledButton(
-                        onPressed: _createSeries,
-                        child: const Text('New Series'),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton(
-                        onPressed: _openManager,
-                        child: const Text('Manage Series'),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: appPalette(context).divider),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListView.separated(
-                        itemCount: _entries.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          color: appPalette(context).divider,
-                        ),
-                        itemBuilder: (context, index) {
-                          final entry = _entries[index];
-                          final selected = _selectedEntryId == entry.id;
-                          return ListTile(
-                            dense: true,
-                            leading: Icon(
-                              selected
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_unchecked,
+                    child: _SeriesTableFrame(
+                      child: _entries.isEmpty
+                          ? const _SeriesEmptyState(
+                              title: 'No series found',
+                              subtitle:
+                                  'Create a series entry or widen the search to keep your comic catalog tidy.',
+                            )
+                          : Column(
+                              children: [
+                                const _SeriesTableHeader(showActions: false),
+                                Expanded(
+                                  child: ListView.separated(
+                                    itemCount: _entries.length,
+                                    separatorBuilder: (_, __) => Divider(
+                                      height: 1,
+                                      color: palette.divider,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final entry = _entries[index];
+                                      final selected = _selectedEntryId == entry.id;
+                                      return _SeriesPickerRow(
+                                        entry: entry,
+                                        selected: selected,
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedEntryId = entry.id;
+                                          });
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                            onTap: () {
-                              setState(() {
-                                _selectedEntryId = entry.id;
-                              });
-                            },
-                            title: Text(entry.title),
-                            subtitle: entry.sortTitle != null &&
-                                    entry.sortTitle != entry.title
-                                ? Text(entry.sortTitle!)
-                                : null,
-                            trailing: Text(entry.itemCount.toString()),
-                          );
-                        },
-                      ),
                     ),
                   ),
                 ],
@@ -333,69 +354,77 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return AlertDialog(
       backgroundColor: kAppPanel,
-      title: const Text('Manage Series'),
+      titlePadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      title: _SeriesDialogHeader(
+        title: 'Manage Series',
+        subtitle: 'Rename, merge, and normalize the local series registry.',
+        icon: Icons.library_books_outlined,
+        accent: Theme.of(context).colorScheme.primary,
+        badgeLabel: '${_entries.length} entries',
+      ),
       content: SizedBox(
         width: 760,
-        height: 440,
+        height: 500,
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      hintText: 'Search...',
-                      isDense: true,
-                      prefixIcon: Icon(Icons.search),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: palette.panelRaised,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: palette.divider),
                     ),
-                    onChanged: (_) => _load(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search by series name or sort name',
+                          isDense: true,
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                        onChanged: (_) => _load(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: appPalette(context).divider),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListView.separated(
-                        itemCount: _entries.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          color: appPalette(context).divider,
-                        ),
-                        itemBuilder: (context, index) {
-                          final entry = _entries[index];
-                          return ListTile(
-                            dense: true,
-                            title: Text(entry.title),
-                            subtitle: entry.sortTitle != null &&
-                                    entry.sortTitle != entry.title
-                                ? Text(entry.sortTitle!)
-                                : null,
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
+                    child: _SeriesTableFrame(
+                      child: _entries.isEmpty
+                          ? const _SeriesEmptyState(
+                              title: 'Registry is empty',
+                              subtitle:
+                                  'Series captured from catalog items and manual edits will appear here.',
+                            )
+                          : Column(
                               children: [
-                                Text(entry.itemCount.toString()),
-                                const SizedBox(width: 8),
-                                IconButton(
-                                  tooltip: 'Edit series',
-                                  onPressed: () => _editEntry(entry),
-                                  icon: const Icon(Icons.edit_outlined),
-                                ),
-                                IconButton(
-                                  tooltip: 'Merge series',
-                                  onPressed: _entries.length < 2
-                                      ? null
-                                      : () => _mergeEntry(entry),
-                                  icon: const Icon(Icons.merge_type),
+                                const _SeriesTableHeader(showActions: true),
+                                Expanded(
+                                  child: ListView.separated(
+                                    itemCount: _entries.length,
+                                    separatorBuilder: (_, __) => Divider(
+                                      height: 1,
+                                      color: palette.divider,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final entry = _entries[index];
+                                      return _SeriesManagerRow(
+                                        entry: entry,
+                                        canMerge: _entries.length >= 2,
+                                        onEdit: () => _editEntry(entry),
+                                        onMerge: () => _mergeEntry(entry),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
                     ),
                   ),
                 ],
@@ -421,25 +450,46 @@ Future<({String title, String? sortTitle})?> _showSeriesEditDialog(
   return showDialog<({String title, String? sortTitle})>(
     context: context,
     builder: (context) {
+      final palette = appPalette(context);
       return AlertDialog(
         backgroundColor: kAppPanel,
-        title: Text(initialTitle == null ? 'New Series' : 'Edit Series'),
+        titlePadding: EdgeInsets.zero,
+        contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        title: _SeriesDialogHeader(
+          title: initialTitle == null ? 'New Series' : 'Edit Series',
+          subtitle: initialTitle == null
+              ? 'Create a reusable series entry for manual edits and catalog merges.'
+              : 'Update the display name and optional sort name used across the registry.',
+          icon: initialTitle == null ? Icons.add_circle_outline : Icons.edit_outlined,
+          accent: Theme.of(context).colorScheme.primary,
+        ),
         content: SizedBox(
           width: 420,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                autofocus: true,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.panelRaised,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: palette.divider),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: sortTitleController,
+                    decoration: const InputDecoration(labelText: 'Sort Name'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: sortTitleController,
-                decoration: const InputDecoration(labelText: 'Sort Name'),
-              ),
-            ],
+            ),
           ),
         ),
         actions: [
@@ -471,4 +521,385 @@ Future<({String title, String? sortTitle})?> _showSeriesEditDialog(
     titleController.dispose();
     sortTitleController.dispose();
   });
+}
+
+class _SeriesDialogHeader extends StatelessWidget {
+  const _SeriesDialogHeader({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.accent,
+    this.badgeLabel,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color accent;
+  final String? badgeLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border(bottom: BorderSide(color: palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Icon(icon, color: accent),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: palette.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: palette.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (badgeLabel != null)
+              _SeriesCountChip(
+                label: badgeLabel!,
+                emphasized: true,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SeriesTableFrame extends StatelessWidget {
+  const _SeriesTableFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.canvas,
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SeriesTableHeader extends StatelessWidget {
+  const _SeriesTableHeader({required this.showActions});
+
+  final bool showActions;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
+        border: Border(bottom: BorderSide(color: palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        child: Row(
+          children: [
+            const SizedBox(width: 28),
+            const Expanded(flex: 4, child: _SeriesHeaderLabel('Name')),
+            const Expanded(flex: 4, child: _SeriesHeaderLabel('Sort Name')),
+            const SizedBox(width: 80, child: _SeriesHeaderLabel('Count')),
+            if (showActions)
+              const SizedBox(width: 96, child: _SeriesHeaderLabel('Actions')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SeriesHeaderLabel extends StatelessWidget {
+  const _SeriesHeaderLabel(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Text(
+      label,
+      style: TextStyle(
+        color: palette.textMuted,
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.6,
+      ),
+    );
+  }
+}
+
+class _SeriesPickerRow extends StatelessWidget {
+  const _SeriesPickerRow({
+    required this.entry,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final SeriesRegistryEntry entry;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final selectedColor = Theme.of(context).colorScheme.primary;
+    return Material(
+      color: selected ? selectedColor.withValues(alpha: 0.10) : Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: Row(
+            children: [
+              Icon(
+                selected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                size: 20,
+                color: selected ? selectedColor : palette.textMuted,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 4,
+                child: _SeriesRowText(
+                  text: entry.title,
+                  emphasized: true,
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: _SeriesRowText(
+                  text: entry.sortTitle ?? entry.title,
+                  muted: entry.sortTitle == null || entry.sortTitle == entry.title,
+                ),
+              ),
+              SizedBox(
+                width: 80,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: _SeriesCountChip(label: entry.itemCount.toString()),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SeriesManagerRow extends StatelessWidget {
+  const _SeriesManagerRow({
+    required this.entry,
+    required this.canMerge,
+    required this.onEdit,
+    required this.onMerge,
+  });
+
+  final SeriesRegistryEntry entry;
+  final bool canMerge;
+  final VoidCallback onEdit;
+  final VoidCallback onMerge;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Row(
+        children: [
+          const SizedBox(width: 28, child: Icon(Icons.drag_indicator, size: 18)),
+          Expanded(
+            flex: 4,
+            child: _SeriesRowText(
+              text: entry.title,
+              emphasized: true,
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: _SeriesRowText(
+              text: entry.sortTitle ?? entry.title,
+              muted: entry.sortTitle == null || entry.sortTitle == entry.title,
+            ),
+          ),
+          SizedBox(
+            width: 80,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _SeriesCountChip(label: entry.itemCount.toString()),
+            ),
+          ),
+          SizedBox(
+            width: 96,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  tooltip: 'Edit series',
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined),
+                ),
+                IconButton(
+                  tooltip: 'Merge series',
+                  onPressed: canMerge ? onMerge : null,
+                  icon: const Icon(Icons.merge_type),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SeriesRowText extends StatelessWidget {
+  const _SeriesRowText({
+    required this.text,
+    this.emphasized = false,
+    this.muted = false,
+  });
+
+  final String text;
+  final bool emphasized;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Text(
+      text,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: muted ? palette.textMuted : palette.textPrimary,
+        fontSize: 13,
+        fontWeight: emphasized ? FontWeight.w800 : FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class _SeriesCountChip extends StatelessWidget {
+  const _SeriesCountChip({
+    required this.label,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final color = emphasized
+        ? Theme.of(context).colorScheme.primary
+        : palette.textMuted;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: emphasized ? 0.14 : 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SeriesEmptyState extends StatelessWidget {
+  const _SeriesEmptyState({
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.collections_bookmark_outlined,
+              size: 28,
+              color: palette.textMuted,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: palette.textPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: palette.textMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

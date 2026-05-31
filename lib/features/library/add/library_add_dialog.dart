@@ -49,7 +49,10 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -57,6 +60,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -123,6 +127,7 @@ class LibraryAddManualPaneRequest {
     required this.yearController,
     required this.barcodeController,
     required this.variantController,
+    required this.physicalFormatLabelController,
     required this.coverController,
     required this.backCoverController,
     required this.creatorsController,
@@ -130,6 +135,7 @@ class LibraryAddManualPaneRequest {
     required this.physicalFormats,
     required this.physicalFormatId,
     required this.onPhysicalFormatChanged,
+    required this.onPhysicalFormatLabelChanged,
     required this.isAdding,
     required this.defaultCondition,
     required this.defaultGrade,
@@ -150,6 +156,17 @@ class LibraryAddManualPaneRequest {
     required this.genresEditController,
     required this.synopsisController,
     required this.tagsController,
+    required this.publisherOptions,
+    required this.imprintOptions,
+    required this.seriesGroupOptions,
+    required this.physicalFormatOptions,
+    required this.seriesEntries,
+    required this.onManagePublishers,
+    required this.onManageImprints,
+    required this.onManageSeriesGroups,
+    required this.onManagePhysicalFormats,
+    required this.onManageSeries,
+    required this.onSeriesChanged,
     this.kindSpecific = const {},
     required this.customFieldDefinitions,
     required this.customFieldValues,
@@ -166,6 +183,7 @@ class LibraryAddManualPaneRequest {
   final TextEditingController yearController;
   final TextEditingController barcodeController;
   final TextEditingController variantController;
+  final TextEditingController physicalFormatLabelController;
   final TextEditingController coverController;
   final TextEditingController backCoverController;
   final TextEditingController creatorsController;
@@ -173,6 +191,7 @@ class LibraryAddManualPaneRequest {
   final List<PhysicalMediaFormat> physicalFormats;
   final String? physicalFormatId;
   final ValueChanged<String?> onPhysicalFormatChanged;
+  final ValueChanged<String?> onPhysicalFormatLabelChanged;
   final bool isAdding;
   final String defaultCondition;
   final String defaultGrade;
@@ -195,6 +214,17 @@ class LibraryAddManualPaneRequest {
   final TextEditingController genresEditController;
   final TextEditingController synopsisController;
   final TextEditingController tagsController;
+  final List<String> publisherOptions;
+  final List<String> imprintOptions;
+  final List<String> seriesGroupOptions;
+  final List<String> physicalFormatOptions;
+  final List<SeriesRegistryEntry> seriesEntries;
+  final VoidCallback onManagePublishers;
+  final VoidCallback onManageImprints;
+  final VoidCallback onManageSeriesGroups;
+  final VoidCallback onManagePhysicalFormats;
+  final VoidCallback onManageSeries;
+  final ValueChanged<String?> onSeriesChanged;
   final Map<String, dynamic> kindSpecific;
 
   // Custom fields and images
@@ -511,6 +541,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _publisherController = TextEditingController();
   final _yearController = TextEditingController();
   final _variantController = TextEditingController();
+  final _physicalFormatLabelController = TextEditingController();
   final _coverController = TextEditingController();
   final _backCoverController = TextEditingController();
   final _creatorsController = TextEditingController();
@@ -600,12 +631,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   List<String> _conditionOptions = const [];
   List<String> _gradeOptions = const [];
   List<String> _tagOptions = const [];
+  List<String> _publisherOptions = const [];
+  List<String> _imprintOptions = const [];
+  List<String> _seriesGroupOptions = const [];
+  List<String> _physicalFormatOptions = const [];
+  List<SeriesRegistryEntry> _manualSeriesEntries = const [];
   String? _defaultLocationId;
   // Manual pane transient state
   late Map<String, String?> _manualCustomFieldValues;
   late List<ItemImage> _manualItemImages;
   LibraryCoverScanResult? _coverScanPrefill;
   bool _isScanningCover = false;
+  String? _selectedManualSeriesId;
   double _resultsPaneWidth = 480;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
@@ -691,6 +728,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _publisherController.dispose();
     _yearController.dispose();
     _variantController.dispose();
+    _physicalFormatLabelController.dispose();
     _coverController.dispose();
     _backCoverController.dispose();
     _creatorsController.dispose();
@@ -1103,6 +1141,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         yearController: _yearController,
                         barcodeController: _barcodeController,
                         variantController: _variantController,
+                        physicalFormatLabelController: _physicalFormatLabelController,
                         coverController: _coverController,
                         backCoverController: _backCoverController,
                         creatorsController: _creatorsController,
@@ -1110,6 +1149,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         physicalFormats: physicalFormats,
                         physicalFormatId: _physicalFormatId,
                         onPhysicalFormatChanged: _setPhysicalFormat,
+                        onPhysicalFormatLabelChanged: _setPhysicalFormatLabel,
                         isAdding: _isAdding,
                         defaultCondition: _defaultCondition,
                         defaultGrade: _defaultGrade,
@@ -1131,6 +1171,33 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         genresEditController: _genresEditController,
                         synopsisController: _synopsisController,
                         tagsController: _tagsController,
+                        publisherOptions: _publisherOptions,
+                        imprintOptions: _imprintOptions,
+                        seriesGroupOptions: _seriesGroupOptions,
+                        physicalFormatOptions: _manualPhysicalFormatOptions,
+                        seriesEntries: _manualSeriesEntries,
+                        onManagePublishers: () => _manageSingleValuePickList(
+                          listName: kPublisherPickListName,
+                          label: widget.type.mediaFields.publisherLabel,
+                        ),
+                        onManageImprints: () => _manageSingleValuePickList(
+                          listName: kImprintPickListName,
+                          label: 'Imprint',
+                        ),
+                        onManageSeriesGroups: () => _manageSingleValuePickList(
+                          listName: kSeriesGroupPickListName,
+                          label: 'Series Group',
+                        ),
+                        onManagePhysicalFormats: () => _manageSingleValuePickList(
+                          listName: kPhysicalFormatPickListName,
+                          label: 'Physical format',
+                          builtInValues: [
+                            for (final format in _currentPhysicalFormats())
+                              format.label,
+                          ],
+                        ),
+                        onManageSeries: _openManualSeriesPicker,
+                        onSeriesChanged: _setManualSeries,
                         kindSpecific: _manualKindSpecific,
                         customFieldDefinitions: widget.customFieldDefinitions,
                         customFieldValues: _manualCustomFieldValues,
@@ -1748,7 +1815,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       editionTitle: _emptyToNull(
           ctl('editionTitleController', _editionTitleController).text),
       physicalFormat: _physicalFormatId,
-      physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
+        physicalFormatLabel: _emptyToNull(_physicalFormatLabelController.text) ??
+          _physicalFormatForId(_physicalFormatId)?.label,
       publisher:
           _emptyToNull(ctl('publisherController', _publisherController).text),
       releaseDate: releaseDate,
@@ -1768,6 +1836,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _emptyToNull(ctl('languageController', _languageController).text),
       ageRating:
           _emptyToNull(ctl('ageRatingController', _ageRatingController).text),
+        series: widget.type.workspace.kind.apiValue == 'comic'
+          ? CatalogSeriesDetails(
+            seriesId: _selectedManualSeriesId,
+            seriesTitle: _emptyToNull(_titleController.text),
+          )
+          : null,
       publishing: (pageCount != null ||
               _imprintController.text.trim().isNotEmpty ||
               _seriesGroupController.text.trim().isNotEmpty)
@@ -1928,6 +2002,24 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   void _setPhysicalFormat(String? value) {
     final format = _physicalFormatForId(value);
+    final previousFormat = _physicalFormatForId(_physicalFormatId);
+    final shouldReplaceVariant = _variantController.text.trim().isEmpty ||
+        previousFormat?.label == _variantController.text.trim();
+    setState(() {
+      _physicalFormatId = format?.id;
+      _physicalFormatLabelController.text = format?.label ?? '';
+      if (format != null && shouldReplaceVariant) {
+        _variantController.text = format.label;
+      }
+    });
+  }
+
+  void _setPhysicalFormatLabel(String? value) {
+    final normalized = _emptyToNull(value ?? '');
+    final format = physicalMediaFormatByLabelOrId(
+      normalized,
+      formats: _currentPhysicalFormats(),
+    );
     final previousFormat = _physicalFormatForId(_physicalFormatId);
     final shouldReplaceVariant = _variantController.text.trim().isEmpty ||
         previousFormat?.label == _variantController.text.trim();
@@ -2543,6 +2635,41 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       mediaKind: widget.type.workspace.kind.apiValue,
       selectedTags: splitPickListValues(_defaultTags),
     );
+    final db = ref.read(localDatabaseProvider);
+    final vocabularyResults = await Future.wait<dynamic>([
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPublisherPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _publisherController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kImprintPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _imprintController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kSeriesGroupPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _seriesGroupController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPhysicalFormatPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        builtInValues: [
+          for (final format in _currentPhysicalFormats()) format.label,
+        ],
+        selectedValue: _physicalFormatLabelController.text,
+      ),
+      SeriesRegistryRepository(db).searchEntries(
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedTitle: _titleController.text,
+        selectedSeriesId: _selectedManualSeriesId,
+      ),
+    ]);
     if (!mounted) {
       return;
     }
@@ -2550,7 +2677,76 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _conditionOptions = options.conditions;
       _gradeOptions = options.grades;
       _tagOptions = tagOptions;
+      _publisherOptions = List<String>.from(vocabularyResults[0] as List<String>);
+      _imprintOptions = List<String>.from(vocabularyResults[1] as List<String>);
+      _seriesGroupOptions = List<String>.from(vocabularyResults[2] as List<String>);
+      _physicalFormatOptions = List<String>.from(vocabularyResults[3] as List<String>);
+      _manualSeriesEntries = List<SeriesRegistryEntry>.from(
+        vocabularyResults[4] as List<SeriesRegistryEntry>,
+      );
     });
+  }
+
+  Future<void> _manageSingleValuePickList({
+    required String listName,
+    required String label,
+    List<String> builtInValues = const [],
+  }) async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: listName,
+      label: label,
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInValues: builtInValues,
+    );
+    if (!mounted) {
+      return;
+    }
+    await _loadPickListOptions();
+  }
+
+  Future<void> _openManualSeriesPicker() async {
+    final selected = await showSeriesPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTitle: _titleController.text,
+      selectedSeriesId: _selectedManualSeriesId,
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    setState(() {
+      _selectedManualSeriesId = selected.coreSeriesId;
+      _titleController.value = TextEditingValue(
+        text: selected.title,
+        selection: TextSelection.collapsed(offset: selected.title.length),
+      );
+    });
+    await _loadPickListOptions();
+  }
+
+  void _setManualSeries(String? value) {
+    final normalized = _emptyToNull(value ?? '');
+    final match = _manualSeriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+          (entry) =>
+              entry != null &&
+              entry.title.trim().toLowerCase() ==
+                  (normalized?.toLowerCase() ?? ''),
+          orElse: () => null,
+        );
+    setState(() {
+      _selectedManualSeriesId = match?.coreSeriesId;
+    });
+  }
+
+  List<String> get _manualPhysicalFormatOptions {
+    return mergePickListValues(
+      builtInValues: [for (final format in _currentPhysicalFormats()) format.label],
+      customValues: _physicalFormatOptions,
+      selectedValues: [_physicalFormatLabelController.text],
+    );
   }
 
   Future<void> _showDefaultTagsEditor() async {
