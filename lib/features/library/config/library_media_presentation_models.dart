@@ -408,6 +408,7 @@ class LibraryMediaPresentation {
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketModes = const [],
     this.supportsSeriesIssueJump = false,
+    this.compactBucketIcon = Icons.folder,
     this.sortFavorites = defaultLibrarySortFavorites,
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.groupModes = const [
@@ -430,6 +431,7 @@ class LibraryMediaPresentation {
   final bool usesTreeProviderCandidates;
   final List<LibraryGroupMode> externalFacetBucketModes;
   final bool supportsSeriesIssueJump;
+  final IconData compactBucketIcon;
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
   final List<LibraryGroupMode> groupModes;

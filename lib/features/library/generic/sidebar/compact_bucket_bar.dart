@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -41,7 +40,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
               selected: selected,
               onSelected: (_) => onSelected(bucket.title),
               avatar: selected
-                  ? Icon(genericLibrarySidebarIcon(type), size: 15)
+                  ? Icon(type.presentation.compactBucketIcon, size: 15)
                   : null,
               label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),
@@ -55,12 +54,4 @@ class LibraryCompactBucketBar extends StatelessWidget {
       ),
     );
   }
-}
-
-IconData genericLibrarySidebarIcon(LibraryTypeConfig type) {
-  return switch (type.workspace.kind) {
-    CatalogMediaKind.music => Icons.person_2_outlined,
-    CatalogMediaKind.movie => Icons.movie_filter_outlined,
-    _ => Icons.folder,
-  };
 }

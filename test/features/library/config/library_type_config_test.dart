@@ -359,6 +359,15 @@ void main() {
       comicsLibraryConfig.presentation.columnFavorites.map((preset) => preset.label),
       comicsTableColumnPresets.map((preset) => preset.label),
     );
+    expect(booksLibraryConfig.presentation.compactBucketIcon, Icons.folder);
+    expect(
+      moviesLibraryConfig.presentation.compactBucketIcon,
+      Icons.movie_filter_outlined,
+    );
+    expect(
+      musicLibraryConfig.presentation.compactBucketIcon,
+      Icons.person_2_outlined,
+    );
     expect(moviesLibraryConfig.presentation.groupModes, [
       LibraryGroupMode.audienceRating,
       LibraryGroupMode.color,
