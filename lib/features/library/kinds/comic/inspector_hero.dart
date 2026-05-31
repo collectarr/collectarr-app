@@ -26,10 +26,14 @@ class ComicInspectorHero extends ConsumerWidget {
     final entry = request.entry;
     final ownedItem = request.ownedItem;
     final surface = Color.alphaBlend(
-      request.accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
-      palette.isDark ? palette.panelRaised : Colors.white,
+      request.accent.withValues(alpha: palette.isDark ? 0.025 : 0.01),
+      palette.surface,
     );
-    final border = palette.divider.withValues(alpha: palette.isDark ? 1 : 0.55);
+    final headerSurface = Color.alphaBlend(
+      request.accent.withValues(alpha: palette.isDark ? 0.055 : 0.03),
+      palette.surface,
+    );
+    final border = palette.divider.withValues(alpha: palette.isDark ? 0.92 : 0.7);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
@@ -71,21 +75,22 @@ class ComicInspectorHero extends ConsumerWidget {
                     : 'Regular edition';
     final releaseLabel =
         formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString() ?? '-';
-    final imprint = entry.publishing?.imprint?.trim();
     final publisherLabel = [
       if (entry.publisher?.trim().isNotEmpty == true) entry.publisher!.trim(),
-      if (imprint != null && imprint.isNotEmpty) imprint,
+      if (entry.publishing?.imprint?.trim().isNotEmpty == true)
+      entry.publishing!.imprint!.trim(),
     ].join(' / ');
     final synopsis = entry.synopsis?.trim();
     final hasBackCover = localBack != null || ownedItemId != null;
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final stacked = constraints.maxWidth < 720;
         final cover = Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 180,
+              width: stacked ? 156 : 164,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: border, width: 0.8),
@@ -127,7 +132,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _ComicCoverToggleRow(
               accent: request.accent,
               ink: ink,
@@ -141,132 +146,93 @@ class ComicInspectorHero extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    editionLabel,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: ink,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                _ComicCollectionStatusIcon(
-                  owned: entry.isOwned,
-                  wishlisted: entry.isWishlisted,
-                  accent: request.accent,
-                  muted: muted,
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            _ComicDetailLine(label: 'Release', value: releaseLabel),
-            if (publisherLabel.isNotEmpty)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _ComicPublisherMark(
-                    label: _publisherMarkLabel(entry.publisher, imprint),
-                    accent: request.accent,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          publisherLabel,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: ink,
-                                fontWeight: FontWeight.w700,
-                                height: 1.2,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            Container(
+              height: 28,
+              decoration: BoxDecoration(
+                color: headerSurface,
+                border: Border(bottom: BorderSide(color: border)),
               ),
-            if (entry.barcode?.trim().isNotEmpty == true) ...[
-              const SizedBox(height: 12),
-              _ComicBarcodeCard(
-                barcode: entry.barcode!.trim(),
-                accent: request.accent,
-                border: border,
-                palette: palette,
-              ),
-            ],
-            const SizedBox(height: 12),
-            Text(
-              synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: ink,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                    // ignore: deprecated_member_use
-                    textBaseline: TextBaseline.alphabetic,
-                  ),
-              textAlign: TextAlign.justify,
-            ),
-          ],
-        );
-
-        final mainBody = _ComicHeroBlock(
-          surface: surface,
-          border: border,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              cover,
-              const SizedBox(width: 16),
-              Expanded(child: infoColumn),
-            ],
-          ),
-        );
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 2, bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Flexible(
+                  Expanded(
                     child: Text(
-                      entry.resolvedTitle,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: request.accent,
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: palette.surfaceSubtle,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: border),
-                    ),
-                    child: Text(
-                      referenceLabel,
+                      editionLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: ink,
                             fontWeight: FontWeight.w800,
                           ),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  _ComicCollectionStatusIcon(
+                    owned: entry.isOwned,
+                    wishlisted: entry.isWishlisted,
+                    accent: request.accent,
+                    muted: muted,
+                  ),
                 ],
               ),
             ),
-            mainBody,
+            Container(
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: border)),
+              ),
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+              child: Column(
+                children: [
+                  _ComicDetailLine(label: 'Release', value: releaseLabel),
+                  if (publisherLabel.isNotEmpty)
+                    _ComicDetailLine(label: 'Publisher', value: publisherLabel),
+                  if (entry.barcode?.trim().isNotEmpty == true)
+                    _ComicDetailLine(label: 'Barcode', value: entry.barcode!.trim()),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Text(
+                synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: ink,
+                      height: 1.35,
+                      fontWeight: FontWeight.w500,
+                    ),
+                textAlign: TextAlign.justify,
+              ),
+            ),
           ],
         );
+
+        final mainBody = _ComicHeroBlock(
+          surface: surface,
+          headerSurface: headerSurface,
+          border: border,
+          title: entry.resolvedTitle,
+          referenceLabel: referenceLabel,
+          accent: request.accent,
+          child: stacked
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    cover,
+                    const SizedBox(height: 10),
+                    infoColumn,
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    cover,
+                    const SizedBox(width: 12),
+                    Expanded(child: infoColumn),
+                  ],
+                ),
+        );
+
+        return mainBody;
       },
     );
   }
@@ -275,12 +241,20 @@ class ComicInspectorHero extends ConsumerWidget {
 class _ComicHeroBlock extends StatelessWidget {
   const _ComicHeroBlock({
     required this.surface,
+    required this.headerSurface,
     required this.border,
+    required this.title,
+    required this.referenceLabel,
+    required this.accent,
     required this.child,
   });
 
   final Color surface;
+  final Color headerSurface;
   final Color border;
+  final String title;
+  final String referenceLabel;
+  final Color accent;
   final Widget child;
 
   @override
@@ -288,12 +262,47 @@ class _ComicHeroBlock extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surface,
-        borderRadius: BorderRadius.circular(4),
         border: Border.all(color: border),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: child,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 34,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: headerSurface,
+              border: Border(bottom: BorderSide(color: border)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: accent,
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  referenceLabel,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: appPalette(context).textPrimary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: child,
+          ),
+        ],
       ),
     );
   }
@@ -328,42 +337,6 @@ class _ComicCollectionStatusIcon extends StatelessWidget {
   }
 }
 
-class _ComicPublisherMark extends StatelessWidget {
-  const _ComicPublisherMark({
-    required this.label,
-    required this.accent,
-  });
-
-  final String label;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: accent.withValues(alpha: 0.32)),
-      ),
-      child: SizedBox(
-        width: 46,
-        height: 46,
-        child: Center(
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: accent,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.4,
-                ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _ComicDetailLine extends StatelessWidget {
   const _ComicDetailLine({
     required this.label,
@@ -377,87 +350,32 @@ class _ComicDetailLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 72,
+            width: 64,
             child: Text(
-              '$label:',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
                   ),
             ),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
+                    height: 1.2,
                   ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ComicBarcodeCard extends StatelessWidget {
-  const _ComicBarcodeCard({
-    required this.barcode,
-    required this.accent,
-    required this.border,
-    required this.palette,
-  });
-
-  final String barcode;
-  final Color accent;
-  final Color border;
-  final AppThemePalette palette;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surfaceSubtle,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.qr_code_scanner_outlined, size: 18, color: palette.textMuted),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    barcode,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: palette.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Find sold listings on eBay',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                  ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -509,24 +427,3 @@ class _ComicCoverToggleRow extends StatelessWidget {
   }
 }
 
-String _publisherMarkLabel(String? publisher, String? imprint) {
-  final seed = imprint?.trim().isNotEmpty == true
-      ? imprint!.trim()
-      : publisher?.trim().isNotEmpty == true
-          ? publisher!.trim()
-          : 'COMIC';
-  final compact = seed
-      .split(RegExp(r'\s+'))
-      .where((part) => part.isNotEmpty)
-      .take(3)
-      .map((part) => part.substring(0, 1).toUpperCase())
-      .join();
-  if (compact.isNotEmpty) {
-    return compact;
-  }
-  final normalized = seed.replaceAll(RegExp(r'[^A-Za-z0-9]'), '').toUpperCase();
-  if (normalized.isEmpty) {
-    return 'COM';
-  }
-  return normalized.length <= 3 ? normalized : normalized.substring(0, 3);
-}

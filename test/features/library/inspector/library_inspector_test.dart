@@ -287,8 +287,8 @@ void main() {
     );
 
     expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Collector'), findsOneWidget);
     expect(find.text('Value'), findsOneWidget);
-    expect(find.text('Collector'), findsNothing);
     expect(find.text('Discovery'), findsNothing);
   });
 

@@ -26,6 +26,7 @@ class _ComicInspectorDashboard extends StatelessWidget {
     final ownedItem = request.ownedItem;
     final trackingEntry = request.trackingEntry;
     final detailRows = _detailRows(entry, ownedItem);
+    final collectorRows = _collectorRows(ownedItem);
     final valueRows = _valueRows(ownedItem);
 
     final panels = <_ComicPanelData>[
@@ -38,6 +39,8 @@ class _ComicInspectorDashboard extends StatelessWidget {
           title: 'Personal',
           rows: _personalRows(entry, ownedItem, trackingEntry),
         ),
+      if (collectorRows.isNotEmpty)
+        _ComicPanelData(title: 'Collector', rows: collectorRows),
       if (valueRows.isNotEmpty)
         _ComicPanelData(title: 'Value', rows: valueRows),
     ];
@@ -320,9 +323,6 @@ List<_ComicRowData> _detailRows(
   if (entry.storyArcs?.isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')));
   }
-  if (ownedItem?.graderNotes?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem!.graderNotes!.trim()));
-  }
   return rows;
 }
 
@@ -388,6 +388,15 @@ List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
       ),
     );
   }
+  return rows;
+}
+
+List<_ComicRowData> _collectorRows(OwnedItem? ownedItem) {
+  if (ownedItem == null) {
+    return const <_ComicRowData>[];
+  }
+
+  final rows = <_ComicRowData>[];
   if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
   }
@@ -422,6 +431,9 @@ List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
   }
   if (ownedItem.keySeverity?.trim().isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Key Severity', value: ownedItem.keySeverity!.trim()));
+  }
+  if (ownedItem.graderNotes?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem.graderNotes!.trim()));
   }
   return rows;
 }

@@ -257,6 +257,7 @@ void main() {
       expect(find.text('Creators'), findsOneWidget);
       expect(find.text('Details'), findsOneWidget);
       expect(find.text('Personal'), findsOneWidget);
+      expect(find.text('Collector'), findsOneWidget);
       expect(find.text('Value'), findsOneWidget);
       expect(find.textContaining('Brian K. Vaughan'), findsWidgets);
       expect(find.text('Raw / Slabbed'), findsOneWidget);
