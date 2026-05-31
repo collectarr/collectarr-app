@@ -83,4 +83,25 @@ void main() {
       isEmpty,
     );
   });
+
+  test('captureCatalogItems uses config-driven title fallback for kinds that treat title as series', () async {
+    await registry.captureCatalogItemsWithoutTransaction([
+      CatalogItem(
+        id: 'comic-untitled-series',
+        kind: 'comic',
+        title: 'Batman',
+      ),
+      CatalogItem(
+        id: 'book-no-series',
+        kind: 'book',
+        title: 'The Hobbit',
+      ),
+    ]);
+
+    final comicEntries = await registry.searchEntries(mediaKind: 'comic');
+    final bookEntries = await registry.searchEntries(mediaKind: 'book');
+
+    expect(comicEntries.single.title, 'Batman');
+    expect(bookEntries, isEmpty);
+  });
 }

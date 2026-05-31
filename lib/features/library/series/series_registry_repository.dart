@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -184,8 +185,10 @@ class SeriesRegistryRepository {
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in items) {
+      final type = collectarrLibraryTypes.byKind(item.kind);
       final title = _emptyToNull(
-        item.series?.seriesTitle ?? (item.kind == 'comic' ? item.title : null),
+        item.series?.seriesTitle ??
+            (type?.usesTitleAsSeriesFallback ?? false ? item.title : null),
       );
       final normalizedTitle = _normalize(title);
       if (normalizedTitle == null) {

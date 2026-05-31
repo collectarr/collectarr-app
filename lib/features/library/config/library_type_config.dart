@@ -333,6 +333,9 @@ class LibraryTypeConfig {
     );
   }
 
+  bool get usesTitleAsSeriesFallback =>
+      manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
+
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {
       return metadataProviders;
