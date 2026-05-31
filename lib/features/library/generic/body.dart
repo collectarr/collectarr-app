@@ -65,6 +65,7 @@ class LibraryBody extends StatelessWidget {
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
     required this.onDetailsWidthChanged,
+    required this.onDetailsHeightChanged,
     required this.onAddOwned,
     required this.onRemoveOwned,
     required this.onAddWishlist,
@@ -131,6 +132,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<double> onDetailsWidthChanged;
+  final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
@@ -183,6 +185,11 @@ class LibraryBody extends StatelessWidget {
           workspaceMinWidth: kLibraryWorkspaceMinWidth,
           hasSidebar: showSidebar,
           sidebarWidth: sidebarWidth,
+        );
+        final maxDetailsHeight = resolveLibraryDetailsMaxHeight(
+          viewportHeight:
+              constraints.maxHeight.isFinite ? constraints.maxHeight : 800,
+          workspaceMinHeight: kLibraryWorkspaceMinHeight,
         );
         final letterFilteredItems = selectedLetter == null
             ? projection.filteredItems
@@ -337,9 +344,12 @@ class LibraryBody extends StatelessWidget {
                   detailsLayout: detailsLayout,
                   inspector: details,
                   rightWidth: viewState.detailsWidth,
+                  bottomHeight: viewState.detailsHeight,
                   maxRightWidth: maxDetailsWidth,
+                  maxBottomHeight: maxDetailsHeight,
                   onRightWidthChanged: onDetailsWidthChanged,
-                  bottomHeight: compact ? 210 : 220,
+                  onBottomHeightChanged: onDetailsHeightChanged,
+                  accentColor: accent,
                 ),
               ),
             ],

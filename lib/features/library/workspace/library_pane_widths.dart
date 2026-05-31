@@ -4,7 +4,10 @@ const double kLibrarySidebarMaxWidth = 360;
 const double kLibraryDetailsMinWidth = 260;
 const double kLibraryDetailsDefaultWidth = 340;
 const double kLibraryDetailsMaxWidth = 520;
+const double kLibraryDetailsMinHeight = 180;
+const double kLibraryDetailsDefaultHeight = 220;
 const double kLibraryWorkspaceMinWidth = 320;
+const double kLibraryWorkspaceMinHeight = 220;
 const double kLibraryPaneDividerWidth = 12;
 const double kLibraryPaneStoredMaxWidth = 4096;
 
@@ -15,6 +18,15 @@ double clampLibraryPaneWidth(
 }) {
   final effectiveMax = maxWidth < minWidth ? minWidth : maxWidth;
   return width.clamp(minWidth, effectiveMax).toDouble();
+}
+
+double clampLibraryPaneHeight(
+  double height, {
+  required double minHeight,
+  required double maxHeight,
+}) {
+  final effectiveMax = maxHeight < minHeight ? minHeight : maxHeight;
+  return height.clamp(minHeight, effectiveMax).toDouble();
 }
 
 double maxLibraryPaneWidthForViewport({
@@ -56,5 +68,14 @@ double resolveLibraryDetailsMaxWidth({
       (hasSidebar ? sidebarWidth + kLibraryPaneDividerWidth : 0);
   return (viewportWidth - reservedWidth)
       .clamp(kLibraryDetailsMinWidth, kLibraryPaneStoredMaxWidth)
+      .toDouble();
+}
+
+double resolveLibraryDetailsMaxHeight({
+  required double viewportHeight,
+  required double workspaceMinHeight,
+}) {
+  return (viewportHeight - workspaceMinHeight - kLibraryPaneDividerWidth)
+      .clamp(kLibraryDetailsMinHeight, kLibraryPaneStoredMaxWidth)
       .toDouble();
 }

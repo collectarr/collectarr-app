@@ -120,6 +120,68 @@ void main() {
     expect(find.text('82771402051700111'), findsOneWidget);
   });
 
+  testWidgets('library inspector uses the comic-specific hero hook', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryInspector(
+              type: comicsLibraryConfig,
+              entry: LibraryWorkspaceEntry(
+                id: 'comic-hero-2',
+                mediaType: 'comic',
+                title: 'The Last Ronin',
+                itemNumber: '1',
+                publisher: 'IDW Publishing',
+                releaseYear: 2020,
+                barcode: '82771402051700111',
+                synopsis: 'The final turtle seeks justice in a ruined future.',
+                series: CatalogSeriesDetails(
+                  seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
+                ),
+                publishing: CatalogPublishingDetails(
+                  imprint: 'IDW',
+                  subtitle: 'Director Cut',
+                  seriesGroup: 'TMNT Event',
+                ),
+                genres: const ['Action', 'Dystopian'],
+                isOwned: true,
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-comic-hero-2',
+                itemId: 'comic-hero-2',
+                isDigital: false,
+                condition: 'Near Mint',
+                grade: '9.8',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              accent: Colors.red,
+              onAddOwned: () {},
+              onRemoveOwned: () {},
+              onAddWishlist: () {},
+              onRemoveWishlist: () {},
+              onEdit: (_) {},
+              db: db,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ComicInspectorHero), findsOneWidget);
+    expect(find.text('Plot'), findsOneWidget);
+    expect(find.text('Overview'), findsNothing);
+  });
+
   testWidgets('inspector section renders title and children', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(

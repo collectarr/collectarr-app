@@ -25,4 +25,14 @@ void main() {
     expect(maxWidth, 976);
     expect(maxWidth, greaterThan(kLibraryDetailsMaxWidth));
   });
+
+  test('details max height can exceed the old fixed pane height', () {
+    final maxHeight = resolveLibraryDetailsMaxHeight(
+      viewportHeight: 1200,
+      workspaceMinHeight: kLibraryWorkspaceMinHeight,
+    );
+
+    expect(maxHeight, 968);
+    expect(maxHeight, greaterThan(kLibraryDetailsDefaultHeight));
+  });
 }

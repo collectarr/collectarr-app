@@ -587,6 +587,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),
+      onDetailsHeightChanged: (height) => _updateViewState(
+        (state) => state.copyWith(detailsHeight: height),
+      ),
       onAddOwned: (item) => runCollectionAction(
         (actions) => actions.addOwned(item),
       ),

@@ -61,6 +61,7 @@ void main() {
         coverSize: 144,
         sidebarWidth: 280,
         detailsWidth: 390,
+        detailsHeight: 244,
         visibleColumns: {
           LibraryTableColumn.title,
           LibraryTableColumn.grade,
@@ -95,6 +96,7 @@ void main() {
     expect(restored.coverSize, 144);
     expect(restored.sidebarWidth, 280);
     expect(restored.detailsWidth, 390);
+    expect(restored.detailsHeight, 244);
     expect(restored.visibleColumns, {
       LibraryTableColumn.title,
       LibraryTableColumn.grade,
@@ -122,6 +124,7 @@ void main() {
         coverSize: 144,
         sidebarWidth: 305,
         detailsWidth: 430,
+        detailsHeight: 260,
         visibleColumns: {
           LibraryTableColumn.title,
           LibraryTableColumn.grade,
@@ -141,6 +144,7 @@ void main() {
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
     expect(restored.sidebarWidth, 305);
     expect(restored.detailsWidth, 430);
+    expect(restored.detailsHeight, 260);
     expect(restored.viewMode, LibraryViewMode.grid);
     expect(restored.sortColumn, LibrarySortColumn.title);
     expect(restored.visibleColumns, {
@@ -164,6 +168,7 @@ void main() {
         coverSize: 144,
         sidebarWidth: 640,
         detailsWidth: 980,
+        detailsHeight: 540,
         visibleColumns: {
           LibraryTableColumn.title,
           LibraryTableColumn.issue,
@@ -180,5 +185,6 @@ void main() {
 
     expect(restored.sidebarWidth, 640);
     expect(restored.detailsWidth, 980);
+    expect(restored.detailsHeight, 540);
   });
 }

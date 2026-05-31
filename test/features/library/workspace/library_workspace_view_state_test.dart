@@ -11,6 +11,7 @@ void main() {
     kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
+    accent: Colors.red,
     preferencePrefix: 'test.comics',
     defaultSortColumn: LibrarySortColumn.title,
     defaultVisibleColumns: {
@@ -63,6 +64,7 @@ void main() {
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
+    expect(defaults.detailsHeight, 220);
     expect(defaults.visibleColumns, {
       LibraryTableColumn.title,
       LibraryTableColumn.issue,
@@ -199,6 +201,7 @@ void main() {
           coverSize: 180,
           sidebarWidth: 300,
           detailsWidth: 420,
+          detailsHeight: 280,
         );
 
     await profile.save(state);
@@ -218,6 +221,7 @@ void main() {
     expect(restored.coverSize, 180);
     expect(restored.sidebarWidth, 300);
     expect(restored.detailsWidth, 420);
+    expect(restored.detailsHeight, 280);
   });
 
   test('workspace view defaults reuse cached global chrome', () async {

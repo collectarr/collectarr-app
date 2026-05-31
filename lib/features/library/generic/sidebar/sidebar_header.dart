@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/library_group_mode_menu.
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_panels.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,11 @@ class LibrarySidebarHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final isRootScope = onClearFilter == null;
+    final scopeAccent = libraryCollectionStatusScopeColor(
+      collectionStatusScope,
+      accent,
+      palette.textMuted,
+    );
     final scopeLabel = breadcrumbs.isNotEmpty
         ? breadcrumbs.last
         : (isRootScope ? 'All ${type.pluralLabel}' : selectedBucket);
@@ -228,7 +234,7 @@ class LibrarySidebarHeader extends StatelessWidget {
             icon: icon,
             title: genericGroupModeSidebarTitle(groupMode, type),
             scopeLabel: scopeLabel,
-            accent: accent,
+            accent: scopeAccent,
           ),
           const SizedBox(height: 6),
           LibrarySidebarFilteringPanel(
