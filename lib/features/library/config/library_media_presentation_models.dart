@@ -81,6 +81,95 @@ class LibraryMediaStatsLabels {
   final String topPublisher;
 }
 
+class LibrarySortFavorite {
+  const LibrarySortFavorite({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.rules,
+  });
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final List<LibrarySortRule> rules;
+}
+
+const defaultLibrarySortFavorites = [
+  LibrarySortFavorite(
+    id: 'title_asc',
+    label: 'Title A-Z',
+    icon: Icons.sort_by_alpha,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+    ],
+  ),
+  LibrarySortFavorite(
+    id: 'release_latest',
+    label: 'Latest release',
+    icon: Icons.event,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.releaseDate, ascending: false),
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+    ],
+  ),
+  LibrarySortFavorite(
+    id: 'recent',
+    label: 'Recently added',
+    icon: Icons.update,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+    ],
+  ),
+  LibrarySortFavorite(
+    id: 'value_desc',
+    label: 'Value high to low',
+    icon: Icons.attach_money,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.price, ascending: false),
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+    ],
+  ),
+];
+
+const defaultLibraryColumnFavorites = [
+  LibraryTableColumnPreset(
+    label: 'Essential',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.title,
+      LibraryTableColumn.publisher,
+      LibraryTableColumn.releaseDate,
+      LibraryTableColumn.updated,
+    },
+  ),
+  LibraryTableColumnPreset(
+    label: 'Collection',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.title,
+      LibraryTableColumn.condition,
+      LibraryTableColumn.grade,
+      LibraryTableColumn.price,
+      LibraryTableColumn.wishlist,
+      LibraryTableColumn.updated,
+    },
+  ),
+  LibraryTableColumnPreset(
+    label: 'Reference',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.title,
+      LibraryTableColumn.variant,
+      LibraryTableColumn.publisher,
+      LibraryTableColumn.releaseDate,
+      LibraryTableColumn.barcode,
+      LibraryTableColumn.updated,
+    },
+  ),
+];
+
 class LibraryMetadataPresentation {
   const LibraryMetadataPresentation({
     required this.identityFacts,
@@ -319,6 +408,8 @@ class LibraryMediaPresentation {
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketModes = const [],
     this.supportsSeriesIssueJump = false,
+    this.sortFavorites = defaultLibrarySortFavorites,
+    this.columnFavorites = defaultLibraryColumnFavorites,
     this.groupModes = const [
       LibraryGroupMode.series,
       LibraryGroupMode.title,
@@ -339,5 +430,7 @@ class LibraryMediaPresentation {
   final bool usesTreeProviderCandidates;
   final List<LibraryGroupMode> externalFacetBucketModes;
   final bool supportsSeriesIssueJump;
+  final List<LibrarySortFavorite> sortFavorites;
+  final List<LibraryTableColumnPreset> columnFavorites;
   final List<LibraryGroupMode> groupModes;
 }

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -18,6 +19,39 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const kDefaultTransferableFieldKeys = [
+  'condition',
+  'grade',
+  'personalNotes',
+  'locationId',
+  'tags',
+  'currency',
+  'readStatus',
+  'soldTo',
+  'features',
+  'purchaseStore',
+  'boxSetName',
+  'pricePaidCents',
+  'coverPriceCents',
+  'sellPriceCents',
+  'quantity',
+  'indexNumber',
+  'rating',
+  'purchaseDate',
+  'startedAt',
+  'finishedAt',
+  'soldAt',
+];
+
+const kComicTransferableFieldKeys = [
+  'rawOrSlabbed',
+  'gradingCompany',
+  'graderNotes',
+  'signedBy',
+  'keyReason',
+  'keyComic',
+];
 
 class LibraryAddDialogRequest {
   const LibraryAddDialogRequest({
@@ -241,6 +275,7 @@ class LibraryTypeConfig {
     this.releaseFields = const ReleaseEditFields(),
     this.manualAddUsesTitleAsSeries = false,
     this.editUsesTitleAsSeries = false,
+    this.transferableFieldKeys = kDefaultTransferableFieldKeys,
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
@@ -265,10 +300,20 @@ class LibraryTypeConfig {
   final ReleaseEditFields releaseFields;
   final bool manualAddUsesTitleAsSeries;
   final bool editUsesTitleAsSeries;
+  final List<String> transferableFieldKeys;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
+
+  List<TransferableField> transferableFieldsWithCustomFields(
+    List<CustomFieldDefinition> definitions,
+  ) {
+    return TransferableField.withCustomFields(
+      definitions,
+      fieldKeys: transferableFieldKeys,
+    );
+  }
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {

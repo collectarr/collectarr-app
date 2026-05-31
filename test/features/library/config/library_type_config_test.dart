@@ -211,6 +211,15 @@ void main() {
     }
   });
 
+  test('transferable field keys are kind-owned', () {
+    expect(booksLibraryConfig.transferableFieldKeys, kDefaultTransferableFieldKeys);
+    expect(
+      comicsLibraryConfig.transferableFieldKeys,
+      containsAll(kComicTransferableFieldKeys),
+    );
+    expect(booksLibraryConfig.transferableFieldKeys, isNot(contains('keyComic')));
+  });
+
   test('comic kind uses dedicated edit dialog builder', () {
     expect(comicsLibraryConfig.editDialogBuilder,
         same(buildComicLibraryEditDialog));
@@ -332,11 +341,24 @@ void main() {
       LibraryGroupMode.title,
       LibraryGroupMode.ownership,
     ]);
+    expect(
+      booksLibraryConfig.presentation.sortFavorites.map((favorite) => favorite.id),
+      ['title_asc', 'release_latest', 'recent', 'value_desc'],
+    );
     expect(comicsLibraryConfig.presentation.externalFacetBucketModes, [
       LibraryGroupMode.storyArc,
       LibraryGroupMode.character,
     ]);
     expect(comicsLibraryConfig.presentation.supportsSeriesIssueJump, isTrue);
+    expect(
+      comicsLibraryConfig.presentation.sortFavorites
+          .map((favorite) => favorite.id),
+      ['series_issue', 'recent', 'publisher_date', 'value_desc'],
+    );
+    expect(
+      comicsLibraryConfig.presentation.columnFavorites.map((preset) => preset.label),
+      comicsTableColumnPresets.map((preset) => preset.label),
+    );
     expect(moviesLibraryConfig.presentation.groupModes, [
       LibraryGroupMode.audienceRating,
       LibraryGroupMode.color,

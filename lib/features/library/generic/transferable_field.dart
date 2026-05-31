@@ -165,8 +165,8 @@ class TransferableField {
     }
   }
 
-  /// Built-in transferable fields on [OwnedItem].
-  static const List<TransferableField> builtIn = [
+  /// Shared built-in transferable fields on [OwnedItem].
+  static const List<TransferableField> sharedBuiltIn = [
     // --- Text ---
     TransferableField._(
       key: 'condition',
@@ -202,36 +202,6 @@ class TransferableField {
       key: 'currency',
       label: 'Currency',
       icon: Icons.attach_money,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'rawOrSlabbed',
-      label: 'Raw / Slabbed',
-      icon: Icons.layers_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'gradingCompany',
-      label: 'Grading company',
-      icon: Icons.verified_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'graderNotes',
-      label: 'Grader notes',
-      icon: Icons.note_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'signedBy',
-      label: 'Signed by',
-      icon: Icons.draw_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'keyReason',
-      label: 'Key reason',
-      icon: Icons.vpn_key_outlined,
       type: TransferableFieldType.text,
     ),
     TransferableField._(
@@ -326,6 +296,39 @@ class TransferableField {
       icon: Icons.receipt_long_outlined,
       type: TransferableFieldType.date,
     ),
+  ];
+
+  static const List<TransferableField> comicBuiltIn = [
+    TransferableField._(
+      key: 'rawOrSlabbed',
+      label: 'Raw / Slabbed',
+      icon: Icons.layers_outlined,
+      type: TransferableFieldType.text,
+    ),
+    TransferableField._(
+      key: 'gradingCompany',
+      label: 'Grading company',
+      icon: Icons.verified_outlined,
+      type: TransferableFieldType.text,
+    ),
+    TransferableField._(
+      key: 'graderNotes',
+      label: 'Grader notes',
+      icon: Icons.note_outlined,
+      type: TransferableFieldType.text,
+    ),
+    TransferableField._(
+      key: 'signedBy',
+      label: 'Signed by',
+      icon: Icons.draw_outlined,
+      type: TransferableFieldType.text,
+    ),
+    TransferableField._(
+      key: 'keyReason',
+      label: 'Key reason',
+      icon: Icons.vpn_key_outlined,
+      type: TransferableFieldType.text,
+    ),
     // --- Boolean ---
     TransferableField._(
       key: 'keyComic',
@@ -335,12 +338,19 @@ class TransferableField {
     ),
   ];
 
+  static final Map<String, TransferableField> _builtInByKey = {
+    for (final field in [...sharedBuiltIn, ...comicBuiltIn]) field.key: field,
+  };
+
   /// Build a complete field list including user-defined custom fields.
   static List<TransferableField> withCustomFields(
     List<CustomFieldDefinition> definitions,
+    {Iterable<String>? fieldKeys,}
   ) {
+    final keys = fieldKeys ?? [for (final field in sharedBuiltIn) field.key];
     return [
-      ...builtIn,
+      for (final key in keys)
+        if (_builtInByKey[key] case final field?) field,
       for (final def in definitions)
         TransferableField._(
           key: 'cf_${def.id}',

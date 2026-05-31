@@ -1,6 +1,49 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:flutter/material.dart';
+
+const comicLibrarySortFavorites = [
+  LibrarySortFavorite(
+    id: 'series_issue',
+    label: 'Series + issue',
+    icon: Icons.format_list_numbered,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+      LibrarySortRule(column: LibrarySortColumn.variant, ascending: true),
+    ],
+  ),
+  LibrarySortFavorite(
+    id: 'recent',
+    label: 'Recently added',
+    icon: Icons.update,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+    ],
+  ),
+  LibrarySortFavorite(
+    id: 'publisher_date',
+    label: 'Publisher + date',
+    icon: Icons.business_outlined,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.publisher, ascending: true),
+      LibrarySortRule(column: LibrarySortColumn.releaseDate, ascending: true),
+      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+    ],
+  ),
+  LibrarySortFavorite(
+    id: 'value_desc',
+    label: 'Value high to low',
+    icon: Icons.attach_money,
+    rules: [
+      LibrarySortRule(column: LibrarySortColumn.price, ascending: false),
+      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+    ],
+  ),
+];
 
 const comicsLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
@@ -33,6 +76,8 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.character,
   ],
   supportsSeriesIssueJump: true,
+  sortFavorites: comicLibrarySortFavorites,
+  columnFavorites: comicsTableColumnPresets,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.storyArc,

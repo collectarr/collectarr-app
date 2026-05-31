@@ -243,6 +243,7 @@ extension _LibraryPageDialogs on _LibraryPageState {
     final result = await showTransferFieldDataDialog(
       context: context,
       db: db,
+      type: widget.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldDefinitions,

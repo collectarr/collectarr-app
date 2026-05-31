@@ -66,6 +66,10 @@ const comicsLibraryConfig = LibraryTypeConfig(
   ),
   manualAddUsesTitleAsSeries: true,
   editUsesTitleAsSeries: true,
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    ...kComicTransferableFieldKeys,
+  ],
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant / Format',
     barcodeLabel: 'Barcode / UPC / ISBN',
