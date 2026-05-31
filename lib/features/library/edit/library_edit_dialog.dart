@@ -206,12 +206,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   TextEditingController get _sellPriceController => _draft.sellPriceController;
   TextEditingController get _soldToController => _draft.soldToController;
-  late DateTime? _soldAt;
+  DateTime? get _soldAt => _draft.soldAt;
+  set _soldAt(DateTime? value) => _draft.soldAt = value;
 
   // Reading progress
-  DateTime? _startedAt;
-  DateTime? _finishedAt;
-  Map<String, int> _episodeRatings = {};
+  DateTime? get _startedAt => _draft.startedAt;
+  set _startedAt(DateTime? value) => _draft.startedAt = value;
+  DateTime? get _finishedAt => _draft.finishedAt;
+  set _finishedAt(DateTime? value) => _draft.finishedAt = value;
+  Map<String, int> get _episodeRatings => _draft.episodeRatings;
+  set _episodeRatings(Map<String, int> value) => _draft.episodeRatings = value;
 
     TextEditingController get _rawOrSlabbedController =>
       _draft.rawOrSlabbedController;
@@ -225,7 +229,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.certificationNumberController;
     TextEditingController get _coverPriceController =>
       _draft.coverPriceController;
-  bool _keyComic = false;
+  bool get _keyComic => _draft.keyComic;
+  set _keyComic(bool value) => _draft.keyComic = value;
     TextEditingController get _keyReasonController => _draft.keyReasonController;
 
     TextEditingController get _featuresController => _draft.featuresController;
@@ -237,7 +242,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.storageDeviceController;
     TextEditingController get _storageSlotController =>
       _draft.storageSlotController;
-  List<String> _hdrFormats = [];
+  List<String> get _hdrFormats => _draft.hdrFormats;
 
     TextEditingController get _regionController => _draft.regionController;
     TextEditingController get _packagingController => _draft.packagingController;
@@ -247,8 +252,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.screenRatioController;
 
   // Collection status & bag/board
-  String? _collectionStatus;
-  DateTime? _lastBagBoardDate;
+  String? get _collectionStatus => _draft.collectionStatus;
+  set _collectionStatus(String? value) => _draft.collectionStatus = value;
+  DateTime? get _lastBagBoardDate => _draft.lastBagBoardDate;
+  set _lastBagBoardDate(DateTime? value) => _draft.lastBagBoardDate = value;
     TextEditingController get _marketValueController =>
       _draft.marketValueController;
     TextEditingController get _audioTracksController =>
@@ -258,10 +265,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     TextEditingController get _colorController => _draft.colorController;
     TextEditingController get _nrDiscsController => _draft.nrDiscsController;
 
-  String? _physicalFormatId;
-  String? _selectedSeriesId;
-  Map<String, String?> _customFieldEdits = {};
-  List<ItemImageEdit> _itemImageEdits = [];
+  String? get _physicalFormatId => _draft.physicalFormatId;
+  set _physicalFormatId(String? value) => _draft.physicalFormatId = value;
+  String? get _selectedSeriesId => _draft.seriesId;
+  set _selectedSeriesId(String? value) => _draft.seriesId = value;
+  Map<String, String?> get _customFieldEdits => _draft.customFieldEdits;
+  set _customFieldEdits(Map<String, String?> value) =>
+      _draft.customFieldEdits = value;
+  List<ItemImageEdit> get _itemImageEdits => _draft.itemImageEdits;
+  set _itemImageEdits(List<ItemImageEdit> value) =>
+      _draft.itemImageEdits = value;
 
   bool get _isOwned => widget.ownedItem != null;
 
@@ -400,18 +413,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _selectedWishlistVariantId = _draft.selectedWishlistVariantId;
     _selectedWishlistBundleReleaseId = _draft.selectedWishlistBundleReleaseId;
     _locationChanged = _draft.locationChanged;
-    _soldAt = _draft.soldAt;
-    _startedAt = _draft.startedAt;
-    _finishedAt = _draft.finishedAt;
-    _episodeRatings = _draft.episodeRatings;
-    _keyComic = _draft.keyComic;
-    _hdrFormats = _draft.hdrFormats;
-    _collectionStatus = _draft.collectionStatus;
-    _lastBagBoardDate = _draft.lastBagBoardDate;
-    _physicalFormatId = _draft.physicalFormatId;
-    _selectedSeriesId = _draft.seriesId;
-    _customFieldEdits = _draft.customFieldEdits;
-    _itemImageEdits = _draft.itemImageEdits;
 
     unawaited(_loadCatalogVocabularyOptions());
 
@@ -1859,18 +1860,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _draft.selectedWishlistVariantId = _selectedWishlistVariantId;
     _draft.selectedWishlistBundleReleaseId = _selectedWishlistBundleReleaseId;
     _draft.locationChanged = _locationChanged;
-    _draft.soldAt = _soldAt;
-    _draft.startedAt = _startedAt;
-    _draft.finishedAt = _finishedAt;
-    _draft.episodeRatings = _episodeRatings;
-    _draft.keyComic = _keyComic;
-    _draft.hdrFormats = _hdrFormats;
-    _draft.collectionStatus = _collectionStatus;
-    _draft.lastBagBoardDate = _lastBagBoardDate;
-    _draft.physicalFormatId = _physicalFormatId;
-    _draft.seriesId = _selectedSeriesId;
-    _draft.customFieldEdits = _customFieldEdits;
-    _draft.itemImageEdits = _itemImageEdits;
     final selection = _draft.buildSelection();
     Navigator.of(context).pop(selection);
   }
