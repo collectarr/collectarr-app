@@ -36,6 +36,8 @@ import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+const Object _updateItemUnset = Object();
+
 class CollectionMutations {
   CollectionMutations(this.ref);
 
@@ -197,7 +199,7 @@ class CollectionMutations {
     String? currency,
     String? personalNotes,
     int? quantity,
-    String? locationId,
+    Object? locationId = _updateItemUnset,
     int? indexNumber,
     int? coverPriceCents,
     String? rawOrSlabbed,
@@ -291,7 +293,9 @@ class CollectionMutations {
       soldTo: soldTo,
       ownerUserId: item.ownerUserId ?? auth.userId,
       ownerLabel: ownerLabel ?? item.ownerLabel ?? auth.email,
-      locationId: locationId ?? item.locationId,
+        locationId: identical(locationId, _updateItemUnset)
+          ? item.locationId
+          : locationId as String?,
       updatedAt: now,
       deletedAt: item.deletedAt,
       features: features,

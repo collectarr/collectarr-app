@@ -365,6 +365,34 @@ void main() {
     expect(updated.personalNotes, isNull);
   });
 
+  test('collection updates can clear an existing location', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionMutationsProvider).addItem(
+          'comic-1',
+          locationId: 'loc-box-6',
+        );
+    final original = await db.select(db.ownedItemsCache).getSingle();
+
+    await container.read(collectionMutationsProvider).updateItem(
+          OwnedItem(
+            id: original.id,
+            itemId: original.itemId,
+            locationId: original.locationId,
+            updatedAt: original.updatedAt,
+          ),
+          locationId: null,
+        );
+
+    final updated = await db.select(db.ownedItemsCache).getSingle();
+    expect(updated.locationId, isNull);
+  });
+
   test('wishlist updates persist bundle anchors and notes', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
