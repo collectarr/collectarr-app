@@ -137,6 +137,10 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
+    expect(find.byTooltip('Pick Series'), findsOneWidget);
+    expect(find.byTooltip('Browse Series'), findsOneWidget);
+    expect(find.byType(ActionChip), findsNothing);
+
     await tester.enterText(
       find.byKey(const ValueKey('edit-coverdate-year')),
       '2026',

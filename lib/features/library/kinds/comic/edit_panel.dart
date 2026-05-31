@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -716,34 +717,23 @@ class ComicEditPanelState extends State<ComicEditPanel> {
         .where((value) => value.isNotEmpty)
         .toSet()
         .toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _labelledField(
-          label,
-          controller: controller,
-          key: key,
-          maxLines: maxLines,
-          hintText: hintText,
-        ),
-        if (normalizedSuggestions.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final suggestion in normalizedSuggestions)
-                ActionChip(
-                  label: Text(suggestion),
-                  onPressed: () {
-                    _setControllerText(controller, suggestion);
-                    setState(() {});
-                  },
-                ),
-            ],
-          ),
-        ],
-      ],
+    if (maxLines != 1) {
+      return _labelledField(
+        label,
+        controller: controller,
+        key: key,
+        maxLines: maxLines,
+        hintText: hintText,
+      );
+    }
+    return SingleValuePickField(
+      fieldKey: key,
+      controller: controller,
+      options: normalizedSuggestions,
+      label: label,
+      hint: hintText,
+      onChanged: (_) => setState(() {}),
+      showPickerListAction: normalizedSuggestions.isNotEmpty,
     );
   }
 

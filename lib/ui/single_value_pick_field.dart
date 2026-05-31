@@ -7,22 +7,26 @@ class SingleValuePickField extends StatefulWidget {
     required this.controller,
     required this.options,
     required this.label,
+    this.fieldKey,
     this.hint,
     this.validator,
     this.onChanged,
     this.onManage,
     this.manageTooltip,
+    this.showPickerListAction = false,
     this.enabled = true,
   });
 
   final TextEditingController controller;
   final List<String> options;
   final String label;
+  final Key? fieldKey;
   final String? hint;
   final String? Function(String?)? validator;
   final ValueChanged<String?>? onChanged;
   final VoidCallback? onManage;
   final String? manageTooltip;
+  final bool showPickerListAction;
   final bool enabled;
 
   @override
@@ -118,22 +122,35 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     required String tooltip,
     required VoidCallback? onPressed,
     required IconData icon,
+    bool showDivider = false,
   }) {
     return Tooltip(
       message: tooltip,
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onPressed,
-          child: SizedBox(
-            width: _suffixButtonExtent,
-            height: _suffixButtonExtent,
-            child: Icon(
-              icon,
-              size: 18,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showDivider)
+              Container(
+                width: 1,
+                height: 18,
+                margin: const EdgeInsets.only(right: 4),
+                color: Theme.of(context).dividerColor,
+              ),
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: onPressed,
+              child: SizedBox(
+                width: _suffixButtonExtent,
+                height: _suffixButtonExtent,
+                child: Icon(
+                  icon,
+                  size: 18,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -145,14 +162,16 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       widget.options,
       selectedValue: widget.controller.text,
     );
+    final hasBrowseAction =
+        widget.onManage != null || widget.showPickerListAction;
     final actionCount = [
       if (normalizedOptions.isNotEmpty) true,
-      if (widget.controller.text.trim().isNotEmpty) true,
-      if (widget.onManage != null) true,
+      if (hasBrowseAction) true,
     ].length;
     final suffixWidth =
         actionCount * _suffixButtonExtent + (_suffixHorizontalPadding * 2);
     return TextFormField(
+      key: widget.fieldKey,
       controller: widget.controller,
       focusNode: _focusNode,
       validator: widget.validator,
@@ -177,24 +196,18 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                       _suffixAction(
                         tooltip: 'Pick ${widget.label}',
                         onPressed: () => _openPickerDialog(normalizedOptions),
-                        icon: Icons.arrow_drop_down_circle_outlined,
+                        icon: Icons.arrow_drop_down,
                       ),
-                    if (widget.controller.text.trim().isNotEmpty)
-                      _suffixAction(
-                        tooltip: 'Clear ${widget.label}',
-                        onPressed: () {
-                          widget.controller.clear();
-                          widget.onChanged?.call(null);
-                          setState(() {});
-                        },
-                        icon: Icons.close,
-                      ),
-                    if (widget.onManage != null)
+                    if (hasBrowseAction)
                       _suffixAction(
                         tooltip:
-                            widget.manageTooltip ?? 'Manage ${widget.label}',
-                        onPressed: widget.enabled ? widget.onManage : null,
-                        icon: Icons.tune,
+                            widget.manageTooltip ?? 'Browse ${widget.label}',
+                        onPressed: widget.enabled
+                            ? (widget.onManage ??
+                                () => _openPickerDialog(normalizedOptions))
+                            : null,
+                        icon: Icons.view_list_outlined,
+                        showDivider: normalizedOptions.isNotEmpty,
                       ),
                   ],
                 ),

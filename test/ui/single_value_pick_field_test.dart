@@ -32,9 +32,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(controller.text, 'Publisher B');
+    expect(find.byTooltip('Browse Publisher'), findsNothing);
   });
 
-  testWidgets('single value pick field shows all suffix actions',
+  testWidgets('single value pick field shows picker and browse actions',
       (tester) async {
     final controller = TextEditingController(text: 'Publisher A');
     addTearDown(controller.dispose);
@@ -46,15 +47,14 @@ void main() {
             controller: controller,
             options: const ['Publisher A', 'Publisher B'],
             label: 'Publisher',
-            onManage: () {},
+            showPickerListAction: true,
           ),
         ),
       ),
     );
 
     expect(find.byTooltip('Pick Publisher'), findsOneWidget);
-    expect(find.byTooltip('Clear Publisher'), findsOneWidget);
-    expect(find.byTooltip('Manage Publisher'), findsOneWidget);
+    expect(find.byTooltip('Browse Publisher'), findsOneWidget);
   });
 
   testWidgets('single value pick field does not auto-list options on focus',
