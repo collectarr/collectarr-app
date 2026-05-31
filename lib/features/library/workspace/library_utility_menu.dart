@@ -53,26 +53,37 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     final selected = _selectedQuickView();
     return Badge(
       isLabelVisible: badgeCount > 0,
-      label: Text(badgeCount.toString()),
+      largeSize: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      label: Text(
+        badgeCount.toString(),
+        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+      ),
       child: PopupMenuButton<Object>(
         tooltip: tooltip,
-        icon: Icon(selected?.icon ?? defaultIcon, size: 18),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints.tightFor(width: 30, height: 30),
+        icon: Icon(selected?.icon ?? defaultIcon, size: 17),
         onSelected: _handleSelected,
         itemBuilder: (context) => [
           if (quickViews.isNotEmpty) ...[
             const PopupMenuItem<Object>(
               enabled: false,
+              height: 28,
               child: Text('Quick views'),
             ),
             for (final view in quickViews)
               PopupMenuItem<Object>(
                 value: _LibraryUtilityQuickViewSelection<T>(view.value),
+                height: 34,
                 child: ListTile(
                   dense: true,
-                  leading: Icon(view.icon),
-                  title: Text(view.label),
+                  minLeadingWidth: 18,
+                  horizontalTitleGap: 8,
+                  leading: Icon(view.icon, size: 18),
+                  title: Text(view.label, style: const TextStyle(fontSize: 13)),
                   trailing: selectedQuickView == view.value
-                      ? const Icon(Icons.check, size: 18)
+                      ? const Icon(Icons.check, size: 16)
                       : null,
                 ),
               ),
@@ -82,10 +93,13 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
             PopupMenuItem<Object>(
               value: action,
               enabled: action.enabled && action.onSelected != null,
+              height: 34,
               child: ListTile(
                 dense: true,
-                leading: Icon(action.icon),
-                title: Text(action.label),
+                minLeadingWidth: 18,
+                horizontalTitleGap: 8,
+                leading: Icon(action.icon, size: 18),
+                title: Text(action.label, style: const TextStyle(fontSize: 13)),
                 trailing: action.trailing,
               ),
             ),

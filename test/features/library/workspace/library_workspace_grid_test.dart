@@ -47,6 +47,39 @@ void main() {
     expect(find.byType(GridView), findsOneWidget);
   });
 
+  testWidgets('workspace grid keeps child taps when selection is disabled', (
+    tester,
+  ) async {
+    var tapped = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 320,
+          height: 220,
+          child: LibraryWorkspaceGrid<String>(
+            items: const ['Saga'],
+            maxCrossAxisExtent: 120,
+            mainAxisExtent: 160,
+            itemIdOf: (item) => item,
+            onSelectionChanged: (_) {},
+            emptyBuilder: (_) => const Text('No items'),
+            itemBuilder: (_, item) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => tapped = true,
+              child: Text(item),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Saga'));
+    await tester.pump();
+
+    expect(tapped, isTrue);
+  });
+
   testWidgets('workspace grid supports drag box selection without modifiers',
       (tester) async {
     Set<String> selected = const {};
@@ -60,6 +93,7 @@ void main() {
             items: const ['one', 'two', 'three', 'four'],
             maxCrossAxisExtent: 120,
             mainAxisExtent: 100,
+            selectionEnabled: true,
             itemIdOf: (item) => item,
             onSelectionChanged: (value) => selected = value,
             emptyBuilder: (_) => const Text('No items'),
@@ -95,6 +129,7 @@ void main() {
             items: const ['one', 'two', 'three', 'four'],
             maxCrossAxisExtent: 120,
             mainAxisExtent: 100,
+            selectionEnabled: true,
             selectedIds: selected,
             itemIdOf: (item) => item,
             onSelectionChanged: (value) => selected = value,
@@ -135,6 +170,7 @@ void main() {
                   items: const ['one', 'two', 'three', 'four'],
                   maxCrossAxisExtent: 120,
                   mainAxisExtent: 100,
+                  selectionEnabled: true,
                   itemIdOf: (item) => item,
                   onSelectionChanged: (value) => selected = value,
                   shrinkWrap: true,

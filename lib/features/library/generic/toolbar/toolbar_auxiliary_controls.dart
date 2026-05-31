@@ -592,14 +592,28 @@ class LibraryFilterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Badge(
       isLabelVisible: activeCount > 0,
-      label: Text(activeCount.toString()),
-      child: IconButton(
-        icon: Icon(
-          activeCount > 0 ? Icons.filter_alt : Icons.filter_alt_outlined,
-          size: 20,
+      largeSize: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      label: Text(
+        activeCount.toString(),
+        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+      ),
+      child: DecoratedBox(
+        decoration: libraryToolbarDropdownDecoration(context),
+        child: SizedBox.square(
+          dimension: 30,
+          child: IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 30, height: 30),
+            icon: Icon(
+              activeCount > 0 ? Icons.filter_alt : Icons.filter_alt_outlined,
+              size: 17,
+            ),
+            tooltip: 'Edit filters',
+            onPressed: onPressed,
+          ),
         ),
-        tooltip: 'Edit filters',
-        onPressed: onPressed,
       ),
     );
   }
@@ -625,7 +639,8 @@ class LibraryItemCountLabel extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        fontSize: 12,
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
         color: appPalette(context).textMuted,
       ),
     );
@@ -646,8 +661,13 @@ class LibraryToolbarScopeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return InputChip(
       visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       backgroundColor: appPalette(context).selection,
-      label: Text(label),
+      label: Text(
+        label,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+      ),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
       onDeleted: onClear,
     );
   }
@@ -682,10 +702,10 @@ class LibraryCollectionValueChip extends StatelessWidget {
     return Tooltip(
       message: parts.join('\n'),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
           color: Colors.green.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(3),
           border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
         ),
         child: Row(
@@ -693,10 +713,10 @@ class LibraryCollectionValueChip extends StatelessWidget {
           children: [
             Icon(
               Icons.attach_money,
-              size: 13,
+              size: 12,
               color: Colors.greenAccent.withValues(alpha: 0.8),
             ),
-            const SizedBox(width: 3),
+            const SizedBox(width: 2),
             Text(
               _fmt(
                 totalPaidCents > 0
@@ -704,7 +724,7 @@ class LibraryCollectionValueChip extends StatelessWidget {
                     : (totalCoverCents > 0 ? totalCoverCents : totalSellCents),
               ),
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Colors.greenAccent.withValues(alpha: 0.9),
               ),

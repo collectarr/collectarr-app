@@ -529,6 +529,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
     final trimmedSearchQuery = _searchController.text.trim();
     final seriesStatusSummary = _seriesStatusSummaryForProjection(projection);
+    if (kDebugMode &&
+        kIsWeb &&
+        _selectedId == null &&
+        _selection.itemIds.isEmpty &&
+        projection.filteredItems.isNotEmpty) {
+      final firstVisibleId = projection.filteredItems.first.entry.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _selectedId != null || _selection.itemIds.isNotEmpty) {
+          return;
+        }
+        _activateItem(firstVisibleId);
+      });
+    }
     return LibraryBody(
       type: widget.type,
       adapter: _adapter,
@@ -634,16 +647,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onManageBuckets: libraryGroupModeSupportsBucketManagement(_activeGroupMode)
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
-      onTogglePinGroupMode: (mode) {
-        final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
-        if (updated.contains(mode)) {
-          updated.remove(mode);
-        } else {
-          updated.add(mode);
-        }
-        setState(() => _pinnedGroupModes = updated);
-        unawaited(_viewPrefs.writePinnedGroupModes(updated));
-      },
+      onPinnedGroupModesChanged: _setPinnedGroupModes,
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: widget.type,
         viewState: viewState,
@@ -705,16 +709,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             : null,
         groupMode: _groupMode,
         pinnedGroupModes: _pinnedGroupModes,
-        onTogglePinGroupMode: (mode) {
-          final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
-          if (updated.contains(mode)) {
-            updated.remove(mode);
-          } else {
-            updated.add(mode);
-          }
-          setState(() => _pinnedGroupModes = updated);
-          unawaited(_viewPrefs.writePinnedGroupModes(updated));
-        },
+        onPinnedGroupModesChanged: _setPinnedGroupModes,
         onGroupModeChanged: _setGroupMode,
       ),
     );
@@ -912,7 +907,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         signature: signature,
         isStoryArc: mode == LibraryGroupMode.storyArc,
         allBucketLabel: genericAllBucketLabel(widget.type),
-      );
+      ).timeout(const Duration(seconds: 8));
       if (!mounted) return;
       final latestShelf = ref.read(shelfProvider).asData?.value;
       if (latestShelf == null ||
@@ -933,6 +928,27 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         error: e,
         stackTrace: st,
       );
+      if (!mounted) {
+        return;
+      }
+      final latestShelf = ref.read(shelfProvider).asData?.value;
+      if (latestShelf == null ||
+          _genericShelfSignature(latestShelf) != signature) {
+        return;
+      }
+      setState(() {
+        _facetBucketsByMode[mode] = FacetBuckets(
+          shelfSignature: signature,
+          buckets: [
+            LibrarySeriesBucket(
+              title: genericAllBucketLabel(widget.type),
+              count: shelfItemIds.length,
+            ),
+          ],
+          itemIdsByBucket: const {},
+        );
+        _selectedBucket = null;
+      });
     } finally {
       _facetLoadsInFlight.remove(mode);
       if (mounted) {
@@ -980,6 +996,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       merged.add(preset);
     }
     return merged;
+  }
+
+  void _setPinnedGroupModes(Set<LibraryGroupMode> modes) {
+    final updated = Set<LibraryGroupMode>.from(modes);
+    setState(() => _pinnedGroupModes = updated);
+    unawaited(_viewPrefs.writePinnedGroupModes(updated));
   }
 
   String? get _activeColumnFavoriteLabel {
