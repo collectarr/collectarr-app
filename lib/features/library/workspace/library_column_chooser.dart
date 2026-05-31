@@ -132,7 +132,7 @@ class _LibraryColumnChooserDialogState
                   builder: (context, constraints) {
                     final compactHeight = constraints.maxHeight < 520;
                     final favoritesHeight = compactHeight ? 124.0 : 190.0;
-                    final editorHeight = compactHeight ? 124.0 : 106.0;
+                    final editorHeight = compactHeight ? 148.0 : 152.0;
 
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
@@ -170,6 +170,8 @@ class _LibraryColumnChooserDialogState
                             child: _PresetEditor(
                               controller: _presetNameController,
                               accent: accent,
+                              activePreset: _activePreset,
+                              selectionCount: _selected.length,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -192,6 +194,12 @@ class _LibraryColumnChooserDialogState
                                             decoration: InputDecoration(
                                               isDense: true,
                                               prefixIcon: const Icon(Icons.search),
+                                              suffixIcon: _query.isEmpty
+                                                  ? null
+                                                  : _InlineClearButton(
+                                                      onPressed: () =>
+                                                          setState(() => _query = ''),
+                                                    ),
                                               hintText: 'Search fields',
                                               filled: true,
                                               fillColor: palette.field,
@@ -350,35 +358,7 @@ class _LibraryColumnChooserDialogState
   }
 
   Future<void> _savePreset() async {
-    var normalized = _presetNameController.text.trim();
-    if (normalized.isEmpty) {
-      final controller = TextEditingController();
-      final label = await showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Save favorite'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: const InputDecoration(labelText: 'Preset name'),
-            textInputAction: TextInputAction.done,
-            onSubmitted: (value) => Navigator.of(context).pop(value),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(controller.text),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      );
-      controller.dispose();
-      normalized = label?.trim() ?? '';
-    }
+    final normalized = _presetNameController.text.trim();
     if (normalized.isEmpty) {
       return;
     }
@@ -421,6 +401,10 @@ class _LibraryColumnChooserDialogState
             title: _groupLabel(group),
             accent: accent,
             count: grouped[group]!.length,
+            selectedCount: grouped[group]!
+                .where(_selected.contains)
+                .length,
+            onToggleAll: () => _toggleGroupColumns(grouped[group]!),
             initiallyExpanded:
                 group == LibraryTableColumnGroup.main || _query.isNotEmpty,
             children: [
@@ -493,6 +477,25 @@ class _LibraryColumnChooserDialogState
         ),
       ),
     );
+  }
+
+  void _toggleGroupColumns(List<LibraryTableColumn> columns) {
+    final allSelected = columns.every(
+      (column) => column == LibraryTableColumn.title || _selected.contains(column),
+    );
+    setState(() {
+      for (final column in columns) {
+        if (column == LibraryTableColumn.title) {
+          _selected.add(column);
+          continue;
+        }
+        if (allSelected) {
+          _selected.remove(column);
+        } else {
+          _selected.add(column);
+        }
+      }
+    });
   }
 
   Widget? _columnDescription(LibraryTableColumn column) {
@@ -715,16 +718,43 @@ class _PresetShelf extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      active ? Icons.check_circle : Icons.bookmark_border,
-                      size: 18,
-                      color: active ? accent : palette.textMuted,
+                    Column(
+                      children: [
+                        Icon(Icons.drag_indicator, size: 16, color: palette.textMuted),
+                        const SizedBox(height: 6),
+                        Text(
+                          '#${index + 1}',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: palette.textMuted,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (active)
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                'Current preset',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: accent,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                              ),
+                            ),
                           Text(
                             preset.label,
                             style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -787,36 +817,54 @@ class _PresetEditor extends StatelessWidget {
   const _PresetEditor({
     required this.controller,
     required this.accent,
+    required this.activePreset,
+    required this.selectionCount,
   });
 
   final TextEditingController controller;
   final Color accent;
+  final LibraryTableColumnPreset? activePreset;
+  final int selectionCount;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final statusLabel = activePreset == null
+        ? '$selectionCount selected field${selectionCount == 1 ? '' : 's'}'
+        : '${activePreset!.label} · $selectionCount selected field${selectionCount == 1 ? '' : 's'}';
     return _PaneFrame(
       title: 'Preset details',
-      subtitle: 'Optional favorite name for the current layout',
       accent: accent,
-      expandChild: true,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: 'Preset name',
-              hintText: 'My List View columns',
-              filled: true,
-              fillColor: palette.field,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              statusLabel,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: palette.textMuted,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
-          ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controller,
+              style: Theme.of(context).textTheme.bodyMedium,
+              decoration: InputDecoration(
+                labelText: 'Preset name',
+                hintText: 'My List View columns',
+                isDense: true,
+                filled: true,
+                fillColor: palette.field,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -920,6 +968,8 @@ class _ColumnGroupPanel extends StatefulWidget {
     required this.initiallyExpanded,
     required this.accent,
     required this.count,
+    required this.selectedCount,
+    required this.onToggleAll,
   });
 
   final String title;
@@ -927,6 +977,8 @@ class _ColumnGroupPanel extends StatefulWidget {
   final bool initiallyExpanded;
   final Color accent;
   final int count;
+  final int selectedCount;
+  final VoidCallback onToggleAll;
 
   @override
   State<_ColumnGroupPanel> createState() => _ColumnGroupPanelState();
@@ -971,8 +1023,14 @@ class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
                               ),
                         ),
                       ),
+                      LibraryDenseButton(
+                        label: widget.selectedCount == widget.count ? 'Clear' : 'All',
+                        onPressed: widget.onToggleAll,
+                        tone: LibraryDenseButtonTone.subtle,
+                      ),
+                      const SizedBox(width: 8),
                       Text(
-                        '${widget.count}',
+                        '${widget.selectedCount}/${widget.count}',
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: palette.textMuted,
                               fontWeight: FontWeight.w700,
@@ -989,6 +1047,32 @@ class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
                 child: Column(children: widget.children),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InlineClearButton extends StatelessWidget {
+  const _InlineClearButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(4),
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: Icon(Icons.close, size: 14, color: palette.textMuted),
+          ),
         ),
       ),
     );

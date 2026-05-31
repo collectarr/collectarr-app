@@ -116,7 +116,7 @@ void main() {
 
     expect(find.text('Teenage Mutant Ninja Turtles: The Last Ronin'), findsOneWidget);
     expect(find.text('Plot'), findsOneWidget);
-    expect(find.text('Imprint'), findsOneWidget);
+    expect(find.text('Imprint:'), findsOneWidget);
     expect(find.text('IDW'), findsOneWidget);
     expect(find.text('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
@@ -198,19 +198,27 @@ void main() {
     expect(find.text('Edit'), findsWidgets);
     expect(find.text('Collect'), findsNothing);
     expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Wishlist'), findsOneWidget);
+    expect(find.text('Share'), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
     expect(find.text('In Collection'), findsWidgets);
     expect(find.text('Plot'), findsOneWidget);
     expect(find.text('Overview'), findsNothing);
     expect(find.byType(LibraryDenseButton), findsWidgets);
+    expect(find.text('Collection tools'), findsNothing);
 
-    await tester.tap(find.text('Layout'));
-    await tester.pumpAndSettle();
+    final layoutMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('comic-toolbar-layout-menu')),
+    );
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Sidebar details'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Bottom details'));
 
-    expect(find.text('Sidebar details'), findsOneWidget);
-    expect(find.text('Bottom details'), findsOneWidget);
+    final moreMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('comic-toolbar-more-menu')),
+    );
+    expect(moreMenu.entries.map((entry) => entry.label), contains('Update value'));
+    expect(moreMenu.entries.map((entry) => entry.label), contains('Update Key Info'));
+    expect(moreMenu.entries.map((entry) => entry.label), contains('Submit to Core'));
 
     await tester.tapAt(const Offset(8, 8));
     await tester.pumpAndSettle();

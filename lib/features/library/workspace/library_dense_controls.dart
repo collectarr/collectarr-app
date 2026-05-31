@@ -9,6 +9,7 @@ class LibraryDenseMenuEntry<T> {
     required this.label,
     required this.icon,
     this.active = false,
+    this.enabled = true,
     this.trailingLabel,
   });
 
@@ -16,6 +17,7 @@ class LibraryDenseMenuEntry<T> {
   final String label;
   final IconData icon;
   final bool active;
+  final bool enabled;
   final String? trailingLabel;
 }
 
@@ -230,6 +232,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
         for (final entry in entries)
           PopupMenuItem<T>(
             value: entry.value,
+            enabled: entry.enabled,
             height: 34,
             child: _LibraryDenseMenuItemRow(entry: entry),
           ),
@@ -322,6 +325,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
               for (final entry in entries)
                 PopupMenuItem<T>(
                   value: entry.value,
+                  enabled: entry.enabled,
                   height: 34,
                   child: _LibraryDenseMenuItemRow(entry: entry),
                 ),
@@ -345,18 +349,22 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final foreground = entry.enabled ? palette.textPrimary : palette.textMuted;
     return Row(
       children: [
         Icon(
           entry.active ? Icons.check_circle : entry.icon,
           size: 15,
-          color: entry.active ? palette.accent : palette.textPrimary,
+          color: entry.enabled
+              ? (entry.active ? palette.accent : palette.textPrimary)
+              : palette.textMuted,
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             entry.label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: foreground,
                   fontWeight: entry.active ? FontWeight.w800 : FontWeight.w600,
                 ),
           ),

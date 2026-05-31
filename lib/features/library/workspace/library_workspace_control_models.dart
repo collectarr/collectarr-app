@@ -20,6 +20,9 @@ class LibraryViewTableControlState {
     required this.coverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
+    this.columnFavoritePresets = const [],
+    this.activeColumnFavoriteLabel,
+    this.pinnedColumnFavoriteKeys = const {},
   });
 
   final LibraryWorkspaceCounts counts;
@@ -29,6 +32,9 @@ class LibraryViewTableControlState {
   final double coverSize;
   final double minCoverSize;
   final double maxCoverSize;
+  final List<LibraryTableColumnPreset> columnFavoritePresets;
+  final String? activeColumnFavoriteLabel;
+  final Set<String> pinnedColumnFavoriteKeys;
 
   bool get canEditColumns => viewMode == LibraryViewMode.list;
 }
@@ -40,6 +46,7 @@ class LibraryViewTableControlCallbacks {
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
+    this.onColumnFavoriteSelected,
   });
 
   final VoidCallback onEditColumns;
@@ -47,4 +54,5 @@ class LibraryViewTableControlCallbacks {
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
 }

@@ -80,6 +80,11 @@ void main() {
     expect(find.byKey(const ValueKey('column-preset-Full View')), findsOneWidget);
     expect(find.byTooltip('Pin favorite'), findsNothing);
     expect(find.byKey(const ValueKey('selected-column-title')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('selected-column-issue')),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.byKey(const ValueKey('selected-column-issue')), findsOneWidget);
   });
 
@@ -117,6 +122,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('selected-column-issue')),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.byKey(const ValueKey('selected-column-issue')), findsOneWidget);
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsNothing);
 
@@ -124,6 +134,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('selected-column-issue')), findsNothing);
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('selected-column-barcode')),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsOneWidget);
   });
 
