@@ -14,6 +14,7 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.book,
   title: 'Books',
   icon: Icons.menu_book_outlined,
+  accent: Color(0xFF48A868),
   preferencePrefix: 'books',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {

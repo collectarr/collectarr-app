@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -78,6 +79,9 @@ void main() {
     expect(
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
+    expect(moviesWorkspaceConfig.accent, const Color(0xFFE05252));
+    expect(libraryAccentForKind('anime'), const Color(0xFFE05252));
+    expect(libraryIconForKind('tv'), Icons.movie_outlined);
   });
 
   test('books library config enables creator spotlight in shared hero chrome', () {

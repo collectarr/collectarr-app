@@ -12,6 +12,7 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.boardgame,
   title: 'Board Games',
   icon: Icons.casino_outlined,
+  accent: Color(0xFFE0A52B),
   preferencePrefix: 'boardgames',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {

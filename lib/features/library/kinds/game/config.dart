@@ -12,6 +12,7 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.game,
   title: 'Games',
   icon: Icons.sports_esports,
+  accent: Color(0xFF7C68D8),
   preferencePrefix: 'games',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {

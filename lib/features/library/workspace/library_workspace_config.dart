@@ -203,6 +203,7 @@ class LibraryWorkspaceConfig {
     required this.kind,
     required this.title,
     required this.icon,
+    required this.accent,
     required this.preferencePrefix,
     required this.defaultSortColumn,
     required this.defaultVisibleColumns,
@@ -211,6 +212,7 @@ class LibraryWorkspaceConfig {
   final CatalogMediaKind kind;
   final String title;
   final IconData icon;
+  final Color accent;
   final String preferencePrefix;
   final LibrarySortColumn defaultSortColumn;
   final Set<LibraryTableColumn> defaultVisibleColumns;
