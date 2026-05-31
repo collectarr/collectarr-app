@@ -213,11 +213,13 @@ void main() {
                       ownedItem: OwnedItem(
                         id: 'owned-1',
                         itemId: 'comic-1',
+                        currency: 'USD',
                         rawOrSlabbed: 'Slabbed',
                         gradingCompany: 'CGC',
                         signedBy: 'Brian K. Vaughan',
                         keyComic: true,
                         keyReason: 'First appearance',
+                        marketValueCents: 1899,
                         updatedAt: DateTime.utc(2026, 5, 22),
                       ),
                       trackingEntry: null,
@@ -241,6 +243,9 @@ void main() {
       expect(find.text('Brian K. Vaughan'), findsOneWidget);
       expect(find.text('Key'), findsOneWidget);
       expect(find.text('First appearance'), findsOneWidget);
+      expect(find.text('Value'), findsOneWidget);
+      expect(find.text('Current value'), findsOneWidget);
+      expect(find.text('USD 18.99'), findsOneWidget);
     });
   });
 

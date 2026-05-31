@@ -28,7 +28,7 @@ List<Widget> buildComicInspectorSections(
   if (ownedIsDigital == true) {
     return sections;
   }
-  final facts = <LibraryInspectorFactData>[
+  final collectorFacts = <LibraryInspectorFactData>[
     if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true)
       LibraryInspectorFactData('Raw / Slabbed', ownedItem.rawOrSlabbed!),
     if (ownedItem.gradingCompany?.trim().isNotEmpty == true)
@@ -38,17 +38,35 @@ List<Widget> buildComicInspectorSections(
     if (ownedItem.keyComic)
       LibraryInspectorFactData('Key', ownedItem.keyReason ?? 'Yes'),
   ];
-  if (facts.isEmpty) {
-    return sections;
+  if (collectorFacts.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Comic details',
+        accentColor: request.accent,
+        children: [
+          LibraryInspectorFactGrid(facts: collectorFacts),
+        ],
+      ),
+    );
   }
-  sections.add(
-    LibraryInspectorSection(
-      title: 'Comic details',
-      accentColor: request.accent,
-      children: [
-        LibraryInspectorFactGrid(facts: facts),
-      ],
-    ),
+  final currentValue = formatMoney(
+    ownedItem.marketValueCents,
+    ownedItem.currency,
   );
+  if (currentValue.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Value',
+        accentColor: request.accent,
+        children: [
+          LibraryInspectorFactGrid(
+            facts: [
+              LibraryInspectorFactData('Current value', currentValue),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
   return sections;
 }
