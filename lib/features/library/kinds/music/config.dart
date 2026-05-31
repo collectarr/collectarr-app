@@ -42,6 +42,14 @@ const musicLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildMusicLibraryEditDialog,
   presentation: musicLibraryMediaPresentation,
   editPresentation: musicLibraryEditPresentation,
+  addChrome: LibraryAddChromeConfig(
+    mediaReferenceLabel: 'Album',
+    trackScopeSummary:
+        'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
+    mediaReferenceHelperLabel: 'Track or save the album itself.',
+    editionReferenceHelperLabel:
+        'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
+  ),
   mediaFields: MediaEditFields(
     numberLabel: 'Disc / Volume',
     publisherLabel: 'Label / Artist',

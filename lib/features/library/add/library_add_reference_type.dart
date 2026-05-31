@@ -1,25 +1,20 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
 enum LibraryAddReferenceType { media, edition, bundleRelease }
 
 extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
-  String labelForMediaKind(CatalogMediaKind mediaKind) {
+  String labelForType(LibraryTypeConfig type) {
     return switch (this) {
-      LibraryAddReferenceType.media =>
-        mediaKind == CatalogMediaKind.music ? 'Album' : 'Media',
+      LibraryAddReferenceType.media => type.addChrome.mediaReferenceLabel,
       LibraryAddReferenceType.edition => 'Edition',
       LibraryAddReferenceType.bundleRelease => 'Bundle',
     };
   }
 
-  String helperLabelForMediaKind(CatalogMediaKind mediaKind) {
+  String helperLabelForType(LibraryTypeConfig type) {
     return switch (this) {
-      LibraryAddReferenceType.media => mediaKind == CatalogMediaKind.music
-          ? 'Track or save the album itself.'
-          : 'Track or save the canonical item itself.',
-        LibraryAddReferenceType.edition => mediaKind == CatalogMediaKind.music
-          ? 'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.'
-          : 'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
+      LibraryAddReferenceType.media => type.addChrome.mediaReferenceHelperLabel,
+      LibraryAddReferenceType.edition => type.addChrome.editionReferenceHelperLabel,
       LibraryAddReferenceType.bundleRelease => 'Attach ownership to a bundle that contains this item',
     };
   }

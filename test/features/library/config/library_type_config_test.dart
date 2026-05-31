@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -218,6 +219,25 @@ void main() {
       containsAll(kComicTransferableFieldKeys),
     );
     expect(booksLibraryConfig.transferableFieldKeys, isNot(contains('keyComic')));
+  });
+
+  test('add wording chrome is kind-owned', () {
+    expect(
+      LibraryAddReferenceType.media.labelForType(booksLibraryConfig),
+      'Media',
+    );
+    expect(
+      LibraryAddReferenceType.media.labelForType(musicLibraryConfig),
+      'Album',
+    );
+    expect(
+      musicLibraryConfig.addChrome.trackScopeSummary,
+      'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
+    );
+    expect(
+      LibraryAddReferenceType.edition.helperLabelForType(musicLibraryConfig),
+      'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
+    );
   });
 
   test('comic kind uses dedicated edit dialog builder', () {

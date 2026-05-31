@@ -117,8 +117,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
         ? (preview != null
-        ? _metadataRowsForFullPreview(preview, type)
-        : _metadataRowsForCandidate(selectedCandidate!, type))
+            ? _metadataRowsForFullPreview(preview, type)
+            : _metadataRowsForCandidate(selectedCandidate!, type))
         : _metadataRowsForItem(selectedItem, type);
     final discoverySections = _discoverySections(
       item: selectedItem,
@@ -235,6 +235,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                       children: [
                         if (selectedItem != null) ...[
                           _LibraryAddReferenceSelector(
+                            type: type,
                             accent: accent,
                             addTarget: addTarget,
                             referenceType: referenceType,
@@ -473,6 +474,7 @@ class _BundleReleaseDetailCard extends StatelessWidget {
 class LibraryAddReferenceSelector extends StatelessWidget {
   const LibraryAddReferenceSelector({
     super.key,
+    required this.type,
     required this.accent,
     required this.addTarget,
     required this.referenceType,
@@ -488,6 +490,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
+  final LibraryTypeConfig type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -505,6 +508,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _LibraryAddReferenceSelector(
+      type: type,
       accent: accent,
       addTarget: addTarget,
       referenceType: referenceType,
@@ -719,6 +723,7 @@ String _bundleDiscLabel(BundleReleaseMember member) {
 
 class _LibraryAddReferenceSelector extends StatelessWidget {
   const _LibraryAddReferenceSelector({
+    required this.type,
     required this.accent,
     required this.addTarget,
     required this.referenceType,
@@ -734,6 +739,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
+  final LibraryTypeConfig type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -760,11 +766,9 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
       selectedVariantId,
     );
     final selectionSummary = switch (addTarget) {
-      LibraryAddTarget.track => item.mediaKind == CatalogMediaKind.music
-          ? 'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.'
-          : 'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
-      LibraryAddTarget.owned => referenceType.helperLabelForMediaKind(item.mediaKind),
-      LibraryAddTarget.wishlist => referenceType.helperLabelForMediaKind(item.mediaKind),
+      LibraryAddTarget.track => type.addChrome.trackScopeSummary,
+      LibraryAddTarget.owned => referenceType.helperLabelForType(type),
+      LibraryAddTarget.wishlist => referenceType.helperLabelForType(type),
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -800,7 +804,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                   accent: accent,
                   selected: true,
                   enabled: !selectionLocked,
-                  label: LibraryAddReferenceType.media.labelForMediaKind(item.mediaKind),
+                  label: LibraryAddReferenceType.media.labelForType(type),
                   onPressed: () =>
                       onReferenceTypeChanged(LibraryAddReferenceType.media),
                 ),
@@ -810,7 +814,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                     accent: accent,
                     selected: referenceType == LibraryAddReferenceType.edition,
                     enabled: editionAvailable,
-                    label: LibraryAddReferenceType.edition.labelForMediaKind(item.mediaKind),
+                    label: LibraryAddReferenceType.edition.labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.edition,
                     ),
@@ -821,7 +825,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                     selected:
                         referenceType == LibraryAddReferenceType.bundleRelease,
                     enabled: bundleAvailable || isLoadingBundleReleases,
-                    label: LibraryAddReferenceType.bundleRelease.labelForMediaKind(item.mediaKind),
+                    label: LibraryAddReferenceType.bundleRelease.labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.bundleRelease,
                     ),

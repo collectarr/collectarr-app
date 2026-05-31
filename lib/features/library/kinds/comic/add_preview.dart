@@ -182,6 +182,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                 children: [
                   if (selectedItem != null) ...[
                     LibraryAddReferenceSelector(
+                      type: request.type,
                       accent: request.accent,
                       addTarget: request.addTarget,
                       referenceType: request.referenceType,

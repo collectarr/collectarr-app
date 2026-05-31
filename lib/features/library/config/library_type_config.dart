@@ -254,6 +254,22 @@ class LibraryEditChromeConfig {
   final bool showsPhysicalFormatBadge;
 }
 
+class LibraryAddChromeConfig {
+  const LibraryAddChromeConfig({
+    this.mediaReferenceLabel = 'Media',
+    this.trackScopeSummary =
+        'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
+    this.mediaReferenceHelperLabel = 'Track or save the canonical item itself.',
+    this.editionReferenceHelperLabel =
+        'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
+  });
+
+  final String mediaReferenceLabel;
+  final String trackScopeSummary;
+  final String mediaReferenceHelperLabel;
+  final String editionReferenceHelperLabel;
+}
+
 class LibraryTypeConfig {
   const LibraryTypeConfig({
     required this.workspace,
@@ -270,6 +286,7 @@ class LibraryTypeConfig {
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation =
       const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.addChrome = const LibraryAddChromeConfig(),
     this.editChrome = const LibraryEditChromeConfig(),
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
@@ -295,6 +312,7 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
   final LibraryEditPresentation editPresentation;
+  final LibraryAddChromeConfig addChrome;
   final LibraryEditChromeConfig editChrome;
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
