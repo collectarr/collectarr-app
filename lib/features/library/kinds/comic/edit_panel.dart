@@ -208,6 +208,9 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   late final TextEditingController characterDraftCtl;
   final List<_EditableComicCreator> _creators = [];
   final List<_EditableComicCharacter> _characters = [];
+  final List<String> _signedByEntries = [];
+  bool _useCustomCreators = false;
+  bool _useCustomCharacters = false;
   late final TextEditingController summaryCtl;
   late final TextEditingController descriptionCtl;
   final List<Map<String, TextEditingController>> links = [];
@@ -368,6 +371,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     for (final creator in item.creators ?? const <Map<String, dynamic>>[]) {
       _creators.add(_EditableComicCreator.fromMetadata(creator));
     }
+    _useCustomCreators = _creators.any((c) => !c.isCore);
     final characterDetails = item.characterDetails;
     if (characterDetails != null && characterDetails.isNotEmpty) {
       for (final character in characterDetails) {
@@ -377,6 +381,13 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       for (final character in item.characters ?? const <String>[]) {
         _characters.add(_EditableComicCharacter.custom(character));
       }
+    }
+    _useCustomCharacters = _characters.any((c) => !c.isCore);
+    final signedByText = (owned?.signedBy ?? '').trim();
+    if (signedByText.isNotEmpty) {
+      _signedByEntries.addAll(
+        signedByText.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty),
+      );
     }
     for (final link in item.trailerUrls) {
       links.add(
@@ -439,6 +450,31 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     final creator = _creators.removeAt(idx);
     creator.dispose();
     setState(() {});
+  }
+
+  Future<void> _lookupCreatorForRow(int idx) async {
+    final result = await _showLookupDialog(
+      title: 'Find creator',
+      searchHint: 'Search creators',
+      search: (query) => _lookupApi().searchCreators(query: query, limit: 24),
+      titleForResult: (r) => r['name']?.toString() ?? 'Creator',
+      subtitleForResult: (r) {
+        final count = (r['item_count'] as num?)?.toInt();
+        final desc = r['description']?.toString().trim();
+        return [
+          if (count != null) '$count credits',
+          if (desc != null && desc.isNotEmpty) desc,
+        ].join(' · ');
+      },
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _creators[idx].nameController.text =
+          result['name']?.toString() ?? '';
+      _creators[idx].metadata
+        ..addAll(result)
+        ..['source_type'] = 'core';
+    });
   }
 
   void _addCharacter([String? value]) {
@@ -946,6 +982,86 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                 rawOrSlabbedCtl, selection.firstOrNull ?? 'Raw');
             setState(() {});
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignedBySection() {
+    final draftCtl = TextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Signed by',
+            style: TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        for (var i = 0; i < _signedByEntries.length; i++)
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Theme.of(context).dividerColor),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Icon(Icons.drag_handle,
+                    size: 18, color: Theme.of(context).hintColor),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    _signedByEntries[i],
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 16),
+                  onPressed: () {
+                    setState(() => _signedByEntries.removeAt(i));
+                  },
+                  visualDensity: VisualDensity.compact,
+                  tooltip: 'Remove',
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: draftCtl,
+                style: const TextStyle(fontSize: 13),
+                decoration: const InputDecoration(
+                  hintText: 'Add signer name',
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onSubmitted: (value) {
+                  final name = value.trim();
+                  if (name.isNotEmpty) {
+                    setState(() => _signedByEntries.add(name));
+                    draftCtl.clear();
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 6),
+            IconButton(
+              icon: const Icon(Icons.add, size: 18),
+              onPressed: () {
+                final name = draftCtl.text.trim();
+                if (name.isNotEmpty) {
+                  setState(() => _signedByEntries.add(name));
+                  draftCtl.clear();
+                }
+              },
+              tooltip: 'Add',
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
         ),
       ],
     );
@@ -1462,9 +1578,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      _labelledField('Signed by',
-                          controller: signedByCtl,
-                          key: const ValueKey('edit-signed-by')),
+                      _buildSignedBySection(),
                     ],
                   ),
                 ),
@@ -1923,226 +2037,381 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   }
 
   Widget _buildCreatorsTab() {
+    final coreCreators = widget.request.item.creators ?? const [];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              FilledButton.icon(
-                onPressed: _addCreator,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add'),
-              ),
-              const SizedBox(width: 6),
-              OutlinedButton.icon(
-                onPressed: _addCatalogCreator,
-                icon: const Icon(Icons.person_search_outlined, size: 16),
-                label: const Text('Find in Catalog'),
-              ),
-              const Spacer(),
-              Wrap(
-                spacing: 4,
-                children: [
-                  for (final role in _commonCreatorRoles)
-                    ActionChip(
-                      visualDensity: VisualDensity.compact,
-                      label:
-                          Text(role, style: const TextStyle(fontSize: 11)),
-                      onPressed: () => _addCreatorWithRole(role),
-                    ),
-                ],
-              ),
-            ],
+          // Core / Custom toggle
+          Center(
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: false, label: Text('Core Creators')),
+                ButtonSegment(value: true, label: Text('Custom Creators')),
+              ],
+              selected: {_useCustomCreators},
+              onSelectionChanged: (sel) {
+                setState(() => _useCustomCreators = sel.first);
+              },
+            ),
           ),
           const Divider(height: 20),
-          if (_creators.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  'No creators added yet',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).hintColor),
+
+          // Core mode — read-only
+          if (!_useCustomCreators) ...[
+            if (coreCreators.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'Creators not available',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Theme.of(context).hintColor),
+                  ),
                 ),
-              ),
-            ),
-          for (var i = 0; i < _creators.length; i++)
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom:
-                      BorderSide(color: Theme.of(context).dividerColor),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(
-                children: [
-                  Icon(Icons.drag_handle,
-                      size: 20, color: Theme.of(context).hintColor),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 120,
-                    child: TextField(
-                      controller: _creators[i].roleController,
-                      style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        hintText: 'Role',
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      key: ValueKey('edit-creator-$i-role'),
+              )
+            else
+              for (final creator in coreCreators)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom:
+                          BorderSide(color: Theme.of(context).dividerColor),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: _creators[i].nameController,
-                      style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        hintText: 'Name',
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                        isDense: true,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: Text(
+                          creator['role']?.toString() ?? '',
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey),
+                        ),
                       ),
-                      key: ValueKey('edit-creator-$i-name'),
-                    ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          creator['name']?.toString() ?? '',
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      const Icon(Icons.lock_outline,
+                          size: 16, color: Colors.grey),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 18),
-                    onPressed: () => _removeCreator(i),
-                    tooltip: 'Remove',
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
-              ),
+                ),
+          ],
+
+          // Custom mode — editable
+          if (_useCustomCreators) ...[
+            Row(
+              children: [
+                FilledButton.icon(
+                  onPressed: _addCreator,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add'),
+                ),
+                const SizedBox(width: 6),
+                OutlinedButton.icon(
+                  onPressed: _addCatalogCreator,
+                  icon: const Icon(Icons.person_search_outlined, size: 16),
+                  label: const Text('Find in Catalog'),
+                ),
+                const Spacer(),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.add_circle_outline, size: 20),
+                  tooltip: 'Add by role',
+                  itemBuilder: (_) => [
+                    for (final role in _commonCreatorRoles)
+                      PopupMenuItem(value: role, child: Text(role)),
+                  ],
+                  onSelected: _addCreatorWithRole,
+                ),
+              ],
             ),
+            const SizedBox(height: 8),
+            if (_creators.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'Creators is empty',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Theme.of(context).hintColor),
+                  ),
+                ),
+              ),
+            for (var i = 0; i < _creators.length; i++)
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom:
+                        BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(Icons.drag_handle,
+                        size: 20, color: Theme.of(context).hintColor),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 140,
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _commonCreatorRoles.contains(
+                                _creators[i].roleController.text.trim())
+                            ? _creators[i].roleController.text.trim()
+                            : null,
+                        isDense: true,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          hintText: 'Job',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        style: const TextStyle(fontSize: 12),
+                        items: [
+                          for (final role in _commonCreatorRoles)
+                            DropdownMenuItem(
+                                value: role, child: Text(role)),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) {
+                            _creators[i].roleController.text = v;
+                          }
+                        },
+                        key: ValueKey('edit-creator-$i-role'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _creators[i].nameController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Name',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        key: ValueKey('edit-creator-$i-name'),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.person_search, size: 18),
+                      onPressed: () => _lookupCreatorForRow(i),
+                      tooltip: 'Lookup',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => _removeCreator(i),
+                      tooltip: 'Remove',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildCharactersTab() {
+    final coreCharacters = widget.request.item.characters ?? const [];
+    final coreDetails = widget.request.item.characterDetails ?? const [];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: characterDraftCtl,
-                  style: const TextStyle(fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: 'Character name',
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onSubmitted: (_) => _addCharacter(),
-                ),
-              ),
-              const SizedBox(width: 6),
-              FilledButton.icon(
-                onPressed: _addCharacter,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add'),
-              ),
-              const SizedBox(width: 6),
-              OutlinedButton.icon(
-                onPressed: _addCatalogCharacter,
-                icon: const Icon(Icons.person_search_outlined, size: 16),
-                label: const Text('Find in Catalog'),
-              ),
-            ],
+          // Core / Custom toggle
+          Center(
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(
+                    value: false, label: Text('Core Characters')),
+                ButtonSegment(
+                    value: true, label: Text('Custom Characters')),
+              ],
+              selected: {_useCustomCharacters},
+              onSelectionChanged: (sel) {
+                setState(() => _useCustomCharacters = sel.first);
+              },
+            ),
           ),
           const Divider(height: 20),
-          if (_characters.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  'No characters added yet',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).hintColor),
+
+          // Core mode — read-only
+          if (!_useCustomCharacters) ...[
+            if (coreCharacters.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'Characters not available',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Theme.of(context).hintColor),
+                  ),
+                ),
+              )
+            else
+              for (var i = 0; i < coreCharacters.length; i++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom:
+                          BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: Text(
+                          coreCharacters[i],
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          (i < coreDetails.length
+                                  ? coreDetails[i]['real_name']
+                                      ?.toString()
+                                  : null) ??
+                              '',
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      const Icon(Icons.lock_outline,
+                          size: 16, color: Colors.grey),
+                    ],
+                  ),
+                ),
+          ],
+
+          // Custom mode — editable
+          if (_useCustomCharacters) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: characterDraftCtl,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: const InputDecoration(
+                      hintText: 'Character name',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onSubmitted: (_) => _addCharacter(),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                FilledButton.icon(
+                  onPressed: _addCharacter,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add'),
+                ),
+                const SizedBox(width: 6),
+                OutlinedButton.icon(
+                  onPressed: _addCatalogCharacter,
+                  icon: const Icon(Icons.person_search_outlined, size: 16),
+                  label: const Text('Find in Catalog'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_characters.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'Characters is empty',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Theme.of(context).hintColor),
+                  ),
                 ),
               ),
-            ),
-          for (var i = 0; i < _characters.length; i++)
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom:
-                      BorderSide(color: Theme.of(context).dividerColor),
+            for (var i = 0; i < _characters.length; i++)
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom:
+                        BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(Icons.drag_handle,
+                        size: 20, color: Theme.of(context).hintColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 4,
+                      child: TextField(
+                        controller: _characters[i].nameController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Character name',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        key: ValueKey('edit-character-$i-name'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: _characters[i].realNameController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Real name',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        key: ValueKey('edit-character-$i-realname'),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => _removeCharacter(i),
+                      tooltip: 'Remove',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
                 ),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(
-                children: [
-                  Icon(Icons.drag_handle,
-                      size: 20, color: Theme.of(context).hintColor),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 4,
-                    child: TextField(
-                      controller: _characters[i].nameController,
-                      style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        hintText: 'Character name',
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      key: ValueKey('edit-character-$i-name'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 3,
-                    child: TextField(
-                      controller: _characters[i].realNameController,
-                      style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        hintText: 'Real name',
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      key: ValueKey('edit-character-$i-realname'),
-                    ),
-                  ),
-                  Chip(
-                    visualDensity: VisualDensity.compact,
-                    label: Text(_characters[i].sourceLabel,
-                        style: const TextStyle(fontSize: 11)),
-                    avatar: Icon(
-                      _characters[i].isCore
-                          ? Icons.verified_outlined
-                          : Icons.edit_outlined,
-                      size: 14,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 18),
-                    onPressed: () => _removeCharacter(i),
-                    tooltip: 'Remove',
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
-              ),
-            ),
+          ],
         ],
       ),
     );
@@ -2510,7 +2779,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       'pageQuality': pageQualityCtl.text,
       'certificationNumber': certificationNumberCtl.text,
       'graderNotes': graderNotesCtl.text,
-      'signedBy': signedByCtl.text,
+      'signedBy': _signedByEntries.join(', '),
       'keyComic': _keyComic,
       'keyReason': keyReasonCtl.text,
       'keyCategory': keyCategoryCtl.text,

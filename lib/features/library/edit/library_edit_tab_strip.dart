@@ -121,28 +121,66 @@ class LibraryEditMaterialTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final tc = DefaultTabController.of(context);
     return LibraryEditTabStripFrame(
-      child: TabBar(
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicatorWeight: 2,
-        indicatorColor: accent,
-        dividerColor: Colors.transparent,
-        labelColor: palette.textPrimary,
-        unselectedLabelColor: palette.textMuted,
-        labelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-        labelPadding: const EdgeInsets.symmetric(horizontal: 10),
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        splashBorderRadius: BorderRadius.zero,
-        tabs: tabs,
+      child: Row(
+        children: [
+          _TabScrollArrow(
+            icon: Icons.chevron_left,
+            onTap: () {
+              if (tc.index > 0) tc.animateTo(tc.index - 1);
+            },
+          ),
+          Expanded(
+            child: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorWeight: 2,
+              indicatorColor: accent,
+              dividerColor: Colors.transparent,
+              labelColor: palette.textPrimary,
+              unselectedLabelColor: palette.textMuted,
+              labelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+              overlayColor:
+                  const WidgetStatePropertyAll(Colors.transparent),
+              splashBorderRadius: BorderRadius.zero,
+              tabs: tabs,
+            ),
+          ),
+          _TabScrollArrow(
+            icon: Icons.chevron_right,
+            onTap: () {
+              if (tc.index < tc.length - 1) tc.animateTo(tc.index + 1);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabScrollArrow extends StatelessWidget {
+  const _TabScrollArrow({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Icon(icon, size: 20, color: appPalette(context).textMuted),
       ),
     );
   }
