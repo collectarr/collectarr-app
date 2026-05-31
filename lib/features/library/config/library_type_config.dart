@@ -237,6 +237,7 @@ class LibraryTypeConfig {
     this.editChrome = const LibraryEditChromeConfig(),
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
+    this.manualAddUsesTitleAsSeries = false,
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
@@ -259,6 +260,7 @@ class LibraryTypeConfig {
   final LibraryEditChromeConfig editChrome;
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
+  final bool manualAddUsesTitleAsSeries;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;

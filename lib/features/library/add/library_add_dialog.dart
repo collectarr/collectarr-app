@@ -1836,7 +1836,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _emptyToNull(ctl('languageController', _languageController).text),
       ageRating:
           _emptyToNull(ctl('ageRatingController', _ageRatingController).text),
-        series: widget.type.workspace.kind.apiValue == 'comic'
+        series: widget.type.manualAddUsesTitleAsSeries
           ? CatalogSeriesDetails(
             seriesId: _selectedManualSeriesId,
             seriesTitle: _emptyToNull(_titleController.text),

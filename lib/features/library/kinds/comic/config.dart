@@ -62,6 +62,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     numberLabel: 'No. / Vol.',
     publisherLabel: 'Publisher / Studio / Creator',
   ),
+  manualAddUsesTitleAsSeries: true,
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant / Format',
     barcodeLabel: 'Barcode / UPC / ISBN',

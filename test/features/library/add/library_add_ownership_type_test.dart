@@ -37,9 +37,14 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Digital').last);
+    await tester.enterText(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField &&
+            widget.decoration?.labelText == 'Physical format',
+      ),
+      'Digital',
+    );
     await pumpUntilSettled(tester);
 
     expect(
