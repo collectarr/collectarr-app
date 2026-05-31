@@ -787,9 +787,9 @@ class _SearchResultTile extends StatelessWidget {
       publisherText: publisherText,
       yearText: yearText,
     );
-    final musicDisplay =
-        item.kind == 'music' ? _musicSearchResultDisplay(item) : null;
-    final subtitle = musicDisplay?.secondaryLine ??
+    final resultDisplay =
+        type.presentation.builder.buildSearchResultDisplay(item: item);
+    final subtitle = resultDisplay?.secondaryLine ??
         [
           if (item.publisher != null) item.publisher,
           if (item.releaseYear != null) item.releaseYear.toString(),
@@ -797,7 +797,7 @@ class _SearchResultTile extends StatelessWidget {
           if (item.variant != null) item.variant,
           if (item.barcode != null) item.barcode,
         ].whereType<String>().join(' | ');
-    final detailLine = musicDisplay?.detailLine;
+    final detailLine = resultDisplay?.detailLine;
     return InkWell(
       onTap: onSelect,
       child: DecoratedBox(
@@ -850,7 +850,7 @@ class _SearchResultTile extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          musicDisplay?.title ??
+                          resultDisplay?.title ??
                               (item.itemNumber == null
                                   ? item.title
                                   : '${item.title} #${item.itemNumber}'),
@@ -1013,88 +1013,6 @@ String? _metadataItemMatchSummary({
   }
 
   return reasons.isEmpty ? null : reasons.join(', ');
-}
-
-_MusicSearchResultDisplay _musicSearchResultDisplay(LibraryMetadataItem item) {
-  final subtitle = _firstMeaningfulMusicValue([
-    item.publishing?.subtitle,
-    item.series?.volumeName,
-    if ((item.series?.volumeNumber ?? 0) > 1)
-      'Disc ${item.series!.volumeNumber}',
-  ], disallow: {
-    item.title.trim().toLowerCase()
-  });
-  final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
-  final artist = item.series?.seriesTitle?.trim();
-  final format = item.physicalFormatLabel?.trim().isNotEmpty == true
-      ? item.physicalFormatLabel!.trim()
-      : item.variant?.trim();
-  final trackCount = item.music?.trackCount;
-  final catalogNumber = item.music?.catalogNumber?.trim();
-  final detailParts = <String>[
-    if (subtitle != null && subtitle.isNotEmpty) subtitle,
-    if (format != null && format.isNotEmpty) format,
-    if (trackCount != null)
-      '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
-    if (item.barcode?.trim().isNotEmpty == true) item.barcode!.trim(),
-    if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
-  ];
-  return _MusicSearchResultDisplay(
-    title: cleanedTitle.isEmpty ? item.title : cleanedTitle,
-    secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
-    detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
-  );
-}
-
-String _stripTrailingMusicDescriptor(String title, String? descriptor) {
-  final trimmedTitle = title.trim();
-  final trimmedDescriptor = descriptor?.trim();
-  if (trimmedDescriptor == null || trimmedDescriptor.isEmpty) {
-    return trimmedTitle;
-  }
-  final lowerTitle = trimmedTitle.toLowerCase();
-  final lowerDescriptor = trimmedDescriptor.toLowerCase();
-  for (final separator in [' - ', ' – ', ' — ', ': ', ' ']) {
-    final suffix = '$separator$trimmedDescriptor';
-    if (lowerTitle.endsWith(suffix.toLowerCase())) {
-      return trimmedTitle
-          .substring(0, trimmedTitle.length - suffix.length)
-          .trimRight();
-    }
-  }
-  if (lowerTitle == lowerDescriptor) {
-    return title;
-  }
-  return trimmedTitle;
-}
-
-String? _firstMeaningfulMusicValue(
-  Iterable<String?> values, {
-  Set<String> disallow = const <String>{},
-}) {
-  for (final value in values) {
-    final trimmed = value?.trim();
-    if (trimmed == null || trimmed.isEmpty) {
-      continue;
-    }
-    if (disallow.contains(trimmed.toLowerCase())) {
-      continue;
-    }
-    return trimmed;
-  }
-  return null;
-}
-
-class _MusicSearchResultDisplay {
-  const _MusicSearchResultDisplay({
-    required this.title,
-    required this.secondaryLine,
-    required this.detailLine,
-  });
-
-  final String title;
-  final String? secondaryLine;
-  final String? detailLine;
 }
 
 class _ProviderCandidateTile extends StatelessWidget {

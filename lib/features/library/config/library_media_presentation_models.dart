@@ -87,6 +87,18 @@ class LibraryMediaStatsLabels {
   final String topPublisher;
 }
 
+class LibraryAddSearchResultDisplay {
+  const LibraryAddSearchResultDisplay({
+    required this.title,
+    required this.secondaryLine,
+    required this.detailLine,
+  });
+
+  final String title;
+  final String? secondaryLine;
+  final String? detailLine;
+}
+
 class LibrarySortFavorite {
   const LibrarySortFavorite({
     required this.id,
@@ -206,6 +218,12 @@ typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
 
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
+
+  LibraryAddSearchResultDisplay? buildSearchResultDisplay({
+    required LibraryMetadataItem item,
+  }) {
+    return null;
+  }
 
   Widget? buildAddPreviewPane({
     required BuildContext context,
