@@ -4,6 +4,10 @@ import 'package:collectarr_app/features/collection/repositories/pick_list_reposi
 const String kConditionPickListName = 'conditions';
 const String kGradePickListName = 'grades';
 const String kTagPickListName = 'tags';
+const String kPublisherPickListName = 'publishers';
+const String kImprintPickListName = 'imprints';
+const String kSeriesGroupPickListName = 'series_groups';
+const String kPhysicalFormatPickListName = 'physical_formats';
 
 class PickListConditionGradeOptions {
   const PickListConditionGradeOptions({
@@ -46,6 +50,22 @@ String? joinPickListValues(Iterable<String> values) {
     return null;
   }
   return normalized.join(', ');
+}
+
+Future<List<String>> loadSingleValuePickListOptions(
+  LocalDatabase db, {
+  required String listName,
+  required String mediaKind,
+  List<String> builtInValues = const [],
+  String? selectedValue,
+}) async {
+  final repo = PickListRepository(db);
+  final values = await repo.getValues(listName, mediaKind: mediaKind);
+  return mergePickListValues(
+    builtInValues: builtInValues,
+    customValues: values,
+    selectedValues: [selectedValue],
+  );
 }
 
 Future<PickListConditionGradeOptions> loadConditionGradePickListOptions(

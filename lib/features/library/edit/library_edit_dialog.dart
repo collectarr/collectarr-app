@@ -33,8 +33,12 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,6 +120,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TextEditingController _editionTitleController;
   late final TextEditingController _barcodeController;
   late final TextEditingController _variantController;
+  late final TextEditingController _physicalFormatLabelController;
   late final TextEditingController _coverController;
   late final TextEditingController _thumbnailController;
   late final TextEditingController _synopsisController;
@@ -159,6 +164,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TextEditingController _trackingNotesController;
   late final TextEditingController _tagsController;
   List<String> _tagOptions = const [];
+  List<String> _publisherOptions = const [];
+  List<String> _imprintOptions = const [];
+  List<String> _seriesGroupOptions = const [];
+  List<String> _physicalFormatOptions = const [];
+  List<SeriesRegistryEntry> _seriesEntries = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   String _selectedOwnedAnchorType = PersonalItemAnchorType.item.apiValue;
@@ -219,6 +229,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TextEditingController _nrDiscsController;
 
   String? _physicalFormatId;
+  String? _selectedSeriesId;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
 
@@ -302,6 +313,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return isDigitalPhysicalMediaFormat(
       _physicalFormatId,
       label: _physicalFormatForId(_physicalFormatId)?.label ??
+          emptyToNull(_physicalFormatLabelController.text) ??
           widget.item.physicalFormatLabel ??
           _variantController.text,
       formats: widget.physicalFormats.isEmpty
@@ -363,6 +375,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _editionTitleController = _draft.editionTitleController;
     _barcodeController = _draft.barcodeController;
     _variantController = _draft.variantController;
+    _physicalFormatLabelController = _draft.physicalFormatLabelController;
     _coverController = _draft.coverController;
     _thumbnailController = _draft.thumbnailController;
     _synopsisController = _draft.synopsisController;
@@ -447,8 +460,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _colorController = _draft.colorController;
     _nrDiscsController = _draft.nrDiscsController;
     _physicalFormatId = _draft.physicalFormatId;
+    _selectedSeriesId = _draft.seriesId;
     _customFieldEdits = _draft.customFieldEdits;
     _itemImageEdits = _draft.itemImageEdits;
+
+    unawaited(_loadCatalogVocabularyOptions());
 
     if (_isOwned) {
       unawaited(_loadAvailableLocations());
@@ -581,9 +597,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(
-                    controller: _publisherController,
-                    label: mediaFields.publisherLabel),
+                _publisherField(label: mediaFields.publisherLabel),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
@@ -611,12 +625,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                       validator: optionalIntValidator,
                     ),
                   if (mediaFields.showImprint)
-                    _field(controller: _imprintController, label: 'Imprint'),
+                    _imprintField(),
                   if (mediaFields.showSeriesGroup)
-                    _field(
-                      controller: _seriesGroupController,
-                      label: 'Series group',
-                    ),
+                    _seriesGroupField(label: 'Series group'),
                 ]),
               ],
             ],
@@ -641,43 +652,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                       label: releaseFields.barcodeLabel),
                 ]),
                 if (releaseFields.showPhysicalFormat &&
-                    widget.physicalFormats.isNotEmpty) ...[
+                  (_effectivePhysicalFormats.isNotEmpty ||
+                    _physicalFormatOptions.isNotEmpty ||
+                    _physicalFormatLabelController.text.trim().isNotEmpty)) ...[
                   const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    initialValue: _physicalFormatId,
-                    isExpanded: true,
-                    dropdownColor: appPalette(context).panelRaised,
-                    borderRadius: kEditMenuBorderRadius,
-                    decoration: const InputDecoration(
-                      labelText: 'Physical format',
-                    ),
-                    items: [
-                      const DropdownMenuItem<String>(
-                        value: '',
-                        child: Text('No specific format'),
-                      ),
-                      for (final format in widget.physicalFormats)
-                        DropdownMenuItem<String>(
-                          value: format.id,
-                          child: Text(format.label),
-                        ),
-                    ],
-                    onChanged: (value) {
-                      final normalized = emptyToNull(value ?? '');
-                      final format = _physicalFormatForId(normalized);
-                      final previousFormat =
-                          _physicalFormatForId(_physicalFormatId);
-                      final variant = _variantController.text.trim();
-                      final shouldReplaceVariant =
-                          variant.isEmpty || previousFormat?.label == variant;
-                      setState(() {
-                        _physicalFormatId = format?.id;
-                        if (format != null && shouldReplaceVariant) {
-                          _variantController.text = format.label;
-                        }
-                      });
-                    },
-                  ),
+                  _physicalFormatField(label: 'Physical format'),
                 ],
               ],
             ),
@@ -731,9 +710,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 ]),
                 const SizedBox(height: 10),
                 _responsiveFields([
-                  _field(
-                      controller: _publisherController,
-                      label: mediaFields.publisherLabel),
+                  _publisherField(label: mediaFields.publisherLabel),
                 ]),
                 const SizedBox(height: 10),
                 _responsiveFields([
@@ -761,12 +738,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         validator: optionalIntValidator,
                       ),
                     if (mediaFields.showImprint)
-                      _field(controller: _imprintController, label: 'Imprint'),
+                      _imprintField(),
                     if (mediaFields.showSeriesGroup)
-                      _field(
-                        controller: _seriesGroupController,
-                        label: 'Series group',
-                      ),
+                      _seriesGroupField(label: 'Series group'),
                   ]),
                 ],
               ],
@@ -791,44 +765,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         controller: _barcodeController,
                         label: releaseFields.barcodeLabel),
                   ]),
-                  if (releaseFields.showPhysicalFormat &&
-                      widget.physicalFormats.isNotEmpty) ...[
+                    if (releaseFields.showPhysicalFormat &&
+                      (_effectivePhysicalFormats.isNotEmpty ||
+                        _physicalFormatOptions.isNotEmpty ||
+                        _physicalFormatLabelController.text.trim().isNotEmpty)) ...[
                     const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      initialValue: _physicalFormatId,
-                      isExpanded: true,
-                      dropdownColor: appPalette(context).panelRaised,
-                      borderRadius: kEditMenuBorderRadius,
-                      decoration: const InputDecoration(
-                        labelText: 'Physical format',
-                      ),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: '',
-                          child: Text('No specific format'),
-                        ),
-                        for (final format in widget.physicalFormats)
-                          DropdownMenuItem<String>(
-                            value: format.id,
-                            child: Text(format.label),
-                          ),
-                      ],
-                      onChanged: (value) {
-                        final normalized = emptyToNull(value ?? '');
-                        final format = _physicalFormatForId(normalized);
-                        final previousFormat =
-                            _physicalFormatForId(_physicalFormatId);
-                        final variant = _variantController.text.trim();
-                        final shouldReplaceVariant =
-                            variant.isEmpty || previousFormat?.label == variant;
-                        setState(() {
-                          _physicalFormatId = format?.id;
-                          if (format != null && shouldReplaceVariant) {
-                            _variantController.text = format.label;
-                          }
-                        });
-                      },
-                    ),
+                    _physicalFormatField(label: 'Physical format'),
                   ],
                 ],
               ),
@@ -1386,13 +1328,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               final leftColumn = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _field(
-                    controller: _titleController,
-                    label: 'Series',
-                    validator: (value) => emptyToNull(value ?? '') == null
-                        ? 'Enter a title'
-                        : null,
-                  ),
+                  _seriesField(),
                   const SizedBox(height: 10),
                   _flexResponsiveFields(
                     [
@@ -1404,10 +1340,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   ),
                   if (mediaFields.showSeriesGroup) ...[
                     const SizedBox(height: 10),
-                    _field(
-                      controller: _seriesGroupController,
-                      label: 'Series Group',
-                    ),
+                    _seriesGroupField(label: 'Series Group'),
                   ],
                 ],
               );
@@ -1438,11 +1371,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   const SizedBox(height: 10),
                   _flexResponsiveFields(
                     [
-                      _field(
-                          controller: _publisherController, label: 'Publisher'),
+                      _publisherField(),
                       if (mediaFields.showImprint)
-                        _field(
-                            controller: _imprintController, label: 'Imprint'),
+                        _imprintField(),
                     ],
                     flexes: [1, if (mediaFields.showImprint) 1],
                     breakpoint: 720,
@@ -2071,30 +2002,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _comicFormatField() {
-    final formats = _effectivePhysicalFormats;
-    return DropdownButtonFormField<String>(
-      initialValue: _physicalFormatId ?? '',
-      isExpanded: true,
-      dropdownColor: appPalette(context).panelRaised,
-      borderRadius: kEditMenuBorderRadius,
-      decoration: const InputDecoration(labelText: 'Format'),
-      items: [
-        const DropdownMenuItem<String>(
-          value: '',
-          child: Text('No specific format'),
-        ),
-        for (final format in formats)
-          DropdownMenuItem<String>(
-            value: format.id,
-            child: Text(format.label),
-          ),
-      ],
-      onChanged: (value) {
-        setState(() {
-          _physicalFormatId = emptyToNull(value ?? '');
-        });
-      },
-    );
+    return _physicalFormatField(label: 'Format');
   }
 
   Widget _readOnlyField({
@@ -2371,6 +2279,57 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     setState(() => _availableLocations = locations);
   }
 
+  Future<void> _loadCatalogVocabularyOptions() async {
+    final db = ref.read(localDatabaseProvider);
+    final seriesRegistry = SeriesRegistryRepository(db);
+    final results = await Future.wait<dynamic>([
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPublisherPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _publisherController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kImprintPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _imprintController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kSeriesGroupPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _seriesGroupController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPhysicalFormatPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        builtInValues: [
+          for (final format in _effectivePhysicalFormats) format.label,
+        ],
+        selectedValue: _physicalFormatLabelController.text,
+      ),
+      seriesRegistry.searchEntries(
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedTitle: _titleController.text,
+        selectedSeriesId: _selectedSeriesId,
+      ),
+    ]);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _publisherOptions = List<String>.from(results[0] as List<String>);
+      _imprintOptions = List<String>.from(results[1] as List<String>);
+      _seriesGroupOptions = List<String>.from(results[2] as List<String>);
+      _physicalFormatOptions = List<String>.from(results[3] as List<String>);
+      _seriesEntries = List<SeriesRegistryEntry>.from(
+        results[4] as List<SeriesRegistryEntry>,
+      );
+    });
+  }
+
   Future<void> _loadTagOptions() async {
     final tagOptions = await loadTagPickListOptions(
       ref.read(localDatabaseProvider),
@@ -2381,6 +2340,140 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       return;
     }
     setState(() => _tagOptions = tagOptions);
+  }
+
+  Future<void> _manageSingleValuePickList({
+    required String listName,
+    required String label,
+    List<String> builtInValues = const [],
+  }) async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: listName,
+      label: label,
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInValues: builtInValues,
+    );
+    if (!mounted) {
+      return;
+    }
+    await _loadCatalogVocabularyOptions();
+  }
+
+  Future<void> _openSeriesPicker() async {
+    final selected = await showSeriesPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTitle: _titleController.text,
+      selectedSeriesId: _selectedSeriesId,
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    setState(() {
+      _selectedSeriesId = selected.coreSeriesId;
+      _titleController.value = TextEditingValue(
+        text: selected.title,
+        selection: TextSelection.collapsed(offset: selected.title.length),
+      );
+    });
+    await _loadCatalogVocabularyOptions();
+  }
+
+  Widget _seriesField() {
+    return SingleValuePickField(
+      controller: _titleController,
+      options: [for (final entry in _seriesEntries) entry.title],
+      label: 'Series',
+      validator: (value) => emptyToNull(value ?? '') == null
+          ? 'Enter a title'
+          : null,
+      onChanged: (value) {
+        final normalized = emptyToNull(value ?? '');
+        final matchingEntry = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+              (entry) =>
+                  entry != null &&
+                  entry.title.trim().toLowerCase() ==
+                      (normalized?.toLowerCase() ?? ''),
+              orElse: () => null,
+            );
+        setState(() {
+          _selectedSeriesId = matchingEntry?.coreSeriesId;
+        });
+      },
+      onManage: _openSeriesPicker,
+      manageTooltip: 'Select or manage series',
+    );
+  }
+
+  Widget _publisherField({String label = 'Publisher'}) {
+    return SingleValuePickField(
+      controller: _publisherController,
+      options: _publisherOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kPublisherPickListName,
+        label: label,
+      ),
+    );
+  }
+
+  Widget _imprintField() {
+    return SingleValuePickField(
+      controller: _imprintController,
+      options: _imprintOptions,
+      label: 'Imprint',
+      onManage: () => _manageSingleValuePickList(
+        listName: kImprintPickListName,
+        label: 'Imprint',
+      ),
+    );
+  }
+
+  Widget _seriesGroupField({String label = 'Series Group'}) {
+    return SingleValuePickField(
+      controller: _seriesGroupController,
+      options: _seriesGroupOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kSeriesGroupPickListName,
+        label: label,
+      ),
+    );
+  }
+
+  Widget _physicalFormatField({String label = 'Format'}) {
+    return SingleValuePickField(
+      controller: _physicalFormatLabelController,
+      options: _physicalFormatOptions,
+      label: label,
+      onChanged: (value) {
+        final normalized = emptyToNull(value ?? '');
+        final format = physicalMediaFormatByLabelOrId(
+          normalized,
+          formats: _effectivePhysicalFormats,
+        );
+        final previousFormat = _physicalFormatForId(_physicalFormatId);
+        final variant = _variantController.text.trim();
+        final shouldReplaceVariant =
+            variant.isEmpty || previousFormat?.label == variant;
+        setState(() {
+          _physicalFormatId = format?.id;
+          if (format != null && shouldReplaceVariant) {
+            _variantController.text = format.label;
+          }
+        });
+      },
+      onManage: () => _manageSingleValuePickList(
+        listName: kPhysicalFormatPickListName,
+        label: label,
+        builtInValues: [
+          for (final format in _effectivePhysicalFormats) format.label,
+        ],
+      ),
+    );
   }
 
   Future<void> _pickLocation() async {
@@ -2492,7 +2585,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return [
       widget.item.title,
       if (emptyToNull(_numberController.text) case final issue?) '#$issue',
-      if (_physicalFormatForId(_physicalFormatId)?.label case final format?) format,
+      if (emptyToNull(_physicalFormatLabelController.text) case final format?) format,
       if (emptyToNull(_variantController.text) case final variant?) variant,
     ].join(' ').trim();
   }
@@ -2722,6 +2815,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _draft.collectionStatus = _collectionStatus;
     _draft.lastBagBoardDate = _lastBagBoardDate;
     _draft.physicalFormatId = _physicalFormatId;
+    _draft.seriesId = _selectedSeriesId;
     _draft.customFieldEdits = _customFieldEdits;
     _draft.itemImageEdits = _itemImageEdits;
     final selection = _draft.buildSelection();

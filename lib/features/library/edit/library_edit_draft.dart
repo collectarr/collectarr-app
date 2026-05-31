@@ -48,6 +48,7 @@ class LibraryEditDraft {
     required this.editionTitleController,
     required this.barcodeController,
     required this.variantController,
+    required this.physicalFormatLabelController,
     required this.coverController,
     required this.thumbnailController,
     required this.synopsisController,
@@ -132,6 +133,7 @@ class LibraryEditDraft {
     required this.collectionStatus,
     required this.lastBagBoardDate,
     required this.physicalFormatId,
+    required this.seriesId,
     required this.customFieldEdits,
     required this.itemImageEdits,
   });
@@ -165,6 +167,10 @@ class LibraryEditDraft {
     List<CustomFieldValue> customFieldValues = const [],
     List<ItemImage> itemImages = const [],
   }) {
+    final initialPhysicalFormatId = _initialPhysicalFormatId(item, physicalFormats);
+    final effectiveFormats = physicalFormats.isEmpty
+        ? allKnownPhysicalMediaFormats
+        : physicalFormats;
     final titleController = TextEditingController(text: item.title);
     final numberController = TextEditingController(text: item.itemNumber ?? '');
     final publisherController = TextEditingController(text: item.publisher ?? '');
@@ -210,6 +216,17 @@ class LibraryEditDraft {
         TextEditingController(text: item.editionTitle ?? '');
     final barcodeController = TextEditingController(text: item.barcode ?? '');
     final variantController = TextEditingController(text: item.variant ?? '');
+    final physicalFormatLabelController = TextEditingController(
+      text: item.physicalFormatLabel ??
+          (type.workspace.kind.apiValue == 'comic' ? item.variant : null) ??
+          (initialPhysicalFormatId == null
+              ? null
+              : physicalMediaFormatById(
+                  initialPhysicalFormatId,
+                  formats: effectiveFormats,
+            )?.label) ??
+          '',
+    );
     final coverController = TextEditingController(text: item.coverImageUrl ?? '');
     final thumbnailController =
         TextEditingController(text: item.thumbnailImageUrl ?? '');
@@ -398,6 +415,7 @@ class LibraryEditDraft {
       editionTitleController: editionTitleController,
       barcodeController: barcodeController,
       variantController: variantController,
+      physicalFormatLabelController: physicalFormatLabelController,
       coverController: coverController,
       thumbnailController: thumbnailController,
       synopsisController: synopsisController,
@@ -488,7 +506,8 @@ class LibraryEditDraft {
       hdrFormats: List<String>.from(ownedItem?.hdrFormats ?? const <String>[]),
       collectionStatus: ownedItem?.collectionStatus,
       lastBagBoardDate: ownedItem?.lastBagBoardDate,
-      physicalFormatId: _initialPhysicalFormatId(item, physicalFormats),
+      physicalFormatId: initialPhysicalFormatId,
+      seriesId: item.series?.seriesId,
       customFieldEdits: {
         for (final value in customFieldValues) value.fieldDefinitionId: value.value,
       },
@@ -524,6 +543,7 @@ class LibraryEditDraft {
   final TextEditingController editionTitleController;
   final TextEditingController barcodeController;
   final TextEditingController variantController;
+  final TextEditingController physicalFormatLabelController;
   final TextEditingController coverController;
   final TextEditingController thumbnailController;
   final TextEditingController synopsisController;
@@ -609,6 +629,7 @@ class LibraryEditDraft {
   String? collectionStatus;
   DateTime? lastBagBoardDate;
   String? physicalFormatId;
+  String? seriesId;
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
 
@@ -629,6 +650,7 @@ class LibraryEditDraft {
     return isDigitalPhysicalMediaFormat(
       physicalFormatId,
       label: physicalFormatForId(physicalFormatId)?.label ??
+          emptyToNull(physicalFormatLabelController.text) ??
           item.physicalFormatLabel ??
           variantController.text,
       formats: physicalFormats.isEmpty
@@ -725,7 +747,8 @@ class LibraryEditDraft {
         thumbnailImageUrl: emptyToNull(thumbnailController.text),
         editionTitle: emptyToNull(editionTitleController.text),
         physicalFormat: physicalFormatId,
-        physicalFormatLabel: physicalFormatForId(physicalFormatId)?.label,
+        physicalFormatLabel: emptyToNull(physicalFormatLabelController.text) ??
+          physicalFormatForId(physicalFormatId)?.label,
         publisher: emptyToNull(publisherController.text),
         coverDate: parseDate(coverDateController.text),
         releaseDate: parseDate(releaseDateController.text),
@@ -733,6 +756,7 @@ class LibraryEditDraft {
         barcode: emptyToNull(barcodeController.text),
         variant: emptyToNull(variantController.text),
         crossover: emptyToNull(crossoverController.text),
+        series: _buildUpdatedSeries(),
         country: emptyToNull(countryController.text),
         language: emptyToNull(languageController.text),
         ageRating: emptyToNull(ageRatingController.text),
@@ -878,6 +902,7 @@ class LibraryEditDraft {
       editionTitleController,
       barcodeController,
       variantController,
+      physicalFormatLabelController,
       coverController,
       thumbnailController,
       synopsisController,
@@ -942,6 +967,27 @@ class LibraryEditDraft {
     ]) {
       controller.dispose();
     }
+  }
+
+  CatalogSeriesDetails? _buildUpdatedSeries() {
+    if (type.workspace.kind.apiValue != 'comic') {
+      return item.series;
+    }
+    final seriesTitle = emptyToNull(titleController.text);
+    final currentSeries = item.series;
+    if (seriesTitle == null && currentSeries == null) {
+      return null;
+    }
+    return CatalogSeriesDetails(
+      seriesId: seriesId,
+      seriesTitle: seriesTitle,
+      volumeName: currentSeries?.volumeName,
+      volumeNumber: currentSeries?.volumeNumber,
+      volumeStartYear: currentSeries?.volumeStartYear,
+      seasonNumber: currentSeries?.seasonNumber,
+      episodeNumber: currentSeries?.episodeNumber,
+      tags: currentSeries?.tags ?? const <String>[],
+    );
   }
 
   static String? _initialPhysicalFormatId(

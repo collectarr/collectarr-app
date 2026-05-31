@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:drift/drift.dart';
 
 class CatalogCacheRepository {
@@ -138,6 +141,45 @@ class CatalogCacheRepository {
         mode: InsertMode.insertOrReplace,
       );
     });
+    await _captureDerivedVocabulary(items);
+  }
+
+  Future<void> _captureDerivedVocabulary(List<CatalogItem> items) async {
+    final pickLists = PickListRepository(_db);
+    final seriesRegistry = SeriesRegistryRepository(_db);
+    final byKind = <String, List<CatalogItem>>{};
+    for (final item in items) {
+      byKind.putIfAbsent(item.kind.trim().toLowerCase(), () => <CatalogItem>[])
+          .add(item);
+    }
+
+    for (final entry in byKind.entries) {
+      final mediaKind = entry.key;
+      final scopedItems = entry.value;
+      await pickLists.captureValues(
+        kPublisherPickListName,
+        scopedItems.map((item) => item.publisher),
+        mediaKind: mediaKind,
+      );
+      await pickLists.captureValues(
+        kImprintPickListName,
+        scopedItems.map((item) => item.publishing?.imprint),
+        mediaKind: mediaKind,
+      );
+      await pickLists.captureValues(
+        kSeriesGroupPickListName,
+        scopedItems.map((item) => item.publishing?.seriesGroup),
+        mediaKind: mediaKind,
+      );
+      await pickLists.captureValues(
+        kPhysicalFormatPickListName,
+        scopedItems.map(
+          (item) => item.physicalFormatLabel ?? item.physicalFormat,
+        ),
+        mediaKind: mediaKind,
+      );
+    }
+    await seriesRegistry.captureCatalogItems(items);
   }
 
   Future<Map<String, CatalogItem>> findByIds(Iterable<String> ids) async {

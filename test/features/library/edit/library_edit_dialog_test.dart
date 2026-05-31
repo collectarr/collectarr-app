@@ -510,8 +510,10 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.item.titleExtension, 'Deluxe Edition');
+    expect(selection?.item.series?.seriesTitle, 'Over the Garden Wall');
     expect(selection?.item.crossover, 'Adventure Time');
     expect(selection?.item.storyArcs, const ['Unknowning', 'The Tome of the Unknown']);
+    expect(selection?.item.physicalFormatLabel, 'Trade Paperback');
     expect(selection?.item.coverDate?.year, 2016);
     expect(selection?.item.coverDate?.month, 10);
     expect(selection?.item.coverDate?.day, 26);

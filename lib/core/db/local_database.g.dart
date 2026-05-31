@@ -12516,6 +12516,497 @@ class PickListValuesCacheCompanion
   }
 }
 
+class $SeriesRegistryCacheTable extends SeriesRegistryCache
+    with TableInfo<$SeriesRegistryCacheTable, SeriesRegistryCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SeriesRegistryCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaKindMeta =
+      const VerificationMeta('mediaKind');
+  @override
+  late final GeneratedColumn<String> mediaKind = GeneratedColumn<String>(
+      'media_kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _normalizedTitleMeta =
+      const VerificationMeta('normalizedTitle');
+  @override
+  late final GeneratedColumn<String> normalizedTitle = GeneratedColumn<String>(
+      'normalized_title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _normalizedSortTitleMeta =
+      const VerificationMeta('normalizedSortTitle');
+  @override
+  late final GeneratedColumn<String> normalizedSortTitle =
+      GeneratedColumn<String>('normalized_sort_title', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coreSeriesIdMeta =
+      const VerificationMeta('coreSeriesId');
+  @override
+  late final GeneratedColumn<String> coreSeriesId = GeneratedColumn<String>(
+      'core_series_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        mediaKind,
+        title,
+        normalizedTitle,
+        sortTitle,
+        normalizedSortTitle,
+        coreSeriesId,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'series_registry_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<SeriesRegistryCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('media_kind')) {
+      context.handle(_mediaKindMeta,
+          mediaKind.isAcceptableOrUnknown(data['media_kind']!, _mediaKindMeta));
+    } else if (isInserting) {
+      context.missing(_mediaKindMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('normalized_title')) {
+      context.handle(
+          _normalizedTitleMeta,
+          normalizedTitle.isAcceptableOrUnknown(
+              data['normalized_title']!, _normalizedTitleMeta));
+    } else if (isInserting) {
+      context.missing(_normalizedTitleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('normalized_sort_title')) {
+      context.handle(
+          _normalizedSortTitleMeta,
+          normalizedSortTitle.isAcceptableOrUnknown(
+              data['normalized_sort_title']!, _normalizedSortTitleMeta));
+    }
+    if (data.containsKey('core_series_id')) {
+      context.handle(
+          _coreSeriesIdMeta,
+          coreSeriesId.isAcceptableOrUnknown(
+              data['core_series_id']!, _coreSeriesIdMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SeriesRegistryCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SeriesRegistryCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      mediaKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_kind'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      normalizedTitle: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}normalized_title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      normalizedSortTitle: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}normalized_sort_title']),
+      coreSeriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}core_series_id']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $SeriesRegistryCacheTable createAlias(String alias) {
+    return $SeriesRegistryCacheTable(attachedDatabase, alias);
+  }
+}
+
+class SeriesRegistryCacheData extends DataClass
+    implements Insertable<SeriesRegistryCacheData> {
+  final String id;
+  final String mediaKind;
+  final String title;
+  final String normalizedTitle;
+  final String? sortTitle;
+  final String? normalizedSortTitle;
+  final String? coreSeriesId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const SeriesRegistryCacheData(
+      {required this.id,
+      required this.mediaKind,
+      required this.title,
+      required this.normalizedTitle,
+      this.sortTitle,
+      this.normalizedSortTitle,
+      this.coreSeriesId,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['media_kind'] = Variable<String>(mediaKind);
+    map['title'] = Variable<String>(title);
+    map['normalized_title'] = Variable<String>(normalizedTitle);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || normalizedSortTitle != null) {
+      map['normalized_sort_title'] = Variable<String>(normalizedSortTitle);
+    }
+    if (!nullToAbsent || coreSeriesId != null) {
+      map['core_series_id'] = Variable<String>(coreSeriesId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SeriesRegistryCacheCompanion toCompanion(bool nullToAbsent) {
+    return SeriesRegistryCacheCompanion(
+      id: Value(id),
+      mediaKind: Value(mediaKind),
+      title: Value(title),
+      normalizedTitle: Value(normalizedTitle),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      normalizedSortTitle: normalizedSortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(normalizedSortTitle),
+      coreSeriesId: coreSeriesId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coreSeriesId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SeriesRegistryCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SeriesRegistryCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      mediaKind: serializer.fromJson<String>(json['mediaKind']),
+      title: serializer.fromJson<String>(json['title']),
+      normalizedTitle: serializer.fromJson<String>(json['normalizedTitle']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      normalizedSortTitle:
+          serializer.fromJson<String?>(json['normalizedSortTitle']),
+      coreSeriesId: serializer.fromJson<String?>(json['coreSeriesId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'mediaKind': serializer.toJson<String>(mediaKind),
+      'title': serializer.toJson<String>(title),
+      'normalizedTitle': serializer.toJson<String>(normalizedTitle),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'normalizedSortTitle': serializer.toJson<String?>(normalizedSortTitle),
+      'coreSeriesId': serializer.toJson<String?>(coreSeriesId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SeriesRegistryCacheData copyWith(
+          {String? id,
+          String? mediaKind,
+          String? title,
+          String? normalizedTitle,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> normalizedSortTitle = const Value.absent(),
+          Value<String?> coreSeriesId = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      SeriesRegistryCacheData(
+        id: id ?? this.id,
+        mediaKind: mediaKind ?? this.mediaKind,
+        title: title ?? this.title,
+        normalizedTitle: normalizedTitle ?? this.normalizedTitle,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        normalizedSortTitle: normalizedSortTitle.present
+            ? normalizedSortTitle.value
+            : this.normalizedSortTitle,
+        coreSeriesId:
+            coreSeriesId.present ? coreSeriesId.value : this.coreSeriesId,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  SeriesRegistryCacheData copyWithCompanion(SeriesRegistryCacheCompanion data) {
+    return SeriesRegistryCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
+      title: data.title.present ? data.title.value : this.title,
+      normalizedTitle: data.normalizedTitle.present
+          ? data.normalizedTitle.value
+          : this.normalizedTitle,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      normalizedSortTitle: data.normalizedSortTitle.present
+          ? data.normalizedSortTitle.value
+          : this.normalizedSortTitle,
+      coreSeriesId: data.coreSeriesId.present
+          ? data.coreSeriesId.value
+          : this.coreSeriesId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeriesRegistryCacheData(')
+          ..write('id: $id, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('title: $title, ')
+          ..write('normalizedTitle: $normalizedTitle, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('normalizedSortTitle: $normalizedSortTitle, ')
+          ..write('coreSeriesId: $coreSeriesId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, mediaKind, title, normalizedTitle,
+      sortTitle, normalizedSortTitle, coreSeriesId, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SeriesRegistryCacheData &&
+          other.id == this.id &&
+          other.mediaKind == this.mediaKind &&
+          other.title == this.title &&
+          other.normalizedTitle == this.normalizedTitle &&
+          other.sortTitle == this.sortTitle &&
+          other.normalizedSortTitle == this.normalizedSortTitle &&
+          other.coreSeriesId == this.coreSeriesId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SeriesRegistryCacheCompanion
+    extends UpdateCompanion<SeriesRegistryCacheData> {
+  final Value<String> id;
+  final Value<String> mediaKind;
+  final Value<String> title;
+  final Value<String> normalizedTitle;
+  final Value<String?> sortTitle;
+  final Value<String?> normalizedSortTitle;
+  final Value<String?> coreSeriesId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const SeriesRegistryCacheCompanion({
+    this.id = const Value.absent(),
+    this.mediaKind = const Value.absent(),
+    this.title = const Value.absent(),
+    this.normalizedTitle = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.normalizedSortTitle = const Value.absent(),
+    this.coreSeriesId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SeriesRegistryCacheCompanion.insert({
+    required String id,
+    required String mediaKind,
+    required String title,
+    required String normalizedTitle,
+    this.sortTitle = const Value.absent(),
+    this.normalizedSortTitle = const Value.absent(),
+    this.coreSeriesId = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        mediaKind = Value(mediaKind),
+        title = Value(title),
+        normalizedTitle = Value(normalizedTitle),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<SeriesRegistryCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? mediaKind,
+    Expression<String>? title,
+    Expression<String>? normalizedTitle,
+    Expression<String>? sortTitle,
+    Expression<String>? normalizedSortTitle,
+    Expression<String>? coreSeriesId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (mediaKind != null) 'media_kind': mediaKind,
+      if (title != null) 'title': title,
+      if (normalizedTitle != null) 'normalized_title': normalizedTitle,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (normalizedSortTitle != null)
+        'normalized_sort_title': normalizedSortTitle,
+      if (coreSeriesId != null) 'core_series_id': coreSeriesId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SeriesRegistryCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? mediaKind,
+      Value<String>? title,
+      Value<String>? normalizedTitle,
+      Value<String?>? sortTitle,
+      Value<String?>? normalizedSortTitle,
+      Value<String?>? coreSeriesId,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return SeriesRegistryCacheCompanion(
+      id: id ?? this.id,
+      mediaKind: mediaKind ?? this.mediaKind,
+      title: title ?? this.title,
+      normalizedTitle: normalizedTitle ?? this.normalizedTitle,
+      sortTitle: sortTitle ?? this.sortTitle,
+      normalizedSortTitle: normalizedSortTitle ?? this.normalizedSortTitle,
+      coreSeriesId: coreSeriesId ?? this.coreSeriesId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (mediaKind.present) {
+      map['media_kind'] = Variable<String>(mediaKind.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (normalizedTitle.present) {
+      map['normalized_title'] = Variable<String>(normalizedTitle.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (normalizedSortTitle.present) {
+      map['normalized_sort_title'] =
+          Variable<String>(normalizedSortTitle.value);
+    }
+    if (coreSeriesId.present) {
+      map['core_series_id'] = Variable<String>(coreSeriesId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeriesRegistryCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('title: $title, ')
+          ..write('normalizedTitle: $normalizedTitle, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('normalizedSortTitle: $normalizedSortTitle, ')
+          ..write('coreSeriesId: $coreSeriesId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -12553,6 +13044,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $ReadingQueueCacheTable(this);
   late final $PickListValuesCacheTable pickListValuesCache =
       $PickListValuesCacheTable(this);
+  late final $SeriesRegistryCacheTable seriesRegistryCache =
+      $SeriesRegistryCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12576,7 +13069,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         userFoldersCache,
         userFolderItemsCache,
         readingQueueCache,
-        pickListValuesCache
+        pickListValuesCache,
+        seriesRegistryCache
       ];
 }
 
@@ -18316,6 +18810,249 @@ typedef $$PickListValuesCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     PickListValuesCacheData,
     PrefetchHooks Function()>;
+typedef $$SeriesRegistryCacheTableCreateCompanionBuilder
+    = SeriesRegistryCacheCompanion Function({
+  required String id,
+  required String mediaKind,
+  required String title,
+  required String normalizedTitle,
+  Value<String?> sortTitle,
+  Value<String?> normalizedSortTitle,
+  Value<String?> coreSeriesId,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$SeriesRegistryCacheTableUpdateCompanionBuilder
+    = SeriesRegistryCacheCompanion Function({
+  Value<String> id,
+  Value<String> mediaKind,
+  Value<String> title,
+  Value<String> normalizedTitle,
+  Value<String?> sortTitle,
+  Value<String?> normalizedSortTitle,
+  Value<String?> coreSeriesId,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$SeriesRegistryCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $SeriesRegistryCacheTable> {
+  $$SeriesRegistryCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get normalizedTitle => $composableBuilder(
+      column: $table.normalizedTitle,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get normalizedSortTitle => $composableBuilder(
+      column: $table.normalizedSortTitle,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coreSeriesId => $composableBuilder(
+      column: $table.coreSeriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SeriesRegistryCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $SeriesRegistryCacheTable> {
+  $$SeriesRegistryCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get normalizedTitle => $composableBuilder(
+      column: $table.normalizedTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get normalizedSortTitle => $composableBuilder(
+      column: $table.normalizedSortTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coreSeriesId => $composableBuilder(
+      column: $table.coreSeriesId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SeriesRegistryCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $SeriesRegistryCacheTable> {
+  $$SeriesRegistryCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaKind =>
+      $composableBuilder(column: $table.mediaKind, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get normalizedTitle => $composableBuilder(
+      column: $table.normalizedTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get normalizedSortTitle => $composableBuilder(
+      column: $table.normalizedSortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get coreSeriesId => $composableBuilder(
+      column: $table.coreSeriesId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SeriesRegistryCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $SeriesRegistryCacheTable,
+    SeriesRegistryCacheData,
+    $$SeriesRegistryCacheTableFilterComposer,
+    $$SeriesRegistryCacheTableOrderingComposer,
+    $$SeriesRegistryCacheTableAnnotationComposer,
+    $$SeriesRegistryCacheTableCreateCompanionBuilder,
+    $$SeriesRegistryCacheTableUpdateCompanionBuilder,
+    (
+      SeriesRegistryCacheData,
+      BaseReferences<_$LocalDatabase, $SeriesRegistryCacheTable,
+          SeriesRegistryCacheData>
+    ),
+    SeriesRegistryCacheData,
+    PrefetchHooks Function()> {
+  $$SeriesRegistryCacheTableTableManager(
+      _$LocalDatabase db, $SeriesRegistryCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SeriesRegistryCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SeriesRegistryCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SeriesRegistryCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> mediaKind = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> normalizedTitle = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> normalizedSortTitle = const Value.absent(),
+            Value<String?> coreSeriesId = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SeriesRegistryCacheCompanion(
+            id: id,
+            mediaKind: mediaKind,
+            title: title,
+            normalizedTitle: normalizedTitle,
+            sortTitle: sortTitle,
+            normalizedSortTitle: normalizedSortTitle,
+            coreSeriesId: coreSeriesId,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String mediaKind,
+            required String title,
+            required String normalizedTitle,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> normalizedSortTitle = const Value.absent(),
+            Value<String?> coreSeriesId = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SeriesRegistryCacheCompanion.insert(
+            id: id,
+            mediaKind: mediaKind,
+            title: title,
+            normalizedTitle: normalizedTitle,
+            sortTitle: sortTitle,
+            normalizedSortTitle: normalizedSortTitle,
+            coreSeriesId: coreSeriesId,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SeriesRegistryCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $SeriesRegistryCacheTable,
+    SeriesRegistryCacheData,
+    $$SeriesRegistryCacheTableFilterComposer,
+    $$SeriesRegistryCacheTableOrderingComposer,
+    $$SeriesRegistryCacheTableAnnotationComposer,
+    $$SeriesRegistryCacheTableCreateCompanionBuilder,
+    $$SeriesRegistryCacheTableUpdateCompanionBuilder,
+    (
+      SeriesRegistryCacheData,
+      BaseReferences<_$LocalDatabase, $SeriesRegistryCacheTable,
+          SeriesRegistryCacheData>
+    ),
+    SeriesRegistryCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -18363,4 +19100,6 @@ class $LocalDatabaseManager {
       $$ReadingQueueCacheTableTableManager(_db, _db.readingQueueCache);
   $$PickListValuesCacheTableTableManager get pickListValuesCache =>
       $$PickListValuesCacheTableTableManager(_db, _db.pickListValuesCache);
+  $$SeriesRegistryCacheTableTableManager get seriesRegistryCache =>
+      $$SeriesRegistryCacheTableTableManager(_db, _db.seriesRegistryCache);
 }

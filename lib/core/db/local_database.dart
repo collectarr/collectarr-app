@@ -365,6 +365,21 @@ class PickListValuesCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SeriesRegistryCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get mediaKind => text()();
+  TextColumn get title => text()();
+  TextColumn get normalizedTitle => text()();
+  TextColumn get sortTitle => text().nullable()();
+  TextColumn get normalizedSortTitle => text().nullable()();
+  TextColumn get coreSeriesId => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -385,13 +400,14 @@ class PickListValuesCache extends Table {
   UserFolderItemsCache,
   ReadingQueueCache,
   PickListValuesCache,
+  SeriesRegistryCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
