@@ -143,6 +143,11 @@ void main() {
                 releaseYear: 2020,
                 barcode: '82771402051700111',
                 synopsis: 'The final turtle seeks justice in a ruined future.',
+                creators: const [
+                  {'name': 'Kevin Eastman', 'role': 'Writer'},
+                ],
+                characters: const ['Michelangelo'],
+                storyArcs: const ['The Last Ronin'],
                 series: CatalogSeriesDetails(
                   seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
                 ),
@@ -161,6 +166,14 @@ void main() {
                 isDigital: false,
                 condition: 'Near Mint',
                 grade: '9.8',
+                coverPriceCents: 899,
+                marketValueCents: 2499,
+                pricePaidCents: 1299,
+                rawOrSlabbed: 'Slabbed',
+                gradingCompany: 'CGC',
+                certificationNumber: '1234567890',
+                keyComic: true,
+                keyReason: 'First print finale',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
               accent: Colors.red,
@@ -182,11 +195,33 @@ void main() {
     expect(find.byType(ComicInspectorHero), findsOneWidget);
     expect(find.text('Quick actions'), findsNothing);
     expect(find.text('Edit'), findsWidgets);
+    expect(find.text('Collect'), findsNothing);
+    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Wishlist'), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
     expect(find.text('In Collection'), findsWidgets);
     expect(find.text('Plot'), findsOneWidget);
     expect(find.text('Overview'), findsNothing);
+
+    await tester.tap(find.text('Layout'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sidebar details'), findsOneWidget);
+    expect(find.text('Bottom details'), findsOneWidget);
+
+    await tester.tapAt(const Offset(8, 8));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Details'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Collector'), findsNothing);
+    expect(find.text('Discovery'), findsNothing);
   });
 
   testWidgets('inspector section renders title and children', (tester) async {

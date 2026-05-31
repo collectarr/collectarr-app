@@ -104,6 +104,18 @@ class _ComicInspectorToolbar extends StatelessWidget {
                       icon: Icons.edit_outlined,
                       onPressed: request.onEdit,
                     ),
+                    _ComicToolbarButton(
+                      label: entry.isOwned ? 'Remove' : 'Collect',
+                      icon: entry.isOwned
+                          ? Icons.remove_circle_outline
+                          : Icons.add_circle_outline,
+                      onPressed: request.onToggleOwned,
+                    ),
+                    _ComicToolbarButton(
+                      label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
+                      icon: entry.isWishlisted ? Icons.star : Icons.star_border,
+                      onPressed: request.onToggleWishlist,
+                    ),
                     _ComicToolbarMenuButton(
                       label: 'More',
                       icon: Icons.more_vert,
@@ -114,16 +126,9 @@ class _ComicInspectorToolbar extends StatelessWidget {
                           onSelected: request.onOpenDetails,
                         ),
                         _ComicToolbarMenuEntry(
-                          label: entry.isOwned ? 'Remove from collection' : 'Add to collection',
-                          icon: entry.isOwned
-                              ? Icons.remove_circle_outline
-                              : Icons.add_circle_outline,
-                          onSelected: request.onToggleOwned,
-                        ),
-                        _ComicToolbarMenuEntry(
-                          label: entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
-                          icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-                          onSelected: request.onToggleWishlist,
+                          label: 'Add copy',
+                          icon: Icons.copy_outlined,
+                          onSelected: request.onAddCopy,
                         ),
                         if (request.onCorrectMetadata != null)
                           _ComicToolbarMenuEntry(
@@ -161,9 +166,21 @@ class _ComicInspectorToolbar extends StatelessWidget {
                     color: palette.surfaceSubtle,
                     foreground: palette.textPrimary,
                   ),
-                _ComicToolbarGhostButton(
+                _ComicToolbarMenuButton(
                   label: 'Layout',
                   icon: Icons.view_sidebar_outlined,
+                  entries: const [
+                    _ComicToolbarMenuEntry(
+                      label: 'Sidebar details',
+                      icon: Icons.view_sidebar_outlined,
+                      onSelected: _noopToolbarAction,
+                    ),
+                    _ComicToolbarMenuEntry(
+                      label: 'Bottom details',
+                      icon: Icons.splitscreen_outlined,
+                      onSelected: _noopToolbarAction,
+                    ),
+                  ],
                 ),
               ],
             );
@@ -256,6 +273,8 @@ class _ComicToolbarMenuEntry {
   final VoidCallback? onSelected;
 }
 
+void _noopToolbarAction() {}
+
 class _ComicToolbarMenuButton extends StatelessWidget {
   const _ComicToolbarMenuButton({
     required this.label,
@@ -342,44 +361,6 @@ class _ComicToolbarBadgeButton extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComicToolbarGhostButton extends StatelessWidget {
-  const _ComicToolbarGhostButton({required this.label, required this.icon});
-
-  final String label;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised.withValues(alpha: 0.78),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 15, color: palette.textPrimary),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.arrow_drop_down, size: 18, color: palette.textMuted),
           ],
         ),
       ),

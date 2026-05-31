@@ -25,26 +25,21 @@ class _ComicInspectorDashboard extends StatelessWidget {
     final entry = request.entry;
     final ownedItem = request.ownedItem;
     final trackingEntry = request.trackingEntry;
+    final detailRows = _detailRows(entry, ownedItem);
+    final valueRows = _valueRows(ownedItem);
 
     final panels = <_ComicPanelData>[
       if (_creatorRows(entry.creators).isNotEmpty)
         _ComicPanelData(title: 'Creators', rows: _creatorRows(entry.creators)),
-      if (_detailRows(entry).isNotEmpty)
-        _ComicPanelData(title: 'Details', rows: _detailRows(entry)),
+      if (detailRows.isNotEmpty)
+        _ComicPanelData(title: 'Details', rows: detailRows),
       if (_personalRows(entry, ownedItem, trackingEntry).isNotEmpty)
         _ComicPanelData(
           title: 'Personal',
           rows: _personalRows(entry, ownedItem, trackingEntry),
         ),
-      if (_valueRows(ownedItem).isNotEmpty)
-        _ComicPanelData(title: 'Value', rows: _valueRows(ownedItem)),
-      if (_collectorRows(ownedItem).isNotEmpty)
-        _ComicPanelData(title: 'Collector', rows: _collectorRows(ownedItem)),
-      if (_discoveryRows(entry, ownedItem).isNotEmpty)
-        _ComicPanelData(
-          title: 'Discovery',
-          rows: _discoveryRows(entry, ownedItem),
-        ),
+      if (valueRows.isNotEmpty)
+        _ComicPanelData(title: 'Value', rows: valueRows),
     ];
 
     return LayoutBuilder(
@@ -223,7 +218,10 @@ List<_ComicRowData> _creatorRows(List<Map<String, dynamic>>? creators) {
   ];
 }
 
-List<_ComicRowData> _detailRows(LibraryWorkspaceEntry entry) {
+List<_ComicRowData> _detailRows(
+  LibraryWorkspaceEntry entry,
+  OwnedItem? ownedItem,
+) {
   final rows = <_ComicRowData>[];
   if (entry.ageRating?.trim().isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Age', value: entry.ageRating!.trim()));
@@ -249,6 +247,15 @@ List<_ComicRowData> _detailRows(LibraryWorkspaceEntry entry) {
   }
   if (entry.language?.trim().isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Language', value: entry.language!.trim()));
+  }
+  if (entry.characters?.isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Characters', value: entry.characters!.join(', ')));
+  }
+  if (entry.storyArcs?.isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')));
+  }
+  if (ownedItem?.graderNotes?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem!.graderNotes!.trim()));
   }
   return rows;
 }
@@ -315,53 +322,42 @@ List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
       ),
     );
   }
-  return rows;
-}
-
-List<_ComicRowData> _collectorRows(OwnedItem? ownedItem) {
-  if (ownedItem == null) {
-    return const <_ComicRowData>[];
+  if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
   }
-
-  return [
-    if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()),
-    if (ownedItem.gradingCompany?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Grading Co.', value: ownedItem.gradingCompany!.trim()),
-    if (ownedItem.certificationNumber?.trim().isNotEmpty == true)
+  if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Grading Co.', value: ownedItem.gradingCompany!.trim()));
+  }
+  if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
+    rows.add(
       _ComicRowData(
         label: 'Certification',
         value: ownedItem.certificationNumber!.trim(),
       ),
-    if (ownedItem.labelType?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Label Type', value: ownedItem.labelType!.trim()),
-    if (ownedItem.customLabel?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Custom Label', value: ownedItem.customLabel!.trim()),
-    if (ownedItem.pageQuality?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Page Quality', value: ownedItem.pageQuality!.trim()),
-    if (ownedItem.signedBy?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Signed By', value: ownedItem.signedBy!.trim()),
-    if (ownedItem.keyCategory?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Key Category', value: ownedItem.keyCategory!.trim()),
-    if (ownedItem.keySeverity?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Key Severity', value: ownedItem.keySeverity!.trim()),
-  ];
-}
-
-List<_ComicRowData> _discoveryRows(
-  LibraryWorkspaceEntry entry,
-  OwnedItem? ownedItem,
-) {
-  return [
-    if (entry.characters?.isNotEmpty == true)
-      _ComicRowData(label: 'Characters', value: entry.characters!.join(', ')),
-    if (entry.storyArcs?.isNotEmpty == true)
-      _ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')),
-    if (ownedItem?.keyComic == true)
-      _ComicRowData(label: 'Key', value: ownedItem?.keyReason ?? 'Yes'),
-    if (ownedItem?.graderNotes?.trim().isNotEmpty == true)
-      _ComicRowData(label: 'Grader Notes', value: ownedItem!.graderNotes!.trim()),
-  ];
+    );
+  }
+  if (ownedItem.labelType?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Label Type', value: ownedItem.labelType!.trim()));
+  }
+  if (ownedItem.customLabel?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Custom Label', value: ownedItem.customLabel!.trim()));
+  }
+  if (ownedItem.pageQuality?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Page Quality', value: ownedItem.pageQuality!.trim()));
+  }
+  if (ownedItem.signedBy?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Signed By', value: ownedItem.signedBy!.trim()));
+  }
+  if (ownedItem.keyComic == true) {
+    rows.add(_ComicRowData(label: 'Key', value: ownedItem.keyReason ?? 'Yes'));
+  }
+  if (ownedItem.keyCategory?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Key Category', value: ownedItem.keyCategory!.trim()));
+  }
+  if (ownedItem.keySeverity?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Key Severity', value: ownedItem.keySeverity!.trim()));
+  }
+  return rows;
 }
 
 class _ComicStars extends StatelessWidget {
