@@ -128,6 +128,31 @@ void main() {
     expect(find.text('+2'), findsOneWidget);
   });
 
+  testWidgets('status icons collapse safely in narrow width', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 52,
+            child: LibraryItemStatusIcons(
+              isOwned: true,
+              isTracked: true,
+              isWishlisted: true,
+              hasMissingCover: true,
+              hasMissingMetadata: true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(find.byIcon(Icons.check_box), findsOneWidget);
+    expect(find.text('+4'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('cover badges renders tracked marker for tracking-only items',
       (tester) async {
     await tester.pumpWidget(

@@ -205,38 +205,50 @@ class LibraryItemStatusIcons extends StatelessWidget {
           color: colorScheme.secondary,
         ),
     ];
-    const maxVisibleIcons = 2;
-    final visibleIcons = icons.take(maxVisibleIcons).toList(growable: false);
-    final hiddenCount = icons.length - visibleIcons.length;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var maxVisibleIcons = 2;
+        if (constraints.maxWidth.isFinite) {
+          if (constraints.maxWidth <= 34) {
+            maxVisibleIcons = 0;
+          } else if (constraints.maxWidth <= 54) {
+            maxVisibleIcons = 1;
+          }
+        }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var index = 0; index < visibleIcons.length; index++) ...[
-          if (index > 0) const SizedBox(width: 4),
-          visibleIcons[index],
-        ],
-        if (hiddenCount > 0) ...[
-          if (visibleIcons.isNotEmpty) const SizedBox(width: 2),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              child: Text(
-                '+$hiddenCount',
-                style: TextStyle(
-                  color: colorScheme.onSurfaceVariant,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
+        final visibleIcons = icons.take(maxVisibleIcons).toList(growable: false);
+        final hiddenCount = icons.length - visibleIcons.length;
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var index = 0; index < visibleIcons.length; index++) ...[
+              if (index > 0) const SizedBox(width: 4),
+              visibleIcons[index],
+            ],
+            if (hiddenCount > 0) ...[
+              if (visibleIcons.isNotEmpty) const SizedBox(width: 2),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Text(
+                    '+$hiddenCount',
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
-      ],
+            ],
+          ],
+        );
+      },
     );
   }
 }
