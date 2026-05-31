@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
@@ -187,6 +189,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   List<ItemImageEdit> _itemImageEdits = const [];
   bool _keyComic = false;
   List<SeriesRegistryEntry> _seriesEntries = const [];
+  List<String> _crossoverOptions = const [];
+  List<String> _storyArcOptions = const [];
+  List<String> _countryOptions = const [];
+  List<String> _languageOptions = const [];
+  List<String> _ageOptions = const [];
+  List<String> _genreOptions = const [];
   String? _selectedSeriesId;
 
   @override
@@ -328,6 +336,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     }
 
     _loadSeriesOptions();
+    _loadDetailPickListOptions();
   }
 
   @override
@@ -742,6 +751,33 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     );
   }
 
+  Widget _labelledMultiValuePickField(
+    String label, {
+    required TextEditingController controller,
+    required List<String> options,
+    Key? key,
+    VoidCallback? onManage,
+    String? manageTooltip,
+    String? hintText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        _MultiValuePickField(
+          fieldKey: key,
+          controller: controller,
+          options: options,
+          label: label,
+          hint: hintText,
+          onManage: onManage,
+          manageTooltip: manageTooltip,
+        ),
+      ],
+    );
+  }
+
   Widget _buildQuickChoiceField(
     String label, {
     required TextEditingController controller,
@@ -820,6 +856,77 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       _selectedSeriesId = selected.coreSeriesId;
     });
     await _loadSeriesOptions();
+  }
+
+  Future<void> _loadDetailPickListOptions() async {
+    final mediaKind = widget.request.type.workspace.kind.apiValue;
+    final db = ref.read(localDatabaseProvider);
+    final results = await Future.wait<dynamic>([
+      loadSingleValuePickListOptions(
+        db,
+        listName: kCrossoverPickListName,
+        mediaKind: mediaKind,
+        selectedValue: crossoverCtl.text,
+      ),
+      loadMultiValuePickListOptions(
+        db,
+        listName: kStoryArcPickListName,
+        mediaKind: mediaKind,
+        selectedValues: splitPickListValues(storyArcsCtl.text),
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kCountryPickListName,
+        mediaKind: mediaKind,
+        selectedValue: countryCtl.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kLanguagePickListName,
+        mediaKind: mediaKind,
+        selectedValue: languageCtl.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kAgeRatingPickListName,
+        mediaKind: mediaKind,
+        selectedValue: ageCtl.text,
+      ),
+      loadMultiValuePickListOptions(
+        db,
+        listName: kGenrePickListName,
+        mediaKind: mediaKind,
+        selectedValues: splitPickListValues(genresCtl.text),
+      ),
+    ]);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _crossoverOptions = List<String>.from(results[0] as List<String>);
+      _storyArcOptions = List<String>.from(results[1] as List<String>);
+      _countryOptions = List<String>.from(results[2] as List<String>);
+      _languageOptions = List<String>.from(results[3] as List<String>);
+      _ageOptions = List<String>.from(results[4] as List<String>);
+      _genreOptions = List<String>.from(results[5] as List<String>);
+    });
+  }
+
+  Future<void> _manageDetailPickList({
+    required String listName,
+    required String label,
+  }) async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: listName,
+      label: label,
+      mediaKind: widget.request.type.workspace.kind.apiValue,
+    );
+    if (!mounted) {
+      return;
+    }
+    await _loadDetailPickListOptions();
   }
 
   void _setControllerText(TextEditingController controller, String value) {
@@ -1244,16 +1351,34 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           Row(
             children: [
               Expanded(
-                  child: _labelledField('Crossover',
-                      controller: crossoverCtl,
-                      key: const ValueKey('edit-crossover'),
-                      hintText: 'Major crossover banner or event label')),
+                child: _labelledSingleValuePickField(
+                  'Crossover',
+                  controller: crossoverCtl,
+                  options: _crossoverOptions,
+                  key: const ValueKey('edit-crossover'),
+                  onManage: () => _manageDetailPickList(
+                    listName: kCrossoverPickListName,
+                    label: 'Crossover',
+                  ),
+                  manageTooltip: 'Manage Crossover',
+                  hintText: 'Major crossover banner or event label',
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Story Arcs',
-                      controller: storyArcsCtl,
-                      key: const ValueKey('edit-storyarcs'),
-                      hintText: 'Comma separated')),
+                child: _labelledMultiValuePickField(
+                  'Story Arcs',
+                  controller: storyArcsCtl,
+                  options: _storyArcOptions,
+                  key: const ValueKey('edit-storyarcs'),
+                  onManage: () => _manageDetailPickList(
+                    listName: kStoryArcPickListName,
+                    label: 'Story Arcs',
+                  ),
+                  manageTooltip: 'Manage Story Arcs',
+                  hintText: 'Comma separated',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -1273,14 +1398,32 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           Row(
             children: [
               Expanded(
-                  child: _labelledField('Country',
-                      controller: countryCtl,
-                      key: const ValueKey('edit-country'))),
+                child: _labelledSingleValuePickField(
+                  'Country',
+                  controller: countryCtl,
+                  options: _countryOptions,
+                  key: const ValueKey('edit-country'),
+                  onManage: () => _manageDetailPickList(
+                    listName: kCountryPickListName,
+                    label: 'Country',
+                  ),
+                  manageTooltip: 'Manage Country',
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Language',
-                      controller: languageCtl,
-                      key: const ValueKey('edit-language'))),
+                child: _labelledSingleValuePickField(
+                  'Language',
+                  controller: languageCtl,
+                  options: _languageOptions,
+                  key: const ValueKey('edit-language'),
+                  onManage: () => _manageDetailPickList(
+                    listName: kLanguagePickListName,
+                    label: 'Language',
+                  ),
+                  manageTooltip: 'Manage Language',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -1289,8 +1432,17 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
             children: [
               Expanded(
                 flex: 3,
-                child: _labelledField('Age',
-                    controller: ageCtl, key: const ValueKey('edit-age')),
+                child: _labelledSingleValuePickField(
+                  'Age',
+                  controller: ageCtl,
+                  options: _ageOptions,
+                  key: const ValueKey('edit-age'),
+                  onManage: () => _manageDetailPickList(
+                    listName: kAgeRatingPickListName,
+                    label: 'Age',
+                  ),
+                  manageTooltip: 'Manage Age',
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1301,10 +1453,18 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
               const SizedBox(width: 8),
               Expanded(
                 flex: 6,
-                child: _labelledField('Genres',
-                    controller: genresCtl,
-                    key: const ValueKey('edit-genres'),
-                    hintText: 'Comma separated'),
+                child: _labelledMultiValuePickField(
+                  'Genres',
+                  controller: genresCtl,
+                  options: _genreOptions,
+                  key: const ValueKey('edit-genres'),
+                  onManage: () => _manageDetailPickList(
+                    listName: kGenrePickListName,
+                    label: 'Genres',
+                  ),
+                  manageTooltip: 'Manage Genres',
+                  hintText: 'Comma separated',
+                ),
               ),
             ],
           ),
@@ -2266,6 +2426,221 @@ class _EditableComicCharacter {
 
   void dispose() {
     nameController.dispose();
+  }
+}
+
+class _MultiValuePickField extends StatefulWidget {
+  const _MultiValuePickField({
+    required this.controller,
+    required this.options,
+    required this.label,
+    this.fieldKey,
+    this.hint,
+    this.onManage,
+    this.manageTooltip,
+  });
+
+  final TextEditingController controller;
+  final List<String> options;
+  final String label;
+  final Key? fieldKey;
+  final String? hint;
+  final VoidCallback? onManage;
+  final String? manageTooltip;
+
+  @override
+  State<_MultiValuePickField> createState() => _MultiValuePickFieldState();
+}
+
+class _MultiValuePickFieldState extends State<_MultiValuePickField> {
+  static const _suffixButtonExtent = 32.0;
+  static const _suffixHorizontalPadding = 8.0;
+
+  late final FocusNode _focusNode;
+  final GlobalKey _fieldAnchorKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  List<String> get _selectedValues => splitPickListValues(widget.controller.text);
+
+  void _writeSelection(List<String> values) {
+    final text = joinPickListValues(values) ?? '';
+    widget.controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+    setState(() {});
+  }
+
+  bool _containsSelection(List<String> values, String candidate) {
+    final normalized = candidate.trim().toLowerCase();
+    return values.any((value) => value.trim().toLowerCase() == normalized);
+  }
+
+  void _toggleValue(String option) {
+    final current = List<String>.from(_selectedValues);
+    if (_containsSelection(current, option)) {
+      current.removeWhere(
+        (value) => value.trim().toLowerCase() == option.trim().toLowerCase(),
+      );
+    } else {
+      current.add(option);
+    }
+    _writeSelection(current);
+    _focusNode.requestFocus();
+  }
+
+  Future<void> _openInlinePicker(List<String> options) async {
+    if (options.isEmpty) {
+      return;
+    }
+    final fieldBox =
+        _fieldAnchorKey.currentContext?.findRenderObject() as RenderBox?;
+    final overlayBox =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (fieldBox == null || overlayBox == null) {
+      return;
+    }
+    final fieldOffset = fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        fieldOffset.dx,
+        fieldOffset.dy + fieldBox.size.height,
+        overlayBox.size.width - fieldOffset.dx - fieldBox.size.width,
+        overlayBox.size.height - fieldOffset.dy - fieldBox.size.height,
+      ),
+      constraints: BoxConstraints(
+        minWidth: fieldBox.size.width,
+        maxWidth: fieldBox.size.width,
+        maxHeight: 280,
+      ),
+      items: [
+        for (final option in options)
+          PopupMenuItem<String>(
+            value: option,
+            child: Row(
+              children: [
+                Icon(
+                  _containsSelection(_selectedValues, option)
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank,
+                  size: 18,
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(option)),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    _toggleValue(selected);
+  }
+
+  Widget _suffixAction({
+    required String tooltip,
+    required VoidCallback? onPressed,
+    required IconData icon,
+    bool showDivider = false,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showDivider)
+              Container(
+                width: 1,
+                height: 18,
+                margin: const EdgeInsets.only(right: 4),
+                color: Theme.of(context).dividerColor,
+              ),
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: onPressed,
+              child: SizedBox(
+                width: _suffixButtonExtent,
+                height: _suffixButtonExtent,
+                child: Icon(icon, size: 18),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final normalizedOptions = mergePickListValues(
+      builtInValues: widget.options,
+      selectedValues: _selectedValues,
+    );
+    final hasManageAction = widget.onManage != null;
+    final actionCount = [
+      if (normalizedOptions.isNotEmpty) true,
+      if (hasManageAction) true,
+    ].length;
+    final suffixWidth =
+        actionCount * _suffixButtonExtent + (_suffixHorizontalPadding * 2);
+    return KeyedSubtree(
+      key: _fieldAnchorKey,
+      child: TextFormField(
+        key: widget.fieldKey,
+        controller: widget.controller,
+        focusNode: _focusNode,
+        decoration: InputDecoration(
+          hintText: widget.hint,
+          suffixIconConstraints: BoxConstraints(
+            minWidth: actionCount == 0 ? 0 : suffixWidth,
+            maxWidth: actionCount == 0 ? 0 : suffixWidth,
+            minHeight: 40,
+          ),
+          suffixIcon: actionCount == 0
+              ? null
+              : SizedBox(
+                  width: suffixWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      if (normalizedOptions.isNotEmpty)
+                        _suffixAction(
+                          tooltip: 'Pick ${widget.label}',
+                          onPressed: () => _openInlinePicker(normalizedOptions),
+                          icon: Icons.arrow_drop_down,
+                        ),
+                      if (hasManageAction)
+                        _suffixAction(
+                          tooltip:
+                              widget.manageTooltip ?? 'Manage ${widget.label}',
+                          onPressed: widget.onManage,
+                          icon: Icons.view_list_outlined,
+                          showDivider: normalizedOptions.isNotEmpty,
+                        ),
+                    ],
+                  ),
+                ),
+        ),
+        onTap: () => setState(() {}),
+        onChanged: (_) => setState(() {}),
+      ),
+    );
   }
 }
 

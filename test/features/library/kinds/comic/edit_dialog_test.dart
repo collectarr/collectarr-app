@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
@@ -27,6 +29,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
     final catalog = CatalogCacheRepository(db);
+    final pickLists = PickListRepository(db);
     addTearDown(db.close);
 
     await catalog.upsertAll([
@@ -49,6 +52,36 @@ void main() {
         ),
       ),
     ]);
+    await pickLists.setValues(
+      kCrossoverPickListName,
+      ['Annihilation', 'Image United'],
+      mediaKind: 'comic',
+    );
+    await pickLists.setValues(
+      kStoryArcPickListName,
+      ['Opening', 'Finale'],
+      mediaKind: 'comic',
+    );
+    await pickLists.setValues(
+      kCountryPickListName,
+      ['US', 'Canada'],
+      mediaKind: 'comic',
+    );
+    await pickLists.setValues(
+      kLanguagePickListName,
+      ['English', 'French'],
+      mediaKind: 'comic',
+    );
+    await pickLists.setValues(
+      kAgeRatingPickListName,
+      ['Mature', 'Teen'],
+      mediaKind: 'comic',
+    );
+    await pickLists.setValues(
+      kGenrePickListName,
+      ['Sci-Fi', 'Fantasy'],
+      mediaKind: 'comic',
+    );
 
     final type = collectarrLibraryTypes.byKind('comic')!;
     final item = LibraryMetadataItem.fromCatalogItem(
@@ -208,17 +241,48 @@ void main() {
 
     await tester.tap(find.text('Details').last);
     await pumpUntilSettled(tester);
+    expect(find.byTooltip('Pick Crossover'), findsOneWidget);
+    expect(find.byTooltip('Manage Crossover'), findsOneWidget);
+    expect(find.byTooltip('Pick Story Arcs'), findsOneWidget);
+    expect(find.byTooltip('Manage Story Arcs'), findsOneWidget);
+    expect(find.byTooltip('Pick Country'), findsOneWidget);
+    expect(find.byTooltip('Pick Language'), findsOneWidget);
+    expect(find.byTooltip('Pick Age'), findsOneWidget);
+    expect(find.byTooltip('Pick Genres'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Pick Crossover'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Image United').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Pick Story Arcs'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Finale').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Pick Country'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Canada').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Pick Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('French').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Pick Age'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Teen').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Pick Genres'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Fantasy').last);
+    await tester.pumpAndSettle();
+
     await tester.enterText(
       find.byKey(const ValueKey('edit-title')),
       'Saga Deluxe',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-crossover')),
-      'Image United',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-storyarcs')),
-      'Opening, Finale',
     );
     await tester.tap(find.text('Value').first);
     await pumpUntilSettled(tester);
@@ -311,6 +375,10 @@ void main() {
     expect(selection!.item.title, 'Saga Deluxe');
     expect(selection!.item.crossover, 'Image United');
     expect(selection!.item.storyArcs, ['Opening', 'Finale']);
+    expect(selection!.item.country, 'Canada');
+    expect(selection!.item.language, 'French');
+    expect(selection!.item.ageRating, 'Teen');
+    expect(selection!.item.genres, ['Sci-Fi', 'Fantasy']);
     expect(selection!.item.coverDate, DateTime(2026, 1, 1));
     expect(selection!.item.synopsis, 'Short summary\n\nLong plot description');
     expect(selection!.item.plotSummary, 'Short summary');
