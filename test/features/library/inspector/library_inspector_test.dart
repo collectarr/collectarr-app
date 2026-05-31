@@ -1,12 +1,16 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -57,6 +61,63 @@ void main() {
 
     expect(find.text('Author view'), findsOneWidget);
     expect(find.text('Dan Simmons'), findsOneWidget);
+  });
+
+  testWidgets('comic inspector hero renders CLZ-like header blocks', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ComicInspectorHero(
+              request: LibraryInspectorRequest(
+                type: comicsLibraryConfig,
+                entry: LibraryWorkspaceEntry(
+                  id: 'comic-hero-1',
+                  mediaType: 'comic',
+                  title: 'The Last Ronin',
+                  itemNumber: '1',
+                  publisher: 'IDW Publishing',
+                  releaseYear: 2020,
+                  barcode: '82771402051700111',
+                  synopsis: 'The final turtle seeks justice in a ruined future.',
+                  series: CatalogSeriesDetails(
+                    seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
+                  ),
+                  publishing: CatalogPublishingDetails(
+                    imprint: 'IDW',
+                    subtitle: 'Director Cut',
+                    seriesGroup: 'TMNT Event',
+                  ),
+                  genres: const ['Action', 'Dystopian'],
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
+                ownedItem: OwnedItem(
+                  id: 'owned-comic-hero-1',
+                  itemId: 'comic-hero-1',
+                  isDigital: false,
+                  condition: 'Near Mint',
+                  grade: '9.8',
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
+                trackingEntry: null,
+                accent: Colors.red,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Teenage Mutant Ninja Turtles: The Last Ronin'), findsOneWidget);
+    expect(find.text('Plot'), findsOneWidget);
+    expect(find.text('Imprint'), findsOneWidget);
+    expect(find.text('IDW'), findsOneWidget);
+    expect(find.text('Director Cut'), findsOneWidget);
+    expect(find.text('82771402051700111'), findsOneWidget);
   });
 
   testWidgets('inspector section renders title and children', (tester) async {

@@ -314,12 +314,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 ),
               ),
               const SizedBox(height: 8),
-              InspectorHero(
-                type: widget.type,
-                entry: selected,
-                ownedItem: activeOwnedItem,
-                accent: widget.accent,
-              ),
+              widget.type.inspectorHeroBuilder?.call(
+                    context,
+                    LibraryInspectorRequest(
+                      type: widget.type,
+                      entry: selected,
+                      ownedItem: activeOwnedItem,
+                      trackingEntry: activeTrackingEntry,
+                      accent: widget.accent,
+                      onFilterByValue: widget.onFilterByValue,
+                    ),
+                  ) ??
+                  InspectorHero(
+                    type: widget.type,
+                    entry: selected,
+                    ownedItem: activeOwnedItem,
+                    accent: widget.accent,
+                  ),
               if (ownedCopies.isNotEmpty) ...[
                 const SizedBox(height: _kInspectorOuterGap),
                 _InspectorOwnedCopiesSection(

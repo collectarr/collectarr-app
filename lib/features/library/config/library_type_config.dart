@@ -169,6 +169,11 @@ typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
   LibraryInspectorRequest request,
 );
 
+typedef LibraryInspectorHeroBuilder = Widget Function(
+  BuildContext context,
+  LibraryInspectorRequest request,
+);
+
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -327,6 +332,7 @@ class LibraryTypeConfig {
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
+    this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
   });
 
@@ -354,6 +360,7 @@ class LibraryTypeConfig {
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
 
   List<TransferableField> transferableFieldsWithCustomFields(
