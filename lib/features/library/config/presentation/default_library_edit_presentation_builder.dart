@@ -78,6 +78,7 @@ class DefaultLibraryEditPresentationBuilder
     required String tabId,
   }) {
     final sections = switch (tabId) {
+      'details' => ['catalog_details'],
       'main' => ['catalog_snapshot', 'tracking_context', 'ownership_reference', 'owned_grading'],
       'value' => ['purchase', 'value_summary'],
       'personal' => ['tracking_personal', 'wishlist_reference', 'owned_notes', 'collection_fields_info'],

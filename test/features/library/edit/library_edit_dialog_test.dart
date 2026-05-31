@@ -401,6 +401,7 @@ void main() {
       ownerLabel: 'Andrei',
       quantity: 1,
     );
+    LibraryEditSelection? selection;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -409,8 +410,8 @@ void main() {
           home: Builder(
             builder: (context) => Scaffold(
               body: FilledButton(
-                onPressed: () {
-                  showDialog<void>(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
@@ -431,15 +432,40 @@ void main() {
     await tester.tap(find.text('Open comic owned'));
     await pumpUntilSettled(tester);
 
+    expect(find.text('Details'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Cover'), findsOneWidget);
-    expect(find.text('Synopsis'), findsOneWidget);
-    expect(find.text('Custom'), findsOneWidget);
-    expect(find.text('Photos'), findsOneWidget);
+    expect(find.text('Covers'), findsOneWidget);
+    expect(find.text('Plot'), findsOneWidget);
+    expect(find.text('Custom Fields'), findsOneWidget);
+    expect(find.text('My Images'), findsOneWidget);
     expect(find.text('Sold'), findsNothing);
 
+    expect(find.text('Subtitle'), findsOneWidget);
+    expect(find.text('Crossover'), findsOneWidget);
+    expect(find.text('Story Arcs'), findsOneWidget);
+    expect(find.text('Genres'), findsOneWidget);
+    expect(find.text('Country'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('Age'), findsOneWidget);
+    expect(find.text('No. of Pages'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Subtitle'),
+      'Deluxe Edition',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Crossover'),
+      'Adventure Time',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Story Arcs'),
+      'Unknowning, The Tome of the Unknown',
+    );
+
+    await tester.tap(find.text('Main').last);
+    await pumpUntilSettled(tester);
+
     expect(find.text('#TP-1'), findsOneWidget);
-    expect(find.text('Details'), findsOneWidget);
     expect(find.text('Series'), findsOneWidget);
     expect(find.text('Barcode'), findsOneWidget);
     expect(find.text('Format'), findsOneWidget);
@@ -448,40 +474,47 @@ void main() {
     expect(find.text('Variant'), findsOneWidget);
     expect(find.text('Variant Description'), findsOneWidget);
     expect(find.text('TP-1'), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) => widget is EditableText &&
-            widget.controller.text == 'Trade Paperback',
-      ),
-      findsNWidgets(2),
-    );
+    expect(find.text('Trade Paperback'), findsWidgets);
     expect(find.text('Cover Date'), findsOneWidget);
     expect(find.text('Release Date'), findsOneWidget);
     expect(find.text('Publisher'), findsOneWidget);
     expect(find.text('Imprint'), findsOneWidget);
-    expect(find.text('Age'), findsOneWidget);
-    expect(find.text('Country'), findsOneWidget);
-    expect(find.text('Language'), findsOneWidget);
 
-    await tester.drag(find.byType(ListView).first, const Offset(0, -500));
+    await tester.enterText(
+      find.byKey(const Key('comic-cover-date-year')),
+      '2016',
+    );
+    await tester.enterText(
+      find.byKey(const Key('comic-cover-date-month')),
+      '10',
+    );
+    await tester.enterText(
+      find.byKey(const Key('comic-cover-date-day')),
+      '26',
+    );
+
+    await tester.tap(find.text('Covers').last);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Value'), findsOneWidget);
-    expect(find.text('Index'), findsOneWidget);
-    expect(find.text('Added date'), findsOneWidget);
-    expect(find.text('Modified date'), findsOneWidget);
-    expect(find.text('Cover price'), findsOneWidget);
-    expect(find.text('Collection status'), findsOneWidget);
+    expect(find.text('Front Cover'), findsOneWidget);
+    expect(find.text('Back Cover'), findsOneWidget);
+    expect(find.text('Manage My Images'), findsOneWidget);
+    expect(find.text('Find Better Cover'), findsOneWidget);
 
-    await tester.drag(find.byType(ListView).first, const Offset(0, -900));
+    await tester.tap(find.text('My Images').last);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Raw / Slabbed'), findsOneWidget);
-    expect(find.text('Sale'), findsOneWidget);
-    expect(find.text('Mark as sold'), findsOneWidget);
-    expect(find.text('Storage & Notes'), findsOneWidget);
-    expect(find.text('Location'), findsOneWidget);
+    expect(find.text('My images workflow'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(selection?.item.titleExtension, 'Deluxe Edition');
+    expect(selection?.item.crossover, 'Adventure Time');
+    expect(selection?.item.storyArcs, const ['Unknowning', 'The Tome of the Unknown']);
+    expect(selection?.item.coverDate?.year, 2016);
+    expect(selection?.item.coverDate?.month, 10);
+    expect(selection?.item.coverDate?.day, 26);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {

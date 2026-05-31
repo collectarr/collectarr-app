@@ -5,11 +5,12 @@ import 'package:collectarr_app/features/library/kinds/music/edit_presentation_bu
 import 'package:flutter/material.dart';
 
 const _comicOwnedEditTabs = [
+  LibraryEditTabSpec(id: 'details', icon: Icons.search, label: 'Details'),
   LibraryEditTabSpec(id: 'main', icon: Icons.article, label: 'Main'),
-  LibraryEditTabSpec(id: 'cover', icon: Icons.image, label: 'Cover'),
-  LibraryEditTabSpec(id: 'synopsis', icon: Icons.notes, label: 'Synopsis'),
-  LibraryEditTabSpec(id: 'custom', icon: Icons.tune, label: 'Custom'),
-  LibraryEditTabSpec(id: 'photos', icon: Icons.photo_library, label: 'Photos'),
+  LibraryEditTabSpec(id: 'custom', icon: Icons.tune, label: 'Custom Fields'),
+  LibraryEditTabSpec(id: 'cover', icon: Icons.image, label: 'Covers'),
+  LibraryEditTabSpec(id: 'photos', icon: Icons.photo_library, label: 'My Images'),
+  LibraryEditTabSpec(id: 'synopsis', icon: Icons.notes, label: 'Plot'),
 ];
 
 const genericLibraryEditPresentation = LibraryEditPresentation(

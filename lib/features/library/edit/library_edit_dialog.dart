@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -27,6 +28,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -101,6 +103,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TextEditingController _titleController;
   late final TextEditingController _numberController;
   late final TextEditingController _publisherController;
+  late final TextEditingController _coverDateController;
+  late final TextEditingController _coverDateYearPartController;
+  late final TextEditingController _coverDateMonthPartController;
+  late final TextEditingController _coverDateDayPartController;
   late final TextEditingController _releaseDateController;
   late final TextEditingController _releaseDateYearPartController;
   late final TextEditingController _releaseDateMonthPartController;
@@ -124,6 +130,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TextEditingController _ageRatingController;
   late final TextEditingController _genresEditController;
   late final TextEditingController _titleExtensionController;
+  late final TextEditingController _crossoverController;
+  late final TextEditingController _storyArcsController;
   late final TextEditingController _ownerLabelController;
 
   // Series-level fields
@@ -342,6 +350,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _titleController = _draft.titleController;
     _numberController = _draft.numberController;
     _publisherController = _draft.publisherController;
+    _coverDateController = _draft.coverDateController;
+    _coverDateYearPartController = _draft.coverDateYearPartController;
+    _coverDateMonthPartController = _draft.coverDateMonthPartController;
+    _coverDateDayPartController = _draft.coverDateDayPartController;
     _releaseDateController = _draft.releaseDateController;
     _releaseDateYearPartController = _draft.releaseDateYearPartController;
     _releaseDateMonthPartController = _draft.releaseDateMonthPartController;
@@ -363,6 +375,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _ageRatingController = _draft.ageRatingController;
     _genresEditController = _draft.genresEditController;
     _titleExtensionController = _draft.titleExtensionController;
+    _crossoverController = _draft.crossoverController;
+    _storyArcsController = _draft.storyArcsController;
     _ownerLabelController = _draft.ownerLabelController;
     _imprintController = _draft.imprintController;
     _seriesGroupController = _draft.seriesGroupController;
@@ -454,9 +468,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final comicIssueNumber =
         _isComicKind ? emptyToNull(_numberController.text) : null;
     final comicFormatLabel = _isComicKind
-        ? emptyToNull(_variantController.text) ??
-            widget.item.displayEditionLabel
-        : null;
+      ? _physicalFormatForId(_physicalFormatId)?.label ??
+        widget.item.physicalFormatLabel
+      : null;
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
@@ -496,6 +510,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _tabViewFor(String id) {
     switch (id) {
+      case 'details':
+        return _detailsTab();
       case 'main':
         return _mainTab();
       case 'media':
@@ -964,13 +980,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
-  Widget _ownedComicMainTab() {
-    final mediaFields = widget.type.mediaFields;
-    final editPresentation = _editPresentation;
+  Widget _detailsTab() {
+    if (_isComicKind) {
+      return _ownedComicDetailsTab();
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _ownedComicDetailsTab() {
     return EditTabShell(
-      cover: _comicCoverPreview(),
       children: [
-        _ownedComicMainOverviewCard(),
         EditSection(
           title: 'Details',
           accent: widget.accent,
@@ -978,22 +997,64 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _responsiveFields([
-                _field(controller: _ageRatingController, label: 'Age'),
-                _field(controller: _countryController, label: 'Country'),
+                _field(
+                  controller: _titleExtensionController,
+                  label: 'Subtitle',
+                ),
+                _field(
+                  controller: _countryController,
+                  label: 'Country',
+                ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(controller: _languageController, label: 'Language'),
-                if (mediaFields.showPageCount)
-                  _field(
-                    controller: _pageCountController,
-                    label: 'Page count',
-                    validator: optionalIntValidator,
-                  ),
+                _field(
+                  controller: _languageController,
+                  label: 'Language',
+                ),
+                _field(
+                  controller: _ageRatingController,
+                  label: 'Age',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _pageCountController,
+                  label: 'No. of Pages',
+                  validator: optionalIntValidator,
+                ),
+                _field(
+                  controller: _genresEditController,
+                  label: 'Genres',
+                  hint: 'Comma-separated',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _crossoverController,
+                  label: 'Crossover',
+                ),
+                _field(
+                  controller: _storyArcsController,
+                  label: 'Story Arcs',
+                  hint: 'Comma-separated',
+                ),
               ]),
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _ownedComicMainTab() {
+    final editPresentation = _editPresentation;
+    return EditTabShell(
+      cover: _comicCoverPreview(),
+      children: [
+        _ownedComicMainOverviewCard(),
         EditSection(
           title: 'Personal',
           accent: widget.accent,
@@ -1336,7 +1397,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   _flexResponsiveFields(
                     [
                       _field(controller: _barcodeController, label: 'Barcode'),
-                      _field(controller: _variantController, label: 'Format'),
+                      _comicFormatField(),
                     ],
                     flexes: const [1, 1],
                     breakpoint: 520,
@@ -1854,6 +1915,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _photosTab() {
+    if (_isComicKind) {
+      return _comicPhotosTab();
+    }
     return EditTabShell(
       children: [
         ItemImagesEditSection(
@@ -1870,6 +1934,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _coverTab() {
+    if (_isComicKind) {
+      return _comicCoverTab();
+    }
     return EditTabShell(
       children: [
         EditSection(
@@ -1890,17 +1957,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _synopsisTab() {
+    final title = _isComicKind ? 'Plot' : 'Synopsis';
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Synopsis',
+          title: title,
           accent: widget.accent,
           child: TextFormField(
             controller: _synopsisController,
             minLines: 5,
             maxLines: 12,
-            decoration: const InputDecoration(
-              labelText: 'Synopsis',
+            decoration: InputDecoration(
+              labelText: title,
               alignLabelWithHint: true,
             ),
           ),
@@ -1999,6 +2067,33 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       controller: controller,
       validator: validator,
       decoration: InputDecoration(labelText: label, hintText: hint),
+    );
+  }
+
+  Widget _comicFormatField() {
+    final formats = _effectivePhysicalFormats;
+    return DropdownButtonFormField<String>(
+      initialValue: _physicalFormatId ?? '',
+      isExpanded: true,
+      dropdownColor: appPalette(context).panelRaised,
+      borderRadius: kEditMenuBorderRadius,
+      decoration: const InputDecoration(labelText: 'Format'),
+      items: [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('No specific format'),
+        ),
+        for (final format in formats)
+          DropdownMenuItem<String>(
+            value: format.id,
+            child: Text(format.label),
+          ),
+      ],
+      onChanged: (value) {
+        setState(() {
+          _physicalFormatId = emptyToNull(value ?? '');
+        });
+      },
     );
   }
 
@@ -2122,12 +2217,26 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       label: 'Cover Date',
       children: [
         _datePartField(
-          controller: _releaseYearController,
+          key: const Key('comic-cover-date-year'),
+          controller: _coverDateYearPartController,
           placeholder: 'YYYY',
           validator: optionalIntValidator,
+          onChanged: (_) => _syncCoverDateFromParts(),
         ),
-        _datePartField(placeholder: 'MM', readOnly: true),
-        _datePartField(placeholder: 'DD', readOnly: true),
+        _datePartField(
+          key: const Key('comic-cover-date-month'),
+          controller: _coverDateMonthPartController,
+          placeholder: 'MM',
+          validator: optionalIntValidator,
+          onChanged: (_) => _syncCoverDateFromParts(),
+        ),
+        _datePartField(
+          key: const Key('comic-cover-date-day'),
+          controller: _coverDateDayPartController,
+          placeholder: 'DD',
+          validator: optionalIntValidator,
+          onChanged: (_) => _syncCoverDateFromParts(),
+        ),
       ],
     );
   }
@@ -2137,18 +2246,21 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       label: 'Release Date',
       children: [
         _datePartField(
+          key: const Key('comic-release-date-year'),
           controller: _releaseDateYearPartController,
           placeholder: 'YYYY',
           validator: optionalIntValidator,
           onChanged: (_) => _syncReleaseDateFromParts(),
         ),
         _datePartField(
+          key: const Key('comic-release-date-month'),
           controller: _releaseDateMonthPartController,
           placeholder: 'MM',
           validator: optionalIntValidator,
           onChanged: (_) => _syncReleaseDateFromParts(),
         ),
         _datePartField(
+          key: const Key('comic-release-date-day'),
           controller: _releaseDateDayPartController,
           placeholder: 'DD',
           validator: optionalIntValidator,
@@ -2188,6 +2300,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _datePartField({
+    Key? key,
     TextEditingController? controller,
     required String placeholder,
     String? Function(String?)? validator,
@@ -2195,6 +2308,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     bool readOnly = false,
   }) {
     return TextFormField(
+      key: key,
       controller: controller,
       readOnly: readOnly,
       onChanged: onChanged,
@@ -2205,6 +2319,22 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         hintText: placeholder,
       ),
     );
+  }
+
+  void _syncCoverDateFromParts() {
+    final year = _coverDateYearPartController.text.trim();
+    final month = _coverDateMonthPartController.text.trim();
+    final day = _coverDateDayPartController.text.trim();
+    if (year.isEmpty && month.isEmpty && day.isEmpty) {
+      _coverDateController.text = '';
+      return;
+    }
+    if (year.length != 4 || month.length != 2 || day.length != 2) {
+      _coverDateController.text = '';
+      return;
+    }
+    final parsed = DateTime.tryParse('$year-$month-$day');
+    _coverDateController.text = parsed == null ? '' : formatDate(parsed);
   }
 
   void _syncReleaseDateFromParts() {
@@ -2300,6 +2430,229 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (picked != null && mounted) {
       setState(() => _soldAt = picked);
     }
+  }
+
+  List<PhysicalMediaFormat> get _effectivePhysicalFormats {
+    return widget.physicalFormats.isEmpty
+        ? allKnownPhysicalMediaFormats
+        : widget.physicalFormats;
+  }
+
+  List<_ResolvedEditImage> _resolvedEditImages() {
+    final existing = {
+      for (final image in widget.itemImages) image.id: image,
+    };
+    final editsById = {
+      for (final edit in _itemImageEdits) edit.id: edit,
+    };
+    final images = <_ResolvedEditImage>[];
+    for (final image in widget.itemImages) {
+      final edit = editsById[image.id];
+      if (edit?.deleted == true) {
+        continue;
+      }
+      images.add(
+        _ResolvedEditImage(
+          id: image.id,
+          imageData: edit?.imageData ?? image.imageData,
+          imageType: edit?.imageType ?? image.imageType,
+          caption: edit?.caption ?? image.caption,
+          sortOrder: edit?.sortOrder ?? image.sortOrder,
+        ),
+      );
+    }
+    for (final edit in _itemImageEdits) {
+      if (existing.containsKey(edit.id) || edit.deleted || edit.imageData == null) {
+        continue;
+      }
+      images.add(
+        _ResolvedEditImage(
+          id: edit.id,
+          imageData: edit.imageData!,
+          imageType: edit.imageType,
+          caption: edit.caption,
+          sortOrder: edit.sortOrder,
+        ),
+      );
+    }
+    images.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return images;
+  }
+
+  _ResolvedEditImage? _firstImageOfType(String type) {
+    for (final image in _resolvedEditImages()) {
+      if (image.imageType == type) {
+        return image;
+      }
+    }
+    return null;
+  }
+
+  String _buildComicMarketSearchQuery() {
+    return [
+      widget.item.title,
+      if (emptyToNull(_numberController.text) case final issue?) '#$issue',
+      if (_physicalFormatForId(_physicalFormatId)?.label case final format?) format,
+      if (emptyToNull(_variantController.text) case final variant?) variant,
+    ].join(' ').trim();
+  }
+
+  void _openEditTab(String id) {
+    final index = _tabSpecs.indexWhere((tab) => tab.id == id);
+    if (index >= 0) {
+      _tabController.animateTo(index);
+    }
+  }
+
+  Widget _buildImagePreviewCard(
+    String title, {
+    String? networkUrl,
+    String? imageData,
+    String emptyLabel = 'No image',
+  }) {
+    Widget child;
+    if (imageData != null && imageData.isNotEmpty) {
+      try {
+        child = Image.memory(
+          base64Decode(imageData),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
+        );
+      } catch (_) {
+        child = Center(child: Text(emptyLabel));
+      }
+    } else if (networkUrl != null && networkUrl.isNotEmpty) {
+      child = Image.network(
+        networkUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
+      );
+    } else {
+      child = Center(child: Text(emptyLabel));
+    }
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 220,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: appPalette(context).gridCanvas,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: appPalette(context).divider),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: child,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _comicCoverTab() {
+    final coverUrl = emptyToNull(_coverController.text) ??
+        emptyToNull(_thumbnailController.text) ??
+        widget.item.displayCoverUrl;
+    final resolvedImages = _resolvedEditImages();
+    final backCover = _firstImageOfType('back_cover');
+    final frontAlt = _firstImageOfType('front_cover');
+    final auxiliaryCount =
+        resolvedImages.where((image) => image.imageType == 'auxiliary').length;
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Covers',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _field(controller: _coverController, label: 'Front Cover URL'),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildImagePreviewCard(
+                    'Front Cover',
+                    networkUrl: coverUrl,
+                    imageData: frontAlt?.imageData,
+                    emptyLabel: 'No front cover',
+                  ),
+                  const SizedBox(width: 12),
+                  _buildImagePreviewCard(
+                    'Back Cover',
+                    imageData: backCover?.imageData,
+                    emptyLabel: 'No back cover',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Cover workflow',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Use the metadata cover for the main front cover. Use My Images for front overrides, back covers, slab shots, signatures, and detail photos.',
+                style: TextStyle(color: appPalette(context).textMuted),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Attached personal images: ${resolvedImages.length} total, $auxiliaryCount auxiliary.',
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => _openEditTab('photos'),
+                    icon: const Icon(Icons.collections_outlined),
+                    label: const Text('Manage My Images'),
+                  ),
+                  FilledButton.icon(
+                    onPressed: () => launchEbaySearch(_buildComicMarketSearchQuery()),
+                    icon: const Icon(Icons.search),
+                    label: const Text('Find Better Cover'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _comicPhotosTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'My images workflow',
+          accent: widget.accent,
+          child: Text(
+            'Add up to five personal images and mark them as front cover, back cover, signature, slab, or supporting shots.',
+            style: TextStyle(color: appPalette(context).textMuted),
+          ),
+        ),
+        ItemImagesEditSection(
+          images: widget.itemImages,
+          accent: widget.accent,
+          onChanged: (edits) => _itemImageEdits = edits,
+        ),
+      ],
+    );
   }
 
   Widget _datePickerField({
@@ -2613,4 +2966,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _selectedWishlistBundleReleaseId = state.selectedBundleReleaseId;
     });
   }
+}
+
+class _ResolvedEditImage {
+  const _ResolvedEditImage({
+    required this.id,
+    required this.imageData,
+    required this.imageType,
+    required this.caption,
+    required this.sortOrder,
+  });
+
+  final String id;
+  final String? imageData;
+  final String imageType;
+  final String? caption;
+  final int sortOrder;
 }

@@ -35,6 +35,10 @@ class LibraryEditDraft {
     required this.titleController,
     required this.numberController,
     required this.publisherController,
+    required this.coverDateController,
+    required this.coverDateYearPartController,
+    required this.coverDateMonthPartController,
+    required this.coverDateDayPartController,
     required this.releaseDateController,
     required this.releaseDateYearPartController,
     required this.releaseDateMonthPartController,
@@ -56,6 +60,8 @@ class LibraryEditDraft {
     required this.ageRatingController,
     required this.genresEditController,
     required this.titleExtensionController,
+    required this.crossoverController,
+    required this.storyArcsController,
     required this.ownerLabelController,
     required this.imprintController,
     required this.seriesGroupController,
@@ -162,6 +168,22 @@ class LibraryEditDraft {
     final titleController = TextEditingController(text: item.title);
     final numberController = TextEditingController(text: item.itemNumber ?? '');
     final publisherController = TextEditingController(text: item.publisher ?? '');
+    final coverDateController = TextEditingController(
+      text: item.coverDate == null ? '' : formatDate(item.coverDate!),
+    );
+    final coverDateYearPartController = TextEditingController(
+      text: item.coverDate?.year.toString() ?? '',
+    );
+    final coverDateMonthPartController = TextEditingController(
+      text: item.coverDate == null
+          ? ''
+          : item.coverDate!.month.toString().padLeft(2, '0'),
+    );
+    final coverDateDayPartController = TextEditingController(
+      text: item.coverDate == null
+          ? ''
+          : item.coverDate!.day.toString().padLeft(2, '0'),
+    );
     final releaseDateController = TextEditingController(
       text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
     );
@@ -207,6 +229,11 @@ class LibraryEditDraft {
         TextEditingController(text: item.genres?.join(', ') ?? '');
     final titleExtensionController =
         TextEditingController(text: item.titleExtension ?? '');
+    final crossoverController =
+      TextEditingController(text: item.crossover?.trim() ?? '');
+    final storyArcsController = TextEditingController(
+      text: (item.storyArcs ?? const <String>[]).join(', '),
+    );
     final ownerLabelController =
         TextEditingController(text: ownedItem?.ownerLabel ?? '');
     final imprintController =
@@ -358,6 +385,10 @@ class LibraryEditDraft {
       titleController: titleController,
       numberController: numberController,
       publisherController: publisherController,
+      coverDateController: coverDateController,
+      coverDateYearPartController: coverDateYearPartController,
+      coverDateMonthPartController: coverDateMonthPartController,
+      coverDateDayPartController: coverDateDayPartController,
       releaseDateController: releaseDateController,
       releaseDateYearPartController: releaseDateYearPartController,
       releaseDateMonthPartController: releaseDateMonthPartController,
@@ -379,6 +410,8 @@ class LibraryEditDraft {
       ageRatingController: ageRatingController,
       genresEditController: genresEditController,
       titleExtensionController: titleExtensionController,
+      crossoverController: crossoverController,
+      storyArcsController: storyArcsController,
       ownerLabelController: ownerLabelController,
       imprintController: imprintController,
       seriesGroupController: seriesGroupController,
@@ -478,6 +511,10 @@ class LibraryEditDraft {
   final TextEditingController titleController;
   final TextEditingController numberController;
   final TextEditingController publisherController;
+  final TextEditingController coverDateController;
+  final TextEditingController coverDateYearPartController;
+  final TextEditingController coverDateMonthPartController;
+  final TextEditingController coverDateDayPartController;
   final TextEditingController releaseDateController;
   final TextEditingController releaseDateYearPartController;
   final TextEditingController releaseDateMonthPartController;
@@ -499,6 +536,8 @@ class LibraryEditDraft {
   final TextEditingController ageRatingController;
   final TextEditingController genresEditController;
   final TextEditingController titleExtensionController;
+  final TextEditingController crossoverController;
+  final TextEditingController storyArcsController;
   final TextEditingController ownerLabelController;
   final TextEditingController imprintController;
   final TextEditingController seriesGroupController;
@@ -655,6 +694,11 @@ class LibraryEditDraft {
       subtitle: item.publishing?.subtitle,
       seriesGroup: emptyToNull(seriesGroupController.text),
     );
+    final parsedStoryArcs = storyArcsController.text
+      .split(RegExp(r'[,\r\n]+'))
+        .map((storyArc) => storyArc.trim())
+        .where((storyArc) => storyArc.isNotEmpty)
+        .toList();
     final updatedVideo = VideoCatalogDetails(
       runtimeMinutes: int.tryParse(runtimeController.text),
       color: emptyToNull(colorController.text),
@@ -665,7 +709,7 @@ class LibraryEditDraft {
       layers: emptyToNull(layersController.text),
     );
     final parsedGenres = genresEditController.text
-        .split(',')
+      .split(RegExp(r'[,\r\n]+'))
         .map((genre) => genre.trim())
         .where((genre) => genre.isNotEmpty)
         .toList();
@@ -683,15 +727,18 @@ class LibraryEditDraft {
         physicalFormat: physicalFormatId,
         physicalFormatLabel: physicalFormatForId(physicalFormatId)?.label,
         publisher: emptyToNull(publisherController.text),
+        coverDate: parseDate(coverDateController.text),
         releaseDate: parseDate(releaseDateController.text),
         releaseYear: parseInt(releaseYearController.text),
         barcode: emptyToNull(barcodeController.text),
         variant: emptyToNull(variantController.text),
+        crossover: emptyToNull(crossoverController.text),
         country: emptyToNull(countryController.text),
         language: emptyToNull(languageController.text),
         ageRating: emptyToNull(ageRatingController.text),
         audienceRating: emptyToNull(audienceRatingController.text),
         genres: parsedGenres.isEmpty ? null : parsedGenres,
+        storyArcs: parsedStoryArcs.isEmpty ? null : parsedStoryArcs,
         publishing: updatedPublishing.hasData ? updatedPublishing : null,
         video: updatedVideo.hasData ? updatedVideo : null,
       ),
@@ -818,6 +865,10 @@ class LibraryEditDraft {
       titleController,
       numberController,
       publisherController,
+      coverDateController,
+      coverDateYearPartController,
+      coverDateMonthPartController,
+      coverDateDayPartController,
       releaseDateController,
       releaseDateYearPartController,
       releaseDateMonthPartController,
@@ -839,6 +890,8 @@ class LibraryEditDraft {
       ageRatingController,
       genresEditController,
       titleExtensionController,
+      crossoverController,
+      storyArcsController,
       ownerLabelController,
       imprintController,
       seriesGroupController,
@@ -895,15 +948,18 @@ class LibraryEditDraft {
     LibraryMetadataItem item,
     List<PhysicalMediaFormat> physicalFormats,
   ) {
+    final effectiveFormats = physicalFormats.isEmpty
+        ? allKnownPhysicalMediaFormats
+        : physicalFormats;
     final configured = item.physicalFormat == null
         ? null
-        : physicalMediaFormatById(item.physicalFormat!, formats: physicalFormats);
+        : physicalMediaFormatById(item.physicalFormat!, formats: effectiveFormats);
     if (configured != null) {
       return configured.id;
     }
     final byLabel = physicalMediaFormatByLabelOrId(
       item.physicalFormatLabel ?? item.variant,
-      formats: physicalFormats,
+      formats: effectiveFormats,
     );
     return byLabel?.id;
   }
