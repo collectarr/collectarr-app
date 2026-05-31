@@ -64,7 +64,7 @@ void main() {
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
-    expect(defaults.detailsHeight, 220);
+    expect(defaults.detailsHeight, 300);
     expect(defaults.visibleColumns, {
       LibraryTableColumn.title,
       LibraryTableColumn.issue,

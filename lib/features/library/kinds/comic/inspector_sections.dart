@@ -51,28 +51,63 @@ class _ComicInspectorDashboard extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 780 ? 2 : 1;
-        const spacing = 8.0;
-        final panelWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - spacing) / 2;
+        final columns = constraints.maxWidth >= 640 ? 2 : 1;
+        const spacing = 3.0;
 
-        return Wrap(
-          spacing: spacing,
-          runSpacing: 8,
+        Widget buildPanel(_ComicPanelData panel) => _ComicPanel(
+          title: panel.title,
+          rows: panel.rows,
+          accent: request.accent,
+          variant: panel.variant,
+          initialVisibleRows: panel.title == 'Creators' ? 5 : null,
+        );
+
+        if (columns == 1) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var index = 0; index < panels.length; index++) ...[
+                buildPanel(panels[index]),
+                if (index != panels.length - 1) const SizedBox(height: spacing),
+              ],
+            ],
+          );
+        }
+
+        final leftPanels = panels
+            .where(
+              (panel) =>
+                  panel.title == 'Creators' ||
+                  panel.title == 'Personal' ||
+                  panel.title == 'Value',
+            )
+            .toList();
+        final rightPanels = panels
+            .where(
+              (panel) =>
+                  panel.title == 'Details' || panel.title == 'Collector',
+            )
+            .toList();
+
+        Widget buildColumn(List<_ComicPanelData> columnPanels) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var index = 0; index < columnPanels.length; index++) ...[
+                buildPanel(columnPanels[index]),
+                if (index != columnPanels.length - 1)
+                  const SizedBox(height: spacing),
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final panel in panels)
-              SizedBox(
-                width: panelWidth,
-                child: _ComicPanel(
-                  title: panel.title,
-                  rows: panel.rows,
-                  accent: request.accent,
-                  variant: panel.variant,
-                  initialVisibleRows:
-                      panel.title == 'Creators' ? 5 : null,
-                ),
-              ),
+            Expanded(child: buildColumn(leftPanels)),
+            const SizedBox(width: spacing),
+            Expanded(child: buildColumn(rightPanels)),
           ],
         );
       },
@@ -158,8 +193,8 @@ class _ComicPanelState extends State<_ComicPanel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 26,
-            padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+            height: 18,
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
             decoration: BoxDecoration(
               color: headerSurface,
               border: Border(bottom: BorderSide(color: border)),
@@ -171,6 +206,9 @@ class _ComicPanelState extends State<_ComicPanel> {
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: widget.accent,
                         fontWeight: FontWeight.w800,
+                        letterSpacing: 0,
+                        fontSize: 9.75,
+                        height: 1,
                       ),
                 ),
                 if (canCollapse) ...[
@@ -178,7 +216,7 @@ class _ComicPanelState extends State<_ComicPanel> {
                   InkWell(
                     onTap: () => setState(() => _expanded = !_expanded),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
                       child: Row(
                         children: [
                           Text(
@@ -186,6 +224,8 @@ class _ComicPanelState extends State<_ComicPanel> {
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                   color: palette.textMuted,
                                   fontWeight: FontWeight.w700,
+                                  height: 1,
+                                  fontSize: 8.5,
                                 ),
                           ),
                           const SizedBox(width: 2),
@@ -193,7 +233,7 @@ class _ComicPanelState extends State<_ComicPanel> {
                             _expanded
                                 ? Icons.keyboard_arrow_up
                                 : Icons.keyboard_arrow_down,
-                            size: 14,
+                            size: 8,
                             color: palette.textMuted,
                           ),
                         ],
@@ -248,21 +288,24 @@ class _ComicTableRow extends StatelessWidget {
           color: shaded ? altSurface : surface,
           border: Border(top: BorderSide(color: border)),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.75),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
+            SizedBox(
+              width: 58,
               child: Text(
                 row.label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: palette.textMuted,
                       fontWeight: FontWeight.w800,
+                      height: 1,
+                      fontSize: 8.75,
                     ),
               ),
             ),
-            const SizedBox(width: 8),
-            Flexible(
+            const SizedBox(width: 3),
+            Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -273,7 +316,8 @@ class _ComicTableRow extends StatelessWidget {
                             ? accent
                             : palette.textPrimary,
                         fontWeight: FontWeight.w900,
-                        height: 1.1,
+                        height: 1.02,
+                        fontSize: row.label == 'Current Value' ? 13.5 : 12,
                       ),
                 ),
               ),
@@ -288,7 +332,8 @@ class _ComicTableRow extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: palette.textPrimary,
                 fontWeight: FontWeight.w500,
-            height: 1.2,
+                height: 1.08,
+                fontSize: 9.25,
               ),
         );
 
@@ -297,21 +342,23 @@ class _ComicTableRow extends StatelessWidget {
         color: shaded ? altSurface : surface,
         border: Border(top: BorderSide(color: border)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.75),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 84,
+            width: 52,
             child: Text(
               row.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
+                    height: 1,
+                    fontSize: 8.75,
                   ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 3),
           Expanded(child: valueWidget),
         ],
       ),
@@ -511,7 +558,7 @@ class _ComicStars extends StatelessWidget {
         for (var index = 0; index < 10; index++)
           Icon(
             index < rating ? Icons.star : Icons.star_border,
-            size: 13,
+            size: 11,
             color: const Color(0xFF86909A),
           ),
       ],
@@ -581,11 +628,12 @@ class _ExpandableCreatorNamesState extends State<_ExpandableCreatorNames> {
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: palette.textPrimary,
                 fontWeight: FontWeight.w500,
-                height: 1.2,
+                height: 1.08,
+                fontSize: 9.25,
               ),
         ),
         if (!_expanded && remaining > 0) ...[
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           GestureDetector(
             onTap: () => setState(() => _expanded = true),
             child: Text(
@@ -593,6 +641,7 @@ class _ExpandableCreatorNamesState extends State<_ExpandableCreatorNames> {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w700,
+                    fontSize: 8.5,
                   ),
             ),
           ),

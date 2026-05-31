@@ -31,32 +31,33 @@ class ComicInspectorPanel extends StatelessWidget {
           _ComicInspectorToolbar(request: request),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 16),
               children: [
                 request.hero,
                 if (request.primarySections.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   _ComicSectionDivider(accent: accent),
+                  const SizedBox(height: 10),
                 ],
                 for (final section in request.primarySections) ...[
-                  const SizedBox(height: 12),
                   section,
+                  const SizedBox(height: 10),
                 ],
                 if (request.ownedCopiesSection != null) ...[
-                  const SizedBox(height: 12),
                   request.ownedCopiesSection!,
+                  const SizedBox(height: 10),
                 ],
                 if (request.bundleSection != null) ...[
-                  const SizedBox(height: 12),
                   request.bundleSection!,
+                  const SizedBox(height: 10),
                 ],
                 if (request.conditionGradeSection != null) ...[
-                  const SizedBox(height: 12),
                   request.conditionGradeSection!,
+                  const SizedBox(height: 10),
                 ],
                 for (final section in request.trailingSections) ...[
-                  const SizedBox(height: 12),
                   section,
+                  const SizedBox(height: 10),
                 ],
               ],
             ),
@@ -82,21 +83,20 @@ class _ComicInspectorToolbar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Color.alphaBlend(
-          accent.withValues(alpha: palette.isDark ? 0.05 : 0.03),
+          accent.withValues(alpha: palette.isDark ? 0.04 : 0.022),
           palette.toolbar,
         ),
         border: Border(
           bottom: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.34 : 0.18),
+            color: accent.withValues(alpha: palette.isDark ? 0.28 : 0.14),
           ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+        padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final compact = constraints.maxWidth < 900;
-            final leading = _ComicToolbarGroup(
+            return _ComicToolbarGroup(
               children: [
                 _ComicToolbarButton(
                   label: 'Edit',
@@ -115,6 +115,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   buttonKey: const ValueKey('comic-toolbar-share-menu'),
                   label: 'Share',
                   icon: Icons.share_outlined,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   entries: const [
                     _ComicToolbarMenuEntry(
                       label: 'Share comic',
@@ -141,6 +142,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   buttonKey: const ValueKey('comic-toolbar-more-menu'),
                   label: 'More',
                   icon: Icons.more_vert,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   entries: [
                     _ComicToolbarMenuEntry(
                       label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
@@ -202,45 +204,32 @@ class _ComicInspectorToolbar extends StatelessWidget {
                 ),
                 if (request.extraActions.isNotEmpty) ...[
                   const _ComicToolbarSeparator(),
-                  ...request.extraActions,
+                  for (final action in request.extraActions)
+                    Transform.scale(scale: 0.88, child: action),
                 ],
-              ],
-            );
-
-            final trailing = _ComicToolbarGroup(
-              children: [
-                _ComicToolbarMenuButton(
-                  buttonKey: const ValueKey('comic-toolbar-layout-menu'),
-                  label: 'Layout',
-                  icon: Icons.view_sidebar_outlined,
-                  entries: const [
-                    _ComicToolbarMenuEntry(
-                      label: 'Sidebar details',
-                      icon: Icons.view_sidebar_outlined,
-                      enabled: false,
-                    ),
-                    _ComicToolbarMenuEntry(
-                      label: 'Bottom details',
-                      icon: Icons.splitscreen_outlined,
-                      enabled: false,
-                    ),
-                  ],
+                Transform.scale(
+                  alignment: Alignment.centerLeft,
+                  scale: 0.8,
+                  child: _ComicToolbarMenuButton(
+                    buttonKey: const ValueKey('comic-toolbar-layout-menu'),
+                    label: 'Layout',
+                    icon: Icons.view_sidebar_outlined,
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                    trailingIcon: null,
+                    entries: const [
+                      _ComicToolbarMenuEntry(
+                        label: 'Sidebar details',
+                        icon: Icons.view_sidebar_outlined,
+                        enabled: false,
+                      ),
+                      _ComicToolbarMenuEntry(
+                        label: 'Bottom details',
+                        icon: Icons.splitscreen_outlined,
+                        enabled: false,
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            );
-
-            if (compact) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [leading, const SizedBox(height: 8), trailing],
-              );
-            }
-
-            return Row(
-              children: [
-                Expanded(child: leading),
-                const SizedBox(width: 8),
-                trailing,
               ],
             );
           },
@@ -259,15 +248,23 @@ class _ComicToolbarGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: appPalette(context).divider),
+        border: Border.all(
+          color: appPalette(context).divider.withValues(alpha: 0.84),
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-        child: Wrap(
-          spacing: 4,
-          runSpacing: 4,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: children,
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var index = 0; index < children.length; index++) ...[
+                if (index > 0) const SizedBox(width: 2),
+                children[index],
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -292,7 +289,7 @@ class _ComicToolbarButton extends StatelessWidget {
       icon: icon,
       onPressed: onPressed,
       tone: LibraryDenseButtonTone.subtle,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     );
   }
 }
@@ -303,11 +300,11 @@ class _ComicToolbarSeparator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 18,
+      height: 14,
       child: VerticalDivider(
-        width: 8,
+        width: 5,
         thickness: 1,
-        color: appPalette(context).divider,
+        color: appPalette(context).divider.withValues(alpha: 0.84),
       ),
     );
   }
@@ -333,12 +330,16 @@ class _ComicToolbarMenuButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.entries,
+    this.padding,
+    this.trailingIcon = Icons.keyboard_arrow_down,
   });
 
   final Key? buttonKey;
   final String label;
   final IconData icon;
   final List<_ComicToolbarMenuEntry> entries;
+  final EdgeInsetsGeometry? padding;
+  final IconData? trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -347,6 +348,8 @@ class _ComicToolbarMenuButton extends StatelessWidget {
       label: label,
       icon: icon,
       tone: LibraryDenseButtonTone.subtle,
+      padding: padding,
+      trailingIcon: trailingIcon,
       entries: [
         for (final entry in entries)
           LibraryDenseMenuEntry<_ComicToolbarMenuEntry>(
@@ -379,7 +382,7 @@ class _ComicToolbarBadgeButton extends StatelessWidget {
       icon: icon,
       tone: LibraryDenseButtonTone.subtle,
       onPressed: null,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
     );
   }
 }

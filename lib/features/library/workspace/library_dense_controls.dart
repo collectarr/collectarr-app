@@ -213,6 +213,8 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
     required this.onSelected,
     this.tone = LibraryDenseButtonTone.surface,
     this.tooltip,
+    this.padding,
+    this.trailingIcon = Icons.keyboard_arrow_down,
   });
 
   final String label;
@@ -221,6 +223,8 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
   final ValueChanged<T> onSelected;
   final LibraryDenseButtonTone tone;
   final String? tooltip;
+  final EdgeInsetsGeometry? padding;
+  final IconData? trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -240,8 +244,9 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
       child: LibraryDenseButton(
         label: label,
         icon: icon,
-        trailingIcon: Icons.keyboard_arrow_down,
+        trailingIcon: trailingIcon,
         tone: tone,
+        padding: padding,
       ),
     );
   }

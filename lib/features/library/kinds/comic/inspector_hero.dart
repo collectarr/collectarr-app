@@ -85,12 +85,12 @@ class ComicInspectorHero extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final stacked = constraints.maxWidth < 700;
+        final stacked = constraints.maxWidth < 680;
         final cover = Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: stacked ? 144 : 152,
+              width: stacked ? 118 : 128,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: border, width: 0.8),
@@ -132,7 +132,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             _ComicCoverToggleRow(
               accent: request.accent,
               ink: ink,
@@ -147,7 +147,7 @@ class ComicInspectorHero extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 24,
+              height: 16,
               decoration: BoxDecoration(
                 color: headerSurface,
                 border: Border(bottom: BorderSide(color: border)),
@@ -156,7 +156,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 2.5),
                       child: Text(
                         editionLabel,
                         maxLines: 1,
@@ -164,14 +164,15 @@ class ComicInspectorHero extends ConsumerWidget {
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: ink,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 0.15,
+                          letterSpacing: 0.04,
                               height: 1,
+                              fontSize: 9.25,
                             ),
                       ),
                     ),
                   ),
                   Container(
-                    width: 28,
+                    width: 18,
                     decoration: BoxDecoration(
                       border: Border(left: BorderSide(color: border)),
                     ),
@@ -190,7 +191,7 @@ class ComicInspectorHero extends ConsumerWidget {
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: border)),
               ),
-              padding: const EdgeInsets.fromLTRB(6, 3, 6, 3),
+              padding: const EdgeInsets.fromLTRB(2.5, 1, 2.5, 1),
               child: Column(
                 children: [
                   _ComicDetailLine(label: 'Release', value: releaseLabel),
@@ -203,8 +204,8 @@ class ComicInspectorHero extends ConsumerWidget {
             ),
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(6, 5, 6, 0),
-              padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+              margin: const EdgeInsets.fromLTRB(2, 2, 2, 0),
+              padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -222,20 +223,22 @@ class ComicInspectorHero extends ConsumerWidget {
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: muted,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 0.55,
+                            letterSpacing: 0.3,
                             height: 1,
+                            fontSize: 7.75,
                           ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 1),
                     Text(
                       synopsis?.isNotEmpty == true
                           ? synopsis!
                           : 'No plot available.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: ink,
-                            height: 1.32,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.05,
+                            height: 1.1,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0,
+                            fontSize: 8.5,
                           ),
                       textAlign: TextAlign.start,
                     ),
@@ -258,7 +261,7 @@ class ComicInspectorHero extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     cover,
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 2),
                     infoColumn,
                   ],
                 )
@@ -266,7 +269,7 @@ class ComicInspectorHero extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     cover,
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 3),
                     Expanded(child: infoColumn),
                   ],
                 ),
@@ -308,8 +311,8 @@ class _ComicHeroBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 28,
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            height: 18,
+            padding: const EdgeInsets.symmetric(horizontal: 3),
             decoration: BoxDecoration(
               color: headerSurface,
               border: Border(bottom: BorderSide(color: border)),
@@ -324,13 +327,15 @@ class _ComicHeroBlock extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w800,
+                          letterSpacing: -0.08,
                           height: 1,
+                          fontSize: 13,
                         ),
                   ),
                 ),
-                const SizedBox(width: 5),
+                const SizedBox(width: 3),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
                   decoration: BoxDecoration(
                     border: Border.all(color: border),
                     color: Colors.transparent,
@@ -341,6 +346,7 @@ class _ComicHeroBlock extends StatelessWidget {
                           color: appPalette(context).textPrimary,
                           fontWeight: FontWeight.w800,
                           height: 1,
+                          fontSize: 8,
                         ),
                   ),
                 ),
@@ -348,7 +354,7 @@ class _ComicHeroBlock extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(2),
             child: child,
           ),
         ],
@@ -382,7 +388,7 @@ class _ComicCollectionStatusIcon extends StatelessWidget {
         : wishlisted
             ? Colors.red.shade400
             : muted;
-    return Icon(icon, size: 16, color: color);
+    return Icon(icon, size: 12, color: color);
   }
 }
 
@@ -399,30 +405,32 @@ class _ComicDetailLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 58,
+            width: 34,
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
-                  height: 1.05,
+                    letterSpacing: 0.3,
+                    height: 1,
+                    fontSize: 7.75,
                   ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 3),
           Expanded(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
-                    height: 1.16,
+                    height: 1.02,
+                    fontSize: 8.5,
                   ),
             ),
           ),
@@ -450,27 +458,29 @@ class _ComicCoverToggleRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.circle, size: 8, color: accent),
-        const SizedBox(width: 4),
+        Icon(Icons.circle, size: 6, color: accent),
+        const SizedBox(width: 3),
         Text(
           'Front',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: ink,
                 fontWeight: FontWeight.w700,
+          fontSize: 8,
               ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 5),
         Icon(
           Icons.circle,
-          size: 8,
+          size: 6,
           color: hasBackCover ? muted : muted.withValues(alpha: 0.35),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 3),
         Text(
           'Back',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: hasBackCover ? muted : muted.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w700,
+                fontSize: 8,
               ),
         ),
       ],
