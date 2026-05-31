@@ -132,9 +132,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
         children: [
           widget.headerOverride ??
               Container(
-                height: 42,
+                height: 34,
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
                   color: resolvedHeaderColor,
                   border:
@@ -149,10 +149,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                         widget.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(fontWeight: FontWeight.w800),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
                       ),
                     ),
                     if (widget.trailing != null) widget.trailing!,
@@ -184,11 +183,12 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                   bucket: bucket,
                   selected: selected,
                   onTap: () => widget.onSelectSeries(bucket.title),
+                  dividerColor: resolvedDividerColor,
                   selectionColor: resolvedSelectionColor,
                   selectedBadgeColor: widget.selectedBadgeColor,
                   badgeColor: resolvedBadgeColor,
                   mutedTextColor: resolvedMutedTextColor,
-                  extraVerticalPadding: rowPadding,
+                  extraVerticalPadding: rowPadding.clamp(1.0, 3.0),
                 );
               },
             ),
@@ -219,8 +219,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 32,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: dividerColor)),
       ),
@@ -228,17 +228,17 @@ class _SidebarSearchAndSort extends StatelessWidget {
         children: [
           Expanded(
             child: SizedBox(
-              height: 26,
+              height: 22,
               child: TextField(
                 controller: controller,
                 onChanged: (_) => onChanged(),
-                style: const TextStyle(fontSize: 12),
+                style: const TextStyle(fontSize: 11),
                 decoration: InputDecoration(
                   hintText: 'Filter…',
-                  hintStyle: TextStyle(fontSize: 12, color: mutedTextColor),
+                  hintStyle: TextStyle(fontSize: 11, color: mutedTextColor),
                   prefixIcon: Icon(Icons.search, size: 14, color: mutedTextColor),
                   prefixIconConstraints:
-                      const BoxConstraints(minWidth: 28, maxHeight: 26),
+                      const BoxConstraints(minWidth: 24, maxHeight: 22),
                   suffixIcon: controller.text.isNotEmpty
                       ? GestureDetector(
                           onTap: () {
@@ -250,8 +250,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
                         )
                       : null,
                   suffixIconConstraints:
-                      const BoxConstraints(minWidth: 24, maxHeight: 26),
-                  contentPadding: const EdgeInsets.only(bottom: 10),
+                      const BoxConstraints(minWidth: 20, maxHeight: 22),
+                  contentPadding: const EdgeInsets.only(bottom: 12),
                   border: InputBorder.none,
                   isDense: true,
                 ),
@@ -289,6 +289,7 @@ class _LibrarySeriesRow extends StatelessWidget {
     required this.bucket,
     required this.selected,
     required this.onTap,
+    required this.dividerColor,
     required this.selectionColor,
     required this.selectedBadgeColor,
     required this.badgeColor,
@@ -299,6 +300,7 @@ class _LibrarySeriesRow extends StatelessWidget {
   final LibrarySeriesBucket bucket;
   final bool selected;
   final VoidCallback onTap;
+  final Color dividerColor;
   final Color selectionColor;
   final Color selectedBadgeColor;
   final Color badgeColor;
@@ -327,44 +329,60 @@ class _LibrarySeriesRow extends StatelessWidget {
         ? 'Missing: ${_formatMissingNumbers(bucket.missingNumbers)}'
         : null;
     Widget row = Material(
-      color: selected ? selectionColor : Colors.transparent,
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        hoverColor: selectionColor.withValues(alpha: 0.35),
-        child: SizedBox(
-          height: 34 + extraVerticalPadding * 2,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 3,
-                  height: 18,
-                  decoration: BoxDecoration(
+        hoverColor: selectionColor.withValues(alpha: 0.22),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: selected ? selectionColor : Colors.transparent,
+            border: Border(bottom: BorderSide(color: dividerColor)),
+          ),
+          child: SizedBox(
+            height: 28 + extraVerticalPadding * 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Row(
+                children: [
+                  Container(
+                    width: 2,
+                    height: 16,
                     color: selected ? selectedBadgeColor : Colors.transparent,
-                    borderRadius: BorderRadius.circular(99),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    bucket.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: selected ? selectedTextColor : null,
-                          fontWeight:
-                              selected ? FontWeight.w800 : FontWeight.w500,
-                        ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      bucket.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: selected ? selectedTextColor : null,
+                            fontWeight:
+                                selected ? FontWeight.w800 : FontWeight.w600,
+                          ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Badge(
-                  label: Text(bucket.count.toString()),
-                  backgroundColor: selected ? selectedBadgeColor : badgeColor,
-                  textColor: selected ? selectedBadgeTextColor : badgeTextColor,
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 26),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: selected ? selectedBadgeColor : badgeColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: Text(
+                      bucket.count.toString(),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: selected
+                                ? selectedBadgeTextColor
+                                : badgeTextColor,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

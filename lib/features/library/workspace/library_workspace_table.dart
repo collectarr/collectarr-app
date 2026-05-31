@@ -106,7 +106,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final tableBorderRadius = BorderRadius.circular(10);
+    final tableBorderRadius = BorderRadius.circular(2);
     final resolvedHeaderColor =
       widget.headerColor == kAppSurface ? palette.surface : widget.headerColor;
     final resolvedDividerColor =
@@ -127,19 +127,9 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
       widget.hoverColor == kAppTableHover ? palette.tableHover : widget.hoverColor;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          Colors.white.withValues(alpha: 0.015),
-          palette.panel,
-        ),
+        color: palette.surface,
         borderRadius: tableBorderRadius,
         border: Border.all(color: resolvedDividerColor.withValues(alpha: 0.92)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: ClipRRect(
         borderRadius: tableBorderRadius,
@@ -259,10 +249,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          Colors.white.withValues(alpha: 0.03),
-          headerColor,
-        ),
+        color: headerColor,
         border: Border(
           bottom: BorderSide(color: dividerColor),
         ),
@@ -409,7 +396,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             style: TextStyle(
                               color: headerTextColor,
                               fontWeight: FontWeight.w800,
-                              fontSize: 11,
+                              fontSize: 10,
                             ),
                           ),
                         ),
