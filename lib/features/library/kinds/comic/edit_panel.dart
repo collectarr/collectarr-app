@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
@@ -201,6 +204,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   late final TextEditingController tagsCtl;
   late final TextEditingController notesCtl;
   late final TextEditingController coverUrlCtl;
+  late final TextEditingController backCoverUrlCtl;
   late final TextEditingController collectionStatusCtl;
   late final TextEditingController indexNumberCtl;
   late final TextEditingController quantityCtl;
@@ -340,7 +344,9 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     tagsCtl = _createController(owned?.tags ?? '');
     notesCtl = _createController(owned?.personalNotes ?? '');
     coverUrlCtl = _createController(item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
+    backCoverUrlCtl = _createController('');
     collectionStatusCtl = _createController(owned?.collectionStatus ?? 'In Collection');
+
     indexNumberCtl = _createController(
       owned?.indexNumber?.toString() ?? '',
     );
@@ -452,6 +458,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     setState(() {});
   }
 
+  void _reorderCreator(int oldIndex, int newIndex) {
+    final item = _creators.removeAt(oldIndex);
+    _creators.insert(newIndex, item);
+    setState(() {});
+  }
+
   Future<void> _lookupCreatorForRow(int idx) async {
     final result = await _showLookupDialog(
       title: 'Find creator',
@@ -540,6 +552,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     setState(() {});
   }
 
+  void _reorderCharacter(int oldIndex, int newIndex) {
+    final item = _characters.removeAt(oldIndex);
+    _characters.insert(newIndex, item);
+    setState(() {});
+  }
+
   void _addLink() {
     links.add(_createLinkControllers());
     setState(() {});
@@ -548,6 +566,25 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   void _removeLink(int idx) {
     final link = links.removeAt(idx);
     _disposeLinkControllers(link);
+    setState(() {});
+  }
+
+  void _reorderLink(int oldIndex, int newIndex) {
+    final item = links.removeAt(oldIndex);
+    links.insert(newIndex, item);
+    setState(() {});
+  }
+
+  Future<void> _pickCoverImage(TextEditingController controller) async {
+    final picker = ImagePicker();
+    final file = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 90,
+    );
+    if (file == null || !mounted) return;
+    controller.text = File(file.path).uri.toString();
     setState(() {});
   }
 
@@ -975,6 +1012,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           segments: const [
             ButtonSegment<String>(value: 'Raw', label: Text('Raw')),
             ButtonSegment<String>(value: 'Slabbed', label: Text('Slabbed')),
+            ButtonSegment<String>(
+                value: 'Raw + Signed', label: Text('Raw + Signed')),
           ],
           selected: {current},
           onSelectionChanged: (selection) {
@@ -1844,6 +1883,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
 
   Widget _buildCoversTab() {
     final coverUrl = coverUrlCtl.text.trim();
+    final backCoverUrl = backCoverUrlCtl.text.trim();
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -1873,7 +1913,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                     _coverAction(
                       icon: Icons.upload_outlined,
                       label: 'Upload',
-                      onPressed: null, // TODO: file picker
+                      onPressed: () => _pickCoverImage(coverUrlCtl),
                     ),
                     _coverAction(
                       icon: Icons.delete_outline,
@@ -1901,27 +1941,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                AspectRatio(
-                  aspectRatio: 0.65,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border:
-                          Border.all(color: Theme.of(context).dividerColor),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: coverUrl.isNotEmpty
-                        ? Image.network(coverUrl,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Center(
-                                child: Icon(Icons.broken_image_outlined,
-                                    size: 48)))
-                        : Center(
-                            child: Icon(Icons.image_outlined,
-                                size: 48,
-                                color: Theme.of(context).hintColor)),
-                  ),
-                ),
+                _coverPreview(coverUrl),
                 const SizedBox(height: 8),
                 TextField(
                   controller: coverUrlCtl,
@@ -1955,46 +1975,55 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                   runSpacing: 4,
                   children: [
                     _coverAction(
-                      icon: Icons.search,
-                      label: 'Find Online',
-                      onPressed: null,
-                    ),
-                    _coverAction(
                       icon: Icons.upload_outlined,
                       label: 'Upload',
-                      onPressed: null, // TODO: file picker
+                      onPressed: () => _pickCoverImage(backCoverUrlCtl),
                     ),
                     _coverAction(
                       icon: Icons.delete_outline,
                       label: 'Remove',
-                      onPressed: null,
-                    ),
-                    _coverAction(
-                      icon: Icons.restore,
-                      label: 'Restore',
-                      onPressed: null,
+                      onPressed: backCoverUrl.isEmpty
+                          ? null
+                          : () {
+                              backCoverUrlCtl.clear();
+                              setState(() {});
+                            },
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                AspectRatio(
-                  aspectRatio: 0.65,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border:
-                          Border.all(color: Theme.of(context).dividerColor),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.image_outlined,
-                          size: 48, color: Theme.of(context).hintColor),
-                    ),
-                  ),
-                ),
+                _coverPreview(backCoverUrl),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _coverPreview(String url) {
+    final isFileUri = url.startsWith('file://');
+    return AspectRatio(
+      aspectRatio: 0.65,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).dividerColor),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: url.isNotEmpty
+            ? (isFileUri
+                ? Image.file(File.fromUri(Uri.parse(url)),
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Center(
+                        child: Icon(Icons.broken_image_outlined, size: 48)))
+                : Image.network(url,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Center(
+                        child: Icon(Icons.broken_image_outlined, size: 48))))
+            : Center(
+                child: Icon(Icons.image_outlined,
+                    size: 48, color: Theme.of(context).hintColor)),
       ),
     );
   }
@@ -2151,78 +2180,91 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                   ),
                 ),
               ),
-            for (var i = 0; i < _creators.length; i++)
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom:
-                        BorderSide(color: Theme.of(context).dividerColor),
-                  ),
+            if (_creators.isNotEmpty)
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                onReorderItem: _reorderCreator,
+                itemCount: _creators.length,
+                buildDefaultDragHandles: false,
+                proxyDecorator: (child, _, __) => Material(
+                  elevation: 2,
+                  child: child,
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    Icon(Icons.drag_handle,
-                        size: 20, color: Theme.of(context).hintColor),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 140,
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _commonCreatorRoles.contains(
-                                _creators[i].roleController.text.trim())
-                            ? _creators[i].roleController.text.trim()
-                            : null,
-                        isDense: true,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          hintText: 'Job',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                        style: const TextStyle(fontSize: 12),
-                        items: [
-                          for (final role in _commonCreatorRoles)
-                            DropdownMenuItem(
-                                value: role, child: Text(role)),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) {
-                            _creators[i].roleController.text = v;
-                          }
-                        },
-                        key: ValueKey('edit-creator-$i-role'),
+                itemBuilder: (context, i) => Container(
+                  key: ValueKey(_creators[i]),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom:
+                          BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      ReorderableDragStartListener(
+                        index: i,
+                        child: Icon(Icons.drag_handle,
+                            size: 20, color: Theme.of(context).hintColor),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _creators[i].nameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Name',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 140,
+                        child: DropdownButtonFormField<String>(
+                          initialValue: _commonCreatorRoles.contains(
+                                  _creators[i].roleController.text.trim())
+                              ? _creators[i].roleController.text.trim()
+                              : null,
                           isDense: true,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            hintText: 'Job',
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 8),
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          style: const TextStyle(fontSize: 12),
+                          items: [
+                            for (final role in _commonCreatorRoles)
+                              DropdownMenuItem(
+                                  value: role, child: Text(role)),
+                          ],
+                          onChanged: (v) {
+                            if (v != null) {
+                              _creators[i].roleController.text = v;
+                            }
+                          },
                         ),
-                        key: ValueKey('edit-creator-$i-name'),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.person_search, size: 18),
-                      onPressed: () => _lookupCreatorForRow(i),
-                      tooltip: 'Lookup',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: () => _removeCreator(i),
-                      tooltip: 'Remove',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _creators[i].nameController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: const InputDecoration(
+                            hintText: 'Name',
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 8),
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.person_search, size: 18),
+                        onPressed: () => _lookupCreatorForRow(i),
+                        tooltip: 'Lookup',
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () => _removeCreator(i),
+                        tooltip: 'Remove',
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -2357,58 +2399,71 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                   ),
                 ),
               ),
-            for (var i = 0; i < _characters.length; i++)
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom:
-                        BorderSide(color: Theme.of(context).dividerColor),
-                  ),
+            if (_characters.isNotEmpty)
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                onReorderItem: _reorderCharacter,
+                itemCount: _characters.length,
+                buildDefaultDragHandles: false,
+                proxyDecorator: (child, _, __) => Material(
+                  elevation: 2,
+                  child: child,
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    Icon(Icons.drag_handle,
-                        size: 20, color: Theme.of(context).hintColor),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 4,
-                      child: TextField(
-                        controller: _characters[i].nameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Character name',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                        key: ValueKey('edit-character-$i-name'),
+                itemBuilder: (context, i) => Container(
+                  key: ValueKey(_characters[i]),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom:
+                          BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      ReorderableDragStartListener(
+                        index: i,
+                        child: Icon(Icons.drag_handle,
+                            size: 20, color: Theme.of(context).hintColor),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 3,
-                      child: TextField(
-                        controller: _characters[i].realNameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Real name',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
-                          isDense: true,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 4,
+                        child: TextField(
+                          controller: _characters[i].nameController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: const InputDecoration(
+                            hintText: 'Character name',
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 8),
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
                         ),
-                        key: ValueKey('edit-character-$i-realname'),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: () => _removeCharacter(i),
-                      tooltip: 'Remove',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 3,
+                        child: TextField(
+                          controller: _characters[i].realNameController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: const InputDecoration(
+                            hintText: 'Real name',
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 8),
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () => _removeCharacter(i),
+                        tooltip: 'Remove',
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -2497,63 +2552,76 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                 ),
               ),
             ),
-          for (var i = 0; i < links.length; i++)
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  left:
-                      BorderSide(color: Theme.of(context).dividerColor),
-                  right:
-                      BorderSide(color: Theme.of(context).dividerColor),
-                  bottom:
-                      BorderSide(color: Theme.of(context).dividerColor),
-                ),
+          if (links.isNotEmpty)
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              onReorderItem: _reorderLink,
+              itemCount: links.length,
+              buildDefaultDragHandles: false,
+              proxyDecorator: (child, _, __) => Material(
+                elevation: 2,
+                child: child,
               ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
-                children: [
-                  Icon(Icons.drag_handle,
-                      size: 20, color: Theme.of(context).hintColor),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 3,
-                    child: TextField(
-                      controller: links[i]['title'],
-                      style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        hintText: 'Link title',
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      key: ValueKey('edit-link-$i-title'),
+              itemBuilder: (context, i) => Container(
+                key: ValueKey(links[i]),
+                decoration: BoxDecoration(
+                  border: Border(
+                    left:
+                        BorderSide(color: Theme.of(context).dividerColor),
+                    right:
+                        BorderSide(color: Theme.of(context).dividerColor),
+                    bottom:
+                        BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                child: Row(
+                  children: [
+                    ReorderableDragStartListener(
+                      index: i,
+                      child: Icon(Icons.drag_handle,
+                          size: 20, color: Theme.of(context).hintColor),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 5,
-                    child: TextField(
-                      controller: links[i]['url'],
-                      style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        hintText: 'https://',
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: OutlineInputBorder(),
-                        isDense: true,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: links[i]['title'],
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Link title',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
                       ),
-                      key: ValueKey('edit-link-$i-url'),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 18),
-                    onPressed: () => _removeLink(i),
-                    tooltip: 'Remove',
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 5,
+                      child: TextField(
+                        controller: links[i]['url'],
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'https://',
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => _removeLink(i),
+                      tooltip: 'Remove',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
               ),
             ),
           const SizedBox(height: 12),
