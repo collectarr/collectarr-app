@@ -1086,15 +1086,15 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   Widget _buildMainTab(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SingleValuePickField(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 5,
+                child: SingleValuePickField(
                   fieldKey: const ValueKey('edit-series'),
                   controller: seriesCtl,
                   options: [for (final entry in _seriesEntries) entry.title],
@@ -1103,62 +1103,72 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                   onManage: _openSeriesPicker,
                   manageTooltip: 'Manage Series',
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                        child: _labelledField('Barcode',
-                            controller: barcodeCtl,
-                            key: const ValueKey('edit-barcode'))),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: _buildQuickChoiceField(
-                      'Format',
-                      controller: formatCtl,
-                      key: const ValueKey('edit-format'),
-                      suggestions: _commonFormats,
-                    )),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _buildQuickChoiceField(
-                  'Series Group',
-                  controller: seriesGroupCtl,
-                  key: const ValueKey('edit-seriesgroup'),
-                  suggestions: [
-                    widget.request.item.publishing?.seriesGroup ?? ''
-                  ],
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: _labelledField('Issue No.',
+                    controller: issueNumberCtl,
+                    key: const ValueKey('edit-issuenr')),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: _labelledField('Variant',
+                    controller: variantCtl,
+                    key: const ValueKey('edit-variant')),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 5,
+                child: _labelledField('Variant Description',
+                    controller: variantDescCtl,
+                    key: const ValueKey('edit-variant-desc')),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 7,
-            child: Column(
-              children: [
-                Row(
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                        flex: 3,
-                        child: _labelledField('Issue No.',
-                            controller: issueNumberCtl,
-                            key: const ValueKey('edit-issuenr'))),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        flex: 2,
-                        child: _labelledField('Variant',
-                            controller: variantCtl,
-                            key: const ValueKey('edit-variant'))),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        flex: 7,
-                        child: _labelledField('Variant Description',
-                            controller: variantDescCtl,
-                            key: const ValueKey('edit-variant-desc'))),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _labelledField('Barcode',
+                                controller: barcodeCtl,
+                                key: const ValueKey('edit-barcode'))),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: _buildQuickChoiceField(
+                          'Format',
+                          controller: formatCtl,
+                          key: const ValueKey('edit-format'),
+                          suggestions: _commonFormats,
+                        )),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _buildQuickChoiceField(
+                      'Series Group',
+                      controller: seriesGroupCtl,
+                      key: const ValueKey('edit-seriesgroup'),
+                      suggestions: [
+                        widget.request.item.publishing?.seriesGroup ?? ''
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 7,
+                child: Column(
+              children: [
                 Row(
                   children: [
                     Expanded(
@@ -1192,8 +1202,10 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                     )),
                   ],
                 ),
-              ],
-            ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
