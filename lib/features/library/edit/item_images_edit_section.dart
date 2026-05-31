@@ -36,7 +36,7 @@ class ItemImageEdit {
   });
 
   final String id;
-  final String? imageData;
+  final Uint8List? imageData;
   final String? caption;
   final String imageType;
   final int sortOrder;
@@ -201,7 +201,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       return;
     }
     final bytes = await file.readAsBytes();
-    _addImage(base64Encode(bytes));
+    _addImage(bytes);
   }
 
   Future<void> _addImageFromClipboard() async {
@@ -237,8 +237,9 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     if (base64Data == null || base64Data.isEmpty) {
       return;
     }
+    Uint8List bytes;
     try {
-      base64Decode(base64Data);
+      bytes = base64Decode(base64Data);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'item_images',
@@ -253,10 +254,10 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       }
       return;
     }
-    _addImage(base64Data);
+    _addImage(bytes);
   }
 
-  void _addImage(String base64Data) {
+  void _addImage(Uint8List imageData) {
     if (_visibleImages().length >= 5) {
       return;
     }
@@ -265,7 +266,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       _images.add(
         _EditableImage(
           id: createdAt.microsecondsSinceEpoch.toString(),
-          imageData: base64Data,
+          imageData: imageData,
           createdAt: createdAt,
           imageType: 'auxiliary',
           sortOrder: _images.length,
@@ -381,8 +382,8 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     required bool clockwise,
   }) async {
     try {
-      final rotatedBase64 = await compute(
-        _rotateImageBase64,
+      final rotatedBytes = await compute(
+        _rotateImageBytes,
         _ImageTransformRequest.rotate(
           imageData: image.imageData,
           clockwise: clockwise,
@@ -392,7 +393,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         return;
       }
       setState(() {
-        image.imageData = rotatedBase64;
+        image.imageData = rotatedBytes;
         image.hasBinaryChanges = true;
       });
       _notifyChanged();
@@ -454,7 +455,6 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
 
   Future<void> _cropImage(_EditableImage image) async {
     try {
-      final bytes = base64Decode(image.imageData);
       final aspectRatio = await compute(_decodeImageAspectRatio, image.imageData);
       if (!mounted) {
         return;
@@ -462,15 +462,15 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       final bounds = await showDialog<_ImageCropBounds>(
         context: context,
         builder: (context) => _ImageCropDialog(
-          imageBytes: bytes,
+          imageBytes: image.imageData,
           aspectRatio: aspectRatio,
         ),
       );
       if (bounds == null) {
         return;
       }
-      final croppedBase64 = await compute(
-        _cropImageBase64,
+      final croppedBytes = await compute(
+        _cropImageBytes,
         _ImageTransformRequest.crop(
           imageData: image.imageData,
           bounds: bounds,
@@ -480,7 +480,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         return;
       }
       setState(() {
-        image.imageData = croppedBase64;
+        image.imageData = croppedBytes;
         image.hasBinaryChanges = true;
       });
       _notifyChanged();
@@ -539,29 +539,29 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 }
 
-String _rotateImageBase64(_ImageTransformRequest request) {
+Uint8List _rotateImageBytes(_ImageTransformRequest request) {
   final decoded = _decodeEditableImage(request.imageData);
   final clockwise = request.clockwise!;
   final rotated = img.copyRotate(
     decoded,
     angle: clockwise ? 90 : -90,
   );
-  return base64Encode(img.encodePng(rotated));
+  return Uint8List.fromList(img.encodePng(rotated));
 }
 
-double _decodeImageAspectRatio(String imageData) {
+double _decodeImageAspectRatio(Uint8List imageData) {
   final decoded = _decodeEditableImage(imageData);
   return decoded.width / decoded.height;
 }
 
-String _cropImageBase64(_ImageTransformRequest request) {
+Uint8List _cropImageBytes(_ImageTransformRequest request) {
   final decoded = _decodeEditableImage(request.imageData);
   final cropped = _applyCropBounds(decoded, request.bounds!);
-  return base64Encode(img.encodePng(cropped));
+  return Uint8List.fromList(img.encodePng(cropped));
 }
 
-img.Image _decodeEditableImage(String imageData) {
-  final decoded = img.decodeImage(base64Decode(imageData));
+img.Image _decodeEditableImage(Uint8List imageData) {
+  final decoded = img.decodeImage(imageData);
   if (decoded == null) {
     throw StateError('Image decode returned null.');
   }
@@ -586,16 +586,16 @@ class _ImageTransformRequest {
   });
 
   const _ImageTransformRequest.rotate({
-    required String imageData,
+    required Uint8List imageData,
     required bool clockwise,
   }) : this._(imageData: imageData, clockwise: clockwise);
 
   const _ImageTransformRequest.crop({
-    required String imageData,
+    required Uint8List imageData,
     required _ImageCropBounds bounds,
   }) : this._(imageData: imageData, bounds: bounds);
 
-  final String imageData;
+  final Uint8List imageData;
   final bool? clockwise;
   final _ImageCropBounds? bounds;
 }
@@ -613,7 +613,7 @@ class _EditableImage {
   });
 
   final String id;
-  String imageData;
+  Uint8List imageData;
   final DateTime createdAt;
   String? caption;
   String imageType;
@@ -692,25 +692,13 @@ class _ImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget thumbnail;
-    try {
-      final bytes = base64Decode(image.imageData);
-      thumbnail = Image.memory(
-        bytes,
-        fit: BoxFit.cover,
-        width: 120,
-        height: 120,
-        errorBuilder: (_, __, ___) => _placeholder(),
-      );
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'item_images',
-        message: 'Failed to decode item image thumbnail base64 data.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      thumbnail = _placeholder();
-    }
+    final thumbnail = Image.memory(
+      image.imageData,
+      fit: BoxFit.cover,
+      width: 120,
+      height: 120,
+      errorBuilder: (_, __, ___) => _placeholder(),
+    );
 
     return SizedBox(
       width: 120,

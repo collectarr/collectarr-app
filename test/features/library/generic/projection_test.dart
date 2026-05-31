@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -241,7 +243,7 @@ void main() {
           id: 'img-1',
           ownedItemId: 'owned-1',
           imageType: 'back_cover',
-          imageData: 'data',
+          imageData: Uint8List.fromList('data'.codeUnits),
           createdAt: DateTime.utc(2026, 4, 1),
         ),
       ],

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -2606,20 +2606,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _buildImagePreviewCard(
     String title, {
     String? networkUrl,
-    String? imageData,
+    Uint8List? imageData,
     String emptyLabel = 'No image',
   }) {
     Widget child;
     if (imageData != null && imageData.isNotEmpty) {
-      try {
-        child = Image.memory(
-          base64Decode(imageData),
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
-        );
-      } catch (_) {
-        child = Center(child: Text(emptyLabel));
-      }
+      child = Image.memory(
+        imageData,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
+      );
     } else if (networkUrl != null && networkUrl.isNotEmpty) {
       child = Image.network(
         networkUrl,
@@ -3078,7 +3074,7 @@ class _ResolvedEditImage {
   });
 
   final String id;
-  final String? imageData;
+  final Uint8List? imageData;
   final String imageType;
   final String? caption;
   final int sortOrder;

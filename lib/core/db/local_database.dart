@@ -153,7 +153,7 @@ class ItemImagesCache extends Table {
   TextColumn get ownedItemId => text()();
   TextColumn get imageType => text().withDefault(
       const Constant('front_cover'))(); // front_cover, back_cover, auxiliary
-  TextColumn get imageData => text()(); // base64-encoded image data
+  BlobColumn get imageData => blob()(); // raw image bytes
   TextColumn get caption => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime()();
@@ -407,7 +407,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -62,7 +64,7 @@ void main() {
             id: 'img-1',
             ownedItemId: 'owned-1',
             imageType: 'back_cover',
-            imageData: 'data',
+            imageData: Uint8List.fromList('data'.codeUnits),
             createdAt: DateTime.utc(2026, 5, 8),
           ),
         ],

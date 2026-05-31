@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -1064,14 +1066,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       imageUrl: emptyToNull(_thumbnailController.text) ??
           emptyToNull(_coverController.text) ??
           _item.displayCoverUrl,
-      localBase64: _localImageData('front_cover'),
-      secondaryLocalBase64: _localImageData('back_cover'),
+      localBytes: _localImageData('front_cover'),
+      secondaryLocalBytes: _localImageData('back_cover'),
       accentColor: _accent,
       borderRadius: 8,
     );
   }
 
-  String? _localImageData(String imageType) {
+  Uint8List? _localImageData(String imageType) {
     final matching = widget.request.itemImages
         .where((image) => image.imageType == imageType)
         .toList(growable: false);

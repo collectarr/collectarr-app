@@ -172,6 +172,12 @@ class SeriesRegistryRepository {
   }
 
   Future<void> captureCatalogItems(List<CatalogItem> items) async {
+    await _db.transaction(() async {
+      await captureCatalogItemsWithoutTransaction(items);
+    });
+  }
+
+  Future<void> captureCatalogItemsWithoutTransaction(List<CatalogItem> items) async {
     if (items.isEmpty) {
       return;
     }
@@ -204,43 +210,41 @@ class SeriesRegistryRepository {
       return;
     }
 
-    await _db.transaction(() async {
-      for (final candidate in candidates.values) {
-        final existing = await _findMatchingRow(
-          mediaKind: candidate.mediaKind,
-          coreSeriesId: candidate.coreSeriesId,
-          normalizedTitle: candidate.normalizedTitle,
-        );
-        if (existing == null) {
-          await _db.into(_db.seriesRegistryCache).insert(
-                SeriesRegistryCacheCompanion.insert(
-                  id: const Uuid().v4(),
-                  mediaKind: candidate.mediaKind,
-                  title: candidate.title,
-                  normalizedTitle: candidate.normalizedTitle,
-                  sortTitle: Value(candidate.sortTitle),
-                  normalizedSortTitle: Value(candidate.normalizedSortTitle),
-                  coreSeriesId: Value(candidate.coreSeriesId),
-                  createdAt: now,
-                  updatedAt: now,
-                ),
-              );
-          continue;
-        }
-        await (_db.update(_db.seriesRegistryCache)
-              ..where((table) => table.id.equals(existing.id)))
-            .write(
-          SeriesRegistryCacheCompanion(
-            title: Value(candidate.title),
-            normalizedTitle: Value(candidate.normalizedTitle),
-            sortTitle: Value(candidate.sortTitle),
-            normalizedSortTitle: Value(candidate.normalizedSortTitle),
-            coreSeriesId: Value(candidate.coreSeriesId ?? existing.coreSeriesId),
-            updatedAt: Value(now),
-          ),
-        );
+    for (final candidate in candidates.values) {
+      final existing = await _findMatchingRow(
+        mediaKind: candidate.mediaKind,
+        coreSeriesId: candidate.coreSeriesId,
+        normalizedTitle: candidate.normalizedTitle,
+      );
+      if (existing == null) {
+        await _db.into(_db.seriesRegistryCache).insert(
+              SeriesRegistryCacheCompanion.insert(
+                id: const Uuid().v4(),
+                mediaKind: candidate.mediaKind,
+                title: candidate.title,
+                normalizedTitle: candidate.normalizedTitle,
+                sortTitle: Value(candidate.sortTitle),
+                normalizedSortTitle: Value(candidate.normalizedSortTitle),
+                coreSeriesId: Value(candidate.coreSeriesId),
+                createdAt: now,
+                updatedAt: now,
+              ),
+            );
+        continue;
       }
-    });
+      await (_db.update(_db.seriesRegistryCache)
+            ..where((table) => table.id.equals(existing.id)))
+          .write(
+        SeriesRegistryCacheCompanion(
+          title: Value(candidate.title),
+          normalizedTitle: Value(candidate.normalizedTitle),
+          sortTitle: Value(candidate.sortTitle),
+          normalizedSortTitle: Value(candidate.normalizedSortTitle),
+          coreSeriesId: Value(candidate.coreSeriesId ?? existing.coreSeriesId),
+          updatedAt: Value(now),
+        ),
+      );
+    }
   }
 
   Future<void> renameEntry({

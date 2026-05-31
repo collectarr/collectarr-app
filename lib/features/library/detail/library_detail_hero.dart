@@ -94,8 +94,8 @@ class LibraryDetailHero extends StatelessWidget {
                       title: entry.resolvedTitle,
                       itemNumber: entry.itemNumber,
                       imageUrl: entry.displayCoverUrl,
-                      localBase64: localFront,
-                      secondaryLocalBase64: localBack,
+                      localBytes: localFront,
+                      secondaryLocalBytes: localBack,
                       ownedItemId: ownedItemId,
                       accentColor: accent,
                       onMissingSecondaryPressed: ownedItemId == null

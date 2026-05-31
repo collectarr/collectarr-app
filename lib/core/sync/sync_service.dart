@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -173,7 +175,7 @@ class SyncService {
           id: deterministicId,
           ownedItemId: ownedItemId,
           imageType: 'front_cover',
-          imageData: entry.value,
+          imageData: base64Decode(entry.value),
         );
       }
     }

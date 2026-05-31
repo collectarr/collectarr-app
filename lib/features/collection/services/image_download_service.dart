@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:typed_data';
 
@@ -27,8 +26,8 @@ class ImageDownloadService {
   /// Download the cover image at [url] and store it locally for [ownedItemId].
   ///
   /// Skips silently if the URL is null/empty or if the download fails.
-  /// Returns the stored base64 data, or null on failure.
-  Future<String?> downloadAndStoreCover({
+  /// Returns the stored bytes, or null on failure.
+  Future<Uint8List?> downloadAndStoreCover({
     required String ownedItemId,
     required String? coverImageUrl,
     String imageType = 'front_cover',
@@ -50,18 +49,19 @@ class ImageDownloadService {
         return null;
       }
       final response = await _imageDownloadClient.getUri<List<int>>(uri);
-      final bytes = response.data == null ? Uint8List(0) : Uint8List.fromList(response.data!);
+      final bytes = response.data == null
+          ? Uint8List(0)
+          : Uint8List.fromList(response.data!);
       if (response.statusCode != 200 || bytes.isEmpty) {
         return null;
       }
-      final base64Data = base64Encode(bytes);
       await imagesRepo.upsert(
         id: _uuid.v5(Namespace.url.value, '$ownedItemId:$imageType'),
         ownedItemId: ownedItemId,
         imageType: imageType,
-        imageData: base64Data,
+        imageData: bytes,
       );
-      return base64Data;
+      return bytes;
     } catch (error, stack) {
       developer.log(
         'Failed to download cover image',
@@ -75,14 +75,14 @@ class ImageDownloadService {
 
   /// Download cover images for a batch of items.
   ///
-  /// Returns a map of ownedItemId → base64 image data for successful downloads.
-  Future<Map<String, String>> downloadCoversForItems(
+  /// Returns a map of ownedItemId → image bytes for successful downloads.
+  Future<Map<String, Uint8List>> downloadCoversForItems(
     Map<String, String?> ownedItemIdToCoverUrl, {
     String imageType = 'front_cover',
     int concurrency = 4,
   }) async {
     final entries = ownedItemIdToCoverUrl.entries.toList();
-    final results = <String, String>{};
+    final results = <String, Uint8List>{};
     for (var i = 0; i < entries.length; i += concurrency) {
       final chunk = entries.skip(i).take(concurrency);
       final downloaded = await Future.wait(

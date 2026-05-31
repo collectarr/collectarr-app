@@ -153,33 +153,35 @@ class CatalogCacheRepository {
           .add(item);
     }
 
-    for (final entry in byKind.entries) {
-      final mediaKind = entry.key;
-      final scopedItems = entry.value;
-      await pickLists.captureValues(
-        kPublisherPickListName,
-        scopedItems.map((item) => item.publisher),
-        mediaKind: mediaKind,
-      );
-      await pickLists.captureValues(
-        kImprintPickListName,
-        scopedItems.map((item) => item.publishing?.imprint),
-        mediaKind: mediaKind,
-      );
-      await pickLists.captureValues(
-        kSeriesGroupPickListName,
-        scopedItems.map((item) => item.publishing?.seriesGroup),
-        mediaKind: mediaKind,
-      );
-      await pickLists.captureValues(
-        kPhysicalFormatPickListName,
-        scopedItems.map(
-          (item) => item.physicalFormatLabel ?? item.physicalFormat,
-        ),
-        mediaKind: mediaKind,
-      );
-    }
-    await seriesRegistry.captureCatalogItems(items);
+    await _db.transaction(() async {
+      for (final entry in byKind.entries) {
+        final mediaKind = entry.key;
+        final scopedItems = entry.value;
+        await pickLists.captureValuesWithoutTransaction(
+          kPublisherPickListName,
+          scopedItems.map((item) => item.publisher),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kImprintPickListName,
+          scopedItems.map((item) => item.publishing?.imprint),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kSeriesGroupPickListName,
+          scopedItems.map((item) => item.publishing?.seriesGroup),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kPhysicalFormatPickListName,
+          scopedItems.map(
+            (item) => item.physicalFormatLabel ?? item.physicalFormat,
+          ),
+          mediaKind: mediaKind,
+        );
+      }
+      await seriesRegistry.captureCatalogItemsWithoutTransaction(items);
+    });
   }
 
   Future<Map<String, CatalogItem>> findByIds(Iterable<String> ids) async {

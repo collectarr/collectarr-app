@@ -1682,7 +1682,7 @@ class CollectionMutations {
     try {
       final imagesCache = _imagesCache();
       // Skip if image already cached locally.
-      final cached = await imagesCache.frontCoverBase64(ownedItemId);
+      final cached = await imagesCache.frontCoverBytes(ownedItemId);
       if (cached != null) return;
 
       final item = await _catalogCache().findById(itemId);

@@ -68,6 +68,20 @@ class PickListRepository {
     Iterable<String?> values, {
     String? mediaKind,
   }) async {
+    await _db.transaction(() async {
+      await captureValuesWithoutTransaction(
+        listName,
+        values,
+        mediaKind: mediaKind,
+      );
+    });
+  }
+
+  Future<void> captureValuesWithoutTransaction(
+    String listName,
+    Iterable<String?> values, {
+    String? mediaKind,
+  }) async {
     final normalizedValues = values
         .map((value) => value?.trim())
         .whereType<String>()
@@ -78,40 +92,38 @@ class PickListRepository {
       return;
     }
 
-    await _db.transaction(() async {
-      final existingRows = await (_db.select(_db.pickListValuesCache)
-            ..where((t) {
-              final expr = t.listName.equals(listName);
-              return mediaKind != null
-                  ? expr & t.mediaKind.equals(mediaKind)
-                  : expr & t.mediaKind.isNull();
-            }))
-          .get();
-      final existing = {
-        for (final row in existingRows) row.value.trim().toLowerCase(): row,
-      };
-      var nextSortOrder = existingRows.fold<int>(
-        0,
-        (maxSortOrder, row) => row.sortOrder >= maxSortOrder
-            ? row.sortOrder + 1
-            : maxSortOrder,
-      );
-      for (final value in normalizedValues) {
-        if (existing.containsKey(value.toLowerCase())) {
-          continue;
-        }
-        await _db.into(_db.pickListValuesCache).insert(
-              PickListValuesCacheCompanion.insert(
-                id: const Uuid().v4(),
-                listName: listName,
-                mediaKind: Value(mediaKind),
-                value: value,
-                sortOrder: Value(nextSortOrder),
-              ),
-            );
-        nextSortOrder += 1;
+    final existingRows = await (_db.select(_db.pickListValuesCache)
+          ..where((t) {
+            final expr = t.listName.equals(listName);
+            return mediaKind != null
+                ? expr & t.mediaKind.equals(mediaKind)
+                : expr & t.mediaKind.isNull();
+          }))
+        .get();
+    final existing = {
+      for (final row in existingRows) row.value.trim().toLowerCase(): row,
+    };
+    var nextSortOrder = existingRows.fold<int>(
+      0,
+      (maxSortOrder, row) => row.sortOrder >= maxSortOrder
+          ? row.sortOrder + 1
+          : maxSortOrder,
+    );
+    for (final value in normalizedValues) {
+      if (existing.containsKey(value.toLowerCase())) {
+        continue;
       }
-    });
+      await _db.into(_db.pickListValuesCache).insert(
+            PickListValuesCacheCompanion.insert(
+              id: const Uuid().v4(),
+              listName: listName,
+              mediaKind: Value(mediaKind),
+              value: value,
+              sortOrder: Value(nextSortOrder),
+            ),
+          );
+      nextSortOrder += 1;
+    }
   }
 
   /// Remove a value from a pick list.

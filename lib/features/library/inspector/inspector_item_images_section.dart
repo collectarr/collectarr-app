@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -181,7 +179,6 @@ class _InspectorThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bytes = base64.decode(image.imageData);
     final palette = appPalette(context);
     final dismissBackground = palette.panel.withValues(alpha: 0.84);
     final dismissForeground = ThemeData.estimateBrightnessForColor(dismissBackground) ==
@@ -205,7 +202,7 @@ class _InspectorThumbnail extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.memory(
-                  bytes,
+                  image.imageData,
                   width: 84,
                   height: 106,
                   fit: BoxFit.cover,
@@ -248,7 +245,6 @@ class _InspectorThumbnail extends StatelessWidget {
   }
 
   void _showFullImage(BuildContext context) {
-    final bytes = base64.decode(image.imageData);
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -263,7 +259,7 @@ class _InspectorThumbnail extends StatelessWidget {
                   maxWidth: 600,
                   maxHeight: 500,
                 ),
-                child: Image.memory(bytes, fit: BoxFit.contain),
+                child: Image.memory(image.imageData, fit: BoxFit.contain),
               ),
             ),
             if (image.caption != null && image.caption!.trim().isNotEmpty)

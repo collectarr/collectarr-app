@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
@@ -13,7 +11,7 @@ class LibraryCoverImage extends ConsumerWidget {
     required this.title,
     this.itemNumber,
     this.imageUrl,
-    this.localBase64,
+    this.localBytes,
     this.ownedItemId,
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
@@ -23,15 +21,15 @@ class LibraryCoverImage extends ConsumerWidget {
   final String title;
   final String? itemNumber;
   final String? imageUrl;
-  final String? localBase64;
+  final Uint8List? localBytes;
   final String? ownedItemId;
   final double borderRadius;
   final BoxFit fit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Resolve local image: prefer explicit localBase64, then look up from DB.
-    var local = localBase64;
+    // Resolve local image: prefer explicit local bytes, then look up from DB.
+    var local = localBytes;
     if (local == null && ownedItemId != null) {
       local = ref.watch(localCoverImageProvider(ownedItemId!)).value;
     }
@@ -53,27 +51,16 @@ class LibraryCoverImage extends ConsumerWidget {
 
     // Prefer local offline bytes when available
     if (local != null && local.isNotEmpty) {
-      try {
-        final bytes = base64Decode(local);
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: Image.memory(
-            bytes,
-            fit: fit,
-            cacheWidth: cacheWidth,
-            filterQuality: FilterQuality.medium,
-            errorBuilder: (_, __, ___) => placeholder,
-          ),
-        );
-      } catch (error, stackTrace) {
-        logRecoverableError(
-          source: 'library_cover_image',
-          message:
-              'Failed to decode local cover image; falling back to network image.',
-          error: error,
-          stackTrace: stackTrace,
-        );
-      }
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Image.memory(
+          local,
+          fit: fit,
+          cacheWidth: cacheWidth,
+          filterQuality: FilterQuality.medium,
+          errorBuilder: (_, __, ___) => placeholder,
+        ),
+      );
     }
     final url = _normalizedImageUrl(imageUrl);
     if (url == null) {
@@ -278,9 +265,9 @@ class LibraryInteractiveCover extends StatefulWidget {
     required this.title,
     this.itemNumber,
     this.imageUrl,
-    this.localBase64,
+    this.localBytes,
     this.secondaryImageUrl,
-    this.secondaryLocalBase64,
+    this.secondaryLocalBytes,
     this.ownedItemId,
     this.borderRadius = 4,
     this.accentColor = kAppAccent,
@@ -294,9 +281,9 @@ class LibraryInteractiveCover extends StatefulWidget {
   final String title;
   final String? itemNumber;
   final String? imageUrl;
-  final String? localBase64;
+  final Uint8List? localBytes;
   final String? secondaryImageUrl;
-  final String? secondaryLocalBase64;
+  final Uint8List? secondaryLocalBytes;
   final String? ownedItemId;
   final double borderRadius;
   final Color accentColor;
@@ -322,20 +309,20 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   }
 
   bool get _hasSecondary {
-    return (widget.secondaryLocalBase64?.trim().isNotEmpty ?? false) ||
+    return (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
         (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
   }
 
   String? get _activeImageUrl =>
       _showSecondary ? widget.secondaryImageUrl : widget.imageUrl;
 
-  String? get _activeLocalBase64 =>
-      _showSecondary ? widget.secondaryLocalBase64 : widget.localBase64;
+    Uint8List? get _activeLocalBytes =>
+      _showSecondary ? widget.secondaryLocalBytes : widget.localBytes;
 
   bool get _canPreview {
     return widget.enableFullscreen &&
         ((_activeImageUrl?.trim().isNotEmpty ?? false) ||
-            (_activeLocalBase64?.trim().isNotEmpty ?? false) ||
+        (_activeLocalBytes?.isNotEmpty ?? false) ||
             (widget.ownedItemId?.trim().isNotEmpty ?? false));
   }
 
@@ -409,7 +396,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                 title: widget.title,
                                 itemNumber: widget.itemNumber,
                                 imageUrl: _activeImageUrl,
-                                localBase64: _activeLocalBase64,
+                                localBytes: _activeLocalBytes,
                                 ownedItemId: widget.ownedItemId,
                                 borderRadius: 0,
                               ),
@@ -519,7 +506,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         title: widget.title,
                         itemNumber: widget.itemNumber,
                         imageUrl: _activeImageUrl,
-                        localBase64: _activeLocalBase64,
+                        localBytes: _activeLocalBytes,
                         ownedItemId: widget.ownedItemId,
                         borderRadius: widget.borderRadius,
                       ),

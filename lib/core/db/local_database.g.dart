@@ -9985,9 +9985,9 @@ class $ItemImagesCacheTable extends ItemImagesCache
   static const VerificationMeta _imageDataMeta =
       const VerificationMeta('imageData');
   @override
-  late final GeneratedColumn<String> imageData = GeneratedColumn<String>(
+  late final GeneratedColumn<Uint8List> imageData = GeneratedColumn<Uint8List>(
       'image_data', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.blob, requiredDuringInsert: true);
   static const VerificationMeta _captionMeta =
       const VerificationMeta('caption');
   @override
@@ -10075,7 +10075,7 @@ class $ItemImagesCacheTable extends ItemImagesCache
       imageType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}image_type'])!,
       imageData: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_data'])!,
+          .read(DriftSqlType.blob, data['${effectivePrefix}image_data'])!,
       caption: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}caption']),
       sortOrder: attachedDatabase.typeMapping
@@ -10096,7 +10096,7 @@ class ItemImagesCacheData extends DataClass
   final String id;
   final String ownedItemId;
   final String imageType;
-  final String imageData;
+  final Uint8List imageData;
   final String? caption;
   final int sortOrder;
   final DateTime createdAt;
@@ -10114,7 +10114,7 @@ class ItemImagesCacheData extends DataClass
     map['id'] = Variable<String>(id);
     map['owned_item_id'] = Variable<String>(ownedItemId);
     map['image_type'] = Variable<String>(imageType);
-    map['image_data'] = Variable<String>(imageData);
+    map['image_data'] = Variable<Uint8List>(imageData);
     if (!nullToAbsent || caption != null) {
       map['caption'] = Variable<String>(caption);
     }
@@ -10144,7 +10144,7 @@ class ItemImagesCacheData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
       imageType: serializer.fromJson<String>(json['imageType']),
-      imageData: serializer.fromJson<String>(json['imageData']),
+      imageData: serializer.fromJson<Uint8List>(json['imageData']),
       caption: serializer.fromJson<String?>(json['caption']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -10157,7 +10157,7 @@ class ItemImagesCacheData extends DataClass
       'id': serializer.toJson<String>(id),
       'ownedItemId': serializer.toJson<String>(ownedItemId),
       'imageType': serializer.toJson<String>(imageType),
-      'imageData': serializer.toJson<String>(imageData),
+      'imageData': serializer.toJson<Uint8List>(imageData),
       'caption': serializer.toJson<String?>(caption),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -10168,7 +10168,7 @@ class ItemImagesCacheData extends DataClass
           {String? id,
           String? ownedItemId,
           String? imageType,
-          String? imageData,
+          Uint8List? imageData,
           Value<String?> caption = const Value.absent(),
           int? sortOrder,
           DateTime? createdAt}) =>
@@ -10209,8 +10209,8 @@ class ItemImagesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, ownedItemId, imageType, imageData, caption, sortOrder, createdAt);
+  int get hashCode => Object.hash(id, ownedItemId, imageType,
+      $driftBlobEquality.hash(imageData), caption, sortOrder, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10218,7 +10218,7 @@ class ItemImagesCacheData extends DataClass
           other.id == this.id &&
           other.ownedItemId == this.ownedItemId &&
           other.imageType == this.imageType &&
-          other.imageData == this.imageData &&
+          $driftBlobEquality.equals(other.imageData, this.imageData) &&
           other.caption == this.caption &&
           other.sortOrder == this.sortOrder &&
           other.createdAt == this.createdAt);
@@ -10228,7 +10228,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   final Value<String> id;
   final Value<String> ownedItemId;
   final Value<String> imageType;
-  final Value<String> imageData;
+  final Value<Uint8List> imageData;
   final Value<String?> caption;
   final Value<int> sortOrder;
   final Value<DateTime> createdAt;
@@ -10247,7 +10247,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
     required String id,
     required String ownedItemId,
     this.imageType = const Value.absent(),
-    required String imageData,
+    required Uint8List imageData,
     this.caption = const Value.absent(),
     this.sortOrder = const Value.absent(),
     required DateTime createdAt,
@@ -10260,7 +10260,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
     Expression<String>? id,
     Expression<String>? ownedItemId,
     Expression<String>? imageType,
-    Expression<String>? imageData,
+    Expression<Uint8List>? imageData,
     Expression<String>? caption,
     Expression<int>? sortOrder,
     Expression<DateTime>? createdAt,
@@ -10282,7 +10282,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
       {Value<String>? id,
       Value<String>? ownedItemId,
       Value<String>? imageType,
-      Value<String>? imageData,
+      Value<Uint8List>? imageData,
       Value<String?>? caption,
       Value<int>? sortOrder,
       Value<DateTime>? createdAt,
@@ -10312,7 +10312,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
       map['image_type'] = Variable<String>(imageType.value);
     }
     if (imageData.present) {
-      map['image_data'] = Variable<String>(imageData.value);
+      map['image_data'] = Variable<Uint8List>(imageData.value);
     }
     if (caption.present) {
       map['caption'] = Variable<String>(caption.value);
@@ -17390,7 +17390,7 @@ typedef $$ItemImagesCacheTableCreateCompanionBuilder = ItemImagesCacheCompanion
   required String id,
   required String ownedItemId,
   Value<String> imageType,
-  required String imageData,
+  required Uint8List imageData,
   Value<String?> caption,
   Value<int> sortOrder,
   required DateTime createdAt,
@@ -17401,7 +17401,7 @@ typedef $$ItemImagesCacheTableUpdateCompanionBuilder = ItemImagesCacheCompanion
   Value<String> id,
   Value<String> ownedItemId,
   Value<String> imageType,
-  Value<String> imageData,
+  Value<Uint8List> imageData,
   Value<String?> caption,
   Value<int> sortOrder,
   Value<DateTime> createdAt,
@@ -17426,7 +17426,7 @@ class $$ItemImagesCacheTableFilterComposer
   ColumnFilters<String> get imageType => $composableBuilder(
       column: $table.imageType, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get imageData => $composableBuilder(
+  ColumnFilters<Uint8List> get imageData => $composableBuilder(
       column: $table.imageData, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get caption => $composableBuilder(
@@ -17457,7 +17457,7 @@ class $$ItemImagesCacheTableOrderingComposer
   ColumnOrderings<String> get imageType => $composableBuilder(
       column: $table.imageType, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get imageData => $composableBuilder(
+  ColumnOrderings<Uint8List> get imageData => $composableBuilder(
       column: $table.imageData, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get caption => $composableBuilder(
@@ -17488,7 +17488,7 @@ class $$ItemImagesCacheTableAnnotationComposer
   GeneratedColumn<String> get imageType =>
       $composableBuilder(column: $table.imageType, builder: (column) => column);
 
-  GeneratedColumn<String> get imageData =>
+  GeneratedColumn<Uint8List> get imageData =>
       $composableBuilder(column: $table.imageData, builder: (column) => column);
 
   GeneratedColumn<String> get caption =>
@@ -17532,7 +17532,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> ownedItemId = const Value.absent(),
             Value<String> imageType = const Value.absent(),
-            Value<String> imageData = const Value.absent(),
+            Value<Uint8List> imageData = const Value.absent(),
             Value<String?> caption = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -17552,7 +17552,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
             required String id,
             required String ownedItemId,
             Value<String> imageType = const Value.absent(),
-            required String imageData,
+            required Uint8List imageData,
             Value<String?> caption = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             required DateTime createdAt,

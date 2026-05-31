@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -504,7 +506,10 @@ void main() {
     expect(selection, isNotNull);
     expect(selection!.customFieldEdits, {'cf-2': 'Signed at con'});
     expect(selection!.itemImageEdits, hasLength(1));
-    expect(selection!.itemImageEdits.single.imageData, imageBase64);
+    expect(
+      selection!.itemImageEdits.single.imageData,
+      orderedEquals(base64Decode(imageBase64)),
+    );
     expect(selection!.itemImageEdits.single.caption, isNull);
     expect(selection!.itemImageEdits.single.imageType, 'auxiliary');
     expect(selection!.itemImageEdits.single.deleted, isFalse);
