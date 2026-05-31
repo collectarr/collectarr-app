@@ -76,6 +76,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
     final palette = appPalette(context);
     final entry = request.inspector.entry;
     final accent = request.inspector.accent;
+    final hasBarcode = entry.barcode?.trim().isNotEmpty == true;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -88,53 +89,127 @@ class _ComicInspectorToolbar extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 900;
+            final leading = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _ComicToolbarGroup(
+                  children: [
+                    _ComicToolbarButton(
+                      label: 'Edit',
+                      icon: Icons.edit_outlined,
+                      onPressed: request.onEdit,
+                    ),
+                    _ComicToolbarMenuButton(
+                      label: 'More',
+                      icon: Icons.more_vert,
+                      entries: [
+                        _ComicToolbarMenuEntry(
+                          label: 'Open details',
+                          icon: Icons.open_in_new,
+                          onSelected: request.onOpenDetails,
+                        ),
+                        _ComicToolbarMenuEntry(
+                          label: entry.isOwned ? 'Remove from collection' : 'Add to collection',
+                          icon: entry.isOwned
+                              ? Icons.remove_circle_outline
+                              : Icons.add_circle_outline,
+                          onSelected: request.onToggleOwned,
+                        ),
+                        _ComicToolbarMenuEntry(
+                          label: entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
+                          icon: entry.isWishlisted ? Icons.star : Icons.star_border,
+                          onSelected: request.onToggleWishlist,
+                        ),
+                        if (request.onCorrectMetadata != null)
+                          _ComicToolbarMenuEntry(
+                            label: 'Correct metadata',
+                            icon: Icons.fact_check_outlined,
+                            onSelected: request.onCorrectMetadata,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (hasBarcode)
+                  _ComicToolbarBadgeButton(
+                    label: 'eBay',
+                    icon: Icons.storefront_outlined,
+                    accent: accent,
+                  ),
+                if (request.extraActions.isNotEmpty)
+                  _ComicToolbarGroup(children: request.extraActions),
+              ],
+            );
+            final trailing = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _ComicStatusPill(
+                  label: entry.isOwned ? 'In Collection' : 'Catalog only',
+                  color: entry.isOwned ? accent : palette.surfaceSubtle,
+                  foreground: entry.isOwned ? Colors.white : palette.textMuted,
+                ),
+                if (entry.isWishlisted)
+                  _ComicStatusPill(
+                    label: 'Wish list',
+                    color: palette.surfaceSubtle,
+                    foreground: palette.textPrimary,
+                  ),
+                _ComicToolbarGhostButton(
+                  label: 'Layout',
+                  icon: Icons.view_sidebar_outlined,
+                ),
+              ],
+            );
+
+            if (compact) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [leading, const SizedBox(height: 8), trailing],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: leading),
+                const SizedBox(width: 12),
+                trailing,
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicToolbarGroup extends StatelessWidget {
+  const _ComicToolbarGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(3),
         child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 4,
+          runSpacing: 4,
           crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            _ComicToolbarButton(
-              label: 'Edit',
-              icon: Icons.edit_outlined,
-              onPressed: request.onEdit,
-            ),
-            _ComicToolbarButton(
-              label: entry.isOwned ? 'Remove' : 'Collect',
-              icon: entry.isOwned
-                  ? Icons.remove_circle_outline
-                  : Icons.add_circle_outline,
-              onPressed: request.onToggleOwned,
-            ),
-            _ComicToolbarButton(
-              label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
-              icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-              onPressed: request.onToggleWishlist,
-            ),
-            _ComicToolbarButton(
-              label: 'Open',
-              icon: Icons.open_in_new,
-              onPressed: request.onOpenDetails,
-            ),
-            for (final action in request.extraActions) action,
-            if (request.onCorrectMetadata != null)
-              _ComicToolbarIconButton(
-                tooltip: 'Correct metadata',
-                icon: Icons.fact_check_outlined,
-                onPressed: request.onCorrectMetadata,
-              ),
-            const SizedBox(width: 6),
-            _ComicStatusPill(
-              label: entry.isOwned ? 'In Collection' : 'Catalog only',
-              color: entry.isOwned ? accent : palette.surfaceSubtle,
-              foreground: entry.isOwned ? Colors.white : palette.textMuted,
-            ),
-            if (entry.isWishlisted)
-              _ComicStatusPill(
-                label: 'Wish list',
-                color: palette.surfaceSubtle,
-                foreground: palette.textPrimary,
-              ),
-          ],
+          children: children,
         ),
       ),
     );
@@ -154,37 +229,159 @@ class _ComicToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton.tonalIcon(
+    final palette = appPalette(context);
+    return TextButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 16),
+      icon: Icon(icon, size: 15, color: palette.textPrimary),
       label: Text(label),
-      style: FilledButton.styleFrom(
+      style: TextButton.styleFrom(
+        foregroundColor: palette.textPrimary,
         visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
     );
   }
 }
 
-class _ComicToolbarIconButton extends StatelessWidget {
-  const _ComicToolbarIconButton({
-    required this.tooltip,
+class _ComicToolbarMenuEntry {
+  const _ComicToolbarMenuEntry({
+    required this.label,
     required this.icon,
-    required this.onPressed,
+    required this.onSelected,
   });
 
-  final String tooltip;
+  final String label;
   final IconData icon;
-  final VoidCallback? onPressed;
+  final VoidCallback? onSelected;
+}
+
+class _ComicToolbarMenuButton extends StatelessWidget {
+  const _ComicToolbarMenuButton({
+    required this.label,
+    required this.icon,
+    required this.entries,
+  });
+
+  final String label;
+  final IconData icon;
+  final List<_ComicToolbarMenuEntry> entries;
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: IconButton.filledTonal(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 16),
-        visualDensity: VisualDensity.compact,
+    final palette = appPalette(context);
+    return PopupMenuButton<_ComicToolbarMenuEntry>(
+      tooltip: label,
+      onSelected: (entry) => entry.onSelected?.call(),
+      itemBuilder: (context) => [
+        for (final entry in entries)
+          PopupMenuItem<_ComicToolbarMenuEntry>(
+            value: entry,
+            child: Row(
+              children: [
+                Icon(entry.icon, size: 16, color: palette.textPrimary),
+                const SizedBox(width: 10),
+                Text(entry.label),
+              ],
+            ),
+          ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 15, color: palette.textPrimary),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: palette.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down, size: 18, color: palette.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicToolbarBadgeButton extends StatelessWidget {
+  const _ComicToolbarBadgeButton({
+    required this.label,
+    required this.icon,
+    required this.accent,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: accent.withValues(alpha: 0.32)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 15, color: accent),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: accent,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicToolbarGhostButton extends StatelessWidget {
+  const _ComicToolbarGhostButton({required this.label, required this.icon});
+
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 15, color: palette.textPrimary),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: palette.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down, size: 18, color: palette.textMuted),
+          ],
+        ),
       ),
     );
   }

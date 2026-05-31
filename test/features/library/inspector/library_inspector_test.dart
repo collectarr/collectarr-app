@@ -182,6 +182,9 @@ void main() {
     expect(find.byType(ComicInspectorHero), findsOneWidget);
     expect(find.text('Quick actions'), findsNothing);
     expect(find.text('Edit'), findsWidgets);
+    expect(find.text('More'), findsOneWidget);
+    expect(find.text('Layout'), findsOneWidget);
+    expect(find.text('In Collection'), findsWidgets);
     expect(find.text('Plot'), findsOneWidget);
     expect(find.text('Overview'), findsNothing);
   });
