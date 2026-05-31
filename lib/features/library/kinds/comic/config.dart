@@ -52,6 +52,12 @@ const comicsLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildComicLibraryEditDialog,
   presentation: comicsLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
+  editChrome: LibraryEditChromeConfig(
+    titleUsesItemTitle: true,
+    synopsisLabel: 'Plot',
+    showsIssueBadge: true,
+    showsPhysicalFormatBadge: true,
+  ),
   mediaFields: MediaEditFields.print(
     numberLabel: 'No. / Vol.',
     publisherLabel: 'Publisher / Studio / Creator',

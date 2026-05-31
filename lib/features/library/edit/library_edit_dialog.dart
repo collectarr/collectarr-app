@@ -431,23 +431,27 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final comicIssueNumber =
-        _isComicKind ? emptyToNull(_numberController.text) : null;
-    final comicFormatLabel = _isComicKind
-      ? _physicalFormatForId(_physicalFormatId)?.label ??
-        widget.item.physicalFormatLabel
-      : null;
+    final editChrome = widget.type.editChrome;
+    final issueBadgeLabel = editChrome.showsIssueBadge
+        ? emptyToNull(_numberController.text)
+        : null;
+    final physicalFormatBadgeLabel = editChrome.showsPhysicalFormatBadge
+        ? _physicalFormatForId(_physicalFormatId)?.label ??
+            widget.item.physicalFormatLabel
+        : null;
+    final dialogTitle = editChrome.titleUsesItemTitle
+        ? widget.item.title
+        : 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}';
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
       icon: widget.type.workspace.icon,
-      title: _isComicKind
-          ? widget.item.title
-          : 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
+      title: dialogTitle,
       badges: [
-        if (comicIssueNumber != null)
-          IssuePill(label: '#$comicIssueNumber', color: widget.accent),
-        if (comicFormatLabel != null) EditMiniBadge(comicFormatLabel),
+        if (issueBadgeLabel != null)
+          IssuePill(label: '#$issueBadgeLabel', color: widget.accent),
+        if (physicalFormatBadgeLabel != null)
+          EditMiniBadge(physicalFormatBadgeLabel),
         if (_isOwned) const EditMiniBadge('Owned'),
         if (_isTrackingOnly) const EditMiniBadge('Tracked'),
         if (_soldAt != null) const EditMiniBadge('Sold'),
@@ -1838,7 +1842,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _synopsisTab() {
-    final title = _isComicKind ? 'Plot' : 'Synopsis';
+    final title = widget.type.editChrome.synopsisLabel;
     return EditTabShell(
       children: [
         EditSection(

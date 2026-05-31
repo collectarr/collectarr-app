@@ -204,6 +204,20 @@ class LibraryTypeCapabilities {
       contentHierarchy == LibraryContentHierarchy.volumes;
 }
 
+class LibraryEditChromeConfig {
+  const LibraryEditChromeConfig({
+    this.titleUsesItemTitle = false,
+    this.synopsisLabel = 'Synopsis',
+    this.showsIssueBadge = false,
+    this.showsPhysicalFormatBadge = false,
+  });
+
+  final bool titleUsesItemTitle;
+  final String synopsisLabel;
+  final bool showsIssueBadge;
+  final bool showsPhysicalFormatBadge;
+}
+
 class LibraryTypeConfig {
   const LibraryTypeConfig({
     required this.workspace,
@@ -220,6 +234,7 @@ class LibraryTypeConfig {
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation =
       const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.editChrome = const LibraryEditChromeConfig(),
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
     this.addDialogLauncher,
@@ -241,6 +256,7 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
   final LibraryEditPresentation editPresentation;
+  final LibraryEditChromeConfig editChrome;
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
   final LibraryAddDialogLauncher? addDialogLauncher;
