@@ -13,6 +13,7 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.coverSize,
     required this.sidebarWidth,
     required this.detailsWidth,
+    required this.detailsHeight,
     required this.visibleColumns,
     required this.columnWidths,
   });
@@ -26,6 +27,7 @@ class LibraryWorkspacePreferenceSnapshot {
   final double coverSize;
   final double sidebarWidth;
   final double detailsWidth;
+  final double detailsHeight;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
 
@@ -35,6 +37,7 @@ class LibraryWorkspacePreferenceSnapshot {
         isSidebarVisible: isSidebarVisible,
         sidebarWidth: sidebarWidth,
         detailsWidth: detailsWidth,
+        detailsHeight: detailsHeight,
       );
 }
 
@@ -44,12 +47,14 @@ class LibraryWorkspaceChromePreferenceSnapshot {
     required this.isSidebarVisible,
     required this.sidebarWidth,
     required this.detailsWidth,
+    required this.detailsHeight,
   });
 
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
   final double sidebarWidth;
   final double detailsWidth;
+  final double detailsHeight;
 }
 
 class LibraryWorkspacePreferences {
@@ -86,6 +91,7 @@ class LibraryWorkspacePreferences {
     bool defaultSortAscending = true,
     double defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     double defaultDetailsWidth = kLibraryDetailsDefaultWidth,
+    double defaultDetailsHeight = kLibraryDetailsDefaultHeight,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final coverSize = prefs.getDouble(_key('cover_size')) ?? defaultCoverSize;
@@ -95,6 +101,9 @@ class LibraryWorkspacePreferences {
     final detailsWidth = prefs.getDouble(_globalKey('details_width')) ??
         prefs.getDouble(_key('details_width')) ??
         defaultDetailsWidth;
+    final detailsHeight = prefs.getDouble(_globalKey('details_height')) ??
+      prefs.getDouble(_key('details_height')) ??
+      defaultDetailsHeight;
     final snapshot = LibraryWorkspacePreferenceSnapshot(
       viewMode: _enumByName(
             LibraryViewMode.values,
@@ -121,12 +130,17 @@ class LibraryWorkspacePreferences {
       sidebarWidth: clampLibraryPaneWidth(
         sidebarWidth,
         minWidth: kLibrarySidebarMinWidth,
-        maxWidth: kLibrarySidebarMaxWidth,
+        maxWidth: kLibraryPaneStoredMaxWidth,
       ),
       detailsWidth: clampLibraryPaneWidth(
         detailsWidth,
         minWidth: kLibraryDetailsMinWidth,
-        maxWidth: kLibraryDetailsMaxWidth,
+        maxWidth: kLibraryPaneStoredMaxWidth,
+      ),
+      detailsHeight: clampLibraryPaneHeight(
+        detailsHeight,
+        minHeight: kLibraryDetailsMinHeight,
+        maxHeight: kLibraryPaneStoredMaxWidth,
       ),
       visibleColumns: _decodeVisibleColumns(
         prefs.getStringList(_key('visible_columns')),
@@ -162,6 +176,10 @@ class LibraryWorkspacePreferences {
     await prefs.setDouble(_key('cover_size'), snapshot.coverSize);
     await prefs.setDouble(_globalKey('sidebar_width'), snapshot.sidebarWidth);
     await prefs.setDouble(_globalKey('details_width'), snapshot.detailsWidth);
+    await prefs.setDouble(
+      _globalKey('details_height'),
+      snapshot.detailsHeight,
+    );
     await prefs.setStringList(
       _key('visible_columns'),
       snapshot.visibleColumns

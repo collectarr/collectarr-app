@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 
-/// Downloads remote cover images and stores them locally as base64 in the
+/// Downloads remote cover images and stores them locally as raw bytes in the
 /// item_images_cache table for fully offline access.
 class CoverOfflineStorage {
   const CoverOfflineStorage(this._repo, this._dio);
@@ -36,7 +36,7 @@ class CoverOfflineStorage {
     final image = ItemImage(
       id: const Uuid().v4(),
       ownedItemId: ownedItemId,
-      imageData: base64Encode(bytes),
+      imageData: Uint8List.fromList(bytes),
       caption: _coverCaption,
       sortOrder: -1, // always first
       createdAt: DateTime.now(),
@@ -46,7 +46,7 @@ class CoverOfflineStorage {
   }
 
   /// Check if an offline cover exists for the given item.
-  Future<String?> offlineCoverBase64(String ownedItemId) async {
+  Future<Uint8List?> offlineCoverBytes(String ownedItemId) async {
     final images = await _repo.listForItem(ownedItemId);
     for (final img in images) {
       if (img.caption == _coverCaption) {

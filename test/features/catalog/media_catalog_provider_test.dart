@@ -19,11 +19,15 @@ void main() {
 
     final catalog = await container.read(mediaCatalogProvider.future);
 
-    expect(catalog.map((type) => type.kind), containsAll(['comic', 'manga']));
+    expect(catalog.map((type) => type.kind), containsAll(['comic', 'movie']));
+    expect(catalog.map((type) => type.kind), isNot(contains('manga')));
+    expect(catalog.map((type) => type.kind), isNot(contains('tv')));
     expect(
-      catalog.firstWhere((type) => type.kind == 'manga').providers,
-      ['anilist', 'mangadex', 'comicvine'],
+      catalog.firstWhere((type) => type.kind == 'comic').providers,
+      containsAll(['comicvine', 'mangadex', 'anilist']),
     );
+    expect(catalog.firstWhere((type) => type.kind == 'movie').routeSegments,
+        ['movies', 'movie']);
   });
 
   test('resolved library type uses Core provider defaults', () async {
@@ -57,6 +61,16 @@ void main() {
       'comicvine',
       'gcd',
     ]);
+    expect(
+      type.inspectorPanelBuilder,
+      same(comicsLibraryConfig.inspectorPanelBuilder),
+    );
+    expect(type.inspectorHeroBuilder, same(comicsLibraryConfig.inspectorHeroBuilder));
+    expect(
+      type.inspectorSectionsBuilder,
+      same(comicsLibraryConfig.inspectorSectionsBuilder),
+    );
+    expect(type.showsDefaultInspectorPersonalSection, isFalse);
   });
 
   test('media catalog cache is reused for the same base url', () async {
@@ -139,10 +153,10 @@ void main() {
               providers: ['musicbrainz'],
             ),
             const CatalogMediaType(
-              kind: 'tv',
-              singularLabel: 'Show',
-              pluralLabel: 'Shows',
-              routeSegments: ['tv'],
+              kind: 'movie',
+              singularLabel: 'Film',
+              pluralLabel: 'Films',
+              routeSegments: ['movies'],
               defaultProvider: 'tmdb',
               providers: ['tmdb'],
             ),
@@ -167,8 +181,8 @@ void main() {
       'Music',
     );
     expect(
-      catalog.firstWhere((type) => type.kind == 'tv').pluralLabel,
-      'TV Shows',
+      catalog.firstWhere((type) => type.kind == 'movie').pluralLabel,
+      'Films',
     );
     expect(
       catalog.firstWhere((type) => type.kind == 'boardgame').pluralLabel,

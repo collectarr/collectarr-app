@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:flutter/material.dart';
 
 const musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
@@ -27,6 +28,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
   builder: musicLibraryMediaBuilder,
   previewLabels: releasesPreviewLabels,
   statsLabels: musicStatsLabels,
+  compactBucketIcon: Icons.person_2_outlined,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,

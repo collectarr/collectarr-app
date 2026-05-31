@@ -2,7 +2,9 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_panels.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onClearFilter,
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
+    this.onManageBuckets,
     this.pinnedGroupModes = const {},
     this.onTogglePin,
   });
@@ -67,23 +70,31 @@ class LibrarySidebarHeader extends StatelessWidget {
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
+  final VoidCallback? onManageBuckets;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePin;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final isRootScope = onClearFilter == null;
+    final scopeAccent = libraryCollectionStatusScopeColor(
+      collectionStatusScope,
+      accent,
+      palette.textMuted,
+    );
     final scopeLabel = breadcrumbs.isNotEmpty
         ? breadcrumbs.last
         : (isRootScope ? 'All ${type.pluralLabel}' : selectedBucket);
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
-        color: appPalette(context).surface,
-        border: Border(bottom: BorderSide(color: appPalette(context).divider)),
+        color: palette.surface,
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -120,6 +131,18 @@ class LibrarySidebarHeader extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ],
+              if (onManageBuckets != null &&
+                  libraryGroupModeSupportsBucketManagement(groupMode))
+                IconButton(
+                  tooltip:
+                      'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+                  onPressed: onManageBuckets,
+                  icon: const Icon(Icons.edit_outlined, size: 16),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                ),
               if (onHideSidebar != null)
                 IconButton(
                   tooltip: 'Hide folders panel',
@@ -175,7 +198,7 @@ class LibrarySidebarHeader extends StatelessWidget {
                         child: Icon(
                           Icons.chevron_right,
                           size: 14,
-                          color: appPalette(context).textMuted,
+                          color: palette.textMuted,
                         ),
                       ),
                     Padding(
@@ -206,15 +229,12 @@ class LibrarySidebarHeader extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 6),
-          Text(
-            scopeLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: appPalette(context).textMuted,
-                  fontWeight: FontWeight.w600,
-                ),
+          const SizedBox(height: 8),
+          _LibrarySidebarScopeBanner(
+            icon: icon,
+            title: genericGroupModeSidebarTitle(groupMode, type),
+            scopeLabel: scopeLabel,
+            accent: scopeAccent,
           ),
           const SizedBox(height: 6),
           LibrarySidebarFilteringPanel(
@@ -240,6 +260,75 @@ class LibrarySidebarHeader extends StatelessWidget {
               onScopeSelected: onCollectionStatusScopeChanged,
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _LibrarySidebarScopeBanner extends StatelessWidget {
+  const _LibrarySidebarScopeBanner({
+    required this.icon,
+    required this.title,
+    required this.scopeLabel,
+    required this.accent,
+  });
+
+  final IconData icon;
+  final String title;
+  final String scopeLabel;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: palette.panel,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Icon(icon, size: 16, color: accent),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: palette.textMuted,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  scopeLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

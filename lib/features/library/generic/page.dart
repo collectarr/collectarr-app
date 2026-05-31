@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/collection/repositories/loan_repository.
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -39,6 +38,7 @@ import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
+import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -139,6 +139,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Set<String> _pinnedColumnFavoriteKeys = const {};
   List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
   List<LibrarySidebarScopeSnapshot> _scopeHistory = const [];
+  bool _isEditDialogInFlight = false;
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
@@ -586,6 +587,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),
+      onDetailsHeightChanged: (height) => _updateViewState(
+        (state) => state.copyWith(detailsHeight: height),
+      ),
       onAddOwned: (item) => runCollectionAction(
         (actions) => actions.addOwned(item),
       ),
@@ -627,6 +631,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onLetterSelected: _setSelectedLetter,
       db: ref.read(localDatabaseProvider),
       pinnedGroupModes: _pinnedGroupModes,
+      onManageBuckets: libraryGroupModeSupportsBucketManagement(_activeGroupMode)
+          ? () => unawaited(_showBucketManagerFlow(projection))
+          : null,
       onTogglePinGroupMode: (mode) {
         final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
         if (updated.contains(mode)) {
@@ -655,6 +662,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           (state) => state.copyWith(coverSize: size),
         ),
         selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+        onClearBucket: _clearToolbarSearchChip,
         quickView: _quickView,
         hasActiveFilters: _hasActiveFilter,
         onQuickViewSelected: (view) =>
@@ -712,6 +720,85 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
+  Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
+    final mode = _activeGroupMode;
+    if (!libraryGroupModeSupportsBucketManagement(mode)) {
+      return;
+    }
+    final entries = [
+      for (final bucket in projection.buckets)
+        if (bucket.title != genericAllBucketLabel(widget.type))
+          LibraryBucketManagerEntry(label: bucket.title, count: bucket.count),
+    ];
+    if (entries.isEmpty) {
+      return;
+    }
+    await showLibraryBucketManagerDialog(
+      context: context,
+      type: widget.type,
+      groupMode: mode,
+      accent: widget.accent,
+      entries: entries,
+      onRenameBucket: (currentLabel, nextLabel) => _mutateBucketValues(
+        projection,
+        mode,
+        currentLabel,
+        replacement: nextLabel,
+      ),
+      onMergeBucket: (currentLabel, targetLabel) => _mutateBucketValues(
+        projection,
+        mode,
+        currentLabel,
+        replacement: targetLabel,
+      ),
+      onDeleteBucket: (currentLabel) =>
+          _mutateBucketValues(projection, mode, currentLabel),
+    );
+  }
+
+  Future<int> _mutateBucketValues(
+    LibraryProjection projection,
+    LibraryGroupMode mode,
+    String currentLabel, {
+    String? replacement,
+  }) async {
+    final updates = <CatalogItem>[];
+    for (final item in projection.allItems) {
+      final catalogItem = item.source.catalogItem;
+      if (catalogItem == null ||
+          genericBucketForItemMode(item, widget.type, mode) != currentLabel) {
+        continue;
+      }
+      final updated = replacement == null
+          ? deleteLibraryGroupBucketValue(catalogItem, mode, currentLabel)
+          : renameLibraryGroupBucketValue(
+              catalogItem,
+              mode,
+              currentLabel,
+              replacement,
+            );
+      if (updated != null) {
+        updates.add(updated);
+      }
+    }
+    if (updates.isEmpty) {
+      return 0;
+    }
+    final mutations = ref.read(collectionMutationsProvider);
+    await mutations.updateCatalogSnapshots(updates);
+    if (!mounted) {
+      return updates.length;
+    }
+    setState(() {
+      if (_selectedBucket == currentLabel) {
+        final nextBucket = replacement?.trim();
+        _selectedBucket =
+            nextBucket == null || nextBucket.isEmpty ? null : nextBucket;
+      }
+    });
+    return updates.length;
+  }
+
   LibraryProjection _projectionForShelf(
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
@@ -759,11 +846,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _filterSelection.hasActiveFilters;
 
   bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
-    if (widget.type.workspace.kind != CatalogMediaKind.comic) {
-      return false;
-    }
-    return mode == LibraryGroupMode.storyArc ||
-        mode == LibraryGroupMode.character;
+    return widget.type.presentation.externalFacetBucketModes.contains(mode);
   }
 
   FacetBuckets? _facetBucketsForMode(
@@ -996,7 +1079,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   bool _canJumpToIssue(LibraryProjection? projection) {
     if (projection == null ||
-        widget.type.workspace.kind != CatalogMediaKind.comic ||
+        !widget.type.presentation.supportsSeriesIssueJump ||
         _activeGroupMode != LibraryGroupMode.series ||
         _selectedBucket == null) {
       return false;
@@ -1667,8 +1750,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     if (item.entry.browseScope != LibraryBrowserScope.title) {
       return false;
     }
-    final mediaType = item.entry.mediaType.trim().toLowerCase();
-    return mediaType == 'movie' || mediaType == 'tv' || mediaType == 'anime';
+    return widget.type.capabilities
+        .supportsVideoShelfDrilldown(item.entry.mediaType);
   }
 
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {

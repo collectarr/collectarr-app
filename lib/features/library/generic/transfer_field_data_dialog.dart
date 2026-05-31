@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -26,6 +27,7 @@ class TransferFieldResult {
 Future<TransferFieldResult?> showTransferFieldDataDialog({
   required BuildContext context,
   required LocalDatabase db,
+  required LibraryTypeConfig type,
   required List<OwnedItem> items,
   required CollectionMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
@@ -35,6 +37,7 @@ Future<TransferFieldResult?> showTransferFieldDataDialog({
     barrierDismissible: false,
     builder: (_) => _TransferFieldDataDialog(
       db: db,
+      type: type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldDefinitions,
@@ -45,12 +48,14 @@ Future<TransferFieldResult?> showTransferFieldDataDialog({
 class _TransferFieldDataDialog extends StatefulWidget {
   const _TransferFieldDataDialog({
     required this.db,
+    required this.type,
     required this.items,
     required this.mutations,
     required this.customFieldDefinitions,
   });
 
   final LocalDatabase db;
+  final LibraryTypeConfig type;
   final List<OwnedItem> items;
   final CollectionMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -71,8 +76,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
   @override
   void initState() {
     super.initState();
-    _fields =
-        TransferableField.withCustomFields(widget.customFieldDefinitions);
+    _fields = widget.type.transferableFieldsWithCustomFields(
+      widget.customFieldDefinitions,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -209,7 +215,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           condition: updated.condition,
           grade: updated.grade,
           personalNotes: updated.personalNotes,
-          storageBox: updated.storageBox,
+          locationId: updated.locationId,
           tags: updated.tags,
           currency: updated.currency,
           rawOrSlabbed: updated.rawOrSlabbed,
@@ -261,7 +267,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             grade: src.key == 'grade' ? null : item.grade,
             personalNotes:
                 src.key == 'personalNotes' ? null : item.personalNotes,
-            storageBox: src.key == 'storageBox' ? null : item.storageBox,
+            locationId: src.key == 'locationId' ? null : item.locationId,
             tags: src.key == 'tags' ? null : item.tags,
             currency: src.key == 'currency' ? null : item.currency,
             rawOrSlabbed: src.key == 'rawOrSlabbed' ? null : item.rawOrSlabbed,

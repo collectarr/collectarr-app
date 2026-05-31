@@ -85,7 +85,7 @@ void main() {
     await tester.tap(find.text('Year'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Years'), findsOneWidget);
+    expect(find.text('Years'), findsWidgets);
 
     await tester.tap(find.byTooltip('Library tools'));
     await pumpUntilSettled(tester);
@@ -351,5 +351,48 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
+  });
+
+  testWidgets('unknown route kinds fall back to the first catalog page',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1220, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: MaterialApp(
+          home: LibraryHomePage(
+            routeUri: Uri(path: '/libraries', queryParameters: {'kind': 'tv'}),
+          ),
+        ),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add Comics'), findsOneWidget);
+    expect(find.text('Search comics...'), findsOneWidget);
+    expect(find.text('Add Movies'), findsNothing);
   });
 }

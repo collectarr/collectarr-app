@@ -3,9 +3,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -218,15 +217,15 @@ void main() {
     expect(find.text('#3'), findsOneWidget);
   });
 
-  testWidgets('manga stats dashboard surfaces missing volume gaps', (tester) async {
+  testWidgets('comic stats dashboard surfaces missing volume gaps', (tester) async {
     final state = ShelfState(
       entries: [
         for (final volume in [1, 3])
           ShelfEntry(
-            itemId: 'manga-$volume',
+            itemId: 'comic-volume-$volume',
             catalogItem: CatalogItem(
-              id: 'manga-$volume',
-              kind: 'manga',
+              id: 'comic-volume-$volume',
+              kind: 'comic',
               title: 'Vinland Saga',
               series: CatalogSeriesDetails(
                 seriesTitle: 'Vinland Saga',
@@ -234,8 +233,8 @@ void main() {
               ),
             ),
             ownedItem: OwnedItem(
-              id: 'owned-manga-$volume',
-              itemId: 'manga-$volume',
+              id: 'owned-comic-volume-$volume',
+              itemId: 'comic-volume-$volume',
               updatedAt: DateTime.utc(2026, 5, 1),
             ),
           ),
@@ -257,7 +256,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: mangaLibraryConfig,
+                  type: comicsLibraryConfig,
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -275,15 +274,15 @@ void main() {
     expect(find.text('Vol. 2'), findsOneWidget);
   });
 
-  testWidgets('tv stats dashboard surfaces missing season gaps', (tester) async {
+  testWidgets('movie stats dashboard surfaces missing season gaps', (tester) async {
     final state = ShelfState(
       entries: [
         for (final season in [1, 3])
           ShelfEntry(
-            itemId: 'tv-$season',
+            itemId: 'movie-season-$season',
             catalogItem: CatalogItem(
-              id: 'tv-$season',
-              kind: 'tv',
+              id: 'movie-season-$season',
+              kind: 'movie',
               title: 'The Mandalorian',
               series: CatalogSeriesDetails(
                 seriesTitle: 'The Mandalorian',
@@ -291,8 +290,8 @@ void main() {
               ),
             ),
             ownedItem: OwnedItem(
-              id: 'owned-tv-$season',
-              itemId: 'tv-$season',
+              id: 'owned-movie-season-$season',
+              itemId: 'movie-season-$season',
               updatedAt: DateTime.utc(2026, 5, 1),
             ),
           ),
@@ -314,7 +313,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: tvLibraryConfig,
+                  type: moviesLibraryConfig,
                   state: state,
                 ),
                 child: const Text('Open stats'),

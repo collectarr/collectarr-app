@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('library projection prefers structured location path over storage box', () {
+  test('library projection prefers structured location path', () {
     final projection = LibraryProjectionItem.fromShelf(
       ShelfEntry(
         itemId: 'comic-1',
@@ -18,7 +18,6 @@ void main() {
         ownedItem: OwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
-          storageBox: 'Short Box 1',
           locationId: 'loc-1',
           personalNotes: 'Newsstand copy',
           rawOrSlabbed: 'Slabbed',
@@ -31,7 +30,7 @@ void main() {
       ),
     );
 
-    expect(projection.entry.storageBox, 'Office › Shelf 2 › Short Box 1');
+    expect(projection.entry.locationPath, 'Office › Shelf 2 › Short Box 1');
     expect(projection.entry.rawOrSlabbed, 'Slabbed');
     expect(projection.entry.gradingCompany, 'CGC');
     expect(projection.entry.keyComic, isTrue);

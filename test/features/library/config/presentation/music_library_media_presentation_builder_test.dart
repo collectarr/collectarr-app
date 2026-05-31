@@ -7,6 +7,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('music search result display formats album metadata', () {
+    const builder = MusicLibraryMediaPresentationBuilder();
+    final display = builder.buildSearchResultDisplay(
+      item: LibraryMetadataItem(
+        id: 'music-search-1',
+        kind: 'music',
+        title: 'Kinesis - Deluxe Edition',
+        physicalFormatLabel: 'CD',
+        barcode: '1234567890',
+        series: const CatalogSeriesDetails(
+          seriesTitle: 'Ad Infinitum',
+          volumeName: 'Deluxe Edition',
+        ),
+        music: const MusicCatalogDetails(
+          trackCount: 3,
+          catalogNumber: 'KDCD 1022',
+        ),
+      ),
+    );
+
+    expect(display, isNotNull);
+    expect(display!.title, 'Kinesis');
+    expect(display.secondaryLine, 'Ad Infinitum');
+    expect(display.detailLine, 'Deluxe Edition - CD - 3 tracks - 1234567890 - KDCD 1022');
+  });
+
   testWidgets('music add preview renders album-style inspector layout', (
     tester,
   ) async {

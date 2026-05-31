@@ -147,6 +147,11 @@ class _LibraryEditBundleReleaseSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasSelectedBundleOutsideLoadedOptions =
+        selectedBundleReleaseId != null &&
+            bundleReleases.every(
+              (bundle) => bundle.id != selectedBundleReleaseId,
+            );
     return DropdownButtonFormField<String>(
       key: fieldKey,
       initialValue: selectedBundleReleaseId,
@@ -159,6 +164,11 @@ class _LibraryEditBundleReleaseSelector extends StatelessWidget {
           value: '',
           child: Text('Select a bundle release'),
         ),
+        if (hasSelectedBundleOutsideLoadedOptions)
+          DropdownMenuItem<String>(
+            value: selectedBundleReleaseId,
+            child: const Text('Current bundle release'),
+          ),
         for (final bundle in bundleReleases)
           DropdownMenuItem<String>(
             value: bundle.id,

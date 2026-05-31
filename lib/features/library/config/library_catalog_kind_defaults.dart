@@ -150,7 +150,6 @@ CatalogMediaType normalizeCatalogMediaTypeDefaults(CatalogMediaType type) {
     providers: type.providers,
     providerSearchPolicy: type.providerSearchPolicy,
     isTopLevel: type.isTopLevel,
-    legacyOf: type.legacyOf,
     physicalFormats: type.physicalFormats,
   );
 }

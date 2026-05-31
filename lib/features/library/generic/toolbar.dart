@@ -1,7 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -223,83 +222,30 @@ class LibraryToolbar extends StatelessWidget {
                 );
               }
 
-              final showChromeRow = onCollectionStatusScopeChanged != null;
-              final showAlphabetRow = onLetterSelected != null;
-
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Row(
-                      children: [
-                        LibraryToolbarPrimaryActions(
-                          addLabel: 'Add ${type.pluralLabel}',
-                          onAdd: onAdd,
-                          onScanBarcode: onScan,
-                          onRefreshMetadata: onRefreshMetadata,
-                          onRandomPick: onRandomPick,
-                          onScanCover: onScanCover,
-                          addBackgroundColor: accent,
-                          addForegroundColor:
-                              _toolbarForegroundForAccent(accent),
-                        ),
-                        if (showChromeRow) ...[
-                          const SizedBox(width: 8),
-                          LibraryCollectionStatusScopeDropdown(
-                            collectionStatusScope: collectionStatusScope,
-                            onCollectionStatusScopeChanged:
-                                onCollectionStatusScopeChanged!,
-                          ),
-                        ],
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              if (showAlphabetRow)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    child: LibraryToolbarAlphabetRow(
-                                      letters: availableLetters,
-                                      selectedLetter: selectedLetter,
-                                      onLetterSelected: onLetterSelected!,
-                                    ),
-                                  ),
-                                )
-                              else
-                                const Spacer(),
-                              Flexible(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      maxWidth: 760,
-                                    ),
-                                    child: LibraryToolbarSearch(
-                                      controller: searchController,
-                                      hintText:
-                                          'Search ${type.pluralLabel.toLowerCase()}...',
-                                      onScanBarcode: onScan,
-                                      onScanCover: onScanCover,
-                                      selectedFilterLabel: selectedBucket,
-                                      onSearch: onSearchChanged,
-                                      onClearFilter: onClearBucket,
-                                      onChanged: onSearchChanged,
-                                      selectionColor: palette.selection,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  LibraryDesktopFilteringToolbar(
+                    type: type,
+                    accent: accent,
+                    searchController: searchController,
+                    collectionStatusScope: collectionStatusScope,
+                    onCollectionStatusScopeChanged:
+                        onCollectionStatusScopeChanged,
+                    availableLetters: availableLetters,
+                    selectedLetter: selectedLetter,
+                    onLetterSelected: onLetterSelected,
+                    selectedBucket: selectedBucket,
+                    onAdd: onAdd,
+                    onScan: onScan,
+                    onRefreshMetadata: onRefreshMetadata,
+                    onRandomPick: onRandomPick,
+                    onScanCover: onScanCover,
+                    onSearchChanged: onSearchChanged,
+                    onClearBucket: onClearBucket,
                   ),
+                  if (includeDesktopSecondaryBand)
+                    const LibraryToolbarDividerLine(),
                   if (includeDesktopSecondaryBand)
                     LibraryDesktopSecondaryToolbar(
                       type: type,
@@ -307,12 +253,17 @@ class LibraryToolbar extends StatelessWidget {
                       adapter: adapter,
                       counts: counts,
                       onEditColumns: onEditColumns,
+                      columnFavoritePresets: columnFavoritePresets,
+                      activeColumnFavoriteLabel: activeColumnFavoriteLabel,
+                      onColumnFavoriteSelected: onColumnFavoriteSelected,
+                      pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
                       onEditSort: onEditSort,
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
                       onDetailsLayoutChanged: onDetailsLayoutChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
+                      onClearBucket: onClearBucket,
                       quickView: quickView,
                       activeSortFavoriteId: activeSortFavoriteId,
                       sortFavorites: sortFavorites,
@@ -350,9 +301,5 @@ class LibraryToolbar extends StatelessWidget {
       },
     );
   }
-}
-
-Color _toolbarForegroundForAccent(Color accent) {
-  return Colors.white;
 }
 

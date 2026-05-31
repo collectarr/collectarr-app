@@ -39,6 +39,7 @@ class LibraryWorkspaceViewProfile {
     required this.clampColumnWidth,
     this.defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     this.defaultDetailsWidth = kLibraryDetailsDefaultWidth,
+    this.defaultDetailsHeight = kLibraryDetailsDefaultHeight,
     this.defaultViewMode = LibraryViewMode.grid,
     this.defaultDetailsLayout = LibraryDetailsLayout.bottom,
     this.defaultSidebarVisible = true,
@@ -54,6 +55,7 @@ class LibraryWorkspaceViewProfile {
   final LibraryTableColumnWidthClamp clampColumnWidth;
   final double defaultSidebarWidth;
   final double defaultDetailsWidth;
+  final double defaultDetailsHeight;
   final LibraryViewMode defaultViewMode;
   final LibraryDetailsLayout defaultDetailsLayout;
   final bool defaultSidebarVisible;
@@ -78,6 +80,7 @@ class LibraryWorkspaceViewProfile {
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
+      detailsHeight: defaultDetailsHeight,
       visibleColumns: Set.of(config.defaultVisibleColumns),
       columnWidths: const {},
     );
@@ -97,6 +100,7 @@ class LibraryWorkspaceViewProfile {
       coverSize: preferences.coverSize,
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
+      detailsHeight: preferences.detailsHeight,
       visibleColumns: preferences.visibleColumns,
       columnWidths: preferences.columnWidths.map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
@@ -115,6 +119,7 @@ class LibraryWorkspaceViewProfile {
       defaultSortAscending: defaultSortAscending,
       defaultSidebarWidth: defaultSidebarWidth,
       defaultDetailsWidth: defaultDetailsWidth,
+      defaultDetailsHeight: defaultDetailsHeight,
     );
     return fromPreferences(preferences);
   }
@@ -141,6 +146,7 @@ class LibraryWorkspaceViewState {
     required this.coverSize,
     required this.sidebarWidth,
     required this.detailsWidth,
+    required this.detailsHeight,
     required Set<LibraryTableColumn> visibleColumns,
     required Map<LibraryTableColumn, double> columnWidths,
   })  : _sortRules = List.unmodifiable(
@@ -160,6 +166,7 @@ class LibraryWorkspaceViewState {
   final double coverSize;
   final double sidebarWidth;
   final double detailsWidth;
+  final double detailsHeight;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
 
@@ -180,6 +187,7 @@ class LibraryWorkspaceViewState {
       coverSize: coverSize,
       sidebarWidth: sidebarWidth,
       detailsWidth: detailsWidth,
+      detailsHeight: detailsHeight,
       visibleColumns: visibleColumns,
       columnWidths: columnWidths,
     );
@@ -195,6 +203,7 @@ class LibraryWorkspaceViewState {
     double? coverSize,
     double? sidebarWidth,
     double? detailsWidth,
+    double? detailsHeight,
     Set<LibraryTableColumn>? visibleColumns,
     Map<LibraryTableColumn, double>? columnWidths,
   }) {
@@ -219,6 +228,7 @@ class LibraryWorkspaceViewState {
       coverSize: coverSize ?? this.coverSize,
       sidebarWidth: sidebarWidth ?? this.sidebarWidth,
       detailsWidth: detailsWidth ?? this.detailsWidth,
+      detailsHeight: detailsHeight ?? this.detailsHeight,
       visibleColumns: visibleColumns ?? this.visibleColumns,
       columnWidths: columnWidths ?? this.columnWidths,
     );
@@ -289,6 +299,7 @@ class LibraryWorkspaceViewState {
       isSidebarVisible: chrome.isSidebarVisible,
       sidebarWidth: chrome.sidebarWidth,
       detailsWidth: chrome.detailsWidth,
+      detailsHeight: chrome.detailsHeight,
     );
   }
 

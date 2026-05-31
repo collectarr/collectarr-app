@@ -65,6 +65,7 @@ class LibraryBody extends StatelessWidget {
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
     required this.onDetailsWidthChanged,
+    required this.onDetailsHeightChanged,
     required this.onAddOwned,
     required this.onRemoveOwned,
     required this.onAddWishlist,
@@ -79,6 +80,7 @@ class LibraryBody extends StatelessWidget {
     this.db,
     this.pinnedGroupModes = const {},
     this.onTogglePinGroupMode,
+    this.onManageBuckets,
     this.desktopToolbarBand,
   });
 
@@ -130,6 +132,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<double> onDetailsWidthChanged;
+  final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
@@ -145,6 +148,7 @@ class LibraryBody extends StatelessWidget {
   final LocalDatabase? db;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final VoidCallback? onManageBuckets;
   final Widget? desktopToolbarBand;
 
   @override
@@ -160,20 +164,32 @@ class LibraryBody extends StatelessWidget {
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
                 : viewState.detailsLayout;
-        final maxSidebarWidth = maxLibraryPaneWidthForViewport(
+        final requestedDetailsWidth = clampLibraryPaneWidth(
+          viewState.detailsWidth,
+          minWidth: kLibraryDetailsMinWidth,
+          maxWidth: kLibraryPaneStoredMaxWidth,
+        );
+        final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
           viewportWidth: constraints.maxWidth,
-          preferredMaxWidth: kLibrarySidebarMaxWidth,
-          viewportFraction: compact ? 0.4 : 0.34,
+          workspaceMinWidth: kLibraryWorkspaceMinWidth,
+          hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
+          rightDetailsWidth: requestedDetailsWidth,
         );
         final sidebarWidth = clampLibraryPaneWidth(
           viewState.sidebarWidth,
           minWidth: kLibrarySidebarMinWidth,
           maxWidth: maxSidebarWidth,
         );
-        final maxDetailsWidth = maxLibraryPaneWidthForViewport(
+        final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
           viewportWidth: constraints.maxWidth,
-          preferredMaxWidth: kLibraryDetailsMaxWidth,
-          viewportFraction: 0.38,
+          workspaceMinWidth: kLibraryWorkspaceMinWidth,
+          hasSidebar: showSidebar,
+          sidebarWidth: sidebarWidth,
+        );
+        final maxDetailsHeight = resolveLibraryDetailsMaxHeight(
+          viewportHeight:
+              constraints.maxHeight.isFinite ? constraints.maxHeight : 800,
+          workspaceMinHeight: kLibraryWorkspaceMinHeight,
         );
         final letterFilteredItems = selectedLetter == null
             ? projection.filteredItems
@@ -209,6 +225,7 @@ class LibraryBody extends StatelessWidget {
                 onActivateItem: onActivateItem,
                 onToggleSelectionItem: onToggleSelectionItem,
                 onOpenItem: onOpenItem,
+                onEditItem: (item) => onEditItem(item, item.source.ownedItem),
                 onBoxSelectionChanged: onBoxSelectionChanged,
                 onSortChanged: onSortChanged,
                 onColumnWidthChanged: onColumnWidthChanged,
@@ -306,6 +323,7 @@ class LibraryBody extends StatelessWidget {
                         ? null
                         : () => onBucketChanged(null),
                     onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                    onManageBuckets: onManageBuckets,
                     pinnedGroupModes: pinnedGroupModes,
                     onTogglePinGroupMode: onTogglePinGroupMode,
                   ),
@@ -326,9 +344,12 @@ class LibraryBody extends StatelessWidget {
                   detailsLayout: detailsLayout,
                   inspector: details,
                   rightWidth: viewState.detailsWidth,
+                  bottomHeight: viewState.detailsHeight,
                   maxRightWidth: maxDetailsWidth,
+                  maxBottomHeight: maxDetailsHeight,
                   onRightWidthChanged: onDetailsWidthChanged,
-                  bottomHeight: compact ? 210 : 220,
+                  onBottomHeightChanged: onDetailsHeightChanged,
+                  accentColor: accent,
                 ),
               ),
             ],

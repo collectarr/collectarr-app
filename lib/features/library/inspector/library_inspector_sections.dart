@@ -187,16 +187,12 @@ class InspectorPersonalSection extends StatelessWidget {
     required this.ownedItem,
     this.trackingEntry,
     required this.accent,
-    this.kind,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
-  final String? kind;
-
-  bool get _isComicKind => kind == 'comic' || kind == 'manga';
 
   @override
   Widget build(BuildContext context) {
@@ -262,8 +258,8 @@ class InspectorPersonalSection extends StatelessWidget {
             ),
             if (ownedIsDigital != true)
               LibraryInspectorFactData(
-                'Storage',
-                genericLibraryDash(entry.storageBox),
+                'Location',
+                genericLibraryDash(entry.locationPath),
               ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
@@ -300,28 +296,6 @@ class InspectorPersonalSection extends StatelessWidget {
               'Updated',
               formatNullableDate(entry.updatedAt) ?? '-',
             ),
-            if (_isComicKind && ownedItem != null && ownedIsDigital != true) ...[
-              if (ownedItem!.rawOrSlabbed != null &&
-                  ownedItem!.rawOrSlabbed!.trim().isNotEmpty)
-                LibraryInspectorFactData(
-                  'Raw / Slabbed',
-                  ownedItem!.rawOrSlabbed!,
-                ),
-              if (ownedItem!.gradingCompany != null &&
-                  ownedItem!.gradingCompany!.trim().isNotEmpty)
-                LibraryInspectorFactData(
-                  'Grading co.',
-                  ownedItem!.gradingCompany!,
-                ),
-              if (ownedItem!.signedBy != null &&
-                  ownedItem!.signedBy!.trim().isNotEmpty)
-                LibraryInspectorFactData('Signed by', ownedItem!.signedBy!),
-              if (ownedItem!.keyComic)
-                LibraryInspectorFactData(
-                  'Key',
-                  ownedItem!.keyReason ?? 'Yes',
-                ),
-            ],
           ],
         ),
         if (ownedItem?.personalNotes != null &&

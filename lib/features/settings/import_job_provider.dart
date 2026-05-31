@@ -8,9 +8,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -165,10 +163,12 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
     try {
       // Phase 1: Fetch from TMDB API
       final entries = await _service.fetchCollection(credentials, collection);
-      _updateJob(jobId, (j) => j.copyWith(
-        phase: ImportJobPhase.matching,
-        total: entries.length,
-      ));
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.matching,
+                total: entries.length,
+              ));
 
       // Phase 2 & 3: Match + Import
       await _matchAndImport(
@@ -180,11 +180,13 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         apiKey: credentials.apiKey,
       );
     } catch (error) {
-      _updateJob(jobId, (j) => j.copyWith(
-        phase: ImportJobPhase.failed,
-        error: _describeError(error),
-        finishedAt: DateTime.now(),
-      ));
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.failed,
+                error: _describeError(error),
+                finishedAt: DateTime.now(),
+              ));
     }
   }
 
@@ -213,10 +215,12 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         fileName: fileName,
         collection: collection,
       );
-      _updateJob(jobId, (j) => j.copyWith(
-        phase: ImportJobPhase.matching,
-        total: entries.length,
-      ));
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.matching,
+                total: entries.length,
+              ));
 
       // Phase 2 & 3: Match + Import
       await _matchAndImport(
@@ -228,11 +232,13 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         apiKey: apiKey,
       );
     } catch (error) {
-      _updateJob(jobId, (j) => j.copyWith(
-        phase: ImportJobPhase.failed,
-        error: _describeError(error),
-        finishedAt: DateTime.now(),
-      ));
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.failed,
+                error: _describeError(error),
+                finishedAt: DateTime.now(),
+              ));
     }
   }
 
@@ -267,13 +273,15 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
     final unmatchedCount =
         preview.matches.where((m) => m.catalogItem == null).length;
 
-    _updateJob(jobId, (j) => j.copyWith(
-      phase: ImportJobPhase.importing,
-      total: preview.matches.length,
-      matched: matchedCount,
-      unmatched: unmatchedCount,
-      processed: 0,
-    ));
+    _updateJob(
+        jobId,
+        (j) => j.copyWith(
+              phase: ImportJobPhase.importing,
+              total: preview.matches.length,
+              matched: matchedCount,
+              unmatched: unmatchedCount,
+              processed: 0,
+            ));
 
     // Phase 3: Import
     Map<String, TmdbImportEntry> enrichmentCache = const {};
@@ -302,7 +310,9 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
       final item = match.catalogItem;
       if (item != null) {
         final enrichedEntry = _enrichFromCache(
-          match.entry, enrichmentCache, apiKey,
+          match.entry,
+          enrichmentCache,
+          apiKey,
         );
         final enriched = await enrichedEntry;
         final mergedItem = _service.mergeMatchedCatalogItem(item, enriched);
@@ -327,11 +337,14 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         skippedCount += 1;
       }
 
-      _updateJob(jobId, (j) => j.copyWith(
-        processed: importedCount + skippedCount + unmatchedMatches.length,
-        imported: importedCount,
-        skipped: skippedCount,
-      ));
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                processed:
+                    importedCount + skippedCount + unmatchedMatches.length,
+                imported: importedCount,
+                skipped: skippedCount,
+              ));
     }
 
     // Process unmatched
@@ -341,7 +354,9 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         while (queue.isNotEmpty) {
           final match = queue.removeLast();
           final enriched = await _enrichFromCache(
-            match.entry, enrichmentCache, apiKey,
+            match.entry,
+            enrichmentCache,
+            apiKey,
           );
           final type = _resolvedTypeForEntry(enriched);
           try {
@@ -397,20 +412,20 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
             skippedCount += 1;
           }
 
-          _updateJob(jobId, (j) => j.copyWith(
-            processed: importedCount + proposedCount + skippedCount,
-            imported: importedCount,
-            proposed: proposedCount,
-            keptLocal: keptLocalCount,
-            skipped: skippedCount,
-          ));
+          _updateJob(
+              jobId,
+              (j) => j.copyWith(
+                    processed: importedCount + proposedCount + skippedCount,
+                    imported: importedCount,
+                    proposed: proposedCount,
+                    keptLocal: keptLocalCount,
+                    skipped: skippedCount,
+                  ));
         }
       }
 
       await Future.wait([
-        for (var i = 0;
-            i < math.min(_unmatchedConcurrency, queue.length);
-            i++)
+        for (var i = 0; i < math.min(_unmatchedConcurrency, queue.length); i++)
           worker(),
       ]);
     }
@@ -424,7 +439,10 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         collectionLabel: collection.label,
         sourceLabel: sourceLabel,
         message: _buildResultMessage(
-          importedCount, proposedCount, keptLocalCount, skippedCount,
+          importedCount,
+          proposedCount,
+          keptLocalCount,
+          skippedCount,
         ),
         createdAt: DateTime.now().toUtc(),
         rows: preview.matches.length,
@@ -436,15 +454,17 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
       ),
     );
 
-    _updateJob(jobId, (j) => j.copyWith(
-      phase: ImportJobPhase.done,
-      processed: preview.matches.length,
-      imported: importedCount,
-      proposed: proposedCount,
-      keptLocal: keptLocalCount,
-      skipped: skippedCount,
-      finishedAt: DateTime.now(),
-    ));
+    _updateJob(
+        jobId,
+        (j) => j.copyWith(
+              phase: ImportJobPhase.done,
+              processed: preview.matches.length,
+              imported: importedCount,
+              proposed: proposedCount,
+              keptLocal: keptLocalCount,
+              skipped: skippedCount,
+              finishedAt: DateTime.now(),
+            ));
   }
 
   Future<TmdbImportEntry> _enrichFromCache(
@@ -471,10 +491,10 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
 
   LibraryTypeConfig _resolvedTypeForEntry(TmdbImportEntry entry) {
     final config = entry.looksLikeAnime
-        ? animeLibraryConfig
+        ? moviesLibraryConfig
         : switch (entry.mediaType) {
             TmdbMediaType.movie => moviesLibraryConfig,
-            TmdbMediaType.tv => tvLibraryConfig,
+            TmdbMediaType.tv => moviesLibraryConfig,
           };
     return _ref.read(resolvedLibraryTypeProvider(config));
   }
@@ -492,6 +512,7 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
         current.coverImageUrl != next.coverImageUrl ||
         current.thumbnailImageUrl != next.thumbnailImageUrl ||
         current.publisher != next.publisher ||
+        current.coverDate != next.coverDate ||
         current.releaseDate != next.releaseDate ||
         current.releaseYear != next.releaseYear ||
         current.country != next.country ||
@@ -517,7 +538,10 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
   }
 
   String _buildResultMessage(
-    int imported, int proposed, int keptLocal, int skipped,
+    int imported,
+    int proposed,
+    int keptLocal,
+    int skipped,
   ) {
     final parts = <String>['Imported $imported items.'];
     if (proposed > 0) parts.add('Sent $proposed metadata proposals.');

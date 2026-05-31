@@ -44,7 +44,6 @@ void main() {
     final mutations = container.read(collectionMutationsProvider);
     await mutations.addItem(
       'movie-1',
-      storageBox: 'Legacy shelf',
       locationId: 'loc-a',
     );
 
@@ -52,7 +51,6 @@ void main() {
     final owned = OwnedItem(
       id: row.id,
       itemId: row.itemId,
-      storageBox: row.storageBox,
       locationId: row.locationId,
       updatedAt: row.updatedAt,
     );
@@ -68,7 +66,6 @@ void main() {
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
     expect(updated.locationId, 'loc-b');
-    expect(updated.storageBox, isNull);
   });
 
   test('moveSelectedToWishlist creates wishlist rows and tombstones owned rows', () async {

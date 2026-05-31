@@ -36,7 +36,8 @@ final mediaCatalogProvider =
   } catch (error, stackTrace) {
     logRecoverableError(
       source: 'media_catalog',
-      message: 'Failed to load media catalog from metadata server; using fallback catalog.',
+      message:
+          'Failed to load media catalog from metadata server; using fallback catalog.',
       error: error,
       stackTrace: stackTrace,
     );
@@ -45,6 +46,11 @@ final mediaCatalogProvider =
 });
 
 final resolvedLibraryTypesProvider = Provider<LibraryTypeRegistry>((ref) {
+  // Ensure per-kind add builders are registered before resolving types.
+  // This is intentionally done here (rather than a top-level module call)
+  // so tests that interact with providers also initialize the registry.
+  registerLibraryAddBuilders();
+
   final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
   return collectarrLibraryTypes.resolveWithCatalog(catalog);
 });
@@ -91,12 +97,8 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
   List<CatalogMediaType> catalog,
 ) {
   return [
-    for (final type in catalog) _normalizeCatalogMediaType(type),
+    for (final type in catalog) normalizeCatalogMediaTypeDefaults(type),
   ];
-}
-
-CatalogMediaType _normalizeCatalogMediaType(CatalogMediaType type) {
-  return normalizeCatalogMediaTypeDefaults(type);
 }
 
 const fallbackMediaCatalog = <CatalogMediaType>[
@@ -106,23 +108,7 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     pluralLabel: 'Comics',
     routeSegments: ['comics', 'comic'],
     defaultProvider: 'gcd',
-    providers: ['gcd', 'comicvine'],
-  ),
-  CatalogMediaType(
-    kind: 'manga',
-    singularLabel: 'Manga',
-    pluralLabel: 'Manga',
-    routeSegments: ['manga'],
-    defaultProvider: 'anilist',
-    providers: ['anilist', 'mangadex', 'comicvine'],
-  ),
-  CatalogMediaType(
-    kind: 'anime',
-    singularLabel: 'Anime',
-    pluralLabel: 'Anime',
-    routeSegments: ['anime'],
-    defaultProvider: 'anilist',
-    providers: ['anilist', 'tmdb'],
+    providers: ['gcd', 'comicvine', 'mangadex', 'anilist', 'hardcover'],
   ),
   CatalogMediaType(
     kind: 'movie',
@@ -130,16 +116,7 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     pluralLabel: 'Movies',
     routeSegments: ['movies', 'movie'],
     defaultProvider: 'tmdb',
-    providers: ['tmdb'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
-  ),
-  CatalogMediaType(
-    kind: 'tv',
-    singularLabel: 'TV Show',
-    pluralLabel: 'TV Shows',
-    routeSegments: ['tv', 'shows', 'series'],
-    defaultProvider: 'tmdb',
-    providers: ['tmdb'],
+    providers: ['tmdb', 'anilist'],
     physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(

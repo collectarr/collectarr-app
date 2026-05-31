@@ -10,12 +10,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('sync settings migrates storage box policy to location',
+  testWidgets('sync settings shows location policy and saves current value',
       (tester) async {
-    SharedPreferences.setMockInitialValues({
-      'collectarr.sync_field_policy.storage_box': 'overwrite',
-    });
-
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -35,7 +31,7 @@ void main() {
 
     expect(find.text('Location'), findsOneWidget);
     expect(find.text('Storage Box'), findsNothing);
-    expect(find.text('Always overwrite'), findsWidgets);
+    expect(find.text('Update empty fields only'), findsWidgets);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Sync Now'));
     await pumpUntilSettled(tester);
@@ -43,11 +39,7 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(
       prefs.getString('collectarr.sync_field_policy.location_id'),
-      'overwrite',
-    );
-    expect(
-      prefs.getString('collectarr.sync_field_policy.storage_box'),
-      isNull,
+      'updateEmpty',
     );
   });
 }

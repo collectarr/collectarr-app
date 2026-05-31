@@ -138,6 +138,50 @@ void main() {
     expect(opened, 'Batman');
   });
 
+  testWidgets('workspace table header hides secondary sort chrome in narrow columns',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 120,
+            height: 120,
+            child: LibraryWorkspaceTable<String>(
+              entries: const ['Batman'],
+              columns: const [
+                LibraryTableColumn.issue,
+              ],
+              sortColumn: LibrarySortColumn.issue,
+              sortAscending: true,
+              sortRules: const [
+                LibrarySortRule(
+                  column: LibrarySortColumn.issue,
+                  ascending: true,
+                ),
+              ],
+              columnWidthFor: (_) => 56,
+              defaultColumnWidthFor: (_) => 56,
+              columnSortFor: (_) => LibrarySortColumn.issue,
+              columnLabelFor: (_) => 'Issue',
+              columnIsNumeric: (_) => true,
+              cellBuilder: (_, __) => const Text('#1'),
+              isSelected: (_) => false,
+              onEntryTap: (_) {},
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+              onColumnReordered: (_, __) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('sort-priority-issue')), findsNothing);
+  });
+
   testWidgets('workspace table highlights selected row after tap',
       (tester) async {
     var selectedEntry = 'Spider-Man';

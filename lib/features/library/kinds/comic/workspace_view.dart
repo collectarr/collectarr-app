@@ -59,7 +59,7 @@ const comicsTableColumnPresets = [
       LibraryTableColumn.issue,
       LibraryTableColumn.grade,
       LibraryTableColumn.condition,
-      LibraryTableColumn.storageBox,
+      LibraryTableColumn.location,
       LibraryTableColumn.updated,
     },
   ),
@@ -90,7 +90,7 @@ const comicsTableColumnPresets = [
       LibraryTableColumn.grade,
       LibraryTableColumn.condition,
       LibraryTableColumn.price,
-      LibraryTableColumn.storageBox,
+      LibraryTableColumn.location,
       LibraryTableColumn.wishlist,
       LibraryTableColumn.updated,
     },
@@ -195,7 +195,7 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.grade => 88.0,
     LibraryTableColumn.condition => 124.0,
     LibraryTableColumn.price => 92.0,
-    LibraryTableColumn.storageBox => 118.0,
+    LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.updated => 112.0,
     LibraryTableColumn.country => 100.0,
@@ -268,7 +268,7 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.grade => 'Personal grade for owned copies',
     LibraryTableColumn.condition => 'Personal condition for owned copies',
     LibraryTableColumn.price => 'Personal purchase price',
-    LibraryTableColumn.storageBox => 'Assigned location path or legacy storage box',
+    LibraryTableColumn.location => 'Assigned location path',
     LibraryTableColumn.wishlist => 'Wishlist status',
     LibraryTableColumn.updated => 'Most recent local update',
     LibraryTableColumn.country => 'Country of publication',
@@ -296,7 +296,7 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
     LibraryTableColumn.condition ||
     LibraryTableColumn.price =>
       LibraryTableColumnGroup.value,
-    LibraryTableColumn.storageBox ||
+    LibraryTableColumn.location ||
     LibraryTableColumn.wishlist =>
       LibraryTableColumnGroup.personal,
     LibraryTableColumn.country ||
@@ -340,7 +340,7 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.grade => LibrarySortColumn.grade,
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,
-    LibraryTableColumn.storageBox => LibrarySortColumn.storageBox,
+    LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,

@@ -200,8 +200,8 @@ class _ShelfDistributionPanel extends StatelessWidget {
               values: state.readStatusCounts,
             ),
             _DistributionGroup(
-              title: 'Storage boxes',
-              values: state.storageBoxCounts,
+              title: 'Locations',
+              values: state.locationCounts,
             ),
             _DistributionGroup(
               title: 'Top series',

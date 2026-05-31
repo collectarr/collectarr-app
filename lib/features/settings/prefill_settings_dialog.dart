@@ -14,7 +14,6 @@ class PrefillDefaults {
     this.condition,
     this.grade,
     this.locationId,
-    this.legacyStorageBox,
     this.readStatus,
     this.tags,
   });
@@ -22,7 +21,6 @@ class PrefillDefaults {
   final String? condition;
   final String? grade;
   final String? locationId;
-  final String? legacyStorageBox;
   final String? readStatus;
   final String? tags;
 
@@ -32,7 +30,6 @@ class PrefillDefaults {
       condition: prefs.getString('${_prefsPrefix}condition'),
       grade: prefs.getString('${_prefsPrefix}grade'),
       locationId: prefs.getString('${_prefsPrefix}location_id'),
-      legacyStorageBox: prefs.getString('${_prefsPrefix}storage_box'),
       readStatus: prefs.getString('${_prefsPrefix}read_status'),
       tags: prefs.getString('${_prefsPrefix}tags'),
     );
@@ -51,7 +48,6 @@ class PrefillDefaults {
     await set('condition', condition);
     await set('grade', grade);
     await set('location_id', locationId);
-    await set('storage_box', locationId == null ? legacyStorageBox : null);
     await set('read_status', readStatus);
     await set('tags', tags);
   }
@@ -75,7 +71,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   bool _loaded = false;
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
-  String? _legacyLocationLabel;
 
   static const _readStatusOptions = [
     null,
@@ -101,8 +96,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   Future<void> _load() async {
     final defaults = await PrefillDefaults.load();
     final locations = await ref.read(allLocationsProvider.future);
-    final locationId = defaults.locationId ??
-        _matchLegacyLocationId(defaults.legacyStorageBox, locations);
     if (!mounted) return;
     setState(() {
       _conditionController.text = defaults.condition ?? '';
@@ -110,8 +103,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       _tagsController.text = defaults.tags ?? '';
       _readStatus = defaults.readStatus;
       _availableLocations = locations;
-      _selectedLocationId = locationId;
-      _legacyLocationLabel = locationId == null ? defaults.legacyStorageBox : null;
+      _selectedLocationId = defaults.locationId;
       _loaded = true;
     });
   }
@@ -211,7 +203,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 _conditionController.clear();
                 _gradeController.clear();
                 _selectedLocationId = null;
-                _legacyLocationLabel = null;
                 _tagsController.clear();
                 _readStatus = null;
               });
@@ -224,8 +215,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   }
 
   Widget _locationField() {
-    final label = locationPathForId(_availableLocations, _selectedLocationId) ??
-        _legacyLocationLabel;
+    final label = locationPathForId(_availableLocations, _selectedLocationId);
     return Row(
       children: [
         SizedBox(
@@ -277,7 +267,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             onPressed: () {
               setState(() {
                 _selectedLocationId = null;
-                _legacyLocationLabel = null;
               });
             },
             icon: const Icon(Icons.clear, size: 16),
@@ -303,27 +292,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     }
     setState(() {
       _selectedLocationId = result.isEmpty ? null : result;
-      _legacyLocationLabel = null;
       _availableLocations = locations;
     });
-  }
-
-  String? _matchLegacyLocationId(
-    String? legacyLabel,
-    List<StorageLocation> locations,
-  ) {
-    final normalized = legacyLabel?.trim();
-    if (normalized == null || normalized.isEmpty) {
-      return null;
-    }
-    final match = locations.cast<StorageLocation?>().firstWhere(
-          (location) =>
-              location != null &&
-              (location.fullPath(locations) == normalized ||
-                  location.name == normalized),
-          orElse: () => null,
-        );
-    return match?.id;
   }
 
   Widget _textField(
@@ -443,7 +413,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                     ? null
                     : _gradeController.text,
                 locationId: _selectedLocationId,
-                legacyStorageBox: _legacyLocationLabel,
                 readStatus: _readStatus,
                 tags: _tagsController.text.isEmpty
                     ? null

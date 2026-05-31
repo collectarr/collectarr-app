@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';

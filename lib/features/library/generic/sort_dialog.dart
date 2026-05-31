@@ -258,7 +258,7 @@ String _sortColumnLabel(LibrarySortColumn column) {
     LibrarySortColumn.grade => 'Grade',
     LibrarySortColumn.condition => 'Condition',
     LibrarySortColumn.price => 'Price',
-    LibrarySortColumn.storageBox => 'Storage box',
+    LibrarySortColumn.location => 'Location',
     LibrarySortColumn.wishlist => 'Wishlist',
     LibrarySortColumn.updated => 'Updated',
     LibrarySortColumn.country => 'Country',

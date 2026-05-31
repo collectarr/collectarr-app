@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:drift/drift.dart';
 
 class CatalogCacheRepository {
@@ -42,6 +45,7 @@ class CatalogCacheRepository {
                 physicalFormat: Value(item.physicalFormat),
                 physicalFormatLabel: Value(item.physicalFormatLabel),
                 publisher: Value(item.publisher),
+                coverDate: Value(item.coverDate),
                 releaseDate: Value(item.releaseDate),
                 releaseYear: Value(item.releaseYear),
                 barcode: Value(item.barcode),
@@ -137,6 +141,47 @@ class CatalogCacheRepository {
         mode: InsertMode.insertOrReplace,
       );
     });
+    await _captureDerivedVocabulary(items);
+  }
+
+  Future<void> _captureDerivedVocabulary(List<CatalogItem> items) async {
+    final pickLists = PickListRepository(_db);
+    final seriesRegistry = SeriesRegistryRepository(_db);
+    final byKind = <String, List<CatalogItem>>{};
+    for (final item in items) {
+      byKind.putIfAbsent(item.kind.trim().toLowerCase(), () => <CatalogItem>[])
+          .add(item);
+    }
+
+    await _db.transaction(() async {
+      for (final entry in byKind.entries) {
+        final mediaKind = entry.key;
+        final scopedItems = entry.value;
+        await pickLists.captureValuesWithoutTransaction(
+          kPublisherPickListName,
+          scopedItems.map((item) => item.publisher),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kImprintPickListName,
+          scopedItems.map((item) => item.publishing?.imprint),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kSeriesGroupPickListName,
+          scopedItems.map((item) => item.publishing?.seriesGroup),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kPhysicalFormatPickListName,
+          scopedItems.map(
+            (item) => item.physicalFormatLabel ?? item.physicalFormat,
+          ),
+          mediaKind: mediaKind,
+        );
+      }
+      await seriesRegistry.captureCatalogItemsWithoutTransaction(items);
+    });
   }
 
   Future<Map<String, CatalogItem>> findByIds(Iterable<String> ids) async {
@@ -156,8 +201,7 @@ class CatalogCacheRepository {
     }
 
     return {
-      for (final row in rows)
-        row.id: _itemFromRow(row),
+      for (final row in rows) row.id: _itemFromRow(row),
     };
   }
 
@@ -248,7 +292,8 @@ class CatalogCacheRepository {
       catalogNumber: row.catalogNumber,
       releaseStatus: row.releaseStatus,
     );
-    final game = GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
+    final game =
+        GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
     final publishing = CatalogPublishingDetails(
       pageCount: row.pageCount,
       coverPriceCents: row.coverPriceCents,
@@ -270,6 +315,7 @@ class CatalogCacheRepository {
       physicalFormat: row.physicalFormat,
       physicalFormatLabel: row.physicalFormatLabel,
       publisher: row.publisher,
+      coverDate: row.coverDate,
       releaseDate: row.releaseDate,
       releaseYear: row.releaseYear,
       barcode: row.barcode,

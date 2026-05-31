@@ -55,12 +55,15 @@ void main() {
       expect(kIsWeb, isFalse);
     });
 
-    test('local base64 cover bytes decode correctly', () {
+    test('local cover bytes are accepted', () {
       final pixel = base64Encode([
         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A // PNG header
       ]);
-      final cover = LibraryCoverImage(title: 'Test', localBase64: pixel);
-      expect(cover.localBase64, isNotNull);
+      final cover = LibraryCoverImage(
+        title: 'Test',
+        localBytes: base64Decode(pixel),
+      );
+      expect(cover.localBytes, isNotNull);
     });
   });
 

@@ -3,6 +3,7 @@ part of 'library_add_dialog.dart';
 class _LibraryAddBottomBar extends StatelessWidget {
   const _LibraryAddBottomBar({
     required this.type,
+    required this.isMovieDesktopChrome,
     required this.conditions,
     required this.grades,
     required this.defaultTags,
@@ -32,6 +33,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
+  final bool isMovieDesktopChrome;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultTags;
@@ -80,7 +82,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
         border: Border(top: BorderSide(color: palette.divider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 7, 8, 9),
+        padding: EdgeInsets.fromLTRB(8, isMovieDesktopChrome ? 8 : 7, 8, isMovieDesktopChrome ? 8 : 9),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -99,7 +101,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
                   accent: accent,
                   onChanged: onAddTargetChanged,
                 ),
-                if (selectedCandidate != null) ...[
+                if (selectedCandidate != null && !isMovieDesktopChrome) ...[
                   LibraryAddResultBadge(providerLabel),
                   if (isAdmin)
                     _LibraryAddBottomActionButton(
@@ -112,7 +114,9 @@ class _LibraryAddBottomBar extends StatelessWidget {
                           : 'Queued ${selectedQueuedIngest!.shortId}',
                       accent: accent,
                       onPressed:
-                          selectedQueuedIngest != null || isQueueingIngest
+                          selectedQueuedIngest != null ||
+                              isQueueingIngest ||
+                              isAdding
                               ? null
                               : onQueueIngest,
                     ),
@@ -126,7 +130,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
                 ],
               ],
             ),
-            if (addTarget == LibraryAddTarget.owned) ...[
+            if (addTarget == LibraryAddTarget.owned && !isMovieDesktopChrome) ...[
               const SizedBox(height: 8),
               _AddTargetDefaultsBar(
                 accent: accent,
@@ -147,6 +151,32 @@ class _LibraryAddBottomBar extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
+                if (isMovieDesktopChrome && selectedCandidate != null) ...[
+                  if (isAdmin)
+                    _LibraryAddBottomActionButton(
+                      tooltip: selectedQueuedIngest == null
+                          ? 'Queue Core ingest'
+                          : 'Core ingest queued',
+                      icon: Icons.playlist_add_check,
+                      label: selectedQueuedIngest == null
+                          ? 'Queue ingest'
+                          : 'Queued ${selectedQueuedIngest!.shortId}',
+                      accent: accent,
+                      onPressed:
+                          selectedQueuedIngest != null || isQueueingIngest
+                              ? null
+                              : onQueueIngest,
+                    ),
+                  const SizedBox(width: 8),
+                  _LibraryAddBottomActionButton(
+                    icon: Icons.outbox_outlined,
+                    tooltip: 'Propose metadata to Core',
+                    label: 'Propose',
+                    accent: accent,
+                    onPressed: isAdding || isQueueingIngest ? null : onPropose,
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: FilledButton(
                     onPressed: isAdding ? null : onAdd,
@@ -156,7 +186,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
                             dimension: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(addLabel),
+                        : Text(isMovieDesktopChrome ? _movieAddLabel() : addLabel),
                   ),
                 ),
               ],
@@ -173,6 +203,14 @@ class _LibraryAddBottomBar extends StatelessWidget {
       LibraryAddTarget.owned => 'Add local $noun to Collection',
       LibraryAddTarget.wishlist => 'Add local $noun to Wishlist',
       LibraryAddTarget.track => 'Track local $noun',
+    };
+  }
+
+  String _movieAddLabel() {
+    return switch (addTarget) {
+      LibraryAddTarget.owned => 'Add to Collection',
+      LibraryAddTarget.wishlist => 'Add to Wishlist',
+      LibraryAddTarget.track => 'Track in Library',
     };
   }
 }

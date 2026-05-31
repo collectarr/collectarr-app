@@ -33,6 +33,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   const _LibraryAddPreviewPane({
     required this.type,
     required this.accent,
+    required this.isMovieDesktopChrome,
+    required this.previewPaneBuilder,
     required this.item,
     required this.candidate,
     required this.candidatePreview,
@@ -56,6 +58,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
+  final bool isMovieDesktopChrome;
+  final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
@@ -113,8 +117,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
         ? (preview != null
-        ? _metadataRowsForFullPreview(preview, type)
-        : _metadataRowsForCandidate(selectedCandidate!, type))
+            ? _metadataRowsForFullPreview(preview, type)
+            : _metadataRowsForCandidate(selectedCandidate!, type))
         : _metadataRowsForItem(selectedItem, type);
     final discoverySections = _discoverySections(
       item: selectedItem,
@@ -127,6 +131,33 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
             preview: preview,
           )
         : const <_PreviewTrackData>[];
+    final previewRequest = LibraryAddPreviewPaneRequest(
+      type: type,
+      accent: accent,
+      item: selectedItem,
+      candidate: selectedCandidate,
+      candidatePreview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+      searched: searched,
+      addTarget: addTarget,
+      referenceType: referenceType,
+      availableBundleReleases: availableBundleReleases,
+      selectedBundleReleaseId: selectedBundleReleaseId,
+      selectedBundleReleaseDetail: selectedBundleReleaseDetail,
+      selectedEditionId: selectedEditionId,
+      selectedVariantId: selectedVariantId,
+      isLoadingBundleReleases: isLoadingBundleReleases,
+      isLoadingBundleReleaseDetail: isLoadingBundleReleaseDetail,
+      onReferenceTypeChanged: onReferenceTypeChanged,
+      onEditionSelected: onEditionSelected,
+      onVariantSelected: onVariantSelected,
+      onBundleReleaseSelected: onBundleReleaseSelected,
+    );
+    final launcherPreview = previewPaneBuilder?.call(context, previewRequest);
+    if (launcherPreview != null) {
+      return launcherPreview;
+    }
     final customPreview = type.presentation.builder.buildAddPreviewPane(
       context: context,
       accent: accent,
@@ -204,6 +235,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                       children: [
                         if (selectedItem != null) ...[
                           _LibraryAddReferenceSelector(
+                            type: type,
                             accent: accent,
                             addTarget: addTarget,
                             referenceType: referenceType,
@@ -356,6 +388,25 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   }
 }
 
+class BundleReleaseDetailCard extends StatelessWidget {
+  const BundleReleaseDetailCard({
+    super.key,
+    required this.detail,
+    required this.accent,
+  });
+
+  final BundleReleaseDetail detail;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return _BundleReleaseDetailCard(
+      detail: detail,
+      accent: accent,
+    );
+  }
+}
+
 class _BundleReleaseDetailCard extends StatelessWidget {
   const _BundleReleaseDetailCard({
     required this.detail,
@@ -420,6 +471,95 @@ class _BundleReleaseDetailCard extends StatelessWidget {
   }
 }
 
+class LibraryAddReferenceSelector extends StatelessWidget {
+  const LibraryAddReferenceSelector({
+    super.key,
+    required this.type,
+    required this.accent,
+    required this.addTarget,
+    required this.referenceType,
+    required this.item,
+    required this.bundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.selectedEditionId,
+    required this.selectedVariantId,
+    required this.isLoadingBundleReleases,
+    required this.onReferenceTypeChanged,
+    required this.onEditionSelected,
+    required this.onVariantSelected,
+    required this.onBundleReleaseSelected,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final LibraryMetadataItem item;
+  final List<BundleReleaseSummary> bundleReleases;
+  final String? selectedBundleReleaseId;
+  final String? selectedEditionId;
+  final String? selectedVariantId;
+  final bool isLoadingBundleReleases;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onEditionSelected;
+  final ValueChanged<String> onVariantSelected;
+  final ValueChanged<String> onBundleReleaseSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return _LibraryAddReferenceSelector(
+      type: type,
+      accent: accent,
+      addTarget: addTarget,
+      referenceType: referenceType,
+      item: item,
+      bundleReleases: bundleReleases,
+      selectedBundleReleaseId: selectedBundleReleaseId,
+      selectedEditionId: selectedEditionId,
+      selectedVariantId: selectedVariantId,
+      isLoadingBundleReleases: isLoadingBundleReleases,
+      onReferenceTypeChanged: onReferenceTypeChanged,
+      onEditionSelected: onEditionSelected,
+      onVariantSelected: onVariantSelected,
+      onBundleReleaseSelected: onBundleReleaseSelected,
+    );
+  }
+}
+
+
+List<(String, String?)> libraryAddMetadataRowsForItem(
+  LibraryMetadataItem item,
+  LibraryTypeConfig type,
+) => _metadataRowsForItem(item, type);
+
+List<(String, String?)> libraryAddMetadataRowsForCandidate(
+  ProviderCandidate candidate,
+  LibraryTypeConfig type,
+) => _metadataRowsForCandidate(candidate, type);
+
+List<(String, String?)> libraryAddMetadataRowsForFullPreview(
+  AdminProviderPreview preview,
+  LibraryTypeConfig type,
+) => _metadataRowsForFullPreview(preview, type);
+
+class LibraryAddPreviewMetadataRow extends StatelessWidget {
+  const LibraryAddPreviewMetadataRow({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return _LibraryAddPreviewMetadataRow(
+      label: label,
+      value: value,
+    );
+  }
+}
 String _bundleMemberTitle(BundleReleaseMember member) {
   final number = member.itemNumber;
   if (number != null && number.trim().isNotEmpty) {
@@ -583,6 +723,7 @@ String _bundleDiscLabel(BundleReleaseMember member) {
 
 class _LibraryAddReferenceSelector extends StatelessWidget {
   const _LibraryAddReferenceSelector({
+    required this.type,
     required this.accent,
     required this.addTarget,
     required this.referenceType,
@@ -598,6 +739,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
+  final LibraryTypeConfig type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -624,11 +766,9 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
       selectedVariantId,
     );
     final selectionSummary = switch (addTarget) {
-      LibraryAddTarget.track => item.mediaKind == CatalogMediaKind.music
-          ? 'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.'
-          : 'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
-      LibraryAddTarget.owned => referenceType.helperLabelForMediaKind(item.mediaKind),
-      LibraryAddTarget.wishlist => referenceType.helperLabelForMediaKind(item.mediaKind),
+      LibraryAddTarget.track => type.addChrome.trackScopeSummary,
+      LibraryAddTarget.owned => referenceType.helperLabelForType(type),
+      LibraryAddTarget.wishlist => referenceType.helperLabelForType(type),
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -660,29 +800,32 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _ReferenceChip(
+                  chipKey: const ValueKey('library-add-reference-media'),
                   accent: accent,
                   selected: true,
                   enabled: !selectionLocked,
-                  label: LibraryAddReferenceType.media.labelForMediaKind(item.mediaKind),
+                  label: LibraryAddReferenceType.media.labelForType(type),
                   onPressed: () =>
                       onReferenceTypeChanged(LibraryAddReferenceType.media),
                 ),
                 if (!selectionLocked) ...[
                   _ReferenceChip(
+                    chipKey: const ValueKey('library-add-reference-edition'),
                     accent: accent,
                     selected: referenceType == LibraryAddReferenceType.edition,
                     enabled: editionAvailable,
-                    label: LibraryAddReferenceType.edition.labelForMediaKind(item.mediaKind),
+                    label: LibraryAddReferenceType.edition.labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.edition,
                     ),
                   ),
                   _ReferenceChip(
+                    chipKey: const ValueKey('library-add-reference-bundle'),
                     accent: accent,
                     selected:
                         referenceType == LibraryAddReferenceType.bundleRelease,
                     enabled: bundleAvailable || isLoadingBundleReleases,
-                    label: LibraryAddReferenceType.bundleRelease.labelForMediaKind(item.mediaKind),
+                    label: LibraryAddReferenceType.bundleRelease.labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.bundleRelease,
                     ),
@@ -781,6 +924,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
 
 class _ReferenceChip extends StatelessWidget {
   const _ReferenceChip({
+    this.chipKey,
     required this.accent,
     required this.selected,
     required this.enabled,
@@ -788,6 +932,7 @@ class _ReferenceChip extends StatelessWidget {
     required this.onPressed,
   });
 
+  final Key? chipKey;
   final Color accent;
   final bool selected;
   final bool enabled;
@@ -798,6 +943,7 @@ class _ReferenceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return ChoiceChip(
+      key: chipKey,
       label: Text(label),
       selected: selected,
       onSelected: enabled ? (_) => onPressed() : null,
@@ -1182,6 +1328,56 @@ class _PreviewDiscoverySectionData {
 
   final String title;
   final List<String> values;
+}
+
+class LibraryAddPreviewDiscoverySectionData {
+  const LibraryAddPreviewDiscoverySectionData({
+    required this.title,
+    required this.values,
+  });
+
+  final String title;
+  final List<String> values;
+}
+
+List<LibraryAddPreviewDiscoverySectionData> libraryAddPreviewDiscoverySections({
+  required LibraryMetadataItem? item,
+  required ProviderCandidate? candidate,
+  required AdminProviderPreview? preview,
+}) {
+  return [
+    for (final section in _discoverySections(
+      item: item,
+      candidate: candidate,
+      preview: preview,
+    ))
+      LibraryAddPreviewDiscoverySectionData(
+        title: section.title,
+        values: section.values,
+      ),
+  ];
+}
+
+class LibraryAddPreviewDiscoverySection extends StatelessWidget {
+  const LibraryAddPreviewDiscoverySection({
+    super.key,
+    required this.title,
+    required this.values,
+    required this.accent,
+  });
+
+  final String title;
+  final List<String> values;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return _LibraryAddPreviewDiscoverySection(
+      title: title,
+      values: values,
+      accent: accent,
+    );
+  }
 }
 
 class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
@@ -1640,6 +1836,7 @@ class _EditionGrid extends StatelessWidget {
       children: [
         for (final edition in editions)
           _EditionCard(
+            key: ValueKey('library-add-edition-card-${edition.id}'),
             edition: edition,
             selected: edition.id == selectedEditionId,
             accent: accent,
@@ -1652,6 +1849,7 @@ class _EditionGrid extends StatelessWidget {
 
 class _EditionCard extends StatelessWidget {
   const _EditionCard({
+    super.key,
     required this.edition,
     required this.selected,
     required this.accent,
@@ -1813,6 +2011,7 @@ class _VariantGrid extends StatelessWidget {
           runSpacing: 8,
           children: [
             _VariantChip(
+              key: const ValueKey('library-add-variant-card-any'),
               label: 'Any',
               selected: selectedVariantId == null ||
                   selectedVariantId!.isEmpty,
@@ -1821,6 +2020,7 @@ class _VariantGrid extends StatelessWidget {
             ),
             for (final variant in variants)
               _VariantChip(
+                key: ValueKey('library-add-variant-card-${variant.id}'),
                 label: variant.name,
                 coverUrl: variant.coverImageUrl,
                 barcode: variant.barcode,
@@ -1838,6 +2038,7 @@ class _VariantGrid extends StatelessWidget {
 
 class _VariantChip extends StatelessWidget {
   const _VariantChip({
+    super.key,
     required this.label,
     required this.selected,
     required this.accent,

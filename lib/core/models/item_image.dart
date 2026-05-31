@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 class ItemImage {
   const ItemImage({
     required this.id,
@@ -12,7 +15,7 @@ class ItemImage {
   final String id;
   final String ownedItemId;
   final String imageType; // front_cover, back_cover, auxiliary
-  final String imageData; // base64-encoded
+  final Uint8List imageData;
   final String? caption;
   final int sortOrder;
   final DateTime createdAt;
@@ -22,7 +25,7 @@ class ItemImage {
       id: json['id'] as String,
       ownedItemId: json['owned_item_id'] as String,
       imageType: json['image_type'] as String? ?? 'front_cover',
-      imageData: json['image_data'] as String,
+      imageData: base64Decode(json['image_data'] as String),
       caption: json['caption'] as String?,
       sortOrder: json['sort_order'] as int? ?? 0,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -33,7 +36,7 @@ class ItemImage {
     return {
       'owned_item_id': ownedItemId,
       'image_type': imageType,
-      'image_data': imageData,
+      'image_data': base64Encode(imageData),
       'caption': caption,
       'sort_order': sortOrder,
     };
@@ -43,7 +46,7 @@ class ItemImage {
     String? id,
     String? ownedItemId,
     String? imageType,
-    String? imageData,
+    Uint8List? imageData,
     String? caption,
     int? sortOrder,
     DateTime? createdAt,

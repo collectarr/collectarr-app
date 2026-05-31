@@ -20,7 +20,7 @@ enum ReportColumn {
   format('Format', 0.8),
   creator('Creator', 1.2),
   tags('Tags', 1.0),
-  storageBox('Storage', 1.0);
+  location('Location', 1.0);
 
   const ReportColumn(this.label, this.flex);
   final String label;
@@ -40,7 +40,7 @@ enum ReportColumn {
       ReportColumn.format => item.editions.firstOrNull?.physicalFormatLabel ?? '',
       ReportColumn.creator => (item.creators?.firstOrNull?['name']?.toString()) ?? '',
       ReportColumn.tags => item.tags ?? '',
-      ReportColumn.storageBox => item.storageBox ?? '',
+      ReportColumn.location => item.locationPath ?? '',
     };
   }
 }

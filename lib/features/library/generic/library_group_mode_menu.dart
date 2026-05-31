@@ -284,6 +284,8 @@ class _LibraryGroupModeDropdownMenuState
   }) {
     final expanded = _expandedSections[label] ?? false;
     final hasSelectedMode = modes.contains(widget.selectedMode);
+    final highlightColor =
+        libraryToolbarMenuText(context).withValues(alpha: 0.95);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Column(
@@ -299,8 +301,7 @@ class _LibraryGroupModeDropdownMenuState
                   child: Container(
                     key: ValueKey('groupModeSectionBar_$label'),
                     width: 4,
-                    color: libraryToolbarMenuText(context)
-                        .withValues(alpha: 0.95),
+                    color: highlightColor,
                   ),
                 ),
               Padding(
@@ -322,10 +323,33 @@ class _LibraryGroupModeDropdownMenuState
           if (expanded)
             Padding(
               padding: const EdgeInsets.only(left: 28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Stack(
                 children: [
-                  for (final mode in modes) _buildModeItem(context, mode),
+                  if (hasSelectedMode)
+                    Positioned(
+                      left: 0,
+                      top: 4,
+                      bottom: 4,
+                      child: Container(
+                        key: ValueKey('groupModeSectionLevelBar_$label'),
+                        width: 4,
+                        color: highlightColor,
+                      ),
+                    ),
+                  Padding(
+                    padding: EdgeInsets.only(left: hasSelectedMode ? 10 : 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final mode in modes)
+                          _buildModeItem(
+                            context,
+                            mode,
+                            sectionHighlighted: hasSelectedMode,
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -359,57 +383,64 @@ class _LibraryGroupModeDropdownMenuState
     );
   }
 
-  Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
+  Widget _buildModeItem(
+    BuildContext context,
+    LibraryGroupMode mode, {
+    required bool sectionHighlighted,
+  }) {
     final isPinned = _pinnedModes.contains(mode);
     final isSelected = mode == widget.selectedMode;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
-      child: LibraryWorkspaceMenuRow(
-        label: genericGroupModeLabel(mode, widget.type),
-        leadingWidth: 16,
-        leading: isSelected
-            ? Icon(
-                Icons.check,
-                size: 16,
-                color: libraryToolbarMenuText(context),
-              )
-            : null,
-        trailing: widget.onTogglePin == null
-            ? null
-            : GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  setState(() {
-                    if (!isPinned) {
-                      _pinnedModes.add(mode);
-                      _expandedSections['Favorites'] = true;
-                    } else {
-                      _pinnedModes.remove(mode);
-                      if (_pinnedModes.isEmpty) {
-                        _expandedSections.remove('Favorites');
+      child: Padding(
+        padding: EdgeInsets.only(left: isSelected && !sectionHighlighted ? 10 : 0),
+        child: LibraryWorkspaceMenuRow(
+          key: ValueKey('groupModeItemRow_${mode.name}'),
+          label: genericGroupModeLabel(mode, widget.type),
+          leadingWidth: 16,
+          leading: isSelected
+              ? Icon(
+                  Icons.check,
+                  size: 16,
+                  color: libraryToolbarMenuText(context),
+                )
+              : null,
+          trailing: widget.onTogglePin == null
+              ? null
+              : GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    setState(() {
+                      if (!isPinned) {
+                        _pinnedModes.add(mode);
+                        _expandedSections['Favorites'] = true;
+                      } else {
+                        _pinnedModes.remove(mode);
+                        if (_pinnedModes.isEmpty) {
+                          _expandedSections.remove('Favorites');
+                        }
                       }
-                    }
-                  });
-                  widget.onTogglePin!(mode);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(
-                    isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                    size: 15,
-                    color: isPinned
-                        ? libraryToolbarMenuText(context)
-                        : libraryToolbarMenuMutedText(context),
+                    });
+                    widget.onTogglePin!(mode);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                      size: 15,
+                      color: isPinned
+                          ? libraryToolbarMenuText(context)
+                          : libraryToolbarMenuMutedText(context),
+                    ),
                   ),
                 ),
-              ),
-        onTap: () => Navigator.of(context).pop(mode),
-        padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-        backgroundColor:
-            isSelected ? libraryToolbarMenuHover(context) : Colors.transparent,
-        textStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-          color: libraryToolbarMenuText(context),
+          onTap: () => Navigator.of(context).pop(mode),
+          padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
+          backgroundColor: Colors.transparent,
+          textStyle: TextStyle(
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+            color: libraryToolbarMenuText(context),
+          ),
         ),
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -15,6 +17,8 @@ void main() {
 
   tearDown(() => db.close());
 
+  Uint8List bytes(List<int> values) => Uint8List.fromList(values);
+
   test('listForItem returns empty initially', () async {
     expect(await repo.listForItem('owned-1'), isEmpty);
   });
@@ -23,7 +27,7 @@ void main() {
     final image = ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'base64data==',
+      imageData: bytes([1, 2, 3]),
       caption: 'Front cover',
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
@@ -32,7 +36,7 @@ void main() {
     final images = await repo.listForItem('owned-1');
     expect(images, hasLength(1));
     expect(images.single.id, 'img-1');
-    expect(images.single.imageData, 'base64data==');
+    expect(images.single.imageData, orderedEquals([1, 2, 3]));
     expect(images.single.caption, 'Front cover');
     expect(images.single.sortOrder, 0);
   });
@@ -41,21 +45,21 @@ void main() {
     await repo.add(ItemImage(
       id: 'img-2',
       ownedItemId: 'owned-1',
-      imageData: 'data2',
+      imageData: bytes([2]),
       sortOrder: 2,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
     await repo.add(ItemImage(
       id: 'img-3',
       ownedItemId: 'owned-1',
-      imageData: 'data3',
+      imageData: bytes([3]),
       sortOrder: 1,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
@@ -68,7 +72,7 @@ void main() {
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       caption: 'Original',
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
@@ -76,14 +80,14 @@ void main() {
     await repo.updateCaption('img-1', 'Updated caption');
     final images = await repo.listForItem('owned-1');
     expect(images.single.caption, 'Updated caption');
-    expect(images.single.imageData, 'data1');
+    expect(images.single.imageData, orderedEquals([1]));
   });
 
   test('updateCaption can set caption to null', () async {
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       caption: 'Has caption',
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
@@ -97,14 +101,14 @@ void main() {
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
     await repo.add(ItemImage(
       id: 'img-2',
       ownedItemId: 'owned-1',
-      imageData: 'data2',
+      imageData: bytes([2]),
       sortOrder: 1,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
@@ -118,14 +122,14 @@ void main() {
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
     await repo.add(ItemImage(
       id: 'img-2',
       ownedItemId: 'owned-2',
-      imageData: 'data2',
+      imageData: bytes([2]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
@@ -139,14 +143,14 @@ void main() {
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
     await repo.add(ItemImage(
       id: 'img-2',
       ownedItemId: 'owned-1',
-      imageData: 'data2',
+      imageData: bytes([2]),
       sortOrder: 1,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
@@ -157,14 +161,14 @@ void main() {
     await repo.add(ItemImage(
       id: 'img-1',
       ownedItemId: 'owned-1',
-      imageData: 'data1',
+      imageData: bytes([1]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));
     await repo.add(ItemImage(
       id: 'img-2',
       ownedItemId: 'owned-2',
-      imageData: 'data2',
+      imageData: bytes([2]),
       sortOrder: 0,
       createdAt: DateTime.utc(2026, 1, 1),
     ));

@@ -4,6 +4,7 @@ class _SearchPane extends StatelessWidget {
   const _SearchPane({
     required this.type,
     required this.isBusy,
+    required this.isMovieDesktopChrome,
     required this.error,
     required this.accent,
     required this.results,
@@ -30,6 +31,7 @@ class _SearchPane extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final bool isBusy;
+  final bool isMovieDesktopChrome;
   final String? error;
   final Color accent;
   final List<LibraryMetadataItem> results;
@@ -64,6 +66,7 @@ class _SearchPane extends StatelessWidget {
       child: _SearchResultsList(
         type: type,
         accent: accent,
+        isMovieDesktopChrome: isMovieDesktopChrome,
         selectedProvider: selectedProvider,
         isBusy: isBusy,
         error: error,
@@ -189,6 +192,7 @@ class _SearchResultsList extends StatelessWidget {
   const _SearchResultsList({
     required this.type,
     required this.accent,
+    required this.isMovieDesktopChrome,
     required this.selectedProvider,
     required this.isBusy,
     required this.error,
@@ -215,6 +219,7 @@ class _SearchResultsList extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
+  final bool isMovieDesktopChrome;
   final String selectedProvider;
   final bool isBusy;
   final String? error;
@@ -268,8 +273,31 @@ class _SearchResultsList extends StatelessWidget {
         ],
       );
     }
+    if (isMovieDesktopChrome) {
+      return _MovieSearchResultsGrid(
+        type: type,
+        accent: accent,
+        results: results,
+        providerResults: providerResults,
+        queuedProviderIngests: queuedProviderIngests,
+        selectedResultId: selectedResultId,
+        selectedProviderCandidateId: selectedProviderCandidateId,
+        checkedResultIds: checkedResultIds,
+        ownedCatalogItemIds: ownedCatalogItemIds,
+        providerLabel: type.metadataProviderLabel,
+        queryText: providerQueryText,
+        seriesText: providerSeriesText,
+        numberText: providerNumberText,
+        publisherText: providerPublisherText,
+        yearText: providerYearText,
+        onSelectResult: onSelectResult,
+        onSelectProviderCandidate: onSelectProviderCandidate,
+        onToggleResultCheck: onToggleResultCheck,
+      );
+    }
     final fallbackProviderLabel = _fallbackProviderLabel();
-    final mixedProviderSummary = _mixedProviderSummary();
+    // Hide mixed-provider summary; provider badges are sufficient.
+    // final mixedProviderSummary = _mixedProviderSummary();
     final groups = _buildUnifiedGroups(
       coreResults: results,
       providerResults: providerResults,
@@ -283,8 +311,7 @@ class _SearchResultsList extends StatelessWidget {
             requestedProvider: type.metadataProviderLabel(selectedProvider),
             fallbackProvider: fallbackProviderLabel,
           ),
-        if (mixedProviderSummary != null)
-          _ProviderMixedNotice(summary: mixedProviderSummary),
+        // mixed provider summary removed per UX preference.
         for (var i = 0; i < groups.length; i++) ...[
           _UnifiedGroupNode(
             key: ValueKey(groups[i].key),
@@ -326,18 +353,6 @@ class _SearchResultsList extends StatelessWidget {
     return null;
   }
 
-  String? _mixedProviderSummary() {
-    final providers = _providerIdsInOrder();
-    if (providers.length <= 1) {
-      return null;
-    }
-    final labels = providers.map(type.metadataProviderLabel).toList(growable: false);
-    if (providers.contains(selectedProvider)) {
-      return 'Showing matches from ${_joinLabels(labels)}.';
-    }
-    return 'Requested ${type.metadataProviderLabel(selectedProvider)}, but showing matches from ${_joinLabels(labels)}.';
-  }
-
   List<String> _providerIdsInOrder() {
     final providers = <String>[];
     for (final item in providerResults) {
@@ -347,17 +362,248 @@ class _SearchResultsList extends StatelessWidget {
     }
     return providers;
   }
+}
 
-  String _joinLabels(List<String> labels) {
-    if (labels.length <= 1) {
-      return labels.isEmpty ? 'providers' : labels.first;
-    }
-    if (labels.length == 2) {
-      return '${labels.first} and ${labels.last}';
-    }
-    final leading = labels.take(labels.length - 1).join(', ');
-    return '$leading, and ${labels.last}';
+class _MovieSearchResultsGrid extends StatelessWidget {
+  const _MovieSearchResultsGrid({
+    required this.type,
+    required this.accent,
+    required this.results,
+    required this.providerResults,
+    required this.queuedProviderIngests,
+    required this.selectedResultId,
+    required this.selectedProviderCandidateId,
+    required this.checkedResultIds,
+    required this.ownedCatalogItemIds,
+    required this.providerLabel,
+    required this.queryText,
+    required this.seriesText,
+    required this.numberText,
+    required this.publisherText,
+    required this.yearText,
+    required this.onSelectResult,
+    required this.onSelectProviderCandidate,
+    required this.onToggleResultCheck,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final List<LibraryMetadataItem> results;
+  final List<ProviderCandidate> providerResults;
+  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
+  final String? selectedResultId;
+  final String? selectedProviderCandidateId;
+  final Set<String> checkedResultIds;
+  final Set<String> ownedCatalogItemIds;
+  final String Function(String providerId) providerLabel;
+  final String queryText;
+  final String seriesText;
+  final String numberText;
+  final String publisherText;
+  final String yearText;
+  final ValueChanged<String> onSelectResult;
+  final ValueChanged<String> onSelectProviderCandidate;
+  final ValueChanged<String> onToggleResultCheck;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = <_MovieSearchGridEntry>[
+      for (final item in results) _MovieSearchGridEntry.core(item),
+      for (final candidate in providerResults)
+        _MovieSearchGridEntry.provider(candidate),
+    ];
+    final palette = appPalette(context);
+    return GridView.builder(
+      padding: const EdgeInsets.all(12),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 174,
+        mainAxisExtent: 292,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      itemCount: entries.length,
+      itemBuilder: (context, index) {
+        final entry = entries[index];
+        final item = entry.item;
+        final candidate = entry.candidate;
+        final isCore = item != null;
+        final selected = isCore
+            ? item.id == selectedResultId
+            : candidate!.localCatalogId == selectedProviderCandidateId;
+        final checked = isCore && checkedResultIds.contains(item.id);
+        final title = isCore ? item.title : candidate!.title;
+        final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
+        final subtitle = isCore
+            ? [
+                if (item.releaseYear != null) item.releaseYear.toString(),
+                if (item.publisher != null) item.publisher,
+              ].whereType<String>().join(' · ')
+            : [
+                if (candidate != null) providerLabel(candidate.provider),
+                if (candidate?.summary?.trim().isNotEmpty == true)
+                  candidate?.summary,
+              ].whereType<String>().join(' · ');
+        final matchSummary = isCore
+            ? _metadataItemMatchSummary(
+                type: type,
+                item: item,
+                queryText: queryText,
+                seriesText: seriesText,
+                numberText: numberText,
+                publisherText: publisherText,
+                yearText: yearText,
+              )
+            : _providerCandidateMatchSummary(
+                type: type,
+                candidate: candidate!,
+                queryText: queryText,
+                seriesText: seriesText,
+                numberText: numberText,
+                publisherText: publisherText,
+                yearText: yearText,
+              );
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isCore
+                ? () => onSelectResult(item.id)
+                : () => onSelectProviderCandidate(candidate!.localCatalogId),
+            borderRadius: BorderRadius.circular(8),
+            child: Ink(
+              decoration: BoxDecoration(
+                color: selected
+                    ? Color.alphaBlend(
+                        accent.withValues(alpha: 0.22), palette.selection)
+                    : palette.tableEvenRow,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: selected ? accent : palette.divider,
+                  width: selected ? 1.6 : 1,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LibraryCoverImage(
+                                title: title,
+                                imageUrl: coverUrl,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 6,
+                            bottom: 6,
+                            child: LibraryAddResultBadge(
+                              isCore
+                                  ? 'core'
+                                  : providerLabel(candidate!.provider),
+                              accent: accent,
+                            ),
+                          ),
+                          if (isCore)
+                            Positioned(
+                              right: 4,
+                              top: 4,
+                              child: InkWell(
+                                onTap: () => onToggleResultCheck(item.id),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    checked
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_unchecked,
+                                    size: 18,
+                                    color: checked ? accent : Colors.white,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else if (queuedProviderIngests[
+                                  candidate!.localCatalogId] !=
+                              null)
+                            Positioned(
+                              right: 6,
+                              top: 6,
+                              child: Icon(
+                                Icons.playlist_add_check,
+                                size: 18,
+                                color: accent,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: palette.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        height: 1.05,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: palette.textMuted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                    if (matchSummary != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Matched on: $matchSummary',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: accent.withValues(alpha: 0.92),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                    if (isCore && ownedCatalogItemIds.contains(item.id)) ...[
+                      const SizedBox(height: 5),
+                      const LibraryAddResultBadge('In collection'),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
+}
+
+class _MovieSearchGridEntry {
+  const _MovieSearchGridEntry.core(this.item) : candidate = null;
+  const _MovieSearchGridEntry.provider(this.candidate) : item = null;
+
+  final LibraryMetadataItem? item;
+  final ProviderCandidate? candidate;
 }
 
 class _SearchSkeletonList extends StatelessWidget {
@@ -382,9 +628,8 @@ class _SearchSkeletonList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: index.isEven
-                    ? palette.tableEvenRow
-                    : palette.tableOddRow,
+                color:
+                    index.isEven ? palette.tableEvenRow : palette.tableOddRow,
                 border: Border.all(color: palette.tableBottomBorder),
               ),
               child: const Padding(
@@ -473,43 +718,6 @@ class _ProviderFallbackNotice extends StatelessWidget {
   }
 }
 
-class _ProviderMixedNotice extends StatelessWidget {
-  const _ProviderMixedNotice({required this.summary});
-
-  final String summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final bannerTextColor = ThemeData.estimateBrightnessForColor(kAppBannerInfoBackground) == Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: kAppBannerInfoBackground,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.layers_outlined, size: 18, color: palette.textMuted),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              summary,
-              style: TextStyle(
-                color: bannerTextColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ResultSectionHeader extends StatelessWidget {
   const _ResultSectionHeader({required this.label});
 
@@ -579,22 +787,24 @@ class _SearchResultTile extends StatelessWidget {
       publisherText: publisherText,
       yearText: yearText,
     );
-    final musicDisplay =
-        item.kind == 'music' ? _musicSearchResultDisplay(item) : null;
-    final subtitle = musicDisplay?.secondaryLine ?? [
-      if (item.publisher != null) item.publisher,
-      if (item.releaseYear != null) item.releaseYear.toString(),
-      if (item.physicalFormatLabel != null) item.physicalFormatLabel,
-      if (item.variant != null) item.variant,
-      if (item.barcode != null) item.barcode,
-    ].whereType<String>().join(' | ');
-    final detailLine = musicDisplay?.detailLine;
+    final resultDisplay =
+        type.presentation.builder.buildSearchResultDisplay(item: item);
+    final subtitle = resultDisplay?.secondaryLine ??
+        [
+          if (item.publisher != null) item.publisher,
+          if (item.releaseYear != null) item.releaseYear.toString(),
+          if (item.physicalFormatLabel != null) item.physicalFormatLabel,
+          if (item.variant != null) item.variant,
+          if (item.barcode != null) item.barcode,
+        ].whereType<String>().join(' | ');
+    final detailLine = resultDisplay?.detailLine;
     return InkWell(
       onTap: onSelect,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              ? Color.alphaBlend(
+                  accent.withValues(alpha: 0.46), palette.selection)
               : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
@@ -628,93 +838,107 @@ class _SearchResultTile extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      musicDisplay?.title ??
-                          (item.itemNumber == null
-                              ? item.title
-                              : '${item.title} #${item.itemNumber}'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: palette.textPrimary,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                    if (detailLine != null && detailLine.trim().isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        detailLine,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                    if (matchSummary != null) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        'Matched on: $matchSummary',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: accent.withValues(alpha: 0.9),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 5),
-                    Row(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final compact = constraints.maxWidth < 170;
+                    final showDetailLine =
+                        detailLine != null && detailLine.trim().isNotEmpty;
+                    final showMatchSummary =
+                        matchSummary != null && (!compact || !showDetailLine);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isOwned) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.25),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: Colors.green.withValues(alpha: 0.6),
-                              ),
-                            ),
-                            child: const Text(
-                              'In collection',
-                              style: TextStyle(
-                                color: Colors.greenAccent,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                              ),
+                        Text(
+                          resultDisplay?.title ??
+                              (item.itemNumber == null
+                                  ? item.title
+                                  : '${item.title} #${item.itemNumber}'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: palette.textPrimary,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            subtitle,
+                            maxLines: compact ? 1 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(width: 4),
                         ],
-                        const LibraryAddResultBadge('core'),
-                        const SizedBox(width: 4),
-                        LibraryAddResultBadge(item.kind),
+                        if (showDetailLine) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            detailLine,
+                            maxLines: compact ? 1 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                        if (showMatchSummary) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            'Matched on: $matchSummary',
+                            maxLines: compact ? 1 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: accent.withValues(alpha: 0.9),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 5),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              if (isOwned) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withValues(alpha: 0.25),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color:
+                                          Colors.green.withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'In collection',
+                                    style: TextStyle(
+                                      color: Colors.greenAccent,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              const LibraryAddResultBadge('core'),
+                              const SizedBox(width: 4),
+                              LibraryAddResultBadge(item.kind),
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -791,83 +1015,6 @@ String? _metadataItemMatchSummary({
   return reasons.isEmpty ? null : reasons.join(', ');
 }
 
-_MusicSearchResultDisplay _musicSearchResultDisplay(LibraryMetadataItem item) {
-  final subtitle = _firstMeaningfulMusicValue([
-    item.publishing?.subtitle,
-    item.series?.volumeName,
-    if ((item.series?.volumeNumber ?? 0) > 1) 'Disc ${item.series!.volumeNumber}',
-  ], disallow: {item.title.trim().toLowerCase()});
-  final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
-  final artist = item.series?.seriesTitle?.trim();
-  final format = item.physicalFormatLabel?.trim().isNotEmpty == true
-      ? item.physicalFormatLabel!.trim()
-      : item.variant?.trim();
-  final trackCount = item.music?.trackCount;
-  final catalogNumber = item.music?.catalogNumber?.trim();
-  final detailParts = <String>[
-    if (subtitle != null && subtitle.isNotEmpty) subtitle,
-    if (format != null && format.isNotEmpty) format,
-    if (trackCount != null)
-      '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
-    if (item.barcode?.trim().isNotEmpty == true) item.barcode!.trim(),
-    if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
-  ];
-  return _MusicSearchResultDisplay(
-    title: cleanedTitle.isEmpty ? item.title : cleanedTitle,
-    secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
-    detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
-  );
-}
-
-String _stripTrailingMusicDescriptor(String title, String? descriptor) {
-  final trimmedTitle = title.trim();
-  final trimmedDescriptor = descriptor?.trim();
-  if (trimmedDescriptor == null || trimmedDescriptor.isEmpty) {
-    return trimmedTitle;
-  }
-  final lowerTitle = trimmedTitle.toLowerCase();
-  final lowerDescriptor = trimmedDescriptor.toLowerCase();
-  for (final separator in [' - ', ' – ', ' — ', ': ', ' ']) {
-    final suffix = '$separator$trimmedDescriptor';
-    if (lowerTitle.endsWith(suffix.toLowerCase())) {
-      return trimmedTitle.substring(0, trimmedTitle.length - suffix.length).trimRight();
-    }
-  }
-  if (lowerTitle == lowerDescriptor) {
-    return title;
-  }
-  return trimmedTitle;
-}
-
-String? _firstMeaningfulMusicValue(
-  Iterable<String?> values, {
-  Set<String> disallow = const <String>{},
-}) {
-  for (final value in values) {
-    final trimmed = value?.trim();
-    if (trimmed == null || trimmed.isEmpty) {
-      continue;
-    }
-    if (disallow.contains(trimmed.toLowerCase())) {
-      continue;
-    }
-    return trimmed;
-  }
-  return null;
-}
-
-class _MusicSearchResultDisplay {
-  const _MusicSearchResultDisplay({
-    required this.title,
-    required this.secondaryLine,
-    required this.detailLine,
-  });
-
-  final String title;
-  final String? secondaryLine;
-  final String? detailLine;
-}
-
 class _ProviderCandidateTile extends StatelessWidget {
   const _ProviderCandidateTile({
     required this.type,
@@ -920,7 +1067,8 @@ class _ProviderCandidateTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), palette.selection)
+              ? Color.alphaBlend(
+                  accent.withValues(alpha: 0.46), palette.selection)
               : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
@@ -943,59 +1091,70 @@ class _ProviderCandidateTile extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      candidate.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: palette.textPrimary,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                    if (matchSummary != null) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        'Matched on: $matchSummary',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: accent.withValues(alpha: 0.9),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 5),
-                    Wrap(
-                      spacing: 5,
-                      runSpacing: 4,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final compact = constraints.maxWidth < 170;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        LibraryAddResultBadge(providerLabel),
-                        if (candidate.isStub)
-                          const LibraryAddResultBadge('stub'),
-                        if (queuedIngest != null)
-                          LibraryAddResultBadge(
-                            '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
+                        Text(
+                          candidate.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: palette.textPrimary,
+                            fontWeight: FontWeight.w900,
                           ),
+                        ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            subtitle,
+                            maxLines: compact ? 1 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                        if (matchSummary != null) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            'Matched on: $matchSummary',
+                            maxLines: compact ? 1 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: accent.withValues(alpha: 0.9),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 5),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              LibraryAddResultBadge(providerLabel),
+                              if (candidate.isStub) ...[
+                                const SizedBox(width: 5),
+                                const LibraryAddResultBadge('stub'),
+                              ],
+                              if (queuedIngest != null) ...[
+                                const SizedBox(width: 5),
+                                LibraryAddResultBadge(
+                                  '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 8),
@@ -1054,7 +1213,8 @@ String? _providerCandidateMatchSummary({
 
   final generalQuery = queryText.trim();
   if (generalQuery.isNotEmpty) {
-    addIfMatch(groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
+    addIfMatch(
+        groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
     addIfMatch(groupLabels.publisher, generalQuery, [candidate.publisher]);
     addIfMatch(fieldLabels.numberLabel, generalQuery, [
       candidate.issueNumber,

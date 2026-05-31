@@ -72,7 +72,7 @@ class CollectionXml {
               _textElement(builder, 'Currency', owned.currency);
               _textElement(builder, 'PersonalNotes', owned.personalNotes);
               _textElement(builder, 'Quantity', owned.quantity.toString());
-              _textElement(builder, 'StorageBox', owned.storageBox);
+              _textElement(builder, 'LocationId', owned.locationId);
               if (owned.indexNumber != null) {
                 _textElement(builder, 'IndexNumber',
                     owned.indexNumber.toString());

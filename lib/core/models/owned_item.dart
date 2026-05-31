@@ -20,7 +20,6 @@ class OwnedItem {
     this.currency,
     this.personalNotes,
     this.quantity = 1,
-    this.storageBox,
     this.indexNumber,
     this.coverPriceCents,
     this.rawOrSlabbed,
@@ -28,9 +27,13 @@ class OwnedItem {
     this.graderNotes,
     this.signedBy,
     this.labelType,
+    this.customLabel,
+    this.pageQuality,
     this.certificationNumber,
     this.keyComic = false,
     this.keyReason,
+    this.keyCategory,
+    this.keySeverity,
     this.rating,
     this.readStatus,
     this.startedAt,
@@ -77,7 +80,6 @@ class OwnedItem {
   final String? currency;
   final String? personalNotes;
   final int quantity;
-  final String? storageBox;
   final int? indexNumber;
   final int? coverPriceCents;
   final String? rawOrSlabbed;
@@ -85,9 +87,13 @@ class OwnedItem {
   final String? graderNotes;
   final String? signedBy;
   final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
   final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
+  final String? keyCategory;
+  final String? keySeverity;
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;
@@ -120,8 +126,7 @@ class OwnedItem {
   String? get variantId => anchor?.variantId;
   String? get bundleReleaseId => anchor?.bundleReleaseId;
 
-  PersonalItemAnchorType? get personalAnchor =>
-      anchor?.type;
+  PersonalItemAnchorType? get personalAnchor => anchor?.type;
 
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
@@ -139,7 +144,6 @@ class OwnedItem {
       'currency': currency,
       'personal_notes': personalNotes,
       'quantity': quantity,
-      'storage_box': storageBox,
       'index_number': indexNumber,
       'cover_price_cents': coverPriceCents,
       'raw_or_slabbed': rawOrSlabbed,
@@ -147,9 +151,13 @@ class OwnedItem {
       'grader_notes': graderNotes,
       'signed_by': signedBy,
       'label_type': labelType,
+      'custom_label': customLabel,
+      'page_quality': pageQuality,
       'certification_number': certificationNumber,
       'key_comic': keyComic,
       'key_reason': keyReason,
+      'key_category': keyCategory,
+      'key_severity': keySeverity,
       'rating': rating,
       'read_status': readStatus,
       'started_at': startedAt?.toUtc().toIso8601String(),
@@ -162,8 +170,7 @@ class OwnedItem {
       if (ownerLabel != null) 'owner_label': ownerLabel,
       'location_id': locationId,
       if (features != null) 'features': features,
-      if (hdrFormats.isNotEmpty)
-        'hdr_formats': hdrFormats,
+      if (hdrFormats.isNotEmpty) 'hdr_formats': hdrFormats,
       if (purchaseStore != null) 'purchase_store': purchaseStore,
       if (boxSetId != null) 'box_set_id': boxSetId,
       if (boxSetName != null) 'box_set_name': boxSetName,
@@ -202,7 +209,6 @@ class OwnedItem {
       currency: json['currency'] as String?,
       personalNotes: json['personal_notes'] as String?,
       quantity: json['quantity'] as int? ?? 1,
-      storageBox: json['storage_box'] as String?,
       indexNumber: json['index_number'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
       rawOrSlabbed: json['raw_or_slabbed'] as String?,
@@ -210,9 +216,13 @@ class OwnedItem {
       graderNotes: json['grader_notes'] as String?,
       signedBy: json['signed_by'] as String?,
       labelType: json['label_type'] as String?,
+      customLabel: json['custom_label'] as String?,
+      pageQuality: json['page_quality'] as String?,
       certificationNumber: json['certification_number'] as String?,
       keyComic: json['key_comic'] as bool? ?? false,
       keyReason: json['key_reason'] as String?,
+      keyCategory: json['key_category'] as String?,
+      keySeverity: json['key_severity'] as String?,
       rating: json['rating'] as int?,
       readStatus: json['read_status'] as String?,
       startedAt: json['started_at'] == null
@@ -231,8 +241,8 @@ class OwnedItem {
           : DateTime.parse(json['sold_at'] as String),
       sellPriceCents: json['sell_price_cents'] as int?,
       soldTo: json['sold_to'] as String?,
-        ownerUserId: json['owner_user_id'] as String?,
-        ownerLabel: json['owner_label'] as String?,
+      ownerUserId: json['owner_user_id'] as String?,
+      ownerLabel: json['owner_label'] as String?,
       locationId: json['location_id'] as String?,
       features: json['features'] as String?,
       hdrFormats: (json['hdr_formats'] as List<dynamic>?)
@@ -272,7 +282,6 @@ class OwnedItem {
     String? currency,
     String? personalNotes,
     int? quantity,
-    String? storageBox,
     int? indexNumber,
     int? coverPriceCents,
     String? rawOrSlabbed,
@@ -280,9 +289,13 @@ class OwnedItem {
     String? graderNotes,
     String? signedBy,
     String? labelType,
+    String? customLabel,
+    String? pageQuality,
     String? certificationNumber,
     bool? keyComic,
     String? keyReason,
+    String? keyCategory,
+    String? keySeverity,
     int? rating,
     String? readStatus,
     DateTime? startedAt,
@@ -332,7 +345,6 @@ class OwnedItem {
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
       quantity: quantity ?? this.quantity,
-      storageBox: storageBox ?? this.storageBox,
       indexNumber: indexNumber ?? this.indexNumber,
       coverPriceCents: coverPriceCents ?? this.coverPriceCents,
       rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
@@ -340,9 +352,13 @@ class OwnedItem {
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
       labelType: labelType ?? this.labelType,
+      customLabel: customLabel ?? this.customLabel,
+      pageQuality: pageQuality ?? this.pageQuality,
       certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
+      keyCategory: keyCategory ?? this.keyCategory,
+      keySeverity: keySeverity ?? this.keySeverity,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       startedAt: startedAt ?? this.startedAt,

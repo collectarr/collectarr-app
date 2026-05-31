@@ -1,13 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -18,23 +15,17 @@ const double kPlannedMediaMaxCoverSize = 188;
 const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
-final mangaMediaAdapter = plannedMediaAdapter(mangaLibraryConfig);
-final animeMediaAdapter = plannedMediaAdapter(animeLibraryConfig);
 final booksMediaAdapter = plannedMediaAdapter(booksLibraryConfig);
 final gamesMediaAdapter = plannedMediaAdapter(gamesLibraryConfig);
 final boardGamesMediaAdapter = plannedMediaAdapter(boardGamesLibraryConfig);
 final moviesMediaAdapter = plannedMediaAdapter(moviesLibraryConfig);
-final tvMediaAdapter = plannedMediaAdapter(tvLibraryConfig);
 final musicMediaAdapter = plannedMediaAdapter(musicLibraryConfig);
 
 final plannedMediaAdapters = LibraryMediaAdapterRegistry([
-  mangaMediaAdapter,
-  animeMediaAdapter,
   booksMediaAdapter,
   gamesMediaAdapter,
   boardGamesMediaAdapter,
   moviesMediaAdapter,
-  tvMediaAdapter,
   musicMediaAdapter,
 ]);
 
@@ -127,7 +118,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           LibraryTableColumn.releaseDate,
           LibraryTableColumn.condition,
           LibraryTableColumn.price,
-          LibraryTableColumn.storageBox,
+          LibraryTableColumn.location,
           LibraryTableColumn.updated,
         },
       ),
@@ -188,7 +179,7 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.grade => 88.0,
     LibraryTableColumn.condition => 124.0,
     LibraryTableColumn.price => 92.0,
-    LibraryTableColumn.storageBox => 118.0,
+    LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.updated => 112.0,
     LibraryTableColumn.country => 100.0,
@@ -252,7 +243,7 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.grade => 'Grade',
     LibraryTableColumn.condition => 'Condition',
     LibraryTableColumn.price => 'Price',
-    LibraryTableColumn.storageBox => 'Location',
+    LibraryTableColumn.location => 'Location',
     LibraryTableColumn.wishlist => 'Wishlist',
     LibraryTableColumn.updated => 'Updated',
     LibraryTableColumn.country => 'Country',
@@ -314,7 +305,7 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
     LibraryTableColumn.condition ||
     LibraryTableColumn.price =>
       LibraryTableColumnGroup.value,
-    LibraryTableColumn.storageBox ||
+    LibraryTableColumn.location ||
     LibraryTableColumn.wishlist =>
       LibraryTableColumnGroup.personal,
     LibraryTableColumn.country ||
@@ -358,7 +349,7 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.grade => LibrarySortColumn.grade,
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,
-    LibraryTableColumn.storageBox => LibrarySortColumn.storageBox,
+    LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,

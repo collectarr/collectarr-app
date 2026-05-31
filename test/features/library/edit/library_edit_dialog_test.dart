@@ -18,8 +18,13 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets(
       'generic edit dialog returns media-aware catalog and owned fields',
       (tester) async {
@@ -108,7 +113,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -138,14 +143,11 @@ void main() {
       'Blade Runner: Final Cut',
     );
 
-    // Navigate to Value tab to set price
-    await tester.tap(find.text('Value'));
+    // Video kinds merge purchase/value fields into Personal.
+    await tester.tap(find.text('Personal').last);
     await pumpUntilSettled(tester);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Price paid'), '12.50');
 
-    // Navigate to Personal tab to set location
-    await tester.tap(find.text('Personal'));
+    // Stay on Personal to set location.
     await pumpUntilSettled(tester);
     await tester.tap(find.byIcon(Icons.place).first);
     await pumpUntilSettled(tester);
@@ -172,7 +174,7 @@ void main() {
     expect(selection?.item.barcode, '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
-    expect(selection?.personal?.pricePaidCents, 1250);
+    expect(selection?.personal?.pricePaidCents, 999);
     expect(selection?.personal?.quantity, 1);
     expect(selection?.tracking?.readStatus, 'In progress');
     expect(selection?.tracking?.rating, 9);
@@ -229,7 +231,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -309,7 +311,7 @@ void main() {
                 onPressed: () {
                   showDialog<void>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: null,
@@ -329,11 +331,195 @@ void main() {
     await tester.tap(find.text('Open movie publishing test'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Release date'), findsOneWidget);
-    expect(find.text('Release year'), findsOneWidget);
+    await tester.tap(find.text('Main').last);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Release year'), findsNothing);
     expect(find.text('Page count'), findsNothing);
     expect(find.text('Imprint'), findsNothing);
     expect(find.text('Series group'), findsNothing);
+    expect(find.text('Episodes'), findsNothing);
+  });
+
+  testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 920);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'comic-box-a',
+            name: 'Box A',
+            sortOrder: const Value(1),
+          ),
+        );
+
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Over the Garden Wall',
+        itemNumber: 'TP-1',
+        publisher: 'Boom! Studios',
+        releaseDate: DateTime.utc(2017, 3, 22),
+        variant: 'Trade Paperback',
+        barcode: '9781608869404',
+        country: 'USA',
+        language: 'English',
+        ageRating: 'Modern Age',
+        publishing: const CatalogPublishingDetails(
+          pageCount: 128,
+          imprint: 'KaBOOM!',
+          seriesGroup: 'Miniseries',
+        ),
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-comic-1',
+      itemId: 'comic-1',
+      locationId: 'comic-box-a',
+      rating: 8,
+      readStatus: 'Unread',
+      indexNumber: 1,
+      createdAt: DateTime.utc(2026, 5, 26, 23, 5, 39),
+      updatedAt: DateTime.utc(2026, 5, 27, 9, 15, 0),
+      condition: 'Near Mint',
+      grade: '9.8',
+      coverPriceCents: 1499,
+      pricePaidCents: 999,
+      currency: 'USD',
+      rawOrSlabbed: 'Raw',
+      gradingCompany: 'CGC',
+      certificationNumber: '12345',
+      ownerLabel: 'Andrei',
+      quantity: 1,
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditRenderer(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.deepOrange,
+                    ),
+                  );
+                },
+                child: const Text('Open comic owned'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic owned'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Details'), findsWidgets);
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Covers'), findsOneWidget);
+    expect(find.text('Plot'), findsOneWidget);
+    expect(find.text('Custom Fields'), findsOneWidget);
+    expect(find.text('My Images'), findsOneWidget);
+    expect(find.text('Sold'), findsNothing);
+
+    expect(find.text('Subtitle'), findsOneWidget);
+    expect(find.text('Crossover'), findsOneWidget);
+    expect(find.text('Story Arcs'), findsOneWidget);
+    expect(find.text('Genres'), findsOneWidget);
+    expect(find.text('Country'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('Age'), findsOneWidget);
+    expect(find.text('No. of Pages'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Subtitle'),
+      'Deluxe Edition',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Crossover'),
+      'Adventure Time',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Story Arcs'),
+      'Unknowning, The Tome of the Unknown',
+    );
+
+    await tester.tap(find.text('Main').last);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('#TP-1'), findsOneWidget);
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Barcode'), findsOneWidget);
+    expect(find.text('Format'), findsOneWidget);
+    expect(find.text('Series Group'), findsOneWidget);
+    expect(find.text('Issue No.'), findsOneWidget);
+    expect(find.text('Variant'), findsOneWidget);
+    expect(find.text('Variant Description'), findsOneWidget);
+    expect(find.text('TP-1'), findsOneWidget);
+    expect(find.text('Trade Paperback'), findsWidgets);
+    expect(find.text('Cover Date'), findsOneWidget);
+    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Publisher'), findsOneWidget);
+    expect(find.text('Imprint'), findsOneWidget);
+    expect(find.byTooltip('Pick Series'), findsOneWidget);
+    expect(find.byTooltip('Pick Format'), findsOneWidget);
+    expect(find.byTooltip('Pick Publisher'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('comic-cover-date-year')),
+      '2016',
+    );
+    await tester.enterText(
+      find.byKey(const Key('comic-cover-date-month')),
+      '10',
+    );
+    await tester.enterText(
+      find.byKey(const Key('comic-cover-date-day')),
+      '26',
+    );
+
+    await tester.tap(find.text('Covers').last);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Front Cover'), findsOneWidget);
+    expect(find.text('Back Cover'), findsOneWidget);
+    expect(find.text('Manage My Images'), findsOneWidget);
+    expect(find.text('Find Better Cover'), findsOneWidget);
+
+    await tester.tap(find.text('My Images').last);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('My images workflow'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(selection?.item.titleExtension, 'Deluxe Edition');
+    expect(selection?.item.series?.seriesTitle, 'Over the Garden Wall');
+    expect(selection?.item.crossover, 'Adventure Time');
+    expect(selection?.item.storyArcs, const ['Unknowning', 'The Tome of the Unknown']);
+    expect(selection?.item.physicalFormatLabel, 'Trade Paperback');
+    expect(selection?.item.coverDate?.year, 2016);
+    expect(selection?.item.coverDate?.month, 10);
+    expect(selection?.item.coverDate?.day, 26);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
@@ -470,7 +656,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: null,
@@ -491,8 +677,8 @@ void main() {
     await tester.tap(find.text('Open tracked'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Tracking tab (video kind splits tabs)
-    await tester.tap(find.text('Tracking'));
+    // Tracking fields now live under the Personal tab for video kinds.
+    await tester.tap(find.text('Personal'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Personal'), findsOneWidget);
@@ -549,7 +735,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -600,6 +786,75 @@ void main() {
     expect(selection?.tracking?.variantId, isNull);
   });
 
+  testWidgets(
+      'generic edit dialog preserves existing bundle anchor without bundle summaries',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-bundle-existing-1',
+        kind: 'movie',
+        title: 'Alien',
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-bundle-existing-1',
+      itemId: 'movie-bundle-existing-1',
+      anchorType: 'bundle_release',
+      bundleReleaseId: 'bundle-existing-1',
+      updatedAt: DateTime.utc(2026, 5, 31),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditRenderer(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.orange,
+                    ),
+                  );
+                },
+                child: const Text('Open existing bundle'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open existing bundle'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Edition'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Bundle release'), findsOneWidget);
+    expect(find.text('Current bundle release'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(selection?.personal?.anchorType, 'bundle_release');
+    expect(selection?.personal?.bundleReleaseId, 'bundle-existing-1');
+  });
+
   testWidgets('generic edit dialog hides physical-only owned fields for digital items',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 860);
@@ -647,7 +902,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
@@ -667,11 +922,14 @@ void main() {
     await tester.tap(find.text('Open digital'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Ownership tab (video kind splits tabs)
-    await tester.tap(find.text('Ownership'));
+    // Ownership-specific fields now live under the Personal tab for video kinds.
+    await tester.tap(find.text('Personal'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.'), findsOneWidget);
+    expect(
+      find.text('Digital copies do not expose physical storage fields.'),
+      findsOneWidget,
+    );
     expect(find.widgetWithText(TextField, 'Condition'), findsNothing);
     expect(find.widgetWithText(TextField, 'Grade'), findsNothing);
     expect(find.byIcon(Icons.place), findsNothing);
@@ -725,7 +983,7 @@ void main() {
                 onPressed: () async {
                   selection = await showDialog<LibraryEditSelection>(
                     context: context,
-                    builder: (context) => LibraryEditDialog(
+                    builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: item,
                       ownedItem: null,

@@ -14,6 +14,7 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.book,
   title: 'Books',
   icon: Icons.menu_book_outlined,
+  accent: Color(0xFF48A868),
   preferencePrefix: 'books',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -25,7 +26,7 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.barcode,
     LibraryTableColumn.condition,
     LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
+    LibraryTableColumn.location,
     LibraryTableColumn.wishlist,
     LibraryTableColumn.updated,
   },
@@ -53,7 +54,9 @@ const booksLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
+    showsCreatorSpotlight: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
+    supportsOwnedItemImages: false,
   ),
   conditions: kBookConditions,
 );

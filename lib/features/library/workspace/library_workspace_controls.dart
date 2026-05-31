@@ -15,7 +15,7 @@ BoxDecoration libraryToolbarDropdownDecoration(
   );
 }
 
-class LibraryToolbarCompactDropdownTrigger extends StatelessWidget {
+class LibraryToolbarCompactDropdownTrigger extends StatefulWidget {
   const LibraryToolbarCompactDropdownTrigger({
     super.key,
     required this.icon,
@@ -28,27 +28,46 @@ class LibraryToolbarCompactDropdownTrigger extends StatelessWidget {
   final Color? arrowColor;
 
   @override
+  State<LibraryToolbarCompactDropdownTrigger> createState() =>
+      _LibraryToolbarCompactDropdownTriggerState();
+}
+
+class _LibraryToolbarCompactDropdownTriggerState
+    extends State<LibraryToolbarCompactDropdownTrigger> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: libraryToolbarDropdownDecoration(context),
-      child: SizedBox(
-        width: kLibraryToolbarCompactDropdownWidth,
-        height: kLibraryToolbarCompactDropdownSize,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 17,
-              color: iconColor ?? libraryToolbarControlText(context),
-            ),
-            const SizedBox(width: 1),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 16,
-              color: arrowColor ?? libraryToolbarControlMutedText(context),
-            ),
-          ],
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: DecoratedBox(
+        decoration: libraryToolbarDropdownDecoration(
+          context,
+          backgroundColor: _hovered
+              ? libraryToolbarControlHover(context)
+              : null,
+        ),
+        child: SizedBox(
+          width: kLibraryToolbarCompactDropdownWidth,
+          height: kLibraryToolbarCompactDropdownSize,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                widget.icon,
+                size: 17,
+                color: widget.iconColor ?? libraryToolbarControlText(context),
+              ),
+              const SizedBox(width: 1),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 16,
+                color: widget.arrowColor ??
+                    libraryToolbarControlMutedText(context),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -12,6 +12,7 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.boardgame,
   title: 'Board Games',
   icon: Icons.casino_outlined,
+  accent: Color(0xFFE0A52B),
   preferencePrefix: 'boardgames',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -23,7 +24,7 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.barcode,
     LibraryTableColumn.condition,
     LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
+    LibraryTableColumn.location,
     LibraryTableColumn.wishlist,
     LibraryTableColumn.updated,
   },
@@ -38,7 +39,7 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
     bggMetadataProvider,
   ],
   trackingProfile: gameTrackingProfile,
-  editDialogBuilder: buildGenericLibraryEditDialog,
+  editDialogBuilder: buildBoardGameLibraryEditDialog,
   presentation: boardGamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Edition',

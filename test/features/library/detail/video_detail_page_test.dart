@@ -19,6 +19,10 @@ import '../../../helpers/test_constants.dart';
 void main() {
   testWidgets('double tap on a video card opens the release browser',
       (tester) async {
+    tester.view.physicalSize = kDesktopTestSize;
+    tester.view.devicePixelRatio = kDesktopTestDPR;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final type = collectarrLibraryTypes.byKind('movie')!;
     final entry = LibraryWorkspaceEntry(
       id: 'movie-1',
@@ -131,6 +135,10 @@ void main() {
 
   testWidgets('release browser shows remove wishlist for the selected release',
       (tester) async {
+    tester.view.physicalSize = kDesktopTestSize;
+    tester.view.devicePixelRatio = kDesktopTestDPR;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final type = collectarrLibraryTypes.byKind('movie')!;
     final entry = LibraryWorkspaceEntry(
       id: 'movie-1',

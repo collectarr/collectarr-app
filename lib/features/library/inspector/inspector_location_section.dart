@@ -74,6 +74,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
       return const SizedBox.shrink();
     }
     final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final current = _currentLocationId != null
         ? _allLocations
@@ -85,36 +86,68 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
       title: 'Location',
       accentColor: widget.accent,
       children: [
-        InkWell(
-          onTap: _pickLocation,
-          borderRadius: BorderRadius.circular(6),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.place,
-                  size: 16,
-                  color: current != null ? widget.accent : palette.textMuted,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    current != null
-                        ? current.fullPath(_allLocations)
-                        : 'No location assigned',
-                    style: TextStyle(
-                      color: current != null ? null : palette.textMuted,
-                      fontSize: 13,
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _pickLocation,
+            borderRadius: BorderRadius.circular(10),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.surfaceSubtle.withValues(alpha: 0.74),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: (current != null ? widget.accent : palette.textMuted)
+                            .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Icon(
+                        Icons.place,
+                        size: 16,
+                        color: current != null ? widget.accent : palette.textMuted,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            current != null
+                                ? current.fullPath(_allLocations)
+                                : 'No location assigned',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: current != null ? null : palette.textMuted,
+                                  fontWeight: current != null ? FontWeight.w600 : null,
+                                ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            current != null
+                                ? 'Tap to change or clear this assignment'
+                                : 'Tap to assign a storage location',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 16,
+                      color: palette.textMuted,
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.edit,
-                  size: 14,
-                  color: palette.textMuted,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -195,6 +228,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
 
     return AlertDialog(
       backgroundColor: palette.panel,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),
@@ -211,7 +245,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
         child: _locations.isEmpty
             ? DecoratedBox(
                 decoration: BoxDecoration(
-                  color: palette.canvas,
+                  color: palette.surfaceSubtle.withValues(alpha: 0.82),
                   border: Border.all(color: palette.divider),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -221,10 +255,17 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.place_outlined, color: kAppAccent),
-                          SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: kAppAccent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Icon(Icons.place_outlined, color: kAppAccent),
+                          ),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               'No locations yet',
@@ -254,19 +295,27 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                   ),
                 ),
               )
-            : RadioGroup<String?>(
-                groupValue: _selectedId,
-                onChanged: (value) => setState(() => _selectedId = value),
-                child: ListView(
-                  children: [
-                    // "None" option to clear
-                    RadioListTile<String?>(
-                      title: const Text('None'),
-                      value: null,
-                      dense: true,
-                    ),
-                    ...roots.map((loc) => _buildLocationTile(loc, 0)),
-                  ],
+            : Material(
+                color: palette.surfaceSubtle.withValues(alpha: 0.64),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: palette.divider),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: RadioGroup<String?>(
+                  groupValue: _selectedId,
+                  onChanged: (value) => setState(() => _selectedId = value),
+                  child: ListView(
+                    children: [
+                      RadioListTile<String?>(
+                        title: const Text('None'),
+                        subtitle: const Text('Clear the current location'),
+                        value: null,
+                        dense: true,
+                      ),
+                      ...roots.map((loc) => _buildLocationTile(loc, 0)),
+                    ],
+                  ),
                 ),
               ),
       ),
@@ -298,6 +347,9 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                 loc.description != null ? Text(loc.description!) : null,
             value: loc.id,
             dense: true,
+            secondary: depth == 0
+                ? const Icon(Icons.folder_open_outlined, size: 18)
+                : const Icon(Icons.subdirectory_arrow_right, size: 16),
           ),
         ),
         ...children.map((c) => _buildLocationTile(c, depth + 1)),

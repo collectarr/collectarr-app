@@ -8,24 +8,12 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 const genericLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
 const comicsLibraryMediaBuilder =
     DefaultLibraryMediaPresentationBuilder(showSummary: true);
-const mangaLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showVolumeHierarchy: true,
-);
-const animeLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showSeasonHierarchy: true,
-);
 const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
 const boardGamesLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
 const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
   showSummary: true,
 );
 const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder();
-const tvLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showSeasonHierarchy: true,
-);
 
 const defaultPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
@@ -38,10 +26,6 @@ const issuesPreviewLabels = LibraryMediaPreviewLabels(
 const volumesPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
   itemCount: 'Volumes',
-);
-const seasonsPreviewLabels = LibraryMediaPreviewLabels(
-  series: 'Series',
-  itemCount: 'Seasons',
 );
 const releasesPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Artist',
@@ -69,7 +53,7 @@ const issueVisibleColumns = {
   LibraryTableColumn.barcode,
   LibraryTableColumn.condition,
   LibraryTableColumn.price,
-  LibraryTableColumn.storageBox,
+  LibraryTableColumn.location,
   LibraryTableColumn.wishlist,
   LibraryTableColumn.updated,
 };

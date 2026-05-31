@@ -1,5 +1,4 @@
 import 'package:csv/csv.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -26,7 +25,6 @@ class CollectionCsvRow {
     this.notes,
     this.quantity,
     this.locationId,
-    this.storageBox,
     this.indexNumber,
     this.coverPriceCents,
     this.rawOrSlabbed,
@@ -68,7 +66,6 @@ class CollectionCsvRow {
   final String? notes;
   final int? quantity;
   final String? locationId;
-  final String? storageBox;
   final int? indexNumber;
   final int? coverPriceCents;
   final String? rawOrSlabbed;
@@ -113,7 +110,6 @@ class CollectionCsvRow {
     String? notes,
     int? quantity,
     String? locationId,
-    String? storageBox,
     int? indexNumber,
     int? coverPriceCents,
     String? rawOrSlabbed,
@@ -155,7 +151,6 @@ class CollectionCsvRow {
       notes: notes ?? this.notes,
       quantity: quantity ?? this.quantity,
       locationId: locationId ?? this.locationId,
-      storageBox: storageBox ?? this.storageBox,
       indexNumber: indexNumber ?? this.indexNumber,
       coverPriceCents: coverPriceCents ?? this.coverPriceCents,
       rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
@@ -201,7 +196,6 @@ class CollectionCsv {
     'notes',
     'quantity',
     'location_id',
-    'storage_box',
     'index_number',
     'cover_price_cents',
     'raw_or_slabbed',
@@ -242,7 +236,7 @@ class CollectionCsv {
     'Currency',
     'Cover Price',
     'Quantity',
-    'Storage Box',
+    'Location ID',
     'Index',
     'Raw / Slabbed',
     'Grading Company',
@@ -340,8 +334,7 @@ class CollectionCsv {
       o?.currency ?? entry.wishlistItem?.currency ?? '',
       o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
       o?.quantity.toString() ?? '',
-      o?.locationId ?? '',
-      o?.storageBox ?? '',
+      _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       o?.coverPriceCents?.toString() ?? '',
       o?.rawOrSlabbed ?? '',
@@ -383,7 +376,7 @@ class CollectionCsv {
       o?.currency ?? entry.wishlistItem?.currency ?? '',
       _formatMoney(o?.coverPriceCents),
       o?.quantity.toString() ?? '',
-      o?.storageBox ?? '',
+      _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       o?.rawOrSlabbed ?? '',
       o?.gradingCompany ?? '',
@@ -404,6 +397,10 @@ class CollectionCsv {
       o?.soldTo ?? '',
       ...cfValues,
     ];
+  }
+
+  String _locationCell(ShelfEntry entry) {
+    return entry.locationPath ?? entry.ownedItem?.locationId ?? '';
   }
 
   List<String> _customFieldCells(
@@ -491,14 +488,8 @@ class CollectionCsv {
     }
     final media = type.mediaFields;
     final release = type.releaseFields;
-    final title = switch (type.workspace.kind) {
-      CatalogMediaKind.comic || CatalogMediaKind.manga => 'Series',
-      CatalogMediaKind.tv => 'Show',
-      CatalogMediaKind.music => 'Release',
-      _ => 'Title',
-    };
     return _clzFriendlyHeader(
-      title: title,
+      title: type.collectionExportTitleLabel,
       number: media.numberLabel,
       variant: release.variantLabel,
       editionTitle: 'Edition Title',
@@ -537,7 +528,7 @@ class CollectionCsv {
       'Currency',
       'Cover Price',
       'Quantity',
-      'Storage Box',
+      'Location ID',
       'Index',
       'Raw / Slabbed',
       'Grading Company',
@@ -592,7 +583,6 @@ class CollectionCsv {
       notes: _optionalValue(index, values, 'notes'),
       quantity: int.tryParse(_value(index, values, 'quantity')),
       locationId: _optionalValue(index, values, 'location_id'),
-      storageBox: _optionalValue(index, values, 'storage_box'),
       indexNumber: int.tryParse(_value(index, values, 'index_number')),
       coverPriceCents: _moneyCents(_value(index, values, 'cover_price_cents')),
       rawOrSlabbed: _optionalValue(index, values, 'raw_or_slabbed'),
@@ -918,7 +908,6 @@ class CollectionCsv {
     'notes': ['Notes', 'Personal Notes'],
     'quantity': ['Quantity', 'Qty'],
     'location_id': ['Location ID', 'Location Id'],
-    'storage_box': ['Storage Box', 'Storage'],
     'index_number': ['Index', 'Index Number'],
     'cover_price_cents': ['Cover Price'],
     'raw_or_slabbed': ['Raw / Slabbed', 'Grade Status'],

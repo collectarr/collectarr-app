@@ -63,7 +63,6 @@ void main() {
     expect(ownedRows.single.locationId, 'loc-1');
     expect(ownedRows.single.readStatus, 'read');
     expect(ownedRows.single.tags, 'favorite,dc');
-    expect(ownedRows.single.storageBox, isNull);
     expect(trackingRows.single.itemId, 'comic-1');
     expect(trackingRows.single.status, 'Completed');
     expect(syncRows.map((row) => row.entityType), contains('owned_item'));

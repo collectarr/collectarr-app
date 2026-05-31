@@ -366,8 +366,8 @@ String buildOwnedCopyLabel(
   if (item.grade != null && item.grade!.trim().isNotEmpty) {
     parts.add(item.grade!.trim());
   }
-  if (item.storageBox != null && item.storageBox!.trim().isNotEmpty) {
-    parts.add(item.storageBox!.trim());
+  if (item.locationId != null && item.locationId!.trim().isNotEmpty) {
+    parts.add(item.locationId!.trim());
   }
   final purchaseLabel = formatNullableDate(item.purchaseDate);
   if (purchaseLabel != null) {

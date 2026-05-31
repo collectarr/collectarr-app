@@ -94,8 +94,8 @@ class LibraryDetailHero extends StatelessWidget {
                       title: entry.resolvedTitle,
                       itemNumber: entry.itemNumber,
                       imageUrl: entry.displayCoverUrl,
-                      localBase64: localFront,
-                      secondaryLocalBase64: localBack,
+                      localBytes: localFront,
+                      secondaryLocalBytes: localBack,
                       ownedItemId: ownedItemId,
                       accentColor: accent,
                       onMissingSecondaryPressed: ownedItemId == null
@@ -153,7 +153,7 @@ class LibraryDetailHero extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                 ),
-                if (entry.mediaType == 'book' &&
+                if (type.capabilities.showsCreatorSpotlight &&
                     (entry.creators?.isNotEmpty ?? false)) ...[
                   const SizedBox(height: 12),
                   BookAuthorSpotlight(

@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -169,157 +170,135 @@ class _InspectorPersonalDetailsEditorState
   Widget build(BuildContext context) {
     final accent = widget.accent;
     final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: appPalette(context).surfaceSubtle,
-        border: Border.all(color: accent.withValues(alpha: 0.33)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LibraryInspectorSection(
+      title: 'Personal details',
+      accentColor: accent,
+      children: [
+        Text(
+          'This panel uses draft editing. Apply changes when you are ready to save.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: palette.textMuted,
+              ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: _pickPurchaseDate,
+          icon: const Icon(Icons.event),
+          label: Text(
+            _purchaseDate == null
+                ? 'Set purchase date'
+                : 'Purchased ${_formatDate(_purchaseDate!)}',
+          ),
+        ),
+        if (_purchaseDate != null) ...[
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => setState(() => _purchaseDate = null),
+              icon: const Icon(Icons.clear),
+              label: const Text('Clear purchase date'),
+            ),
+          ),
+        ],
+        const SizedBox(height: 10),
+        Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.edit_note, size: 17, color: accent),
-                const SizedBox(width: 7),
-                Text(
-                  'Personal details',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'This panel uses draft editing. Apply changes when you are ready to save.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                  ),
-            ),
-            const SizedBox(height: 9),
-            OutlinedButton.icon(
-              onPressed: _pickPurchaseDate,
-              icon: const Icon(Icons.event),
-              label: Text(
-                _purchaseDate == null
-                    ? 'Set purchase date'
-                    : 'Purchased ${_formatDate(_purchaseDate!)}',
-              ),
-            ),
-            if (_purchaseDate != null) ...[
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => setState(() => _purchaseDate = null),
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Clear purchase date'),
-                ),
-              ),
-            ],
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _priceController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Price paid',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) {
-                      if (_priceError != null) {
-                        setState(() => _priceError = null);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _currencyController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'Currency',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: _pickLocation,
-              child: InputDecorator(
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: _priceController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
-                  labelText: 'Location',
+                  labelText: 'Price paid',
                   border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.place),
                 ),
-                child: Text(
-                  _selectedLocationLabel ?? 'No location selected',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color:
-                        _selectedLocationLabel == null ? palette.textMuted : null,
-                      ),
+                onChanged: (_) {
+                  if (_priceError != null) {
+                    setState(() => _priceError = null);
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _currencyController,
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(
+                  labelText: 'Currency',
+                  border: OutlineInputBorder(),
                 ),
-              ),
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _notesController,
-              minLines: 2,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Personal notes',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _purchaseStoreController,
-              decoration: const InputDecoration(
-                labelText: 'Purchase store',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.store),
-              ),
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _boxSetNameController,
-              decoration: const InputDecoration(
-                labelText: 'Box set name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.inventory_2_outlined),
-              ),
-            ),
-            const SizedBox(height: 9),
-            if (_priceError != null) ...[
-              Text(
-                _priceError!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 9),
-            ],
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: _save,
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Apply personal changes'),
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 10),
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _pickLocation,
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Location',
+              border: OutlineInputBorder(),
+              suffixIcon: Icon(Icons.place),
+            ),
+            child: Text(
+              _selectedLocationLabel ?? 'No location selected',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: _selectedLocationLabel == null
+                        ? palette.textMuted
+                        : null,
+                  ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _notesController,
+          minLines: 2,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            labelText: 'Personal notes',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _purchaseStoreController,
+          decoration: const InputDecoration(
+            labelText: 'Purchase store',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.store),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _boxSetNameController,
+          decoration: const InputDecoration(
+            labelText: 'Box set name',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.inventory_2_outlined),
+          ),
+        ),
+        if (_priceError != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            _priceError!,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ],
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            onPressed: _save,
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('Apply personal changes'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -342,14 +321,7 @@ class _InspectorPersonalDetailsEditorState
     if (locationLabel != null) {
       return locationLabel;
     }
-    if (_locationChanged) {
-      return null;
-    }
-    final legacyLabel = widget.ownedItem.storageBox?.trim();
-    if (legacyLabel == null || legacyLabel.isEmpty) {
-      return null;
-    }
-    return legacyLabel;
+    return null;
   }
 
   Future<void> _loadAvailableLocations() async {
@@ -415,8 +387,7 @@ class _InspectorPersonalDetailsEditorState
           purchaseStore: _emptyToNull(_purchaseStoreController.text),
           boxSetName: _emptyToNull(_boxSetNameController.text),
           quantity: widget.ownedItem.quantity,
-            storageBox: _locationChanged ? null : widget.ownedItem.storageBox,
-            locationId:
+          locationId:
               _locationChanged ? _selectedLocationId : widget.ownedItem.locationId,
           indexNumber: widget.ownedItem.indexNumber,
           coverPriceCents: widget.ownedItem.coverPriceCents,
@@ -493,7 +464,6 @@ class _InspectorTrackingDetailsEditorState
   DateTime? _finishedAt;
   String? _selectedEditionId;
   String? _selectedVariantId;
-  bool _expanded = true;
 
   bool get _showsEpisodeFields {
     return widget.profile.name == videoTrackingProfile.name ||
@@ -543,247 +513,202 @@ class _InspectorTrackingDetailsEditorState
   Widget build(BuildContext context) {
     final accent = widget.accent;
     final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: appPalette(context).surfaceSubtle,
-        border: Border.all(color: accent.withValues(alpha: 0.33)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LibraryInspectorSection(
+      title: 'Tracking details',
+      accentColor: accent,
+      children: [
+        Text(
+          'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: palette.textMuted,
+              ),
+        ),
+        if (widget.editions.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          _TrackingEditionBrowser(
+            editions: widget.editions,
+            selectedEditionId: _selectedEditionId,
+            selectedVariantId: _selectedVariantId,
+            accent: accent,
+            onEditionSelected: (editionId) {
+              final edition = resolveLibraryEditionSelection(
+                widget.editions,
+                editionId: editionId,
+              ).edition;
+              setState(() {
+                _selectedEditionId = edition?.id;
+                _selectedVariantId = resolveVariantForEdition(edition)?.id;
+              });
+            },
+            onVariantSelected: (variantId) {
+              setState(() => _selectedVariantId = variantId);
+            },
+          ),
+        ],
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: _createEdition,
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('Add edition'),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
           children: [
-            InkWell(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Row(
-                children: [
-                  Icon(Icons.equalizer, size: 17, color: accent),
-                  const SizedBox(width: 7),
-                  Text(
-                    'Tracking details',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
-                        ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    _expanded
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_right,
-                    size: 16,
-                    color: palette.textMuted,
-                  ),
-                ],
-              ),
+            Expanded(
+              child: MediaRatingField(controller: _ratingController),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                  ),
-            ),
-            AnimatedCrossFade(
-              firstChild: const SizedBox.shrink(),
-              secondChild: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-            if (widget.editions.isNotEmpty) ...[
-              const SizedBox(height: 9),
-              _TrackingEditionBrowser(
-                editions: widget.editions,
-                selectedEditionId: _selectedEditionId,
-                selectedVariantId: _selectedVariantId,
-                accent: accent,
-                onEditionSelected: (editionId) {
-                  final edition = resolveLibraryEditionSelection(
-                    widget.editions,
-                    editionId: editionId,
-                  ).edition;
-                  setState(() {
-                    _selectedEditionId = edition?.id;
-                    _selectedVariantId = resolveVariantForEdition(edition)?.id;
-                  });
-                },
-                onVariantSelected: (variantId) {
-                  setState(() => _selectedVariantId = variantId);
+            const SizedBox(width: 10),
+            Expanded(
+              child: MediaTrackingStatusField(
+                profile: widget.profile,
+                value: _statusController.text,
+                label: 'Tracking status',
+                onChanged: (value) {
+                  _statusController.text = value ?? '';
                 },
               ),
-            ],
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: _createEdition,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add edition'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            ),
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  child: MediaRatingField(controller: _ratingController),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: MediaTrackingStatusField(
-                    profile: widget.profile,
-                    value: _statusController.text,
-                    label: 'Tracking status',
-                    onChanged: (value) {
-                      _statusController.text = value ?? '';
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            TrackingQuickAdjustments(
-              accent: accent,
-              progressCurrentController: _progressCurrentController,
-              progressTotalController: _progressTotalController,
-              seasonNumberController: _seasonNumberController,
-              episodeNumberController: _episodeNumberController,
-              showsEpisodeFields: _showsEpisodeFields,
-              onDecrementProgress: () => _bumpProgress(-1),
-              onIncrementProgress: () => _bumpProgress(1),
-              onDecrementEpisode: () => _bumpEpisode(-1),
-              onIncrementEpisode: () => _bumpEpisode(1),
-            ),
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _progressCurrentController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Progress current',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _progressTotalController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Progress total',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _timesCompletedController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Times completed',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            if (_showsEpisodeFields) ...[
-              const SizedBox(height: 9),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _seasonNumberController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Season',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _episodeNumberController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Episode',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-                TextField(
-                  controller: _trackingNotesController,
-                  minLines: 2,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Tracking notes',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 9),
-            ],
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  child: _dateField(
-                    context,
-                    label: 'Started',
-                    value: _startedAt,
-                    onChanged: (value) => setState(() => _startedAt = value),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _dateField(
-                    context,
-                    label: 'Finished',
-                    value: _finishedAt,
-                    onChanged: (value) => setState(() => _finishedAt = value),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: _stopTracking,
-                    icon: const Icon(Icons.playlist_remove, size: 18),
-                    label: const Text('Stop tracking'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: _save,
-                    icon: const Icon(Icons.save_outlined),
-                    label: const Text('Apply tracking changes'),
-                  ),
-                ],
-              ),
-            ),
-                ],
-              ),
-              crossFadeState: _expanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 180),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 10),
+        TrackingQuickAdjustments(
+          accent: accent,
+          progressCurrentController: _progressCurrentController,
+          progressTotalController: _progressTotalController,
+          seasonNumberController: _seasonNumberController,
+          episodeNumberController: _episodeNumberController,
+          showsEpisodeFields: _showsEpisodeFields,
+          onDecrementProgress: () => _bumpProgress(-1),
+          onIncrementProgress: () => _bumpProgress(1),
+          onDecrementEpisode: () => _bumpEpisode(-1),
+          onIncrementEpisode: () => _bumpEpisode(1),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _progressCurrentController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Progress current',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _progressTotalController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Progress total',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _timesCompletedController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Times completed',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        if (_showsEpisodeFields) ...[
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _seasonNumberController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Season',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _episodeNumberController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Episode',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 10),
+        TextField(
+          controller: _trackingNotesController,
+          minLines: 2,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            labelText: 'Tracking notes',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _dateField(
+                context,
+                label: 'Started',
+                value: _startedAt,
+                onChanged: (value) => setState(() => _startedAt = value),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _dateField(
+                context,
+                label: 'Finished',
+                value: _finishedAt,
+                onChanged: (value) => setState(() => _finishedAt = value),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: _stopTracking,
+                icon: const Icon(Icons.playlist_remove, size: 18),
+                label: const Text('Stop tracking'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: _save,
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Apply tracking changes'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1028,15 +953,16 @@ class _TrackingEditionBrowser extends StatelessWidget {
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: palette.textMuted,
                 fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
               ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         SizedBox(
-          height: 100,
+          height: 118,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: editions.length + 1,
-            separatorBuilder: (_, __) => const SizedBox(width: 6),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               if (index == 0) {
                 return _EditionCard(
@@ -1068,21 +994,22 @@ class _TrackingEditionBrowser extends StatelessWidget {
           ),
         ),
         if (activeEdition != null && activeEdition.variants.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             'Variants',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
                 ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           SizedBox(
-            height: 110,
+            height: 118,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: activeEdition.variants.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final variant = activeEdition.variants[index];
                 return _VariantCard(
@@ -1140,68 +1067,59 @@ class _EditionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    return GestureDetector(
+    return _TrackingBrowserCardFrame(
+      width: 98,
+      isSelected: isSelected,
+      accent: accent,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        width: 90,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? accent.withValues(alpha: 0.18)
-              : palette.panel,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isSelected ? accent : palette.divider,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(5)),
-                child: coverUrl != null
-                    ? Image.network(
-                        coverUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (_, __, ___) =>
-                            _placeholderIcon(context, Icons.album),
-                      )
-                    : _placeholderIcon(context, Icons.album),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
+              child: coverUrl != null
+                  ? Image.network(
+                      coverUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (_, __, ___) =>
+                          _placeholderIcon(context, Icons.album),
+                    )
+                  : _placeholderIcon(context, Icons.album),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Column(
-                children: [
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(7, 6, 7, 7),
+            child: Column(
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? accent : onSurface,
+                  ),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    title,
+                    subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? accent : onSurface,
+                      fontSize: 9,
+                      color: palette.textMuted,
                     ),
                   ),
-                  if (subtitle.isNotEmpty)
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: palette.textMuted,
-                      ),
-                    ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -1224,67 +1142,114 @@ class _VariantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    return GestureDetector(
+    return _TrackingBrowserCardFrame(
+      width: 90,
+      isSelected: isSelected,
+      accent: accent,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        width: 80,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? accent.withValues(alpha: 0.18)
-              : palette.panel,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isSelected ? accent : palette.divider,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(5)),
-                child: variant.coverImageUrl != null
-                    ? Image.network(
-                        variant.thumbnailImageUrl ?? variant.coverImageUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (_, __, ___) =>
-                            _placeholderIcon(context, Icons.image_outlined),
-                      )
-                    : _placeholderIcon(context, Icons.image_outlined),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
+              child: variant.coverImageUrl != null
+                  ? Image.network(
+                      variant.thumbnailImageUrl ?? variant.coverImageUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (_, __, ___) =>
+                          _placeholderIcon(context, Icons.image_outlined),
+                    )
+                  : _placeholderIcon(context, Icons.image_outlined),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Column(
-                children: [
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(7, 6, 7, 7),
+            child: Column(
+              children: [
+                Text(
+                  variant.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? accent : onSurface,
+                  ),
+                ),
+                if (variant.physicalFormatLabel != null) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    variant.name,
+                    variant.physicalFormatLabel!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? accent : onSurface,
+                      fontSize: 9,
+                      color: palette.textMuted,
                     ),
                   ),
-                  if (variant.physicalFormatLabel != null)
-                    Text(
-                      variant.physicalFormatLabel!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: palette.textMuted,
-                      ),
-                    ),
                 ],
-              ),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrackingBrowserCardFrame extends StatelessWidget {
+  const _TrackingBrowserCardFrame({
+    required this.width,
+    required this.isSelected,
+    required this.accent,
+    required this.onTap,
+    required this.child,
+  });
+
+  final double width;
+  final bool isSelected;
+  final Color accent;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          width: width,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Color.alphaBlend(
+                    accent.withValues(alpha: 0.16),
+                    colorScheme.surfaceContainerHigh,
+                  )
+                : palette.surfaceSubtle.withValues(alpha: 0.82),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected
+                  ? accent.withValues(alpha: 0.85)
+                  : palette.divider,
+              width: isSelected ? 1.4 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.18),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: child,
         ),
       ),
     );
@@ -1292,7 +1257,13 @@ class _VariantCard extends StatelessWidget {
 }
 
 Widget _placeholderIcon(BuildContext context, IconData icon) {
-  return Center(
-    child: Icon(icon, size: 22, color: appPalette(context).textMuted),
+  final palette = appPalette(context);
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: palette.surfaceSubtle.withValues(alpha: 0.96),
+    ),
+    child: Center(
+      child: Icon(icon, size: 22, color: palette.textMuted),
+    ),
   );
 }

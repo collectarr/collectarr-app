@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/selection/library_selection_cont
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +24,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     required this.adapter,
     required this.counts,
     required this.onEditColumns,
+    this.columnFavoritePresets = const [],
+    this.activeColumnFavoriteLabel,
+    this.onColumnFavoriteSelected,
+    this.pinnedColumnFavoriteKeys = const {},
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
+    required this.onClearBucket,
     required this.quickView,
     required this.hasActiveFilters,
     required this.onQuickViewSelected,
@@ -61,12 +67,17 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final LibraryMediaAdapter adapter;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
+  final List<LibraryTableColumnPreset> columnFavoritePresets;
+  final String? activeColumnFavoriteLabel;
+  final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
+  final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
   final String? selectedBucket;
+  final VoidCallback onClearBucket;
   final LibraryQuickView? quickView;
   final bool hasActiveFilters;
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
@@ -96,6 +107,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final pinnedColumnPresets = [
+      for (final preset in columnFavoritePresets)
+        if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
+    ];
+    final overflowColumnPresets = [
+      for (final preset in columnFavoritePresets)
+        if (!pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
+    ];
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.toolbar,
@@ -140,7 +159,21 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       viewMode: viewState.viewMode,
                       onChanged: onViewModeChanged,
                     ),
-                    if (viewState.viewMode.supportsCoverSize) ...[
+                    const SizedBox(width: 6),
+                    LibraryDetailsLayoutDropdown(
+                      detailsLayout: viewState.detailsLayout,
+                      onChanged: onDetailsLayoutChanged,
+                    ),
+                    if (viewState.viewMode == LibraryViewMode.list) ...[
+                      const SizedBox(width: 6),
+                      _LibraryColumnLauncher(
+                        activeLabel: activeColumnFavoriteLabel,
+                        onManageColumns: onEditColumns,
+                        pinnedPresets: pinnedColumnPresets,
+                        overflowPresets: overflowColumnPresets,
+                        onPresetSelected: onColumnFavoriteSelected,
+                      ),
+                    ] else if (viewState.viewMode.supportsCoverSize) ...[
                       const SizedBox(width: 6),
                       LibraryCoverSizeSlider(
                         viewMode: viewState.viewMode,
@@ -162,6 +195,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   total: counts.total,
                   pluralLabel: type.pluralLabel,
                 ),
+                if (selectedBucket != null)
+                  LibraryToolbarScopeChip(
+                    label: selectedBucket!,
+                    onClear: onClearBucket,
+                  ),
                 if (counts.totalPricePaidCents > 0 ||
                     counts.totalCoverPriceCents > 0 ||
                     counts.totalSellPriceCents > 0)
@@ -171,19 +209,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     totalSellCents: counts.totalSellPriceCents,
                     currency: counts.priceCurrency,
                   ),
-                LibraryDetailsLayoutDropdown(
-                  detailsLayout: viewState.detailsLayout,
-                  onChanged: onDetailsLayoutChanged,
-                ),
-                Tooltip(
-                  message: 'Select columns',
-                  child: LibraryWorkspaceIconButton(
-                    onPressed: viewState.viewMode == LibraryViewMode.list
-                        ? onEditColumns
-                        : null,
-                    icon: Icons.view_column,
-                  ),
-                ),
                 if (onEditFilters != null)
                   LibraryFilterButton(
                     activeCount: activeFilterCount,
@@ -220,6 +245,173 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   }
 }
 
+enum _LibraryColumnLauncherAction { manage }
+
+class _LibraryColumnLauncher extends StatelessWidget {
+  const _LibraryColumnLauncher({
+    required this.activeLabel,
+    required this.onManageColumns,
+    required this.pinnedPresets,
+    required this.overflowPresets,
+    required this.onPresetSelected,
+  });
+
+  final String? activeLabel;
+  final VoidCallback onManageColumns;
+  final List<LibraryTableColumnPreset> pinnedPresets;
+  final List<LibraryTableColumnPreset> overflowPresets;
+  final ValueChanged<LibraryTableColumnPreset>? onPresetSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = <LibraryDenseMenuEntry<Object>>[];
+    for (final preset in [...pinnedPresets, ...overflowPresets]) {
+      entries.add(
+        LibraryDenseMenuEntry<Object>(
+          value: preset,
+          label: preset.label,
+          icon: Icons.bookmark_outline,
+          active: preset.label == activeLabel,
+          trailingLabel: '${preset.columns.length}',
+        ),
+      );
+    }
+    entries.add(
+      const LibraryDenseMenuEntry<Object>(
+        value: _LibraryColumnLauncherAction.manage,
+        label: 'Manage columns',
+        icon: Icons.tune,
+      ),
+    );
+
+    return LibraryDenseSplitButton<Object>(
+      key: const ValueKey('library-column-split-button'),
+      label: activeLabel ?? 'Custom columns',
+      icon: Icons.view_column_outlined,
+      onPressed: onManageColumns,
+      entries: entries,
+      onSelected: (value) {
+        if (value is LibraryTableColumnPreset) {
+          onPresetSelected?.call(value);
+          return;
+        }
+        onManageColumns();
+      },
+      tone: LibraryDenseButtonTone.surface,
+      tooltip: 'Columns',
+    );
+  }
+}
+
+class LibraryDesktopFilteringToolbar extends StatelessWidget {
+  const LibraryDesktopFilteringToolbar({
+    super.key,
+    required this.type,
+    required this.accent,
+    required this.searchController,
+    required this.collectionStatusScope,
+    required this.availableLetters,
+    required this.selectedBucket,
+    required this.onAdd,
+    required this.onScan,
+    required this.onRefreshMetadata,
+    required this.onSearchChanged,
+    required this.onClearBucket,
+    this.onCollectionStatusScopeChanged,
+    this.selectedLetter,
+    this.onLetterSelected,
+    this.onRandomPick,
+    this.onScanCover,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final TextEditingController searchController;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
+  final Set<String> availableLetters;
+  final String? selectedLetter;
+  final ValueChanged<String?>? onLetterSelected;
+  final String? selectedBucket;
+  final VoidCallback onAdd;
+  final VoidCallback onScan;
+  final VoidCallback onRefreshMetadata;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onClearBucket;
+  final VoidCallback? onRandomPick;
+  final VoidCallback? onScanCover;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final showChromeRow = onCollectionStatusScopeChanged != null;
+    final showAlphabetRow = onLetterSelected != null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      child: Row(
+        children: [
+          LibraryToolbarPrimaryActions(
+            addLabel: 'Add ${type.pluralLabel}',
+            onAdd: onAdd,
+            onScanBarcode: onScan,
+            onRefreshMetadata: onRefreshMetadata,
+            onRandomPick: onRandomPick,
+            onScanCover: onScanCover,
+            addBackgroundColor: accent,
+            addForegroundColor: Colors.white,
+          ),
+          if (showChromeRow) ...[
+            const SizedBox(width: 8),
+            LibraryCollectionStatusScopeDropdown(
+              collectionStatusScope: collectionStatusScope,
+              onCollectionStatusScopeChanged:
+                  onCollectionStatusScopeChanged!,
+            ),
+          ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Row(
+              children: [
+                if (showAlphabetRow)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: LibraryToolbarAlphabetRow(
+                        letters: availableLetters,
+                        selectedLetter: selectedLetter,
+                        onLetterSelected: onLetterSelected!,
+                      ),
+                    ),
+                  )
+                else
+                  const Spacer(),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: LibraryToolbarSearch(
+                      controller: searchController,
+                      hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                      onScanBarcode: onScan,
+                      onScanCover: onScanCover,
+                      selectedFilterLabel: selectedBucket,
+                      onSearch: onSearchChanged,
+                      onClearFilter: onClearBucket,
+                      onChanged: onSearchChanged,
+                      selectionColor: palette.selection,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class LibraryToolbarDividerLine extends StatelessWidget {
   const LibraryToolbarDividerLine({super.key});
 
@@ -245,24 +437,53 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: palette.highlight.withValues(alpha: 0.78),
+        border: Border(
+          top: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider),
+        ),
+      ),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: WrapAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.select_all,
-            size: 16,
-            color: appPalette(context).textMuted,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'Selection',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: palette.surface.withValues(alpha: 0.38),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: palette.divider),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.checklist, size: 16, color: palette.textMuted),
+                const SizedBox(width: 6),
+                Text(
+                  '$selectedCount selected',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                 ),
+              ],
+            ),
           ),
-          const Spacer(),
+          TextButton.icon(
+            onPressed: callbacks.onClearSelection,
+            icon: const Icon(Icons.close, size: 16),
+            label: const Text('Clear selection'),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              foregroundColor: palette.textMuted,
+            ),
+          ),
           LibrarySelectionControls(
             selectedCount: selectedCount,
             callbacks: callbacks,
@@ -644,52 +865,92 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                         ),
                       ),
                   ],
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: palette.panelRaised,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: libraryCollectionStatusScopeColor(
-                          collectionStatusScope,
-                          accent,
-                          palette.textMuted,
-                        ).withValues(alpha: 0.45),
-                      ),
-                    ),
-                    child: SizedBox(
-                      height: _statusScopeDropdownHeight,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          children: [
-                            LibraryCollectionStatusScopeBadge(
-                              scope: collectionStatusScope,
-                              accent: accent,
-                              muted: palette.textMuted,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                collectionStatusScope.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: dropdownTextStyle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_drop_down,
-                              size: 18,
-                              color: palette.textPrimary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  child: _ScopeDropdownTrigger(
+                    scope: collectionStatusScope,
+                    accent: accent,
+                    height: _statusScopeDropdownHeight,
+                    textStyle: dropdownTextStyle,
                   ),
                 ),
               ),
             ),
+    );
+  }
+}
+
+class _ScopeDropdownTrigger extends StatefulWidget {
+  const _ScopeDropdownTrigger({
+    required this.scope,
+    required this.accent,
+    required this.height,
+    this.textStyle,
+  });
+
+  final LibraryCollectionStatusScope scope;
+  final Color accent;
+  final double height;
+  final TextStyle? textStyle;
+
+  @override
+  State<_ScopeDropdownTrigger> createState() => _ScopeDropdownTriggerState();
+}
+
+class _ScopeDropdownTriggerState extends State<_ScopeDropdownTrigger> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final borderColor = libraryCollectionStatusScopeColor(
+      widget.scope,
+      widget.accent,
+      palette.textMuted,
+    ).withValues(alpha: 0.45);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: _hovered
+              ? Color.alphaBlend(
+                  palette.surfaceSubtle.withValues(alpha: 0.45),
+                  palette.panelRaised,
+                )
+              : palette.panelRaised,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: borderColor),
+        ),
+        child: SizedBox(
+          height: widget.height,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                LibraryCollectionStatusScopeBadge(
+                  scope: widget.scope,
+                  accent: widget.accent,
+                  muted: palette.textMuted,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.scope.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: widget.textStyle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 18,
+                  color: palette.textPrimary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

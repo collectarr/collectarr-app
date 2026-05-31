@@ -132,7 +132,9 @@ class TrackingEntriesCacheRepository {
       if (decoded is Map) {
         return decoded.map((k, v) => MapEntry(k as String, (v as num).toInt()));
       }
-    } catch (_) {}
+    } catch (_) {
+      // Malformed JSON in episode ratings is non-critical; fall through to null.
+    }
     return null;
   }
 

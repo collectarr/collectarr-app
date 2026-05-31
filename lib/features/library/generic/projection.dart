@@ -34,17 +34,16 @@ String genericGroupModeLabel(
   LibraryTypeConfig type,
 ) {
   final labels = libraryMediaGroupLabels(type);
-  final isMovieType = type.workspace.kind == CatalogMediaKind.movie;
   return switch (mode) {
     LibraryGroupMode.series => labels.series,
     LibraryGroupMode.storyArc => 'Story Arc',
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.title => 'Title',
-    LibraryGroupMode.publisher => isMovieType ? labels.publisherPlural : labels.publisher,
+    LibraryGroupMode.publisher => labels.publisherMode,
     LibraryGroupMode.year => 'Year',
     LibraryGroupMode.audienceRating => 'Audience Rating',
     LibraryGroupMode.color => 'Color',
-    LibraryGroupMode.genre => isMovieType ? 'Genres' : 'Genre',
+    LibraryGroupMode.genre => labels.genre,
     LibraryGroupMode.country => 'Country',
     LibraryGroupMode.language => 'Language',
     LibraryGroupMode.ageRating => 'Age Rating',
@@ -120,7 +119,7 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.year => 'Years',
     LibraryGroupMode.audienceRating => 'Audience Ratings',
     LibraryGroupMode.color => 'Colors',
-    LibraryGroupMode.genre => 'Genres',
+    LibraryGroupMode.genre => labels.genrePlural,
     LibraryGroupMode.country => 'Countries',
     LibraryGroupMode.language => 'Languages',
     LibraryGroupMode.ageRating => 'Age Ratings',
@@ -487,7 +486,7 @@ String genericBucketForItemMode(
         : 'Unknown language',
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
-    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
+    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry, type),
     LibraryGroupMode.releaseDate => _dateBucket(
         entry.releaseDate,
         'Unknown release date',
@@ -569,7 +568,7 @@ String genericBucketForItemMode(
     LibraryGroupMode.letterer => _creatorBucketByRole(entry, 'letterer'),
     LibraryGroupMode.coverArtist => _creatorBucketByRole(entry, 'cover'),
     LibraryGroupMode.editor => _creatorBucketByRole(entry, 'editor'),
-    LibraryGroupMode.location => _locationBucket(entry.storageBox),
+    LibraryGroupMode.location => _locationBucket(entry.locationPath),
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
         : entry.isWishlisted
@@ -761,8 +760,11 @@ String _editionFormatBucket(LibraryWorkspaceEntry entry) {
   return 'Unknown format';
 }
 
-String _movieOrTvSeriesBucket(LibraryWorkspaceEntry entry) {
-  if (entry.mediaType == 'tv') {
+String _movieOrTvSeriesBucket(
+  LibraryWorkspaceEntry entry,
+  LibraryTypeConfig type,
+) {
+  if (type.capabilities.isVideoSeriesEntryType(entry.mediaType)) {
     return 'TV Series';
   }
   final series = entry.series;
@@ -1114,7 +1116,7 @@ bool _matchesQuery(
       _containsQuery(entry.releaseYear?.toString(), query) ||
       _containsQuery(entry.condition, query) ||
       _containsQuery(entry.grade, query) ||
-      _containsQuery(entry.storageBox, query)) {
+      _containsQuery(entry.locationPath, query)) {
     return true;
   }
   if (entry.searchAliases case final aliases?) {

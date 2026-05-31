@@ -145,6 +145,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   String? series,
   String? issueNumber,
   int? year,
+  String? kindOverride,
 }) async {
   final rawResults = await searchLibraryProviderCandidates(
     api,
@@ -154,6 +155,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
     series: series,
     issueNumber: issueNumber,
     year: year,
+    kindOverride: kindOverride,
   );
   return rerankProviderCandidates(rawResults, rerankHints);
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +15,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -21,7 +23,7 @@ void main() {
               height: 126,
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
-                localBase64: 'AAECAw==',
+                localBytes: base64Decode('AAECAw=='),
               ),
             ),
           ),
@@ -45,7 +47,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -53,7 +55,7 @@ void main() {
               height: 320,
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
-                localBase64: 'AAECAw==',
+                localBytes: base64Decode('AAECAw=='),
               ),
             ),
           ),
@@ -76,7 +78,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -84,7 +86,7 @@ void main() {
               height: 70,
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
-                localBase64: 'AAECAw==',
+                localBytes: base64Decode('AAECAw=='),
               ),
             ),
           ),
@@ -125,7 +127,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -133,7 +135,7 @@ void main() {
               height: 270,
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
-                localBase64: _tinyPngBase64,
+                localBytes: base64Decode(_tinyPngBase64),
               ),
             ),
           ),
@@ -156,7 +158,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -164,7 +166,7 @@ void main() {
               height: 270,
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
-                localBase64: _tinyPngBase64,
+                localBytes: base64Decode(_tinyPngBase64),
                 ownedItemId: 'owned-1',
                 enableFullscreen: false,
                 enableSecondaryControl: false,
@@ -183,7 +185,7 @@ void main() {
 
   testWidgets('hover cue can be disabled for inspector covers', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -191,7 +193,7 @@ void main() {
               height: 320,
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
-                localBase64: 'AAECAw==',
+                localBytes: base64Decode('AAECAw=='),
                 enableHoverCue: false,
               ),
             ),

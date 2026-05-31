@@ -211,7 +211,6 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
       defaultCondition: prefill.condition ?? widget.type.defaultCondition,
       defaultGrade: prefill.grade ?? widget.type.defaultGrade,
       defaultLocationId: prefill.locationId,
-      defaultStorageBox: prefill.legacyStorageBox,
       defaultReadStatus: prefill.readStatus,
       defaultTags: prefill.tags,
     );

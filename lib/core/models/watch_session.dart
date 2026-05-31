@@ -10,6 +10,7 @@ class WatchSession {
     this.seasonNumber,
     this.episodeNumber,
     Object? sourceType,
+    this.seenWhere,
     this.rating,
     this.notes,
     this.deletedAt,
@@ -23,6 +24,7 @@ class WatchSession {
   final int? seasonNumber;
   final int? episodeNumber;
   final TrackingSourceType? sourceType;
+  final String? seenWhere;
   final DateTime watchedAt;
   final int? rating;
   final String? notes;
@@ -43,6 +45,7 @@ class WatchSession {
       'episode_number': episodeNumber,
       'source_type': sourceTypeApiValue,
       'watched_at': watchedAt.toUtc().toIso8601String(),
+      'seen_where': seenWhere,
       'rating': rating,
       'notes': notes,
     };
@@ -56,6 +59,7 @@ class WatchSession {
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
       sourceType: json['source_type'] as String?,
+      seenWhere: json['seen_where'] as String?,
       watchedAt: DateTime.parse(json['watched_at'] as String),
       rating: json['rating'] as int?,
       notes: json['notes'] as String?,
@@ -73,6 +77,7 @@ class WatchSession {
     int? seasonNumber,
     int? episodeNumber,
     Object? sourceType,
+    String? seenWhere,
     DateTime? watchedAt,
     int? rating,
     String? notes,
@@ -86,6 +91,7 @@ class WatchSession {
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
       sourceType: sourceType ?? this.sourceType,
+      seenWhere: seenWhere ?? this.seenWhere,
       watchedAt: watchedAt ?? this.watchedAt,
       rating: rating ?? this.rating,
       notes: notes ?? this.notes,

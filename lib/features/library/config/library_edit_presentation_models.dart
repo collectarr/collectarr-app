@@ -50,6 +50,11 @@ class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.showsOwnershipReferenceSection,
     required this.showsOwnedGradingSection,
+    required this.usesOwnedMainArtworkLayout,
+    required this.usesDetailsTab,
+    required this.usesArtworkCoverTab,
+    required this.usesArtworkPhotosTab,
+    required this.showsOwnedCoverPriceField,
     required this.trackingSectionTitle,
     this.trackingSectionHint,
     required this.ownershipReferenceTitle,
@@ -62,6 +67,11 @@ class LibraryEditPresentationState {
 
   final bool showsOwnershipReferenceSection;
   final bool showsOwnedGradingSection;
+  final bool usesOwnedMainArtworkLayout;
+  final bool usesDetailsTab;
+  final bool usesArtworkCoverTab;
+  final bool usesArtworkPhotosTab;
+  final bool showsOwnedCoverPriceField;
   final String trackingSectionTitle;
   final String? trackingSectionHint;
   final String ownershipReferenceTitle;

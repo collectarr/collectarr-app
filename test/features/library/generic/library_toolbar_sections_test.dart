@@ -36,9 +36,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Selection'), findsOneWidget);
-    expect(find.text('Selected'), findsOneWidget);
-    expect(find.text('3'), findsOneWidget);
-    expect(find.byTooltip('Clear selection'), findsOneWidget);
+    expect(find.text('3 selected'), findsOneWidget);
+    expect(find.text('Clear selection'), findsOneWidget);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Remove'), findsOneWidget);
   });
 }

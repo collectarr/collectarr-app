@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -108,7 +109,7 @@ void main() {
           authControllerProvider.overrideWith(
             (ref) => _AuthenticatedAuthController(ref),
           ),
-          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('manga')),
+          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('comic')),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(
@@ -139,7 +140,9 @@ void main() {
     );
     expect(
       navigationBar.indicatorColor,
-      libraryAccentForKind('manga').withValues(alpha: 0.52),
+      libraryAccentForKind(
+        canonicalLibraryNavKind('manga') ?? 'manga',
+      ).withValues(alpha: 0.52),
     );
   });
 

@@ -11,7 +11,7 @@ class ItemImagesCacheRepository {
     required String id,
     required String ownedItemId,
     required String imageType,
-    required String imageData,
+    required Uint8List imageData,
     String? caption,
     int sortOrder = 0,
   }) async {
@@ -56,8 +56,8 @@ class ItemImagesCacheRepository {
         .getSingleOrNull();
   }
 
-  /// Get front cover base64 for an owned item (for display).
-  Future<String?> frontCoverBase64(String ownedItemId) async {
+  /// Get front cover bytes for an owned item (for display).
+  Future<Uint8List?> frontCoverBytes(String ownedItemId) async {
     final row = await primaryImageForItem(ownedItemId);
     return row?.imageData;
   }

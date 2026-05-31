@@ -14,7 +14,7 @@ const gcdMetadataProvider = LibraryMetadataProviderOption(
 const comicVineMetadataProvider = LibraryMetadataProviderOption(
   id: 'comicvine',
   label: 'Comic Vine',
-  description: 'Personal non-commercial comics and manga enrichment',
+  description: 'Personal non-commercial comics enrichment',
   supportedKinds: {'comic', 'manga'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
@@ -27,7 +27,7 @@ const comicVineMetadataProvider = LibraryMetadataProviderOption(
 const mangadexMetadataProvider = LibraryMetadataProviderOption(
   id: 'mangadex',
   label: 'MangaDex',
-  description: 'Live manga metadata and chapter feed provider',
+  description: 'Live manga metadata and chapter feed provider for comics',
   supportedKinds: {'manga'},
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Public manga metadata with attribution requirements',
@@ -74,11 +74,11 @@ const openLibraryMetadataProvider = LibraryMetadataProviderOption(
 const hardcoverMetadataProvider = LibraryMetadataProviderOption(
   id: 'hardcover',
   label: 'Hardcover',
-  description: 'Live book and manga metadata provider',
+  description: 'Live book and comic metadata provider',
   supportedKinds: {'book', 'manga'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
-    summary: 'Book and manga metadata with attribution and API key requirements',
+    summary: 'Book and comic metadata with attribution and API key requirements',
     requiresAttribution: true,
   ),
 );
@@ -86,7 +86,7 @@ const hardcoverMetadataProvider = LibraryMetadataProviderOption(
 const anilistMetadataProvider = LibraryMetadataProviderOption(
   id: 'anilist',
   label: 'AniList',
-  description: 'Live anime and manga metadata provider',
+  description: 'Live anime and manga metadata provider for movies and comics',
   supportedKinds: {'manga', 'anime'},
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Public anime/manga metadata with attribution requirements',
@@ -97,12 +97,12 @@ const anilistMetadataProvider = LibraryMetadataProviderOption(
 const tmdbMetadataProvider = LibraryMetadataProviderOption(
   id: 'tmdb',
   label: 'TMDb',
-  description: 'Live movie, TV, and anime metadata provider',
+  description: 'Live movie and TV metadata provider',
   supportedKinds: {'movie', 'tv', 'anime'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary:
-        'Live movie/TV/anime metadata provider; physical media is tracked as editions',
+        'Live movie/TV metadata provider; physical media is tracked as editions',
     requiresAttribution: true,
   ),
 );

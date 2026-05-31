@@ -28,7 +28,6 @@ class LibraryBulkActions {
         currency: ownedItem.currency,
         personalNotes: ownedItem.personalNotes,
         quantity: ownedItem.quantity,
-        storageBox: selection.applyLocation ? null : ownedItem.storageBox,
         locationId:
             selection.applyLocation ? selection.locationId : ownedItem.locationId,
         indexNumber: ownedItem.indexNumber,
@@ -54,7 +53,6 @@ class LibraryBulkActions {
     String? defaultCondition,
     String? defaultGrade,
     String? defaultLocationId,
-    String? defaultStorageBox,
     String? defaultReadStatus,
     String? defaultTags,
   }) async {
@@ -78,7 +76,6 @@ class LibraryBulkActions {
         condition: defaultCondition,
         grade: defaultGrade,
         locationId: defaultLocationId,
-        storageBox: defaultStorageBox,
         readStatus: defaultReadStatus,
         tags: defaultTags,
         notify:
@@ -127,7 +124,6 @@ class LibraryBulkActions {
         currency: src.currency,
         personalNotes: src.personalNotes,
         quantity: src.quantity,
-        storageBox: src.storageBox,
         locationId: src.locationId,
         indexNumber: src.indexNumber,
         coverPriceCents: src.coverPriceCents,

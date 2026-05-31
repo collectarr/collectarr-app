@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:flutter/material.dart';
@@ -52,13 +50,11 @@ Future<String?> pickAndStoreOwnedItemImage({
     }
 
     final bytes = await picked.readAsBytes();
-    final base64Data = base64Encode(bytes);
-
     await ItemImagesCacheRepository(db).upsert(
       id: _itemImageUuid.v4(),
       ownedItemId: ownedItemId,
       imageType: selectedType,
-      imageData: base64Data,
+      imageData: bytes,
     );
 
     if (!context.mounted) {

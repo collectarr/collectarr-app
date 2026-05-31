@@ -16,6 +16,7 @@ final _defaultViewState = LibraryWorkspaceViewState(
   coverSize: 128,
   sidebarWidth: 200,
   detailsWidth: 300,
+  detailsHeight: 220,
   visibleColumns: const {},
   columnWidths: const {},
 );

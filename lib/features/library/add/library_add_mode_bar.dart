@@ -1,15 +1,70 @@
 part of 'library_add_dialog.dart';
 
 class _DialogHeader extends StatelessWidget {
-  const _DialogHeader({required this.type, required this.accent});
+  const _DialogHeader({
+    required this.type,
+    required this.accent,
+    required this.isMovieDesktopChrome,
+  });
 
   final LibraryTypeConfig type;
   final Color accent;
+  final bool isMovieDesktopChrome;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final colorScheme = Theme.of(context).colorScheme;
+    if (isMovieDesktopChrome) {
+      return SizedBox(
+        height: 42,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.panelRaised,
+            border: Border(bottom: BorderSide(color: palette.divider)),
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 10),
+              Icon(type.workspace.icon, size: 18, color: accent),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Add ${type.pluralLabel}',
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Text(
+                      'Browse matches and add directly to your library',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: palette.textMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: 'Close',
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close, size: 18),
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return SizedBox(
       height: 34,
       child: DecoratedBox(
@@ -93,6 +148,7 @@ class _LibraryAddModeBar extends StatelessWidget {
   const _LibraryAddModeBar({
     required this.type,
     required this.accent,
+    required this.isMovieDesktopChrome,
     required this.mode,
     required this.queryController,
     required this.barcodeController,
@@ -116,10 +172,13 @@ class _LibraryAddModeBar extends StatelessWidget {
     required this.numberController,
     required this.publisherController,
     required this.yearController,
+    this.videoKindFilters,
+    this.onVideoKindFilterChanged,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
+  final bool isMovieDesktopChrome;
   final LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController barcodeController;
@@ -143,12 +202,172 @@ class _LibraryAddModeBar extends StatelessWidget {
   final TextEditingController numberController;
   final TextEditingController publisherController;
   final TextEditingController yearController;
+  final Set<String>? videoKindFilters;
+  final void Function(String kind, bool checked)? onVideoKindFilterChanged;
 
   @override
   Widget build(BuildContext context) {
     final isBusy = isSearching || isSearchingProvider;
     final searchLabels = libraryMediaSearchFieldLabels(type);
     final palette = appPalette(context);
+    if (isMovieDesktopChrome) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.panelRaised,
+          border: Border(bottom: BorderSide(color: palette.divider)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _LibraryAddModeTextField(
+                      fieldKey: ValueKey(
+                        mode == LibraryAddDialogMode.barcode
+                            ? 'library-add-barcode-field'
+                            : 'library-add-query-field',
+                      ),
+                      controller: mode == LibraryAddDialogMode.barcode
+                          ? barcodeController
+                          : queryController,
+                      label: mode == LibraryAddDialogMode.barcode
+                          ? 'Barcode / UPC / ISBN'
+                          : 'Find ${type.pluralLabel.toLowerCase()}',
+                      hintText: mode == LibraryAddDialogMode.barcode
+                          ? 'Scan or enter barcode / UPC / ISBN...'
+                          : searchLabels.queryHint,
+                      keyboardType: mode == LibraryAddDialogMode.barcode
+                          ? TextInputType.number
+                          : TextInputType.text,
+                      onSubmitted: mode == LibraryAddDialogMode.barcode
+                          ? onLookupBarcode
+                          : onSearch,
+                      onChanged: mode == LibraryAddDialogMode.search
+                          ? onQueryChanged
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (mode == LibraryAddDialogMode.search) ...[
+                    _AdvancedToggleButton(
+                      expanded: showAdvanced,
+                      accent: accent,
+                      onPressed: onToggleAdvanced,
+                    ),
+                    if (canScanCover) ...[
+                      const SizedBox(width: 6),
+                      _LibraryAddModeButton(
+                        label: 'Scan',
+                        icon: Icons.photo_camera_outlined,
+                        accent: accent,
+                        isBusy: isScanningCover,
+                        outlined: true,
+                        onPressed: isBusy || isScanningCover ? null : onScanCover,
+                      ),
+                    ],
+                    const SizedBox(width: 6),
+                    _LibraryAddModeButton(
+                      label: _searchButtonLabel,
+                      icon: Icons.search,
+                      accent: accent,
+                      isBusy: isSearching,
+                      onPressed: isBusy ? null : onSearch,
+                    ),
+                    const SizedBox(width: 6),
+                    _LibraryAddModeActionButton(
+                      icon: Icons.qr_code_2,
+                      label: 'Barcode',
+                      accent: accent,
+                      onPressed: () => onModeChanged(LibraryAddDialogMode.barcode),
+                    ),
+                    _LibraryAddModeActionButton(
+                      icon: Icons.edit_note,
+                      label: 'Manual',
+                      accent: accent,
+                      onPressed: onManual,
+                    ),
+                  ] else if (mode == LibraryAddDialogMode.barcode) ...[
+                    _LibraryAddModeButton(
+                      label: 'Lookup',
+                      icon: Icons.manage_search,
+                      accent: accent,
+                      isBusy: isSearching,
+                      onPressed: isBusy ? null : onLookupBarcode,
+                    ),
+                    const SizedBox(width: 6),
+                    _LibraryAddModeActionButton(
+                      icon: Icons.search,
+                      label: 'Search',
+                      accent: accent,
+                      onPressed: () => onModeChanged(LibraryAddDialogMode.search),
+                    ),
+                    _LibraryAddModeActionButton(
+                      icon: Icons.edit_note,
+                      label: 'Manual',
+                      accent: accent,
+                      onPressed: onManual,
+                    ),
+                  ] else ...[
+                    Expanded(
+                      child: Text(
+                        'Create a quick draft, then review details before saving it to your collection.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: palette.textMuted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _LibraryAddModeActionButton(
+                      icon: Icons.search,
+                      label: 'Back to Search',
+                      accent: accent,
+                      onPressed: () => onModeChanged(LibraryAddDialogMode.search),
+                    ),
+                  ],
+                ],
+              ),
+              if (mode == LibraryAddDialogMode.search && showAdvanced) ...[
+                const SizedBox(height: 6),
+                _AdvancedSearchFields(
+                  searchLabels: searchLabels,
+                  seriesController: seriesController,
+                  numberController: numberController,
+                  publisherController: publisherController,
+                  yearController: yearController,
+                  onSubmitted: onSearch,
+                ),
+              ],
+              if (mode == LibraryAddDialogMode.search &&
+                  videoKindFilters != null &&
+                  onVideoKindFilterChanged != null) ...[
+                const SizedBox(height: 6),
+                _VideoKindFilterRow(
+                  options: type.addChrome.videoKindFilterOptions,
+                  filters: videoKindFilters!,
+                  accent: accent,
+                  onChanged: onVideoKindFilterChanged!,
+                ),
+              ],
+              if (mode == LibraryAddDialogMode.search &&
+                  showSuggestions &&
+                  suggestions.isNotEmpty)
+                _SuggestionDropdown(
+                  suggestions: suggestions,
+                  accent: accent,
+                  onSelect: onSelectSuggestion,
+                  onDismiss: onDismissSuggestions,
+                ),
+            ],
+          ),
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -224,6 +443,14 @@ class _LibraryAddModeBar extends StatelessWidget {
                         onSubmitted: onSearch,
                       ),
                     ],
+                    if (videoKindFilters != null &&
+                        onVideoKindFilterChanged != null)
+                      _VideoKindFilterRow(
+                        options: type.addChrome.videoKindFilterOptions,
+                        filters: videoKindFilters!,
+                        accent: accent,
+                        onChanged: onVideoKindFilterChanged!,
+                      ),
                     if (showSuggestions && suggestions.isNotEmpty)
                       _SuggestionDropdown(
                         suggestions: suggestions,
@@ -815,6 +1042,99 @@ class _SuggestionTile extends StatelessWidget {
               ),
             ),
             Icon(Icons.arrow_forward_ios, size: 12, color: accent),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoKindFilterRow extends StatelessWidget {
+  const _VideoKindFilterRow({
+    required this.options,
+    required this.filters,
+    required this.accent,
+    required this.onChanged,
+  });
+
+  final List<LibraryAddVideoKindFilterOption> options;
+  final Set<String> filters;
+  final Color accent;
+  final void Function(String kind, bool checked) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          for (final option in options) ...[
+            _VideoKindCheckbox(
+              label: option.label,
+              icon: option.icon,
+              checked: filters.contains(option.kind),
+              accent: accent,
+              textColor: palette.textMuted,
+              onChanged: (checked) => onChanged(option.kind, checked),
+            ),
+            const SizedBox(width: 12),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _VideoKindCheckbox extends StatelessWidget {
+  const _VideoKindCheckbox({
+    required this.label,
+    required this.icon,
+    required this.checked,
+    required this.accent,
+    required this.textColor,
+    required this.onChanged,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool checked;
+  final Color accent;
+  final Color textColor;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: () => onChanged(!checked),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: Checkbox(
+                value: checked,
+                onChanged: (v) => onChanged(v ?? false),
+                activeColor: accent,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(icon, size: 14, color: checked ? accent : textColor),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: TextStyle(
+                color: checked ? accent : textColor,
+                fontSize: 11,
+                fontWeight: checked ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),

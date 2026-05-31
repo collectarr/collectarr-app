@@ -11,7 +11,7 @@
 ![Dart](https://img.shields.io/badge/Dart-3.12+-0175C2?logo=dart&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20Android-lightgrey)
 
-> A local-first collection manager for comics, manga, books, games, movies, TV, music, and more.
+> A local-first collection manager for comics, books, games, board games, movies, music, and more.
 
 Collectarr is built for people who want a CLZ-style collection workflow without
 locking the entire experience behind a hosted metadata UI. The app keeps your
@@ -24,10 +24,13 @@ The goal is simple: fast local shelves, rich metadata, flexible ownership
 tracking, and a UI that feels like a serious collection tool instead of a thin
 web wrapper.
 
+The current in-app library registry ships six active kinds: comics, books,
+games, board games, movies, and music.
+
 ## What Collectarr Focuses On
 
 - **Local-first ownership** — your collection state lives in the app, not only on a remote account
-- **Multi-media support** — one app for comics, manga, books, games, movies, TV, music, and board games
+- **Multi-media support** — one app for comics, books, games, board games, movies, and music
 - **Collector workflows** — variants, formats, barcode flows, grouped shelves, bulk editing, and custom fields
 - **Provider-backed metadata** — canonical metadata comes from `collectarr-core` and its provider integrations
 - **Admin-friendly architecture** — image cache controls, ingest flows, proposals, and provider health exist as first-class features
@@ -38,12 +41,10 @@ web wrapper.
 - **Catalog snapshots** — cached Core data so saved items stay useful offline
 - **CLZ-style workspaces** — cover/grid/table views, filters, series sidebars, inspectors, column presets, bulk editing
 - **Smart add / search** — structured series, issue, barcode, candidate tree, and whole-series handling
-- **Manga volumes** — volume/chapter data from Core providers (MangaDex)
-- **TV seasons** — season/episode data for TV and anime
-- **Trailer links** — YouTube-detected trailers on detail pages for movies, TV, and games
+- **Trailer links** — YouTube-detected trailers on detail pages for movies and games
 - **HDR & physical media** — HDR format multi-select and features text for physical media tracking
 - **CSV import / export** — Collectarr/CLZ-friendly with media-aware headers + custom field columns
-- **TMDB import** — import movies and TV from TMDB CSV/JSON exports with batch hydration and duplicate detection
+- **TMDB import** — import TMDB CSV/JSON exports with batch hydration and duplicate detection
 - **Barcode scanning** — camera scanner where available + manual fallback everywhere
 - **Sync support** — optional multi-device sync via `collectarr-sync` with conflict review, retry queue, and freshness indicator
 - **Admin panel** — user management, image cache controls, provider health (admin-only)
@@ -62,7 +63,7 @@ web wrapper.
 | Area | Collectarr | CLZ |
 |------|------------|-----|
 | Ownership model | Local-first database in the app with optional sync | Primarily account/cloud-centric workflow |
-| Media scope | Multi-media in one product: comics, manga, books, games, movies, TV, music, board games | Split across separate product lines / apps |
+| Media scope | Multi-media in one product: comics, books, games, movies, music, board games | Split across separate product lines / apps |
 | Metadata architecture | Open provider pipeline via `collectarr-core` | Closed commercial metadata stack |
 | Admin / power-user tooling | Built-in provider health, ingest, proposals, image cache, audit-style workflows | End-user product first, limited self-host/admin surfaces |
 | Offline behavior | Strong offline shelf usage with cached catalog snapshots | Depends more on CLZ service/app model |

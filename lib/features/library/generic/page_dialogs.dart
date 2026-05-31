@@ -165,6 +165,8 @@ extension _LibraryPageDialogs on _LibraryPageState {
       type: widget.type,
       adapter: _adapter,
       viewState: viewState,
+      pinnedFavoriteKeys: _pinnedColumnFavoriteKeys,
+      onTogglePinnedFavorite: _togglePinnedColumnFavorite,
     );
     if (selected != null) {
       _updateViewState((state) => state.copyWith(visibleColumns: selected));
@@ -243,6 +245,7 @@ extension _LibraryPageDialogs on _LibraryPageState {
     final result = await showTransferFieldDataDialog(
       context: context,
       db: db,
+      type: widget.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldDefinitions,

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -94,7 +96,7 @@ void main() {
         id: 'comic-1',
         mediaType: 'comic',
         title: 'Saga #1',
-        storageBox: 'Office › Shelf A › Short Box 1',
+        locationPath: 'Office › Shelf A › Short Box 1',
         updatedAt: DateTime(2026, 1, 1),
       ),
     );
@@ -241,7 +243,7 @@ void main() {
           id: 'img-1',
           ownedItemId: 'owned-1',
           imageType: 'back_cover',
-          imageData: 'data',
+          imageData: Uint8List.fromList('data'.codeUnits),
           createdAt: DateTime.utc(2026, 4, 1),
         ),
       ],
@@ -254,7 +256,7 @@ void main() {
         title: 'Blade Runner 2049',
         isOwned: true,
         condition: 'Sealed',
-        storageBox: 'Living Room › Shelf 2',
+        locationPath: 'Living Room › Shelf 2',
         tags: 'favorite, sci-fi',
         video: const VideoCatalogDetails(
           audioTracks: 'English DTS-HD MA',

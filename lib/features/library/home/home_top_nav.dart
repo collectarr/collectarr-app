@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -39,11 +40,14 @@ class MediaLibraryNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final groups = buildLibraryNavGroups(types);
+    final selectedGroup = selectedLibraryNavGroup(groups, selectedKind);
     final selected = selectedLibraryHomeType(types, selectedKind);
-    final accent = libraryAccentForKind(selected.kind);
+    final accent = libraryAccentForKind(selectedGroup.primaryType.kind);
     final palette = appPalette(context);
-    final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
-        libraryIconForKind(selected.kind);
+    final selectedIcon =
+      registry.byKind(selectedGroup.primaryType.kind)?.workspace.icon ??
+        libraryIconForKind(selectedGroup.primaryType.kind);
 
     return AnimatedContainer(
       duration: animationDuration,
@@ -68,7 +72,7 @@ class MediaLibraryNav extends ConsumerWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final titleWidth = _headerTitleWidth(
-            labels: types.map((type) => type.pluralLabel),
+            labels: groups.map((group) => group.label),
             maxWidth: constraints.maxWidth,
           );
           return Row(
@@ -81,7 +85,7 @@ class MediaLibraryNav extends ConsumerWidget {
                     alignment: Alignment.centerLeft,
                     child: _MediaLibraryTitle(
                       icon: selectedIcon,
-                      label: selected.pluralLabel,
+                      label: selectedGroup.label,
                     ),
                   ),
                 ),
@@ -212,16 +216,23 @@ class _MediaLibraryTitle extends StatelessWidget {
         Icon(icon, size: 20, color: titleColor),
         const SizedBox(width: 7),
         Expanded(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: TextStyle(
-              color: titleColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+
+            ],
           ),
         ),
       ],
@@ -579,6 +590,7 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
 
   @override
   Widget build(BuildContext context) {
+    final groups = buildLibraryNavGroups(widget.types);
     return Listener(
       onPointerSignal: (event) {
         if (event is PointerScrollEvent && _scrollController.hasClients) {
@@ -616,32 +628,42 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             for (var index = 0;
-                                index < widget.types.length;
+                                index < groups.length;
                                 index += 1)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  right: index == widget.types.length - 1 ? 0 : 5,
-                                ),
-                                child: MediaLibraryNavButton(
-                                  type: widget.types[index],
-                                  color: libraryAccentForKind(
-                                    widget.types[index].kind,
-                                  ),
-                                  icon: widget.registry
-                                          .byKind(widget.types[index].kind)
-                                          ?.workspace
-                                          .icon ??
-                                      libraryIconForKind(
-                                        widget.types[index].kind,
+                              Builder(
+                                builder: (context) {
+                                  final group = groups[index];
+                                  final representative = group.primaryType;
+                                  final groupCount = group.types.fold<int>(
+                                    0,
+                                    (sum, type) =>
+                                        sum + (widget.counts[type.kind]?.total ?? 0),
+                                  );
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      right: index == groups.length - 1 ? 0 : 5,
+                                    ),
+                                    child: MediaLibraryNavButton(
+                                      type: representative,
+                                      color: libraryAccentForKind(
+                                        representative.kind,
                                       ),
-                                  selected:
-                                      widget.types[index].kind == widget.selectedKind,
-                                  count:
-                                      widget.counts[widget.types[index].kind]?.total ?? 0,
-                                  onPressed: () =>
-                                      widget.onSelected(widget.types[index]),
-                                  animationDuration: widget.animationDuration,
-                                ),
+                                      icon: widget.registry
+                                              .byKind(representative.kind)
+                                              ?.workspace
+                                              .icon ??
+                                          libraryIconForKind(
+                                            representative.kind,
+                                          ),
+                                      label: group.label,
+                                      tooltip: group.label,
+                                      selected: group.containsKind(widget.selectedKind),
+                                      count: groupCount,
+                                      onPressed: () => widget.onSelected(representative),
+                                      animationDuration: widget.animationDuration,
+                                    ),
+                                  );
+                                },
                               ),
                           ],
                         ),
@@ -703,19 +725,23 @@ class _ScrollArrowButton extends StatelessWidget {
                 Brightness.dark
             ? Colors.white
             : palette.textPrimary;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 20,
-        height: 28,
-        decoration: BoxDecoration(
-          color: buttonBackground,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Icon(
-          icon,
-          size: 16,
-          color: buttonForeground,
+    return Semantics(
+      button: true,
+      label: icon == Icons.chevron_left ? 'Scroll left' : 'Scroll right',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 20,
+          height: 28,
+          decoration: BoxDecoration(
+            color: buttonBackground,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: buttonForeground,
+          ),
         ),
       ),
     );

@@ -29,6 +29,13 @@ void main() {
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-box-6',
+            name: 'Box 6',
+            sortOrder: const Value(1),
+          ),
+        );
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -39,7 +46,7 @@ void main() {
             currency: const Value('USD'),
             personalNotes: const Value('Signed copy'),
             quantity: const Value(2),
-            storageBox: const Value('Box 6'),
+            locationId: const Value('loc-box-6'),
             keyComic: const Value(true),
             readStatus: const Value('read'),
             updatedAt: DateTime.utc(2026, 5, 11),
@@ -70,7 +77,7 @@ void main() {
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
     expect(find.text('Read status'), findsOneWidget);
-    expect(find.text('Storage boxes'), findsOneWidget);
+    expect(find.text('Locations'), findsOneWidget);
     expect(find.text('Top series'), findsOneWidget);
     expect(find.text('Completed: 1'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);

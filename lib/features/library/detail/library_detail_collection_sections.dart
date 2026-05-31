@@ -64,8 +64,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),
             ),
             LibraryInspectorFactData(
-              'Storage',
-              genericLibraryDash(ownedItem?.storageBox ?? entry.storageBox),
+              'Location',
+              genericLibraryDash(entry.locationPath),
             ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(

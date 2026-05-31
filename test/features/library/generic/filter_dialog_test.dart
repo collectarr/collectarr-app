@@ -85,7 +85,7 @@ void main() {
       id: 'comic-1',
       mediaType: 'comic',
       title: 'Batman',
-      storageBox: 'Office > Shelf 2 > Short Box 1',
+      locationPath: 'Office > Shelf 2 > Short Box 1',
       updatedAt: DateTime.utc(2026, 5, 22),
     );
 

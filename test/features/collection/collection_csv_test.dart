@@ -36,7 +36,6 @@ void main() {
           personalNotes: 'Signed copy',
           quantity: 2,
           locationId: 'loc-short-box-6',
-          storageBox: 'Box 6',
           indexNumber: 1310,
           coverPriceCents: 399,
           rawOrSlabbed: 'Raw',
@@ -50,6 +49,7 @@ void main() {
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
+        locationPath: 'Office › Shelf A › Short Box 6',
       ),
     ]);
 
@@ -74,8 +74,7 @@ void main() {
     expect(rows.single.pricePaidCents, 1299);
     expect(rows.single.notes, 'Signed copy');
     expect(rows.single.quantity, 2);
-    expect(rows.single.locationId, 'loc-short-box-6');
-    expect(rows.single.storageBox, 'Box 6');
+    expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
     expect(rows.single.indexNumber, 1310);
     expect(rows.single.coverPriceCents, 399);
     expect(rows.single.rawOrSlabbed, 'Raw');
@@ -111,9 +110,10 @@ void main() {
           pricePaidCents: 900,
           currency: 'USD',
           quantity: 1,
-          storageBox: 'Box 6',
+          locationId: 'loc-box-6',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
+        locationPath: 'Office › Shelf A › Box 6',
       ),
     ]);
 
@@ -122,6 +122,7 @@ void main() {
     expect(exported, contains('Collection Status'));
     expect(exported, contains('The Amazing Spider-Man, Vol. 2'));
     expect(exported, contains('9.00'));
+    expect(exported, contains('Office › Shelf A › Box 6'));
   });
 
   test('collection csv exports media-aware clz-friendly headers', () {
@@ -183,7 +184,7 @@ void main() {
           'Condition',
           'Purchase Price',
           'Currency',
-          'Storage Box',
+          'Location ID',
           'Read It',
           'Key Comic',
           'Notes',
@@ -200,7 +201,7 @@ void main() {
           'Very Fine',
           r'$9.00',
           'USD',
-          'Box 6',
+          'loc-box-6',
           'Read',
           'Yes',
           'CLZ import',
@@ -218,7 +219,7 @@ void main() {
     expect(rows.single.grade, '7.5');
     expect(rows.single.condition, 'Very Fine');
     expect(rows.single.pricePaidCents, 900);
-    expect(rows.single.storageBox, 'Box 6');
+    expect(rows.single.locationId, 'loc-box-6');
     expect(rows.single.readStatus, 'Read');
     expect(rows.single.keyComic, isTrue);
     expect(rows.single.notes, 'CLZ import');
@@ -232,15 +233,13 @@ void main() {
           'status',
           'title',
           'location_id',
-          'storage_box',
         ],
-        ['comic-1', 'owned', 'Test', 'loc-short-box-6', 'Box 6'],
+        ['comic-1', 'owned', 'Test', 'loc-short-box-6'],
       ]),
     );
 
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.locationId, 'loc-short-box-6');
-    expect(rows.single.storageBox, 'Box 6');
   });
 
   test('collection csv parses decimal and thousands money separators', () {

@@ -1,5 +1,14 @@
 # Tracking Granularity Schema Proposal
 
+> Historical proposal: this document captures an exploratory tracking design,
+> not an active implementation plan. As of 2026-05-31 the app still uses the
+> existing summary `TrackingEntry` model, and the shipped in-app library
+> registry is `comic`, `book`, `game`, `boardgame`, `movie`, `music`.
+
+> Keep this file as background design context only. If work resumes here,
+> re-audit the proposal against the current app/runtime model before treating
+> any section below as current direction.
+
 ## Problem Statement
 
 `TrackingEntry` is currently a single summary row with optional:

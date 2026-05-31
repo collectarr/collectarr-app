@@ -704,12 +704,9 @@ class TmdbImportService {
   }
 
   CatalogItem localSyntheticCatalogItem(TmdbImportEntry entry) {
-    final kind = entry.mediaType == TmdbMediaType.movie
-        ? CatalogMediaKind.movie
-        : CatalogMediaKind.tv;
     return CatalogItem(
       id: localSyntheticItemId(entry),
-      kind: kind.apiValue,
+      kind: CatalogMediaKind.movie.apiValue,
       title: entry.title,
       displayTitle: entry.title,
       localizedTitle: entry.title,

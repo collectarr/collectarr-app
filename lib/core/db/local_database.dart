@@ -16,6 +16,7 @@ class CatalogCache extends Table {
   TextColumn get physicalFormat => text().nullable()();
   TextColumn get physicalFormatLabel => text().nullable()();
   TextColumn get publisher => text().nullable()();
+  DateTimeColumn get coverDate => dateTime().nullable()();
   DateTimeColumn get releaseDate => dateTime().nullable()();
   IntColumn get releaseYear => integer().nullable()();
   TextColumn get barcode => text().nullable()();
@@ -78,7 +79,6 @@ class OwnedItemsCache extends Table {
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
   IntColumn get quantity => integer().withDefault(const Constant(1))();
-  TextColumn get storageBox => text().nullable()();
   IntColumn get indexNumber => integer().nullable()();
   IntColumn get coverPriceCents => integer().nullable()();
   TextColumn get rawOrSlabbed => text().nullable()();
@@ -86,9 +86,13 @@ class OwnedItemsCache extends Table {
   TextColumn get graderNotes => text().nullable()();
   TextColumn get signedBy => text().nullable()();
   TextColumn get labelType => text().nullable()();
+  TextColumn get customLabel => text().nullable()();
+  TextColumn get pageQuality => text().nullable()();
   TextColumn get certificationNumber => text().nullable()();
   BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
   TextColumn get keyReason => text().nullable()();
+  TextColumn get keyCategory => text().nullable()();
+  TextColumn get keySeverity => text().nullable()();
   IntColumn get rating => integer().nullable()();
   TextColumn get readStatus => text().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
@@ -147,9 +151,9 @@ class CustomFieldValuesCache extends Table {
 class ItemImagesCache extends Table {
   TextColumn get id => text()();
   TextColumn get ownedItemId => text()();
-  TextColumn get imageType =>
-      text().withDefault(const Constant('front_cover'))(); // front_cover, back_cover, auxiliary
-  TextColumn get imageData => text()(); // base64-encoded image data
+  TextColumn get imageType => text().withDefault(
+      const Constant('front_cover'))(); // front_cover, back_cover, auxiliary
+  BlobColumn get imageData => blob()(); // raw image bytes
   TextColumn get caption => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime()();
@@ -231,6 +235,7 @@ class WatchSessionsCache extends Table {
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
   TextColumn get sourceType => text().nullable()();
+  TextColumn get seenWhere => text().nullable()();
   DateTimeColumn get watchedAt => dateTime()();
   IntColumn get rating => integer().nullable()();
   TextColumn get notes => text().nullable()();
@@ -360,6 +365,21 @@ class PickListValuesCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SeriesRegistryCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get mediaKind => text()();
+  TextColumn get title => text()();
+  TextColumn get normalizedTitle => text()();
+  TextColumn get sortTitle => text().nullable()();
+  TextColumn get normalizedSortTitle => text().nullable()();
+  TextColumn get coreSeriesId => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -380,44 +400,30 @@ class PickListValuesCache extends Table {
   UserFolderItemsCache,
   ReadingQueueCache,
   PickListValuesCache,
+  SeriesRegistryCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
+      // All tables in this database are local caches that are rebuilt from
+      // the server on next sync.  A destructive migration is intentional:
+      // it avoids carrying forward every historical ALTER TABLE step while
+      // remaining safe because no user-authored data lives here.
       onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          for (final table in allTables) {
-            await customStatement(
-              'DROP TABLE IF EXISTS ${table.actualTableName}',
-            );
-          }
-          await m.createAll();
-          return;
-        }
-        if (from < 3) {
-          await m.addColumn(ownedItemsCache, ownedItemsCache.createdAt);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.ownerUserId);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.ownerLabel);
+        for (final table in allTables) {
           await customStatement(
-            'UPDATE owned_items_cache SET created_at = updated_at WHERE created_at IS NULL',
+            'DROP TABLE IF EXISTS ${table.actualTableName}',
           );
         }
-        if (from < 4) {
-          await m.addColumn(catalogCache, catalogCache.audienceRating);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.labelType);
-          await m.addColumn(
-            ownedItemsCache,
-            ownedItemsCache.certificationNumber,
-          );
-        }
+        await m.createAll();
       },
     );
   }

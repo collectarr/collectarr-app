@@ -53,6 +53,5 @@ void main() {
 
     final defaults = await PrefillDefaults.load();
     expect(defaults.locationId, 'loc-1');
-    expect(defaults.legacyStorageBox, isNull);
   });
 }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -39,55 +37,64 @@ class InspectorItemImagesSection extends ConsumerWidget {
     final request = (db: db, ownedItemId: ownedItemId);
     final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
     final images = imagesAsync.value ?? const <ItemImage>[];
-        final visibleImages = images
-            .where((image) => image.imageType != 'front_cover')
-            .toList(growable: false);
+    final visibleImages = images
+        .where((image) => image.imageType != 'front_cover')
+        .toList(growable: false);
 
-        // Group by image type.
-        final groups = <String, List<ItemImage>>{};
-        for (final img in visibleImages) {
-          (groups[img.imageType] ??= []).add(img);
-        }
+    final groups = <String, List<ItemImage>>{};
+    for (final img in visibleImages) {
+      (groups[img.imageType] ??= []).add(img);
+    }
 
-        final label = visibleImages.isEmpty
-            ? 'Images'
-            : groups.length == 1
-                ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${visibleImages.length})'
-                : 'Images (${visibleImages.length})';
+    final label = visibleImages.isEmpty
+        ? 'Images'
+        : groups.length == 1
+            ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${visibleImages.length})'
+            : 'Images (${visibleImages.length})';
 
     return LibraryInspectorSection(
       title: label,
       accentColor: accent,
       children: [
-        for (final entry in groups.entries) ...[
-          if (groups.length > 1) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                itemImageTypeLabels[entry.key] ?? entry.key,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: accent.withValues(alpha: 0.8),
-                    ),
+        if (groups.isEmpty)
+          Text(
+            'No extra owned-item images yet. Add back covers, signatures, labels, or other supporting photos here.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: appPalette(context).textMuted,
+                ),
+          )
+        else
+          for (final entry in groups.entries) ...[
+            if (groups.length > 1) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  itemImageTypeLabels[entry.key] ?? entry.key,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: accent.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.2,
+                      ),
+                ),
+              ),
+            ],
+            SizedBox(
+              height: 106,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: entry.value.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final img = entry.value[index];
+                  return _InspectorThumbnail(
+                    image: img,
+                    onDelete: () => _deleteImage(context, ref, img.id),
+                  );
+                },
               ),
             ),
+            const SizedBox(height: 10),
           ],
-          SizedBox(
-            height: 100,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: entry.value.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 6),
-              itemBuilder: (context, index) {
-                final img = entry.value[index];
-                return _InspectorThumbnail(
-                  image: img,
-                  onDelete: () => _deleteImage(context, ref, img.id),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
         _AddImageButton(
           accent: accent,
           onPick: () => _pickAndAddImage(context, ref),
@@ -172,7 +179,6 @@ class _InspectorThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bytes = base64.decode(image.imageData);
     final palette = appPalette(context);
     final dismissBackground = palette.panel.withValues(alpha: 0.84);
     final dismissForeground = ThemeData.estimateBrightnessForColor(dismissBackground) ==
@@ -184,55 +190,61 @@ class _InspectorThumbnail extends StatelessWidget {
       child: InkWell(
         onTap: () => _showFullImage(context),
         onLongPress: onDelete,
-        borderRadius: kAppRadiusSmall,
+        borderRadius: BorderRadius.circular(8),
         child: Stack(
           children: [
-            ClipRRect(
-              borderRadius: kAppRadiusSmall,
-              child: Image.memory(
-                bytes,
-                width: 80,
-                height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 80,
-                  height: 100,
-                  color: kAppSurfaceSubtle,
-                  child: Icon(Icons.broken_image, color: palette.textMuted),
-                ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.surfaceSubtle,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: palette.divider),
               ),
-            ),
-          Positioned(
-            top: 2,
-            right: 2,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onDelete,
-                customBorder: const CircleBorder(),
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: dismissBackground,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    size: 14,
-                    color: dismissForeground,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(
+                  image.imageData,
+                  width: 84,
+                  height: 106,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 84,
+                    height: 106,
+                    color: kAppSurfaceSubtle,
+                    child: Icon(Icons.broken_image, color: palette.textMuted),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
+            Positioned(
+              top: 3,
+              right: 3,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onDelete,
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: dismissBackground,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      size: 14,
+                      color: dismissForeground,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _showFullImage(BuildContext context) {
-    final bytes = base64.decode(image.imageData);
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -247,7 +259,7 @@ class _InspectorThumbnail extends StatelessWidget {
                   maxWidth: 600,
                   maxHeight: 500,
                 ),
-                child: Image.memory(bytes, fit: BoxFit.contain),
+                child: Image.memory(image.imageData, fit: BoxFit.contain),
               ),
             ),
             if (image.caption != null && image.caption!.trim().isNotEmpty)

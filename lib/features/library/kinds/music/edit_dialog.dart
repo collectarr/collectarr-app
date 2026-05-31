@@ -1,7 +1,8 @@
+import 'dart:typed_data';
+
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -11,6 +12,7 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -27,13 +29,21 @@ Widget buildMusicLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
-  return MusicLibraryEditDialog(request: request);
+  return MusicLibraryEditDialog(
+    request: request,
+    draft: LibraryEditDraft.fromRequest(request),
+  );
 }
 
 class MusicLibraryEditDialog extends ConsumerStatefulWidget {
-  const MusicLibraryEditDialog({super.key, required this.request});
+  const MusicLibraryEditDialog({
+    super.key,
+    required this.request,
+    this.draft,
+  });
 
   final LibraryEditDialogRequest request;
+  final LibraryEditDraft? draft;
 
   @override
   ConsumerState<MusicLibraryEditDialog> createState() =>
@@ -43,6 +53,7 @@ class MusicLibraryEditDialog extends ConsumerStatefulWidget {
 class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  late final LibraryEditDraft _draft;
 
   late final TabController _tabController;
 
@@ -107,7 +118,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 
   LibraryMetadataItem get _item => widget.request.item;
-  OwnedItem? get _owned => widget.request.ownedItem;
   Color get _accent => widget.request.accent;
 
   LibraryEditPresentationContext get _editPresentationContext {
@@ -138,9 +148,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   @override
   void initState() {
     super.initState();
+    _draft = widget.draft ?? LibraryEditDraft.fromRequest(widget.request);
     final item = _item;
-    final owned = _owned;
-    final tracking = widget.request.trackingEntry;
     _tabController = TabController(length: _tabSpecs.length, vsync: this)
       ..addListener(() {
         if (mounted) {
@@ -148,105 +157,62 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         }
       });
 
-    _titleController = TextEditingController(text: item.title);
-    _sortKeyController = TextEditingController(text: item.sortKey ?? '');
+    _titleController = _draft.titleController;
+    _sortKeyController = _draft.sortKeyController;
     _artistController = TextEditingController(text: item.series?.seriesTitle ?? '');
     _subtitleController =
         TextEditingController(text: item.publishing?.subtitle ?? '');
-    _publisherController = TextEditingController(text: item.publisher ?? '');
-    _editionTitleController =
-        TextEditingController(text: item.editionTitle ?? '');
-    _variantController = TextEditingController(text: item.variant ?? '');
-    _barcodeController = TextEditingController(text: item.barcode ?? '');
+    _publisherController = _draft.publisherController;
+    _editionTitleController = _draft.editionTitleController;
+    _variantController = _draft.variantController;
+    _barcodeController = _draft.barcodeController;
     _catalogNumberController =
         TextEditingController(text: item.music?.catalogNumber ?? '');
-    _releaseDateController = TextEditingController(
-      text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
-    );
-    _releaseYearController =
-        TextEditingController(text: item.releaseYear?.toString() ?? '');
+    _releaseDateController = _draft.releaseDateController;
+    _releaseYearController = _draft.releaseYearController;
     _releaseStatusController =
         TextEditingController(text: item.music?.releaseStatus ?? '');
-    _countryController = TextEditingController(text: item.country ?? '');
-    _languageController = TextEditingController(text: item.language ?? '');
+    _countryController = _draft.countryController;
+    _languageController = _draft.languageController;
     _genresController = TextEditingController(
       text: (item.genres ?? const <String>[]).join(', '),
     );
     _creditsController = TextEditingController(text: _creatorLines(item.creators));
-    _coverController = TextEditingController(text: item.coverImageUrl ?? '');
-    _thumbnailController =
-        TextEditingController(text: item.thumbnailImageUrl ?? '');
-    _synopsisController = TextEditingController(text: item.synopsis ?? '');
-    _notesController = TextEditingController(text: owned?.personalNotes ?? '');
+    _coverController = _draft.coverController;
+    _thumbnailController = _draft.thumbnailController;
+    _synopsisController = _draft.synopsisController;
+    _notesController = _draft.notesController;
 
-    _conditionController = TextEditingController(text: owned?.condition ?? '');
-    _gradeController = TextEditingController(text: owned?.grade ?? '');
-    _purchaseDateController = TextEditingController(
-      text: owned?.purchaseDate == null ? '' : formatDate(owned!.purchaseDate!),
-    );
-    _priceController = TextEditingController(
-      text: owned?.pricePaidCents == null
-          ? ''
-          : (owned!.pricePaidCents! / 100).toStringAsFixed(2),
-    );
-    _currencyController = TextEditingController(text: owned?.currency ?? '');
-    _quantityController =
-        TextEditingController(text: (owned?.quantity ?? 1).toString());
-    _ratingController =
-      TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
-    _trackingController =
-      TextEditingController(
-        text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
-      );
-    _tagsController = TextEditingController(text: owned?.tags ?? '');
-    _sellPriceController = TextEditingController(
-      text: owned?.sellPriceCents == null
-          ? ''
-          : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
-    );
-    _soldToController = TextEditingController(text: owned?.soldTo ?? '');
+    _conditionController = _draft.conditionController;
+    _gradeController = _draft.gradeController;
+    _purchaseDateController = _draft.purchaseDateController;
+    _priceController = _draft.priceController;
+    _currencyController = _draft.currencyController;
+    _quantityController = _draft.quantityController;
+    _ratingController = _draft.ratingController;
+    _trackingController = _draft.trackingController;
+    _tagsController = _draft.tagsController;
+    _sellPriceController = _draft.sellPriceController;
+    _soldToController = _draft.soldToController;
 
-    _progressCurrentController = TextEditingController(
-      text: tracking?.progressCurrent?.toString() ?? '',
-    );
-    _progressTotalController = TextEditingController(
-      text: tracking?.progressTotal?.toString() ?? '',
-    );
-    _timesCompletedController = TextEditingController(
-      text: tracking?.timesCompleted?.toString() ?? '',
-    );
-    _trackingNotesController = TextEditingController(
-      text: tracking?.notes ?? '',
-    );
-    final wishlist = widget.request.wishlistItem;
-    _wishlistPriceController = TextEditingController(
-      text: wishlist?.targetPriceCents == null
-          ? ''
-          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
-    );
-    _wishlistCurrencyController =
-        TextEditingController(text: wishlist?.currency ?? '');
-    _wishlistNotesController =
-        TextEditingController(text: wishlist?.notes ?? '');
+    _progressCurrentController = _draft.progressCurrentController;
+    _progressTotalController = _draft.progressTotalController;
+    _timesCompletedController = _draft.timesCompletedController;
+    _trackingNotesController = _draft.trackingNotesController;
+    _wishlistPriceController = _draft.wishlistPriceController;
+    _wishlistCurrencyController = _draft.wishlistCurrencyController;
+    _wishlistNotesController = _draft.wishlistNotesController;
 
-    _selectedLocationId = owned?.locationId;
-    _startedAt = tracking?.startedAt ?? owned?.startedAt;
-    _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
-    _soldAt = owned?.soldAt;
-    _physicalFormatId = _initialPhysicalFormatId(item);
-    final editionSelection = resolveLibraryEditionSelection(
-      item.editions,
-      editionId: owned?.editionId ?? tracking?.editionId,
-      editionTitle: item.editionTitle,
-      variantId: owned?.variantId ?? tracking?.variantId,
-      variantName: item.variant,
-    );
-    _selectedEditionId = editionSelection.edition?.id;
-    _selectedVariantId = editionSelection.variant?.id;
-    _customFieldEdits = {
-      for (final value in widget.request.customFieldValues)
-        value.fieldDefinitionId: value.value,
-    };
+    _physicalFormatId = _draft.physicalFormatId;
+    final dialogState = _draft.cloneDialogState();
+    _selectedLocationId = dialogState.selectedLocationId;
+    _startedAt = dialogState.startedAt;
+    _finishedAt = dialogState.finishedAt;
+    _soldAt = dialogState.soldAt;
+    _selectedEditionId = dialogState.selectedEditionId;
+    _selectedVariantId = dialogState.selectedVariantId;
+    _customFieldEdits = dialogState.customFieldEdits;
+    _itemImageEdits = dialogState.itemImageEdits;
 
     unawaited(_loadAvailableLocations());
   }
@@ -254,44 +220,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   @override
   void dispose() {
     _tabController.dispose();
-    _titleController.dispose();
-    _sortKeyController.dispose();
     _artistController.dispose();
     _subtitleController.dispose();
-    _publisherController.dispose();
-    _editionTitleController.dispose();
-    _variantController.dispose();
-    _barcodeController.dispose();
     _catalogNumberController.dispose();
-    _releaseDateController.dispose();
-    _releaseYearController.dispose();
     _releaseStatusController.dispose();
-    _countryController.dispose();
-    _languageController.dispose();
     _genresController.dispose();
     _creditsController.dispose();
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    _synopsisController.dispose();
-    _notesController.dispose();
-    _conditionController.dispose();
-    _gradeController.dispose();
-    _purchaseDateController.dispose();
-    _priceController.dispose();
-    _currencyController.dispose();
-    _quantityController.dispose();
-    _ratingController.dispose();
-    _trackingController.dispose();
-    _tagsController.dispose();
-    _sellPriceController.dispose();
-    _soldToController.dispose();
-    _progressCurrentController.dispose();
-    _progressTotalController.dispose();
-    _timesCompletedController.dispose();
-    _trackingNotesController.dispose();
-    _wishlistPriceController.dispose();
-    _wishlistCurrencyController.dispose();
-    _wishlistNotesController.dispose();
+    _draft.dispose();
     super.dispose();
   }
 
@@ -1131,14 +1066,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       imageUrl: emptyToNull(_thumbnailController.text) ??
           emptyToNull(_coverController.text) ??
           _item.displayCoverUrl,
-      localBase64: _localImageData('front_cover'),
-      secondaryLocalBase64: _localImageData('back_cover'),
+      localBytes: _localImageData('front_cover'),
+      secondaryLocalBytes: _localImageData('back_cover'),
       accentColor: _accent,
       borderRadius: 8,
     );
   }
 
-  String? _localImageData(String imageType) {
+  Uint8List? _localImageData(String imageType) {
     final matching = widget.request.itemImages
         .where((image) => image.imageType == imageType)
         .toList(growable: false);
@@ -1181,14 +1116,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     if (locationLabel != null) {
       return locationLabel;
     }
-    if (_locationChanged) {
-      return null;
-    }
-    final legacyLabel = widget.request.ownedItem?.storageBox?.trim();
-    if (legacyLabel == null || legacyLabel.isEmpty) {
-      return null;
-    }
-    return legacyLabel;
+    return null;
   }
 
   Future<void> _loadAvailableLocations() async {
@@ -1379,6 +1307,19 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    _draft.availableLocations = List<StorageLocation>.from(_availableLocations);
+    _draft.selectedLocationId = _selectedLocationId;
+    _draft.selectedEditionId = _selectedEditionId;
+    _draft.selectedVariantId = _selectedVariantId;
+    _draft.locationChanged = _locationChanged;
+    _draft.startedAt = _startedAt;
+    _draft.finishedAt = _finishedAt;
+    _draft.soldAt = _soldAt;
+    _draft.physicalFormatId = _physicalFormatId;
+    _draft.replaceMediaEdits(
+      customFieldEdits: _customFieldEdits,
+      itemImageEdits: _itemImageEdits,
+    );
     final currentTracks = _item.music?.tracks ?? const <CatalogTrack>[];
     final updatedSeries = CatalogSeriesDetails(
       seriesId: _item.series?.seriesId,
@@ -1568,18 +1509,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               });
             },
     );
-  }
-
-  String? _initialPhysicalFormatId(LibraryMetadataItem item) {
-    final configured = _physicalFormatForId(item.physicalFormat);
-    if (configured != null) {
-      return configured.id;
-    }
-    final byLabel = physicalMediaFormatByLabelOrId(
-      item.physicalFormatLabel ?? item.variant,
-      formats: widget.request.physicalFormats,
-    );
-    return byLabel?.id;
   }
 
   PhysicalMediaFormat? _physicalFormatForId(String? id) {

@@ -1,9 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
-import 'package:collectarr_app/features/library/seasons_section.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -58,11 +57,11 @@ void main() {
       ),
       accent: Colors.cyan,
     );
-    final tvSections = tvLibraryConfig.presentation.builder.buildInspectorSections(
+    final movieSections = moviesLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
       entry: LibraryWorkspaceEntry(
-        id: 'tv-1',
-        mediaType: 'tv',
+        id: 'movie-1',
+        mediaType: 'movie',
         title: 'Andor',
         synopsis: 'Rebellion rises.',
         updatedAt: DateTime(2026, 1, 1),
@@ -71,9 +70,10 @@ void main() {
     );
 
     expect(musicSections.whereType<InspectorTrackListUnavailable>(), hasLength(1));
-    expect(tvSections.whereType<SeasonsSection>(), hasLength(1));
     expect(
-      tvSections.whereType<LibraryInspectorSection>().map((section) => section.title),
+      movieSections
+          .whereType<LibraryInspectorSection>()
+          .map((section) => section.title),
       contains('Summary'),
     );
   });

@@ -39,6 +39,7 @@ class LibrarySidebar extends StatelessWidget {
     required this.onClearFilter,
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
+    this.onManageBuckets,
     this.pinnedGroupModes = const {},
     this.onTogglePinGroupMode,
   });
@@ -71,6 +72,7 @@ class LibrarySidebar extends StatelessWidget {
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
+  final VoidCallback? onManageBuckets;
   final Set<LibraryGroupMode> pinnedGroupModes;
   final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
 
@@ -116,6 +118,7 @@ class LibrarySidebar extends StatelessWidget {
         onClearFilter: onClearFilter,
         onHideSidebar: onHideSidebar,
         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+        onManageBuckets: onManageBuckets,
         pinnedGroupModes: pinnedGroupModes,
         onTogglePin: onTogglePinGroupMode,
       ),

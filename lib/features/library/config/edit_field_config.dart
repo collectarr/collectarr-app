@@ -52,6 +52,7 @@ class ReleaseEditFields {
     this.variantLabel = 'Variant',
     this.barcodeLabel = 'Barcode',
     this.showPhysicalFormat = true,
+    this.variantSeedsPhysicalFormatLabel = false,
   });
 
   /// Label for the variant/format/edition field.
@@ -65,4 +66,8 @@ class ReleaseEditFields {
 
   /// Whether to show the physical format dropdown.
   final bool showPhysicalFormat;
+
+  /// Whether the variant value should be used as the initial physical format
+  /// label when no explicit physical format is present.
+  final bool variantSeedsPhysicalFormatLabel;
 }

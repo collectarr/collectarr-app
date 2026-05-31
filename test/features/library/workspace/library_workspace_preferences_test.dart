@@ -10,6 +10,7 @@ void main() {
     kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
+    accent: Colors.red,
     preferencePrefix: 'comics',
     defaultSortColumn: LibrarySortColumn.title,
     defaultVisibleColumns: {
@@ -19,9 +20,10 @@ void main() {
     },
   );
   const mangaConfig = LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.manga,
+    kind: CatalogMediaKind.comic,
     title: 'Manga',
     icon: Icons.auto_stories,
+    accent: Colors.orange,
     preferencePrefix: 'manga',
     defaultSortColumn: LibrarySortColumn.title,
     defaultVisibleColumns: {
@@ -59,6 +61,7 @@ void main() {
         coverSize: 144,
         sidebarWidth: 280,
         detailsWidth: 390,
+        detailsHeight: 244,
         visibleColumns: {
           LibraryTableColumn.title,
           LibraryTableColumn.grade,
@@ -93,6 +96,7 @@ void main() {
     expect(restored.coverSize, 144);
     expect(restored.sidebarWidth, 280);
     expect(restored.detailsWidth, 390);
+    expect(restored.detailsHeight, 244);
     expect(restored.visibleColumns, {
       LibraryTableColumn.title,
       LibraryTableColumn.grade,
@@ -120,6 +124,7 @@ void main() {
         coverSize: 144,
         sidebarWidth: 305,
         detailsWidth: 430,
+        detailsHeight: 260,
         visibleColumns: {
           LibraryTableColumn.title,
           LibraryTableColumn.grade,
@@ -139,6 +144,7 @@ void main() {
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
     expect(restored.sidebarWidth, 305);
     expect(restored.detailsWidth, 430);
+    expect(restored.detailsHeight, 260);
     expect(restored.viewMode, LibraryViewMode.grid);
     expect(restored.sortColumn, LibrarySortColumn.title);
     expect(restored.visibleColumns, {
@@ -146,5 +152,39 @@ void main() {
       LibraryTableColumn.publisher,
     });
     expect(restored.columnWidths, isEmpty);
+  });
+
+  test('library workspace preferences keep pane widths beyond the old caps',
+      () async {
+    const store = LibraryWorkspacePreferences(config);
+
+    await store.write(
+      const LibraryWorkspacePreferenceSnapshot(
+        viewMode: LibraryViewMode.grid,
+        detailsLayout: LibraryDetailsLayout.right,
+        isSidebarVisible: true,
+        sortColumn: LibrarySortColumn.title,
+        sortAscending: true,
+        coverSize: 144,
+        sidebarWidth: 640,
+        detailsWidth: 980,
+        detailsHeight: 540,
+        visibleColumns: {
+          LibraryTableColumn.title,
+          LibraryTableColumn.issue,
+        },
+        columnWidths: {},
+      ),
+    );
+
+    final restored = await store.read(
+      defaultCoverSize: 128,
+      minCoverSize: 104,
+      maxCoverSize: 188,
+    );
+
+    expect(restored.sidebarWidth, 640);
+    expect(restored.detailsWidth, 980);
+    expect(restored.detailsHeight, 540);
   });
 }

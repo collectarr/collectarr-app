@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_detail_page.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_edit_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -14,6 +15,7 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.movie,
   title: 'Movies',
   icon: Icons.movie_outlined,
+  accent: Color(0xFFE05252),
   preferencePrefix: 'movies',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -37,12 +39,29 @@ const moviesLibraryConfig = LibraryTypeConfig(
   defaultMetadataProvider: 'tmdb',
   metadataProviders: [
     tmdbMetadataProvider,
+    anilistMetadataProvider,
   ],
+  addDialogLauncher: showMovieLibraryAddDialog,
   trackingProfile: videoTrackingProfile,
-  editDialogBuilder: buildVideoLibraryEditDialog,
+  editDialogBuilder: buildMovieLibraryEditDialog,
   detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: moviesLibraryMediaPresentation,
-  editPresentation: videoLibraryEditPresentation,
+  addChrome: LibraryAddChromeConfig(
+    videoKindFilterOptions: [
+      LibraryAddVideoKindFilterOption(
+        kind: 'movie',
+        label: 'Movies',
+        icon: Icons.movie_outlined,
+      ),
+      LibraryAddVideoKindFilterOption(
+        kind: 'collection',
+        label: 'Box Sets',
+        icon: Icons.collections_bookmark_outlined,
+      ),
+    ],
+    defaultVideoKindFilters: {'movie'},
+  ),
+  editPresentation: movieLibraryEditPresentation,
   inspectorSectionsBuilder: buildVideoInspectorSections,
   mediaFields: MediaEditFields(
     numberLabel: 'Edition no.',
@@ -54,5 +73,9 @@ const moviesLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
+    supportsVideoKindFilters: true,
+    wideDialog: true,
+    videoSeriesEntryTypes: {'tv'},
+    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
   ),
 );

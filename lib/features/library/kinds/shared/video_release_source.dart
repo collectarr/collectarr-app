@@ -285,8 +285,7 @@ int _sourcePriority(String? value) {
 }
 
 bool _isVideoKind(String mediaType) {
-  final normalized = mediaType.trim().toLowerCase();
-  return normalized == 'movie' || normalized == 'tv' || normalized == 'anime';
+  return catalogMediaKindFromValue(mediaType).isVideoLibraryKind;
 }
 
 String? _normalized(String? value) {

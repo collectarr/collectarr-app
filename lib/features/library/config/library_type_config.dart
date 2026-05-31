@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -18,6 +19,39 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const kDefaultTransferableFieldKeys = [
+  'condition',
+  'grade',
+  'personalNotes',
+  'locationId',
+  'tags',
+  'currency',
+  'readStatus',
+  'soldTo',
+  'features',
+  'purchaseStore',
+  'boxSetName',
+  'pricePaidCents',
+  'coverPriceCents',
+  'sellPriceCents',
+  'quantity',
+  'indexNumber',
+  'rating',
+  'purchaseDate',
+  'startedAt',
+  'finishedAt',
+  'soldAt',
+];
+
+const kComicTransferableFieldKeys = [
+  'rawOrSlabbed',
+  'gradingCompany',
+  'graderNotes',
+  'signedBy',
+  'keyReason',
+  'keyComic',
+];
 
 class LibraryAddDialogRequest {
   const LibraryAddDialogRequest({
@@ -135,6 +169,56 @@ typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
   LibraryInspectorRequest request,
 );
 
+typedef LibraryInspectorHeroBuilder = Widget Function(
+  BuildContext context,
+  LibraryInspectorRequest request,
+);
+
+class LibraryInspectorPanelRequest {
+  const LibraryInspectorPanelRequest({
+    required this.inspector,
+    required this.hero,
+    required this.primarySections,
+    required this.trailingSections,
+    required this.ownedCopies,
+    required this.selectedOwnedItemId,
+    required this.extraActions,
+    required this.onAddCopy,
+    required this.onOpenDetails,
+    this.ownedCopiesSection,
+    this.bundleSection,
+    this.conditionGradeSection,
+    this.onSelectOwnedItem,
+    this.onToggleOwned,
+    this.onToggleWishlist,
+    this.onEdit,
+    this.onCorrectMetadata,
+  });
+
+  final LibraryInspectorRequest inspector;
+  final Widget hero;
+  final List<Widget> primarySections;
+  final List<Widget> trailingSections;
+  final List<OwnedItem> ownedCopies;
+  final String? selectedOwnedItemId;
+  final List<Widget> extraActions;
+  final VoidCallback onAddCopy;
+  final VoidCallback onOpenDetails;
+  final Widget? ownedCopiesSection;
+  final Widget? bundleSection;
+  final Widget? conditionGradeSection;
+  final ValueChanged<String>? onSelectOwnedItem;
+  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleWishlist;
+  final VoidCallback? onEdit;
+  final VoidCallback? onCorrectMetadata;
+}
+
+typedef LibraryInspectorPanelBuilder = Widget Function(
+  BuildContext context,
+  LibraryInspectorPanelRequest request,
+);
+
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -184,18 +268,86 @@ class LibraryTypeCapabilities {
   const LibraryTypeCapabilities({
     this.showsSynopsis = false,
     this.showsTrackData = false,
+    this.showsCreatorSpotlight = false,
     this.contentHierarchy = LibraryContentHierarchy.flat,
+    this.canScanCover = false,
+    this.supportsOwnedItemImages = true,
+    this.supportsVideoKindFilters = false,
+    this.wideDialog = false,
+    this.videoSeriesEntryTypes = const {},
+    this.videoShelfDrilldownEntryTypes = const {},
   });
 
   final bool showsSynopsis;
   final bool showsTrackData;
+  final bool showsCreatorSpotlight;
   final LibraryContentHierarchy contentHierarchy;
+  final bool canScanCover;
+  final bool supportsOwnedItemImages;
+  final bool supportsVideoKindFilters;
+  final bool wideDialog;
+  final Set<String> videoSeriesEntryTypes;
+  final Set<String> videoShelfDrilldownEntryTypes;
 
   bool get usesSeasonHierarchy =>
       contentHierarchy == LibraryContentHierarchy.seasons;
 
   bool get usesVolumeHierarchy =>
       contentHierarchy == LibraryContentHierarchy.volumes;
+
+  bool isVideoSeriesEntryType(String mediaType) {
+    return videoSeriesEntryTypes.contains(mediaType.trim().toLowerCase());
+  }
+
+  bool supportsVideoShelfDrilldown(String mediaType) {
+    return videoShelfDrilldownEntryTypes.contains(mediaType.trim().toLowerCase());
+  }
+}
+
+class LibraryEditChromeConfig {
+  const LibraryEditChromeConfig({
+    this.titleUsesItemTitle = false,
+    this.synopsisLabel = 'Synopsis',
+    this.showsIssueBadge = false,
+    this.showsPhysicalFormatBadge = false,
+  });
+
+  final bool titleUsesItemTitle;
+  final String synopsisLabel;
+  final bool showsIssueBadge;
+  final bool showsPhysicalFormatBadge;
+}
+
+class LibraryAddChromeConfig {
+  const LibraryAddChromeConfig({
+    this.mediaReferenceLabel = 'Media',
+    this.trackScopeSummary =
+        'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
+    this.mediaReferenceHelperLabel = 'Track or save the canonical item itself.',
+    this.editionReferenceHelperLabel =
+        'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
+    this.videoKindFilterOptions = const [],
+    this.defaultVideoKindFilters = const {},
+  });
+
+  final String mediaReferenceLabel;
+  final String trackScopeSummary;
+  final String mediaReferenceHelperLabel;
+  final String editionReferenceHelperLabel;
+  final List<LibraryAddVideoKindFilterOption> videoKindFilterOptions;
+  final Set<String> defaultVideoKindFilters;
+}
+
+class LibraryAddVideoKindFilterOption {
+  const LibraryAddVideoKindFilterOption({
+    required this.kind,
+    required this.label,
+    required this.icon,
+  });
+
+  final String kind;
+  final String label;
+  final IconData icon;
 }
 
 class LibraryTypeConfig {
@@ -214,12 +366,21 @@ class LibraryTypeConfig {
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation =
       const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.addChrome = const LibraryAddChromeConfig(),
+    this.editChrome = const LibraryEditChromeConfig(),
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
+    this.collectionExportTitleLabel = 'Title',
+    this.manualAddUsesTitleAsSeries = false,
+    this.editUsesTitleAsSeries = false,
+    this.transferableFieldKeys = kDefaultTransferableFieldKeys,
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
+    this.inspectorPanelBuilder,
+    this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
+    this.showsDefaultInspectorPersonalSection = true,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -235,12 +396,33 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
   final LibraryEditPresentation editPresentation;
+  final LibraryAddChromeConfig addChrome;
+  final LibraryEditChromeConfig editChrome;
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
+  final String collectionExportTitleLabel;
+  final bool manualAddUsesTitleAsSeries;
+  final bool editUsesTitleAsSeries;
+  final List<String> transferableFieldKeys;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryInspectorPanelBuilder? inspectorPanelBuilder;
+  final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
+  final bool showsDefaultInspectorPersonalSection;
+
+  List<TransferableField> transferableFieldsWithCustomFields(
+    List<CustomFieldDefinition> definitions,
+  ) {
+    return TransferableField.withCustomFields(
+      definitions,
+      fieldKeys: transferableFieldKeys,
+    );
+  }
+
+  bool get usesTitleAsSeriesFallback =>
+      manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {

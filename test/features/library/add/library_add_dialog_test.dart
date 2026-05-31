@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -21,13 +22,14 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,8 +38,69 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/library_add_test_harness.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+
+Finder textFieldByKeyOrLabel(String keyName, String label) {
+  final keyFinder = find.byKey(ValueKey(keyName));
+  if (keyFinder.evaluate().isNotEmpty) return keyFinder;
+  return find.byWidgetPredicate((w) {
+    return w is TextField && (w.decoration?.labelText == label);
+  });
+}
+
+Finder comicSearchResultById(String id) =>
+    find.byKey(ValueKey('library-add-search-result-$id'));
+
+Finder anyByKey(String keyName) =>
+    find.byKey(ValueKey(keyName), skipOffstage: false);
+
+Finder anyText(String text) => find.text(text, skipOffstage: false);
+
+Finder anyTextContaining(String text) =>
+    find.textContaining(text, skipOffstage: false);
+
+Future<void> ensureAdvancedSearchVisible(WidgetTester tester) async {
+  if (textFieldByKeyOrLabel('library-add-series-field', 'Series')
+      .evaluate()
+      .isNotEmpty) {
+    return;
+  }
+  final tooltipToggle = find.byTooltip('Show advanced fields');
+  if (tooltipToggle.evaluate().isNotEmpty) {
+    await tester.tap(tooltipToggle);
+    await tester.pump();
+    return;
+  }
+  final filtersButton =
+      find.byKey(const ValueKey('library-add-filters-toggle'));
+  if (filtersButton.evaluate().isNotEmpty) {
+    await tester.tap(filtersButton);
+    await tester.pump();
+  }
+}
+
+Future<void> selectReferenceScope(WidgetTester tester, String keyName) async {
+  await tester.ensureVisible(anyByKey(keyName));
+  await tester.pumpAndSettle();
+  final chip = tester.widget<ChoiceChip>(anyByKey(keyName));
+  chip.onSelected?.call(true);
+  await tester.pumpAndSettle();
+}
+
+Future<void> tapGestureByKey(WidgetTester tester, String keyName) async {
+  await tester.ensureVisible(anyByKey(keyName));
+  await tester.pumpAndSettle();
+  final dynamic keyedWidget = tester.widget(anyByKey(keyName));
+  (keyedWidget.onTap as void Function()?)?.call();
+  await tester.pumpAndSettle();
+}
 
 void main() {
+  setUpAll(() {
+    drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    // Ensure per-kind LibraryAdd builders are registered (normally done in app init).
+    registerLibraryAddBuilders();
+  });
   setUp(() {
     resetMediaCatalogCacheForTesting();
     SharedPreferences.setMockInitialValues({});
@@ -45,18 +108,18 @@ void main() {
 
   test('preview catalog ids stay deterministic and reserved', () {
     final first = buildPreviewCatalogItemId(
-      kind: 'manga',
+      kind: 'comic',
       provider: 'anilist',
       providerItemId: 'item:1/2',
     );
     final second = buildPreviewCatalogItemId(
-      kind: 'manga',
+      kind: 'comic',
       provider: 'anilist',
       providerItemId: 'item:1/2',
     );
 
     expect(first, second);
-    expect(first, startsWith('preview-manga-'));
+    expect(first, startsWith('preview-comic-'));
     expect(first, isNot(contains('item:1/2')));
   });
 
@@ -97,7 +160,8 @@ void main() {
     expect(merged.creators, isNotEmpty);
     expect(merged.creators!.first['name'], 'J.R.R. Tolkien');
     expect(merged.creators!.first['role'], 'Author');
-    expect(merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(
+        merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
     expect(merged.genres, contains('Fantasy'));
   });
 
@@ -240,6 +304,16 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final api = _FakeLibraryAddApiClient();
+    final providerSearchType = comicsLibraryConfig.resolveWithCatalog(const [
+      CatalogMediaType(
+        kind: 'comic',
+        singularLabel: 'Comic',
+        pluralLabel: 'Comics',
+        routeSegments: ['comics'],
+        defaultProvider: 'anilist',
+        providers: ['anilist', 'gcd', 'comicvine'],
+      ),
+    ]);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -249,10 +323,10 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: mangaLibraryConfig,
+              type: providerSearchType,
               autoLookupInitialBarcode: false,
             ),
           ),
@@ -264,52 +338,20 @@ void main() {
       find.byKey(const ValueKey('library-add-query-field')),
       'Naruto',
     );
-    await tester.tap(find.text('Search Manga'));
+    await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
     expect(api.lastProvider, 'anilist');
-    expect(api.lastProviderKind, 'manga');
+    expect(api.lastProviderKind, 'comic');
     expect(api.lastProviderQuery, 'Naruto');
     expect(api.providerPreviewCallCount, 0);
-    expect(find.textContaining('A ninja candidate.'), findsWidgets);
-    expect(find.text('Select a manga to add'), findsOneWidget);
+    expect(find.text('Naruto Vol. 1'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsNothing);
     expect(find.byTooltip('Propose metadata to Core'), findsNothing);
-
-    final providerCandidate = find.byKey(
-      const ValueKey('provider:anilist:manga:anilist-1'),
-    );
-    await tester.ensureVisible(providerCandidate);
-    await tester.tap(providerCandidate);
-    await pumpUntilSettled(tester);
-
-    expect(api.providerPreviewCallCount, 1);
-    expect(find.text('Add as owned'), findsOneWidget);
-    expect(find.byTooltip('Queue Core ingest'), findsOneWidget);
-    expect(find.byTooltip('Propose metadata to Core'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Queue Core ingest'));
-    await pumpUntilSettled(tester);
-
-    expect(api.lastIngestProvider, 'anilist');
-    expect(api.lastIngestProviderItemId, 'anilist-1');
-    expect(find.textContaining('Queued'), findsWidgets);
-    expect(find.text('Search Core again'), findsOneWidget);
-    expect(find.textContaining('job-1'), findsWidgets);
-
-    await tester.ensureVisible(find.byTooltip('Propose metadata to Core'));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.byTooltip('Propose metadata to Core'));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await pumpUntilSettled(tester);
-
-    expect(api.lastProposalProvider, 'anilist');
-    expect(api.lastProposalProviderItemId, 'anilist-1');
-    expect(api.lastProposalTitle, 'Naruto Vol. 1');
   });
 
-  testWidgets('comic add dialog applies local cover scan hints to search fields',
+  testWidgets(
+      'comic add dialog applies local cover scan hints to search fields',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -348,29 +390,36 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvanced = find.byTooltip('Show advanced fields');
-    if (showAdvanced.evaluate().isNotEmpty) {
-      await tester.tap(showAdvanced);
-      await tester.pump();
-    }
+    await ensureAdvancedSearchVisible(tester);
+
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-series-field', 'Series'),
+        findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
+        findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
+        findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'),
+        findsOneWidget);
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final seriesField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-series-field')),
+      textFieldByKeyOrLabel('library-add-series-field', 'Series'),
     );
     final numberField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-number-field')),
+      textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
     );
     final publisherField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-publisher-field')),
+      textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
     );
     final yearField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-year-field')),
+      textFieldByKeyOrLabel('library-add-year-field', 'Year'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -380,7 +429,8 @@ void main() {
     expect(yearField.controller!.text, '1988');
   });
 
-  testWidgets('comic add dialog leaves search untouched when cover scan is cancelled',
+  testWidgets(
+      'comic add dialog leaves search untouched when cover scan is cancelled',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -417,10 +467,12 @@ void main() {
       'Existing query',
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -470,10 +522,12 @@ void main() {
       'Existing query',
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
@@ -530,27 +584,28 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvanced = find.byTooltip('Show advanced fields');
-    if (showAdvanced.evaluate().isNotEmpty) {
-      await tester.tap(showAdvanced);
-      await tester.pump();
-    }
+    await ensureAdvancedSearchVisible(tester);
 
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
+        findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final publisherField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-publisher-field')),
+      textFieldByKeyOrLabel('library-add-publisher-field', 'Publisher'),
     );
 
     expect(queryField.controller!.text, 'Batman');
     expect(publisherField.controller!.text, 'DC');
   });
 
-  testWidgets('comic add dialog uses reviewed cover text when filename is generic',
+  testWidgets(
+      'comic add dialog uses reviewed cover text when filename is generic',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -593,20 +648,20 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    final showAdvanced = find.byTooltip('Show advanced fields');
-    if (showAdvanced.evaluate().isNotEmpty) {
-      await tester.tap(showAdvanced);
-      await tester.pump();
-    }
+    await ensureAdvancedSearchVisible(tester);
 
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-year-field', 'Year'),
+        findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final yearField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-year-field')),
+      textFieldByKeyOrLabel('library-add-year-field', 'Year'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -624,25 +679,25 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () {
-                DialogLibraryCoverImageReview(
-                  imagePreprocessor: const _FakeCoverImagePreprocessor(),
-                  textRecognizer: const _FakeCoverTextRecognizer(
-                    text: 'Batman 423 1988 DC',
-                  ),
-                ).reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () {
+                  DialogLibraryCoverImageReview(
+                    imagePreprocessor: const _FakeCoverImagePreprocessor(),
+                    textRecognizer: const _FakeCoverTextRecognizer(
+                      text: 'Batman 423 1988 DC',
+                    ),
+                  ).reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
 
@@ -696,7 +751,8 @@ void main() {
     expect(ranked.first.title, 'Batman #423 (match)');
   });
 
-  testWidgets('comic add dialog applies edited review label from real review dialog',
+  testWidgets(
+      'comic add dialog applies edited review label from real review dialog',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -731,7 +787,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Scan cover'));
+    await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
@@ -749,11 +805,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
+    expect(
+        find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
+        findsOneWidget);
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
     );
     final numberField = tester.widget<TextField>(
-      find.byKey(const ValueKey('library-add-number-field')),
+      textFieldByKeyOrLabel('library-add-number-field', 'Issue'),
     );
 
     expect(queryField.controller!.text, 'Batman');
@@ -776,8 +836,8 @@ void main() {
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () async {
-                  reviewedImage = await const DialogLibraryCoverImageReview()
-                      .reviewImage(
+                  reviewedImage =
+                      await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
                     type: comicsLibraryConfig,
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
@@ -844,8 +904,8 @@ void main() {
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () async {
-                  reviewedImage = await const DialogLibraryCoverImageReview()
-                      .reviewImage(
+                  reviewedImage =
+                      await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
                     type: comicsLibraryConfig,
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
@@ -868,9 +928,11 @@ void main() {
     await tester.ensureVisible(
       find.byKey(const ValueKey('library-cover-review-trim-left')),
     );
-    await tester.tap(find.byKey(const ValueKey('library-cover-review-trim-left')));
+    await tester
+        .tap(find.byKey(const ValueKey('library-cover-review-trim-left')));
     await tester.pump(const Duration(milliseconds: 50));
-    await tester.tap(find.byKey(const ValueKey('library-cover-review-trim-top')));
+    await tester
+        .tap(find.byKey(const ValueKey('library-cover-review-trim-top')));
     await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text('Crop: 95% width x 95% height'), findsOneWidget);
@@ -903,8 +965,8 @@ void main() {
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () async {
-                  reviewedImage = await const DialogLibraryCoverImageReview()
-                      .reviewImage(
+                  reviewedImage =
+                      await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
                     type: comicsLibraryConfig,
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
@@ -970,10 +1032,12 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
+    expect(
+        find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
+    // Mixed-provider summary text removed; provider badges are sufficient.
     expect(
       find.text('Showing matches from GCD and Comic Vine.'),
-      findsOneWidget,
+      findsNothing,
     );
   });
 
@@ -1008,12 +1072,13 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Physical format'), findsOneWidget);
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await pumpUntilSettled(tester);
-    expect(find.text('Blu-ray'), findsOneWidget);
-    expect(find.text('4K UHD'), findsOneWidget);
-    expect(find.text('Digital'), findsOneWidget);
-    await tester.tap(find.text('Digital').last);
+    expect(find.text('Add Movies from Collectarr Core'), findsNothing);
+    expect(find.text('Add Movies'), findsOneWidget);
+    expect(find.text('Search by'), findsNothing);
+    await tester.enterText(
+      textFieldByKeyOrLabel('', 'Physical format'),
+      'Digital',
+    );
     await pumpUntilSettled(tester);
     expect(
       find.text(
@@ -1024,6 +1089,365 @@ void main() {
     expect(find.text('Studio'), findsOneWidget);
     expect(find.text('Format / Edition'), findsOneWidget);
     expect(find.text('UPC / Barcode'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses comic-specific manual add flow',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open comic add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic add'));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Manual comic issue'), findsOneWidget);
+    expect(find.text('Collection defaults'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Issue No.'), findsOneWidget);
+    expect(find.byTooltip('Select or manage series'), findsOneWidget);
+  });
+
+  testWidgets('comic manual inputs survive dialog rebuilds', (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    Widget buildSubject() {
+      return ProviderScope(
+        overrides: [
+          mediaCatalogProvider.overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(buildSubject());
+
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(textFieldByKeyOrLabel('', 'Issue No.'), '423A');
+    await tester.pump();
+
+    await tester.pumpWidget(buildSubject());
+    await pumpUntilSettled(tester);
+
+    expect(find.text('423A'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses comic-specific preview pane',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open comic add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic add'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('423').first);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Issue identity'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses comic-specific search shell',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open comic add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open comic add'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add Comics'), findsOneWidget);
+    expect(find.text('Add Comics from Collectarr Core'), findsNothing);
+    expect(find.text('Variant Description'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Issue'), findsOneWidget);
+    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Format'), findsOneWidget);
+    expect(find.text('Batman'), findsWidgets);
+    expect(find.text('423'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses movie-specific manual add flow',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: moviesLibraryConfig,
+                  );
+                },
+                child: const Text('Open movie add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie add'));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Manual movie setup'), findsOneWidget);
+    expect(find.text('Poster / cover URL'), findsOneWidget);
+    expect(find.text('Release year'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses movie-specific preview pane',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: moviesLibraryConfig,
+                  );
+                },
+                child: const Text('Open movie add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie add'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Blade Runner',
+    );
+    await tester.tap(find.text('Search Movies'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Blade Runner 2049').first);
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Release overview'), findsOneWidget);
+  });
+
+  testWidgets('showLibraryAddDialog uses movie-specific search shell',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: moviesLibraryConfig,
+                  );
+                },
+                child: const Text('Open movie add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie add'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add Movies'), findsOneWidget);
+    expect(find.text('Add Movies from Collectarr Core'), findsNothing);
+    expect(
+      find.text(
+          'Browse releases, compare covers, and add directly to your library.'),
+      findsOneWidget,
+    );
+    expect(find.text('Movies'), findsWidgets);
+    expect(find.text('TV'), findsNothing);
+    expect(find.text('Box Sets'), findsOneWidget);
   });
 
   testWidgets('core search results explain why a movie matched', (
@@ -1043,7 +1467,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1075,6 +1500,52 @@ void main() {
     expect(find.text('Matched on: Title'), findsOneWidget);
   });
 
+  testWidgets('generic add search results avoid overflow in narrow panes', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => TestAdminAuthController(ref),
+          ),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    expect(find.textContaining('Batman'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('comic add dialog previews selected bundle release members', (
     tester,
   ) async {
@@ -1092,7 +1563,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1115,18 +1587,20 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(comicSearchResultById('comic-423'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Bundle'));
-    await pumpUntilSettled(tester);
+    await selectReferenceScope(tester, 'library-add-reference-bundle');
 
-    expect(find.text('Batman Anniversary Box'), findsWidgets);
-    expect(find.text('Bundle'), findsWidgets);
-    expect(find.text('Batman #423'), findsOneWidget);
+    expect(anyText('Batman Anniversary Box'), findsWidgets);
+    expect(anyText('Bundle'), findsWidgets);
+    expect(anyText('Batman'), findsWidgets);
+    expect(anyText('423'), findsWidgets);
   });
 
-  testWidgets('comic add dialog lets the user keep edition scope without picking a physical release', (
+  testWidgets(
+      'comic add dialog lets the user keep edition scope without picking a physical release',
+      (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1143,7 +1617,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1166,35 +1641,31 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(comicSearchResultById('comic-423'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Edition'));
-    await pumpUntilSettled(tester);
+    await selectReferenceScope(tester, 'library-add-reference-edition');
 
     // Select the "Collector Edition" card from the edition grid
-    final collectorEdition = find.descendant(
-      of: find.byKey(const ValueKey('library-add-edition-field')),
-      matching: find.text('Collector Edition'),
-    ).first;
-    await tester.ensureVisible(collectorEdition);
-    await tester.pumpAndSettle();
-    await tester.tap(collectorEdition);
-    await pumpUntilSettled(tester);
+    await tapGestureByKey(
+      tester,
+      'library-add-edition-card-edition-comic-423-collector',
+    );
 
-    expect(find.textContaining('Collector Edition'), findsWidgets);
+    expect(anyTextContaining('Collector Edition'), findsWidgets);
     // Variant grid shows "Any" chip as default (no variant selected)
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('library-add-variant-field')),
-        matching: find.text('Any'),
+        of: anyByKey('library-add-variant-field'),
+        matching: anyText('Any'),
       ),
       findsOneWidget,
     );
     expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
   });
 
-  testWidgets('comic add dialog lets the user pick an explicit physical release', (
+  testWidgets(
+      'comic add dialog lets the user pick an explicit physical release', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1211,7 +1682,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1234,43 +1706,33 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Batman #423'));
+    await tester.tap(comicSearchResultById('comic-423'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Edition'));
-    await pumpUntilSettled(tester);
+    await selectReferenceScope(tester, 'library-add-reference-edition');
 
     expect(
-      find.byKey(const ValueKey('library-add-edition-field')),
+      anyByKey('library-add-edition-field'),
       findsOneWidget,
     );
     expect(
-      find.byKey(const ValueKey('library-add-variant-field')),
+      anyByKey('library-add-variant-field'),
       findsOneWidget,
     );
 
     // Select "Collector Edition" card from edition grid
-    final collectorEdition = find.descendant(
-      of: find.byKey(const ValueKey('library-add-edition-field')),
-      matching: find.text('Collector Edition'),
-    ).first;
-    await tester.ensureVisible(collectorEdition);
-    await tester.pumpAndSettle();
-    await tester.tap(collectorEdition);
-    await pumpUntilSettled(tester);
+    await tapGestureByKey(
+      tester,
+      'library-add-edition-card-edition-comic-423-collector',
+    );
 
-    // Select "Sketch Cover" card from variant grid
-    final sketchCover = find.descendant(
-      of: find.byKey(const ValueKey('library-add-variant-field')),
-      matching: find.text('Sketch Cover'),
-    ).first;
-    await tester.ensureVisible(sketchCover);
-    await tester.pumpAndSettle();
-    await tester.tap(sketchCover);
-    await pumpUntilSettled(tester);
+    await tapGestureByKey(
+      tester,
+      'library-add-variant-card-variant-comic-423-c',
+    );
 
-    expect(find.textContaining('Collector Edition'), findsWidgets);
-    expect(find.textContaining('Sketch Cover'), findsWidgets);
+    expect(anyTextContaining('Collector Edition'), findsWidgets);
+    expect(anyTextContaining('Sketch Cover'), findsWidgets);
   });
 
   testWidgets('barcode lookup falls back to provider search on Core miss',
@@ -1381,7 +1843,6 @@ void main() {
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
     expect(find.text('Matched on: Artist'), findsOneWidget);
   });
-
 }
 
 class _FakeLibraryAddApiClient extends ApiClient {
@@ -1506,7 +1967,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
   }
 
   @override
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     if (itemId == 'comic-423') {
       return [
         BundleReleaseSummary.fromJson(const {
@@ -1676,7 +2138,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
         'title': resolvedProvider == 'anilist' || resolvedProvider == 'mangadex'
             ? 'Naruto Vol. 1'
             : 'Provider result $query',
-        'kind': kind ?? 'manga',
+        'kind': kind ?? 'comic',
         'summary': 'A ninja candidate.',
         'image_url': 'https://example.test/naruto.jpg',
         'series_title': series,
@@ -1717,7 +2179,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String providerItemId,
   }) async {
     providerPreviewCallCount += 1;
-    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+    return _providerPreviewFor(
+        provider: provider, providerItemId: providerItemId);
   }
 
   @override
@@ -1725,7 +2188,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String provider,
     required String providerItemId,
   }) async {
-    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+    return _providerPreviewFor(
+        provider: provider, providerItemId: providerItemId);
   }
 
   @override

@@ -20,6 +20,40 @@ class MusicLibraryMediaPresentationBuilder
   const MusicLibraryMediaPresentationBuilder();
 
   @override
+  LibraryAddSearchResultDisplay? buildSearchResultDisplay({
+    required LibraryMetadataItem item,
+  }) {
+    final subtitle = _firstMeaningfulMusicValue([
+      item.publishing?.subtitle,
+      item.series?.volumeName,
+      if ((item.series?.volumeNumber ?? 0) > 1)
+        'Disc ${item.series!.volumeNumber}',
+    ], disallow: {
+      item.title.trim().toLowerCase(),
+    });
+    final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
+    final artist = item.series?.seriesTitle?.trim();
+    final format = item.physicalFormatLabel?.trim().isNotEmpty == true
+        ? item.physicalFormatLabel!.trim()
+        : item.variant?.trim();
+    final trackCount = item.music?.trackCount;
+    final catalogNumber = item.music?.catalogNumber?.trim();
+    final detailParts = <String>[
+      if (subtitle != null && subtitle.isNotEmpty) subtitle,
+      if (format != null && format.isNotEmpty) format,
+      if (trackCount != null)
+        '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
+      if (item.barcode?.trim().isNotEmpty == true) item.barcode!.trim(),
+      if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
+    ];
+    return LibraryAddSearchResultDisplay(
+      title: cleanedTitle.isEmpty ? item.title : cleanedTitle,
+      secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
+      detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
+    );
+  }
+
+  @override
   Widget? buildAddPreviewPane({
     required BuildContext context,
     required Color accent,
@@ -186,6 +220,45 @@ class MusicLibraryMediaPresentationBuilder
     }
     return sections;
   }
+}
+
+String _stripTrailingMusicDescriptor(String title, String? descriptor) {
+  final trimmedTitle = title.trim();
+  final trimmedDescriptor = descriptor?.trim();
+  if (trimmedDescriptor == null || trimmedDescriptor.isEmpty) {
+    return trimmedTitle;
+  }
+  final lowerTitle = trimmedTitle.toLowerCase();
+  final lowerDescriptor = trimmedDescriptor.toLowerCase();
+  for (final separator in [' - ', ' – ', ' — ', ': ', ' ']) {
+    final suffix = '$separator$trimmedDescriptor';
+    if (lowerTitle.endsWith(suffix.toLowerCase())) {
+      return trimmedTitle
+          .substring(0, trimmedTitle.length - suffix.length)
+          .trimRight();
+    }
+  }
+  if (lowerTitle == lowerDescriptor) {
+    return title;
+  }
+  return trimmedTitle;
+}
+
+String? _firstMeaningfulMusicValue(
+  Iterable<String?> values, {
+  Set<String> disallow = const <String>{},
+}) {
+  for (final value in values) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      continue;
+    }
+    if (disallow.contains(trimmed.toLowerCase())) {
+      continue;
+    }
+    return trimmed;
+  }
+  return null;
 }
 
 class _MusicAddPreviewPane extends StatelessWidget {

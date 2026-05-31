@@ -64,8 +64,8 @@ class InspectorHero extends StatelessWidget {
                 title: entry.resolvedTitle,
                 itemNumber: entry.itemNumber,
                 imageUrl: entry.displayCoverUrl,
-                localBase64: localFront,
-                secondaryLocalBase64: localBack,
+                localBytes: localFront,
+                secondaryLocalBytes: localBack,
                 ownedItemId: ownedItemId,
                 accentColor: accent,
                 enableHoverCue: true,
@@ -99,6 +99,7 @@ class InspectorHero extends StatelessWidget {
         );
         return DecoratedBox(
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: accent.withValues(alpha: 0.52)),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -118,15 +119,24 @@ class InspectorHero extends StatelessWidget {
                 ),
               ],
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: 18,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(10),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
             child: wide
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       cover,
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 16),
                       Expanded(child: info),
                     ],
                   )
@@ -134,10 +144,11 @@ class InspectorHero extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       cover,
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       info,
                     ],
                   ),
+            ),
           ),
         );
       },
@@ -237,33 +248,38 @@ class _InspectorHeroInfo extends StatelessWidget {
         ),
         // ── Format badges (prominent, CLZ-style) ──
         if (formatBadges.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Wrap(spacing: 5, runSpacing: 5, children: formatBadges),
         ],
         // ── Barcode ──
         if (entry.barcode != null && entry.barcode!.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(
-                Icons.view_week_outlined,
-                size: 16,
-                color: appPalette(context).textMuted,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                entry.barcode!,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      letterSpacing: 1.1,
-                      color: appPalette(context).textMuted,
-                    ),
-              ),
-            ],
+          const SizedBox(height: 10),
+          _InspectorHeroInfoBlock(
+            label: 'Barcode',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.view_week_outlined,
+                  size: 16,
+                  color: appPalette(context).textMuted,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    entry.barcode!,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          letterSpacing: 1.1,
+                          color: appPalette(context).textMuted,
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
         // ── Genres (pipe-separated like CLZ) ──
         if (genreText != null && genreText.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             genreText,
             maxLines: 2,
@@ -276,7 +292,7 @@ class _InspectorHeroInfo extends StatelessWidget {
         ],
         // ── Country | Language | Runtime ──
         if (countryLangRow.isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             countryLangRow,
             maxLines: 1,
@@ -289,37 +305,42 @@ class _InspectorHeroInfo extends StatelessWidget {
         ],
         // ── Synopsis ──
         if (entry.synopsis != null && entry.synopsis!.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          Text(
-            entry.synopsis!,
-            maxLines: 6,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kAppTextSecondary,
-                  height: 1.4,
-                ),
+          const SizedBox(height: 12),
+          _InspectorHeroInfoBlock(
+            label: 'Overview',
+            child: Text(
+              entry.synopsis!,
+              maxLines: 6,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: kAppTextSecondary,
+                    height: 1.45,
+                  ),
+            ),
           ),
         ],
-        if (entry.mediaType == 'book' &&
+        if (type.capabilities.showsCreatorSpotlight &&
             (entry.creators?.isNotEmpty ?? false)) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           BookAuthorSpotlight(
             creators: entry.creators!,
             accent: accent,
           ),
         ],
-        const SizedBox(height: 10),
         if (referenceHierarchy.length > 1) ...[
+          const SizedBox(height: 12),
+          const _InspectorHeroCaption(label: 'Reference'),
+          const SizedBox(height: 6),
           _ReferenceHierarchyLine(
             segments: referenceHierarchy,
             accent: accent,
           ),
-          const SizedBox(height: 10),
         ],
         // ── Status chips ──
+        const SizedBox(height: 12),
         Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 7,
+          runSpacing: 7,
           children: [
             LibraryMetaChip(
               icon: Icons.category_outlined,
@@ -366,6 +387,43 @@ class _InspectorHeroInfo extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _InspectorHeroInfoBlock extends StatelessWidget {
+  const _InspectorHeroInfoBlock({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _InspectorHeroCaption(label: label),
+        const SizedBox(height: 5),
+        child,
+      ],
+    );
+  }
+}
+
+class _InspectorHeroCaption extends StatelessWidget {
+  const _InspectorHeroCaption({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: appPalette(context).textMuted,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.25,
+          ),
     );
   }
 }

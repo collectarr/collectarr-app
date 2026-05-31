@@ -12,6 +12,10 @@ class MediaLibraryNavButton extends StatelessWidget {
     required this.selected,
     required this.count,
     required this.onPressed,
+    this.label,
+    this.tooltip,
+    this.showsDisclosure = false,
+    this.enableWhenSelected = false,
     this.animationDuration = kAppAnimNormal,
   });
 
@@ -21,6 +25,10 @@ class MediaLibraryNavButton extends StatelessWidget {
   final bool selected;
   final int count;
   final VoidCallback onPressed;
+  final String? label;
+  final String? tooltip;
+  final bool showsDisclosure;
+  final bool enableWhenSelected;
   final Duration animationDuration;
 
   @override
@@ -55,13 +63,14 @@ class MediaLibraryNavButton extends StatelessWidget {
     final unselectedCountColor = palette.isDark
         ? unselectedTextColor.withValues(alpha: 0.84)
         : palette.textMuted;
+    final resolvedLabel = label ?? libraryNavLabel(type);
     return Tooltip(
-      message: type.pluralLabel,
+      message: tooltip ?? type.pluralLabel,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           borderRadius: BorderRadius.circular(3),
-          onTap: selected ? null : onPressed,
+          onTap: selected && !enableWhenSelected ? null : onPressed,
           child: AnimatedContainer(
             duration: animationDuration,
             curve: Curves.easeOutCubic,
@@ -95,7 +104,7 @@ class MediaLibraryNavButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 7),
                 Text(
-                  libraryNavLabel(type),
+                  resolvedLabel,
                   style: TextStyle(
                     color: selected ? selectedTextColor : unselectedTextColor,
                     fontSize: 12,
@@ -111,6 +120,14 @@ class MediaLibraryNavButton extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+                if (showsDisclosure) ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    size: 18,
+                    color: selected ? selectedCountColor : unselectedCountColor,
+                  ),
+                ],
                 const SizedBox(width: 8),
               ],
             ),

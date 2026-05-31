@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
 
 enum _BulkAction { edit, owned, wishlist, remove, refreshMetadata, clear }
@@ -32,15 +30,39 @@ class LibrarySelectionControls extends StatelessWidget {
     if (selectedCount == 0) {
       return const SizedBox.shrink();
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        LibraryToolbarStat(label: 'Selected', value: selectedCount),
+        FilledButton.tonalIcon(
+          onPressed: callbacks.onBulkEdit,
+          icon: const Icon(Icons.edit_outlined, size: 16),
+          label: const Text('Edit'),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+        ),
         const SizedBox(width: 6),
+        FilledButton.tonalIcon(
+          onPressed: callbacks.onBulkRemove,
+          icon: const Icon(Icons.delete_outline, size: 16),
+          label: const Text('Remove'),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            foregroundColor: Theme.of(context).colorScheme.error,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+        ),
         PopupMenuButton<_BulkAction>(
-          tooltip: 'Bulk actions',
+          tooltip: 'More bulk actions',
           enabled: selectedCount > 0,
-          icon: const Icon(Icons.more_vert),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+          icon: const Icon(Icons.more_horiz),
           onSelected: (action) {
             final callback = switch (action) {
               _BulkAction.edit => callbacks.onBulkEdit,
@@ -102,14 +124,6 @@ class LibrarySelectionControls extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        const SizedBox(width: 4),
-        Tooltip(
-          message: 'Clear selection',
-          child: LibraryWorkspaceIconButton(
-            onPressed: callbacks.onClearSelection,
-            icon: Icons.close,
-          ),
         ),
       ],
     );

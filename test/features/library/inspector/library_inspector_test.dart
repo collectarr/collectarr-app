@@ -1,12 +1,19 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -19,20 +26,286 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_constants.dart';
 
 void main() {
+  testWidgets('inspector hero shows a creator spotlight when the type enables it', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: InspectorHero(
+              type: collectarrLibraryTypes.byKind('book')!,
+              entry: LibraryWorkspaceEntry(
+                id: 'book-hero-1',
+                mediaType: 'book',
+                title: 'Hyperion',
+                creators: const [
+                  {
+                    'name': 'Dan Simmons',
+                    'role': 'Author',
+                  },
+                ],
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: null,
+              accent: Colors.orange,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Author view'), findsOneWidget);
+    expect(find.text('Dan Simmons'), findsOneWidget);
+  });
+
+  testWidgets('comic inspector hero renders CLZ-like header blocks', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ComicInspectorHero(
+              request: LibraryInspectorRequest(
+                type: comicsLibraryConfig,
+                entry: LibraryWorkspaceEntry(
+                  id: 'comic-hero-1',
+                  mediaType: 'comic',
+                  title: 'The Last Ronin',
+                  itemNumber: '1',
+                  publisher: 'IDW Publishing',
+                  releaseYear: 2020,
+                  barcode: '82771402051700111',
+                  synopsis: 'The final turtle seeks justice in a ruined future.',
+                  series: CatalogSeriesDetails(
+                    seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
+                  ),
+                  publishing: CatalogPublishingDetails(
+                    imprint: 'IDW',
+                    subtitle: 'Director Cut',
+                    seriesGroup: 'TMNT Event',
+                  ),
+                  genres: const ['Action', 'Dystopian'],
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
+                ownedItem: OwnedItem(
+                  id: 'owned-comic-hero-1',
+                  itemId: 'comic-hero-1',
+                  isDigital: false,
+                  condition: 'Near Mint',
+                  grade: '9.8',
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
+                trackingEntry: null,
+                accent: Colors.red,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('IDW'), findsWidgets);
+    expect(find.text('Director Cut'), findsOneWidget);
+    expect(find.text('82771402051700111'), findsOneWidget);
+  });
+
+  testWidgets('comic inspector hero lays out in a narrow scrollable inspector', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ListView(
+              children: [
+                SizedBox(
+                  width: 664,
+                  child: ComicInspectorHero(
+                    request: LibraryInspectorRequest(
+                      type: comicsLibraryConfig,
+                      entry: LibraryWorkspaceEntry(
+                        id: 'comic-hero-narrow-1',
+                        mediaType: 'comic',
+                        title: 'The Last Ronin',
+                        itemNumber: '1',
+                        publisher: 'IDW Publishing',
+                        releaseYear: 2020,
+                        barcode: '82771402051700111',
+                        synopsis:
+                            'The final turtle seeks justice in a ruined future.',
+                        series: CatalogSeriesDetails(
+                          seriesTitle:
+                              'Teenage Mutant Ninja Turtles: The Last Ronin',
+                        ),
+                        publishing: CatalogPublishingDetails(
+                          imprint: 'IDW',
+                          subtitle: 'Director Cut',
+                          seriesGroup: 'TMNT Event',
+                        ),
+                        isOwned: true,
+                        updatedAt: DateTime.utc(2026, 5, 23),
+                      ),
+                      ownedItem: OwnedItem(
+                        id: 'owned-comic-hero-narrow-1',
+                        itemId: 'comic-hero-narrow-1',
+                        isDigital: false,
+                        condition: 'Near Mint',
+                        grade: '9.8',
+                        updatedAt: DateTime.utc(2026, 5, 23),
+                      ),
+                      trackingEntry: null,
+                      accent: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Director Cut'), findsOneWidget);
+  });
+
+  testWidgets('library inspector uses the comic-specific full panel hook', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryInspector(
+              type: comicsLibraryConfig,
+              entry: LibraryWorkspaceEntry(
+                id: 'comic-hero-2',
+                mediaType: 'comic',
+                title: 'The Last Ronin',
+                itemNumber: '1',
+                publisher: 'IDW Publishing',
+                releaseYear: 2020,
+                barcode: '82771402051700111',
+                synopsis: 'The final turtle seeks justice in a ruined future.',
+                creators: const [
+                  {'name': 'Kevin Eastman', 'role': 'Writer'},
+                ],
+                characters: const ['Michelangelo'],
+                storyArcs: const ['The Last Ronin'],
+                series: CatalogSeriesDetails(
+                  seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
+                ),
+                publishing: CatalogPublishingDetails(
+                  imprint: 'IDW',
+                  subtitle: 'Director Cut',
+                  seriesGroup: 'TMNT Event',
+                ),
+                genres: const ['Action', 'Dystopian'],
+                isOwned: true,
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-comic-hero-2',
+                itemId: 'comic-hero-2',
+                isDigital: false,
+                condition: 'Near Mint',
+                grade: '9.8',
+                coverPriceCents: 899,
+                marketValueCents: 2499,
+                pricePaidCents: 1299,
+                rawOrSlabbed: 'Slabbed',
+                gradingCompany: 'CGC',
+                certificationNumber: '1234567890',
+                keyComic: true,
+                keyReason: 'First print finale',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              accent: Colors.red,
+              onAddOwned: () {},
+              onRemoveOwned: () {},
+              onAddWishlist: () {},
+              onRemoveWishlist: () {},
+              onEdit: (_) {},
+              db: db,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ComicInspectorPanel), findsOneWidget);
+    expect(find.byType(ComicInspectorHero), findsOneWidget);
+    expect(find.text('Quick actions'), findsNothing);
+    expect(find.text('Edit'), findsWidgets);
+    expect(find.text('Collect'), findsNothing);
+    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Share'), findsOneWidget);
+    expect(find.text('More'), findsOneWidget);
+    expect(find.text('Layout'), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle), findsWidgets);
+    expect(find.text('Overview'), findsNothing);
+    expect(find.byType(LibraryDenseButton), findsWidgets);
+    expect(find.text('Collection tools'), findsNothing);
+
+    final layoutMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('comic-toolbar-layout-menu')),
+    );
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Sidebar details'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Bottom details'));
+
+    final moreMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('comic-toolbar-more-menu')),
+    );
+    expect(moreMenu.entries.map((entry) => entry.label), contains('Update value'));
+    expect(moreMenu.entries.map((entry) => entry.label), contains('Update Key Info'));
+    expect(moreMenu.entries.map((entry) => entry.label), contains('Submit to Core'));
+
+    await tester.tapAt(const Offset(8, 8));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Details'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Collector'), findsNothing);
+    expect(find.text('Discovery'), findsNothing);
+  });
+
   testWidgets('inspector section renders title and children', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
           body: LibraryInspectorSection(
             title: 'Personal',
-            children: [Text('Storage box')],
+            children: [Text('Location')],
           ),
         ),
       ),
     );
 
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Storage box'), findsOneWidget);
+    expect(find.text('Location'), findsOneWidget);
   });
 
   testWidgets('inspector fact grid renders fact labels and values',
@@ -85,7 +358,6 @@ void main() {
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
             accent: Colors.orange,
-            kind: 'movie',
           ),
         ),
       ),
@@ -120,7 +392,6 @@ void main() {
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
             accent: Colors.orange,
-            kind: 'movie',
           ),
         ),
       ),
@@ -181,7 +452,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
-    expect(find.text('OWNED'), findsOneWidget);
+    expect(find.text('Quick actions'), findsOneWidget);
+    expect(find.text('Owned'), findsOneWidget);
+    expect(find.text('Wish list'), findsOneWidget);
   });
 
   testWidgets('book inspector hides the item images section', (tester) async {
@@ -237,7 +510,7 @@ void main() {
             id: 'front-1',
             ownedItemId: 'owned-1',
             imageType: const Value('front_cover'),
-            imageData: base64Encode(const [0, 1, 2, 3]),
+            imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
           ),
         );
@@ -246,7 +519,7 @@ void main() {
             id: 'back-1',
             ownedItemId: 'owned-1',
             imageType: const Value('back_cover'),
-            imageData: base64Encode(const [4, 5, 6, 7]),
+            imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
           ),
         );
@@ -433,7 +706,7 @@ void main() {
             id: 'back-owned-2',
             ownedItemId: 'owned-2',
             imageType: const Value('back_cover'),
-            imageData: 'AQIDBA==',
+            imageData: base64Decode('AQIDBA=='),
             createdAt: DateTime.utc(2026, 5, 23, 11),
           ),
         );

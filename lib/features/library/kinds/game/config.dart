@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -12,6 +12,7 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.game,
   title: 'Games',
   icon: Icons.sports_esports,
+  accent: Color(0xFF7C68D8),
   preferencePrefix: 'games',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -23,7 +24,7 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.barcode,
     LibraryTableColumn.condition,
     LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
+    LibraryTableColumn.location,
     LibraryTableColumn.wishlist,
     LibraryTableColumn.updated,
   },
@@ -38,7 +39,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
     igdbMetadataProvider,
   ],
   trackingProfile: gameTrackingProfile,
-  editDialogBuilder: buildGenericLibraryEditDialog,
+  editDialogBuilder: buildGameLibraryEditDialog,
   presentation: gamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Version',

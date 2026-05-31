@@ -2,6 +2,8 @@
 
 > App owns the Flutter client, local Drift database, offline-first library UI, CSV/CLZ import-export, barcode UX, sync client UX, and user-facing collection workflows. It consumes Core metadata and optional Sync state.
 
+> Current shipped app library kinds: `comic`, `book`, `game`, `boardgame`, `movie`, `music`. Older `manga` / `anime` / `tv` references below are historical planning context unless they are called out explicitly as future work.
+
 ## ✅ Done
 
 ### 🏗️ Infrastructure
@@ -22,7 +24,7 @@
 - Provider results require explicit user selection; the dialog no longer auto-focuses the first candidate
 - Provider previews load only for the selected candidate, with neutral messaging for mixed-provider result sets
 - Generic add flow supports explicit media/edition/variant/bundle-release reference selection, including bundle member preview before ingest
-- Generic add dialog and workspaces for manga, anime, books, games, board games, movies, TV, music
+- Generic add dialog and workspaces for books, games, board games, movies, and music, with comic-specific add/search still owning its custom flow
 - Queue Ingest button hidden for non-admin users
 
 ### 🛠️ Admin Panel
@@ -52,7 +54,7 @@
 - Edit dialog footer simplified to Save-only; tab navigation uses the tab bar, close uses the title bar X button
 
 ### 🎨 UI Polish
-- Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
+- Distinctive library icons across the active library kinds so comics, books, games, board games, movies, and music stay visually distinct in navigation
 - Animated accent theming across all UI elements (not just top/bottom bars) using `AnimatedTheme`
 - Hyperlink-driven metadata filters feed exact library filters instead of mutating the free-text search box
 - Inspector/detail views surface richer personal value tracking (`cover price`, `sell price`, `profit / loss`)
@@ -121,7 +123,7 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] Inspector panel polish: title → publisher (year) → format badges → barcode → genres → synopsis → status chips
 - [x] Inspector hover animation enabled
 - [x] Sidebar: categorized group-by dropdown (Main, Edition, Cast & Crew, Personal)
-- [x] Expanded group modes for movie/TV/anime (14 modes: Year, Series, Studio, Genre, Country, Language, Age Rating, Format, Director, Creator, Location, Title, Ownership, Tags)
+- [x] Expanded group modes for movie libraries using video-oriented facets such as year, series, studio, genre, country, language, format, creator, location, title, and ownership
 - [x] Grid spacing tightened (10px → 6px)
 - [x] Schema version reset to v1 for clean alpha baseline
 
@@ -160,15 +162,15 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] Inspector assignment flow supports picking and clearing a hierarchical location without accidental clears on cancel
 - [x] Workspace filtering can target resolved location paths
 - [x] Add a dedicated location management surface for rename / delete / reparent / description editing
-- [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
-- [x] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
+- [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to the old free-text location entry
+- [x] Introduce a first-class location group mode / sidebar bucket instead of reusing the old free-text location column path
 - [x] Location definitions sync as first-class personal metadata alongside `location_id` assignments
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
 - [x] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
 	- TMDB import landed first (CSV/JSON file import with batch hydration via Core). Settings page shows all import sources in a compact 2-column grid; TMDB is functional, others show "Coming soon".
 	- Prioritize import-only flows before any bidirectional sync; App mostly needs credential entry, import previews, and duplicate-resolution UX.
-	- Keep provider/source adapters modular so TV/anime imports can land before the full matrix of tracker ecosystems is supported.
+	- Keep provider/source adapters modular so additional import-only sources can land without rebuilding the workflow surface.
 - [x] Per-item tracking history / activity timeline
 	- Activity timeline section on detail page aggregates events from owned items, tracking entries, watch sessions, wishlist, and loans into a chronological rail view.
 	- 11 event kinds: added, removed, wishlisted, purchased, started, finished, sold, loaned, returned, watched, rated.
