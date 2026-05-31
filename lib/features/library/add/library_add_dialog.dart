@@ -668,8 +668,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// Video-kind filter for movie library: allows searching across releases and box sets.
   late final Set<String> _videoKindFilters;
 
-  String _canonicalVideoSearchKind(String kind) =>
-      kind == 'tv' ? 'movie' : kind;
+    String _canonicalVideoSearchKind(String kind) =>
+      catalogMediaKindFromValue(kind).apiValue;
 
   bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
 

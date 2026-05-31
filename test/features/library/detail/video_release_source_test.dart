@@ -68,6 +68,31 @@ void main() {
     expect(preferredVideoEditionVariantId(editions.single), 'variant-4k');
   });
 
+  test('treats tv items as video library kinds for local release synthesis', () {
+    final catalogItem = CatalogItem(
+      id: 'tmdb-local:tv:2',
+      kind: 'tv',
+      title: 'Severance',
+      physicalFormatLabel: 'Blu-ray',
+    );
+
+    final editions = resolveVideoCatalogEditionsForCatalogItem(
+      catalogItem,
+      ownedItems: [
+        OwnedItem(
+          id: 'owned-tv-2',
+          itemId: 'tv-2',
+          variantId: 'variant-bluray',
+          updatedAt: DateTime.utc(2026, 5, 25),
+        ),
+      ],
+    );
+
+    expect(editions, hasLength(1));
+    expect(videoReleaseSourceLabel(editions.single), 'Collection anchors');
+    expect(preferredVideoEditionVariantId(editions.single), 'variant-bluray');
+  });
+
   test('does not synthesize title snapshot fallback for refreshed core items', () {
     final catalogItem = CatalogItem(
       id: 'movie-3',
