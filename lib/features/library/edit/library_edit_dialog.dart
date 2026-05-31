@@ -184,25 +184,48 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _trackingNotesController =>
     _draft.trackingNotesController;
   TextEditingController get _tagsController => _draft.tagsController;
-  List<String> _tagOptions = const [];
+    List<String> get _tagOptions => _draft.tagOptions;
+    set _tagOptions(List<String> value) => _draft.tagOptions = value;
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
   List<SeriesRegistryEntry> _seriesEntries = const [];
-  List<StorageLocation> _availableLocations = const [];
-  String? _selectedLocationId;
-  String _selectedOwnedAnchorType = PersonalItemAnchorType.item.apiValue;
-  String? _selectedEditionId;
-  String? _selectedVariantId;
-  String? _selectedBundleReleaseId;
-  String? _selectedTrackingEditionId;
-  String? _selectedTrackingVariantId;
-  String _selectedWishlistAnchorType = PersonalItemAnchorType.item.apiValue;
-  String? _selectedWishlistEditionId;
-  String? _selectedWishlistVariantId;
-  String? _selectedWishlistBundleReleaseId;
-  bool _locationChanged = false;
+    List<StorageLocation> get _availableLocations => _draft.availableLocations;
+    set _availableLocations(List<StorageLocation> value) =>
+      _draft.availableLocations = value;
+    String? get _selectedLocationId => _draft.selectedLocationId;
+    set _selectedLocationId(String? value) => _draft.selectedLocationId = value;
+    String get _selectedOwnedAnchorType => _draft.selectedOwnedAnchorType;
+    set _selectedOwnedAnchorType(String value) =>
+      _draft.selectedOwnedAnchorType = value;
+    String? get _selectedEditionId => _draft.selectedEditionId;
+    set _selectedEditionId(String? value) => _draft.selectedEditionId = value;
+    String? get _selectedVariantId => _draft.selectedVariantId;
+    set _selectedVariantId(String? value) => _draft.selectedVariantId = value;
+    String? get _selectedBundleReleaseId => _draft.selectedBundleReleaseId;
+    set _selectedBundleReleaseId(String? value) =>
+      _draft.selectedBundleReleaseId = value;
+    String? get _selectedTrackingEditionId => _draft.selectedTrackingEditionId;
+    set _selectedTrackingEditionId(String? value) =>
+      _draft.selectedTrackingEditionId = value;
+    String? get _selectedTrackingVariantId => _draft.selectedTrackingVariantId;
+    set _selectedTrackingVariantId(String? value) =>
+      _draft.selectedTrackingVariantId = value;
+    String get _selectedWishlistAnchorType => _draft.selectedWishlistAnchorType;
+    set _selectedWishlistAnchorType(String value) =>
+      _draft.selectedWishlistAnchorType = value;
+    String? get _selectedWishlistEditionId => _draft.selectedWishlistEditionId;
+    set _selectedWishlistEditionId(String? value) =>
+      _draft.selectedWishlistEditionId = value;
+    String? get _selectedWishlistVariantId => _draft.selectedWishlistVariantId;
+    set _selectedWishlistVariantId(String? value) =>
+      _draft.selectedWishlistVariantId = value;
+    String? get _selectedWishlistBundleReleaseId =>
+      _draft.selectedWishlistBundleReleaseId;
+    set _selectedWishlistBundleReleaseId(String? value) =>
+      _draft.selectedWishlistBundleReleaseId = value;
+    set _locationChanged(bool value) => _draft.locationChanged = value;
 
   TextEditingController get _sellPriceController => _draft.sellPriceController;
   TextEditingController get _soldToController => _draft.soldToController;
@@ -399,20 +422,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     )..addListener(() {
         if (mounted) setState(() {});
       });
-    _tagOptions = _draft.tagOptions;
-    _availableLocations = _draft.availableLocations;
-    _selectedLocationId = _draft.selectedLocationId;
-    _selectedOwnedAnchorType = _draft.selectedOwnedAnchorType;
-    _selectedEditionId = _draft.selectedEditionId;
-    _selectedVariantId = _draft.selectedVariantId;
-    _selectedBundleReleaseId = _draft.selectedBundleReleaseId;
-    _selectedTrackingEditionId = _draft.selectedTrackingEditionId;
-    _selectedTrackingVariantId = _draft.selectedTrackingVariantId;
-    _selectedWishlistAnchorType = _draft.selectedWishlistAnchorType;
-    _selectedWishlistEditionId = _draft.selectedWishlistEditionId;
-    _selectedWishlistVariantId = _draft.selectedWishlistVariantId;
-    _selectedWishlistBundleReleaseId = _draft.selectedWishlistBundleReleaseId;
-    _locationChanged = _draft.locationChanged;
 
     unawaited(_loadCatalogVocabularyOptions());
 
@@ -1846,20 +1855,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    _draft.tagOptions = _tagOptions;
-    _draft.availableLocations = _availableLocations;
-    _draft.selectedLocationId = _selectedLocationId;
-    _draft.selectedOwnedAnchorType = _selectedOwnedAnchorType;
-    _draft.selectedEditionId = _selectedEditionId;
-    _draft.selectedVariantId = _selectedVariantId;
-    _draft.selectedBundleReleaseId = _selectedBundleReleaseId;
-    _draft.selectedTrackingEditionId = _selectedTrackingEditionId;
-    _draft.selectedTrackingVariantId = _selectedTrackingVariantId;
-    _draft.selectedWishlistAnchorType = _selectedWishlistAnchorType;
-    _draft.selectedWishlistEditionId = _selectedWishlistEditionId;
-    _draft.selectedWishlistVariantId = _selectedWishlistVariantId;
-    _draft.selectedWishlistBundleReleaseId = _selectedWishlistBundleReleaseId;
-    _draft.locationChanged = _locationChanged;
     final selection = _draft.buildSelection();
     Navigator.of(context).pop(selection);
   }
