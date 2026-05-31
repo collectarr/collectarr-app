@@ -218,6 +218,7 @@ class LibraryTypeCapabilities {
   const LibraryTypeCapabilities({
     this.showsSynopsis = false,
     this.showsTrackData = false,
+    this.showsCreatorSpotlight = false,
     this.contentHierarchy = LibraryContentHierarchy.flat,
     this.canScanCover = false,
     this.supportsOwnedItemImages = true,
@@ -229,6 +230,7 @@ class LibraryTypeCapabilities {
 
   final bool showsSynopsis;
   final bool showsTrackData;
+  final bool showsCreatorSpotlight;
   final LibraryContentHierarchy contentHierarchy;
   final bool canScanCover;
   final bool supportsOwnedItemImages;

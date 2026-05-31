@@ -153,7 +153,7 @@ class LibraryDetailHero extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                 ),
-                if (entry.mediaType == 'book' &&
+                if (type.capabilities.showsCreatorSpotlight &&
                     (entry.creators?.isNotEmpty ?? false)) ...[
                   const SizedBox(height: 12),
                   BookAuthorSpotlight(

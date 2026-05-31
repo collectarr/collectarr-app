@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
@@ -19,6 +20,45 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_constants.dart';
 
 void main() {
+  testWidgets('inspector hero shows a creator spotlight when the type enables it', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: InspectorHero(
+              type: collectarrLibraryTypes.byKind('book')!,
+              entry: LibraryWorkspaceEntry(
+                id: 'book-hero-1',
+                mediaType: 'book',
+                title: 'Hyperion',
+                creators: const [
+                  {
+                    'name': 'Dan Simmons',
+                    'role': 'Author',
+                  },
+                ],
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: null,
+              accent: Colors.orange,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Author view'), findsOneWidget);
+    expect(find.text('Dan Simmons'), findsOneWidget);
+  });
+
   testWidgets('inspector section renders title and children', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(

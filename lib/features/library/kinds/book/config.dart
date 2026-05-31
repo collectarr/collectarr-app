@@ -53,6 +53,7 @@ const booksLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
+    showsCreatorSpotlight: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
     supportsOwnedItemImages: false,
   ),

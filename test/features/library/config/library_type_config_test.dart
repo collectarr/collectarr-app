@@ -80,6 +80,11 @@ void main() {
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
   });
 
+  test('books library config enables creator spotlight in shared hero chrome', () {
+    expect(booksLibraryConfig.capabilities.showsCreatorSpotlight, isTrue);
+    expect(moviesLibraryConfig.capabilities.showsCreatorSpotlight, isFalse);
+  });
+
   test('library type config can carry an add dialog launcher override', () {
     Future<LibraryAddDialogResult?> fakeLauncher(
       BuildContext context,

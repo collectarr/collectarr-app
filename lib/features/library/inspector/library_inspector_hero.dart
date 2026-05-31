@@ -319,7 +319,7 @@ class _InspectorHeroInfo extends StatelessWidget {
             ),
           ),
         ],
-        if (entry.mediaType == 'book' &&
+        if (type.capabilities.showsCreatorSpotlight &&
             (entry.creators?.isNotEmpty ?? false)) ...[
           const SizedBox(height: 12),
           BookAuthorSpotlight(
