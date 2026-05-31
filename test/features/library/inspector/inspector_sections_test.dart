@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +92,6 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,
-              kind: 'book',
             ),
           ),
         ),
@@ -118,7 +119,6 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,
-              kind: 'book',
             ),
           ),
         ),
@@ -152,7 +152,6 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,
-              kind: 'book',
             ),
           ),
         ),
@@ -181,7 +180,6 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,
-              kind: 'book',
             ),
           ),
         ),
@@ -189,6 +187,60 @@ void main() {
 
       expect(find.text('sci-fi'), findsOneWidget);
       expect(find.text('classic'), findsOneWidget);
+    });
+
+    testWidgets('comic inspector builder renders comic-only collector facts',
+        (tester) async {
+      final type = collectarrLibraryTypes.byKind('comic')!;
+      final sections = <Widget>[];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                sections.addAll(
+                  buildComicInspectorSections(
+                    context,
+                    LibraryInspectorRequest(
+                      type: type,
+                      entry: LibraryWorkspaceEntry(
+                        id: 'comic-1',
+                        mediaType: 'comic',
+                        title: 'Saga #1',
+                        updatedAt: DateTime.utc(2026, 5, 22),
+                      ),
+                      ownedItem: OwnedItem(
+                        id: 'owned-1',
+                        itemId: 'comic-1',
+                        rawOrSlabbed: 'Slabbed',
+                        gradingCompany: 'CGC',
+                        signedBy: 'Brian K. Vaughan',
+                        keyComic: true,
+                        keyReason: 'First appearance',
+                        updatedAt: DateTime.utc(2026, 5, 22),
+                      ),
+                      trackingEntry: null,
+                      accent: Colors.red,
+                    ),
+                  ),
+                );
+                return ListView(children: sections);
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Comic details'), findsOneWidget);
+      expect(find.text('Raw / Slabbed'), findsOneWidget);
+      expect(find.text('Slabbed'), findsOneWidget);
+      expect(find.text('Grading co.'), findsOneWidget);
+      expect(find.text('CGC'), findsOneWidget);
+      expect(find.text('Signed by'), findsOneWidget);
+      expect(find.text('Brian K. Vaughan'), findsOneWidget);
+      expect(find.text('Key'), findsOneWidget);
+      expect(find.text('First appearance'), findsOneWidget);
     });
   });
 

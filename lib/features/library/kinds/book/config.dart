@@ -54,6 +54,7 @@ const booksLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
+    supportsOwnedItemImages: false,
   ),
   conditions: kBookConditions,
 );

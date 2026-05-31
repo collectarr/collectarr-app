@@ -420,7 +420,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 ownedItem: activeOwnedItem,
                 trackingEntry: activeTrackingEntry,
                 accent: widget.accent,
-                kind: widget.type.workspace.kind.apiValue,
               ),
               if (activeOwnedItem != null)
                 InspectorPersonalDetailsEditor(
@@ -442,7 +441,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   db: widget.db!,
                   accent: widget.accent,
                 ),
-                if (widget.type.workspace.kind != CatalogMediaKind.book)
+                if (widget.type.capabilities.supportsOwnedItemImages)
                   InspectorItemImagesSection(
                     ownedItemId: activeOwnedItem.id,
                     db: widget.db!,

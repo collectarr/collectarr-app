@@ -855,7 +855,7 @@ class LibraryEditDraft {
   }
 
   CatalogSeriesDetails? _buildUpdatedSeries() {
-    if (type.workspace.kind.apiValue != 'comic') {
+    if (!type.editUsesTitleAsSeries) {
       return item.series;
     }
     final seriesTitle = emptyToNull(titleController.text);

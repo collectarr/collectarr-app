@@ -186,6 +186,7 @@ class LibraryTypeCapabilities {
     this.showsTrackData = false,
     this.contentHierarchy = LibraryContentHierarchy.flat,
     this.canScanCover = false,
+    this.supportsOwnedItemImages = true,
     this.supportsVideoKindFilters = false,
     this.wideDialog = false,
   });
@@ -194,6 +195,7 @@ class LibraryTypeCapabilities {
   final bool showsTrackData;
   final LibraryContentHierarchy contentHierarchy;
   final bool canScanCover;
+  final bool supportsOwnedItemImages;
   final bool supportsVideoKindFilters;
   final bool wideDialog;
 
@@ -238,6 +240,7 @@ class LibraryTypeConfig {
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
     this.manualAddUsesTitleAsSeries = false,
+    this.editUsesTitleAsSeries = false,
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
@@ -261,6 +264,7 @@ class LibraryTypeConfig {
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
   final bool manualAddUsesTitleAsSeries;
+  final bool editUsesTitleAsSeries;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -50,6 +51,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
   addDialogLauncher: showComicLibraryAddDialog,
   trackingProfile: comicTrackingProfile,
   editDialogBuilder: buildComicLibraryEditDialog,
+  inspectorSectionsBuilder: buildComicInspectorSections,
   presentation: comicsLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
   editChrome: LibraryEditChromeConfig(
@@ -63,6 +65,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     publisherLabel: 'Publisher / Studio / Creator',
   ),
   manualAddUsesTitleAsSeries: true,
+  editUsesTitleAsSeries: true,
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant / Format',
     barcodeLabel: 'Barcode / UPC / ISBN',

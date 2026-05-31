@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -63,6 +64,9 @@ void main() {
       comicsLibraryConfig.editDialogBuilder,
       same(buildComicLibraryEditDialog),
     );
+    expect(comicsLibraryConfig.inspectorSectionsBuilder,
+        same(buildComicInspectorSections));
+    expect(comicsLibraryConfig.editUsesTitleAsSeries, isTrue);
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
   });
@@ -72,6 +76,7 @@ void main() {
   test('movies library config uses the dedicated add dialog launcher', () {
     expect(
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
+    expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
   });
 
   test('library type config can carry an add dialog launcher override', () {
