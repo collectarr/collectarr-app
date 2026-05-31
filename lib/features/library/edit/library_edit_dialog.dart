@@ -102,66 +102,87 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   late final TabController _tabController;
 
-  // Catalog fields
-  late final TextEditingController _titleController;
-  late final TextEditingController _numberController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _coverDateController;
-  late final TextEditingController _coverDateYearPartController;
-  late final TextEditingController _coverDateMonthPartController;
-  late final TextEditingController _coverDateDayPartController;
-  late final TextEditingController _releaseDateController;
-  late final TextEditingController _releaseDateYearPartController;
-  late final TextEditingController _releaseDateMonthPartController;
-  late final TextEditingController _releaseDateDayPartController;
-  late final TextEditingController _releaseYearController;
-  late final TextEditingController _pageCountController;
-  late final TextEditingController _editionTitleController;
-  late final TextEditingController _barcodeController;
-  late final TextEditingController _variantController;
-  late final TextEditingController _physicalFormatLabelController;
-  late final TextEditingController _coverController;
-  late final TextEditingController _thumbnailController;
-  late final TextEditingController _synopsisController;
-
-  // Video / CLZ Main fields
-  late final TextEditingController _sortKeyController;
-  late final TextEditingController _originalTitleController;
-  late final TextEditingController _runtimeController;
-  late final TextEditingController _audienceRatingController;
-  late final TextEditingController _countryController;
-  late final TextEditingController _languageController;
-  late final TextEditingController _ageRatingController;
-  late final TextEditingController _genresEditController;
-  late final TextEditingController _titleExtensionController;
-  late final TextEditingController _crossoverController;
-  late final TextEditingController _storyArcsController;
-  late final TextEditingController _ownerLabelController;
-
-  // Series-level fields
-  late final TextEditingController _imprintController;
-  late final TextEditingController _seriesGroupController;
-
-  // Collection fields
-  late final TextEditingController _conditionController;
-  late final TextEditingController _gradeController;
-  late final TextEditingController _purchaseDateController;
-  late final TextEditingController _priceController;
-  late final TextEditingController _currencyController;
-  late final TextEditingController _quantityController;
-  late final TextEditingController _notesController;
-  late final TextEditingController _wishlistPriceController;
-  late final TextEditingController _wishlistCurrencyController;
-  late final TextEditingController _wishlistNotesController;
-  late final TextEditingController _ratingController;
-  late final TextEditingController _trackingController;
-  late final TextEditingController _progressCurrentController;
-  late final TextEditingController _progressTotalController;
-  late final TextEditingController _timesCompletedController;
-  late final TextEditingController _seasonNumberController;
-  late final TextEditingController _episodeNumberController;
-  late final TextEditingController _trackingNotesController;
-  late final TextEditingController _tagsController;
+  TextEditingController get _titleController => _draft.titleController;
+  TextEditingController get _numberController => _draft.numberController;
+  TextEditingController get _publisherController => _draft.publisherController;
+  TextEditingController get _coverDateController => _draft.coverDateController;
+  TextEditingController get _coverDateYearPartController =>
+    _draft.coverDateYearPartController;
+  TextEditingController get _coverDateMonthPartController =>
+    _draft.coverDateMonthPartController;
+  TextEditingController get _coverDateDayPartController =>
+    _draft.coverDateDayPartController;
+  TextEditingController get _releaseDateController =>
+    _draft.releaseDateController;
+  TextEditingController get _releaseDateYearPartController =>
+    _draft.releaseDateYearPartController;
+  TextEditingController get _releaseDateMonthPartController =>
+    _draft.releaseDateMonthPartController;
+  TextEditingController get _releaseDateDayPartController =>
+    _draft.releaseDateDayPartController;
+  TextEditingController get _releaseYearController =>
+    _draft.releaseYearController;
+  TextEditingController get _pageCountController => _draft.pageCountController;
+  TextEditingController get _editionTitleController =>
+    _draft.editionTitleController;
+  TextEditingController get _barcodeController => _draft.barcodeController;
+  TextEditingController get _variantController => _draft.variantController;
+  TextEditingController get _physicalFormatLabelController =>
+    _draft.physicalFormatLabelController;
+  TextEditingController get _coverController => _draft.coverController;
+  TextEditingController get _thumbnailController => _draft.thumbnailController;
+  TextEditingController get _synopsisController => _draft.synopsisController;
+  TextEditingController get _sortKeyController => _draft.sortKeyController;
+  TextEditingController get _originalTitleController =>
+    _draft.originalTitleController;
+  TextEditingController get _runtimeController => _draft.runtimeController;
+  TextEditingController get _audienceRatingController =>
+    _draft.audienceRatingController;
+  TextEditingController get _countryController => _draft.countryController;
+  TextEditingController get _languageController => _draft.languageController;
+  TextEditingController get _ageRatingController =>
+    _draft.ageRatingController;
+  TextEditingController get _genresEditController =>
+    _draft.genresEditController;
+  TextEditingController get _titleExtensionController =>
+    _draft.titleExtensionController;
+  TextEditingController get _crossoverController => _draft.crossoverController;
+  TextEditingController get _storyArcsController =>
+    _draft.storyArcsController;
+  TextEditingController get _ownerLabelController =>
+    _draft.ownerLabelController;
+  TextEditingController get _imprintController => _draft.imprintController;
+  TextEditingController get _seriesGroupController =>
+    _draft.seriesGroupController;
+  TextEditingController get _conditionController => _draft.conditionController;
+  TextEditingController get _gradeController => _draft.gradeController;
+  TextEditingController get _purchaseDateController =>
+    _draft.purchaseDateController;
+  TextEditingController get _priceController => _draft.priceController;
+  TextEditingController get _currencyController => _draft.currencyController;
+  TextEditingController get _quantityController => _draft.quantityController;
+  TextEditingController get _notesController => _draft.notesController;
+  TextEditingController get _wishlistPriceController =>
+    _draft.wishlistPriceController;
+  TextEditingController get _wishlistCurrencyController =>
+    _draft.wishlistCurrencyController;
+  TextEditingController get _wishlistNotesController =>
+    _draft.wishlistNotesController;
+  TextEditingController get _ratingController => _draft.ratingController;
+  TextEditingController get _trackingController => _draft.trackingController;
+  TextEditingController get _progressCurrentController =>
+    _draft.progressCurrentController;
+  TextEditingController get _progressTotalController =>
+    _draft.progressTotalController;
+  TextEditingController get _timesCompletedController =>
+    _draft.timesCompletedController;
+  TextEditingController get _seasonNumberController =>
+    _draft.seasonNumberController;
+  TextEditingController get _episodeNumberController =>
+    _draft.episodeNumberController;
+  TextEditingController get _trackingNotesController =>
+    _draft.trackingNotesController;
+  TextEditingController get _tagsController => _draft.tagsController;
   List<String> _tagOptions = const [];
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
@@ -182,9 +203,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   String? _selectedWishlistBundleReleaseId;
   bool _locationChanged = false;
 
-  // Sold fields
-  late final TextEditingController _sellPriceController;
-  late final TextEditingController _soldToController;
+  TextEditingController get _sellPriceController => _draft.sellPriceController;
+  TextEditingController get _soldToController => _draft.soldToController;
   late DateTime? _soldAt;
 
   // Reading progress
@@ -192,40 +212,50 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   DateTime? _finishedAt;
   Map<String, int> _episodeRatings = {};
 
-  // Comics-specific grading fields
-  late final TextEditingController _rawOrSlabbedController;
-  late final TextEditingController _gradingCompanyController;
-  late final TextEditingController _graderNotesController;
-  late final TextEditingController _signedByController;
-  late final TextEditingController _labelTypeController;
-  late final TextEditingController _certificationNumberController;
-  late final TextEditingController _coverPriceController;
+    TextEditingController get _rawOrSlabbedController =>
+      _draft.rawOrSlabbedController;
+    TextEditingController get _gradingCompanyController =>
+      _draft.gradingCompanyController;
+    TextEditingController get _graderNotesController =>
+      _draft.graderNotesController;
+    TextEditingController get _signedByController => _draft.signedByController;
+    TextEditingController get _labelTypeController => _draft.labelTypeController;
+    TextEditingController get _certificationNumberController =>
+      _draft.certificationNumberController;
+    TextEditingController get _coverPriceController =>
+      _draft.coverPriceController;
   bool _keyComic = false;
-  late final TextEditingController _keyReasonController;
+    TextEditingController get _keyReasonController => _draft.keyReasonController;
 
-  // Physical media fields
-  late final TextEditingController _featuresController;
-  late final TextEditingController _purchaseStoreController;
-  late final TextEditingController _boxSetNameController;
-  late final TextEditingController _storageDeviceController;
-  late final TextEditingController _storageSlotController;
+    TextEditingController get _featuresController => _draft.featuresController;
+    TextEditingController get _purchaseStoreController =>
+      _draft.purchaseStoreController;
+    TextEditingController get _boxSetNameController =>
+      _draft.boxSetNameController;
+    TextEditingController get _storageDeviceController =>
+      _draft.storageDeviceController;
+    TextEditingController get _storageSlotController =>
+      _draft.storageSlotController;
   List<String> _hdrFormats = [];
 
-  // Edition / specs fields
-  late final TextEditingController _regionController;
-  late final TextEditingController _packagingController;
-  late final TextEditingController _distributorController;
-  late final TextEditingController _screenRatioController;
+    TextEditingController get _regionController => _draft.regionController;
+    TextEditingController get _packagingController => _draft.packagingController;
+    TextEditingController get _distributorController =>
+      _draft.distributorController;
+    TextEditingController get _screenRatioController =>
+      _draft.screenRatioController;
 
   // Collection status & bag/board
   String? _collectionStatus;
   DateTime? _lastBagBoardDate;
-  late final TextEditingController _marketValueController;
-  late final TextEditingController _audioTracksController;
-  late final TextEditingController _subtitlesController;
-  late final TextEditingController _layersController;
-  late final TextEditingController _colorController;
-  late final TextEditingController _nrDiscsController;
+    TextEditingController get _marketValueController =>
+      _draft.marketValueController;
+    TextEditingController get _audioTracksController =>
+      _draft.audioTracksController;
+    TextEditingController get _subtitlesController => _draft.subtitlesController;
+    TextEditingController get _layersController => _draft.layersController;
+    TextEditingController get _colorController => _draft.colorController;
+    TextEditingController get _nrDiscsController => _draft.nrDiscsController;
 
   String? _physicalFormatId;
   String? _selectedSeriesId;
@@ -357,60 +387,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     )..addListener(() {
         if (mounted) setState(() {});
       });
-
-    _titleController = _draft.titleController;
-    _numberController = _draft.numberController;
-    _publisherController = _draft.publisherController;
-    _coverDateController = _draft.coverDateController;
-    _coverDateYearPartController = _draft.coverDateYearPartController;
-    _coverDateMonthPartController = _draft.coverDateMonthPartController;
-    _coverDateDayPartController = _draft.coverDateDayPartController;
-    _releaseDateController = _draft.releaseDateController;
-    _releaseDateYearPartController = _draft.releaseDateYearPartController;
-    _releaseDateMonthPartController = _draft.releaseDateMonthPartController;
-    _releaseDateDayPartController = _draft.releaseDateDayPartController;
-    _releaseYearController = _draft.releaseYearController;
-    _pageCountController = _draft.pageCountController;
-    _editionTitleController = _draft.editionTitleController;
-    _barcodeController = _draft.barcodeController;
-    _variantController = _draft.variantController;
-    _physicalFormatLabelController = _draft.physicalFormatLabelController;
-    _coverController = _draft.coverController;
-    _thumbnailController = _draft.thumbnailController;
-    _synopsisController = _draft.synopsisController;
-    _sortKeyController = _draft.sortKeyController;
-    _originalTitleController = _draft.originalTitleController;
-    _runtimeController = _draft.runtimeController;
-    _audienceRatingController = _draft.audienceRatingController;
-    _countryController = _draft.countryController;
-    _languageController = _draft.languageController;
-    _ageRatingController = _draft.ageRatingController;
-    _genresEditController = _draft.genresEditController;
-    _titleExtensionController = _draft.titleExtensionController;
-    _crossoverController = _draft.crossoverController;
-    _storyArcsController = _draft.storyArcsController;
-    _ownerLabelController = _draft.ownerLabelController;
-    _imprintController = _draft.imprintController;
-    _seriesGroupController = _draft.seriesGroupController;
-    _conditionController = _draft.conditionController;
-    _gradeController = _draft.gradeController;
-    _purchaseDateController = _draft.purchaseDateController;
-    _priceController = _draft.priceController;
-    _currencyController = _draft.currencyController;
-    _quantityController = _draft.quantityController;
-    _notesController = _draft.notesController;
-    _wishlistPriceController = _draft.wishlistPriceController;
-    _wishlistCurrencyController = _draft.wishlistCurrencyController;
-    _wishlistNotesController = _draft.wishlistNotesController;
-    _ratingController = _draft.ratingController;
-    _trackingController = _draft.trackingController;
-    _progressCurrentController = _draft.progressCurrentController;
-    _progressTotalController = _draft.progressTotalController;
-    _timesCompletedController = _draft.timesCompletedController;
-    _seasonNumberController = _draft.seasonNumberController;
-    _episodeNumberController = _draft.episodeNumberController;
-    _trackingNotesController = _draft.trackingNotesController;
-    _tagsController = _draft.tagsController;
     _tagOptions = _draft.tagOptions;
     _availableLocations = _draft.availableLocations;
     _selectedLocationId = _draft.selectedLocationId;
@@ -425,39 +401,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _selectedWishlistVariantId = _draft.selectedWishlistVariantId;
     _selectedWishlistBundleReleaseId = _draft.selectedWishlistBundleReleaseId;
     _locationChanged = _draft.locationChanged;
-    _sellPriceController = _draft.sellPriceController;
-    _soldToController = _draft.soldToController;
     _soldAt = _draft.soldAt;
     _startedAt = _draft.startedAt;
     _finishedAt = _draft.finishedAt;
     _episodeRatings = _draft.episodeRatings;
-    _rawOrSlabbedController = _draft.rawOrSlabbedController;
-    _gradingCompanyController = _draft.gradingCompanyController;
-    _graderNotesController = _draft.graderNotesController;
-    _signedByController = _draft.signedByController;
-    _labelTypeController = _draft.labelTypeController;
-    _certificationNumberController = _draft.certificationNumberController;
-    _coverPriceController = _draft.coverPriceController;
     _keyComic = _draft.keyComic;
-    _keyReasonController = _draft.keyReasonController;
-    _featuresController = _draft.featuresController;
-    _purchaseStoreController = _draft.purchaseStoreController;
-    _boxSetNameController = _draft.boxSetNameController;
-    _storageDeviceController = _draft.storageDeviceController;
-    _storageSlotController = _draft.storageSlotController;
     _hdrFormats = _draft.hdrFormats;
-    _regionController = _draft.regionController;
-    _packagingController = _draft.packagingController;
-    _distributorController = _draft.distributorController;
-    _screenRatioController = _draft.screenRatioController;
     _collectionStatus = _draft.collectionStatus;
     _lastBagBoardDate = _draft.lastBagBoardDate;
-    _marketValueController = _draft.marketValueController;
-    _audioTracksController = _draft.audioTracksController;
-    _subtitlesController = _draft.subtitlesController;
-    _layersController = _draft.layersController;
-    _colorController = _draft.colorController;
-    _nrDiscsController = _draft.nrDiscsController;
     _physicalFormatId = _draft.physicalFormatId;
     _selectedSeriesId = _draft.seriesId;
     _customFieldEdits = _draft.customFieldEdits;
