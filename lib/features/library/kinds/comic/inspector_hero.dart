@@ -147,31 +147,41 @@ class ComicInspectorHero extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 26,
+              height: 24,
               decoration: BoxDecoration(
                 color: headerSurface,
                 border: Border(bottom: BorderSide(color: border)),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      editionLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: ink,
-                            fontWeight: FontWeight.w800,
-                          ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Text(
+                        editionLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: ink,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.15,
+                              height: 1,
+                            ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  _ComicCollectionStatusIcon(
-                    owned: entry.isOwned,
-                    wishlisted: entry.isWishlisted,
-                    accent: request.accent,
-                    muted: muted,
+                  Container(
+                    width: 28,
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(color: border)),
+                    ),
+                    alignment: Alignment.center,
+                    child: _ComicCollectionStatusIcon(
+                      owned: entry.isOwned,
+                      wishlisted: entry.isWishlisted,
+                      accent: request.accent,
+                      muted: muted,
+                    ),
                   ),
                 ],
               ),
@@ -372,7 +382,7 @@ class _ComicCollectionStatusIcon extends StatelessWidget {
         : wishlisted
             ? Colors.red.shade400
             : muted;
-    return Icon(icon, size: 18, color: color);
+    return Icon(icon, size: 16, color: color);
   }
 }
 
