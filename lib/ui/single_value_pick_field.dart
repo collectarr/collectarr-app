@@ -44,6 +44,74 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     super.dispose();
   }
 
+  void _applySelection(String selection) {
+    widget.controller.value = TextEditingValue(
+      text: selection,
+      selection: TextSelection.collapsed(offset: selection.length),
+    );
+    widget.onChanged?.call(selection);
+    setState(() {});
+  }
+
+  Future<void> _openPickerDialog(List<String> options) async {
+    if (!widget.enabled || options.isEmpty) {
+      return;
+    }
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        final palette = appPalette(context);
+        final currentValue = _emptyToNull(widget.controller.text);
+        return AlertDialog(
+          backgroundColor: palette.panel,
+          title: Text('Pick ${widget.label}'),
+          contentPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: 420,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 360),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: options.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  color: palette.divider,
+                ),
+                itemBuilder: (context, index) {
+                  final option = options[index];
+                  final selected =
+                      currentValue?.toLowerCase() == option.toLowerCase();
+                  return ListTile(
+                    dense: true,
+                    selected: selected,
+                    leading: Icon(
+                      selected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                    ),
+                    title: Text(option),
+                    onTap: () => Navigator.of(context).pop(option),
+                  );
+                },
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    _applySelection(selected);
+    _focusNode.requestFocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     final normalizedOptions = _normalizedOptions(
@@ -66,11 +134,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         );
       },
       onSelected: (selection) {
-        widget.controller.value = TextEditingValue(
-          text: selection,
-          selection: TextSelection.collapsed(offset: selection.length),
-        );
-        widget.onChanged?.call(selection);
+        _applySelection(selection);
       },
       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
         return TextFormField(
@@ -84,6 +148,12 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (normalizedOptions.isNotEmpty)
+                  IconButton(
+                    tooltip: 'Pick ${widget.label}',
+                    onPressed: () => _openPickerDialog(normalizedOptions),
+                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+                  ),
                 if (controller.text.trim().isNotEmpty)
                   IconButton(
                     tooltip: 'Clear ${widget.label}',

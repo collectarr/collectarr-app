@@ -164,4 +164,75 @@ void main() {
     final entries = await registry.searchEntries(mediaKind: 'comic');
     expect(entries.any((entry) => entry.title == 'Alpha Prime'), isTrue);
   });
+
+  testWidgets('series picker can create a new series from the dialog',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await catalog.upsertAll([
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Issue 1',
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-a',
+          seriesTitle: 'Amazing Adventures',
+        ),
+      ),
+    ]);
+
+    SeriesRegistryEntry? selection;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => FilledButton(
+              onPressed: () async {
+                selection = await showSeriesPickerDialog(
+                  context: context,
+                  db: db,
+                  mediaKind: 'comic',
+                );
+              },
+              child: const Text('Open Picker'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open Picker'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'New Series'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Name'),
+      'Crimson Orbit',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Sort Name'),
+      'Crimson Orbit',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Crimson Orbit'), findsWidgets);
+
+    await tester.tap(find.text('Crimson Orbit').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Select'));
+    await tester.pumpAndSettle();
+
+    expect(selection, isNotNull);
+    expect(selection?.title, 'Crimson Orbit');
+
+    final entries = await registry.searchEntries(mediaKind: 'comic');
+    expect(entries.any((entry) => entry.title == 'Crimson Orbit'), isTrue);
+  });
 }

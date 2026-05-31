@@ -2447,7 +2447,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _physicalFormatField({String label = 'Format'}) {
     return SingleValuePickField(
       controller: _physicalFormatLabelController,
-      options: _physicalFormatOptions,
+      options: mergePickListValues(
+        builtInValues: [
+          for (final format in _effectivePhysicalFormats) format.label,
+        ],
+        customValues: _physicalFormatOptions,
+        selectedValues: [_physicalFormatLabelController.text],
+      ),
       label: label,
       onChanged: (value) {
         final normalized = emptyToNull(value ?? '');

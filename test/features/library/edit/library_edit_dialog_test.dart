@@ -479,6 +479,9 @@ void main() {
     expect(find.text('Release Date'), findsOneWidget);
     expect(find.text('Publisher'), findsOneWidget);
     expect(find.text('Imprint'), findsOneWidget);
+    expect(find.byTooltip('Pick Series'), findsOneWidget);
+    expect(find.byTooltip('Pick Format'), findsOneWidget);
+    expect(find.byTooltip('Pick Publisher'), findsOneWidget);
 
     await tester.enterText(
       find.byKey(const Key('comic-cover-date-year')),
