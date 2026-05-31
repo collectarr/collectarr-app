@@ -1,8 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -1158,96 +1157,10 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     }
   }
 
-  List<_ResolvedComicImage> _resolvedImages() {
-    final existing = {
-      for (final image in widget.request.itemImages) image.id: image
-    };
-    final editsById = {
-      for (final edit in _itemImageEdits) edit.id: edit,
-    };
-    final images = <_ResolvedComicImage>[];
-    for (final image in widget.request.itemImages) {
-      final edit = editsById[image.id];
-      if (edit?.deleted == true) {
-        continue;
-      }
-      images.add(
-        _ResolvedComicImage(
-          id: image.id,
-          imageData: edit?.imageData ?? image.imageData,
-          imageType: edit?.imageType ?? image.imageType,
-          caption: edit?.caption ?? image.caption,
-          sortOrder: edit?.sortOrder ?? image.sortOrder,
-        ),
-      );
-    }
-    for (final edit in _itemImageEdits) {
-      if (existing.containsKey(edit.id) ||
-          edit.deleted ||
-          edit.imageData == null) {
-        continue;
-      }
-      images.add(
-        _ResolvedComicImage(
-          id: edit.id,
-          imageData: edit.imageData!,
-          imageType: edit.imageType,
-          caption: edit.caption,
-          sortOrder: edit.sortOrder,
-        ),
-      );
-    }
-    images.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-    return images;
-  }
-
-  _ResolvedComicImage? _firstImageOfType(String type) {
-    return _resolvedImages()
-        .where((image) => image.imageType == type)
-        .firstOrNull;
-  }
-
-  Widget _buildImagePreviewCard(
-    String title, {
-    String? networkUrl,
-    Uint8List? imageData,
-    String emptyLabel = 'No image',
-  }) {
-    Widget child;
-    if (imageData != null && imageData.isNotEmpty) {
-      child = Image.memory(
-        imageData,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
-      );
-    } else if (networkUrl != null && networkUrl.isNotEmpty) {
-      child = Image.network(
-        networkUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
-      );
-    } else {
-      child = Center(child: Text(emptyLabel));
-    }
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Container(
-            height: 220,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.black12),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: child,
-          ),
-        ],
-      ),
+  List<ResolvedComicEditImage> _resolvedImages() {
+    return resolveComicEditImages(
+      images: widget.request.itemImages,
+      edits: _itemImageEdits,
     );
   }
 
@@ -1849,8 +1762,14 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     final coverUrl = coverUrlCtl.text.trim();
     final resolvedImages = _resolvedImages();
     final imageCount = resolvedImages.length;
-    final backCover = _firstImageOfType('back_cover');
-    final frontAlt = _firstImageOfType('front_cover');
+    final backCover = firstResolvedComicEditImageOfType(
+      resolvedImages,
+      'back_cover',
+    );
+    final frontAlt = firstResolvedComicEditImageOfType(
+      resolvedImages,
+      'front_cover',
+    );
     final auxiliaryCount =
         resolvedImages.where((image) => image.imageType == 'auxiliary').length;
     return SingleChildScrollView(
@@ -1858,22 +1777,13 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImagePreviewCard(
-                'Front Cover',
-                networkUrl: coverUrl,
-                imageData: frontAlt?.imageData,
-                emptyLabel: 'No front cover',
-              ),
-              const SizedBox(width: 12),
-              _buildImagePreviewCard(
-                'Back Cover',
-                imageData: backCover?.imageData,
-                emptyLabel: 'No back cover',
-              ),
-            ],
+          ComicCoverPreviewRow(
+            coverUrl: coverUrl,
+            frontCoverOverride: frontAlt,
+            backCover: backCover,
+            titleStyle: const TextStyle(fontWeight: FontWeight.w700),
+            backgroundColor: Colors.black12,
+            borderColor: Colors.black12,
           ),
           const SizedBox(height: 12),
           Row(
@@ -1904,33 +1814,15 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'Use the metadata cover for the primary front cover. Use My Images for front overrides, back covers, slab shots, signatures, and detail photos.',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Attached personal images: $imageCount total, $auxiliaryCount auxiliary.',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () =>
-                                DefaultTabController.of(context).animateTo(6),
-                            icon: const Icon(Icons.collections_outlined),
-                            label: const Text('Manage My Images'),
-                          ),
-                          FilledButton.icon(
-                            onPressed: () =>
-                                launchEbaySearch(_buildMarketSearchQuery()),
-                            icon: const Icon(Icons.search),
-                            label: const Text('Find Better Cover'),
-                          ),
-                        ],
+                      ComicCoverWorkflowContent(
+                        imageCount: imageCount,
+                        auxiliaryCount: auxiliaryCount,
+                        bodyStyle: Theme.of(context).textTheme.bodySmall,
+                        statsStyle: Theme.of(context).textTheme.bodyMedium,
+                        onManageImages: () =>
+                            DefaultTabController.of(context).animateTo(6),
+                        onFindBetterCover: () =>
+                            launchEbaySearch(_buildMarketSearchQuery()),
                       ),
                     ],
                   ),
@@ -1949,8 +1841,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Add your own images, set a caption, and choose the image type for signatures, slab shots, and detail photos.',
+          ComicPhotosWorkflowText(
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 12),
@@ -2866,20 +2757,4 @@ class _StructuredDateFieldState extends State<_StructuredDateField> {
       ],
     );
   }
-}
-
-class _ResolvedComicImage {
-  const _ResolvedComicImage({
-    required this.id,
-    required this.imageData,
-    required this.imageType,
-    required this.caption,
-    required this.sortOrder,
-  });
-
-  final String id;
-  final Uint8List imageData;
-  final String imageType;
-  final String? caption;
-  final int sortOrder;
 }

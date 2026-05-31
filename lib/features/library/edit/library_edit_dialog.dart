@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -14,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
@@ -2537,54 +2536,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         : widget.physicalFormats;
   }
 
-  List<_ResolvedEditImage> _resolvedEditImages() {
-    final existing = {
-      for (final image in widget.itemImages) image.id: image,
-    };
-    final editsById = {
-      for (final edit in _itemImageEdits) edit.id: edit,
-    };
-    final images = <_ResolvedEditImage>[];
-    for (final image in widget.itemImages) {
-      final edit = editsById[image.id];
-      if (edit?.deleted == true) {
-        continue;
-      }
-      images.add(
-        _ResolvedEditImage(
-          id: image.id,
-          imageData: edit?.imageData ?? image.imageData,
-          imageType: edit?.imageType ?? image.imageType,
-          caption: edit?.caption ?? image.caption,
-          sortOrder: edit?.sortOrder ?? image.sortOrder,
-        ),
-      );
-    }
-    for (final edit in _itemImageEdits) {
-      if (existing.containsKey(edit.id) || edit.deleted || edit.imageData == null) {
-        continue;
-      }
-      images.add(
-        _ResolvedEditImage(
-          id: edit.id,
-          imageData: edit.imageData!,
-          imageType: edit.imageType,
-          caption: edit.caption,
-          sortOrder: edit.sortOrder,
-        ),
-      );
-    }
-    images.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-    return images;
-  }
-
-  _ResolvedEditImage? _firstImageOfType(String type) {
-    for (final image in _resolvedEditImages()) {
-      if (image.imageType == type) {
-        return image;
-      }
-    }
-    return null;
+  List<ResolvedComicEditImage> _resolvedEditImages() {
+    return resolveComicEditImages(
+      images: widget.itemImages,
+      edits: _itemImageEdits,
+    );
   }
 
   String _buildComicMarketSearchQuery() {
@@ -2603,63 +2559,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     }
   }
 
-  Widget _buildImagePreviewCard(
-    String title, {
-    String? networkUrl,
-    Uint8List? imageData,
-    String emptyLabel = 'No image',
-  }) {
-    Widget child;
-    if (imageData != null && imageData.isNotEmpty) {
-      child = Image.memory(
-        imageData,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
-      );
-    } else if (networkUrl != null && networkUrl.isNotEmpty) {
-      child = Image.network(
-        networkUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(child: Text(emptyLabel)),
-      );
-    } else {
-      child = Center(child: Text(emptyLabel));
-    }
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            height: 220,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: appPalette(context).gridCanvas,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: appPalette(context).divider),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: child,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _comicCoverTab() {
     final coverUrl = emptyToNull(_coverController.text) ??
         emptyToNull(_thumbnailController.text) ??
         widget.item.displayCoverUrl;
     final resolvedImages = _resolvedEditImages();
-    final backCover = _firstImageOfType('back_cover');
-    final frontAlt = _firstImageOfType('front_cover');
+    final backCover = firstResolvedComicEditImageOfType(
+      resolvedImages,
+      'back_cover',
+    );
+    final frontAlt = firstResolvedComicEditImageOfType(
+      resolvedImages,
+      'front_cover',
+    );
     final auxiliaryCount =
         resolvedImages.where((image) => image.imageType == 'auxiliary').length;
     return EditTabShell(
@@ -2672,22 +2584,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             children: [
               _field(controller: _coverController, label: 'Front Cover URL'),
               const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildImagePreviewCard(
-                    'Front Cover',
-                    networkUrl: coverUrl,
-                    imageData: frontAlt?.imageData,
-                    emptyLabel: 'No front cover',
-                  ),
-                  const SizedBox(width: 12),
-                  _buildImagePreviewCard(
-                    'Back Cover',
-                    imageData: backCover?.imageData,
-                    emptyLabel: 'No back cover',
-                  ),
-                ],
+              ComicCoverPreviewRow(
+                coverUrl: coverUrl,
+                frontCoverOverride: frontAlt,
+                backCover: backCover,
               ),
             ],
           ),
@@ -2695,35 +2595,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         EditSection(
           title: 'Cover workflow',
           accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Use the metadata cover for the main front cover. Use My Images for front overrides, back covers, slab shots, signatures, and detail photos.',
-                style: TextStyle(color: appPalette(context).textMuted),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Attached personal images: ${resolvedImages.length} total, $auxiliaryCount auxiliary.',
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: () => _openEditTab('photos'),
-                    icon: const Icon(Icons.collections_outlined),
-                    label: const Text('Manage My Images'),
-                  ),
-                  FilledButton.icon(
-                    onPressed: () => launchEbaySearch(_buildComicMarketSearchQuery()),
-                    icon: const Icon(Icons.search),
-                    label: const Text('Find Better Cover'),
-                  ),
-                ],
-              ),
-            ],
+          child: ComicCoverWorkflowContent(
+            imageCount: resolvedImages.length,
+            auxiliaryCount: auxiliaryCount,
+            bodyStyle: TextStyle(color: appPalette(context).textMuted),
+            onManageImages: () => _openEditTab('photos'),
+            onFindBetterCover: () =>
+                launchEbaySearch(_buildComicMarketSearchQuery()),
           ),
         ),
       ],
@@ -2736,8 +2614,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         EditSection(
           title: 'My images workflow',
           accent: widget.accent,
-          child: Text(
-            'Add up to five personal images and mark them as front cover, back cover, signature, slab, or supporting shots.',
+          child: ComicPhotosWorkflowText(
             style: TextStyle(color: appPalette(context).textMuted),
           ),
         ),
@@ -3062,20 +2939,4 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _selectedWishlistBundleReleaseId = state.selectedBundleReleaseId;
     });
   }
-}
-
-class _ResolvedEditImage {
-  const _ResolvedEditImage({
-    required this.id,
-    required this.imageData,
-    required this.imageType,
-    required this.caption,
-    required this.sortOrder,
-  });
-
-  final String id;
-  final Uint8List? imageData;
-  final String imageType;
-  final String? caption;
-  final int sortOrder;
 }
