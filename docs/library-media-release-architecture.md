@@ -1,5 +1,14 @@
 # Library Media/Release Architecture
 
+> Historical proposal: this document describes a broader restructuring pass,
+> not the current implementation contract. As of 2026-05-31 the app already has
+> anchor-aware add/edit flows, bundle-release support, and a six-kind shipped
+> registry (`comic`, `book`, `game`, `boardgame`, `movie`, `music`), but this
+> full architecture rewrite is not an active roadmap item.
+
+> Treat the sections below as background design notes. Re-validate them against
+> current shared library surfaces before using them as implementation guidance.
+
 ## Why This Needs A Restructure
 
 The generic library stack currently mixes three different scopes in the same surfaces:
