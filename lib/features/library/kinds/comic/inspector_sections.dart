@@ -42,7 +42,11 @@ class _ComicInspectorDashboard extends StatelessWidget {
       if (collectorRows.isNotEmpty)
         _ComicPanelData(title: 'Collector', rows: collectorRows),
       if (valueRows.isNotEmpty)
-        _ComicPanelData(title: 'Value', rows: valueRows),
+        _ComicPanelData(
+          title: 'Value',
+          rows: valueRows,
+          variant: _ComicPanelVariant.value,
+        ),
     ];
 
     return LayoutBuilder(
@@ -64,6 +68,7 @@ class _ComicInspectorDashboard extends StatelessWidget {
                   title: panel.title,
                   rows: panel.rows,
                   accent: request.accent,
+                  variant: panel.variant,
                   initialVisibleRows:
                       panel.title == 'Creators' ? 5 : null,
                 ),
@@ -76,11 +81,18 @@ class _ComicInspectorDashboard extends StatelessWidget {
 }
 
 class _ComicPanelData {
-  const _ComicPanelData({required this.title, required this.rows});
+  const _ComicPanelData({
+    required this.title,
+    required this.rows,
+    this.variant = _ComicPanelVariant.standard,
+  });
 
   final String title;
   final List<_ComicRowData> rows;
+  final _ComicPanelVariant variant;
 }
+
+enum _ComicPanelVariant { standard, value }
 
 class _ComicRowData {
   const _ComicRowData({required this.label, this.value, this.valueWidget});
@@ -95,12 +107,14 @@ class _ComicPanel extends StatefulWidget {
     required this.title,
     required this.rows,
     required this.accent,
+    required this.variant,
     this.initialVisibleRows,
   });
 
   final String title;
   final List<_ComicRowData> rows;
   final Color accent;
+  final _ComicPanelVariant variant;
   final int? initialVisibleRows;
 
   @override
@@ -197,6 +211,8 @@ class _ComicPanelState extends State<_ComicPanel> {
               surface: surface,
               altSurface: altSurface,
               border: border,
+              variant: widget.variant,
+              accent: widget.accent,
             ),
         ],
       ),
@@ -211,6 +227,8 @@ class _ComicTableRow extends StatelessWidget {
     required this.surface,
     required this.altSurface,
     required this.border,
+    required this.variant,
+    required this.accent,
   });
 
   final _ComicRowData row;
@@ -218,10 +236,52 @@ class _ComicTableRow extends StatelessWidget {
   final Color surface;
   final Color altSurface;
   final Color border;
+  final _ComicPanelVariant variant;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    if (variant == _ComicPanelVariant.value) {
+      return Container(
+        decoration: BoxDecoration(
+          color: shaded ? altSurface : surface,
+          border: Border(top: BorderSide(color: border)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                row.label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: palette.textMuted,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  row.value ?? '-',
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: row.label == 'Current Value'
+                            ? accent
+                            : palette.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        height: 1.1,
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final valueWidget = row.valueWidget ??
         Text(
           row.value ?? '-',

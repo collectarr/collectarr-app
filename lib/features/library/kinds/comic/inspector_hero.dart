@@ -180,7 +180,7 @@ class ComicInspectorHero extends ConsumerWidget {
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: border)),
               ),
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               child: Column(
                 children: [
                   _ComicDetailLine(label: 'Release', value: releaseLabel),
@@ -193,14 +193,39 @@ class ComicInspectorHero extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Text(
-                synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: ink,
-                      height: 1.35,
-                      fontWeight: FontWeight.w500,
-                    ),
-                textAlign: TextAlign.justify,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.35 : 0.65),
+                  border: Border.all(color: border),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Plot Summary',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: muted,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.35,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        synopsis?.isNotEmpty == true
+                            ? synopsis!
+                            : 'No plot available.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: ink,
+                              height: 1.4,
+                              fontWeight: FontWeight.w500,
+                            ),
+                        textAlign: TextAlign.justify,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -350,17 +375,18 @@ class _ComicDetailLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 64,
+            width: 62,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
                   ),
             ),
           ),
@@ -368,7 +394,7 @@ class _ComicDetailLine extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
                     height: 1.2,
@@ -403,7 +429,7 @@ class _ComicCoverToggleRow extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           'Front',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: ink,
                 fontWeight: FontWeight.w700,
               ),
@@ -417,7 +443,7 @@ class _ComicCoverToggleRow extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           'Back',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: hasBackCover ? muted : muted.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w700,
               ),
