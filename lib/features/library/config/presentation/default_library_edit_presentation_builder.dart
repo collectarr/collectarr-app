@@ -6,6 +6,11 @@ class DefaultLibraryEditPresentationBuilder
   const DefaultLibraryEditPresentationBuilder({
     this.showOwnershipReferenceSection = true,
     this.showOwnedGradingSection = false,
+    this.useOwnedMainArtworkLayout = false,
+    this.useDetailsTab = false,
+    this.useArtworkCoverTab = false,
+    this.useArtworkPhotosTab = false,
+    this.showOwnedCoverPriceField = true,
     this.trackingSectionTitle = 'Tracking edition',
     this.ownedPhysicalTrackingSectionTitle = 'Condition & Grade',
     this.ownedDigitalTrackingSectionTitle = 'Ownership details',
@@ -44,6 +49,11 @@ class DefaultLibraryEditPresentationBuilder
 
   final bool showOwnershipReferenceSection;
   final bool showOwnedGradingSection;
+  final bool useOwnedMainArtworkLayout;
+  final bool useDetailsTab;
+  final bool useArtworkCoverTab;
+  final bool useArtworkPhotosTab;
+  final bool showOwnedCoverPriceField;
   final String trackingSectionTitle;
   final String ownedPhysicalTrackingSectionTitle;
   final String ownedDigitalTrackingSectionTitle;
@@ -118,6 +128,11 @@ class DefaultLibraryEditPresentationBuilder
           context.isOwned &&
           (context.hasEditionAnchors || context.hasBundleReleaseAnchors),
       showsOwnedGradingSection: showOwnedGradingSection && context.isOwned,
+      usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
+      usesDetailsTab: useDetailsTab,
+      usesArtworkCoverTab: useArtworkCoverTab,
+      usesArtworkPhotosTab: useArtworkPhotosTab && context.isOwned,
+      showsOwnedCoverPriceField: showOwnedCoverPriceField,
       trackingSectionTitle: context.isOwned
           ? context.isDigitalFormat
               ? ownedDigitalTrackingSectionTitle

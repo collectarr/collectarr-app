@@ -20,6 +20,11 @@ const genericLibraryEditPresentation = LibraryEditPresentation(
 const comicsLibraryEditPresentation = LibraryEditPresentation(
   builder: DefaultLibraryEditPresentationBuilder(
     showOwnedGradingSection: true,
+    useOwnedMainArtworkLayout: true,
+    useDetailsTab: true,
+    useArtworkCoverTab: true,
+    useArtworkPhotosTab: true,
+    showOwnedCoverPriceField: false,
     ownedTabs: _comicOwnedEditTabs,
   ),
 );

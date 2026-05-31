@@ -274,8 +274,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return widget.item.mediaKind.isVideoLibraryKind;
   }
 
-  bool get _isComicKind => widget.type.workspace.kind == CatalogMediaKind.comic;
-
   bool get _hasReleaseAnchor {
     return _selectedOwnedAnchorType != PersonalItemAnchorType.item.apiValue;
   }
@@ -634,7 +632,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   bool get _hasValueTab => _tabSpecs.any((t) => t.id == 'value');
 
   Widget _mainTab() {
-    if (_isComicKind && _isOwned) {
+    if (_editPresentation.usesOwnedMainArtworkLayout) {
       return _ownedComicMainTab();
     }
     final mediaFields = widget.type.mediaFields;
@@ -838,7 +836,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   const SizedBox(height: 10),
                   _responsiveFields([
                     _field(controller: _signedByController, label: 'Signed by'),
-                    if (!_isComicKind)
+                    if (editPresentation.showsOwnedCoverPriceField)
                       _field(
                         controller: _coverPriceController,
                         label: 'Cover price',
@@ -877,7 +875,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _detailsTab() {
-    if (_isComicKind) {
+    if (_editPresentation.usesDetailsTab) {
       return _ownedComicDetailsTab();
     }
     return const SizedBox.shrink();
@@ -1800,7 +1798,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _photosTab() {
-    if (_isComicKind) {
+    if (_editPresentation.usesArtworkPhotosTab) {
       return _comicPhotosTab();
     }
     return EditTabShell(
@@ -1819,7 +1817,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _coverTab() {
-    if (_isComicKind) {
+    if (_editPresentation.usesArtworkCoverTab) {
       return _comicCoverTab();
     }
     return EditTabShell(
