@@ -23,6 +23,7 @@ Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
       selectedColumns: viewState.visibleColumns,
       defaultColumns: adapter.defaultTableColumns(),
       columnLabel: adapter.columnDisplayName,
+      accent: type.workspace.accent,
       columnGroup: adapter.columnGroup,
       groupLabel: adapter.columnGroupLabel,
       savedPresets: savedPresets,
