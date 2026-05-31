@@ -368,6 +368,11 @@ void main() {
       musicLibraryConfig.presentation.compactBucketIcon,
       Icons.person_2_outlined,
     );
+    expect(booksLibraryConfig.presentation.emptyStateProviderSummarySuffix, '');
+    expect(
+      moviesLibraryConfig.presentation.emptyStateProviderSummarySuffix,
+      ' Physical formats are tracked as editions.',
+    );
     expect(moviesLibraryConfig.presentation.groupModes, [
       LibraryGroupMode.audienceRating,
       LibraryGroupMode.color,

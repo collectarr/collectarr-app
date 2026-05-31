@@ -29,6 +29,7 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: defaultPreviewLabels,
   statsLabels: franchiseStatsLabels,
   compactBucketIcon: Icons.movie_filter_outlined,
+  emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   groupModes: [
     LibraryGroupMode.audienceRating,
     LibraryGroupMode.color,
