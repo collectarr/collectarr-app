@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -78,6 +79,61 @@ void main() {
     expect(groups, hasLength(2));
     expect(groups.first.label, contains('Batman'));
     expect(groups.first.confidenceScore, greaterThan(groups.last.confidenceScore));
+  });
+
+  testWidgets('duplicate dialog renders group summary and entries', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                onPressed: () {
+                  showDuplicateItemsDialog(
+                    context,
+                    duplicateGroups: [
+                      LibraryDuplicateGroup(
+                        key: 'barcode:1111',
+                        label: 'Barcode 1111',
+                        reason: 'Same barcode',
+                        confidenceScore: 97,
+                        entries: [
+                          _entry(
+                            itemId: 'a',
+                            title: 'Saga',
+                            barcode: '1111',
+                            issue: '1',
+                            owned: true,
+                          ),
+                          _entry(
+                            itemId: 'b',
+                            title: 'Saga',
+                            barcode: '1111',
+                            issue: '1',
+                            wishlisted: true,
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Local duplicate candidates'), findsOneWidget);
+    expect(find.text('Barcode 1111'), findsOneWidget);
+    expect(find.text('97% match'), findsOneWidget);
+    expect(find.text('2 items'), findsOneWidget);
+    expect(find.text('Same barcode'), findsOneWidget);
+    expect(find.text('Saga #1'), findsNWidgets(2));
   });
 }
 
