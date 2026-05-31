@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -169,157 +170,135 @@ class _InspectorPersonalDetailsEditorState
   Widget build(BuildContext context) {
     final accent = widget.accent;
     final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: appPalette(context).surfaceSubtle,
-        border: Border.all(color: accent.withValues(alpha: 0.33)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LibraryInspectorSection(
+      title: 'Personal details',
+      accentColor: accent,
+      children: [
+        Text(
+          'This panel uses draft editing. Apply changes when you are ready to save.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: palette.textMuted,
+              ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: _pickPurchaseDate,
+          icon: const Icon(Icons.event),
+          label: Text(
+            _purchaseDate == null
+                ? 'Set purchase date'
+                : 'Purchased ${_formatDate(_purchaseDate!)}',
+          ),
+        ),
+        if (_purchaseDate != null) ...[
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => setState(() => _purchaseDate = null),
+              icon: const Icon(Icons.clear),
+              label: const Text('Clear purchase date'),
+            ),
+          ),
+        ],
+        const SizedBox(height: 10),
+        Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.edit_note, size: 17, color: accent),
-                const SizedBox(width: 7),
-                Text(
-                  'Personal details',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'This panel uses draft editing. Apply changes when you are ready to save.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                  ),
-            ),
-            const SizedBox(height: 9),
-            OutlinedButton.icon(
-              onPressed: _pickPurchaseDate,
-              icon: const Icon(Icons.event),
-              label: Text(
-                _purchaseDate == null
-                    ? 'Set purchase date'
-                    : 'Purchased ${_formatDate(_purchaseDate!)}',
-              ),
-            ),
-            if (_purchaseDate != null) ...[
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => setState(() => _purchaseDate = null),
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Clear purchase date'),
-                ),
-              ),
-            ],
-            const SizedBox(height: 9),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _priceController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Price paid',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) {
-                      if (_priceError != null) {
-                        setState(() => _priceError = null);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _currencyController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'Currency',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 9),
-            InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: _pickLocation,
-              child: InputDecorator(
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: _priceController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
-                  labelText: 'Location',
+                  labelText: 'Price paid',
                   border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.place),
                 ),
-                child: Text(
-                  _selectedLocationLabel ?? 'No location selected',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color:
-                        _selectedLocationLabel == null ? palette.textMuted : null,
-                      ),
+                onChanged: (_) {
+                  if (_priceError != null) {
+                    setState(() => _priceError = null);
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _currencyController,
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(
+                  labelText: 'Currency',
+                  border: OutlineInputBorder(),
                 ),
-              ),
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _notesController,
-              minLines: 2,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Personal notes',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _purchaseStoreController,
-              decoration: const InputDecoration(
-                labelText: 'Purchase store',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.store),
-              ),
-            ),
-            const SizedBox(height: 9),
-            TextField(
-              controller: _boxSetNameController,
-              decoration: const InputDecoration(
-                labelText: 'Box set name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.inventory_2_outlined),
-              ),
-            ),
-            const SizedBox(height: 9),
-            if (_priceError != null) ...[
-              Text(
-                _priceError!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 9),
-            ],
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: _save,
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Apply personal changes'),
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 10),
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _pickLocation,
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Location',
+              border: OutlineInputBorder(),
+              suffixIcon: Icon(Icons.place),
+            ),
+            child: Text(
+              _selectedLocationLabel ?? 'No location selected',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: _selectedLocationLabel == null
+                        ? palette.textMuted
+                        : null,
+                  ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _notesController,
+          minLines: 2,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            labelText: 'Personal notes',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _purchaseStoreController,
+          decoration: const InputDecoration(
+            labelText: 'Purchase store',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.store),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _boxSetNameController,
+          decoration: const InputDecoration(
+            labelText: 'Box set name',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.inventory_2_outlined),
+          ),
+        ),
+        if (_priceError != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            _priceError!,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ],
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            onPressed: _save,
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('Apply personal changes'),
+          ),
+        ),
+      ],
     );
   }
 
