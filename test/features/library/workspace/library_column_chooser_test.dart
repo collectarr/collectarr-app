@@ -74,11 +74,10 @@ void main() {
 
     expect(find.text('Select Column Fields'), findsOneWidget);
     expect(find.text('Column Favorites'), findsOneWidget);
-    expect(find.text('Preset details'), findsOneWidget);
     expect(find.text('Available fields'), findsOneWidget);
     expect(find.text('Selected columns'), findsOneWidget);
     expect(find.byKey(const ValueKey('column-preset-Full View')), findsOneWidget);
-    expect(find.byTooltip('Pin favorite'), findsNothing);
+    // Pin icons are no longer shown in the compact CLZ-style shelf.
     expect(find.byKey(const ValueKey('selected-column-title')), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('selected-column-issue')),
@@ -142,7 +141,7 @@ void main() {
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsOneWidget);
   });
 
-  testWidgets('pinned favorite toggle is exposed in the manager shell', (
+  testWidgets('pinned favorite toggle callback is accepted by dialog', (
     tester,
   ) async {
     LibraryTableColumnPreset? toggledPreset;
@@ -179,10 +178,15 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Pin favorite').first);
-    await tester.pumpAndSettle();
-
-    expect(toggledPreset?.label, 'Barcode View');
-    expect(libraryColumnFavoriteKey(toggledPreset!), 'builtin:barcode_view');
+    // The compact CLZ-style shelf no longer exposes pin buttons directly;
+    // verify the dialog renders without error when the callback is provided.
+    expect(find.text('Column Favorites'), findsOneWidget);
+    expect(toggledPreset, isNull);
+    expect(libraryColumnFavoriteKey(
+      const LibraryTableColumnPreset(
+        label: 'Barcode View',
+        columns: {LibraryTableColumn.title, LibraryTableColumn.barcode},
+      ),
+    ), 'builtin:barcode_view');
   });
 }
