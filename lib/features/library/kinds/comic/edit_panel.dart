@@ -1244,6 +1244,22 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           Row(
             children: [
               Expanded(
+                  child: _labelledField('Crossover',
+                      controller: crossoverCtl,
+                      key: const ValueKey('edit-crossover'),
+                      hintText: 'Major crossover banner or event label')),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: _labelledField('Story Arcs',
+                      controller: storyArcsCtl,
+                      key: const ValueKey('edit-storyarcs'),
+                      hintText: 'Comma separated')),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
                   child: _labelledField('Title',
                       controller: titleCtl, key: const ValueKey('edit-title'))),
               const SizedBox(width: 8),
@@ -1269,31 +1285,29 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           ),
           const SizedBox(height: 12),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                  child: _labelledField('Age',
-                      controller: ageCtl, key: const ValueKey('edit-age'))),
+                flex: 3,
+                child: _labelledField('Age',
+                    controller: ageCtl, key: const ValueKey('edit-age')),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('No. of Pages',
-                      controller: pagesCtl, key: const ValueKey('edit-pages'))),
+                flex: 3,
+                child: _labelledField('No. of Pages',
+                    controller: pagesCtl, key: const ValueKey('edit-pages')),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 6,
+                child: _labelledField('Genres',
+                    controller: genresCtl,
+                    key: const ValueKey('edit-genres'),
+                    hintText: 'Comma separated'),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          _labelledField('Crossover',
-              controller: crossoverCtl,
-              key: const ValueKey('edit-crossover'),
-              hintText: 'Major crossover banner or event label'),
-          const SizedBox(height: 12),
-          _labelledField('Story Arcs',
-              controller: storyArcsCtl,
-              key: const ValueKey('edit-storyarcs'),
-              hintText: 'Comma separated'),
-          const SizedBox(height: 12),
-          _labelledField('Genres',
-              controller: genresCtl,
-              key: const ValueKey('edit-genres'),
-              hintText: 'Comma separated'),
         ],
       ),
     );
@@ -1303,8 +1317,181 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: _buildQuickChoiceField('Grade',
+                              controller: gradeCtl,
+                              suggestions: _commonGrades,
+                              key: const ValueKey('edit-grade')),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 5,
+                          child: _buildQuickChoiceField('Raw / Slabbed',
+                              controller: rawOrSlabbedCtl,
+                              suggestions: _rawOrSlabbedOptions,
+                              key: const ValueKey('edit-raw-slabbed')),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 8,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Market Tools',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    FilledButton.icon(
+                                      onPressed: () => launchEbaySearch(
+                                        '${_buildMarketSearchQuery()} sold',
+                                      ),
+                                      icon:
+                                          const Icon(Icons.shopping_bag_outlined),
+                                      label: const Text('Sold Listings'),
+                                    ),
+                                    OutlinedButton.icon(
+                                      onPressed: _openCovrPriceHome,
+                                      icon: const Icon(Icons.open_in_new),
+                                      label: const Text('Open CovrPrice'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 4,
+                          child: _labelledField('My Value',
+                              controller: currentValueCtl,
+                              key: const ValueKey('edit-current-value')),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _labelledField('Signed by',
+                        controller: signedByCtl,
+                        key: const ValueKey('edit-signed-by')),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _buildQuickChoiceField('Grading Company',
+                                controller: gradingCompanyCtl,
+                                suggestions: _gradingCompanies,
+                                key: const ValueKey('edit-grading-company'))),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: _labelledField('Certification Number',
+                                controller: certificationNumberCtl,
+                                key: const ValueKey('edit-certification-number'))),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _labelledField('Grader Notes',
+                        controller: graderNotesCtl,
+                        key: const ValueKey('edit-grader-notes'),
+                        maxLines: 3),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 4,
+                child: _buildQuickChoiceField('Label Type',
+                    controller: labelTypeCtl,
+                    suggestions: _labelTypeOptions,
+                    key: const ValueKey('edit-label-type')),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 5,
+                child: _buildQuickChoiceField('Custom Label',
+                    controller: customLabelCtl,
+                    suggestions: _customLabelOptions,
+                    key: const ValueKey('edit-custom-label')),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: _buildQuickChoiceField('Page Quality',
+                    controller: pageQualityCtl,
+                    suggestions: _pageQualityOptions,
+                    key: const ValueKey('edit-page-quality')),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 3, child: _buildKeySeveritySection()),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 5,
+                child: _labelledField('Key Reason',
+                    controller: keyReasonCtl,
+                    key: const ValueKey('edit-key-reason')),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 4,
+                child: _labelledField('Key Category',
+                    controller: keyCategoryCtl,
+                    key: const ValueKey('edit-key-category')),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                   child: _labelledField('Purchase Price',
@@ -1312,29 +1499,15 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                       key: const ValueKey('edit-purchase-price'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _labelledField('Currency',
-                      controller: purchaseCurrencyCtl,
-                      key: const ValueKey('edit-purchase-currency'))),
-              const SizedBox(width: 8),
-              Expanded(
                   child: _labelledDateField('Purchase Date',
                       controller: purchaseDateCtl,
                       key: const ValueKey('edit-purchase-date'))),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                  child: _labelledField('My Value',
-                      controller: currentValueCtl,
-                      key: const ValueKey('edit-current-value'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _buildQuickChoiceField('Grade',
-                      controller: gradeCtl,
-                      suggestions: _commonGrades,
-                      key: const ValueKey('edit-grade'))),
+                  child: _buildQuickChoiceField('Purchase Store',
+                      controller: purchaseStoreCtl,
+                      suggestions: _purchaseStoreOptions,
+                      key: const ValueKey('edit-purchase-store'))),
               const SizedBox(width: 8),
               Expanded(
                   child: _labelledField('Cover Price',
@@ -1344,6 +1517,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           ),
           const SizedBox(height: 12),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                   child: _labelledField('Sold Price',
@@ -1356,133 +1530,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                       key: const ValueKey('edit-sold-date'))),
               const SizedBox(width: 8),
               Expanded(
-                  child: _buildQuickChoiceField('Purchase Store',
-                      controller: purchaseStoreCtl,
-                      suggestions: _purchaseStoreOptions,
-                      key: const ValueKey('edit-purchase-store'))),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildQuickChoiceField('Raw / Slabbed',
-                      controller: rawOrSlabbedCtl,
-                      suggestions: _rawOrSlabbedOptions,
-                      key: const ValueKey('edit-raw-slabbed'))),
+                  child: _labelledField('Currency',
+                      controller: purchaseCurrencyCtl,
+                      key: const ValueKey('edit-purchase-currency'))),
               const SizedBox(width: 8),
-              Expanded(
-                  child: _buildQuickChoiceField('Grading Company',
-                      controller: gradingCompanyCtl,
-                      suggestions: _gradingCompanies,
-                      key: const ValueKey('edit-grading-company'))),
+              const Expanded(child: SizedBox.shrink()),
             ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildQuickChoiceField('Label Type',
-                      controller: labelTypeCtl,
-                      suggestions: _labelTypeOptions,
-                      key: const ValueKey('edit-label-type'))),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _buildQuickChoiceField('Custom Label',
-                      controller: customLabelCtl,
-                      suggestions: _customLabelOptions,
-                      key: const ValueKey('edit-custom-label'))),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildQuickChoiceField('Page Quality',
-                      controller: pageQualityCtl,
-                      suggestions: _pageQualityOptions,
-                      key: const ValueKey('edit-page-quality'))),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _labelledField('Certification Number',
-                      controller: certificationNumberCtl,
-                      key: const ValueKey('edit-certification-number'))),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _labelledField('Grader Notes',
-              controller: graderNotesCtl,
-              key: const ValueKey('edit-grader-notes'),
-              maxLines: 3),
-          const SizedBox(height: 12),
-          _labelledField('Signed by',
-              controller: signedByCtl, key: const ValueKey('edit-signed-by')),
-          const SizedBox(height: 12),
-          _buildKeySeveritySection(),
-          if (_keyComic) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                    child: _labelledField('Key Category',
-                        controller: keyCategoryCtl,
-                        key: const ValueKey('edit-key-category'))),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: _labelledField('Key Severity',
-                        controller: keySeverityCtl,
-                        key: const ValueKey('edit-key-severity'))),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _labelledField('Key Reason',
-                controller: keyReasonCtl,
-                key: const ValueKey('edit-key-reason')),
-          ],
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Market Tools',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Jump to sold listings or external price references while editing your grading and value notes.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: () => launchEbaySearch(
-                        '${_buildMarketSearchQuery()} sold',
-                      ),
-                      icon: const Icon(Icons.shopping_bag_outlined),
-                      label: const Text('Sold Listings'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _openCovrPriceHome,
-                      icon: const Icon(Icons.open_in_new),
-                      label: const Text('Open CovrPrice'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -1492,42 +1545,54 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   Widget _buildPersonalTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildReadStatusSection()),
-              const SizedBox(width: 8),
-              Expanded(child: _buildRatingSection()),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _labelledField('Owner',
-                      controller: ownerCtl, key: const ValueKey('edit-owner'))),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildReadStatusSection()),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: _labelledDateField('Read Date',
+                            controller: readDateCtl,
+                            key: const ValueKey('edit-read-date'))),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _labelledField('Notes',
+                    controller: notesCtl,
+                    key: const ValueKey('edit-notes'),
+                    maxLines: 5),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                  child: _labelledDateField('Read Date',
-                      controller: readDateCtl,
-                      key: const ValueKey('edit-read-date'))),
-              const SizedBox(width: 8),
-              Expanded(
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _labelledField('Owner',
+                    controller: ownerCtl, key: const ValueKey('edit-owner')),
+                const SizedBox(height: 12),
+                _buildRatingSection(),
+                const SizedBox(height: 12),
+                _labelledField('Tags',
+                    controller: tagsCtl, key: const ValueKey('edit-tags')),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
                   child: _labelledDateField('Bag/Board Date',
                       controller: bagBoardDateCtl,
-                      key: const ValueKey('edit-bagboard-date'))),
-            ],
+                      key: const ValueKey('edit-bagboard-date')),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          _labelledField('Tags',
-              controller: tagsCtl, key: const ValueKey('edit-tags')),
-          const SizedBox(height: 12),
-          _labelledField('Notes',
-              controller: notesCtl,
-              key: const ValueKey('edit-notes'),
-              maxLines: 5),
         ],
       ),
     );
@@ -1536,11 +1601,29 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   Widget _buildCustomFieldsTab() {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: CustomFieldsEditSection(
-        definitions: widget.request.customFieldDefinitions,
-        values: _customFieldValues,
-        accent: widget.request.accent,
-        onChanged: (values) => setState(() => _customFieldValues = values),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Custom Fields',
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Edit user-defined metadata for this comic issue.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          CustomFieldsEditSection(
+            definitions: widget.request.customFieldDefinitions,
+            values: _customFieldValues,
+            accent: widget.request.accent,
+            onChanged: (values) => setState(() => _customFieldValues = values),
+          ),
+        ],
       ),
     );
   }
@@ -1558,9 +1641,6 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _labelledField('Front Cover URL',
-              controller: coverUrlCtl, key: const ValueKey('edit-cover-url')),
-          const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1579,54 +1659,67 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
             ],
           ),
           const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Cover workflow',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _labelledField('Front Cover URL',
+                    controller: coverUrlCtl,
+                    key: const ValueKey('edit-cover-url')),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Cover workflow',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Use the metadata cover for the primary front cover. Use My Images for front overrides, back covers, slab shots, signatures, and detail photos.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Attached personal images: $imageCount total, $auxiliaryCount auxiliary.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () =>
+                                DefaultTabController.of(context).animateTo(6),
+                            icon: const Icon(Icons.collections_outlined),
+                            label: const Text('Manage My Images'),
+                          ),
+                          FilledButton.icon(
+                            onPressed: () =>
+                                launchEbaySearch(_buildMarketSearchQuery()),
+                            icon: const Icon(Icons.search),
+                            label: const Text('Find Better Cover'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Use the metadata cover above for the primary front cover. Use My Images to assign front cover overrides, back covers, slab shots, signatures, and detail photos.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Attached personal images: $imageCount total, $auxiliaryCount auxiliary.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          DefaultTabController.of(context).animateTo(6),
-                      icon: const Icon(Icons.collections_outlined),
-                      label: const Text('Manage My Images'),
-                    ),
-                    FilledButton.icon(
-                      onPressed: () =>
-                          launchEbaySearch(_buildMarketSearchQuery()),
-                      icon: const Icon(Icons.search),
-                      label: const Text('Find Better Cover'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1636,10 +1729,20 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   Widget _buildMyImagesTab() {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: ItemImagesEditSection(
-        images: widget.request.itemImages,
-        accent: widget.request.accent,
-        onChanged: (edits) => setState(() => _itemImageEdits = edits),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Add your own images, set a caption, and choose the image type for signatures, slab shots, and detail photos.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          ItemImagesEditSection(
+            images: widget.request.itemImages,
+            accent: widget.request.accent,
+            onChanged: (edits) => setState(() => _itemImageEdits = edits),
+          ),
+        ],
       ),
     );
   }
@@ -1650,15 +1753,19 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ElevatedButton.icon(
-              onPressed: _addCreator,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Creator')),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: _addCatalogCreator,
-            icon: const Icon(Icons.manage_search_outlined),
-            label: const Text('Find in Catalog'),
+          Row(
+            children: [
+              FilledButton.icon(
+                  onPressed: _addCreator,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Creator')),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: _addCatalogCreator,
+                icon: const Icon(Icons.manage_search_outlined),
+                label: const Text('Find in Catalog'),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -1759,6 +1866,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Add the main cast here. Core matches and manual entries are grouped together as editable chips.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -1821,6 +1933,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _labelledField('Summary',
               controller: summaryCtl,
@@ -1842,31 +1955,42 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ElevatedButton.icon(
-              onPressed: _addLink,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Link')),
+          Row(
+            children: [
+              FilledButton.icon(
+                  onPressed: _addLink,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Link')),
+            ],
+          ),
           const SizedBox(height: 8),
           for (var i = 0; i < links.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                          controller: links[i]['title'],
-                          decoration: const InputDecoration(labelText: 'Title'),
-                          key: ValueKey('edit-link-$i-title'))),
-                  const SizedBox(width: 8),
-                  Expanded(
-                      child: TextField(
-                          controller: links[i]['url'],
-                          decoration: const InputDecoration(labelText: 'URL'),
-                          key: ValueKey('edit-link-$i-url'))),
-                  IconButton(
-                      onPressed: () => _removeLink(i),
-                      icon: const Icon(Icons.delete)),
-                ],
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: TextField(
+                            controller: links[i]['title'],
+                            decoration: const InputDecoration(labelText: 'Title'),
+                            key: ValueKey('edit-link-$i-title'))),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: TextField(
+                            controller: links[i]['url'],
+                            decoration: const InputDecoration(labelText: 'URL'),
+                            key: ValueKey('edit-link-$i-url'))),
+                    IconButton(
+                        onPressed: () => _removeLink(i),
+                        icon: const Icon(Icons.delete)),
+                  ],
+                ),
               ),
             ),
         ],

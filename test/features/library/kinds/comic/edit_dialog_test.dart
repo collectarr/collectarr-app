@@ -293,7 +293,7 @@ void main() {
     );
     expect(existingUrlField.controller?.text, 'https://example.com/original');
 
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Add Link'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Add Link'));
     await pumpUntilSettled(tester);
     await tester.enterText(
       find.byKey(const ValueKey('edit-link-1-title')),
