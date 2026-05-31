@@ -226,9 +226,16 @@ void main() {
                         currency: 'USD',
                         rawOrSlabbed: 'Slabbed',
                         gradingCompany: 'CGC',
+                        certificationNumber: '1234567001',
+                        labelType: 'Universal',
+                        customLabel: 'Newsstand',
+                        pageQuality: 'White',
+                        graderNotes: 'Small spine stress',
                         signedBy: 'Brian K. Vaughan',
                         keyComic: true,
                         keyReason: 'First appearance',
+                        keyCategory: 'First appearances',
+                        keySeverity: 'Major',
                         marketValueCents: 1899,
                         updatedAt: DateTime.utc(2026, 5, 22),
                       ),
@@ -258,10 +265,24 @@ void main() {
       expect(find.text('Slabbed'), findsOneWidget);
       expect(find.text('Grading co.'), findsOneWidget);
       expect(find.text('CGC'), findsOneWidget);
+      expect(find.text('Certification no.'), findsOneWidget);
+      expect(find.text('1234567001'), findsOneWidget);
+      expect(find.text('Label type'), findsOneWidget);
+      expect(find.text('Universal'), findsOneWidget);
+      expect(find.text('Custom label'), findsOneWidget);
+      expect(find.text('Newsstand'), findsOneWidget);
+      expect(find.text('Page quality'), findsOneWidget);
+      expect(find.text('White'), findsOneWidget);
       expect(find.text('Signed by'), findsOneWidget);
       expect(find.text('Brian K. Vaughan'), findsOneWidget);
       expect(find.text('Key'), findsOneWidget);
       expect(find.text('First appearance'), findsOneWidget);
+      expect(find.text('Key category'), findsOneWidget);
+      expect(find.text('First appearances'), findsOneWidget);
+      expect(find.text('Key severity'), findsOneWidget);
+      expect(find.text('Major'), findsOneWidget);
+      expect(find.text('Grader notes'), findsOneWidget);
+      expect(find.text('Small spine stress'), findsOneWidget);
       expect(find.text('Value'), findsOneWidget);
       expect(find.text('Current value'), findsOneWidget);
       expect(find.text('USD 18.99'), findsOneWidget);

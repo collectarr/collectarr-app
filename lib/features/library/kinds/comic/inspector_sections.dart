@@ -45,10 +45,25 @@ List<Widget> buildComicInspectorSections(
       LibraryInspectorFactData('Raw / Slabbed', ownedItem.rawOrSlabbed!),
     if (ownedItem.gradingCompany?.trim().isNotEmpty == true)
       LibraryInspectorFactData('Grading co.', ownedItem.gradingCompany!),
+    if (ownedItem.certificationNumber?.trim().isNotEmpty == true)
+      LibraryInspectorFactData(
+        'Certification no.',
+        ownedItem.certificationNumber!,
+      ),
+    if (ownedItem.labelType?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Label type', ownedItem.labelType!),
+    if (ownedItem.customLabel?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Custom label', ownedItem.customLabel!),
+    if (ownedItem.pageQuality?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Page quality', ownedItem.pageQuality!),
     if (ownedItem.signedBy?.trim().isNotEmpty == true)
       LibraryInspectorFactData('Signed by', ownedItem.signedBy!),
     if (ownedItem.keyComic)
       LibraryInspectorFactData('Key', ownedItem.keyReason ?? 'Yes'),
+    if (ownedItem.keyCategory?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Key category', ownedItem.keyCategory!),
+    if (ownedItem.keySeverity?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Key severity', ownedItem.keySeverity!),
   ];
   if (collectorFacts.isNotEmpty) {
     sections.add(
@@ -57,6 +72,10 @@ List<Widget> buildComicInspectorSections(
         accentColor: request.accent,
         children: [
           LibraryInspectorFactGrid(facts: collectorFacts),
+          if (ownedItem.graderNotes?.trim().isNotEmpty == true) ...[
+            const SizedBox(height: 8),
+            LibraryInspectorFact('Grader notes', ownedItem.graderNotes!),
+          ],
         ],
       ),
     );
