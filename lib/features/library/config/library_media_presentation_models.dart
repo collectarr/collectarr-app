@@ -317,6 +317,8 @@ class LibraryMediaPresentation {
     ),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.usesTreeProviderCandidates = false,
+    this.externalFacetBucketModes = const [],
+    this.supportsSeriesIssueJump = false,
     this.groupModes = const [
       LibraryGroupMode.series,
       LibraryGroupMode.title,
@@ -335,5 +337,7 @@ class LibraryMediaPresentation {
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
+  final List<LibraryGroupMode> externalFacetBucketModes;
+  final bool supportsSeriesIssueJump;
   final List<LibraryGroupMode> groupModes;
 }

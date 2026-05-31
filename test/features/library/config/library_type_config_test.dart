@@ -327,6 +327,11 @@ void main() {
       LibraryGroupMode.title,
       LibraryGroupMode.ownership,
     ]);
+    expect(comicsLibraryConfig.presentation.externalFacetBucketModes, [
+      LibraryGroupMode.storyArc,
+      LibraryGroupMode.character,
+    ]);
+    expect(comicsLibraryConfig.presentation.supportsSeriesIssueJump, isTrue);
     expect(moviesLibraryConfig.presentation.groupModes, [
       LibraryGroupMode.audienceRating,
       LibraryGroupMode.color,

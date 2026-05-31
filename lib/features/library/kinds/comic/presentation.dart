@@ -28,6 +28,11 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
   defaultVisibleColumns: issueVisibleColumns,
   previewLabels: issuesPreviewLabels,
   usesTreeProviderCandidates: true,
+  externalFacetBucketModes: [
+    LibraryGroupMode.storyArc,
+    LibraryGroupMode.character,
+  ],
+  supportsSeriesIssueJump: true,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.storyArc,

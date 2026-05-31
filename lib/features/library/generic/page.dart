@@ -843,11 +843,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _filterSelection.hasActiveFilters;
 
   bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
-    if (widget.type.workspace.kind != CatalogMediaKind.comic) {
-      return false;
-    }
-    return mode == LibraryGroupMode.storyArc ||
-        mode == LibraryGroupMode.character;
+    return widget.type.presentation.externalFacetBucketModes.contains(mode);
   }
 
   FacetBuckets? _facetBucketsForMode(
@@ -1080,7 +1076,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   bool _canJumpToIssue(LibraryProjection? projection) {
     if (projection == null ||
-        widget.type.workspace.kind != CatalogMediaKind.comic ||
+        !widget.type.presentation.supportsSeriesIssueJump ||
         _activeGroupMode != LibraryGroupMode.series ||
         _selectedBucket == null) {
       return false;
