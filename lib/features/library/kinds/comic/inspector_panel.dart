@@ -103,7 +103,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                     _ComicToolbarButton(
                       label: 'Edit',
                       icon: Icons.edit_outlined,
-                      onPressed: request.onOpenDetails,
+                      onPressed: request.onEdit,
                     ),
                     _ComicToolbarButton(
                       label: entry.isOwned ? 'Remove' : 'Collect',
