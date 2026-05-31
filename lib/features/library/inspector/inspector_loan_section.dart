@@ -78,6 +78,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final activeLoans = _loans.where((l) => l.isActive).toList();
     final pastLoans = _loans.where((l) => !l.isActive).toList();
 
@@ -109,11 +110,51 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
             ),
           )
         else if (_loans.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 4),
-            child: Text(
-              'Not currently lent out.',
-              style: TextStyle(color: palette.textMuted, fontSize: 13),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.surfaceSubtle.withValues(alpha: 0.74),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: palette.textMuted.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Icon(
+                      Icons.assignment_turned_in_outlined,
+                      size: 16,
+                      color: palette.textMuted,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Not currently lent out.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: palette.textMuted,
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Use the add action to record a new loan for this item.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         else ...[
@@ -128,13 +169,13 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
             const SizedBox(height: 6),
             Text(
               'History',
-              style: TextStyle(
-                color: widget.accent.withValues(alpha: 0.7),
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: widget.accent.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.2,
+                  ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             for (final loan in pastLoans.take(5))
               _LoanTile(
                 loan: loan,
@@ -166,66 +207,83 @@ class _LoanTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final isOverdue = loan.isOverdueAt(DateTime.now());
+    final indicatorColor = isOverdue
+        ? Colors.orange
+        : loan.isActive
+            ? accent
+            : palette.textMuted;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          Icon(
-            loan.isActive
-                ? (isOverdue ? Icons.warning_amber : Icons.person_outline)
-                : Icons.check_circle_outline,
-            size: 16,
-            color: isOverdue
-                ? Colors.orange
-                : loan.isActive
-                    ? accent
-                  : palette.textMuted,
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  loan.borrowerName,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    color: isOverdue ? Colors.orange : null,
-                  ),
+      padding: const EdgeInsets.only(bottom: 6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.surfaceSubtle.withValues(alpha: 0.74),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: indicatorColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
                 ),
-                Text(
-                  _subtitle,
-                  style: TextStyle(
-                    color: palette.textMuted,
-                    fontSize: 11,
-                  ),
+                child: Icon(
+                  loan.isActive
+                      ? (isOverdue ? Icons.warning_amber : Icons.person_outline)
+                      : Icons.check_circle_outline,
+                  size: 16,
+                  color: indicatorColor,
                 ),
-              ],
-            ),
-          ),
-          if (onReturn != null)
-            IconButton(
-              icon: const Icon(Icons.assignment_return, size: 16),
-              tooltip: 'Mark returned',
-              onPressed: onReturn,
-              visualDensity: VisualDensity.compact,
-              style: IconButton.styleFrom(
-                foregroundColor: accent,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-            ),
-          IconButton(
-            icon: const Icon(Icons.close, size: 14),
-            tooltip: 'Delete loan record',
-            onPressed: onDelete,
-            visualDensity: VisualDensity.compact,
-            style: IconButton.styleFrom(
-              foregroundColor: palette.textMuted,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loan.borrowerName,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: isOverdue ? Colors.orange : null,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: palette.textMuted,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              if (onReturn != null)
+                IconButton(
+                  icon: const Icon(Icons.assignment_return, size: 16),
+                  tooltip: 'Mark returned',
+                  onPressed: onReturn,
+                  visualDensity: VisualDensity.compact,
+                  style: IconButton.styleFrom(
+                    foregroundColor: accent,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 14),
+                tooltip: 'Delete loan record',
+                onPressed: onDelete,
+                visualDensity: VisualDensity.compact,
+                style: IconButton.styleFrom(
+                  foregroundColor: palette.textMuted,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -277,6 +335,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
     final palette = appPalette(context);
     return AlertDialog(
       backgroundColor: palette.panel,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text('Lend Item', style: TextStyle(color: widget.accent)),
       content: SizedBox(
         width: 320,
