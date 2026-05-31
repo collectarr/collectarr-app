@@ -214,7 +214,13 @@ List<_ComicRowData> _creatorRows(List<Map<String, dynamic>>? creators) {
 
   return [
     for (final entry in grouped.entries)
-      _ComicRowData(label: entry.key, value: entry.value.join(' | ')),
+      _ComicRowData(
+        label: entry.key,
+        valueWidget: entry.value.length <= 2
+            ? null
+            : _ExpandableCreatorNames(names: entry.value),
+        value: entry.value.join(' | '),
+      ),
   ];
 }
 
@@ -415,4 +421,51 @@ String _formatTimestamp(DateTime? value) {
   String twoDigits(int number) => number.toString().padLeft(2, '0');
 
   return '$month ${local.day}, ${local.year} ${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}';
+}
+
+class _ExpandableCreatorNames extends StatefulWidget {
+  const _ExpandableCreatorNames({required this.names});
+
+  final List<String> names;
+
+  @override
+  State<_ExpandableCreatorNames> createState() =>
+      _ExpandableCreatorNamesState();
+}
+
+class _ExpandableCreatorNamesState extends State<_ExpandableCreatorNames> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final visible = _expanded ? widget.names : widget.names.take(2).toList();
+    final remaining = widget.names.length - 2;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          visible.join(' | '),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: palette.textPrimary,
+                fontWeight: FontWeight.w500,
+                height: 1.25,
+              ),
+        ),
+        if (!_expanded && remaining > 0) ...[
+          const SizedBox(height: 4),
+          GestureDetector(
+            onTap: () => setState(() => _expanded = true),
+            child: Text(
+              'View all ($remaining more)',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: palette.textMuted,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 }
