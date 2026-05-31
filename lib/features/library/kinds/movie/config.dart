@@ -59,5 +59,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
     wideDialog: true,
+    videoSeriesEntryTypes: {'tv'},
+    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
   ),
 );

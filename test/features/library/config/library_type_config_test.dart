@@ -238,6 +238,14 @@ void main() {
       LibraryAddReferenceType.edition.helperLabelForType(musicLibraryConfig),
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
     );
+    expect(
+      moviesLibraryConfig.capabilities.videoSeriesEntryTypes,
+      {'tv'},
+    );
+    expect(
+      moviesLibraryConfig.capabilities.videoShelfDrilldownEntryTypes,
+      {'movie', 'tv', 'anime'},
+    );
   });
 
   test('comic kind uses dedicated edit dialog builder', () {

@@ -1747,8 +1747,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     if (item.entry.browseScope != LibraryBrowserScope.title) {
       return false;
     }
-    final mediaType = item.entry.mediaType.trim().toLowerCase();
-    return mediaType == 'movie' || mediaType == 'tv' || mediaType == 'anime';
+    return widget.type.capabilities
+        .supportsVideoShelfDrilldown(item.entry.mediaType);
   }
 
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {

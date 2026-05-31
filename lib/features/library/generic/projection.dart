@@ -486,7 +486,7 @@ String genericBucketForItemMode(
         : 'Unknown language',
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
-    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
+    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry, type),
     LibraryGroupMode.releaseDate => _dateBucket(
         entry.releaseDate,
         'Unknown release date',
@@ -760,8 +760,11 @@ String _editionFormatBucket(LibraryWorkspaceEntry entry) {
   return 'Unknown format';
 }
 
-String _movieOrTvSeriesBucket(LibraryWorkspaceEntry entry) {
-  if (entry.mediaType == 'tv') {
+String _movieOrTvSeriesBucket(
+  LibraryWorkspaceEntry entry,
+  LibraryTypeConfig type,
+) {
+  if (type.capabilities.isVideoSeriesEntryType(entry.mediaType)) {
     return 'TV Series';
   }
   final series = entry.series;

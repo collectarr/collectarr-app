@@ -223,6 +223,8 @@ class LibraryTypeCapabilities {
     this.supportsOwnedItemImages = true,
     this.supportsVideoKindFilters = false,
     this.wideDialog = false,
+    this.videoSeriesEntryTypes = const {},
+    this.videoShelfDrilldownEntryTypes = const {},
   });
 
   final bool showsSynopsis;
@@ -232,12 +234,22 @@ class LibraryTypeCapabilities {
   final bool supportsOwnedItemImages;
   final bool supportsVideoKindFilters;
   final bool wideDialog;
+  final Set<String> videoSeriesEntryTypes;
+  final Set<String> videoShelfDrilldownEntryTypes;
 
   bool get usesSeasonHierarchy =>
       contentHierarchy == LibraryContentHierarchy.seasons;
 
   bool get usesVolumeHierarchy =>
       contentHierarchy == LibraryContentHierarchy.volumes;
+
+  bool isVideoSeriesEntryType(String mediaType) {
+    return videoSeriesEntryTypes.contains(mediaType.trim().toLowerCase());
+  }
+
+  bool supportsVideoShelfDrilldown(String mediaType) {
+    return videoShelfDrilldownEntryTypes.contains(mediaType.trim().toLowerCase());
+  }
 }
 
 class LibraryEditChromeConfig {
