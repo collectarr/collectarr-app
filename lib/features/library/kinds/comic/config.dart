@@ -65,6 +65,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant / Format',
     barcodeLabel: 'Barcode / UPC / ISBN',
+    variantSeedsPhysicalFormatLabel: true,
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

@@ -221,7 +221,9 @@ class LibraryEditDraft {
     final variantController = create(item.variant ?? '');
     final physicalFormatLabelController = create(
       item.physicalFormatLabel ??
-          (type.workspace.kind.apiValue == 'comic' ? item.variant : null) ??
+        (type.releaseFields.variantSeedsPhysicalFormatLabel
+          ? item.variant
+          : null) ??
           (initialPhysicalFormatId == null
               ? null
               : physicalMediaFormatById(
