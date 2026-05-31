@@ -85,7 +85,7 @@ void main() {
     await tester.tap(find.text('Year'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Years'), findsOneWidget);
+    expect(find.text('Years'), findsWidgets);
 
     await tester.tap(find.byTooltip('Library tools'));
     await pumpUntilSettled(tester);

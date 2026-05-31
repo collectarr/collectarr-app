@@ -419,57 +419,59 @@ class LibraryEmptyInspector extends StatelessWidget {
         ? palette.textMuted
         : mutedTextColor;
     final content = Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 280),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.surface.withValues(alpha: 0.82),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: palette.divider),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(14),
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 280),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.surface.withValues(alpha: 0.82),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: palette.divider),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(icon, size: 28, color: accent),
                   ),
-                  child: Icon(icon, size: 28, color: accent),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Details panel',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: resolvedMutedTextColor,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.3,
-                      ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'No $label selected',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w900,
+                  const SizedBox(height: 12),
+                  Text(
+                    'Details panel',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: resolvedMutedTextColor,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.3,
+                        ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Select an item to inspect metadata, covers, and collection status here.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: resolvedMutedTextColor,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    'No $label selected',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Select an item to inspect metadata, covers, and collection status here.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: resolvedMutedTextColor,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

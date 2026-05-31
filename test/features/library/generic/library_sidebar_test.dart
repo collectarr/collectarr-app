@@ -45,7 +45,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)));
+    await tester.tap(find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)).first);
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Favorites'), findsOneWidget);

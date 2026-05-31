@@ -63,7 +63,7 @@ void main() {
 
     final stripCenterX = tester.getRect(strip).center.dx;
     final firstCenterX = tester.getRect(find.text('Comics')).center.dx;
-    final lastCenterX = tester.getRect(find.text('Movies')).center.dx;
+    final lastCenterX = tester.getRect(find.text('Shows')).center.dx;
     final contentCenterX = (firstCenterX + lastCenterX) / 2;
 
     expect((contentCenterX - stripCenterX).abs(), lessThan(12));

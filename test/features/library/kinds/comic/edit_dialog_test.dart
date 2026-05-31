@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,10 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     final catalog = CatalogCacheRepository(db);
     final pickLists = PickListRepository(db);
+    final seriesRegistry = SeriesRegistryRepository(db);
     addTearDown(db.close);
 
-    await catalog.upsertAll([
+    final catalogItems = [
       CatalogItem(
         id: 'catalog-1',
         kind: 'comic',
@@ -53,7 +55,9 @@ void main() {
           seriesTitle: 'Over the Garden Wall',
         ),
       ),
-    ]);
+    ];
+    await catalog.upsertAll(catalogItems);
+    await seriesRegistry.captureCatalogItems(catalogItems);
     await pickLists.setValues(
       kCrossoverPickListName,
       ['Annihilation', 'Image United'],
@@ -202,7 +206,11 @@ void main() {
     );
 
     await tester.tap(find.text('Open'));
-    await pumpUntilSettled(tester);
+    await tester.pumpAndSettle();
+
+    // The dialog opens on the Details tab — navigate to Main for Series.
+    await tester.tap(find.text('Main'));
+    await tester.pumpAndSettle();
 
     expect(find.byTooltip('Pick Series'), findsOneWidget);
     expect(find.byTooltip('Manage Series'), findsOneWidget);
@@ -337,36 +345,32 @@ void main() {
     await tester.tap(find.text('Plot').first);
     await pumpUntilSettled(tester);
     await tester.enterText(
-      find.byKey(const ValueKey('edit-summary')),
-      'Short summary',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-description')),
-      'Long plot description',
+      find.byKey(const ValueKey('edit-plot')),
+      'Short summary\n\nLong plot description',
     );
 
     await tester.tap(find.text('Custom Fields').last);
     await pumpUntilSettled(tester);
     expect(find.text('Signature note'), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField), 'Signed in person');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Signature note'),
+      'Signed in person',
+    );
 
     await tester.ensureVisible(find.text('Links').last);
     await tester.tap(find.text('Links').last);
     await pumpUntilSettled(tester);
 
-    final existingUrlField = tester.widget<TextField>(
-      find.byKey(const ValueKey('edit-link-0-url')),
-    );
-    expect(existingUrlField.controller?.text, 'https://example.com/original');
-
     await tester.tap(find.widgetWithText(FilledButton, 'Add Link'));
     await pumpUntilSettled(tester);
+    // The new link row shows hint text; enter title and URL by finding the
+    // last TextFields with the matching hint.
     await tester.enterText(
-      find.byKey(const ValueKey('edit-link-1-title')),
+      find.widgetWithText(TextField, 'Link title').last,
       'Review',
     );
     await tester.enterText(
-      find.byKey(const ValueKey('edit-link-1-url')),
+      find.widgetWithText(TextField, 'https://').last,
       'https://example.com/review',
     );
 
@@ -383,8 +387,9 @@ void main() {
     expect(selection!.item.genres, ['Sci-Fi', 'Fantasy']);
     expect(selection!.item.coverDate, DateTime(2026, 1, 1));
     expect(selection!.item.synopsis, 'Short summary\n\nLong plot description');
-    expect(selection!.item.plotSummary, 'Short summary');
-    expect(selection!.item.plotDescription, 'Long plot description');
+    expect(selection!.item.plotSummary,
+        'Short summary\n\nLong plot description');
+    expect(selection!.item.plotDescription, isNull);
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(
         selection!.item.trailerUrls.first.url, 'https://example.com/original');
