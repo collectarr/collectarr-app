@@ -357,6 +357,8 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
             ? Colors.white
             : Theme.of(context).colorScheme.onSurface;
     final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
+    final showSortIcon = sorted && width >= 64;
+    final showSortPriority = sortPriority != null && width >= 80;
     return DragTarget<LibraryTableColumn>(
       onWillAcceptWithDetails: (details) {
         return onColumnReordered != null && details.data != column;
@@ -411,7 +413,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (sorted)
+                        if (showSortIcon)
                           Icon(
                             ascending
                                 ? Icons.arrow_drop_up
@@ -419,7 +421,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             size: 18,
                             color: accentColor,
                           ),
-                        if (sortPriority != null)
+                        if (showSortPriority)
                           Container(
                             key: ValueKey('sort-priority-${column.name}'),
                             margin: const EdgeInsets.only(left: 4),
