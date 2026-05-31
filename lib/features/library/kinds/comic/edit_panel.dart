@@ -1,13 +1,13 @@
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/text_controller_group.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
