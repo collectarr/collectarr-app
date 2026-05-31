@@ -56,4 +56,28 @@ void main() {
     expect(find.byTooltip('Clear Publisher'), findsOneWidget);
     expect(find.byTooltip('Manage Publisher'), findsOneWidget);
   });
+
+  testWidgets('single value pick field does not auto-list options on focus',
+      (tester) async {
+    final controller = TextEditingController(text: 'Publisher A');
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleValuePickField(
+            controller: controller,
+            options: const ['Publisher A', 'Publisher B'],
+            label: 'Publisher',
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextFormField));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pick Publisher'), findsNothing);
+    expect(find.text('Publisher B'), findsNothing);
+  });
 }

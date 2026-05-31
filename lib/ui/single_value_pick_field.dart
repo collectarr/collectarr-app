@@ -152,110 +152,58 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     ].length;
     final suffixWidth =
         actionCount * _suffixButtonExtent + (_suffixHorizontalPadding * 2);
-    return RawAutocomplete<String>(
-      textEditingController: widget.controller,
+    return TextFormField(
+      controller: widget.controller,
       focusNode: _focusNode,
-      optionsBuilder: (textEditingValue) {
-        if (!widget.enabled) {
-          return const Iterable<String>.empty();
-        }
-        final query = textEditingValue.text.trim().toLowerCase();
-        if (query.isEmpty) {
-          return normalizedOptions;
-        }
-        return normalizedOptions.where(
-          (option) => option.toLowerCase().contains(query),
-        );
-      },
-      onSelected: (selection) {
-        _applySelection(selection);
-      },
-      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-        return TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          validator: widget.validator,
-          enabled: widget.enabled,
-          decoration: InputDecoration(
-            labelText: widget.label,
-            hintText: widget.hint,
-            suffixIconConstraints: BoxConstraints(
-              minWidth: actionCount == 0 ? 0 : suffixWidth,
-              maxWidth: actionCount == 0 ? 0 : suffixWidth,
-              minHeight: 40,
-            ),
-            suffixIcon: actionCount == 0
-                ? null
-                : SizedBox(
-                    width: suffixWidth,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        if (normalizedOptions.isNotEmpty)
-                          _suffixAction(
-                            tooltip: 'Pick ${widget.label}',
-                            onPressed: () => _openPickerDialog(normalizedOptions),
-                            icon: Icons.arrow_drop_down_circle_outlined,
-                          ),
-                        if (controller.text.trim().isNotEmpty)
-                          _suffixAction(
-                            tooltip: 'Clear ${widget.label}',
-                            onPressed: () {
-                              controller.clear();
-                              widget.onChanged?.call(null);
-                              setState(() {});
-                            },
-                            icon: Icons.close,
-                          ),
-                        if (widget.onManage != null)
-                          _suffixAction(
-                            tooltip:
-                                widget.manageTooltip ?? 'Manage ${widget.label}',
-                            onPressed: widget.enabled ? widget.onManage : null,
-                            icon: Icons.tune,
-                          ),
-                      ],
-                    ),
-                  ),
-          ),
-          onTap: () => setState(() {}),
-          onChanged: (value) {
-            widget.onChanged?.call(_emptyToNull(value));
-            setState(() {});
-          },
-          onFieldSubmitted: (_) => onFieldSubmitted(),
-        );
-      },
-      optionsViewBuilder: (context, onSelected, displayedOptions) {
-        final options = displayedOptions.toList(growable: false);
-        if (options.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        final palette = appPalette(context);
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            color: palette.panelRaised,
-            elevation: 4,
-            borderRadius: kAppMenuBorderRadius,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 260, maxWidth: 420),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                children: [
-                  for (final option in options)
-                    ListTile(
-                      dense: true,
-                      title: Text(option),
-                      onTap: () => onSelected(option),
-                    ),
-                ],
+      validator: widget.validator,
+      enabled: widget.enabled,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        hintText: widget.hint,
+        suffixIconConstraints: BoxConstraints(
+          minWidth: actionCount == 0 ? 0 : suffixWidth,
+          maxWidth: actionCount == 0 ? 0 : suffixWidth,
+          minHeight: 40,
+        ),
+        suffixIcon: actionCount == 0
+            ? null
+            : SizedBox(
+                width: suffixWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    if (normalizedOptions.isNotEmpty)
+                      _suffixAction(
+                        tooltip: 'Pick ${widget.label}',
+                        onPressed: () => _openPickerDialog(normalizedOptions),
+                        icon: Icons.arrow_drop_down_circle_outlined,
+                      ),
+                    if (widget.controller.text.trim().isNotEmpty)
+                      _suffixAction(
+                        tooltip: 'Clear ${widget.label}',
+                        onPressed: () {
+                          widget.controller.clear();
+                          widget.onChanged?.call(null);
+                          setState(() {});
+                        },
+                        icon: Icons.close,
+                      ),
+                    if (widget.onManage != null)
+                      _suffixAction(
+                        tooltip:
+                            widget.manageTooltip ?? 'Manage ${widget.label}',
+                        onPressed: widget.enabled ? widget.onManage : null,
+                        icon: Icons.tune,
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ),
-        );
+      ),
+      onTap: () => setState(() {}),
+      onChanged: (value) {
+        widget.onChanged?.call(_emptyToNull(value));
+        setState(() {});
       },
     );
   }
