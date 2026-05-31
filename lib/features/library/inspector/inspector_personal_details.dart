@@ -953,15 +953,16 @@ class _TrackingEditionBrowser extends StatelessWidget {
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: palette.textMuted,
                 fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
               ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         SizedBox(
-          height: 100,
+          height: 118,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: editions.length + 1,
-            separatorBuilder: (_, __) => const SizedBox(width: 6),
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               if (index == 0) {
                 return _EditionCard(
@@ -993,21 +994,22 @@ class _TrackingEditionBrowser extends StatelessWidget {
           ),
         ),
         if (activeEdition != null && activeEdition.variants.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             'Variants',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
                 ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           SizedBox(
-            height: 110,
+            height: 118,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: activeEdition.variants.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final variant = activeEdition.variants[index];
                 return _VariantCard(
@@ -1065,68 +1067,59 @@ class _EditionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    return GestureDetector(
+    return _TrackingBrowserCardFrame(
+      width: 98,
+      isSelected: isSelected,
+      accent: accent,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        width: 90,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? accent.withValues(alpha: 0.18)
-              : palette.panel,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isSelected ? accent : palette.divider,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(5)),
-                child: coverUrl != null
-                    ? Image.network(
-                        coverUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (_, __, ___) =>
-                            _placeholderIcon(context, Icons.album),
-                      )
-                    : _placeholderIcon(context, Icons.album),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
+              child: coverUrl != null
+                  ? Image.network(
+                      coverUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (_, __, ___) =>
+                          _placeholderIcon(context, Icons.album),
+                    )
+                  : _placeholderIcon(context, Icons.album),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Column(
-                children: [
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(7, 6, 7, 7),
+            child: Column(
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? accent : onSurface,
+                  ),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    title,
+                    subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? accent : onSurface,
+                      fontSize: 9,
+                      color: palette.textMuted,
                     ),
                   ),
-                  if (subtitle.isNotEmpty)
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: palette.textMuted,
-                      ),
-                    ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -1149,67 +1142,114 @@ class _VariantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    return GestureDetector(
+    return _TrackingBrowserCardFrame(
+      width: 90,
+      isSelected: isSelected,
+      accent: accent,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        width: 80,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? accent.withValues(alpha: 0.18)
-              : palette.panel,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isSelected ? accent : palette.divider,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(5)),
-                child: variant.coverImageUrl != null
-                    ? Image.network(
-                        variant.thumbnailImageUrl ?? variant.coverImageUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (_, __, ___) =>
-                            _placeholderIcon(context, Icons.image_outlined),
-                      )
-                    : _placeholderIcon(context, Icons.image_outlined),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
+              child: variant.coverImageUrl != null
+                  ? Image.network(
+                      variant.thumbnailImageUrl ?? variant.coverImageUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (_, __, ___) =>
+                          _placeholderIcon(context, Icons.image_outlined),
+                    )
+                  : _placeholderIcon(context, Icons.image_outlined),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Column(
-                children: [
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(7, 6, 7, 7),
+            child: Column(
+              children: [
+                Text(
+                  variant.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? accent : onSurface,
+                  ),
+                ),
+                if (variant.physicalFormatLabel != null) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    variant.name,
+                    variant.physicalFormatLabel!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? accent : onSurface,
+                      fontSize: 9,
+                      color: palette.textMuted,
                     ),
                   ),
-                  if (variant.physicalFormatLabel != null)
-                    Text(
-                      variant.physicalFormatLabel!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: palette.textMuted,
-                      ),
-                    ),
                 ],
-              ),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrackingBrowserCardFrame extends StatelessWidget {
+  const _TrackingBrowserCardFrame({
+    required this.width,
+    required this.isSelected,
+    required this.accent,
+    required this.onTap,
+    required this.child,
+  });
+
+  final double width;
+  final bool isSelected;
+  final Color accent;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          width: width,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Color.alphaBlend(
+                    accent.withValues(alpha: 0.16),
+                    colorScheme.surfaceContainerHigh,
+                  )
+                : palette.surfaceSubtle.withValues(alpha: 0.82),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected
+                  ? accent.withValues(alpha: 0.85)
+                  : palette.divider,
+              width: isSelected ? 1.4 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.18),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: child,
         ),
       ),
     );
@@ -1217,7 +1257,13 @@ class _VariantCard extends StatelessWidget {
 }
 
 Widget _placeholderIcon(BuildContext context, IconData icon) {
-  return Center(
-    child: Icon(icon, size: 22, color: appPalette(context).textMuted),
+  final palette = appPalette(context);
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: palette.surfaceSubtle.withValues(alpha: 0.96),
+    ),
+    child: Center(
+      child: Icon(icon, size: 22, color: palette.textMuted),
+    ),
   );
 }
