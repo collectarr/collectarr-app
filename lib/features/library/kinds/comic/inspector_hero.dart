@@ -191,40 +191,45 @@ class ComicInspectorHero extends ConsumerWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.35 : 0.65),
-                  border: Border.all(color: border),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 5, 6, 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Plot Summary',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: muted,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.35,
-                            ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        synopsis?.isNotEmpty == true
-                            ? synopsis!
-                            : 'No plot available.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: ink,
-                              height: 1.4,
-                              fontWeight: FontWeight.w500,
-                            ),
-                        textAlign: TextAlign.justify,
-                      ),
-                    ],
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(6, 5, 6, 0),
+              padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: border.withValues(alpha: palette.isDark ? 0.92 : 0.82),
                   ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 1),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PLOT SUMMARY',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: muted,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.55,
+                            height: 1,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      synopsis?.isNotEmpty == true
+                          ? synopsis!
+                          : 'No plot available.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: ink,
+                            height: 1.32,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.05,
+                          ),
+                      textAlign: TextAlign.start,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -384,7 +389,7 @@ class _ComicDetailLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 1),
+      padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -395,7 +400,8 @@ class _ComicDetailLine extends StatelessWidget {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.3,
+                  letterSpacing: 0.4,
+                  height: 1.05,
                   ),
             ),
           ),
@@ -406,7 +412,7 @@ class _ComicDetailLine extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
-                    height: 1.2,
+                    height: 1.16,
                   ),
             ),
           ),
