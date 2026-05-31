@@ -208,11 +208,21 @@ void main() {
                         id: 'comic-1',
                         mediaType: 'comic',
                         title: 'Saga #1',
+                        itemNumber: '1',
+                        publisher: 'Image Comics',
+                        releaseYear: 2012,
+                        genres: const ['Sci-Fi', 'Fantasy'],
+                        creators: const [
+                          {'name': 'Brian K. Vaughan', 'role': 'Writer'},
+                        ],
+                        characters: const ['Alana'],
+                        storyArcs: const ['Saga'],
                         updatedAt: DateTime.utc(2026, 5, 22),
                       ),
                       ownedItem: OwnedItem(
                         id: 'owned-1',
                         itemId: 'comic-1',
+                        isDigital: false,
                         currency: 'USD',
                         rawOrSlabbed: 'Slabbed',
                         gradingCompany: 'CGC',
@@ -227,13 +237,22 @@ void main() {
                     ),
                   ),
                 );
-                return ListView(children: sections);
+                return SingleChildScrollView(
+                  child: Column(children: sections),
+                );
               },
             ),
           ),
         ),
       );
 
+      expect(find.text('Catalog identity'), findsOneWidget);
+      expect(find.text('Catalog context'), findsOneWidget);
+      expect(find.text('Credits & Discovery'), findsOneWidget);
+      expect(find.text('Creators'), findsOneWidget);
+      expect(find.textContaining('Brian K. Vaughan'), findsWidgets);
+      expect(find.text('Characters'), findsOneWidget);
+      expect(find.text('Story Arcs'), findsOneWidget);
       expect(find.text('Comic details'), findsOneWidget);
       expect(find.text('Raw / Slabbed'), findsOneWidget);
       expect(find.text('Slabbed'), findsOneWidget);

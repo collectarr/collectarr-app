@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,19 @@ List<Widget> buildComicInspectorSections(
   LibraryInspectorRequest request,
 ) {
   final sections = <Widget>[
-    InspectorMetadataSection(
+    LibraryDetailMetadataSection(
+      type: request.type,
+      entry: request.entry,
+      accent: request.accent,
+      onFilterByValue: request.onFilterByValue,
+    ),
+    LibraryDetailContextSection(
+      type: request.type,
+      entry: request.entry,
+      accent: request.accent,
+      onFilterByValue: request.onFilterByValue,
+    ),
+    LibraryDetailCreditsSection(
       type: request.type,
       entry: request.entry,
       accent: request.accent,
