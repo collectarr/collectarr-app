@@ -413,6 +413,10 @@ class LocalDatabase extends _$LocalDatabase {
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
+      // All tables in this database are local caches that are rebuilt from
+      // the server on next sync.  A destructive migration is intentional:
+      // it avoids carrying forward every historical ALTER TABLE step while
+      // remaining safe because no user-authored data lives here.
       onUpgrade: (m, from, to) async {
         for (final table in allTables) {
           await customStatement(
