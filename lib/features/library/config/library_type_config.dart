@@ -174,6 +174,51 @@ typedef LibraryInspectorHeroBuilder = Widget Function(
   LibraryInspectorRequest request,
 );
 
+class LibraryInspectorPanelRequest {
+  const LibraryInspectorPanelRequest({
+    required this.inspector,
+    required this.hero,
+    required this.primarySections,
+    required this.trailingSections,
+    required this.ownedCopies,
+    required this.selectedOwnedItemId,
+    required this.extraActions,
+    required this.onAddCopy,
+    required this.onOpenDetails,
+    this.ownedCopiesSection,
+    this.bundleSection,
+    this.conditionGradeSection,
+    this.onSelectOwnedItem,
+    this.onToggleOwned,
+    this.onToggleWishlist,
+    this.onEdit,
+    this.onCorrectMetadata,
+  });
+
+  final LibraryInspectorRequest inspector;
+  final Widget hero;
+  final List<Widget> primarySections;
+  final List<Widget> trailingSections;
+  final List<OwnedItem> ownedCopies;
+  final String? selectedOwnedItemId;
+  final List<Widget> extraActions;
+  final VoidCallback onAddCopy;
+  final VoidCallback onOpenDetails;
+  final Widget? ownedCopiesSection;
+  final Widget? bundleSection;
+  final Widget? conditionGradeSection;
+  final ValueChanged<String>? onSelectOwnedItem;
+  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleWishlist;
+  final VoidCallback? onEdit;
+  final VoidCallback? onCorrectMetadata;
+}
+
+typedef LibraryInspectorPanelBuilder = Widget Function(
+  BuildContext context,
+  LibraryInspectorPanelRequest request,
+);
+
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -332,6 +377,7 @@ class LibraryTypeConfig {
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
+    this.inspectorPanelBuilder,
     this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
     this.showsDefaultInspectorPersonalSection = true,
@@ -361,6 +407,7 @@ class LibraryTypeConfig {
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryInspectorPanelBuilder? inspectorPanelBuilder;
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
   final bool showsDefaultInspectorPersonalSection;

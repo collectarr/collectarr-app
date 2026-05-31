@@ -61,6 +61,10 @@ void main() {
       'comicvine',
       'gcd',
     ]);
+    expect(
+      type.inspectorPanelBuilder,
+      same(comicsLibraryConfig.inspectorPanelBuilder),
+    );
     expect(type.inspectorHeroBuilder, same(comicsLibraryConfig.inspectorHeroBuilder));
     expect(
       type.inspectorSectionsBuilder,

@@ -3,12 +3,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-
-const _kComicClzSurface = Color(0xFFFFFFFF);
-const _kComicClzAltSurface = Color(0xFFF2F4F6);
-const _kComicClzBorder = Color(0xFFD8DDE3);
-const _kComicClzInk = Color(0xFF1F252B);
 
 List<Widget> buildComicInspectorSections(
   BuildContext _,
@@ -107,11 +103,21 @@ class _ComicPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final surface = Color.alphaBlend(
+      accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
+      palette.isDark ? palette.panelRaised : Colors.white,
+    );
+    final altSurface = palette.isDark
+        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.03), palette.surface)
+        : const Color(0xFFF2F4F6);
+    final border = palette.divider.withValues(alpha: palette.isDark ? 1 : 0.55);
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _kComicClzSurface,
+        color: surface,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: _kComicClzBorder),
+        border: Border.all(color: border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +133,13 @@ class _ComicPanel extends StatelessWidget {
             ),
           ),
           for (var index = 0; index < rows.length; index++)
-            _ComicTableRow(row: rows[index], shaded: index.isEven),
+            _ComicTableRow(
+              row: rows[index],
+              shaded: index.isEven,
+              surface: surface,
+              altSurface: altSurface,
+              border: border,
+            ),
         ],
       ),
     );
@@ -135,18 +147,28 @@ class _ComicPanel extends StatelessWidget {
 }
 
 class _ComicTableRow extends StatelessWidget {
-  const _ComicTableRow({required this.row, required this.shaded});
+  const _ComicTableRow({
+    required this.row,
+    required this.shaded,
+    required this.surface,
+    required this.altSurface,
+    required this.border,
+  });
 
   final _ComicRowData row;
   final bool shaded;
+  final Color surface;
+  final Color altSurface;
+  final Color border;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final valueWidget = row.valueWidget ??
         Text(
           row.value ?? '-',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: _kComicClzInk,
+                color: palette.textPrimary,
                 fontWeight: FontWeight.w500,
                 height: 1.25,
               ),
@@ -154,8 +176,8 @@ class _ComicTableRow extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: shaded ? _kComicClzAltSurface : _kComicClzSurface,
-        border: const Border(top: BorderSide(color: _kComicClzBorder)),
+        color: shaded ? altSurface : surface,
+        border: Border(top: BorderSide(color: border)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       child: Row(
@@ -166,7 +188,7 @@ class _ComicTableRow extends StatelessWidget {
             child: Text(
               row.label,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: _kComicClzInk,
+                    color: palette.textPrimary,
                     fontWeight: FontWeight.w800,
                   ),
             ),

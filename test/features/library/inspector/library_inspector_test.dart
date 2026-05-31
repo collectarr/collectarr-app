@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_hero
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -120,7 +121,7 @@ void main() {
     expect(find.text('82771402051700111'), findsOneWidget);
   });
 
-  testWidgets('library inspector uses the comic-specific hero hook', (
+  testWidgets('library inspector uses the comic-specific full panel hook', (
     tester,
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -177,7 +178,10 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    expect(find.byType(ComicInspectorPanel), findsOneWidget);
     expect(find.byType(ComicInspectorHero), findsOneWidget);
+    expect(find.text('Quick actions'), findsNothing);
+    expect(find.text('Edit'), findsWidgets);
     expect(find.text('Plot'), findsOneWidget);
     expect(find.text('Overview'), findsNothing);
   });

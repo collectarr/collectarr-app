@@ -4,13 +4,9 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-const _kComicClzSurface = Color(0xFFFDFDFD);
-const _kComicClzBorder = Color(0xFFD7DDE3);
-const _kComicClzInk = Color(0xFF1E252C);
-const _kComicClzMuted = Color(0xFF74808A);
 
 Widget buildComicInspectorHero(
   BuildContext context,
@@ -26,8 +22,17 @@ class ComicInspectorHero extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
     final entry = request.entry;
     final ownedItem = request.ownedItem;
+    final surface = Color.alphaBlend(
+      request.accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
+      palette.isDark ? palette.panelRaised : Colors.white,
+    );
+    final border = palette.divider.withValues(alpha: palette.isDark ? 1 : 0.55);
+    final ink = palette.textPrimary;
+    final muted = palette.textMuted;
+    final badgeSurface = palette.isDark ? palette.surface : Colors.white;
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final localFront = ownedItemId == null
         ? null
@@ -76,8 +81,8 @@ class ComicInspectorHero extends ConsumerWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _kComicClzSurface,
-        border: Border.all(color: _kComicClzBorder),
+        color: surface,
+        border: Border.all(color: border),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Padding(
@@ -89,7 +94,7 @@ class ComicInspectorHero extends ConsumerWidget {
               width: wide ? 210 : 180,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF30363C), width: 0.8),
+                  border: Border.all(color: border, width: 0.8),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x25000000),
@@ -140,7 +145,7 @@ class ComicInspectorHero extends ConsumerWidget {
                     Text(
                       seriesTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: _kComicClzMuted,
+                            color: muted,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
@@ -149,18 +154,22 @@ class ComicInspectorHero extends ConsumerWidget {
                   Text(
                     editionLabel,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: _kComicClzInk,
+                          color: ink,
                           fontWeight: FontWeight.w800,
                         ),
                   ),
                   const SizedBox(height: 8),
-                  _ComicSummaryLine(label: 'Release', value: releaseLabel),
+                  _ComicSummaryLine(
+                    label: 'Release',
+                    value: releaseLabel,
+                    ink: ink,
+                  ),
                   if (publisherLabel.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
                       publisherLabel,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: _kComicClzInk,
+                            color: ink,
                             fontWeight: FontWeight.w700,
                             height: 1.2,
                           ),
@@ -171,7 +180,7 @@ class ComicInspectorHero extends ConsumerWidget {
                     Text(
                       'Imprint',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: _kComicClzMuted,
+                            color: muted,
                             fontWeight: FontWeight.w800,
                           ),
                     ),
@@ -179,7 +188,7 @@ class ComicInspectorHero extends ConsumerWidget {
                     Text(
                       imprint,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: _kComicClzInk,
+                            color: ink,
                             fontWeight: FontWeight.w800,
                           ),
                     ),
@@ -189,7 +198,7 @@ class ComicInspectorHero extends ConsumerWidget {
                     Text(
                       entry.barcode!.trim(),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: _kComicClzInk,
+                            color: ink,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
@@ -204,7 +213,7 @@ class ComicInspectorHero extends ConsumerWidget {
                     Text(
                       'CLZ may be compensated for purchases made',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: _kComicClzMuted,
+                            color: muted,
                             height: 1.25,
                           ),
                     ),
@@ -239,7 +248,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 Text(
                   'Plot',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: _kComicClzMuted,
+                        color: muted,
                         fontWeight: FontWeight.w800,
                       ),
                 ),
@@ -247,7 +256,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 Text(
                   synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: _kComicClzInk,
+                        color: ink,
                         height: 1.45,
                         fontWeight: FontWeight.w500,
                       ),
@@ -299,7 +308,12 @@ class ComicInspectorHero extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    _ComicReferenceBadge(label: referenceLabel),
+                    _ComicReferenceBadge(
+                      label: referenceLabel,
+                      surface: badgeSurface,
+                      border: border,
+                      ink: ink,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -314,24 +328,32 @@ class ComicInspectorHero extends ConsumerWidget {
 }
 
 class _ComicReferenceBadge extends StatelessWidget {
-  const _ComicReferenceBadge({required this.label});
+  const _ComicReferenceBadge({
+    required this.label,
+    required this.surface,
+    required this.border,
+    required this.ink,
+  });
 
   final String label;
+  final Color surface;
+  final Color border;
+  final Color ink;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surface,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: const Color(0xFF40464D), width: 1.6),
+        border: Border.all(color: border, width: 1.6),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Text(
           label,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: _kComicClzInk,
+                color: ink,
                 fontWeight: FontWeight.w800,
               ),
         ),
@@ -341,17 +363,22 @@ class _ComicReferenceBadge extends StatelessWidget {
 }
 
 class _ComicSummaryLine extends StatelessWidget {
-  const _ComicSummaryLine({required this.label, required this.value});
+  const _ComicSummaryLine({
+    required this.label,
+    required this.value,
+    required this.ink,
+  });
 
   final String label;
   final String value;
+  final Color ink;
 
   @override
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: _kComicClzInk,
+              color: ink,
               fontWeight: FontWeight.w800,
               height: 1.2,
             ),

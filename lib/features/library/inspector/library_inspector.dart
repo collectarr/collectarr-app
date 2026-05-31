@@ -183,6 +183,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       trackingEntries,
       activeOwnedItem,
     );
+    final inspectorRequest = LibraryInspectorRequest(
+      type: widget.type,
+      entry: selected,
+      ownedItem: activeOwnedItem,
+      trackingEntry: activeTrackingEntry,
+      accent: widget.accent,
+      onFilterByValue: widget.onFilterByValue,
+    );
     final activeBundleReleaseId =
         activeOwnedItem?.bundleReleaseId ?? selected.referenceBundleReleaseId;
     final extraActions = <Widget>[
@@ -243,6 +251,228 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
         ),
     ];
+    final onToggleOwned = selected.isOwned
+        ? activeOwnedItem == null
+            ? widget.onRemoveOwned
+            : () => _removeOwnedCopy(activeOwnedItem)
+        : widget.onAddOwned;
+    final onToggleWishlist =
+        selected.isWishlisted ? widget.onRemoveWishlist : widget.onAddWishlist;
+    final onEdit = widget.onEdit == null
+        ? null
+        : () => widget.onEdit!(activeOwnedItem);
+    final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty
+        ? () => showMetadataCorrectionDialog(
+              context: context,
+              ref: ref,
+              item: CatalogItem(
+                id: selected.id,
+                kind: widget.type.workspace.kind.apiValue,
+                title: selected.title,
+                itemNumber: selected.itemNumber,
+                publisher: selected.publisher,
+                releaseYear: selected.releaseYear,
+                barcode: selected.barcode,
+                variant: selected.variant,
+              ),
+              type: widget.type,
+            )
+        : null;
+    void onOpenDetails() {
+      showLibraryDetailPage(
+        context: context,
+        request: LibraryDetailPageRequest(
+          type: widget.type,
+          entry: selected,
+          ownedItem: activeOwnedItem,
+          accent: widget.accent,
+          onAddOwned: selected.isOwned
+              ? () => _addOwnedCopy(
+                    selected,
+                    ownedItem: activeOwnedItem,
+                  )
+              : widget.onAddOwned,
+          onRemoveOwned: activeOwnedItem == null
+              ? widget.onRemoveOwned
+              : () => _removeOwnedCopy(activeOwnedItem),
+          onAddWishlist: widget.onAddWishlist,
+          onRemoveWishlist: widget.onRemoveWishlist,
+          onEdit: widget.onEdit,
+          onFilterByValue: widget.onFilterByValue,
+        ),
+      );
+    }
+    final hero = widget.type.inspectorHeroBuilder?.call(
+          context,
+          inspectorRequest,
+        ) ??
+        InspectorHero(
+          type: widget.type,
+          entry: selected,
+          ownedItem: activeOwnedItem,
+          accent: widget.accent,
+        );
+    final primarySections = widget.type.inspectorSectionsBuilder?.call(
+          context,
+          inspectorRequest,
+        ) ??
+        <Widget>[
+          InspectorMetadataSection(
+            type: widget.type,
+            entry: selected,
+            accent: widget.accent,
+            onFilterByValue: widget.onFilterByValue,
+          ),
+        ];
+    Widget? ownedCopiesSection;
+    if (ownedCopies.isNotEmpty) {
+      ownedCopiesSection = _InspectorOwnedCopiesSection(
+        copies: ownedCopies,
+        editions: selected.editions,
+        selectedOwnedItemId: activeOwnedItem?.id,
+        accent: widget.accent,
+        onAddCopy: () => _addOwnedCopy(
+          selected,
+          ownedItem: activeOwnedItem,
+        ),
+        onSelected: ownedCopies.length < 2
+            ? null
+            : (value) => setState(() => _selectedOwnedItemId = value),
+      );
+    }
+    final bundleSection = activeBundleReleaseId == null
+        ? null
+        : BundleReleaseContentsSection(
+            bundleReleaseId: activeBundleReleaseId,
+            accent: widget.accent,
+          );
+    Widget? conditionGradeSection;
+    if (activeOwnedItem != null &&
+        (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
+        resolveOwnedDigitalFlag(
+              activeOwnedItem,
+              selected.editions,
+              fallbackLabel: selected.variant,
+            ) !=
+            true) {
+      conditionGradeSection = Builder(
+        builder: (context) {
+          final options = ref
+              .watch(
+                _inspectorConditionGradeOptionsProvider(
+                  _InspectorConditionGradeOptionsRequest(
+                    db: widget.db ?? ref.read(localDatabaseProvider),
+                    mediaKind: widget.type.workspace.kind.apiValue,
+                    builtInConditions: widget.type.conditions,
+                    builtInGrades: widget.type.grades,
+                    selectedCondition: activeOwnedItem.condition,
+                    selectedGrade: activeOwnedItem.grade,
+                  ),
+                ),
+              )
+              .value;
+          return InspectorCollectionFields(
+            enabled: true,
+            condition: activeOwnedItem.condition,
+            grade: activeOwnedItem.grade,
+            conditions: options?.conditions ??
+                mergePickListValues(
+                  builtInValues: widget.type.conditions,
+                  selectedValues: [activeOwnedItem.condition],
+                ),
+            grades: options?.grades ??
+                mergePickListValues(
+                  builtInValues: widget.type.grades,
+                  selectedValues: [activeOwnedItem.grade],
+                ),
+            accent: widget.accent,
+            onConditionChanged: (value) => _updateConditionGrade(
+              context,
+              activeOwnedItem,
+              condition: value,
+              grade: activeOwnedItem.grade,
+            ),
+            onGradeChanged: (value) => _updateConditionGrade(
+              context,
+              activeOwnedItem,
+              condition: activeOwnedItem.condition,
+              grade: value,
+            ),
+          );
+        },
+      );
+    }
+    final trailingSections = <Widget>[
+      if (widget.type.showsDefaultInspectorPersonalSection)
+        InspectorPersonalSection(
+          entry: selected,
+          ownedItem: activeOwnedItem,
+          trackingEntry: activeTrackingEntry,
+          accent: widget.accent,
+        ),
+      if (activeOwnedItem != null)
+        InspectorPersonalDetailsEditor(
+          ownedItem: activeOwnedItem,
+          accent: widget.accent,
+        ),
+      if (activeTrackingEntry != null)
+        InspectorTrackingDetailsEditor(
+          itemId: selected.id,
+          trackingEntry: activeTrackingEntry,
+          profile: widget.type.trackingProfile,
+          editions: selected.editions,
+          accent: widget.accent,
+        ),
+      if (activeOwnedItem != null && widget.db != null)
+        InspectorCustomFieldsSection(
+          ownedItemId: activeOwnedItem.id,
+          mediaKind: widget.type.workspace.kind.apiValue,
+          db: widget.db!,
+          accent: widget.accent,
+        ),
+      if (activeOwnedItem != null &&
+          widget.db != null &&
+          widget.type.capabilities.supportsOwnedItemImages)
+        InspectorItemImagesSection(
+          ownedItemId: activeOwnedItem.id,
+          db: widget.db!,
+          accent: widget.accent,
+        ),
+      ...widget.type.presentation.builder.buildInspectorSections(
+        context: context,
+        entry: selected,
+        accent: widget.accent,
+      ),
+    ];
+    if (widget.type.inspectorPanelBuilder != null) {
+      return widget.type.inspectorPanelBuilder!(
+        context,
+        LibraryInspectorPanelRequest(
+          inspector: inspectorRequest,
+          hero: hero,
+          primarySections: primarySections,
+          trailingSections: trailingSections,
+          ownedCopies: ownedCopies,
+          selectedOwnedItemId: activeOwnedItem?.id,
+          extraActions: extraActions,
+          onAddCopy: () => _addOwnedCopy(
+            selected,
+            ownedItem: activeOwnedItem,
+          ),
+          onOpenDetails: onOpenDetails,
+          ownedCopiesSection: ownedCopiesSection,
+          bundleSection: bundleSection,
+          conditionGradeSection: conditionGradeSection,
+          onSelectOwnedItem: ownedCopies.length < 2
+              ? null
+              : (value) => setState(() => _selectedOwnedItemId = value),
+          onToggleOwned: onToggleOwned,
+          onToggleWishlist: onToggleWishlist,
+          onEdit: onEdit,
+          onCorrectMetadata: onCorrectMetadata,
+        ),
+      );
+    }
     final palette = appPalette(context);
     return Stack(
       children: [
@@ -262,97 +492,22 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               InspectorActionBar(
                 type: widget.type,
                 entry: selected,
-                onToggleOwned: selected.isOwned
-                    ? activeOwnedItem == null
-                        ? widget.onRemoveOwned
-                        : () => _removeOwnedCopy(activeOwnedItem)
-                    : widget.onAddOwned,
-                onToggleWishlist:
-                    selected.isWishlisted ? widget.onRemoveWishlist : widget.onAddWishlist,
-                onEdit: widget.onEdit == null
-                  ? null
-                  : () => widget.onEdit!(activeOwnedItem),
-                onCorrectMetadata: widget.type.supportedMetadataProviders.isNotEmpty
-                    ? () => showMetadataCorrectionDialog(
-                          context: context,
-                          ref: ref,
-                          item: CatalogItem(
-                            id: selected.id,
-                            kind: widget.type.workspace.kind.apiValue,
-                            title: selected.title,
-                            itemNumber: selected.itemNumber,
-                            publisher: selected.publisher,
-                            releaseYear: selected.releaseYear,
-                            barcode: selected.barcode,
-                            variant: selected.variant,
-                          ),
-                          type: widget.type,
-                        )
-                    : null,
+                onToggleOwned: onToggleOwned,
+                onToggleWishlist: onToggleWishlist,
+                onEdit: onEdit,
+                onCorrectMetadata: onCorrectMetadata,
                 extraActions: extraActions,
-                onOpenDetails: () => showLibraryDetailPage(
-                  context: context,
-                  request: LibraryDetailPageRequest(
-                    type: widget.type,
-                    entry: selected,
-                    ownedItem: activeOwnedItem,
-                    accent: widget.accent,
-                    onAddOwned: selected.isOwned
-                        ? () => _addOwnedCopy(
-                              selected,
-                              ownedItem: activeOwnedItem,
-                            )
-                        : widget.onAddOwned,
-                    onRemoveOwned: activeOwnedItem == null
-                        ? widget.onRemoveOwned
-                        : () => _removeOwnedCopy(activeOwnedItem),
-                    onAddWishlist: widget.onAddWishlist,
-                    onRemoveWishlist: widget.onRemoveWishlist,
-                    onEdit: widget.onEdit,
-                    onFilterByValue: widget.onFilterByValue,
-                  ),
-                ),
+                onOpenDetails: onOpenDetails,
               ),
               const SizedBox(height: 8),
-              widget.type.inspectorHeroBuilder?.call(
-                    context,
-                    LibraryInspectorRequest(
-                      type: widget.type,
-                      entry: selected,
-                      ownedItem: activeOwnedItem,
-                      trackingEntry: activeTrackingEntry,
-                      accent: widget.accent,
-                      onFilterByValue: widget.onFilterByValue,
-                    ),
-                  ) ??
-                  InspectorHero(
-                    type: widget.type,
-                    entry: selected,
-                    ownedItem: activeOwnedItem,
-                    accent: widget.accent,
-                  ),
+              hero,
               if (ownedCopies.isNotEmpty) ...[
                 const SizedBox(height: _kInspectorOuterGap),
-                _InspectorOwnedCopiesSection(
-                  copies: ownedCopies,
-                  editions: selected.editions,
-                  selectedOwnedItemId: activeOwnedItem?.id,
-                  accent: widget.accent,
-                  onAddCopy: () => _addOwnedCopy(
-                    selected,
-                    ownedItem: activeOwnedItem,
-                  ),
-                  onSelected: ownedCopies.length < 2
-                      ? null
-                      : (value) => setState(() => _selectedOwnedItemId = value),
-                ),
+                ownedCopiesSection!,
               ],
               if (activeBundleReleaseId != null) ...[
                 const SizedBox(height: _kInspectorOuterGap),
-                BundleReleaseContentsSection(
-                  bundleReleaseId: activeBundleReleaseId,
-                  accent: widget.accent,
-                ),
+                bundleSection!,
               ],
               if (activeOwnedItem != null &&
                   (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
@@ -363,108 +518,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       ) !=
                       true) ...[
                         const SizedBox(height: _kInspectorOuterGap),
-                Builder(
-                  builder: (context) {
-                    final options = ref.watch(_inspectorConditionGradeOptionsProvider(
-                      _InspectorConditionGradeOptionsRequest(
-                        db: widget.db ?? ref.read(localDatabaseProvider),
-                        mediaKind: widget.type.workspace.kind.apiValue,
-                        builtInConditions: widget.type.conditions,
-                        builtInGrades: widget.type.grades,
-                        selectedCondition: activeOwnedItem.condition,
-                        selectedGrade: activeOwnedItem.grade,
-                      ),
-                    )).value;
-                    return InspectorCollectionFields(
-                      enabled: true,
-                      condition: activeOwnedItem.condition,
-                      grade: activeOwnedItem.grade,
-                      conditions: options?.conditions ??
-                          mergePickListValues(
-                            builtInValues: widget.type.conditions,
-                            selectedValues: [activeOwnedItem.condition],
-                          ),
-                      grades: options?.grades ??
-                          mergePickListValues(
-                            builtInValues: widget.type.grades,
-                            selectedValues: [activeOwnedItem.grade],
-                          ),
-                      accent: widget.accent,
-                      onConditionChanged: (value) => _updateConditionGrade(
-                        context,
-                        activeOwnedItem,
-                        condition: value,
-                        grade: activeOwnedItem.grade,
-                      ),
-                      onGradeChanged: (value) => _updateConditionGrade(
-                        context,
-                        activeOwnedItem,
-                        condition: activeOwnedItem.condition,
-                        grade: value,
-                      ),
-                    );
-                  },
-                ),
+                conditionGradeSection!,
               ],
               const SizedBox(height: _kInspectorOuterGap),
-              ...widget.type.inspectorSectionsBuilder?.call(
-                    context,
-                    LibraryInspectorRequest(
-                      type: widget.type,
-                      entry: selected,
-                      ownedItem: activeOwnedItem,
-                      trackingEntry: activeTrackingEntry,
-                      accent: widget.accent,
-                      onFilterByValue: widget.onFilterByValue,
-                    ),
-                  ) ??
-                  <Widget>[
-                    InspectorMetadataSection(
-                      type: widget.type,
-                      entry: selected,
-                      accent: widget.accent,
-                      onFilterByValue: widget.onFilterByValue,
-                    ),
-                  ],
-              if (widget.type.showsDefaultInspectorPersonalSection)
-                InspectorPersonalSection(
-                  entry: selected,
-                  ownedItem: activeOwnedItem,
-                  trackingEntry: activeTrackingEntry,
-                  accent: widget.accent,
-                ),
-              if (activeOwnedItem != null)
-                InspectorPersonalDetailsEditor(
-                  ownedItem: activeOwnedItem,
-                  accent: widget.accent,
-                ),
-              if (activeTrackingEntry != null)
-                InspectorTrackingDetailsEditor(
-                  itemId: selected.id,
-                  trackingEntry: activeTrackingEntry,
-                  profile: widget.type.trackingProfile,
-                  editions: selected.editions,
-                  accent: widget.accent,
-                ),
-              if (activeOwnedItem != null && widget.db != null) ...[
-                InspectorCustomFieldsSection(
-                  ownedItemId: activeOwnedItem.id,
-                  mediaKind: widget.type.workspace.kind.apiValue,
-                  db: widget.db!,
-                  accent: widget.accent,
-                ),
-                if (widget.type.capabilities.supportsOwnedItemImages)
-                  InspectorItemImagesSection(
-                    ownedItemId: activeOwnedItem.id,
-                    db: widget.db!,
-                    accent: widget.accent,
-                  ),
-              ],
-              ...widget.type.presentation.builder.buildInspectorSections(
-                context: context,
-                entry: selected,
-                accent: widget.accent,
-              ),
+              ...primarySections,
+              ...trailingSections,
             ],
           ),
         ),
