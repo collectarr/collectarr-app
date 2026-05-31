@@ -61,8 +61,9 @@ class InspectorTrackList extends StatelessWidget {
       children: [
         for (final track in tracks)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   width: 22,
@@ -112,16 +113,26 @@ class InspectorTrackList extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: trackColumn),
-              const SizedBox(width: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: SizedBox(
-                  width: 140,
-                  height: 140,
-                  child: LibraryInteractiveCover(
-                    title: title ?? '',
-                    imageUrl: coverUrl,
-                    accentColor: accent,
+              const SizedBox(width: 14),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.surfaceSubtle.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: palette.divider),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 140,
+                      height: 140,
+                      child: LibraryInteractiveCover(
+                        title: title ?? '',
+                        imageUrl: coverUrl,
+                        accentColor: accent,
+                      ),
+                    ),
                   ),
                 ),
               ),
