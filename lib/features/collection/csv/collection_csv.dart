@@ -335,7 +335,7 @@ class CollectionCsv {
       o?.currency ?? entry.wishlistItem?.currency ?? '',
       o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
       o?.quantity.toString() ?? '',
-      o?.locationId ?? '',
+      _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       o?.coverPriceCents?.toString() ?? '',
       o?.rawOrSlabbed ?? '',
@@ -377,7 +377,7 @@ class CollectionCsv {
       o?.currency ?? entry.wishlistItem?.currency ?? '',
       _formatMoney(o?.coverPriceCents),
       o?.quantity.toString() ?? '',
-      o?.locationId ?? '',
+      _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       o?.rawOrSlabbed ?? '',
       o?.gradingCompany ?? '',
@@ -398,6 +398,10 @@ class CollectionCsv {
       o?.soldTo ?? '',
       ...cfValues,
     ];
+  }
+
+  String _locationCell(ShelfEntry entry) {
+    return entry.locationPath ?? entry.ownedItem?.locationId ?? '';
   }
 
   List<String> _customFieldCells(

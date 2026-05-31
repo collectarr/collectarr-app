@@ -1355,8 +1355,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 children: [
                   _flexResponsiveFields(
                     [
-                      _placeholderField(label: 'Issue No.'),
-                      _field(controller: _numberController, label: 'Variant'),
+                      _field(controller: _numberController, label: 'Issue No.'),
+                      _field(controller: _variantController, label: 'Variant'),
                       _field(
                         controller: _editionTitleController,
                         label: 'Variant Description',
@@ -2114,14 +2114,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         DropdownMenuItem(value: 'on_order', child: Text('On order')),
       ],
       onChanged: (value) => setState(() => _collectionStatus = value),
-    );
-  }
-
-  Widget _placeholderField({required String label, String? hint}) {
-    return TextFormField(
-      initialValue: '',
-      readOnly: true,
-      decoration: InputDecoration(labelText: label, hintText: hint),
     );
   }
 

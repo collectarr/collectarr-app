@@ -447,6 +447,14 @@ void main() {
     expect(find.text('Issue No.'), findsOneWidget);
     expect(find.text('Variant'), findsOneWidget);
     expect(find.text('Variant Description'), findsOneWidget);
+    expect(find.text('TP-1'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is EditableText &&
+            widget.controller.text == 'Trade Paperback',
+      ),
+      findsNWidgets(2),
+    );
     expect(find.text('Cover Date'), findsOneWidget);
     expect(find.text('Release Date'), findsOneWidget);
     expect(find.text('Publisher'), findsOneWidget);

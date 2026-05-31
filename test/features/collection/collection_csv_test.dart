@@ -49,6 +49,7 @@ void main() {
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
+        locationPath: 'Office › Shelf A › Short Box 6',
       ),
     ]);
 
@@ -73,7 +74,7 @@ void main() {
     expect(rows.single.pricePaidCents, 1299);
     expect(rows.single.notes, 'Signed copy');
     expect(rows.single.quantity, 2);
-    expect(rows.single.locationId, 'loc-short-box-6');
+    expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
     expect(rows.single.indexNumber, 1310);
     expect(rows.single.coverPriceCents, 399);
     expect(rows.single.rawOrSlabbed, 'Raw');
@@ -112,6 +113,7 @@ void main() {
           locationId: 'loc-box-6',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
+        locationPath: 'Office › Shelf A › Box 6',
       ),
     ]);
 
@@ -120,6 +122,7 @@ void main() {
     expect(exported, contains('Collection Status'));
     expect(exported, contains('The Amazing Spider-Man, Vol. 2'));
     expect(exported, contains('9.00'));
+    expect(exported, contains('Office › Shelf A › Box 6'));
   });
 
   test('collection csv exports media-aware clz-friendly headers', () {
