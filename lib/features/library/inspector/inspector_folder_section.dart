@@ -74,6 +74,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox.shrink();
     final palette = appPalette(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return LibraryInspectorSection(
       title: 'Folders',
@@ -93,32 +94,102 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
           ),
         ),
         if (_folders.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              'Not in any folder',
-              style: TextStyle(color: palette.textMuted, fontSize: 12),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.surfaceSubtle.withValues(alpha: 0.74),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
             ),
-          ),
-        ..._folders.map((folder) => Padding(
-              padding: const EdgeInsets.only(bottom: 2),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Row(
                 children: [
-                  Icon(Icons.folder_outlined, size: 14, color: widget.accent),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      folder.name,
-                      style: const TextStyle(fontSize: 12),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: palette.textMuted.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Icon(
+                      Icons.folder_off_outlined,
+                      size: 16,
+                      color: palette.textMuted,
                     ),
                   ),
-                  InkWell(
-                    onTap: () => _removeFromFolder(folder.id),
-                    child: Icon(Icons.close, size: 14, color: palette.textMuted),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Not in any folder',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: palette.textMuted,
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Use the add action to place this item into a custom folder.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            )),
+            ),
+          ),
+        ..._folders.map(
+          (folder) => Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.surfaceSubtle.withValues(alpha: 0.74),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: widget.accent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Icon(
+                        Icons.folder_outlined,
+                        size: 16,
+                        color: widget.accent,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        folder.name,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => _removeFromFolder(folder.id),
+                      tooltip: 'Remove from folder',
+                      icon: Icon(Icons.close, size: 16, color: palette.textMuted),
+                      visualDensity: VisualDensity.compact,
+                      style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -179,6 +250,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
     final palette = appPalette(context);
     return AlertDialog(
       backgroundColor: palette.panel,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           const Expanded(child: Text('Add to Folder')),
@@ -193,24 +265,42 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
         width: 280,
         height: 240,
         child: _available.isEmpty
-            ? Center(
-                child: Text(
-                  'No folders available.\nTap + to create one.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: palette.textMuted),
+            ? DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.surfaceSubtle.withValues(alpha: 0.82),
+                  border: Border.all(color: palette.divider),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      'No folders available.\nTap + to create one.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: palette.textMuted),
+                    ),
+                  ),
                 ),
               )
-            : ListView.builder(
-                itemCount: _available.length,
-                itemBuilder: (context, i) {
-                  final folder = _available[i];
-                  return ListTile(
-                    leading: const Icon(Icons.folder_outlined, size: 20),
-                    title: Text(folder.name),
-                    dense: true,
-                    onTap: () => Navigator.pop(context, folder.id),
-                  );
-                },
+            : Material(
+                color: palette.surfaceSubtle.withValues(alpha: 0.64),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: palette.divider),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: ListView.builder(
+                  itemCount: _available.length,
+                  itemBuilder: (context, i) {
+                    final folder = _available[i];
+                    return ListTile(
+                      leading: const Icon(Icons.folder_outlined, size: 20),
+                      title: Text(folder.name),
+                      dense: true,
+                      onTap: () => Navigator.pop(context, folder.id),
+                    );
+                  },
+                ),
               ),
       ),
       actions: [
