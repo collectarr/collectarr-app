@@ -122,6 +122,69 @@ void main() {
     expect(find.text('82771402051700111'), findsOneWidget);
   });
 
+  testWidgets('comic inspector hero lays out in a narrow scrollable inspector', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ListView(
+              children: [
+                SizedBox(
+                  width: 664,
+                  child: ComicInspectorHero(
+                    request: LibraryInspectorRequest(
+                      type: comicsLibraryConfig,
+                      entry: LibraryWorkspaceEntry(
+                        id: 'comic-hero-narrow-1',
+                        mediaType: 'comic',
+                        title: 'The Last Ronin',
+                        itemNumber: '1',
+                        publisher: 'IDW Publishing',
+                        releaseYear: 2020,
+                        barcode: '82771402051700111',
+                        synopsis:
+                            'The final turtle seeks justice in a ruined future.',
+                        series: CatalogSeriesDetails(
+                          seriesTitle:
+                              'Teenage Mutant Ninja Turtles: The Last Ronin',
+                        ),
+                        publishing: CatalogPublishingDetails(
+                          imprint: 'IDW',
+                          subtitle: 'Director Cut',
+                          seriesGroup: 'TMNT Event',
+                        ),
+                        isOwned: true,
+                        updatedAt: DateTime.utc(2026, 5, 23),
+                      ),
+                      ownedItem: OwnedItem(
+                        id: 'owned-comic-hero-narrow-1',
+                        itemId: 'comic-hero-narrow-1',
+                        isDigital: false,
+                        condition: 'Near Mint',
+                        grade: '9.8',
+                        updatedAt: DateTime.utc(2026, 5, 23),
+                      ),
+                      trackingEntry: null,
+                      accent: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Plot'), findsOneWidget);
+    expect(find.text('Director Cut'), findsOneWidget);
+  });
+
   testWidgets('library inspector uses the comic-specific full panel hook', (
     tester,
   ) async {

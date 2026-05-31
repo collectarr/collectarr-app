@@ -219,42 +219,41 @@ class ComicInspectorHero extends ConsumerWidget {
           ),
         );
 
-        final personalPlotColumn = Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ComicOwnedBadge(
-                accent: request.accent,
-                owned: entry.isOwned,
-                muted: muted,
-              ),
-              if (personalFacts.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _ComicPersonalSummary(
-                  accent: request.accent,
-                  border: border,
-                  children: personalFacts,
-                ),
-              ],
+        final personalPlotColumn = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _ComicOwnedBadge(
+              accent: request.accent,
+              owned: entry.isOwned,
+              muted: muted,
+            ),
+            if (personalFacts.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text(
-                'Plot',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: muted,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: ink,
-                      height: 1.45,
-                      fontWeight: FontWeight.w500,
-                    ),
+              _ComicPersonalSummary(
+                accent: request.accent,
+                border: border,
+                children: personalFacts,
               ),
             ],
-          ),
+            const SizedBox(height: 12),
+            Text(
+              'Plot',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: muted,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: ink,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ],
         );
 
         final mainBody = _ComicHeroBlock(
@@ -268,7 +267,7 @@ class ComicInspectorHero extends ConsumerWidget {
                     const SizedBox(width: 16),
                     detailsColumn,
                     const SizedBox(width: 20),
-                    personalPlotColumn,
+                    Expanded(child: personalPlotColumn),
                   ],
                 )
               : Column(
