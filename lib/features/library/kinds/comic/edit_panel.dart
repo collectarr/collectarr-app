@@ -778,6 +778,42 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     );
   }
 
+  Widget _buildSectionCard(
+    String title, {
+    required Widget child,
+    String? description,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          if (description != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
   Widget _buildQuickChoiceField(
     String label, {
     required TextEditingController controller,
@@ -943,8 +979,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Read Status',
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text('Read', style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         SegmentedButton<String>(
           segments: const [
@@ -1483,218 +1518,238 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: _buildQuickChoiceField('Grade',
-                              controller: gradeCtl,
-                              suggestions: _commonGrades,
-                              key: const ValueKey('edit-grade')),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          flex: 5,
-                          child: _buildQuickChoiceField('Raw / Slabbed',
-                              controller: rawOrSlabbedCtl,
-                              suggestions: _rawOrSlabbedOptions,
-                              key: const ValueKey('edit-raw-slabbed')),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 8,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Market Tools',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    FilledButton.icon(
-                                      onPressed: () => launchEbaySearch(
-                                        '${_buildMarketSearchQuery()} sold',
-                                      ),
-                                      icon:
-                                          const Icon(Icons.shopping_bag_outlined),
-                                      label: const Text('Sold Listings'),
+                flex: 7,
+                child: _buildSectionCard(
+                  'Grading & Market',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 7,
+                            child: _buildQuickChoiceField('Grade',
+                                controller: gradeCtl,
+                                suggestions: _commonGrades,
+                                key: const ValueKey('edit-grade')),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 5,
+                            child: _buildQuickChoiceField('Raw / Slabbed',
+                                controller: rawOrSlabbedCtl,
+                                suggestions: _rawOrSlabbedOptions,
+                                key: const ValueKey('edit-raw-slabbed')),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 8,
+                            child: _buildSectionCard(
+                              'Market Tools',
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  FilledButton.icon(
+                                    onPressed: () => launchEbaySearch(
+                                      '${_buildMarketSearchQuery()} sold',
                                     ),
-                                    OutlinedButton.icon(
-                                      onPressed: _openCovrPriceHome,
-                                      icon: const Icon(Icons.open_in_new),
-                                      label: const Text('Open CovrPrice'),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    icon:
+                                        const Icon(Icons.shopping_bag_outlined),
+                                    label: const Text('Sold Listings'),
+                                  ),
+                                  OutlinedButton.icon(
+                                    onPressed: _openCovrPriceHome,
+                                    icon: const Icon(Icons.open_in_new),
+                                    label: const Text('Open CovrPrice'),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          flex: 4,
-                          child: _labelledField('My Value',
-                              controller: currentValueCtl,
-                              key: const ValueKey('edit-current-value')),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _labelledField('Signed by',
-                        controller: signedByCtl,
-                        key: const ValueKey('edit-signed-by')),
-                  ],
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 4,
+                            child: _labelledField('My Value',
+                                controller: currentValueCtl,
+                                key: const ValueKey('edit-current-value')),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _labelledField('Signed by',
+                          controller: signedByCtl,
+                          key: const ValueKey('edit-signed-by')),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _buildQuickChoiceField('Grading Company',
-                                controller: gradingCompanyCtl,
-                                suggestions: _gradingCompanies,
-                                key: const ValueKey('edit-grading-company'))),
-                        const SizedBox(width: 8),
-                        Expanded(
-                            child: _labelledField('Certification Number',
-                                controller: certificationNumberCtl,
-                                key: const ValueKey('edit-certification-number'))),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _labelledField('Grader Notes',
-                        controller: graderNotesCtl,
-                        key: const ValueKey('edit-grader-notes'),
-                        maxLines: 3),
-                  ],
+                flex: 5,
+                child: _buildSectionCard(
+                  'Slab Details',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                              child: _buildQuickChoiceField('Grading Company',
+                                  controller: gradingCompanyCtl,
+                                  suggestions: _gradingCompanies,
+                                  key: const ValueKey('edit-grading-company'))),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: _labelledField(
+                                  'Slab Certification Number',
+                                  controller: certificationNumberCtl,
+                                  key: const ValueKey(
+                                      'edit-certification-number'))),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _labelledField('Grader Notes',
+                          controller: graderNotesCtl,
+                          key: const ValueKey('edit-grader-notes'),
+                          maxLines: 3),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 4,
-                child: _buildQuickChoiceField('Label Type',
-                    controller: labelTypeCtl,
-                    suggestions: _labelTypeOptions,
-                    key: const ValueKey('edit-label-type')),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 5,
-                child: _buildQuickChoiceField('Custom Label',
-                    controller: customLabelCtl,
-                    suggestions: _customLabelOptions,
-                    key: const ValueKey('edit-custom-label')),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 3,
-                child: _buildQuickChoiceField('Page Quality',
-                    controller: pageQualityCtl,
-                    suggestions: _pageQualityOptions,
-                    key: const ValueKey('edit-page-quality')),
-              ),
-            ],
+          _buildSectionCard(
+            'Label Details',
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: _buildQuickChoiceField('Label Type',
+                      controller: labelTypeCtl,
+                      suggestions: _labelTypeOptions,
+                      key: const ValueKey('edit-label-type')),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 5,
+                  child: _buildQuickChoiceField('Custom Label',
+                      controller: customLabelCtl,
+                      suggestions: _customLabelOptions,
+                      key: const ValueKey('edit-custom-label')),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 3,
+                  child: _buildQuickChoiceField('Page Quality',
+                      controller: pageQualityCtl,
+                      suggestions: _pageQualityOptions,
+                      key: const ValueKey('edit-page-quality')),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 3, child: _buildKeySeveritySection()),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 5,
-                child: _labelledField('Key Reason',
-                    controller: keyReasonCtl,
-                    key: const ValueKey('edit-key-reason')),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 4,
-                child: _labelledField('Key Category',
-                    controller: keyCategoryCtl,
-                    key: const ValueKey('edit-key-category')),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                  child: _labelledField('Purchase Price',
-                      controller: purchasePriceCtl,
-                      key: const ValueKey('edit-purchase-price'))),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _labelledDateField('Purchase Date',
-                      controller: purchaseDateCtl,
-                      key: const ValueKey('edit-purchase-date'))),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _buildQuickChoiceField('Purchase Store',
-                      controller: purchaseStoreCtl,
-                      suggestions: _purchaseStoreOptions,
-                      key: const ValueKey('edit-purchase-store'))),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _labelledField('Cover Price',
-                      controller: coverPriceCtl,
-                      key: const ValueKey('edit-cover-price'))),
-            ],
+          _buildSectionCard(
+            'Key Issue',
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: _buildKeySeveritySection()),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 5,
+                  child: _labelledField('Key Reason',
+                      controller: keyReasonCtl,
+                      key: const ValueKey('edit-key-reason')),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 4,
+                  child: _labelledField('Key Category',
+                      controller: keyCategoryCtl,
+                      key: const ValueKey('edit-key-category')),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                  child: _labelledField('Sold Price',
-                      controller: soldPriceCtl,
-                      key: const ValueKey('edit-sold-price'))),
-              const SizedBox(width: 8),
+                child: _buildSectionCard(
+                  'Purchase',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: _labelledField('Purchase Price',
+                                  controller: purchasePriceCtl,
+                                  key: const ValueKey('edit-purchase-price'))),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: _labelledDateField('Purchase Date',
+                                  controller: purchaseDateCtl,
+                                  key: const ValueKey('edit-purchase-date'))),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: _buildQuickChoiceField('Purchase Store',
+                                  controller: purchaseStoreCtl,
+                                  suggestions: _purchaseStoreOptions,
+                                  key: const ValueKey('edit-purchase-store'))),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: _labelledField('Cover Price',
+                                  controller: coverPriceCtl,
+                                  key: const ValueKey('edit-cover-price'))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
-                  child: _labelledDateField('Sold Date',
-                      controller: soldDateCtl,
-                      key: const ValueKey('edit-sold-date'))),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: _labelledField('Currency',
-                      controller: purchaseCurrencyCtl,
-                      key: const ValueKey('edit-purchase-currency'))),
-              const SizedBox(width: 8),
-              const Expanded(child: SizedBox.shrink()),
+                child: _buildSectionCard(
+                  'Sale',
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                          child: _labelledField('Sold Price',
+                              controller: soldPriceCtl,
+                              key: const ValueKey('edit-sold-price'))),
+                      const SizedBox(width: 8),
+                      Expanded(
+                          child: _labelledDateField('Sold Date',
+                              controller: soldDateCtl,
+                              key: const ValueKey('edit-sold-date'))),
+                      const SizedBox(width: 8),
+                      Expanded(
+                          child: _labelledField('Currency',
+                              controller: purchaseCurrencyCtl,
+                              key: const ValueKey('edit-purchase-currency'))),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -1709,48 +1764,54 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildReadStatusSection()),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: _labelledDateField('Read Date',
-                            controller: readDateCtl,
-                            key: const ValueKey('edit-read-date'))),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _labelledField('Notes',
-                    controller: notesCtl,
-                    key: const ValueKey('edit-notes'),
-                    maxLines: 5),
-              ],
+            child: _buildSectionCard(
+              'Reading & Notes',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildReadStatusSection()),
+                      const SizedBox(width: 8),
+                      Expanded(
+                          child: _labelledDateField('Read Date',
+                              controller: readDateCtl,
+                              key: const ValueKey('edit-read-date'))),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _labelledField('Notes',
+                      controller: notesCtl,
+                      key: const ValueKey('edit-notes'),
+                      maxLines: 5),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _labelledField('Owner',
-                    controller: ownerCtl, key: const ValueKey('edit-owner')),
-                const SizedBox(height: 12),
-                _buildRatingSection(),
-                const SizedBox(height: 12),
-                _labelledField('Tags',
-                    controller: tagsCtl, key: const ValueKey('edit-tags')),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: _labelledDateField('Bag/Board Date',
-                      controller: bagBoardDateCtl,
-                      key: const ValueKey('edit-bagboard-date')),
-                ),
-              ],
+            child: _buildSectionCard(
+              'Ownership & Tags',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _labelledField('Owner',
+                      controller: ownerCtl, key: const ValueKey('edit-owner')),
+                  const SizedBox(height: 12),
+                  _buildRatingSection(),
+                  const SizedBox(height: 12),
+                  _labelledField('Tags',
+                      controller: tagsCtl, key: const ValueKey('edit-tags')),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: _labelledDateField('Bag/Board Date',
+                        controller: bagBoardDateCtl,
+                        key: const ValueKey('edit-bagboard-date')),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
