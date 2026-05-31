@@ -7,7 +7,8 @@
 
 ## Project Context
 
-- **collectarr-app** is a Flutter 3.44+ / Dart 3.12+ offline-first desktop + mobile app for managing physical media collections (comics, manga, anime, books, games, boardgames, movies, tv, music).
+- **collectarr-app** is a Flutter 3.44+ / Dart 3.12+ offline-first desktop + mobile app for managing physical media collections.
+- The current in-app library registry ships 6 active kinds: `comic`, `book`, `game`, `boardgame`, `movie`, `music`.
 - Entry point: `lib/main.dart`.
 - App code lives in `lib/`; tests live in `test/`.
 - State management: **Riverpod** (`flutter_riverpod`).
@@ -18,24 +19,22 @@
 ## Architecture
 
 ### Library Type System
-- `LibraryTypeConfig` in `lib/features/library/library_type_config.dart` defines per-type configuration (conditions, grades, defaultCondition, defaultGrade, icons, labels).
-- Comics has its own config in `lib/features/comics/comics_library_config.dart`.
-- Generic library types (manga, anime, books, games, boardgames, movies, tv, music) use `GenericLibraryPage` in `lib/features/library/generic/generic_library_page.dart`.
-- Library type configs defined in `lib/features/library/config/planned_library_configs.dart`.
-- Media adapters in `lib/features/library/config/planned_media_adapters.dart`.
-- Registry in `lib/features/library/config/collectarr_library_types.dart`.
-- Comics uses its own `ComicsPage` in `lib/features/comics/comics_page.dart`.
+- `LibraryTypeConfig` in `lib/features/library/config/library_type_config.dart` defines per-type configuration.
+- The active registry lives in `lib/features/library/kinds/registry/collectarr_library_types.dart`.
+- Per-kind configs and builders live under `lib/features/library/kinds/<kind>/`.
+- Shared library workspace flow is centered on `lib/features/library/generic/page.dart`, `body.dart`, `toolbar.dart`, `sidebar.dart`, and `projection.dart`.
+- Add-dialog builders are registered through `lib/features/library/kinds/registry/library_add_registry.dart` and `registerLibraryAddBuilders()`.
+- Comic-specific behavior is still kind-owned, but now lives under `lib/features/library/kinds/comic/` instead of a separate legacy feature tree.
 
 ### Shared Selection / Bulk Operations
 - `LibrarySelectionControls` — generic toolbar widget (`lib/features/library/selection/library_selection_controls.dart`).
 - `LibraryBulkEditDialog` — generic bulk edit dialog (`lib/features/library/selection/library_bulk_edit_dialog.dart`).
 - `LibraryBulkActions` — generic bulk action logic (`lib/features/library/selection/library_bulk_actions.dart`).
-- Comics page wraps these via `lib/features/comics/comics_page_bulk_actions.dart`.
 
-### Workspace Controls (Comics)
-- `ComicsWorkspaceControls` — control strip with selection, view-table, filters.
-- `ComicsWorkspaceControlState` / `ComicsWorkspaceControlCallbacks` — state/callback models.
-- Uses `LibrarySelectionCallbacks` record type: `({void Function(bool) onSelectionModeChanged, VoidCallback onSelectAll, VoidCallback onDeselectAll})`.
+### Workspace / Inspector Surfaces
+- Shared workspace widgets live under `lib/features/library/workspace/`.
+- Shared inspector and detail surfaces live under `lib/features/library/inspector/` and `lib/features/library/detail/`.
+- Kind-specific presentation hooks compose into those shared shells through `LibraryMediaPresentation`, `LibraryEditPresentation`, and `LibraryTypeConfig` builders.
 
 ## Database (Drift)
 
@@ -60,8 +59,8 @@
 ## Flutter and Style
 
 - Target SDK: `>=3.5.0 <4.0.0`.
-- 9 media types: comic, manga, anime, book, game, boardgame, movie, tv, music.
-- Comics has custom 65+ file implementation; all others use generic config-driven system.
+- 6 active library kinds: comic, book, game, boardgame, movie, music.
+- Comics still have kind-owned add/edit/presentation code, but they participate in the shared config-driven library system under `lib/features/library/`.
 - `LibrarySeriesBucket` and `LibrarySeriesSidebar` are shared by both comics and generic libraries.
 - Cover images: `LibraryCoverImage` (local base64 → CachedNetworkImage → placeholder).
 - Add dialogs have resizable panes: `_resultsPaneWidth`, `_clampedResultsPaneWidth()`, `_resizeResultsPane()`.
