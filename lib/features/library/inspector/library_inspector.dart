@@ -29,6 +29,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const double _kInspectorOuterGap = 12;
+
 @immutable
 class _InspectorConditionGradeOptionsRequest {
   const _InspectorConditionGradeOptionsRequest({
@@ -255,7 +257,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             color: palette.panel.withValues(alpha: 0.84),
           ),
           child: ListView(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             children: [
               InspectorActionBar(
                 type: widget.type,
@@ -311,7 +313,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   ),
                 ),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 8),
               InspectorHero(
                 type: widget.type,
                 entry: selected,
@@ -319,7 +321,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 accent: widget.accent,
               ),
               if (ownedCopies.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: _kInspectorOuterGap),
                 _InspectorOwnedCopiesSection(
                   copies: ownedCopies,
                   editions: selected.editions,
@@ -335,7 +337,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 ),
               ],
               if (activeBundleReleaseId != null) ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: _kInspectorOuterGap),
                 BundleReleaseContentsSection(
                   bundleReleaseId: activeBundleReleaseId,
                   accent: widget.accent,
@@ -349,7 +351,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                         fallbackLabel: selected.variant,
                       ) !=
                       true) ...[
-                const SizedBox(height: 10),
+                        const SizedBox(height: _kInspectorOuterGap),
                 Builder(
                   builder: (context) {
                     final options = ref.watch(_inspectorConditionGradeOptionsProvider(
@@ -393,7 +395,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   },
                 ),
               ],
-              const SizedBox(height: 10),
+              const SizedBox(height: _kInspectorOuterGap),
               ...widget.type.inspectorSectionsBuilder?.call(
                     context,
                     LibraryInspectorRequest(

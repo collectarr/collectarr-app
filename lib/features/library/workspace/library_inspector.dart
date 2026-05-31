@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 const Color _kDefaultAccent = kAppAccent;
 const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
+const double _kInspectorSectionSpacing = 12;
+const double _kInspectorSectionRadius = 12;
+const double _kInspectorSectionContentTopPadding = 10;
+const double _kInspectorFactLabelWidth = 108;
 
 class LibraryInspectorFactData {
   const LibraryInspectorFactData(this.label, this.value, {this.onTap});
@@ -57,18 +61,15 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
       colorScheme.surface,
     );
     final borderColor = colorScheme.outlineVariant.withValues(alpha: 0.42);
-    final accentBorderColor = widget.accentColor.withValues(alpha: 0.28);
+    final accentBorderColor = widget.accentColor.withValues(alpha: 0.14);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: _kInspectorSectionSpacing),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: sectionColor,
-          border: Border(
-            left: BorderSide(color: widget.accentColor, width: 2),
-            top: BorderSide(color: accentBorderColor),
-            right: BorderSide(color: borderColor),
-            bottom: BorderSide(color: borderColor),
-          ),
+          borderRadius: BorderRadius.circular(_kInspectorSectionRadius),
+          border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
               color: colorScheme.shadow.withValues(alpha: 0.35),
@@ -77,65 +78,88 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(9, 7, 9, 9),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onTap: widget.collapsible
-                    ? () => setState(() => _expanded = !_expanded)
-                    : null,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: widget.accentColor.withValues(alpha: 0.14),
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: widget.accentColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(_kInspectorSectionRadius),
+                    bottomLeft: Radius.circular(_kInspectorSectionRadius),
+                  ),
+                ),
+                child: const SizedBox(width: 2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: widget.collapsible
+                        ? () => setState(() => _expanded = !_expanded)
+                        : null,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: accentBorderColor),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            Text(
+                              widget.title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    color: widget.accentColor,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 13,
+                                    letterSpacing: 0.2,
+                                  ),
+                            ),
+                            const Spacer(),
+                            if (widget.collapsible)
+                              Icon(
+                                _expanded
+                                    ? Icons.keyboard_arrow_down
+                                    : Icons.keyboard_arrow_right,
+                                size: 16,
+                                color: resolvedMutedTextColor,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      children: [
-                        Text(
-                          widget.title,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                color: widget.accentColor,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 13,
-                              ),
-                        ),
-                        const Spacer(),
-                        if (widget.collapsible)
-                          Icon(
-                            _expanded
-                                ? Icons.keyboard_arrow_down
-                                : Icons.keyboard_arrow_right,
-                            size: 16,
-                            color: resolvedMutedTextColor,
-                          ),
-                      ],
+                  AnimatedCrossFade(
+                    firstChild: const SizedBox.shrink(),
+                    secondChild: Padding(
+                      padding: const EdgeInsets.only(
+                        top: _kInspectorSectionContentTopPadding,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.children,
+                      ),
                     ),
+                    crossFadeState: _expanded
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 180),
                   ),
-                ),
+                ],
               ),
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: Padding(
-                  padding: const EdgeInsets.only(top: 7),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: widget.children,
-                  ),
-                ),
-                crossFadeState: _expanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 180),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -161,11 +185,12 @@ class LibraryInspectorFactGrid extends StatelessWidget {
           );
         }
         return Wrap(
-          runSpacing: 0,
+          spacing: 12,
+          runSpacing: 2,
           children: [
             for (final fact in facts)
               SizedBox(
-                width: constraints.maxWidth / 2,
+                width: (constraints.maxWidth - 12) / 2,
                 child: LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
               ),
           ],
@@ -197,12 +222,12 @@ class LibraryInspectorFact extends StatelessWidget {
         : mutedTextColor;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 104,
+            width: _kInspectorFactLabelWidth,
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -212,6 +237,7 @@ class LibraryInspectorFact extends StatelessWidget {
                   ),
             ),
           ),
+          const SizedBox(width: 10),
           Expanded(
             child: onTap != null && value != '-' && value.isNotEmpty
                 ? InkWell(
@@ -298,17 +324,19 @@ class LibraryInspectorChipWrap extends StatelessWidget {
       children: [
         if (label != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 6),
             child: Text(
               label!,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.2,
                   ),
             ),
           ),
         Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 7,
+          runSpacing: 7,
           children: [
             for (final value in values)
               LibraryInspectorChip(
@@ -339,11 +367,11 @@ class LibraryInspectorChip extends StatelessWidget {
     final chip = DecoratedBox(
       decoration: BoxDecoration(
         color: chipColor,
-        borderRadius: kAppRadiusSmall,
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: kAppAccent.withValues(alpha: 0.53)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         child: Text(
           value,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
