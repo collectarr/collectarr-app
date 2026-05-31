@@ -31,6 +31,8 @@ class SingleValuePickField extends StatefulWidget {
 
 class _SingleValuePickFieldState extends State<SingleValuePickField> {
   late final FocusNode _focusNode;
+  static const _suffixButtonExtent = 32.0;
+  static const _suffixHorizontalPadding = 8.0;
 
   @override
   void initState() {
@@ -112,12 +114,44 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     _focusNode.requestFocus();
   }
 
+  Widget _suffixAction({
+    required String tooltip,
+    required VoidCallback? onPressed,
+    required IconData icon,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onPressed,
+          child: SizedBox(
+            width: _suffixButtonExtent,
+            height: _suffixButtonExtent,
+            child: Icon(
+              icon,
+              size: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final normalizedOptions = _normalizedOptions(
       widget.options,
       selectedValue: widget.controller.text,
     );
+    final actionCount = [
+      if (normalizedOptions.isNotEmpty) true,
+      if (widget.controller.text.trim().isNotEmpty) true,
+      if (widget.onManage != null) true,
+    ].length;
+    final suffixWidth =
+        actionCount * _suffixButtonExtent + (_suffixHorizontalPadding * 2);
     return RawAutocomplete<String>(
       textEditingController: widget.controller,
       focusNode: _focusNode,
@@ -145,33 +179,45 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           decoration: InputDecoration(
             labelText: widget.label,
             hintText: widget.hint,
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (normalizedOptions.isNotEmpty)
-                  IconButton(
-                    tooltip: 'Pick ${widget.label}',
-                    onPressed: () => _openPickerDialog(normalizedOptions),
-                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                  ),
-                if (controller.text.trim().isNotEmpty)
-                  IconButton(
-                    tooltip: 'Clear ${widget.label}',
-                    onPressed: () {
-                      controller.clear();
-                      widget.onChanged?.call(null);
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                if (widget.onManage != null)
-                  IconButton(
-                    tooltip: widget.manageTooltip ?? 'Manage ${widget.label}',
-                    onPressed: widget.enabled ? widget.onManage : null,
-                    icon: const Icon(Icons.tune),
-                  ),
-              ],
+            suffixIconConstraints: BoxConstraints(
+              minWidth: actionCount == 0 ? 0 : suffixWidth,
+              maxWidth: actionCount == 0 ? 0 : suffixWidth,
+              minHeight: 40,
             ),
+            suffixIcon: actionCount == 0
+                ? null
+                : SizedBox(
+                    width: suffixWidth,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        if (normalizedOptions.isNotEmpty)
+                          _suffixAction(
+                            tooltip: 'Pick ${widget.label}',
+                            onPressed: () => _openPickerDialog(normalizedOptions),
+                            icon: Icons.arrow_drop_down_circle_outlined,
+                          ),
+                        if (controller.text.trim().isNotEmpty)
+                          _suffixAction(
+                            tooltip: 'Clear ${widget.label}',
+                            onPressed: () {
+                              controller.clear();
+                              widget.onChanged?.call(null);
+                              setState(() {});
+                            },
+                            icon: Icons.close,
+                          ),
+                        if (widget.onManage != null)
+                          _suffixAction(
+                            tooltip:
+                                widget.manageTooltip ?? 'Manage ${widget.label}',
+                            onPressed: widget.enabled ? widget.onManage : null,
+                            icon: Icons.tune,
+                          ),
+                      ],
+                    ),
+                  ),
           ),
           onTap: () => setState(() {}),
           onChanged: (value) {

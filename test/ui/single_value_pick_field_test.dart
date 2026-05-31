@@ -33,4 +33,27 @@ void main() {
 
     expect(controller.text, 'Publisher B');
   });
+
+  testWidgets('single value pick field shows all suffix actions',
+      (tester) async {
+    final controller = TextEditingController(text: 'Publisher A');
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleValuePickField(
+            controller: controller,
+            options: const ['Publisher A', 'Publisher B'],
+            label: 'Publisher',
+            onManage: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Pick Publisher'), findsOneWidget);
+    expect(find.byTooltip('Clear Publisher'), findsOneWidget);
+    expect(find.byTooltip('Manage Publisher'), findsOneWidget);
+  });
 }
