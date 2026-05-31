@@ -11,6 +11,8 @@ Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
   required LibraryTypeConfig type,
   required LibraryMediaAdapter adapter,
   required LibraryWorkspaceViewState viewState,
+  Set<String> pinnedFavoriteKeys = const {},
+  ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
 }) async {
   final store = LibraryColumnPresetStore(type.workspace);
   final savedPresets = await store.read();
@@ -27,6 +29,8 @@ Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
       columnGroup: adapter.columnGroup,
       groupLabel: adapter.columnGroupLabel,
       savedPresets: savedPresets,
+      pinnedFavoriteKeys: pinnedFavoriteKeys,
+      onTogglePinnedFavorite: onTogglePinnedFavorite,
       onSavePreset: (label, columns) => store.savePreset(
         label: label,
         columns: columns,

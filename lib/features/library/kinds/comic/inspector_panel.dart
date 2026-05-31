@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -246,17 +247,11 @@ class _ComicToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return TextButton.icon(
+    return LibraryDenseButton(
+      label: label,
+      icon: icon,
       onPressed: onPressed,
-      icon: Icon(icon, size: 15, color: palette.textPrimary),
-      label: Text(label),
-      style: TextButton.styleFrom(
-        foregroundColor: palette.textPrimary,
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      ),
+      tone: LibraryDenseButtonTone.surface,
     );
   }
 }
@@ -288,42 +283,19 @@ class _ComicToolbarMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return PopupMenuButton<_ComicToolbarMenuEntry>(
-      tooltip: label,
-      onSelected: (entry) => entry.onSelected?.call(),
-      itemBuilder: (context) => [
+    return LibraryDenseMenuButton<_ComicToolbarMenuEntry>(
+      label: label,
+      icon: icon,
+      tone: LibraryDenseButtonTone.surface,
+      entries: [
         for (final entry in entries)
-          PopupMenuItem<_ComicToolbarMenuEntry>(
+          LibraryDenseMenuEntry<_ComicToolbarMenuEntry>(
             value: entry,
-            child: Row(
-              children: [
-                Icon(entry.icon, size: 16, color: palette.textPrimary),
-                const SizedBox(width: 10),
-                Text(entry.label),
-              ],
-            ),
+            label: entry.label,
+            icon: entry.icon,
           ),
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 15, color: palette.textPrimary),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.arrow_drop_down, size: 18, color: palette.textMuted),
-          ],
-        ),
-      ),
+      onSelected: (entry) => entry.onSelected?.call(),
     );
   }
 }

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -203,6 +204,7 @@ void main() {
     expect(find.text('In Collection'), findsWidgets);
     expect(find.text('Plot'), findsOneWidget);
     expect(find.text('Overview'), findsNothing);
+    expect(find.byType(LibraryDenseButton), findsWidgets);
 
     await tester.tap(find.text('Layout'));
     await tester.pumpAndSettle();

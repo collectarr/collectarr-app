@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/selection/library_selection_cont
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     required this.adapter,
     required this.counts,
     required this.onEditColumns,
+    this.columnFavoritePresets = const [],
+    this.activeColumnFavoriteLabel,
+    this.onColumnFavoriteSelected,
+    this.pinnedColumnFavoriteKeys = const {},
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
@@ -62,6 +67,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final LibraryMediaAdapter adapter;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
+  final List<LibraryTableColumnPreset> columnFavoritePresets;
+  final String? activeColumnFavoriteLabel;
+  final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
+  final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
@@ -98,6 +107,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final pinnedColumnPresets = [
+      for (final preset in columnFavoritePresets)
+        if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
+    ];
+    final overflowColumnPresets = [
+      for (final preset in columnFavoritePresets)
+        if (!pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
+    ];
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.toolbar,
@@ -149,12 +166,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     ),
                     if (viewState.viewMode == LibraryViewMode.list) ...[
                       const SizedBox(width: 6),
-                      Tooltip(
-                        message: 'Select columns',
-                        child: LibraryWorkspaceIconButton(
-                          onPressed: onEditColumns,
-                          icon: Icons.view_column,
-                        ),
+                      _LibraryColumnLauncher(
+                        activeLabel: activeColumnFavoriteLabel,
+                        onManageColumns: onEditColumns,
+                        pinnedPresets: pinnedColumnPresets,
+                        overflowPresets: overflowColumnPresets,
+                        onPresetSelected: onColumnFavoriteSelected,
                       ),
                     ] else if (viewState.viewMode.supportsCoverSize) ...[
                       const SizedBox(width: 6),
@@ -224,6 +241,64 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+enum _LibraryColumnLauncherAction { manage }
+
+class _LibraryColumnLauncher extends StatelessWidget {
+  const _LibraryColumnLauncher({
+    required this.activeLabel,
+    required this.onManageColumns,
+    required this.pinnedPresets,
+    required this.overflowPresets,
+    required this.onPresetSelected,
+  });
+
+  final String? activeLabel;
+  final VoidCallback onManageColumns;
+  final List<LibraryTableColumnPreset> pinnedPresets;
+  final List<LibraryTableColumnPreset> overflowPresets;
+  final ValueChanged<LibraryTableColumnPreset>? onPresetSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = <LibraryDenseMenuEntry<Object>>[];
+    for (final preset in [...pinnedPresets, ...overflowPresets]) {
+      entries.add(
+        LibraryDenseMenuEntry<Object>(
+          value: preset,
+          label: preset.label,
+          icon: Icons.bookmark_outline,
+          active: preset.label == activeLabel,
+          trailingLabel: '${preset.columns.length}',
+        ),
+      );
+    }
+    entries.add(
+      const LibraryDenseMenuEntry<Object>(
+        value: _LibraryColumnLauncherAction.manage,
+        label: 'Manage columns',
+        icon: Icons.tune,
+      ),
+    );
+
+    return LibraryDenseSplitButton<Object>(
+      key: const ValueKey('library-column-split-button'),
+      label: activeLabel ?? 'Custom columns',
+      icon: Icons.view_column_outlined,
+      onPressed: onManageColumns,
+      entries: entries,
+      onSelected: (value) {
+        if (value is LibraryTableColumnPreset) {
+          onPresetSelected?.call(value);
+          return;
+        }
+        onManageColumns();
+      },
+      tone: LibraryDenseButtonTone.surface,
+      tooltip: 'Columns',
     );
   }
 }

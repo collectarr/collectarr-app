@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,6 +61,9 @@ void main() {
                 },
               ),
             ],
+            pinnedFavoriteKeys: const {
+              'saved:full-preset',
+            },
             onSavePreset: null,
           ),
         ),
@@ -73,7 +77,8 @@ void main() {
     expect(find.text('Preset details'), findsOneWidget);
     expect(find.text('Available fields'), findsOneWidget);
     expect(find.text('Selected columns'), findsOneWidget);
-    expect(find.text('Essential'), findsOneWidget);
+    expect(find.byKey(const ValueKey('column-preset-Full View')), findsOneWidget);
+    expect(find.byTooltip('Pin favorite'), findsNothing);
     expect(find.byKey(const ValueKey('selected-column-title')), findsOneWidget);
     expect(find.byKey(const ValueKey('selected-column-issue')), findsOneWidget);
   });
@@ -120,5 +125,49 @@ void main() {
 
     expect(find.byKey(const ValueKey('selected-column-issue')), findsNothing);
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsOneWidget);
+  });
+
+  testWidgets('pinned favorite toggle is exposed in the manager shell', (
+    tester,
+  ) async {
+    LibraryTableColumnPreset? toggledPreset;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryColumnChooserDialog(
+            accent: Colors.cyan,
+            selectedColumns: const {
+              LibraryTableColumn.title,
+              LibraryTableColumn.issue,
+            },
+            defaultColumns: const {
+              LibraryTableColumn.title,
+              LibraryTableColumn.issue,
+            },
+            columnLabel: labelFor,
+            presets: const [
+              LibraryTableColumnPreset(
+                label: 'Barcode View',
+                columns: {
+                  LibraryTableColumn.title,
+                  LibraryTableColumn.barcode,
+                },
+              ),
+            ],
+            pinnedFavoriteKeys: const {},
+            onTogglePinnedFavorite: (preset) => toggledPreset = preset,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Pin favorite').first);
+    await tester.pumpAndSettle();
+
+    expect(toggledPreset?.label, 'Barcode View');
+    expect(libraryColumnFavoriteKey(toggledPreset!), 'builtin:barcode_view');
   });
 }
