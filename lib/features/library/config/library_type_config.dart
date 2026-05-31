@@ -334,6 +334,7 @@ class LibraryTypeConfig {
     this.detailPageBuilder,
     this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
+    this.showsDefaultInspectorPersonalSection = true,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -362,6 +363,7 @@ class LibraryTypeConfig {
   final LibraryDetailPageBuilder? detailPageBuilder;
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
+  final bool showsDefaultInspectorPersonalSection;
 
   List<TransferableField> transferableFieldsWithCustomFields(
     List<CustomFieldDefinition> definitions,

@@ -426,12 +426,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       onFilterByValue: widget.onFilterByValue,
                     ),
                   ],
-              InspectorPersonalSection(
-                entry: selected,
-                ownedItem: activeOwnedItem,
-                trackingEntry: activeTrackingEntry,
-                accent: widget.accent,
-              ),
+              if (widget.type.showsDefaultInspectorPersonalSection)
+                InspectorPersonalSection(
+                  entry: selected,
+                  ownedItem: activeOwnedItem,
+                  trackingEntry: activeTrackingEntry,
+                  accent: widget.accent,
+                ),
               if (activeOwnedItem != null)
                 InspectorPersonalDetailsEditor(
                   ownedItem: activeOwnedItem,

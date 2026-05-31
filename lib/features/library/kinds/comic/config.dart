@@ -56,6 +56,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildComicLibraryEditDialog,
   inspectorHeroBuilder: buildComicInspectorHero,
   inspectorSectionsBuilder: buildComicInspectorSections,
+  showsDefaultInspectorPersonalSection: false,
   presentation: comicsLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
   editChrome: LibraryEditChromeConfig(

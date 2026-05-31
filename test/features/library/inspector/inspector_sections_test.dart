@@ -224,6 +224,7 @@ void main() {
                         itemId: 'comic-1',
                         isDigital: false,
                         currency: 'USD',
+                        coverPriceCents: 299,
                         rawOrSlabbed: 'Slabbed',
                         gradingCompany: 'CGC',
                         certificationNumber: '1234567001',
@@ -253,38 +254,37 @@ void main() {
         ),
       );
 
-      expect(find.text('Catalog identity'), findsOneWidget);
-      expect(find.text('Catalog context'), findsOneWidget);
-      expect(find.text('Credits & Discovery'), findsOneWidget);
       expect(find.text('Creators'), findsOneWidget);
+      expect(find.text('Details'), findsOneWidget);
+      expect(find.text('Personal'), findsOneWidget);
+      expect(find.text('Value'), findsOneWidget);
+      expect(find.text('Collector'), findsOneWidget);
+      expect(find.text('Discovery'), findsOneWidget);
       expect(find.textContaining('Brian K. Vaughan'), findsWidgets);
-      expect(find.text('Characters'), findsOneWidget);
-      expect(find.text('Story Arcs'), findsOneWidget);
-      expect(find.text('Comic details'), findsOneWidget);
       expect(find.text('Raw / Slabbed'), findsOneWidget);
       expect(find.text('Slabbed'), findsOneWidget);
-      expect(find.text('Grading co.'), findsOneWidget);
+      expect(find.text('Grading Co.'), findsOneWidget);
       expect(find.text('CGC'), findsOneWidget);
-      expect(find.text('Certification no.'), findsOneWidget);
+      expect(find.text('Certification'), findsOneWidget);
       expect(find.text('1234567001'), findsOneWidget);
-      expect(find.text('Label type'), findsOneWidget);
+      expect(find.text('Label Type'), findsOneWidget);
       expect(find.text('Universal'), findsOneWidget);
-      expect(find.text('Custom label'), findsOneWidget);
+      expect(find.text('Custom Label'), findsOneWidget);
       expect(find.text('Newsstand'), findsOneWidget);
-      expect(find.text('Page quality'), findsOneWidget);
+      expect(find.text('Page Quality'), findsOneWidget);
       expect(find.text('White'), findsOneWidget);
-      expect(find.text('Signed by'), findsOneWidget);
+      expect(find.text('Signed By'), findsOneWidget);
       expect(find.text('Brian K. Vaughan'), findsWidgets);
       expect(find.text('Key'), findsOneWidget);
       expect(find.text('First appearance'), findsOneWidget);
-      expect(find.text('Key category'), findsOneWidget);
+      expect(find.text('Key Category'), findsOneWidget);
       expect(find.text('First appearances'), findsOneWidget);
-      expect(find.text('Key severity'), findsOneWidget);
+      expect(find.text('Key Severity'), findsOneWidget);
       expect(find.text('Major'), findsOneWidget);
-      expect(find.text('Grader notes'), findsOneWidget);
+      expect(find.text('Grader Notes'), findsOneWidget);
       expect(find.text('Small spine stress'), findsOneWidget);
-      expect(find.text('Value'), findsOneWidget);
-      expect(find.text('Current value'), findsOneWidget);
+      expect(find.text('Cover Price'), findsOneWidget);
+      expect(find.text('Current Value'), findsOneWidget);
       expect(find.text('USD 18.99'), findsOneWidget);
     });
   });
