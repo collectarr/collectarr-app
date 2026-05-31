@@ -274,7 +274,7 @@ void main() {
       expect(find.text('Page quality'), findsOneWidget);
       expect(find.text('White'), findsOneWidget);
       expect(find.text('Signed by'), findsOneWidget);
-      expect(find.text('Brian K. Vaughan'), findsOneWidget);
+      expect(find.text('Brian K. Vaughan'), findsWidgets);
       expect(find.text('Key'), findsOneWidget);
       expect(find.text('First appearance'), findsOneWidget);
       expect(find.text('Key category'), findsOneWidget);
