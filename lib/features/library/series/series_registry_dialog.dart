@@ -445,82 +445,119 @@ Future<({String title, String? sortTitle})?> _showSeriesEditDialog(
   String? initialTitle,
   String? initialSortTitle,
 }) {
-  final titleController = TextEditingController(text: initialTitle ?? '');
-  final sortTitleController = TextEditingController(text: initialSortTitle ?? '');
   return showDialog<({String title, String? sortTitle})>(
     context: context,
-    builder: (context) {
-      final palette = appPalette(context);
-      return AlertDialog(
-        backgroundColor: kAppPanel,
-        titlePadding: EdgeInsets.zero,
-        contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-        title: _SeriesDialogHeader(
-          title: initialTitle == null ? 'New Series' : 'Edit Series',
-          subtitle: initialTitle == null
-              ? 'Create a reusable series entry for manual edits and catalog merges.'
-              : 'Update the display name and optional sort name used across the registry.',
-          icon: initialTitle == null ? Icons.add_circle_outline : Icons.edit_outlined,
-          accent: Theme.of(context).colorScheme.primary,
-        ),
-        content: SizedBox(
-          width: 420,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: palette.panelRaised,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: palette.divider),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: titleController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    autofocus: true,
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: sortTitleController,
-                    decoration: const InputDecoration(labelText: 'Sort Name'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final title = titleController.text.trim();
-              if (title.isEmpty) {
-                return;
-              }
-              Navigator.of(context).pop(
-                (
-                  title: title,
-                  sortTitle: sortTitleController.text.trim().isEmpty
-                      ? null
-                      : sortTitleController.text.trim(),
-                ),
-              );
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
-  ).whenComplete(() {
-    titleController.dispose();
-    sortTitleController.dispose();
+    builder: (context) => _SeriesEditDialog(
+      initialTitle: initialTitle,
+      initialSortTitle: initialSortTitle,
+    ),
+  );
+}
+
+class _SeriesEditDialog extends StatefulWidget {
+  const _SeriesEditDialog({
+    this.initialTitle,
+    this.initialSortTitle,
   });
+
+  final String? initialTitle;
+  final String? initialSortTitle;
+
+  @override
+  State<_SeriesEditDialog> createState() => _SeriesEditDialogState();
+}
+
+class _SeriesEditDialogState extends State<_SeriesEditDialog> {
+  late final TextEditingController _titleController;
+  late final TextEditingController _sortTitleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.initialTitle ?? '');
+    _sortTitleController = TextEditingController(
+      text: widget.initialSortTitle ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _sortTitleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return AlertDialog(
+      backgroundColor: kAppPanel,
+      titlePadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      title: _SeriesDialogHeader(
+        title: widget.initialTitle == null ? 'New Series' : 'Edit Series',
+        subtitle: widget.initialTitle == null
+            ? 'Create a reusable series entry for manual edits and catalog merges.'
+            : 'Update the display name and optional sort name used across the registry.',
+        icon: widget.initialTitle == null
+            ? Icons.add_circle_outline
+            : Icons.edit_outlined,
+        accent: Theme.of(context).colorScheme.primary,
+      ),
+      content: SizedBox(
+        width: 420,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.panelRaised,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: palette.divider),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _sortTitleController,
+                  decoration: const InputDecoration(labelText: 'Sort Name'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final title = _titleController.text.trim();
+            if (title.isEmpty) {
+              return;
+            }
+            Navigator.of(context).pop(
+              (
+                title: title,
+                sortTitle: _sortTitleController.text.trim().isEmpty
+                    ? null
+                    : _sortTitleController.text.trim(),
+              ),
+            );
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
 }
 
 class _SeriesDialogHeader extends StatelessWidget {
