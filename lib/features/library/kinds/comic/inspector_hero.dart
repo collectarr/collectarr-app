@@ -25,15 +25,13 @@ class ComicInspectorHero extends ConsumerWidget {
     final palette = appPalette(context);
     final entry = request.entry;
     final ownedItem = request.ownedItem;
-    final surface = Color.alphaBlend(
-      request.accent.withValues(alpha: palette.isDark ? 0.018 : 0.008),
-      palette.surface,
-    );
+    final surface = palette.surface;
     final headerSurface = Color.alphaBlend(
-      request.accent.withValues(alpha: palette.isDark ? 0.03 : 0.014),
+      request.accent.withValues(alpha: palette.isDark ? 0.022 : 0.01),
       palette.surface,
     );
-    final border = palette.divider.withValues(alpha: palette.isDark ? 0.86 : 0.62);
+    final border =
+        palette.divider.withValues(alpha: palette.isDark ? 0.82 : 0.52);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
@@ -305,14 +303,17 @@ class _ComicHeroBlock extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surface,
-        border: Border.all(color: border),
+        border: Border(
+          top: BorderSide(color: border),
+          bottom: BorderSide(color: border),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 18,
-            padding: const EdgeInsets.symmetric(horizontal: 3),
+            height: 17,
+            padding: const EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(
               color: headerSurface,
               border: Border(bottom: BorderSide(color: border)),
@@ -329,32 +330,26 @@ class _ComicHeroBlock extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.08,
                           height: 1,
-                          fontSize: 13,
+                          fontSize: 12.5,
                         ),
                   ),
                 ),
-                const SizedBox(width: 3),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: border),
-                    color: Colors.transparent,
-                  ),
-                  child: Text(
-                    referenceLabel,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: appPalette(context).textPrimary,
-                          fontWeight: FontWeight.w800,
-                          height: 1,
-                          fontSize: 8,
-                        ),
-                  ),
+                const SizedBox(width: 4),
+                Text(
+                  referenceLabel,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: appPalette(context).textPrimary,
+                        fontWeight: FontWeight.w900,
+                        height: 1,
+                        fontSize: 8,
+                        letterSpacing: 0.12,
+                      ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(2),
+            padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
             child: child,
           ),
         ],
