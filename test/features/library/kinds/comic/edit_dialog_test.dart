@@ -19,10 +19,15 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/test_constants.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets(
       'comic edit dialog saves expanded comic payload and external links',
       (tester) async {
@@ -408,6 +413,78 @@ void main() {
     expect(selection!.tracking?.finishedAt, DateTime(2026, 5, 30));
     expect(selection!.tracking?.notes, 'Tracking note');
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
+  });
+
+  testWidgets(
+      'comic edit dialog restores saved tab order',
+      (tester) async {
+    tester.view.physicalSize = kDesktopTestSize;
+    tester.view.devicePixelRatio = kDesktopTestDPR;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    SharedPreferences.setMockInitialValues({
+      'edit_tab_order_comic': ['9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '10'],
+    });
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'comic-restore-order',
+        kind: 'comic',
+        title: 'Saga',
+        itemNumber: '1',
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-restore-order',
+      itemId: 'comic-restore-order',
+      editionId: 'edition-restore-order',
+      variantId: 'variant-restore-order',
+      quantity: 1,
+      updatedAt: DateTime.utc(2026, 5, 30),
+    );
+    final request = LibraryEditDialogRequest(
+      type: type,
+      item: item,
+      ownedItem: ownedItem,
+      accent: Colors.red,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () {
+                  showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => buildComicLibraryEditDialog(
+                      context,
+                      request,
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.text('Plot')).dx,
+      lessThan(tester.getTopLeft(find.text('Details')).dx),
+    );
   });
 
   testWidgets(

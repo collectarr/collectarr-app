@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
@@ -18,6 +19,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ComicEditPanel extends ConsumerStatefulWidget {
@@ -29,7 +31,23 @@ class ComicEditPanel extends ConsumerStatefulWidget {
   ComicEditPanelState createState() => ComicEditPanelState();
 }
 
-class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
+class ComicEditPanelState extends ConsumerState<ComicEditPanel>
+    with SingleTickerProviderStateMixin {
+  static const String _tabOrderPreferenceKey = 'edit_tab_order_comic';
+  static const List<Tab> _tabs = [
+    Tab(child: EditTab(icon: Icons.search, label: 'Details')),
+    Tab(child: EditTab(icon: Icons.book, label: 'Main')),
+    Tab(child: EditTab(icon: Icons.attach_money, label: 'Value')),
+    Tab(child: EditTab(icon: Icons.person, label: 'Personal')),
+    Tab(child: EditTab(icon: Icons.edit, label: 'Custom Fields')),
+    Tab(child: EditTab(icon: Icons.camera_alt, label: 'Covers')),
+    Tab(child: EditTab(icon: Icons.image, label: 'My Images')),
+    Tab(child: EditTab(icon: Icons.group, label: 'Creators')),
+    Tab(child: EditTab(icon: Icons.face, label: 'Characters')),
+    Tab(child: EditTab(icon: Icons.article, label: 'Plot')),
+    Tab(child: EditTab(icon: Icons.link, label: 'Links')),
+  ];
+
   static const List<String> _commonCreatorRoles = <String>[
     'Writer',
     'Artist',
@@ -218,6 +236,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   late final TextEditingController summaryCtl;
   late final TextEditingController descriptionCtl;
   final List<Map<String, TextEditingController>> links = [];
+  late final TabController _tabController;
+  late List<int> _tabOrder;
 
   late Map<String, String?> _customFieldValues;
   List<ItemImageEdit> _itemImageEdits = const [];
@@ -253,6 +273,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabOrder = List<int>.generate(_tabs.length, (index) => index);
     final item = widget.request.item;
     final owned = widget.request.ownedItem;
     final tracking = widget.request.trackingEntry;
@@ -406,10 +428,65 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
 
     _loadSeriesOptions();
     _loadDetailPickListOptions();
+    _loadSavedTabOrder();
+  }
+
+  Future<void> _loadSavedTabOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList(_tabOrderPreferenceKey);
+    if (saved == null || saved.length != _tabs.length) {
+      return;
+    }
+    final parsed = saved.map(int.tryParse).toList();
+    if (parsed.contains(null)) {
+      return;
+    }
+    final order = parsed.cast<int>();
+    final sorted = List<int>.from(order)..sort();
+    final isPermutation =
+        sorted.length == _tabs.length &&
+        sorted.indexed.every((entry) => entry.$1 == entry.$2);
+    if (!isPermutation || !mounted) {
+      return;
+    }
+    setState(() {
+      _tabOrder = order;
+    });
+  }
+
+  Future<void> _saveTabOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _tabOrderPreferenceKey,
+      _tabOrder.map((index) => index.toString()).toList(),
+    );
+  }
+
+  void _onReorderTab(int oldIndex, int newIndex) {
+    final currentTab = _tabController.index < _tabOrder.length
+        ? _tabOrder[_tabController.index]
+        : null;
+    setState(() {
+      final moved = _tabOrder.removeAt(oldIndex);
+      _tabOrder.insert(newIndex, moved);
+    });
+    unawaited(_saveTabOrder());
+    if (currentTab == null) {
+      return;
+    }
+    final nextIndex = _tabOrder.indexOf(currentTab);
+    if (nextIndex >= 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _tabController.animateTo(nextIndex);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _textControllers.dispose();
     for (final creator in _creators) {
       creator.dispose();
@@ -2640,46 +2717,36 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 11,
-      child: Column(
-        children: [
-          LibraryEditMaterialTabBar(
-            accent: widget.request.accent,
-            tabs: const [
-              Tab(child: EditTab(icon: Icons.search, label: 'Details')),
-              Tab(child: EditTab(icon: Icons.book, label: 'Main')),
-              Tab(child: EditTab(icon: Icons.attach_money, label: 'Value')),
-              Tab(child: EditTab(icon: Icons.person, label: 'Personal')),
-              Tab(child: EditTab(icon: Icons.edit, label: 'Custom Fields')),
-              Tab(child: EditTab(icon: Icons.camera_alt, label: 'Covers')),
-              Tab(child: EditTab(icon: Icons.image, label: 'My Images')),
-              Tab(child: EditTab(icon: Icons.group, label: 'Creators')),
-              Tab(child: EditTab(icon: Icons.face, label: 'Characters')),
-              Tab(child: EditTab(icon: Icons.article, label: 'Plot')),
-              Tab(child: EditTab(icon: Icons.link, label: 'Links')),
-            ],
+    final views = <Widget>[
+      _buildDetailsTab(),
+      _buildMainTab(context),
+      _buildValueTab(),
+      _buildPersonalTab(),
+      _buildCustomFieldsTab(),
+      _buildCoversTab(),
+      _buildMyImagesTab(),
+      _buildCreatorsTab(),
+      _buildCharactersTab(),
+      _buildPlotTab(),
+      _buildLinksTab(),
+    ];
+    return Column(
+      children: [
+        LibraryEditMaterialTabBar(
+          accent: widget.request.accent,
+          tabController: _tabController,
+          allowReorder: true,
+          onReorderItem: _onReorderTab,
+          tabs: [for (final index in _tabOrder) _tabs[index]],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [for (final index in _tabOrder) views[index]],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildDetailsTab(),
-                _buildMainTab(context),
-                _buildValueTab(),
-                _buildPersonalTab(),
-                _buildCustomFieldsTab(),
-                _buildCoversTab(),
-                _buildMyImagesTab(),
-                _buildCreatorsTab(),
-                _buildCharactersTab(),
-                _buildPlotTab(),
-                _buildLinksTab(),
-              ],
-            ),
-          ),
-          _buildPreFooter(context),
-        ],
-      ),
+        ),
+        _buildPreFooter(context),
+      ],
     );
   }
 
