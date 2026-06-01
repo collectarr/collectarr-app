@@ -115,7 +115,9 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final boundedGrid = nestedGridHeight == null
             ? grid
             : SizedBox(height: nestedGridHeight, child: grid);
-        if (widget.itemIdOf == null || widget.onSelectionChanged == null) {
+        if (!widget.selectionEnabled ||
+            widget.itemIdOf == null ||
+            widget.onSelectionChanged == null) {
           return ColoredBox(color: backgroundColor, child: boundedGrid);
         }
         final selectionLayer = Listener(

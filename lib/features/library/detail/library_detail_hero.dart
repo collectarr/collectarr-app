@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -19,6 +18,7 @@ class LibraryDetailHero extends StatelessWidget {
     required this.type,
     required this.entry,
     required this.ownedItem,
+    this.ownedCopies = const [],
     required this.accent,
     this.isOwned,
   });
@@ -26,11 +26,13 @@ class LibraryDetailHero extends StatelessWidget {
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final List<OwnedItem> ownedCopies;
   final Color accent;
   final bool? isOwned;
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? (ownedItem != null || entry.isOwned);
     final referenceLabel =
@@ -38,24 +40,101 @@ class LibraryDetailHero extends StatelessWidget {
             entry.primaryReferenceLabel;
     final releaseLabel =
         formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
+    final totalCopies = ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
+    final totalQuantity = ownedCopies.isEmpty
+        ? (ownedItem?.quantity ?? 0)
+        : ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
+    final totalPaidCents = _sumOwnedValueCents(
+      ownedCopies,
+      (item) => item.pricePaidCents,
+    );
+    final totalMarketValueCents = _sumOwnedValueCents(
+      ownedCopies,
+      (item) => item.marketValueCents,
+    );
+    final totalsCurrency = _detailHeroValueCurrency(ownedCopies, ownedItem, entry);
+    final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
+        ? null
+        : ownedCopies.indexWhere((item) => item.id == ownedItem!.id);
+    final summaryFacts = <({String label, String value})>[
+      (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
+      (label: 'Quantity', value: totalQuantity.toString()),
+      if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
+      if (totalCopies > 1 && totalPaidCents != null)
+        (
+          label: 'Total paid',
+          value: formatMoney(totalPaidCents, totalsCurrency),
+        ),
+      if (totalCopies > 1 && totalMarketValueCents != null)
+        (
+          label: 'Total value',
+          value: formatMoney(totalMarketValueCents, totalsCurrency),
+        ),
+      if (selectedCopyIndex != null && selectedCopyIndex >= 0)
+        (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
+      (
+        label: 'Updated',
+        value: formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
+      ),
+    ];
+    final primaryChips = <Widget>[
+      _DetailHeaderChip(
+        icon: Icons.inventory_2,
+        label: resolvedIsOwned ? 'Owned' : 'Not owned',
+        accent: accent,
+      ),
+      if (entry.isWishlisted)
+        _DetailHeaderChip(
+          icon: Icons.star,
+          label: 'Wishlisted',
+          accent: accent,
+        ),
+      if (referenceLabel != null)
+        _DetailHeaderChip(
+          icon: Icons.link_outlined,
+          label: referenceLabel,
+          accent: accent,
+        ),
+      if (ownedItem?.condition != null)
+        _DetailHeaderChip(
+          icon: Icons.fact_check_outlined,
+          label: ownedItem!.condition!,
+          accent: accent,
+        ),
+      if (ownedItem?.grade != null)
+        _DetailHeaderChip(
+          icon: Icons.workspace_premium,
+          label: ownedItem!.grade!,
+          accent: accent,
+        ),
+      if (ownedItem?.keyComic == true)
+        _DetailHeaderChip(
+          icon: Icons.label_important,
+          label: ownedItem!.keyReason ?? 'Key item',
+          accent: accent,
+        ),
+      if (ownedItem?.rawOrSlabbed != null || ownedItem?.gradingCompany != null)
+        _DetailHeaderChip(
+          icon: Icons.verified_outlined,
+          label: librarySlabMarkerLabel(
+                ownedItem?.rawOrSlabbed,
+                ownedItem?.gradingCompany,
+              ) ??
+              'Collector copy',
+          accent: accent,
+        ),
+    ];
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: accent.withValues(alpha: 0.6)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            kAppField,
-            Color.alphaBlend(
-              accent.withValues(alpha: 0.18),
-              kAppSurfaceSubtle,
-            ),
-            kAppField,
-          ],
+        color: palette.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: palette.divider.withValues(alpha: 0.92),
+          ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 680;
@@ -84,7 +163,7 @@ class LibraryDetailHero extends StatelessWidget {
                         )
                         .value;
                 return SizedBox(
-                  width: wide ? 180 : 150,
+                  width: wide ? 164 : 138,
                   child: SlabFrameOverlay.maybeWrap(
                     rawOrSlabbed: ownedItem?.rawOrSlabbed,
                     gradingCompany: ownedItem?.gradingCompany,
@@ -128,13 +207,13 @@ class LibraryDetailHero extends StatelessWidget {
                 Text(
                   entry.resolvedTitle,
                   textAlign: wide ? TextAlign.start : TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: accent,
-                        fontWeight: FontWeight.w900,
-                        height: 1,
+                        fontWeight: FontWeight.w800,
+                        height: 1.02,
                       ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   [
                     type.singularLabel,
@@ -149,161 +228,82 @@ class LibraryDetailHero extends StatelessWidget {
                   ].whereType<String>().join(' | '),
                   textAlign: wide ? TextAlign.start : TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
+                        color: palette.textMuted,
+                    fontWeight: FontWeight.w700,
                       ),
                 ),
                 if (type.capabilities.showsCreatorSpotlight &&
                     (entry.creators?.isNotEmpty ?? false)) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   BookAuthorSpotlight(
                     creators: entry.creators!,
                     accent: accent,
                     centered: !wide,
                   ),
                 ],
-                const SizedBox(height: 12),
+                if (primaryChips.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    alignment: wide ? WrapAlignment.start : WrapAlignment.center,
+                    children: primaryChips,
+                  ),
+                ],
+                const SizedBox(height: 10),
                 Wrap(
-                  spacing: 6,
+                  spacing: 12,
                   runSpacing: 6,
                   alignment: wide ? WrapAlignment.start : WrapAlignment.center,
                   children: [
-                    _DetailHeaderChip(
-                      icon: Icons.inventory_2,
-                      label: resolvedIsOwned ? 'Owned' : 'Not owned',
-                      accent: accent,
-                    ),
-                    _DetailHeaderChip(
-                      icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-                      label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
-                      accent: accent,
-                    ),
-                    if (referenceLabel != null)
-                      _DetailHeaderChip(
-                        icon: Icons.link_outlined,
-                        label: referenceLabel,
-                        accent: accent,
+                    for (final fact in summaryFacts)
+                      _DetailSummaryFact(
+                        label: fact.label,
+                        value: fact.value,
                       ),
                     if (entry.referenceFormatLabel != null)
-                      _DetailHeaderChip(
-                        icon: Icons.album_outlined,
-                        label: 'Format: ${entry.referenceFormatLabel!}',
-                        accent: accent,
-                      ),
-                    _DetailHeaderChip(
-                      icon: entry.hasMissingCover
-                          ? Icons.image_not_supported_outlined
-                          : Icons.image_outlined,
-                      label: entry.hasMissingCover
-                          ? 'Missing cover'
-                          : 'Cover ready',
-                      accent: accent,
-                    ),
-                    _DetailHeaderChip(
-                      icon: entry.hasMissingMetadata
-                          ? Icons.manage_search
-                          : Icons.fact_check_outlined,
-                      label: entry.hasMissingMetadata
-                          ? 'Missing metadata'
-                          : 'Metadata ready',
-                      accent: accent,
-                    ),
-                    if (ownedItem?.condition != null)
-                      _DetailHeaderChip(
-                        icon: Icons.fact_check_outlined,
-                        label: ownedItem!.condition!,
-                        accent: accent,
-                      ),
-                    if (ownedItem?.grade != null)
-                      _DetailHeaderChip(
-                        icon: Icons.workspace_premium,
-                        label: ownedItem!.grade!,
-                        accent: accent,
-                      ),
-                    if (ownedItem?.certificationNumber != null)
-                      _DetailHeaderChip(
-                        icon: Icons.verified_outlined,
-                        label: 'Cert #${ownedItem!.certificationNumber!}',
-                        accent: accent,
+                      _DetailSummaryFact(
+                        label: 'Format',
+                        value: entry.referenceFormatLabel!,
                       ),
                     if (entry.video?.runtimeMinutes != null)
-                      _DetailHeaderChip(
-                        icon: Icons.schedule,
-                        label: '${entry.video!.runtimeMinutes} min',
-                        accent: accent,
-                      ),
-                    if (entry.video?.color != null)
-                      _DetailHeaderChip(
-                        icon: Icons.color_lens,
-                        label: entry.video!.color!,
-                        accent: accent,
-                      ),
-                    if (entry.video?.nrDiscs != null)
-                      _DetailHeaderChip(
-                        icon: Icons.album,
-                        label: '${entry.video!.nrDiscs} disc${entry.video!.nrDiscs == 1 ? '' : 's'}',
-                        accent: accent,
-                      ),
-                    if (entry.video?.screenRatio != null)
-                      _DetailHeaderChip(
-                        icon: Icons.aspect_ratio,
-                        label: entry.video!.screenRatio!,
-                        accent: accent,
+                      _DetailSummaryFact(
+                        label: 'Runtime',
+                        value: '${entry.video!.runtimeMinutes} min',
                       ),
                     if (entry.music?.trackCount != null)
-                      _DetailHeaderChip(
-                        icon: Icons.music_note,
-                        label: '${entry.music!.trackCount} tracks',
-                        accent: accent,
-                      ),
-                    if (entry.music?.releaseStatus != null)
-                      _DetailHeaderChip(
-                        icon: Icons.album,
-                        label: entry.music!.releaseStatus!,
-                        accent: accent,
+                      _DetailSummaryFact(
+                        label: 'Tracks',
+                        value: '${entry.music!.trackCount}',
                       ),
                     if (_detailPlatformLabel(entry.rawPlatforms)
                         case final platformLabel?)
-                      _DetailHeaderChip(
-                        icon: Icons.sports_esports,
-                        label: platformLabel,
-                        accent: accent,
+                      _DetailSummaryFact(
+                        label: 'Platform',
+                        value: platformLabel,
                       ),
-                    if (_detailNotesLabel(entry.notes) case final notesLabel?)
-                      _DetailHeaderChip(
-                        icon: Icons.sticky_note_2_outlined,
-                        label: notesLabel,
-                        accent: accent,
+                    if (entry.hasMissingCover)
+                      const _DetailSummaryFact(
+                        label: 'Cover',
+                        value: 'Missing',
                       ),
-                    if (ownedItem?.keyComic == true)
-                      _DetailHeaderChip(
-                        icon: Icons.label_important,
-                        label: ownedItem!.keyReason ?? 'Key item',
-                        accent: accent,
-                      ),
-                    if (ownedItem?.rawOrSlabbed != null ||
-                        ownedItem?.gradingCompany != null)
-                      _DetailHeaderChip(
-                        icon: Icons.verified_outlined,
-                        label: librarySlabMarkerLabel(
-                              ownedItem?.rawOrSlabbed,
-                              ownedItem?.gradingCompany,
-                            ) ??
-                            'Collector copy',
-                        accent: accent,
+                    if (entry.hasMissingMetadata)
+                      const _DetailSummaryFact(
+                        label: 'Metadata',
+                        value: 'Missing',
                       ),
                   ],
                 ),
                 if (entry.synopsis != null &&
                     entry.synopsis!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   Text(
                     entry.synopsis!,
-                    maxLines: wide ? 5 : 4,
+                    maxLines: wide ? 4 : 3,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: appPalette(context).textMuted,
-                          fontWeight: FontWeight.w700,
+                          color: palette.textPrimary,
+                          height: 1.28,
                         ),
                   ),
                 ],
@@ -314,7 +314,7 @@ class LibraryDetailHero extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   cover,
-                  const SizedBox(width: 18),
+                  const SizedBox(width: 14),
                   Expanded(child: info),
                 ],
               );
@@ -322,7 +322,7 @@ class LibraryDetailHero extends StatelessWidget {
             return Column(
               children: [
                 cover,
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 info,
               ],
             );
@@ -331,6 +331,45 @@ class LibraryDetailHero extends StatelessWidget {
       ),
     );
   }
+}
+
+int? _sumOwnedValueCents(
+  List<OwnedItem> items,
+  int? Function(OwnedItem item) selector,
+) {
+  var hasValue = false;
+  var total = 0;
+  for (final item in items) {
+    final value = selector(item);
+    if (value == null) {
+      continue;
+    }
+    hasValue = true;
+    total += value;
+  }
+  return hasValue ? total : null;
+}
+
+String? _detailHeroValueCurrency(
+  List<OwnedItem> ownedCopies,
+  OwnedItem? ownedItem,
+  LibraryWorkspaceEntry entry,
+) {
+  for (final copy in ownedCopies) {
+    final currency = copy.currency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      return currency;
+    }
+  }
+  final ownedCurrency = ownedItem?.currency?.trim();
+  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
+    return ownedCurrency;
+  }
+  final entryCurrency = entry.currency?.trim();
+  if (entryCurrency != null && entryCurrency.isNotEmpty) {
+    return entryCurrency;
+  }
+  return null;
 }
 
 String? _detailPlatformLabel(List<String>? platforms) {
@@ -347,17 +386,6 @@ String? _detailPlatformLabel(List<String>? platforms) {
   return values.join(', ');
 }
 
-String? _detailNotesLabel(String? notes) {
-  final trimmed = notes?.trim();
-  if (trimmed == null || trimmed.isEmpty) {
-    return null;
-  }
-  if (trimmed.length <= 48) {
-    return trimmed;
-  }
-  return '${trimmed.substring(0, 47)}...';
-}
-
 class _DetailHeaderChip extends StatelessWidget {
   const _DetailHeaderChip({
     required this.icon,
@@ -371,12 +399,67 @@ class _DetailHeaderChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryMetaChip(
-      icon: icon,
-      label: label,
-      accent: accent,
-      borderRadius: BorderRadius.circular(3),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: palette.divider.withValues(alpha: 0.9),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: accent.withValues(alpha: 0.92)),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailSummaryFact extends StatelessWidget {
+  const _DetailSummaryFact({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: palette.textMuted,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: palette.textPrimary,
+                fontWeight: FontWeight.w800,
+              ),
+        ),
+      ],
     );
   }
 }

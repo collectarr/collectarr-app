@@ -26,7 +26,8 @@ class _ComicInspectorDashboard extends StatelessWidget {
     final ownedItem = request.ownedItem;
     final trackingEntry = request.trackingEntry;
     final detailRows = _detailRows(entry, ownedItem);
-    final valueRows = _valueRows(ownedItem);
+    final collectorRows = _collectorRows(ownedItem);
+    final valueRows = _valueRows(ownedItem, request.ownedCopies);
 
     final panels = <_ComicPanelData>[
       if (_creatorRows(entry.creators).isNotEmpty)
@@ -38,33 +39,75 @@ class _ComicInspectorDashboard extends StatelessWidget {
           title: 'Personal',
           rows: _personalRows(entry, ownedItem, trackingEntry),
         ),
+      if (collectorRows.isNotEmpty)
+        _ComicPanelData(title: 'Collector', rows: collectorRows),
       if (valueRows.isNotEmpty)
-        _ComicPanelData(title: 'Value', rows: valueRows),
+        _ComicPanelData(
+          title: 'Value',
+          rows: valueRows,
+          variant: _ComicPanelVariant.value,
+        ),
     ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 760 ? 2 : 1;
-        const spacing = 14.0;
-        final panelWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - spacing) / 2;
+        final columns = constraints.maxWidth >= 640 ? 2 : 1;
+        const spacing = 2.0;
 
-        return Wrap(
-          spacing: spacing,
-          runSpacing: 16,
+        Widget buildPanel(_ComicPanelData panel) => _ComicPanel(
+          title: panel.title,
+          rows: panel.rows,
+          accent: request.accent,
+          variant: panel.variant,
+          initialVisibleRows: panel.title == 'Creators' ? 5 : null,
+        );
+
+        if (columns == 1) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var index = 0; index < panels.length; index++) ...[
+                buildPanel(panels[index]),
+                if (index != panels.length - 1) const SizedBox(height: spacing),
+              ],
+            ],
+          );
+        }
+
+        final leftPanels = panels
+            .where(
+              (panel) =>
+                  panel.title == 'Creators' ||
+                  panel.title == 'Personal' ||
+                  panel.title == 'Value',
+            )
+            .toList();
+        final rightPanels = panels
+            .where(
+              (panel) =>
+                  panel.title == 'Details' || panel.title == 'Collector',
+            )
+            .toList();
+
+        Widget buildColumn(List<_ComicPanelData> columnPanels) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var index = 0; index < columnPanels.length; index++) ...[
+                buildPanel(columnPanels[index]),
+                if (index != columnPanels.length - 1)
+                  const SizedBox(height: spacing),
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final panel in panels)
-              SizedBox(
-                width: panelWidth,
-                child: _ComicPanel(
-                  title: panel.title,
-                  rows: panel.rows,
-                  accent: request.accent,
-                  initialVisibleRows:
-                      panel.title == 'Creators' ? 5 : null,
-                ),
-              ),
+            Expanded(child: buildColumn(leftPanels)),
+            const SizedBox(width: spacing),
+            Expanded(child: buildColumn(rightPanels)),
           ],
         );
       },
@@ -73,11 +116,18 @@ class _ComicInspectorDashboard extends StatelessWidget {
 }
 
 class _ComicPanelData {
-  const _ComicPanelData({required this.title, required this.rows});
+  const _ComicPanelData({
+    required this.title,
+    required this.rows,
+    this.variant = _ComicPanelVariant.standard,
+  });
 
   final String title;
   final List<_ComicRowData> rows;
+  final _ComicPanelVariant variant;
 }
+
+enum _ComicPanelVariant { standard, value }
 
 class _ComicRowData {
   const _ComicRowData({required this.label, this.value, this.valueWidget});
@@ -92,12 +142,14 @@ class _ComicPanel extends StatefulWidget {
     required this.title,
     required this.rows,
     required this.accent,
+    required this.variant,
     this.initialVisibleRows,
   });
 
   final String title;
   final List<_ComicRowData> rows;
   final Color accent;
+  final _ComicPanelVariant variant;
   final int? initialVisibleRows;
 
   @override
@@ -110,14 +162,19 @@ class _ComicPanelState extends State<_ComicPanel> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final surface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
-      palette.isDark ? palette.panelRaised : Colors.white,
+    final surface = palette.surface;
+    final headerSurface = Color.alphaBlend(
+      widget.accent.withValues(alpha: palette.isDark ? 0.022 : 0.01),
+      palette.surface,
     );
     final altSurface = palette.isDark
-        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.03), palette.surface)
-        : const Color(0xFFF2F4F6);
-    final border = palette.divider.withValues(alpha: palette.isDark ? 1 : 0.55);
+        ? Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.012),
+            palette.surface,
+          )
+        : const Color(0xFFF7F8FA);
+    final border =
+        palette.divider.withValues(alpha: palette.isDark ? 0.82 : 0.52);
 
     final canCollapse = widget.initialVisibleRows != null &&
         widget.rows.length > widget.initialVisibleRows!;
@@ -125,60 +182,75 @@ class _ComicPanelState extends State<_ComicPanel> {
         ? widget.rows.take(widget.initialVisibleRows!).toList()
         : widget.rows;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-            child: Row(
-              children: [
-                Text(
-                  widget.title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: widget.accent,
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-                if (canCollapse) ...[
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => setState(() => _expanded = !_expanded),
-                    child: Text(
-                      _expanded ? 'Collapse' : 'View all',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    _expanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    size: 16,
-                    color: palette.textMuted,
-                  ),
-                ],
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 17,
+          padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+          decoration: BoxDecoration(
+            color: headerSurface,
+            border: Border(
+              top: BorderSide(color: border),
+              bottom: BorderSide(color: border),
             ),
           ),
-          for (var index = 0; index < visibleRows.length; index++)
-            _ComicTableRow(
-              row: visibleRows[index],
-              shaded: index.isEven,
-              surface: surface,
-              altSurface: altSurface,
-              border: border,
-            ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: widget.accent,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0,
+                      fontSize: 9.5,
+                      height: 1,
+                    ),
+              ),
+              if (canCollapse) ...[
+                const Spacer(),
+                InkWell(
+                  onTap: () => setState(() => _expanded = !_expanded),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                    child: Row(
+                      children: [
+                        Text(
+                          _expanded ? 'Collapse' : 'View all',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: palette.textMuted,
+                                fontWeight: FontWeight.w700,
+                                height: 1,
+                                fontSize: 8.25,
+                              ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          _expanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 8,
+                          color: palette.textMuted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        for (var index = 0; index < visibleRows.length; index++)
+          _ComicTableRow(
+            row: visibleRows[index],
+            shaded: index.isEven,
+            surface: surface,
+            altSurface: altSurface,
+            border: border,
+            variant: widget.variant,
+            accent: widget.accent,
+          ),
+      ],
     );
   }
 }
@@ -190,6 +262,8 @@ class _ComicTableRow extends StatelessWidget {
     required this.surface,
     required this.altSurface,
     required this.border,
+    required this.variant,
+    required this.accent,
   });
 
   final _ComicRowData row;
@@ -197,17 +271,64 @@ class _ComicTableRow extends StatelessWidget {
   final Color surface;
   final Color altSurface;
   final Color border;
+  final _ComicPanelVariant variant;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    if (variant == _ComicPanelVariant.value) {
+      return Container(
+        decoration: BoxDecoration(
+          color: shaded ? altSurface : surface,
+          border: Border(top: BorderSide(color: border)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.75),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 58,
+              child: Text(
+                row.label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: palette.textMuted,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                      fontSize: 8.75,
+                    ),
+              ),
+            ),
+            const SizedBox(width: 3),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  row.value ?? '-',
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: row.label == 'Current Value'
+                            ? accent
+                            : palette.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        height: 1.02,
+                        fontSize: row.label == 'Current Value' ? 13.5 : 12,
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final valueWidget = row.valueWidget ??
         Text(
           row.value ?? '-',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: palette.textPrimary,
                 fontWeight: FontWeight.w500,
-                height: 1.25,
+                height: 1.08,
+                fontSize: 9.25,
               ),
         );
 
@@ -216,21 +337,23 @@ class _ComicTableRow extends StatelessWidget {
         color: shaded ? altSurface : surface,
         border: Border(top: BorderSide(color: border)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.75),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 98,
+            width: 52,
             child: Text(
               row.label,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: palette.textPrimary,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: palette.textMuted,
                     fontWeight: FontWeight.w800,
+                    height: 1,
+                    fontSize: 8.75,
                   ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 3),
           Expanded(child: valueWidget),
         ],
       ),
@@ -302,9 +425,6 @@ List<_ComicRowData> _detailRows(
   if (entry.storyArcs?.isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')));
   }
-  if (ownedItem?.graderNotes?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem!.graderNotes!.trim()));
-  }
   return rows;
 }
 
@@ -340,11 +460,17 @@ List<_ComicRowData> _personalRows(
   ];
 }
 
-List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
+List<_ComicRowData> _valueRows(
+  OwnedItem? ownedItem,
+  List<OwnedItem> ownedCopies,
+) {
   if (ownedItem == null) {
     return const <_ComicRowData>[];
   }
 
+  final effectiveOwnedCopies = ownedCopies.isNotEmpty
+      ? ownedCopies
+      : <OwnedItem>[ownedItem];
   final rows = <_ComicRowData>[];
   if (ownedItem.coverPriceCents != null) {
     rows.add(
@@ -370,6 +496,76 @@ List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
       ),
     );
   }
+  if (effectiveOwnedCopies.length > 1) {
+    final totalsCurrency = _inspectorValueCurrency(effectiveOwnedCopies, ownedItem);
+    final totalMarketValue = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.marketValueCents,
+    );
+    final totalPaid = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.pricePaidCents,
+    );
+    if (totalMarketValue != null) {
+      rows.add(
+        _ComicRowData(
+          label: 'Total Value',
+          value: formatMoney(totalMarketValue, totalsCurrency),
+        ),
+      );
+    }
+    if (totalPaid != null) {
+      rows.add(
+        _ComicRowData(
+          label: 'Total Paid',
+          value: formatMoney(totalPaid, totalsCurrency),
+        ),
+      );
+    }
+  }
+  return rows;
+}
+
+int? _sumOwnedValueCents(
+  List<OwnedItem> items,
+  int? Function(OwnedItem item) selector,
+) {
+  var hasValue = false;
+  var total = 0;
+  for (final item in items) {
+    final value = selector(item);
+    if (value == null) {
+      continue;
+    }
+    hasValue = true;
+    total += value;
+  }
+  return hasValue ? total : null;
+}
+
+String? _inspectorValueCurrency(
+  List<OwnedItem> ownedCopies,
+  OwnedItem? ownedItem,
+) {
+  for (final copy in ownedCopies) {
+    final currency = copy.currency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      return currency;
+    }
+  }
+  final ownedCurrency = ownedItem?.currency?.trim();
+  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
+    return ownedCurrency;
+  }
+  return null;
+}
+
+List<_ComicRowData> _collectorRows(OwnedItem? ownedItem) {
+  if (ownedItem == null) {
+    return const <_ComicRowData>[];
+  }
+
+  final rows = <_ComicRowData>[];
   if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
   }
@@ -405,6 +601,9 @@ List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
   if (ownedItem.keySeverity?.trim().isNotEmpty == true) {
     rows.add(_ComicRowData(label: 'Key Severity', value: ownedItem.keySeverity!.trim()));
   }
+  if (ownedItem.graderNotes?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem.graderNotes!.trim()));
+  }
   return rows;
 }
 
@@ -421,7 +620,7 @@ class _ComicStars extends StatelessWidget {
         for (var index = 0; index < 10; index++)
           Icon(
             index < rating ? Icons.star : Icons.star_border,
-            size: 14,
+            size: 11,
             color: const Color(0xFF86909A),
           ),
       ],
@@ -488,21 +687,23 @@ class _ExpandableCreatorNamesState extends State<_ExpandableCreatorNames> {
       children: [
         Text(
           visible.join(' | '),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: palette.textPrimary,
                 fontWeight: FontWeight.w500,
-                height: 1.25,
+                height: 1.08,
+                fontSize: 9.25,
               ),
         ),
         if (!_expanded && remaining > 0) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           GestureDetector(
             onTap: () => setState(() => _expanded = true),
             child: Text(
               'View all ($remaining more)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w700,
+                    fontSize: 8.5,
                   ),
             ),
           ),

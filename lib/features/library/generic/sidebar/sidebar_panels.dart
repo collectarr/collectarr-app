@@ -41,22 +41,25 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chips = <Widget>[
+    final entries = <_LibrarySidebarDetailEntryData>[
       if (activeSmartListName != null && activeSmartListName!.trim().isNotEmpty)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: Icons.bookmarks_outlined,
-          label: activeSmartListName!,
+          label: 'Smart list',
+          value: activeSmartListName!,
         ),
       if (quickView != null)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: quickView!.icon,
-          label: quickView!.label,
+          label: 'Quick view',
+          value: quickView!.label,
         ),
       if (collectionStatusScopeLabel != null)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: Icons.inventory_2_outlined,
-          label: collectionStatusScopeLabel!,
-          selected: collectionStatusScope != LibraryCollectionStatusScope.all,
+          label: 'Collection',
+          value: collectionStatusScopeLabel!,
+          active: collectionStatusScope != LibraryCollectionStatusScope.all,
           onPressed: onCollectionStatusScopeChanged == null
               ? null
               : () => onCollectionStatusScopeChanged!(
@@ -64,28 +67,32 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
                   ),
         ),
       if (searchQuery != null && searchQuery!.trim().isNotEmpty)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: Icons.search,
-          label: 'Search: ${searchQuery!.trim()}',
+          label: 'Search',
+          value: searchQuery!.trim(),
         ),
       if (linkedMetadataFilterLabel != null)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: Icons.link,
-          label: linkedMetadataFilterLabel!,
+          label: 'Linked metadata',
+          value: linkedMetadataFilterLabel!,
         ),
       if (selectedLetter != null)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: Icons.sort_by_alpha,
-          label: 'Letter: $selectedLetter',
+          label: 'Letter',
+          value: selectedLetter!,
         ),
       if (filterSelection.hasActiveFilters)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarDetailEntryData(
           icon: Icons.filter_alt_outlined,
-          label: '${filterSelection.activeFilterCount} advanced filter(s)',
+          label: 'Advanced filters',
+          value: '${filterSelection.activeFilterCount} active',
         ),
     ];
 
-    if (chips.isEmpty && !(hasActiveFilters && onClearFilters != null)) {
+    if (entries.isEmpty && !(hasActiveFilters && onClearFilters != null)) {
       return const SizedBox.shrink();
     }
 
@@ -121,12 +128,12 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: chips,
-          ),
+            if (entries.isNotEmpty) const SizedBox(height: 6),
+            for (var index = 0; index < entries.length; index++) ...[
+              _LibrarySidebarDetailRow(entry: entries[index]),
+              if (index < entries.length - 1)
+                Divider(height: 10, color: appPalette(context).divider),
+            ],
           if (hasActiveFilters && onClearFilters != null) ...[
             const SizedBox(height: 4),
             Align(
@@ -158,13 +165,82 @@ class _LibrarySidebarSectionCard extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: palette.panel,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: palette.divider),
+        border: Border(top: BorderSide(color: palette.divider)),
       ),
       child: child,
+    );
+  }
+}
+
+class _LibrarySidebarDetailEntryData {
+  const _LibrarySidebarDetailEntryData({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.active = false,
+    this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool active;
+  final VoidCallback? onPressed;
+}
+
+class _LibrarySidebarDetailRow extends StatelessWidget {
+  const _LibrarySidebarDetailRow({required this.entry});
+
+  final _LibrarySidebarDetailEntryData entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final activeColor = Theme.of(context).colorScheme.primary;
+    final row = Row(
+      children: [
+        Icon(
+          entry.icon,
+          size: 14,
+          color: entry.active ? activeColor : palette.textMuted,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            entry.label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: palette.textMuted,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            entry.value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: entry.active ? FontWeight.w800 : FontWeight.w600,
+                  color: entry.active ? activeColor : palette.textPrimary,
+                ),
+          ),
+        ),
+      ],
+    );
+    if (entry.onPressed == null) {
+      return row;
+    }
+    return InkWell(
+      onTap: entry.onPressed,
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: row,
+      ),
     );
   }
 }
@@ -199,7 +275,9 @@ class LibrarySidebarFilterChip extends StatelessWidget {
         avatar: Icon(icon, size: 14, color: resolvedAvatarColor),
         label: Text(label),
         side: BorderSide(color: resolvedBorderColor),
-        backgroundColor: palette.panel,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        backgroundColor: palette.surface,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
         visualDensity: VisualDensity.compact,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       );
@@ -210,14 +288,16 @@ class LibrarySidebarFilterChip extends StatelessWidget {
       selected: selected,
       showCheckmark: false,
       side: BorderSide(color: resolvedBorderColor),
-      backgroundColor: palette.panel,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      backgroundColor: palette.surface,
       selectedColor: selectedBorderColor == null
           ? null
           : Color.alphaBlend(
               selectedBorderColor!.withValues(alpha: 0.14),
-              palette.panelRaised,
+              palette.surface,
             ),
       onSelected: (_) => onPressed!(),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
@@ -240,12 +320,13 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
-    final chips = <Widget>[
-      LibrarySidebarFilterChip(
+    final rows = <_LibrarySidebarStatusEntry>[
+      _LibrarySidebarStatusEntry(
         icon: Icons.library_books_outlined,
-        label: '${summary.totalCount} total',
+        label: 'All items',
+        count: summary.totalCount,
         selected: selectedScope == LibraryCollectionStatusScope.all,
-        selectedBorderColor: libraryCollectionStatusScopeColor(
+        accent: libraryCollectionStatusScopeColor(
           LibraryCollectionStatusScope.all,
           accent,
           palette.textMuted,
@@ -255,11 +336,12 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
             : () => onScopeSelected!(LibraryCollectionStatusScope.all),
       ),
       if (summary.ownedCount > 0)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarStatusEntry(
           icon: Icons.inventory_2_outlined,
-          label: '${summary.ownedCount} owned',
+          label: 'Owned',
+          count: summary.ownedCount,
           selected: selectedScope == LibraryCollectionStatusScope.inCollection,
-          selectedBorderColor: libraryCollectionStatusScopeColor(
+          accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.inCollection,
             accent,
             palette.textMuted,
@@ -271,11 +353,12 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
                   ),
         ),
       if (summary.wishlistCount > 0)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarStatusEntry(
           icon: Icons.star_border,
-          label: '${summary.wishlistCount} wish list',
+          label: 'Wish list',
+          count: summary.wishlistCount,
           selected: selectedScope == LibraryCollectionStatusScope.wishList,
-          selectedBorderColor: libraryCollectionStatusScopeColor(
+          accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.wishList,
             accent,
             palette.textMuted,
@@ -285,11 +368,12 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
               : () => onScopeSelected!(LibraryCollectionStatusScope.wishList),
         ),
       if (summary.forSaleCount > 0)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarStatusEntry(
           icon: Icons.sell_outlined,
-          label: '${summary.forSaleCount} for sale',
+          label: 'For sale',
+          count: summary.forSaleCount,
           selected: selectedScope == LibraryCollectionStatusScope.forSale,
-          selectedBorderColor: libraryCollectionStatusScopeColor(
+          accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.forSale,
             accent,
             palette.textMuted,
@@ -299,11 +383,12 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
               : () => onScopeSelected!(LibraryCollectionStatusScope.forSale),
         ),
       if (summary.onOrderCount > 0)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarStatusEntry(
           icon: Icons.local_shipping_outlined,
-          label: '${summary.onOrderCount} on order',
+          label: 'On order',
+          count: summary.onOrderCount,
           selected: selectedScope == LibraryCollectionStatusScope.onOrder,
-          selectedBorderColor: libraryCollectionStatusScopeColor(
+          accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.onOrder,
             accent,
             palette.textMuted,
@@ -313,11 +398,12 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
               : () => onScopeSelected!(LibraryCollectionStatusScope.onOrder),
         ),
       if (summary.soldCount > 0)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarStatusEntry(
           icon: Icons.paid_outlined,
-          label: '${summary.soldCount} sold',
+          label: 'Sold',
+          count: summary.soldCount,
           selected: selectedScope == LibraryCollectionStatusScope.sold,
-          selectedBorderColor: libraryCollectionStatusScopeColor(
+          accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.sold,
             accent,
             palette.textMuted,
@@ -327,12 +413,13 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
               : () => onScopeSelected!(LibraryCollectionStatusScope.sold),
         ),
       if (summary.catalogOnlyCount > 0)
-        LibrarySidebarFilterChip(
+        _LibrarySidebarStatusEntry(
           icon: Icons.hide_source_outlined,
-          label: '${summary.catalogOnlyCount} not in collection',
+          label: 'Not in collection',
+          count: summary.catalogOnlyCount,
           selected:
               selectedScope == LibraryCollectionStatusScope.notInCollection,
-          selectedBorderColor: libraryCollectionStatusScopeColor(
+          accent: libraryCollectionStatusScopeColor(
             LibraryCollectionStatusScope.notInCollection,
             accent,
             palette.textMuted,
@@ -368,11 +455,11 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: chips,
-          ),
+          for (var index = 0; index < rows.length; index++) ...[
+            _LibrarySidebarStatusRow(entry: rows[index]),
+            if (index < rows.length - 1)
+              Divider(height: 8, color: appPalette(context).divider),
+          ],
           if (summary.missingIssueSummary != null) ...[
             const SizedBox(height: 6),
             Text(
@@ -383,6 +470,79 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _LibrarySidebarStatusEntry {
+  const _LibrarySidebarStatusEntry({
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.selected,
+    required this.accent,
+    this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final int count;
+  final bool selected;
+  final Color accent;
+  final VoidCallback? onPressed;
+}
+
+class _LibrarySidebarStatusRow extends StatelessWidget {
+  const _LibrarySidebarStatusRow({required this.entry});
+
+  final _LibrarySidebarStatusEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final row = Row(
+      children: [
+        Container(
+          width: 2,
+          height: 14,
+          color: entry.selected ? entry.accent : Colors.transparent,
+        ),
+        const SizedBox(width: 6),
+        Icon(
+          entry.icon,
+          size: 14,
+          color: entry.selected ? entry.accent : palette.textMuted,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            entry.label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: entry.selected ? FontWeight.w800 : FontWeight.w600,
+                  color: entry.selected ? palette.textPrimary : palette.textMuted,
+                ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          entry.count.toString(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: entry.selected ? entry.accent : palette.textPrimary,
+              ),
+        ),
+      ],
+    );
+    if (entry.onPressed == null) {
+      return row;
+    }
+    return InkWell(
+      onTap: entry.onPressed,
+      borderRadius: BorderRadius.circular(2),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: row,
       ),
     );
   }

@@ -16,6 +16,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
     required this.content,
     required this.detailsLayout,
     required this.inspector,
+    this.frameInspector = true,
     this.rightWidth = 340,
     this.bottomHeight = kLibraryDetailsDefaultHeight,
     this.onRightWidthChanged,
@@ -28,6 +29,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
   final Widget content;
   final LibraryDetailsLayout detailsLayout;
   final Widget inspector;
+  final bool frameInspector;
   final double rightWidth;
   final double bottomHeight;
   final ValueChanged<double>? onRightWidthChanged;
@@ -38,6 +40,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accentDivider = accentColor.withValues(alpha: 0.3);
     final effectiveRightWidth = clampLibraryPaneWidth(
       rightWidth,
       minWidth: kLibraryDetailsMinWidth,
@@ -48,6 +51,12 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
       minHeight: kLibraryDetailsMinHeight,
       maxHeight: maxBottomHeight,
     );
+    final inspectorPane = frameInspector
+        ? _LibraryDetailsPaneFrame(
+            accentColor: accentColor,
+            child: inspector,
+          )
+        : inspector;
     return switch (detailsLayout) {
       LibraryDetailsLayout.right => Row(
           children: [
@@ -56,6 +65,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               const VerticalDivider(width: 1)
             else
               LibraryResizableDivider(
+                color: accentDivider,
                 onDragDelta: (delta) => onRightWidthChanged!(
                   clampLibraryPaneWidth(
                     effectiveRightWidth - delta,
@@ -66,10 +76,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               ),
             SizedBox(
               width: effectiveRightWidth,
-              child: _LibraryDetailsPaneFrame(
-                accentColor: accentColor,
-                child: inspector,
-              ),
+                child: inspectorPane,
             ),
           ],
         ),
@@ -81,6 +88,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
             else
               LibraryResizableDivider(
                 axis: Axis.vertical,
+                color: accentDivider,
                 onDragDelta: (delta) => onBottomHeightChanged!(
                   clampLibraryPaneHeight(
                     effectiveBottomHeight - delta,
@@ -91,10 +99,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               ),
             SizedBox(
               height: effectiveBottomHeight,
-              child: _LibraryDetailsPaneFrame(
-                accentColor: accentColor,
-                child: inspector,
-              ),
+                child: inspectorPane,
             ),
           ],
         ),
@@ -115,11 +120,11 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accentDivider = accentColor.withValues(alpha: 0.34);
+    final accentDivider = accentColor.withValues(alpha: 0.3);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Color.alphaBlend(
-          accentColor.withValues(alpha: 0.035),
+          accentColor.withValues(alpha: 0.028),
           palette.panel,
         ),
         border: Border(
@@ -130,15 +135,15 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            height: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
                   Color.alphaBlend(
-                    accentColor.withValues(alpha: 0.16),
+                    accentColor.withValues(alpha: 0.12),
                     palette.surface,
                   ),
                   palette.surface,
@@ -150,13 +155,14 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 14, color: accentColor),
-                const SizedBox(width: 6),
+                Icon(Icons.info_outline, size: 13, color: accentColor),
+                const SizedBox(width: 5),
                 Text(
                   'Details',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accentColor,
                         fontWeight: FontWeight.w800,
+                        fontSize: 11,
                       ),
                 ),
               ],

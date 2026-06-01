@@ -44,6 +44,7 @@ class LibraryWorkspaceViewProfile {
     this.defaultDetailsLayout = LibraryDetailsLayout.bottom,
     this.defaultSidebarVisible = true,
     this.defaultSortAscending = true,
+    this.hideDetailsWhenSelectionEmpty = false,
     this.sortAscendingForColumn,
   });
 
@@ -60,6 +61,7 @@ class LibraryWorkspaceViewProfile {
   final LibraryDetailsLayout defaultDetailsLayout;
   final bool defaultSidebarVisible;
   final bool defaultSortAscending;
+  final bool hideDetailsWhenSelectionEmpty;
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
   LibraryWorkspaceViewState defaults() {

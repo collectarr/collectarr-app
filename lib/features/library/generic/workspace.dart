@@ -334,12 +334,12 @@ class LibraryWorkspace extends ConsumerWidget {
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
-          color: palette.canvas,
+          color: palette.panel,
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,
               child: Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: LibraryWorkspaceTable<LibraryProjectionItem>(
                   entries: items,
                   columns:
@@ -366,6 +366,11 @@ class LibraryWorkspace extends ConsumerWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onColumnReordered: onColumnReordered,
+                    headerHeight: 26,
+                    rowHeight: 32,
+                    columnSpacing: 8,
+                    horizontalMargin: 6,
+                    selectionRailWidth: 2,
                   headerColor: palette.surface,
                   dividerColor: palette.divider,
                   selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
@@ -399,8 +404,8 @@ class LibraryWorkspace extends ConsumerWidget {
             hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
         ),
       LibraryTableColumn.cover => SizedBox(
-          width: 28,
-          height: 36,
+          width: 24,
+          height: 32,
           child: LibraryCoverImage(
             title: entry.resolvedTitle,
             itemNumber: entry.itemNumber,
@@ -412,7 +417,7 @@ class LibraryWorkspace extends ConsumerWidget {
           entry.resolvedTitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
       LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
       LibraryTableColumn.variant => LibraryTableCellText(

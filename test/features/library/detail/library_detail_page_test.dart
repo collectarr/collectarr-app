@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -72,10 +73,11 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.text('2 copies in collection'), findsOneWidget);
-    expect(find.text('Active copy'), findsOneWidget);
+    expect(find.byType(AppBar), findsNothing);
+    expect(find.byKey(const ValueKey('detail-toolbar-copy-menu')), findsOneWidget);
+    expect(find.text('Copy'), findsOneWidget);
     expect(find.text('Selected'), findsOneWidget);
-    expect(find.text('Add copy'), findsOneWidget);
+    expect(find.text('Add copy'), findsNothing);
   });
 
   testWidgets('detail page edit uses the selected copy', (tester) async {
@@ -147,12 +149,17 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.textContaining('Very Fine').last);
+    final copyMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('detail-toolbar-copy-menu')),
+    );
+    final alternateCopyEntry = copyMenu.entries.firstWhere(
+      (entry) => !entry.label.startsWith('Viewing '),
+    );
+    final dynamic dynamicCopyMenu = copyMenu;
+    dynamicCopyMenu.onSelected(alternateCopyEntry.value);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit'));
+    await tester.tap(find.text('Edit').first);
     await tester.pump();
 
     expect(editedOwnedItem?.id, 'owned-2');
@@ -205,7 +212,10 @@ void main() {
     await tester.scrollUntilVisible(
       saveButton,
       300,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: find.byWidgetPredicate(
+        (widget) =>
+            widget is Scrollable && widget.axisDirection == AxisDirection.down,
+      ),
     );
     await pumpUntilSettled(tester);
 

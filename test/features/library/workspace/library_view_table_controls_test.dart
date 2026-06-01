@@ -75,7 +75,7 @@ void main() {
     expect(find.byKey(viewModeDropdownKey), findsOneWidget);
     expect(find.byKey(detailsLayoutDropdownKey), findsOneWidget);
     expect(find.byTooltip('List view'), findsOneWidget);
-    expect(find.byTooltip('Details right'), findsOneWidget);
+    expect(find.byTooltip('Details open on right'), findsOneWidget);
 
     await tester.tap(find.text('Essential').first);
     await tester.pump();
@@ -92,7 +92,7 @@ void main() {
     await tester.pump();
 
     expect(find.byType(LibraryDenseSplitButton<Object>), findsNothing);
-    expect(find.byTooltip('Details hidden'), findsOneWidget);
+    expect(find.byTooltip('Details closed'), findsOneWidget);
 
     dropdown.onSelected?.call(LibraryViewMode.list);
     await tester.pump();

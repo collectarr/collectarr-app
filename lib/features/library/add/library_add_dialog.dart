@@ -1886,6 +1886,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (e is TextEditingController) return e;
       return fallback;
     }
+    String? ctlTextOrNull(String key, [TextEditingController? fallback]) {
+      final e = _manualKindSpecific[key];
+      final controller = e is TextEditingController ? e : fallback;
+      final value = controller?.text.trim() ?? '';
+      return value.isEmpty ? null : value;
+    }
 
     final purchaseDate = parseDate(
             ctl('purchaseDateController', _purchaseDateController).text) ??
@@ -1915,43 +1921,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               .trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
-      rawOrSlabbed: ctl('rawOrSlabbedController', _rawOrSlabbedController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
-      gradingCompany: ctl('gradingCompanyController', _gradingCompanyController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('gradingCompanyController', _gradingCompanyController)
-              .text
-              .trim(),
-      graderNotes: ctl('graderNotesController', _graderNotesController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('graderNotesController', _graderNotesController).text.trim(),
-      signedBy:
-          ctl('signedByController', _signedByController).text.trim().isEmpty
-              ? null
-              : ctl('signedByController', _signedByController).text.trim(),
-      labelType:
-          ctl('labelTypeController', _labelTypeController).text.trim().isEmpty
-              ? null
-              : ctl('labelTypeController', _labelTypeController).text.trim(),
-      certificationNumber: ctl('certificationNumberController',
-                  _certificationNumberController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('certificationNumberController', _certificationNumberController)
-              .text
-              .trim(),
+        rawOrSlabbed:
+          ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
+        gradingCompany:
+          ctlTextOrNull('gradingCompanyController', _gradingCompanyController),
+        graderNotes:
+          ctlTextOrNull('graderNotesController', _graderNotesController),
+        signedBy: ctlTextOrNull('signedByController', _signedByController),
+        labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
+        pageQuality: ctlTextOrNull('pageQualityController'),
+        certificationNumber: ctlTextOrNull(
+        'certificationNumberController',
+        _certificationNumberController,
+        ),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,

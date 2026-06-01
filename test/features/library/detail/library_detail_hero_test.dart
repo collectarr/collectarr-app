@@ -201,4 +201,62 @@ void main() {
 
     expect(find.text('Owned as bundle'), findsOneWidget);
   });
+
+  testWidgets('detail hero shows collection value totals when multiple copies exist', (
+    tester,
+  ) async {
+    final type = collectarrLibraryTypes.byKind('book')!;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryDetailHero(
+              type: type,
+              entry: LibraryWorkspaceEntry(
+                id: 'book-1',
+                mediaType: 'book',
+                title: 'The Hobbit',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-1',
+                itemId: 'book-1',
+                pricePaidCents: 1299,
+                marketValueCents: 1899,
+                currency: 'USD',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedCopies: [
+                OwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  pricePaidCents: 1299,
+                  marketValueCents: 1899,
+                  currency: 'USD',
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
+                OwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  pricePaidCents: 999,
+                  marketValueCents: 2499,
+                  currency: 'USD',
+                  updatedAt: DateTime.utc(2026, 5, 22),
+                ),
+              ],
+              accent: Colors.orange,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Total paid'), findsOneWidget);
+    expect(find.text('USD 22.98'), findsOneWidget);
+    expect(find.text('Total value'), findsOneWidget);
+    expect(find.text('USD 43.98'), findsOneWidget);
+  });
 }

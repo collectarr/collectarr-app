@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -117,6 +118,7 @@ void main() {
     expect(find.textContaining('IDW'), findsWidgets);
     expect(find.text('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsNothing);
   });
 
   testWidgets('comic inspector hero lays out in a narrow scrollable inspector', (
@@ -184,6 +186,7 @@ void main() {
   testWidgets('library inspector uses the comic-specific full panel hook', (
     tester,
   ) async {
+    LibraryDetailsLayout? selectedLayout;
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -242,6 +245,7 @@ void main() {
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
+              onDetailsLayoutChanged: (value) => selectedLayout = value,
               db: db,
             ),
           ),
@@ -253,11 +257,12 @@ void main() {
 
     expect(find.byType(ComicInspectorPanel), findsOneWidget);
     expect(find.byType(ComicInspectorHero), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsOneWidget);
     expect(find.text('Quick actions'), findsNothing);
     expect(find.text('Edit'), findsWidgets);
     expect(find.text('Collect'), findsNothing);
     expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Share'), findsOneWidget);
+    expect(find.text('Share'), findsNothing);
     expect(find.text('More'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsWidgets);
@@ -268,15 +273,27 @@ void main() {
     final layoutMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
       find.byKey(const ValueKey('comic-toolbar-layout-menu')),
     );
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Sidebar details'));
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Bottom details'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Open on right'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Open on bottom'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Close details'));
+    final closeEntry = layoutMenu.entries.firstWhere(
+      (entry) => entry.label == 'Close details',
+    );
+    final dynamic dynamicLayoutMenu = layoutMenu;
+    dynamicLayoutMenu.onSelected(closeEntry.value);
+    expect(selectedLayout, LibraryDetailsLayout.hidden);
 
     final moreMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
       find.byKey(const ValueKey('comic-toolbar-more-menu')),
     );
-    expect(moreMenu.entries.map((entry) => entry.label), contains('Update value'));
-    expect(moreMenu.entries.map((entry) => entry.label), contains('Update Key Info'));
-    expect(moreMenu.entries.map((entry) => entry.label), contains('Submit to Core'));
+    final moreLabels = moreMenu.entries.map((entry) => entry.label).toList();
+    expect(moreLabels, contains('Add copy'));
+    expect(moreLabels, contains('Wishlist'));
+    expect(moreLabels, contains('Open details'));
+    expect(moreLabels, contains('Correct metadata'));
+    expect(moreLabels, isNot(contains('Update value')));
+    expect(moreLabels, isNot(contains('Update Key Info')));
+    expect(moreLabels, isNot(contains('Submit to Core')));
 
     await tester.tapAt(const Offset(8, 8));
     await tester.pumpAndSettle();
@@ -287,9 +304,96 @@ void main() {
     );
 
     expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Collector'), findsOneWidget);
     expect(find.text('Value'), findsOneWidget);
-    expect(find.text('Collector'), findsNothing);
     expect(find.text('Discovery'), findsNothing);
+    expect(find.text('Personal details'), findsNothing);
+    expect(find.text('Set purchase date'), findsNothing);
+    expect(find.text('Condition and grade save immediately.'), findsNothing);
+    expect(find.text('Active copy'), findsNothing);
+    expect(find.textContaining('copies in collection'), findsNothing);
+  });
+
+  testWidgets('comic inspector keeps copy selection in the toolbar menu', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-comic-1',
+            itemId: 'comic-multi-1',
+            condition: const Value('Near Mint'),
+            updatedAt: DateTime.utc(2026, 5, 23, 10),
+          ),
+        );
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-comic-2',
+            itemId: 'comic-multi-1',
+            condition: const Value('Very Fine'),
+            updatedAt: DateTime.utc(2026, 5, 23, 11),
+          ),
+        );
+    OwnedItem? editedOwnedItem;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryInspector(
+              type: comicsLibraryConfig,
+              entry: LibraryWorkspaceEntry(
+                id: 'comic-multi-1',
+                mediaType: 'comic',
+                title: 'The Last Ronin',
+                ownedItemId: 'owned-comic-1',
+                isOwned: true,
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-comic-1',
+                itemId: 'comic-multi-1',
+                condition: 'Near Mint',
+                updatedAt: DateTime.utc(2026, 5, 23, 10),
+              ),
+              accent: Colors.red,
+              onAddOwned: () {},
+              onRemoveOwned: () {},
+              onAddWishlist: () {},
+              onRemoveWishlist: () {},
+              onEdit: (ownedItem) => editedOwnedItem = ownedItem,
+              db: db,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await pumpUntilSettled(tester);
+
+    final copyMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('comic-toolbar-copy-menu')),
+    );
+    final copyLabels = copyMenu.entries.map((entry) => entry.label).toList();
+    expect(copyLabels.where((label) => label.startsWith('Viewing ')), hasLength(1));
+    expect(copyLabels.any((label) => label.contains('Near Mint')), isTrue);
+    expect(copyLabels.any((label) => label.contains('Very Fine')), isTrue);
+
+    final alternateCopyEntry = copyMenu.entries.firstWhere(
+      (entry) => !entry.label.startsWith('Viewing '),
+    );
+    final dynamic dynamicCopyMenu = copyMenu;
+    dynamicCopyMenu.onSelected(alternateCopyEntry.value);
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Edit').first);
+    await tester.pump();
+
+    expect(editedOwnedItem?.id, 'owned-comic-2');
+    expect(find.text('Active copy'), findsNothing);
+    expect(find.textContaining('copies in collection'), findsNothing);
   });
 
   testWidgets('inspector section renders title and children', (tester) async {

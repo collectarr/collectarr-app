@@ -151,6 +151,7 @@ class LibraryInspectorRequest {
     required this.type,
     required this.entry,
     required this.ownedItem,
+    this.ownedCopies = const [],
     required this.trackingEntry,
     required this.accent,
     this.onFilterByValue,
@@ -159,6 +160,7 @@ class LibraryInspectorRequest {
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -185,6 +187,7 @@ class LibraryInspectorPanelRequest {
     required this.extraActions,
     required this.onAddCopy,
     required this.onOpenDetails,
+    this.onDetailsLayoutChanged,
     this.ownedCopiesSection,
     this.bundleSection,
     this.conditionGradeSection,
@@ -204,6 +207,7 @@ class LibraryInspectorPanelRequest {
   final List<Widget> extraActions;
   final VoidCallback onAddCopy;
   final VoidCallback onOpenDetails;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final Widget? ownedCopiesSection;
   final Widget? bundleSection;
   final Widget? conditionGradeSection;

@@ -15,9 +15,9 @@ class LibraryTableInkRow extends StatelessWidget {
     required this.selectionRailColor,
     required this.bottomBorderColor,
     required this.hoverColor,
-    this.selectionRailWidth = 3,
-    this.horizontalMargin = 8,
-    this.verticalPadding = 2,
+    this.selectionRailWidth = 2,
+    this.horizontalMargin = 6,
+    this.verticalPadding = 1,
   });
 
   final bool selected;
@@ -40,44 +40,19 @@ class LibraryTableInkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseColor = odd ? oddColor : evenColor;
     final resolvedSelectedColor = Color.alphaBlend(
-      selectedColor.withValues(alpha: 0.9),
+      selectedColor.withValues(alpha: 0.52),
       baseColor,
-    );
-    final resolvedOutlineColor = Color.alphaBlend(
-      selectionRailColor.withValues(alpha: 0.14),
-      resolvedSelectedColor,
     );
     return DecoratedBox(
       decoration: BoxDecoration(
         color: selected ? resolvedSelectedColor : baseColor,
-        boxShadow: selected
-            ? [
-                BoxShadow(
-                  color: selectedColor.withValues(alpha: 0.24),
-                  blurRadius: 10,
-                  offset: const Offset(0, 1),
-                ),
-              ]
-            : null,
         border: Border(
           left: BorderSide(
             color: selected ? selectionRailColor : Colors.transparent,
             width: selectionRailWidth,
           ),
-          top: BorderSide(
-            color: selected
-                ? resolvedOutlineColor.withValues(alpha: 0.7)
-                : Colors.transparent,
-          ),
-          right: BorderSide(
-            color: selected
-                ? resolvedOutlineColor.withValues(alpha: 0.5)
-                : Colors.transparent,
-          ),
           bottom: BorderSide(
-            color: selected
-                ? resolvedOutlineColor.withValues(alpha: 0.82)
-                : bottomBorderColor,
+            color: bottomBorderColor,
           ),
         ),
       ),

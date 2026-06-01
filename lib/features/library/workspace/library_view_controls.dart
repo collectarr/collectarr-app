@@ -129,7 +129,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               value: layout,
               child: LibraryWorkspaceMenuRow(
-                label: _detailsLayoutLabel(layout),
+                label: _detailsLayoutMenuLabel(layout),
                 leading: Icon(
                   _detailsLayoutIcon(layout),
                   size: 17,
@@ -277,7 +277,7 @@ double _measureDetailsDropdownWidth(
   var maxLabelWidth = 0.0;
   for (final layout in LibraryDetailsLayout.values) {
     final painter = TextPainter(
-      text: TextSpan(text: _detailsLayoutLabel(layout), style: textStyle),
+      text: TextSpan(text: _detailsLayoutMenuLabel(layout), style: textStyle),
       maxLines: 1,
       textDirection: Directionality.of(context),
       textScaler: textScaler,
@@ -333,16 +333,20 @@ IconData _viewModeIcon(LibraryViewMode mode) {
   };
 }
 
-String _detailsLayoutLabel(LibraryDetailsLayout layout) {
+String _detailsLayoutMenuLabel(LibraryDetailsLayout layout) {
   return switch (layout) {
-    LibraryDetailsLayout.right => 'Details right',
-    LibraryDetailsLayout.bottom => 'Details bottom',
-    LibraryDetailsLayout.hidden => 'Details hidden',
+    LibraryDetailsLayout.right => 'Open on right',
+    LibraryDetailsLayout.bottom => 'Open on bottom',
+    LibraryDetailsLayout.hidden => 'Close details',
   };
 }
 
 String _detailsLayoutTooltip(LibraryDetailsLayout layout) {
-  return _detailsLayoutLabel(layout);
+  return switch (layout) {
+    LibraryDetailsLayout.right => 'Details open on right',
+    LibraryDetailsLayout.bottom => 'Details open on bottom',
+    LibraryDetailsLayout.hidden => 'Details closed',
+  };
 }
 
 IconData _detailsLayoutIcon(LibraryDetailsLayout layout) {

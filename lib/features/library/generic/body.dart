@@ -18,6 +18,21 @@ import 'package:collectarr_app/features/library/workspace/library_resizable_pane
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
+LibraryDetailsLayout resolveEffectiveLibraryDetailsLayout({
+  required LibraryDetailsLayout preferredLayout,
+  required bool compact,
+  required bool hasSelection,
+  required bool hideWhenSelectionEmpty,
+}) {
+  if (hideWhenSelectionEmpty && !hasSelection) {
+    return LibraryDetailsLayout.hidden;
+  }
+  if (compact && preferredLayout == LibraryDetailsLayout.right) {
+    return LibraryDetailsLayout.bottom;
+  }
+  return preferredLayout;
+}
+
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -64,6 +79,7 @@ class LibraryBody extends StatelessWidget {
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
+    required this.onDetailsLayoutChanged,
     required this.onDetailsWidthChanged,
     required this.onDetailsHeightChanged,
     required this.onAddOwned,
@@ -79,7 +95,7 @@ class LibraryBody extends StatelessWidget {
     this.onLetterSelected,
     this.db,
     this.pinnedGroupModes = const {},
-    this.onTogglePinGroupMode,
+    this.onPinnedGroupModesChanged,
     this.onManageBuckets,
     this.desktopToolbarBand,
   });
@@ -131,6 +147,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
+  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
@@ -147,7 +164,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
   final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedGroupModesChanged;
   final VoidCallback? onManageBuckets;
   final Widget? desktopToolbarBand;
 
@@ -160,10 +177,12 @@ class LibraryBody extends StatelessWidget {
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
         final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
         final showSidebar = canShowSidebar && viewState.isSidebarVisible;
-        final detailsLayout =
-            compact && viewState.detailsLayout == LibraryDetailsLayout.right
-                ? LibraryDetailsLayout.bottom
-                : viewState.detailsLayout;
+        final detailsLayout = resolveEffectiveLibraryDetailsLayout(
+          preferredLayout: viewState.detailsLayout,
+          compact: compact,
+          hasSelection: selected != null,
+          hideWhenSelectionEmpty: adapter.viewProfile.hideDetailsWhenSelectionEmpty,
+        );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
           minWidth: kLibraryDetailsMinWidth,
@@ -250,6 +269,7 @@ class LibraryBody extends StatelessWidget {
           onEdit: selected == null
               ? null
               : (ownedItem) => onEditItem(selected, ownedItem),
+          onDetailsLayoutChanged: onDetailsLayoutChanged,
           onFilterByValue: onFilterByValue,
           db: db,
         );
@@ -325,10 +345,11 @@ class LibraryBody extends StatelessWidget {
                     onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                     onManageBuckets: onManageBuckets,
                     pinnedGroupModes: pinnedGroupModes,
-                    onTogglePinGroupMode: onTogglePinGroupMode,
+                    onPinnedGroupModesChanged: onPinnedGroupModesChanged,
                   ),
                 ),
                 LibraryResizableDivider(
+                  color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
                   onDragDelta: (delta) => onSidebarWidthChanged(
                     clampLibraryPaneWidth(
                       sidebarWidth + delta,
@@ -343,6 +364,7 @@ class LibraryBody extends StatelessWidget {
                   content: workspaceContent,
                   detailsLayout: detailsLayout,
                   inspector: details,
+                  frameInspector: type.inspectorPanelBuilder == null,
                   rightWidth: viewState.detailsWidth,
                   bottomHeight: viewState.detailsHeight,
                   maxRightWidth: maxDetailsWidth,
