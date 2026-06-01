@@ -16,6 +16,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
     required this.content,
     required this.detailsLayout,
     required this.inspector,
+    this.frameInspector = true,
     this.rightWidth = 340,
     this.bottomHeight = kLibraryDetailsDefaultHeight,
     this.onRightWidthChanged,
@@ -28,6 +29,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
   final Widget content;
   final LibraryDetailsLayout detailsLayout;
   final Widget inspector;
+  final bool frameInspector;
   final double rightWidth;
   final double bottomHeight;
   final ValueChanged<double>? onRightWidthChanged;
@@ -49,6 +51,12 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
       minHeight: kLibraryDetailsMinHeight,
       maxHeight: maxBottomHeight,
     );
+    final inspectorPane = frameInspector
+        ? _LibraryDetailsPaneFrame(
+            accentColor: accentColor,
+            child: inspector,
+          )
+        : inspector;
     return switch (detailsLayout) {
       LibraryDetailsLayout.right => Row(
           children: [
@@ -68,10 +76,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               ),
             SizedBox(
               width: effectiveRightWidth,
-              child: _LibraryDetailsPaneFrame(
-                accentColor: accentColor,
-                child: inspector,
-              ),
+                child: inspectorPane,
             ),
           ],
         ),
@@ -94,10 +99,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               ),
             SizedBox(
               height: effectiveBottomHeight,
-              child: _LibraryDetailsPaneFrame(
-                accentColor: accentColor,
-                child: inspector,
-              ),
+                child: inspectorPane,
             ),
           ],
         ),

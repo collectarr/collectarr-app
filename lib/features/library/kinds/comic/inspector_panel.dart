@@ -11,28 +11,59 @@ Widget buildComicInspectorPanel(
   return ComicInspectorPanel(request: request);
 }
 
-class ComicInspectorPanel extends StatelessWidget {
+class ComicInspectorPanel extends StatefulWidget {
   const ComicInspectorPanel({super.key, required this.request});
 
   final LibraryInspectorPanelRequest request;
 
   @override
+  State<ComicInspectorPanel> createState() => _ComicInspectorPanelState();
+}
+
+class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final request = widget.request;
     final accent = request.inspector.accent;
     final themedPanel = Color.alphaBlend(
-      accent.withValues(alpha: palette.isDark ? 0.03 : 0.015),
-      palette.panel,
+      accent.withValues(alpha: palette.isDark ? 0.018 : 0.008),
+      palette.surface,
     );
 
     return DecoratedBox(
-      decoration: BoxDecoration(color: themedPanel),
+      decoration: BoxDecoration(
+        color: themedPanel,
+        border: Border(
+          left: BorderSide(
+            color: accent.withValues(alpha: palette.isDark ? 0.16 : 0.08),
+          ),
+        ),
+      ),
       child: Column(
         children: [
           _ComicInspectorToolbar(request: request),
           Expanded(
             child: Scrollbar(
+              controller: _scrollController,
               child: SingleChildScrollView(
+                controller: _scrollController,
+                primary: false,
                 padding: const EdgeInsets.fromLTRB(8, 6, 8, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -90,12 +121,12 @@ class _ComicInspectorToolbar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Color.alphaBlend(
-          accent.withValues(alpha: palette.isDark ? 0.04 : 0.022),
-          palette.toolbar,
+          accent.withValues(alpha: palette.isDark ? 0.018 : 0.008),
+          palette.surface,
         ),
         border: Border(
           bottom: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.28 : 0.14),
+            color: accent.withValues(alpha: palette.isDark ? 0.18 : 0.09),
           ),
         ),
       ),

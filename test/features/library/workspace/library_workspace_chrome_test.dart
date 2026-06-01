@@ -78,5 +78,30 @@ void main() {
     expect(find.text('Details'), findsOneWidget);
     expect(find.text('Inspector body'), findsOneWidget);
   });
+
+  testWidgets('details aware layout can render inspector without shared frame', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 500,
+            child: LibraryDetailsAwareLayout(
+              detailsLayout: LibraryDetailsLayout.right,
+              frameInspector: false,
+              onRightWidthChanged: (_) {},
+              content: const ColoredBox(color: Colors.blue),
+              inspector: const Center(child: Text('Inspector body')),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Details'), findsNothing);
+    expect(find.text('Inspector body'), findsOneWidget);
+  });
 }
 
