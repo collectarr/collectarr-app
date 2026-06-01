@@ -176,4 +176,65 @@ void main() {
 
     expect(appliedPreset, 'Pricing');
   });
+
+  testWidgets('sort favorites menu keeps pinned favorites first in saved order', (
+    tester,
+  ) async {
+    const pinnedFavorite = LibrarySortFavorite(
+      id: 'price_desc',
+      label: 'Price desc',
+      icon: Icons.attach_money,
+      rules: [
+        LibrarySortRule(column: LibrarySortColumn.price, ascending: false),
+      ],
+    );
+    const secondPinnedFavorite = LibrarySortFavorite(
+      id: 'title_asc',
+      label: 'Title asc',
+      icon: Icons.sort_by_alpha,
+      rules: [
+        LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      ],
+    );
+    const overflowFavorite = LibrarySortFavorite(
+      id: 'updated_desc',
+      label: 'Updated desc',
+      icon: Icons.update,
+      rules: [
+        LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+      ],
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: LibraryToolbarSortButton(
+            onPressed: _noop,
+            sortFavorites: [
+              secondPinnedFavorite,
+              overflowFavorite,
+              pinnedFavorite,
+            ],
+            activeSortFavoriteId: 'title_asc',
+            pinnedSortFavoriteIds: {'price_desc', 'title_asc'},
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final menuFinder = find.byKey(
+      const ValueKey('library-sort-split-button-menu'),
+    );
+    final popupButton = tester.widget<PopupMenuButton<Object>>(menuFinder);
+    final items = popupButton.itemBuilder(tester.element(menuFinder));
+
+    expect(items[0], isA<PopupMenuItem<Object>>());
+    expect((items[2] as PopupMenuItem<Object>).value, pinnedFavorite);
+    expect((items[3] as PopupMenuItem<Object>).value, secondPinnedFavorite);
+    expect((items[5] as PopupMenuItem<Object>).value, overflowFavorite);
+  });
 }
+
+void _noop() {}

@@ -54,4 +54,14 @@ void main() {
       LibraryGroupMode.title,
     ]);
   });
+
+  test('pinned sort favorite ids preserve persisted order', () async {
+    await movieStore.writePinnedSortFavoriteIds(
+      <String>{'price_desc', 'title_asc', 'updated_desc'},
+    );
+
+    final restored = await movieStore.readPinnedSortFavoriteIds();
+
+    expect(restored.toList(), ['price_desc', 'title_asc', 'updated_desc']);
+  });
 }

@@ -196,23 +196,22 @@ class LibraryViewPreferenceStore {
     final prefs = await SharedPreferences.getInstance();
     final values = prefs.getStringList(_key('pinnedSortFavoriteIds'));
     if (values == null) {
-      _cachedPinnedSortFavoriteIds[_cacheKey] = fallback;
-      return fallback;
+      final normalizedFallback = _orderedUniqueStrings(fallback);
+      _cachedPinnedSortFavoriteIds[_cacheKey] = normalizedFallback;
+      return normalizedFallback;
     }
-    final ids = values
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toSet();
+    final ids = _orderedUniqueStrings(values);
     _cachedPinnedSortFavoriteIds[_cacheKey] = ids;
     return ids;
   }
 
   Future<void> writePinnedSortFavoriteIds(Set<String> ids) async {
-    _cachedPinnedSortFavoriteIds[_cacheKey] = ids;
+    final normalizedIds = _orderedUniqueStrings(ids);
+    _cachedPinnedSortFavoriteIds[_cacheKey] = normalizedIds;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       _key('pinnedSortFavoriteIds'),
-      ids.toList(growable: false),
+      normalizedIds.toList(growable: false),
     );
   }
 
@@ -240,5 +239,16 @@ class LibraryViewPreferenceStore {
       _key('pinnedColumnFavoriteKeys'),
       keys.toList(growable: false),
     );
+  }
+
+  Set<String> _orderedUniqueStrings(Iterable<String> values) {
+    final normalized = <String>{};
+    for (final value in values) {
+      final trimmed = value.trim();
+      if (trimmed.isNotEmpty) {
+        normalized.add(trimmed);
+      }
+    }
+    return normalized;
   }
 }
