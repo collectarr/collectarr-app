@@ -416,6 +416,11 @@ class _ComicSearchRow extends StatelessWidget {
     final owned = entry.item != null && request.ownedCatalogItemIds.contains(entry.item!.id);
     final background = selected
         ? Color.alphaBlend(request.accent.withValues(alpha: 0.2), palette.selection)
+        : owned
+            ? Color.alphaBlend(
+                const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                odd ? palette.tableOddRow : palette.tableEvenRow,
+              )
         : (odd ? palette.tableOddRow : palette.tableEvenRow);
     return Material(
       color: Colors.transparent,
@@ -432,7 +437,11 @@ class _ComicSearchRow extends StatelessWidget {
             color: background,
             border: Border(
               left: BorderSide(
-                color: selected ? request.accent : Colors.transparent,
+                color: selected
+                    ? request.accent
+                    : owned
+                        ? const Color(0xFF3FA34D)
+                        : Colors.transparent,
                 width: 3,
               ),
               bottom: BorderSide(color: palette.tableBottomBorder),
@@ -503,7 +512,14 @@ class _ComicSearchRow extends StatelessWidget {
                     : request.type.metadataProviderLabel(entry.candidate!.provider),
                 accent: request.accent,
               ),
-              if (owned) const LibraryAddResultBadge('In collection'),
+              if (owned)
+                const LibraryAddResultBadge(
+                  'Already in collection',
+                  icon: Icons.playlist_add_check_rounded,
+                  backgroundColor: Color(0xFF163A1D),
+                  borderColor: Color(0xFF3FA34D),
+                  foregroundColor: Color(0xFFC7FFD0),
+                ),
             ],
           ),
         ],
