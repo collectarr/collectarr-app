@@ -151,6 +151,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
+    final usesCustomInspectorPanel = widget.type.inspectorPanelBuilder != null;
     final ownedCopies = ref.watch(collectionProvider).maybeWhen(
           data: (items) {
             final matches = items
@@ -350,7 +351,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             accent: widget.accent,
           );
     Widget? conditionGradeSection;
-    if (activeOwnedItem != null &&
+    if (!usesCustomInspectorPanel &&
+      activeOwnedItem != null &&
         (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
         resolveOwnedDigitalFlag(
               activeOwnedItem,
@@ -413,12 +415,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           trackingEntry: activeTrackingEntry,
           accent: widget.accent,
         ),
-      if (activeOwnedItem != null)
+      if (!usesCustomInspectorPanel && activeOwnedItem != null)
         InspectorPersonalDetailsEditor(
           ownedItem: activeOwnedItem,
           accent: widget.accent,
         ),
-      if (activeTrackingEntry != null)
+      if (!usesCustomInspectorPanel && activeTrackingEntry != null)
         InspectorTrackingDetailsEditor(
           itemId: selected.id,
           trackingEntry: activeTrackingEntry,

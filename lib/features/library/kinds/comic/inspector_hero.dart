@@ -26,10 +26,6 @@ class ComicInspectorHero extends ConsumerWidget {
     final entry = request.entry;
     final ownedItem = request.ownedItem;
     final surface = palette.surface;
-    final headerSurface = Color.alphaBlend(
-      request.accent.withValues(alpha: palette.isDark ? 0.022 : 0.01),
-      palette.surface,
-    );
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.82 : 0.52);
     final ink = palette.textPrimary;
@@ -78,6 +74,11 @@ class ComicInspectorHero extends ConsumerWidget {
       if (entry.publishing?.imprint?.trim().isNotEmpty == true)
       entry.publishing!.imprint!.trim(),
     ].join(' / ');
+    final statusLabel = entry.isOwned
+        ? 'Owned'
+        : entry.isWishlisted
+            ? 'Wishlist'
+            : 'Not owned';
     final synopsis = entry.synopsis?.trim();
     final hasBackCover = localBack != null || ownedItemId != null;
 
@@ -137,112 +138,80 @@ class ComicInspectorHero extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              height: 15,
-              decoration: BoxDecoration(
-                color: headerSurface,
-                border: Border(bottom: BorderSide(color: border)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2),
-                      child: Text(
-                        editionLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: ink,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.02,
-                              height: 1,
-                              fontSize: 9,
-                            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    editionLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: ink,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.04,
+                          height: 1,
+                          fontSize: 9.4,
+                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _ComicCollectionStatusIcon(
+                  owned: entry.isOwned,
+                  wishlisted: entry.isWishlisted,
+                  accent: request.accent,
+                  muted: muted,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  statusLabel,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: ink,
+                        fontWeight: FontWeight.w800,
+                        height: 1,
+                        fontSize: 8,
+                        letterSpacing: 0.12,
                       ),
-                    ),
-                  ),
-                  Container(
-                    width: 16,
-                    decoration: BoxDecoration(
-                      border: Border(left: BorderSide(color: border)),
-                    ),
-                    alignment: Alignment.center,
-                    child: _ComicCollectionStatusIcon(
-                      owned: entry.isOwned,
-                      wishlisted: entry.isWishlisted,
-                      accent: request.accent,
-                      muted: muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: border)),
-              ),
-              padding: const EdgeInsets.fromLTRB(2, 0.5, 2, 0.5),
-              child: Column(
-                children: [
-                  _ComicDetailLine(label: 'Release', value: releaseLabel),
-                  if (publisherLabel.isNotEmpty)
-                    _ComicDetailLine(label: 'Publisher', value: publisherLabel),
-                  if (entry.barcode?.trim().isNotEmpty == true)
-                    _ComicDetailLine(label: 'Barcode', value: entry.barcode!.trim()),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(1, 1, 1, 0),
-              padding: const EdgeInsets.fromLTRB(0, 0.5, 0, 0),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: border.withValues(alpha: palette.isDark ? 0.92 : 0.82),
-                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0.5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PLOT SUMMARY',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: muted,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.24,
-                            height: 1,
-                            fontSize: 7.5,
-                          ),
-                    ),
-                    const SizedBox(height: 0.5),
-                    Text(
-                      synopsis?.isNotEmpty == true
-                          ? synopsis!
-                          : 'No plot available.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: ink,
-                            height: 1.06,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0,
-                            fontSize: 8.25,
-                          ),
-                      textAlign: TextAlign.start,
-                    ),
-                  ],
-                ),
-              ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Column(
+              children: [
+                _ComicDetailLine(label: 'Release', value: releaseLabel),
+                if (publisherLabel.isNotEmpty)
+                  _ComicDetailLine(label: 'Publisher', value: publisherLabel),
+                if (entry.barcode?.trim().isNotEmpty == true)
+                  _ComicDetailLine(label: 'Barcode', value: entry.barcode!.trim()),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Summary',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: muted,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.18,
+                    height: 1,
+                    fontSize: 7.8,
+                  ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: ink,
+                    height: 1.18,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0,
+                    fontSize: 8.6,
+                  ),
+              textAlign: TextAlign.start,
             ),
           ],
         );
 
         final mainBody = _ComicHeroBlock(
           surface: surface,
-          headerSurface: headerSurface,
           border: border,
           title: entry.resolvedTitle,
           referenceLabel: referenceLabel,
@@ -275,7 +244,6 @@ class ComicInspectorHero extends ConsumerWidget {
 class _ComicHeroBlock extends StatelessWidget {
   const _ComicHeroBlock({
     required this.surface,
-    required this.headerSurface,
     required this.border,
     required this.title,
     required this.referenceLabel,
@@ -284,7 +252,6 @@ class _ComicHeroBlock extends StatelessWidget {
   });
 
   final Color surface;
-  final Color headerSurface;
   final Color border;
   final String title;
   final String referenceLabel;
@@ -296,56 +263,47 @@ class _ComicHeroBlock extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surface,
-        border: Border(
-          top: BorderSide(color: border),
-          bottom: BorderSide(color: border),
-        ),
+        border: Border.all(color: border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 17,
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: BoxDecoration(
-              color: headerSurface,
-              border: Border(bottom: BorderSide(color: border)),
-            ),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Text(
                     title,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: -0.08,
+                          letterSpacing: -0.1,
                           height: 1,
-                          fontSize: 12.5,
+                          fontSize: 12.8,
                         ),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 6),
                 Text(
                   referenceLabel,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: appPalette(context).textPrimary,
+                        color: appPalette(context).textMuted,
                         fontWeight: FontWeight.w900,
                         height: 1,
                         fontSize: 8,
-                        letterSpacing: 0.12,
+                        letterSpacing: 0.14,
                       ),
                 ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
-            child: child,
-          ),
-        ],
+            const SizedBox(height: 4),
+            child,
+          ],
+        ),
       ),
     );
   }
@@ -398,27 +356,27 @@ class _ComicDetailLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 31,
+            width: 38,
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.22,
+                    letterSpacing: 0.16,
                     height: 1,
-                    fontSize: 7.5,
+                    fontSize: 7.8,
                   ),
             ),
           ),
-          const SizedBox(width: 2),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
-                    height: 1.02,
-                    fontSize: 8.25,
+                    height: 1.08,
+                    fontSize: 8.6,
                   ),
             ),
           ),
