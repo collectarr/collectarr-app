@@ -597,6 +597,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         (state) => state.copyWith(sidebarWidth: width),
       ),
       onSidebarVisibilityChanged: _setGroupingPanelVisibility,
+      onDetailsLayoutChanged: (layout) => _updateViewState(
+        (state) => state.copyWith(detailsLayout: layout),
+      ),
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),

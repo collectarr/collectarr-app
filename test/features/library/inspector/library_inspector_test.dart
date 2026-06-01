@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -184,6 +185,7 @@ void main() {
   testWidgets('library inspector uses the comic-specific full panel hook', (
     tester,
   ) async {
+    LibraryDetailsLayout? selectedLayout;
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -242,6 +244,7 @@ void main() {
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
+              onDetailsLayoutChanged: (value) => selectedLayout = value,
               db: db,
             ),
           ),
@@ -268,8 +271,15 @@ void main() {
     final layoutMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
       find.byKey(const ValueKey('comic-toolbar-layout-menu')),
     );
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Sidebar details'));
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Bottom details'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Open on right'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Open on bottom'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Close details'));
+    final closeEntry = layoutMenu.entries.firstWhere(
+      (entry) => entry.label == 'Close details',
+    );
+    final dynamic dynamicLayoutMenu = layoutMenu;
+    dynamicLayoutMenu.onSelected(closeEntry.value);
+    expect(selectedLayout, LibraryDetailsLayout.hidden);
 
     final moreMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
       find.byKey(const ValueKey('comic-toolbar-more-menu')),

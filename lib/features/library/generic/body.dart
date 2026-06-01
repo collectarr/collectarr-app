@@ -79,6 +79,7 @@ class LibraryBody extends StatelessWidget {
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
+    required this.onDetailsLayoutChanged,
     required this.onDetailsWidthChanged,
     required this.onDetailsHeightChanged,
     required this.onAddOwned,
@@ -146,6 +147,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
+  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
@@ -267,6 +269,7 @@ class LibraryBody extends StatelessWidget {
           onEdit: selected == null
               ? null
               : (ownedItem) => onEditItem(selected, ownedItem),
+          onDetailsLayoutChanged: onDetailsLayoutChanged,
           onFilterByValue: onFilterByValue,
           db: db,
         );

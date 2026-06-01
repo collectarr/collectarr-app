@@ -185,6 +185,7 @@ class LibraryInspectorPanelRequest {
     required this.extraActions,
     required this.onAddCopy,
     required this.onOpenDetails,
+    this.onDetailsLayoutChanged,
     this.ownedCopiesSection,
     this.bundleSection,
     this.conditionGradeSection,
@@ -204,6 +205,7 @@ class LibraryInspectorPanelRequest {
   final List<Widget> extraActions;
   final VoidCallback onAddCopy;
   final VoidCallback onOpenDetails;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final Widget? ownedCopiesSection;
   final Widget? bundleSection;
   final Widget? conditionGradeSection;

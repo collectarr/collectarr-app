@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -84,6 +85,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
     final entry = request.inspector.entry;
     final accent = request.inspector.accent;
     final hasBarcode = entry.barcode?.trim().isNotEmpty == true;
+    final onDetailsLayoutChanged = request.onDetailsLayoutChanged;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -221,16 +223,36 @@ class _ComicInspectorToolbar extends StatelessWidget {
                     icon: Icons.view_sidebar_outlined,
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                     trailingIcon: null,
-                    entries: const [
+                    entries: [
                       _ComicToolbarMenuEntry(
-                        label: 'Sidebar details',
+                        label: 'Open on right',
                         icon: Icons.view_sidebar_outlined,
-                        enabled: false,
+                        onSelected: onDetailsLayoutChanged == null
+                            ? null
+                            : () => onDetailsLayoutChanged(
+                                  LibraryDetailsLayout.right,
+                                ),
+                        enabled: onDetailsLayoutChanged != null,
                       ),
                       _ComicToolbarMenuEntry(
-                        label: 'Bottom details',
+                        label: 'Open on bottom',
                         icon: Icons.splitscreen_outlined,
-                        enabled: false,
+                        onSelected: onDetailsLayoutChanged == null
+                            ? null
+                            : () => onDetailsLayoutChanged(
+                                  LibraryDetailsLayout.bottom,
+                                ),
+                        enabled: onDetailsLayoutChanged != null,
+                      ),
+                      _ComicToolbarMenuEntry(
+                        label: 'Close details',
+                        icon: Icons.visibility_off_outlined,
+                        onSelected: onDetailsLayoutChanged == null
+                            ? null
+                            : () => onDetailsLayoutChanged(
+                                  LibraryDetailsLayout.hidden,
+                                ),
+                        enabled: onDetailsLayoutChanged != null,
                       ),
                     ],
                   ),

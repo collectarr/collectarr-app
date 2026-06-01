@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -29,7 +30,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const double _kInspectorOuterGap = 12;
+const double _kInspectorOuterGap = 8;
 
 @immutable
 class _InspectorConditionGradeOptionsRequest {
@@ -97,6 +98,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEdit,
+    this.onDetailsLayoutChanged,
     this.onFilterByValue,
     this.db,
   });
@@ -110,6 +112,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
   final void Function(OwnedItem? ownedItem)? onEdit;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
   final LocalDatabase? db;
 
@@ -460,6 +463,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ownedItem: activeOwnedItem,
           ),
           onOpenDetails: onOpenDetails,
+          onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
           ownedCopiesSection: ownedCopiesSection,
           bundleSection: bundleSection,
           conditionGradeSection: conditionGradeSection,
@@ -474,33 +478,41 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
     final palette = appPalette(context);
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: InspectorBackdrop(
-            entry: selected,
-            ownedItem: activeOwnedItem,
-          ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(
+          left: BorderSide(color: palette.divider),
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.panel.withValues(alpha: 0.84),
-          ),
-          child: ListView(
-            padding: const EdgeInsets.all(12),
-            children: [
-              InspectorActionBar(
-                type: widget.type,
-                entry: selected,
-                onToggleOwned: onToggleOwned,
-                onToggleWishlist: onToggleWishlist,
-                onEdit: onEdit,
-                onCorrectMetadata: onCorrectMetadata,
-                extraActions: extraActions,
-                onOpenDetails: onOpenDetails,
+      ),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.surface,
+              border: Border.all(color: palette.divider),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  hero,
+                  const SizedBox(height: 6),
+                  InspectorActionBar(
+                    type: widget.type,
+                    entry: selected,
+                    onToggleOwned: onToggleOwned,
+                    onToggleWishlist: onToggleWishlist,
+                    onEdit: onEdit,
+                    onCorrectMetadata: onCorrectMetadata,
+                    extraActions: extraActions,
+                    onOpenDetails: onOpenDetails,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              hero,
+            ),
+          ),
               if (ownedCopies.isNotEmpty) ...[
                 const SizedBox(height: _kInspectorOuterGap),
                 ownedCopiesSection!,
@@ -523,10 +535,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               const SizedBox(height: _kInspectorOuterGap),
               ...primarySections,
               ...trailingSections,
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
