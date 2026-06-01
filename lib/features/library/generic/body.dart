@@ -79,7 +79,7 @@ class LibraryBody extends StatelessWidget {
     this.onLetterSelected,
     this.db,
     this.pinnedGroupModes = const {},
-    this.onTogglePinGroupMode,
+    this.onPinnedGroupModesChanged,
     this.onManageBuckets,
     this.desktopToolbarBand,
   });
@@ -147,7 +147,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
   final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedGroupModesChanged;
   final VoidCallback? onManageBuckets;
   final Widget? desktopToolbarBand;
 
@@ -325,10 +325,11 @@ class LibraryBody extends StatelessWidget {
                     onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                     onManageBuckets: onManageBuckets,
                     pinnedGroupModes: pinnedGroupModes,
-                    onTogglePinGroupMode: onTogglePinGroupMode,
+                    onPinnedGroupModesChanged: onPinnedGroupModesChanged,
                   ),
                 ),
                 LibraryResizableDivider(
+                  color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
                   onDragDelta: (delta) => onSidebarWidthChanged(
                     clampLibraryPaneWidth(
                       sidebarWidth + delta,

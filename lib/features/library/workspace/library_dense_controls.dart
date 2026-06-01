@@ -228,16 +228,28 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return PopupMenuButton<T>(
       tooltip: tooltip ?? label,
       onSelected: onSelected,
       padding: EdgeInsets.zero,
+      color: Color.alphaBlend(
+        palette.accent.withValues(alpha: 0.025),
+        palette.panelRaised,
+      ),
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.black.withValues(alpha: 0.22),
+      menuPadding: const EdgeInsets.symmetric(vertical: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+        side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
+      ),
       itemBuilder: (context) => [
         for (final entry in entries)
           PopupMenuItem<T>(
             value: entry.value,
             enabled: entry.enabled,
-            height: 34,
+            height: 32,
             child: _LibraryDenseMenuItemRow(entry: entry),
           ),
       ],
@@ -326,12 +338,23 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
             tooltip: tooltip ?? label,
             padding: EdgeInsets.zero,
             onSelected: onSelected,
+            color: Color.alphaBlend(
+              palette.accent.withValues(alpha: 0.025),
+              palette.panelRaised,
+            ),
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.black.withValues(alpha: 0.22),
+            menuPadding: const EdgeInsets.symmetric(vertical: 2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+              side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
+            ),
             itemBuilder: (context) => [
               for (final entry in entries)
                 PopupMenuItem<T>(
                   value: entry.value,
                   enabled: entry.enabled,
-                  height: 34,
+                  height: 32,
                   child: _LibraryDenseMenuItemRow(entry: entry),
                 ),
             ],
@@ -359,28 +382,30 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
       children: [
         Icon(
           entry.active ? Icons.check_circle : entry.icon,
-          size: 15,
+          size: 14,
           color: entry.enabled
               ? (entry.active ? palette.accent : palette.textPrimary)
               : palette.textMuted,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 7),
         Expanded(
           child: Text(
             entry.label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: foreground,
                   fontWeight: entry.active ? FontWeight.w800 : FontWeight.w600,
+                  fontSize: 13,
                 ),
           ),
         ),
         if (entry.trailingLabel case final trailing?) ...[
-          const SizedBox(width: 8),
+          const SizedBox(width: 7),
           Text(
             trailing,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
+                  fontSize: 10.5,
                 ),
           ),
         ],
