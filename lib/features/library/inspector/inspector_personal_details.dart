@@ -19,6 +19,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const double _kInspectorEditorLabelWidth = 92;
+
 /// Inline condition / grade dropdowns for any library type.
 class InspectorCollectionFields extends StatelessWidget {
   const InspectorCollectionFields({
@@ -51,49 +53,44 @@ class InspectorCollectionFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            if (hasConditions)
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  dropdownColor: palette.panelRaised,
-                  borderRadius: kAppMenuBorderRadius,
-                  initialValue:
-                      conditions.contains(condition) ? condition : null,
-                  decoration: const InputDecoration(
-                    labelText: 'Condition',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    for (final option in conditions)
-                      DropdownMenuItem(value: option, child: Text(option)),
-                  ],
-                  onChanged: enabled ? onConditionChanged : null,
-                ),
+        if (hasConditions)
+          _InspectorEditorRow(
+            label: 'Condition',
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              dropdownColor: palette.panelRaised,
+              borderRadius: kAppMenuBorderRadius,
+              initialValue: conditions.contains(condition) ? condition : null,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
               ),
-            if (hasConditions && hasGrades) const SizedBox(width: 10),
-            if (hasGrades)
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  dropdownColor: palette.panelRaised,
-                  borderRadius: kAppMenuBorderRadius,
-                  initialValue: grades.contains(grade) ? grade : null,
-                  decoration: const InputDecoration(
-                    labelText: 'Grade',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    for (final option in grades)
-                      DropdownMenuItem(value: option, child: Text(option)),
-                  ],
-                  onChanged: enabled ? onGradeChanged : null,
-                ),
+              items: [
+                for (final option in conditions)
+                  DropdownMenuItem(value: option, child: Text(option)),
+              ],
+              onChanged: enabled ? onConditionChanged : null,
+            ),
+          ),
+        if (hasGrades)
+          _InspectorEditorRow(
+            label: 'Grade',
+            child: DropdownButtonFormField<String>(
+              isExpanded: true,
+              dropdownColor: palette.panelRaised,
+              borderRadius: kAppMenuBorderRadius,
+              initialValue: grades.contains(grade) ? grade : null,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
               ),
-          ],
-        ),
-        const SizedBox(height: 6),
+              items: [
+                for (final option in grades)
+                  DropdownMenuItem(value: option, child: Text(option)),
+              ],
+              onChanged: enabled ? onGradeChanged : null,
+            ),
+          ),
         Text(
           'Condition and grade save immediately.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -174,128 +171,148 @@ class _InspectorPersonalDetailsEditorState
       title: 'Personal details',
       accentColor: accent,
       children: [
-        Text(
-          'This panel uses draft editing. Apply changes when you are ready to save.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: palette.textMuted,
-              ),
-        ),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          onPressed: _pickPurchaseDate,
-          icon: const Icon(Icons.event),
-          label: Text(
-            _purchaseDate == null
-                ? 'Set purchase date'
-                : 'Purchased ${_formatDate(_purchaseDate!)}',
-          ),
-        ),
-        if (_purchaseDate != null) ...[
-          const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => setState(() => _purchaseDate = null),
-              icon: const Icon(Icons.clear),
-              label: const Text('Clear purchase date'),
-            ),
-          ),
-        ],
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: _priceController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Price paid',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (_) {
-                  if (_priceError != null) {
-                    setState(() => _priceError = null);
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: _currencyController,
-                textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(
-                  labelText: 'Currency',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: _pickLocation,
-          child: InputDecorator(
-            decoration: const InputDecoration(
-              labelText: 'Location',
-              border: OutlineInputBorder(),
-              suffixIcon: Icon(Icons.place),
-            ),
-            child: Text(
-              _selectedLocationLabel ?? 'No location selected',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: _selectedLocationLabel == null
-                        ? palette.textMuted
-                        : null,
+        const LibraryInspectorFact('Mode', 'Draft edits. Apply changes to save.'),
+        _InspectorEditorRow(
+          label: 'Purchased',
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _pickPurchaseDate,
+                  icon: const Icon(Icons.event),
+                  label: Text(
+                    _purchaseDate == null
+                        ? 'Set purchase date'
+                        : _formatDate(_purchaseDate!),
                   ),
+                ),
+              ),
+              if (_purchaseDate != null) ...[
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () => setState(() => _purchaseDate = null),
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Clear'),
+                ),
+              ],
+            ],
+          ),
+        ),
+        _InspectorEditorRow(
+          label: 'Price',
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  controller: _priceController,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    hintText: 'Amount',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onChanged: (_) {
+                    if (_priceError != null) {
+                      setState(() => _priceError = null);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _currencyController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    hintText: 'Currency',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        _InspectorEditorRow(
+          label: 'Location',
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: _pickLocation,
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.place),
+                isDense: true,
+              ),
+              child: Text(
+                _selectedLocationLabel ?? 'No location selected',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: _selectedLocationLabel == null
+                          ? palette.textMuted
+                          : null,
+                    ),
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _notesController,
-          minLines: 2,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            labelText: 'Personal notes',
-            border: OutlineInputBorder(),
+        _InspectorEditorRow(
+          label: 'Notes',
+          alignTop: true,
+          child: TextField(
+            controller: _notesController,
+            minLines: 2,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              hintText: 'Personal notes',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
           ),
         ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _purchaseStoreController,
-          decoration: const InputDecoration(
-            labelText: 'Purchase store',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.store),
+        _InspectorEditorRow(
+          label: 'Store',
+          child: TextField(
+            controller: _purchaseStoreController,
+            decoration: const InputDecoration(
+              hintText: 'Purchase store',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.store),
+              isDense: true,
+            ),
           ),
         ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _boxSetNameController,
-          decoration: const InputDecoration(
-            labelText: 'Box set name',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.inventory_2_outlined),
+        _InspectorEditorRow(
+          label: 'Box set',
+          child: TextField(
+            controller: _boxSetNameController,
+            decoration: const InputDecoration(
+              hintText: 'Box set name',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.inventory_2_outlined),
+              isDense: true,
+            ),
           ),
         ),
         if (_priceError != null) ...[
-          const SizedBox(height: 10),
-          Text(
-            _priceError!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          _InspectorEditorRow(
+            label: 'Error',
+            child: Text(
+              _priceError!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ),
         ],
-        const SizedBox(height: 10),
-        Align(
-          alignment: Alignment.centerRight,
-          child: FilledButton.icon(
-            onPressed: _save,
-            icon: const Icon(Icons.save_outlined),
-            label: const Text('Apply personal changes'),
+        _InspectorEditorRow(
+          label: 'Actions',
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton.icon(
+              onPressed: _save,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Apply personal changes'),
+            ),
           ),
         ),
       ],
@@ -512,200 +529,219 @@ class _InspectorTrackingDetailsEditorState
   @override
   Widget build(BuildContext context) {
     final accent = widget.accent;
-    final palette = appPalette(context);
     return LibraryInspectorSection(
       title: 'Tracking details',
       accentColor: accent,
       children: [
-        Text(
-          'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: palette.textMuted,
-              ),
+        const LibraryInspectorFact(
+          'Mode',
+          'Quick actions save immediately. Editor changes save when applied.',
         ),
         if (widget.editions.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          _TrackingEditionBrowser(
-            editions: widget.editions,
-            selectedEditionId: _selectedEditionId,
-            selectedVariantId: _selectedVariantId,
-            accent: accent,
-            onEditionSelected: (editionId) {
-              final edition = resolveLibraryEditionSelection(
-                widget.editions,
-                editionId: editionId,
-              ).edition;
-              setState(() {
-                _selectedEditionId = edition?.id;
-                _selectedVariantId = resolveVariantForEdition(edition)?.id;
-              });
-            },
-            onVariantSelected: (variantId) {
-              setState(() => _selectedVariantId = variantId);
-            },
+          _InspectorEditorRow(
+            label: 'Edition',
+            alignTop: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _TrackingEditionBrowser(
+                  editions: widget.editions,
+                  selectedEditionId: _selectedEditionId,
+                  selectedVariantId: _selectedVariantId,
+                  accent: accent,
+                  onEditionSelected: (editionId) {
+                    final edition = resolveLibraryEditionSelection(
+                      widget.editions,
+                      editionId: editionId,
+                    ).edition;
+                    setState(() {
+                      _selectedEditionId = edition?.id;
+                      _selectedVariantId = resolveVariantForEdition(edition)?.id;
+                    });
+                  },
+                  onVariantSelected: (variantId) {
+                    setState(() => _selectedVariantId = variantId);
+                  },
+                ),
+                const SizedBox(height: 6),
+                TextButton.icon(
+                  onPressed: _createEdition,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add edition'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-        const SizedBox(height: 10),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: _createEdition,
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('Add edition'),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              visualDensity: VisualDensity.compact,
-            ),
+        _InspectorEditorRow(
+          label: 'Rating',
+          child: MediaRatingField(controller: _ratingController),
+        ),
+        _InspectorEditorRow(
+          label: 'Status',
+          child: MediaTrackingStatusField(
+            profile: widget.profile,
+            value: _statusController.text,
+            label: 'Tracking status',
+            onChanged: (value) {
+              _statusController.text = value ?? '';
+            },
           ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: MediaRatingField(controller: _ratingController),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: MediaTrackingStatusField(
-                profile: widget.profile,
-                value: _statusController.text,
-                label: 'Tracking status',
-                onChanged: (value) {
-                  _statusController.text = value ?? '';
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        TrackingQuickAdjustments(
-          accent: accent,
-          progressCurrentController: _progressCurrentController,
-          progressTotalController: _progressTotalController,
-          seasonNumberController: _seasonNumberController,
-          episodeNumberController: _episodeNumberController,
-          showsEpisodeFields: _showsEpisodeFields,
-          onDecrementProgress: () => _bumpProgress(-1),
-          onIncrementProgress: () => _bumpProgress(1),
-          onDecrementEpisode: () => _bumpEpisode(-1),
-          onIncrementEpisode: () => _bumpEpisode(1),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _progressCurrentController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Progress current',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: _progressTotalController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Progress total',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _timesCompletedController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Times completed',
-            border: OutlineInputBorder(),
+        _InspectorEditorRow(
+          label: 'Adjust',
+          child: TrackingQuickAdjustments(
+            accent: accent,
+            progressCurrentController: _progressCurrentController,
+            progressTotalController: _progressTotalController,
+            seasonNumberController: _seasonNumberController,
+            episodeNumberController: _episodeNumberController,
+            showsEpisodeFields: _showsEpisodeFields,
+            onDecrementProgress: () => _bumpProgress(-1),
+            onIncrementProgress: () => _bumpProgress(1),
+            onDecrementEpisode: () => _bumpEpisode(-1),
+            onIncrementEpisode: () => _bumpEpisode(1),
           ),
         ),
-        if (_showsEpisodeFields) ...[
-          const SizedBox(height: 10),
-          Row(
+        _InspectorEditorRow(
+          label: 'Progress',
+          child: Row(
             children: [
               Expanded(
                 child: TextField(
-                  controller: _seasonNumberController,
+                  controller: _progressCurrentController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Season',
+                    hintText: 'Current',
                     border: OutlineInputBorder(),
+                    isDense: true,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
-                  controller: _episodeNumberController,
+                  controller: _progressTotalController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Episode',
+                    hintText: 'Total',
                     border: OutlineInputBorder(),
+                    isDense: true,
                   ),
                 ),
               ),
             ],
           ),
-        ],
-        const SizedBox(height: 10),
-        TextField(
-          controller: _trackingNotesController,
-          minLines: 2,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            labelText: 'Tracking notes',
-            border: OutlineInputBorder(),
+        ),
+        _InspectorEditorRow(
+          label: 'Completed',
+          child: TextField(
+            controller: _timesCompletedController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Times completed',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
           ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _dateField(
-                context,
-                label: 'Started',
-                value: _startedAt,
-                onChanged: (value) => setState(() => _startedAt = value),
-              ),
+        if (_showsEpisodeFields) ...[
+          _InspectorEditorRow(
+            label: 'Episode',
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _seasonNumberController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'Season',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: _episodeNumberController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'Episode',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _dateField(
-                context,
-                label: 'Finished',
-                value: _finishedAt,
-                onChanged: (value) => setState(() => _finishedAt = value),
-              ),
+          ),
+        ],
+        _InspectorEditorRow(
+          label: 'Notes',
+          alignTop: true,
+          child: TextField(
+            controller: _trackingNotesController,
+            minLines: 2,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              hintText: 'Tracking notes',
+              border: OutlineInputBorder(),
+              isDense: true,
             ),
-          ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Align(
-          alignment: Alignment.centerRight,
+        _InspectorEditorRow(
+          label: 'Dates',
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton.icon(
-                onPressed: _stopTracking,
-                icon: const Icon(Icons.playlist_remove, size: 18),
-                label: const Text('Stop tracking'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
+              Expanded(
+                child: _dateField(
+                  context,
+                  label: 'Started',
+                  value: _startedAt,
+                  onChanged: (value) => setState(() => _startedAt = value),
                 ),
               ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
-                onPressed: _save,
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Apply tracking changes'),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _dateField(
+                  context,
+                  label: 'Finished',
+                  value: _finishedAt,
+                  onChanged: (value) => setState(() => _finishedAt = value),
+                ),
               ),
             ],
+          ),
+        ),
+        _InspectorEditorRow(
+          label: 'Actions',
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton.icon(
+                  onPressed: _stopTracking,
+                  icon: const Icon(Icons.playlist_remove, size: 18),
+                  label: const Text('Stop tracking'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton.icon(
+                  onPressed: _save,
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text('Apply tracking changes'),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -1023,6 +1059,48 @@ class _TrackingEditionBrowser extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _InspectorEditorRow extends StatelessWidget {
+  const _InspectorEditorRow({
+    required this.label,
+    required this.child,
+    this.alignTop = false,
+  });
+
+  final String label;
+  final Widget child;
+  final bool alignTop;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment:
+            alignTop ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: _kInspectorEditorLabelWidth,
+            child: Padding(
+              padding: EdgeInsets.only(top: alignTop ? 8 : 0),
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: palette.textMuted,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 10,
+                    ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: child),
+        ],
+      ),
     );
   }
 }

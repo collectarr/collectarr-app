@@ -40,7 +40,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onSidebarVisibilityChanged,
     this.onManageBuckets,
     this.pinnedGroupModes = const {},
-    this.onTogglePin,
+    this.onPinnedModesChanged,
   });
 
   final LibraryTypeConfig type;
@@ -72,7 +72,7 @@ class LibrarySidebarHeader extends StatelessWidget {
   final ValueChanged<bool>? onSidebarVisibilityChanged;
   final VoidCallback? onManageBuckets;
   final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePin;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedModesChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class LibrarySidebarHeader extends StatelessWidget {
                           onSidebarVisibilityChanged:
                               onSidebarVisibilityChanged,
                           pinnedGroupModes: pinnedGroupModes,
-                          onTogglePin: onTogglePin,
+                          onPinnedModesChanged: onPinnedModesChanged,
                         ),
                       ),
                     );
@@ -284,25 +284,31 @@ class _LibrarySidebarScopeBanner extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
       decoration: BoxDecoration(
-        color: palette.panel,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: palette.divider),
+        color: Color.alphaBlend(
+          accent.withValues(alpha: 0.05),
+          palette.surface,
+        ),
+        border: Border(
+          top: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider),
+          left: BorderSide(color: accent, width: 3),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Icon(icon, size: 16, color: accent),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +328,7 @@ class _LibrarySidebarScopeBanner extends StatelessWidget {
                   scopeLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                 ),

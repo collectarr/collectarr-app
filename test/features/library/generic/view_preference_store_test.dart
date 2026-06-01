@@ -38,4 +38,20 @@ void main() {
     expect(movieStore.cachedQuickView, isNull);
     expect(movieStore.cachedGroupMode, isNull);
   });
+
+  test('pinned group modes preserve persisted order', () async {
+    await movieStore.writePinnedGroupModes({
+      LibraryGroupMode.director,
+      LibraryGroupMode.releaseYear,
+      LibraryGroupMode.title,
+    });
+
+    final restored = await movieStore.readPinnedGroupModes();
+
+    expect(restored.toList(), [
+      LibraryGroupMode.director,
+      LibraryGroupMode.releaseYear,
+      LibraryGroupMode.title,
+    ]);
+  });
 }

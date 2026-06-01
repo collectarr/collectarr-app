@@ -27,6 +27,8 @@ void main() {
     expect(find.text('No folders'), findsOneWidget);
     expect(find.text('Show folders'), findsNothing);
     expect(find.text('Manage Favorites'), findsOneWidget);
+    expect(find.byIcon(Icons.push_pin), findsNothing);
+    expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Folders'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
@@ -104,5 +106,42 @@ void main() {
     expect(find.text('Show folders'), findsNothing);
     expect(find.text('Main'), findsOneWidget);
     expect(find.byIcon(Icons.check), findsNothing);
+  });
+
+  testWidgets('manage favorites button opens a dedicated dialog', (
+    tester,
+  ) async {
+    Set<LibraryGroupMode>? savedModes;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeMenuButton(
+            type: moviesLibraryConfig,
+            groupMode: LibraryGroupMode.releaseYear,
+            accent: Colors.cyan,
+            icon: Icons.account_tree_outlined,
+            onChanged: (_) {},
+            pinnedGroupModes: const {LibraryGroupMode.director},
+            onPinnedModesChanged: (value) => savedModes = value,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Manage Group Favorites'), findsOneWidget);
+    expect(find.text('Director'), findsWidgets);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(savedModes, isNotNull);
+    expect(savedModes!.toList(), [LibraryGroupMode.director]);
   });
 }

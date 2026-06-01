@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 LibraryMetadataPresentation buildLibraryMetadataPresentation({
@@ -64,7 +65,7 @@ class LibraryMetadataContent extends StatelessWidget {
         ],
         if (presentation.characters.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          _LibraryMetadataValueList(
             label: 'Characters',
             values: presentation.characters,
             onValueTap: onFilterByValue,
@@ -72,21 +73,107 @@ class LibraryMetadataContent extends StatelessWidget {
         ],
         if (presentation.storyArcs.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Story Arcs',
+          _LibraryMetadataValueList(
+            label: 'Story arcs',
             values: presentation.storyArcs,
             onValueTap: onFilterByValue,
           ),
         ],
         if (presentation.genres.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          _LibraryMetadataValueList(
             label: 'Genres',
             values: presentation.genres,
             onValueTap: onFilterByValue,
           ),
         ],
       ],
+    );
+  }
+}
+
+class _LibraryMetadataValueList extends StatelessWidget {
+  const _LibraryMetadataValueList({
+    required this.label,
+    required this.values,
+    this.onValueTap,
+  });
+
+  final String label;
+  final List<String> values;
+  final ValueChanged<String>? onValueTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 92,
+            child: Text(
+              label,
+              style: textTheme.labelMedium?.copyWith(
+                color: palette.textMuted,
+                fontWeight: FontWeight.w800,
+                fontSize: 10,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Wrap(
+              spacing: 0,
+              runSpacing: 2,
+              children: [
+                for (var index = 0; index < values.length; index += 1)
+                  _LibraryMetadataInlineValue(
+                    value: values[index],
+                    trailingComma: index < values.length - 1,
+                    onTap: onValueTap == null ? null : () => onValueTap!(values[index]),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LibraryMetadataInlineValue extends StatelessWidget {
+  const _LibraryMetadataInlineValue({
+    required this.value,
+    required this.trailingComma,
+    this.onTap,
+  });
+
+  final String value;
+  final bool trailingComma;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final text = Text(
+      trailingComma ? '$value, ' : value,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.w600,
+        decoration: onTap == null ? null : TextDecoration.underline,
+        decorationColor: palette.textMuted.withValues(alpha: 0.4),
+      ),
+    );
+    if (onTap == null) {
+      return text;
+    }
+    return InkWell(
+      borderRadius: BorderRadius.circular(3),
+      onTap: onTap,
+      child: text,
     );
   }
 }

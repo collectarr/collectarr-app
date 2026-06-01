@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_controls.dart';
@@ -6,6 +8,12 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_toke
 import 'package:flutter/material.dart';
 
 enum LibraryGroupModeMenuAction { disableFolders }
+
+class _ManageFavoritesRequest {
+  const _ManageFavoritesRequest(this.favoriteModes);
+
+  final Set<LibraryGroupMode> favoriteModes;
+}
 
 class LibraryGroupModeMenuButton extends StatelessWidget {
   const LibraryGroupModeMenuButton({
@@ -18,7 +26,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
     this.sidebarVisible = true,
     this.onSidebarVisibilityChanged,
     this.pinnedGroupModes = const {},
-    this.onTogglePin,
+    this.onPinnedModesChanged,
     this.iconOnly = false,
   });
 
@@ -30,7 +38,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
   final bool sidebarVisible;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
   final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePin;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedModesChanged;
   final bool iconOnly;
 
   @override
@@ -102,7 +110,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
                 selectedMode: groupMode,
                 availableModes: modes,
                 initialPinnedModes: pinnedGroupModes,
-                onTogglePin: onTogglePin,
+                onPinnedModesChanged: onPinnedModesChanged,
                 sidebarVisible: sidebarVisible,
                 hasSidebarVisibilityToggle: onSidebarVisibilityChanged != null,
               ),
@@ -125,11 +133,26 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
         );
       },
     );
-    selection.then((value) {
+    selection.then((value) async {
       if (value is LibraryGroupMode) {
         onChanged(value);
         if (!sidebarVisible && onSidebarVisibilityChanged != null) {
           onSidebarVisibilityChanged!(true);
+        }
+      } else if (value is _ManageFavoritesRequest) {
+        if (!context.mounted) {
+          return;
+        }
+        final updated = await showDialog<Set<LibraryGroupMode>>(
+          context: context,
+          builder: (dialogContext) => _GroupModeFavoritesDialog(
+            type: type,
+            availableModes: modes,
+            initialFavorites: value.favoriteModes,
+          ),
+        );
+        if (updated != null && context.mounted) {
+          onPinnedModesChanged?.call(updated);
         }
       } else if (value == LibraryGroupModeMenuAction.disableFolders &&
           onSidebarVisibilityChanged != null) {
@@ -148,7 +171,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
     required this.initialPinnedModes,
     this.sidebarVisible = true,
     this.hasSidebarVisibilityToggle = false,
-    this.onTogglePin,
+    this.onPinnedModesChanged,
   });
 
   final LibraryTypeConfig type;
@@ -157,7 +180,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
   final Set<LibraryGroupMode> initialPinnedModes;
   final bool sidebarVisible;
   final bool hasSidebarVisibilityToggle;
-  final ValueChanged<LibraryGroupMode>? onTogglePin;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedModesChanged;
 
   @override
   State<LibraryGroupModeDropdownMenu> createState() =>
@@ -186,9 +209,10 @@ class _LibraryGroupModeDropdownMenuState
 
   @override
   Widget build(BuildContext context) {
-    final favoriteModes = widget.availableModes
-        .where(_pinnedModes.contains)
-        .toList(growable: false);
+    final favoriteModes = [
+      for (final mode in _pinnedModes)
+        if (widget.availableModes.contains(mode)) mode,
+    ];
     return Material(
       color: Colors.transparent,
       child: LibraryWorkspaceMenuPanel(
@@ -210,21 +234,38 @@ class _LibraryGroupModeDropdownMenuState
                   ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-                  child: Row(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Manage Favorites',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
+                      Text(
+                        'Favorites',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
                       ),
-                      Icon(
-                        Icons.settings_outlined,
-                        size: 16,
-                        color: libraryToolbarMenuMutedText(context),
+                      FilledButton.tonalIcon(
+                        key: const ValueKey('manageGroupFavoritesButton'),
+                        onPressed: widget.onPinnedModesChanged == null
+                            ? null
+                            : () => Navigator.of(context).pop(
+                                  _ManageFavoritesRequest(
+                                    LinkedHashSet<LibraryGroupMode>.from(
+                                      _pinnedModes,
+                                    ),
+                                  ),
+                                ),
+                        icon: const Icon(Icons.tune, size: 16),
+                        label: const Text('Manage Favorites'),
+                        style: FilledButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -388,7 +429,6 @@ class _LibraryGroupModeDropdownMenuState
     LibraryGroupMode mode, {
     required bool sectionHighlighted,
   }) {
-    final isPinned = _pinnedModes.contains(mode);
     final isSelected = mode == widget.selectedMode;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
@@ -405,35 +445,6 @@ class _LibraryGroupModeDropdownMenuState
                   color: libraryToolbarMenuText(context),
                 )
               : null,
-          trailing: widget.onTogglePin == null
-              ? null
-              : GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    setState(() {
-                      if (!isPinned) {
-                        _pinnedModes.add(mode);
-                        _expandedSections['Favorites'] = true;
-                      } else {
-                        _pinnedModes.remove(mode);
-                        if (_pinnedModes.isEmpty) {
-                          _expandedSections.remove('Favorites');
-                        }
-                      }
-                    });
-                    widget.onTogglePin!(mode);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                      size: 15,
-                      color: isPinned
-                          ? libraryToolbarMenuText(context)
-                          : libraryToolbarMenuMutedText(context),
-                    ),
-                  ),
-                ),
           onTap: () => Navigator.of(context).pop(mode),
           padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
           backgroundColor: Colors.transparent,
@@ -519,4 +530,297 @@ List<_GroupModeCategory> _categorizeGroupModes(List<LibraryGroupMode> modes) {
     if (crew.isNotEmpty) _GroupModeCategory('Cast & Crew', crew),
     if (personal.isNotEmpty) _GroupModeCategory('Personal', personal),
   ];
+}
+
+class _GroupModeFavoritesDialog extends StatefulWidget {
+  const _GroupModeFavoritesDialog({
+    required this.type,
+    required this.availableModes,
+    required this.initialFavorites,
+  });
+
+  final LibraryTypeConfig type;
+  final List<LibraryGroupMode> availableModes;
+  final Set<LibraryGroupMode> initialFavorites;
+
+  @override
+  State<_GroupModeFavoritesDialog> createState() =>
+      _GroupModeFavoritesDialogState();
+}
+
+class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
+  late final List<LibraryGroupMode> _favoriteModes;
+
+  @override
+  void initState() {
+    super.initState();
+    _favoriteModes = [
+      for (final mode in widget.initialFavorites)
+        if (widget.availableModes.contains(mode)) mode,
+    ];
+  }
+
+  Set<LibraryGroupMode> _favoriteSet() =>
+      LinkedHashSet<LibraryGroupMode>.from(_favoriteModes);
+
+  Future<void> _addFavorite() async {
+    final picked = await _pickMode(
+      title: 'Add favorite',
+      excludedModes: _favoriteSet(),
+    );
+    if (picked == null) {
+      return;
+    }
+    setState(() => _favoriteModes.add(picked));
+  }
+
+  Future<void> _replaceFavorite(int index) async {
+    final current = _favoriteModes[index];
+    final excludedModes = _favoriteSet()..remove(current);
+    final picked = await _pickMode(
+      title: 'Edit favorite',
+      excludedModes: excludedModes,
+    );
+    if (picked == null) {
+      return;
+    }
+    setState(() => _favoriteModes[index] = picked);
+  }
+
+  Future<LibraryGroupMode?> _pickMode({
+    required String title,
+    required Set<LibraryGroupMode> excludedModes,
+  }) {
+    final candidates = [
+      for (final mode in widget.availableModes)
+        if (!excludedModes.contains(mode)) mode,
+    ];
+    return showDialog<LibraryGroupMode>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(title),
+        children: [
+          if (candidates.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Text('All available group modes are already favorited.'),
+            )
+          else
+            for (final mode in candidates)
+              SimpleDialogOption(
+                onPressed: () => Navigator.of(context).pop(mode),
+                child: Row(
+                  children: [
+                    Icon(genericGroupModeIcon(mode), size: 18),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(genericGroupModeLabel(mode, widget.type)),
+                    ),
+                  ],
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Dialog(
+      shape: libraryToolbarDropdownMenuShape(context),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640, maxHeight: 560),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Manage Group Favorites',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: libraryToolbarMenuBorder(context)),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Favorites',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        FilledButton.tonalIcon(
+                          onPressed: _addFavorite,
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Add'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Expanded(
+                      child: _favoriteModes.isEmpty
+                          ? DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: libraryToolbarMenuBorder(context),
+                                ),
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Text(
+                                    'No favorites yet. Add group modes here to keep them at the top of the menu.',
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: libraryToolbarMenuMutedText(
+                                        context,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: libraryToolbarMenuBorder(context),
+                                ),
+                              ),
+                              child: ReorderableListView.builder(
+                                padding: const EdgeInsets.all(8),
+                                buildDefaultDragHandles: false,
+                                itemCount: _favoriteModes.length,
+                                onReorderItem: (oldIndex, newIndex) {
+                                  setState(() {
+                                    final item = _favoriteModes.removeAt(
+                                      oldIndex,
+                                    );
+                                    _favoriteModes.insert(newIndex, item);
+                                  });
+                                },
+                                itemBuilder: (context, index) {
+                                  final mode = _favoriteModes[index];
+                                  return Container(
+                                    key: ValueKey(
+                                      'groupFavorite_${mode.name}',
+                                    ),
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: libraryToolbarMenuHover(context),
+                                      border: Border.all(
+                                        color: libraryToolbarMenuBorder(context),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 10,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          ReorderableDragStartListener(
+                                            index: index,
+                                            child: Icon(
+                                              Icons.drag_indicator,
+                                              color: libraryToolbarMenuMutedText(
+                                                context,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Icon(
+                                            genericGroupModeIcon(mode),
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              genericGroupModeLabel(
+                                                mode,
+                                                widget.type,
+                                              ),
+                                              style: theme.textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                          TextButton.icon(
+                                            onPressed: () =>
+                                                _replaceFavorite(index),
+                                            icon: const Icon(
+                                              Icons.edit_outlined,
+                                              size: 16,
+                                            ),
+                                            label: const Text('Edit'),
+                                          ),
+                                          IconButton(
+                                            tooltip: 'Remove favorite',
+                                            onPressed: () => setState(
+                                              () => _favoriteModes.removeAt(
+                                                index,
+                                              ),
+                                            ),
+                                            icon: const Icon(
+                                              Icons.delete_outline,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Divider(height: 1, color: libraryToolbarMenuBorder(context)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Close'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () => Navigator.of(context).pop(_favoriteSet()),
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

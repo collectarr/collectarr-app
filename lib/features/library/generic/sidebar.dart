@@ -41,7 +41,7 @@ class LibrarySidebar extends StatelessWidget {
     this.onSidebarVisibilityChanged,
     this.onManageBuckets,
     this.pinnedGroupModes = const {},
-    this.onTogglePinGroupMode,
+    this.onPinnedGroupModesChanged,
   });
 
   final LibraryTypeConfig type;
@@ -74,7 +74,7 @@ class LibrarySidebar extends StatelessWidget {
   final ValueChanged<bool>? onSidebarVisibilityChanged;
   final VoidCallback? onManageBuckets;
   final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedGroupModesChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class LibrarySidebar extends StatelessWidget {
         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
         onManageBuckets: onManageBuckets,
         pinnedGroupModes: pinnedGroupModes,
-        onTogglePin: onTogglePinGroupMode,
+        onPinnedModesChanged: onPinnedGroupModesChanged,
       ),
     );
   }

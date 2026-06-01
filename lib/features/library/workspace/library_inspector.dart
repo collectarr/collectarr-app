@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 const Color _kDefaultAccent = kAppAccent;
 const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
-const double _kInspectorSectionSpacing = 12;
-const double _kInspectorSectionRadius = 12;
-const double _kInspectorSectionContentTopPadding = 10;
-const double _kInspectorFactLabelWidth = 108;
+const double _kInspectorSectionSpacing = 8;
+const double _kInspectorSectionRadius = 2;
+const double _kInspectorSectionContentTopPadding = 6;
+const double _kInspectorFactLabelWidth = 92;
 
 class LibraryInspectorFactData {
   const LibraryInspectorFactData(this.label, this.value, {this.onTap});
@@ -56,12 +56,9 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
     final resolvedMutedTextColor = widget.mutedTextColor == _kDefaultMutedText
         ? palette.textMuted
         : widget.mutedTextColor;
-    final sectionColor = Color.alphaBlend(
-      colorScheme.surfaceContainerHigh.withValues(alpha: 0.84),
-      colorScheme.surface,
-    );
-    final borderColor = colorScheme.outlineVariant.withValues(alpha: 0.42);
-    final accentBorderColor = widget.accentColor.withValues(alpha: 0.14);
+    final sectionColor = colorScheme.surface;
+    final borderColor = palette.divider;
+    final accentBorderColor = widget.accentColor.withValues(alpha: 0.18);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: _kInspectorSectionSpacing),
@@ -69,14 +66,10 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
         decoration: BoxDecoration(
           color: sectionColor,
           borderRadius: BorderRadius.circular(_kInspectorSectionRadius),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.35),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          border: Border(
+            top: BorderSide(color: borderColor),
+            bottom: BorderSide(color: borderColor),
+          ),
         ),
         child: Stack(
           children: [
@@ -96,7 +89,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -111,19 +104,16 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
                             Text(
                               widget.title,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    color: widget.accentColor,
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: palette.textMuted,
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 13,
-                                    letterSpacing: 0.2,
+                                    fontSize: 11,
+                                    letterSpacing: 0.35,
                                   ),
                             ),
                             const Spacer(),
@@ -185,12 +175,12 @@ class LibraryInspectorFactGrid extends StatelessWidget {
           );
         }
         return Wrap(
-          spacing: 12,
-          runSpacing: 2,
+          spacing: 8,
+          runSpacing: 0,
           children: [
             for (final fact in facts)
               SizedBox(
-                width: (constraints.maxWidth - 12) / 2,
+                width: (constraints.maxWidth - 8) / 2,
                 child: LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
               ),
           ],
@@ -222,7 +212,7 @@ class LibraryInspectorFact extends StatelessWidget {
         : mutedTextColor;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -233,11 +223,11 @@ class LibraryInspectorFact extends StatelessWidget {
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: resolvedMutedTextColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 11,
+                    fontSize: 10,
                   ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: onTap != null && value != '-' && value.isNotEmpty
                 ? InkWell(
@@ -324,7 +314,7 @@ class LibraryInspectorChipWrap extends StatelessWidget {
       children: [
         if (label != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.only(bottom: 4),
             child: Text(
               label!,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -335,8 +325,8 @@ class LibraryInspectorChipWrap extends StatelessWidget {
             ),
           ),
         Wrap(
-          spacing: 7,
-          runSpacing: 7,
+          spacing: 4,
+          runSpacing: 4,
           children: [
             for (final value in values)
               LibraryInspectorChip(
@@ -367,11 +357,11 @@ class LibraryInspectorChip extends StatelessWidget {
     final chip = DecoratedBox(
       decoration: BoxDecoration(
         color: chipColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: kAppAccent.withValues(alpha: 0.53)),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: kAppAccent.withValues(alpha: 0.35)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Text(
           value,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(

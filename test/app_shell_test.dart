@@ -135,6 +135,10 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
+    final context = tester.element(find.byType(AppShell));
+    GoRouter.of(context).go(AppRoutes.shelf);
+    await pumpUntilSettled(tester);
+
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
@@ -169,6 +173,10 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
+    final context = tester.element(find.byType(AppShell));
+    GoRouter.of(context).go(AppRoutes.shelf);
+    await pumpUntilSettled(tester);
+
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
@@ -176,6 +184,34 @@ void main() {
     expect(navigationBar.destinations.length, 4);
     expect(find.text('Calendar'), findsOneWidget);
     expect(find.text('Admin'), findsNothing);
+  });
+
+  testWidgets(
+      'desktop library workspace hides bottom nav and shows workspace switcher',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
+
+    await tester.pumpWidget(
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('Open'), findsOneWidget);
   });
 
   testWidgets('app shell shows admin destination for admin accounts',
@@ -199,6 +235,10 @@ void main() {
         ],
       ),
     );
+    await pumpUntilSettled(tester);
+
+    final context = tester.element(find.byType(AppShell));
+    GoRouter.of(context).go(AppRoutes.shelf);
     await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(

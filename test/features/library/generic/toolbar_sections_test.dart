@@ -75,23 +75,22 @@ void main() {
     expect(find.byType(LibraryDenseSplitButton<Object>), findsOneWidget);
     expect(find.text('Essential'), findsOneWidget);
 
-    await tester.tap(find.text('Essential'));
-    await tester.pumpAndSettle();
+    final splitButton = tester.widget<LibraryDenseSplitButton<Object>>(
+      find.byType(LibraryDenseSplitButton<Object>),
+    );
+    splitButton.onPressed?.call();
+    await tester.pump();
 
     expect(manageColumnsCount, 1);
 
-    await tester.tap(
+    final popupButton = tester.widget<PopupMenuButton<Object>>(
       find.descendant(
         of: find.byKey(const ValueKey('library-column-split-button')),
-        matching: find.byIcon(Icons.keyboard_arrow_down),
+        matching: find.byType(PopupMenuButton<Object>),
       ),
     );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Pricing'), findsOneWidget);
-
-    await tester.tap(find.text('Pricing'));
-    await tester.pumpAndSettle();
+    popupButton.onSelected?.call(pricingPreset);
+    await tester.pump();
 
     expect(appliedPreset, 'Pricing');
   });

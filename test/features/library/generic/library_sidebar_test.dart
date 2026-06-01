@@ -33,10 +33,10 @@ void main() {
                 collectionStatusScope: LibraryCollectionStatusScope.all,
                 onClearFilter: () {},
                 pinnedGroupModes: pinnedModes,
-                onTogglePinGroupMode: (mode) {
-                  if (!pinnedModes.add(mode)) {
-                    pinnedModes.remove(mode);
-                  }
+                onPinnedGroupModesChanged: (modes) {
+                  pinnedModes
+                    ..clear()
+                    ..addAll(modes);
                 },
               ),
             ),
@@ -49,6 +49,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Favorites'), findsOneWidget);
+  expect(find.byIcon(Icons.push_pin), findsNothing);
+  expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Folders'), findsWidgets);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);

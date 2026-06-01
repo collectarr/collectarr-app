@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
-import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -52,21 +51,12 @@ class MediaLibraryNav extends ConsumerWidget {
     return AnimatedContainer(
       duration: animationDuration,
       curve: Curves.easeOutCubic,
-      height: 42,
+      height: 36,
       decoration: BoxDecoration(
-        gradient: libraryChromeGradient(
-          accent,
-          brightness: palette.brightness,
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: palette.surface,
         border: Border(
-          bottom: BorderSide(
-            color: libraryChromeBorderColor(
-              accent,
-              brightness: palette.brightness,
-            ),
-          ),
+          top: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider),
         ),
       ),
       child: LayoutBuilder(
@@ -77,15 +67,20 @@ class MediaLibraryNav extends ConsumerWidget {
           );
           return Row(
             children: [
-              SizedBox(
-                width: titleWidth,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 8),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: _MediaLibraryTitle(
-                      icon: selectedIcon,
-                      label: selectedGroup.label,
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(right: BorderSide(color: palette.divider)),
+                ),
+                child: SizedBox(
+                  width: titleWidth,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 6),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _MediaLibraryTitle(
+                        icon: selectedIcon,
+                        label: selectedGroup.label,
+                      ),
                     ),
                   ),
                 ),
@@ -144,21 +139,12 @@ class MediaLibraryTitleBar extends ConsumerWidget {
     return AnimatedContainer(
       duration: animationDuration,
       curve: Curves.easeOutCubic,
-      height: 42,
+      height: 36,
       decoration: BoxDecoration(
-        gradient: libraryChromeGradient(
-          accent,
-          brightness: palette.brightness,
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: palette.surface,
         border: Border(
-          bottom: BorderSide(
-            color: libraryChromeBorderColor(
-              accent,
-              brightness: palette.brightness,
-            ),
-          ),
+          top: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider),
         ),
       ),
       child: LayoutBuilder(
@@ -168,16 +154,21 @@ class MediaLibraryTitleBar extends ConsumerWidget {
             maxWidth: constraints.maxWidth,
           );
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               children: [
-                SizedBox(
-                  width: titleWidth,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: _MediaLibraryTitle(
-                      icon: icon,
-                      label: type.pluralLabel,
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(right: BorderSide(color: palette.divider)),
+                  ),
+                  child: SizedBox(
+                    width: titleWidth,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _MediaLibraryTitle(
+                        icon: icon,
+                        label: type.pluralLabel,
+                      ),
                     ),
                   ),
                 ),
@@ -213,8 +204,8 @@ class _MediaLibraryTitle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Icon(icon, size: 20, color: titleColor),
-        const SizedBox(width: 7),
+        Icon(icon, size: 18, color: palette.textMuted),
+        const SizedBox(width: 6),
         Expanded(
           child: Row(
             children: [
@@ -226,8 +217,8 @@ class _MediaLibraryTitle extends StatelessWidget {
                   softWrap: false,
                   style: TextStyle(
                     color: titleColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -271,8 +262,6 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
             ),
             const SizedBox(width: 6),
           ],
-          const _TopBarSyncButton(),
-          const SizedBox(width: 2),
           _HeaderActionButton(
             tooltip: navPrefs.collapsed
                 ? 'Show library selector'
@@ -284,113 +273,6 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
                 .toggleCollapsed(),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TopBarSyncButton extends ConsumerWidget {
-  const _TopBarSyncButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sync = ref.watch(syncControllerProvider);
-    final palette = appPalette(context);
-    final controlBackground = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
-      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
-    );
-    final controlBorder = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
-      palette.divider,
-    );
-    final controlForeground =
-        ThemeData.estimateBrightnessForColor(controlBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    final controlMutedForeground = controlForeground.withValues(alpha: 0.72);
-    final pendingBadgeBackground = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.12),
-      palette.selection,
-    );
-    final pendingBadgeBorder = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
-      palette.divider,
-    );
-    final pendingBadgeForeground =
-        ThemeData.estimateBrightnessForColor(pendingBadgeBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    return Tooltip(
-      message: sync.isSyncing
-          ? 'Personal sync is running'
-          : sync.pendingCount > 0
-              ? 'Run personal sync now (${sync.pendingCount} pending)'
-              : 'Run personal sync now',
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(4),
-          onTap: sync.isSyncing
-              ? null
-              : () => ref.read(syncControllerProvider.notifier).syncNow(),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: controlBackground,
-              border: Border.all(color: controlBorder),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  sync.isOffline
-                      ? Icons.cloud_off_outlined
-                      : Icons.sync_outlined,
-                  size: 18,
-                  color: sync.isSyncing
-                      ? controlMutedForeground
-                      : sync.isOffline
-                        ? (palette.isDark
-                          ? Colors.orange.shade200
-                          : Colors.orange.shade700)
-                        : controlForeground,
-                ),
-                if (!sync.isSyncing && sync.pendingCount > 0)
-                  Positioned(
-                    right: -6,
-                    top: -5,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: pendingBadgeBackground,
-                        border: Border.all(
-                          color: pendingBadgeBorder,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        sync.pendingCount > 99
-                            ? '99+'
-                            : sync.pendingCount.toString(),
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: pendingBadgeForeground,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -421,12 +303,12 @@ class _OverdueLoanChip extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(3),
           onTap: onPressed,
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: kAppOverdueBackground,
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(3),
               border: Border.all(color: kAppOverdueBorder),
             ),
             child: Padding(
@@ -474,33 +356,20 @@ class _HeaderActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final controlBackground = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.06 : 0.08),
-      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.88 : 1),
-    );
-    final controlForeground =
-        ThemeData.estimateBrightnessForColor(controlBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
     return Tooltip(
       message: tooltip,
       child: OutlinedButton.icon(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          foregroundColor: controlForeground,
-          side: BorderSide(
-            color: Color.alphaBlend(
-              palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.16),
-              palette.divider,
-            ),
-          ),
-          backgroundColor: controlBackground,
-          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+          minimumSize: const Size(28, 28),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          foregroundColor: palette.textMuted,
+          side: BorderSide(color: palette.divider),
+          backgroundColor: palette.surface,
+          textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
         ),
-        icon: Icon(icon, size: 16),
+        icon: Icon(icon, size: 15),
         label: Text(label),
       ),
     );
@@ -517,15 +386,14 @@ double _headerTitleWidth({
       maxLabelLength = label.length;
     }
   }
-  // icon(20) + gap(7) + text(chars * 10 for bold w900) + padding(18)
-  final estimated = (20.0 + 7 + maxLabelLength * 10 + 18)
-      .clamp(132.0, 360.0)
+  final estimated = (18.0 + 6 + maxLabelLength * 8.2 + 14)
+      .clamp(104.0, 240.0)
       .toDouble();
-  final available = maxWidth * 0.35;
+  final available = maxWidth * 0.24;
   if (available <= 0) {
     return estimated;
   }
-  return estimated.clamp(132.0, available).toDouble();
+  return estimated.clamp(104.0, available).toDouble();
 }
 
 class MediaLibraryNavStrip extends StatefulWidget {
@@ -617,10 +485,10 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                   scrollDirection: Axis.horizontal,
                   child: Padding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
+                        const EdgeInsets.symmetric(horizontal: 1, vertical: 4),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minWidth: (constraints.maxWidth - 14).clamp(0.0, double.infinity),
+                        minWidth: (constraints.maxWidth - 2).clamp(0.0, double.infinity),
                       ),
                       child: Align(
                         alignment: Alignment.center,
@@ -641,7 +509,7 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                                   );
                                   return Padding(
                                     padding: EdgeInsets.only(
-                                      right: index == groups.length - 1 ? 0 : 5,
+                                      right: index == groups.length - 1 ? 0 : 1,
                                     ),
                                     child: MediaLibraryNavButton(
                                       type: representative,
@@ -716,10 +584,7 @@ class _ScrollArrowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final buttonBackground = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.16 : 0.12),
-      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
-    );
+    final buttonBackground = palette.surface;
     final buttonForeground =
         ThemeData.estimateBrightnessForColor(buttonBackground) ==
                 Brightness.dark
@@ -736,6 +601,7 @@ class _ScrollArrowButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: buttonBackground,
             borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: palette.divider),
           ),
           child: Icon(
             icon,
