@@ -45,6 +45,10 @@ void main() {
       ),
     );
 
+    expect(find.text('Folders'), findsWidgets);
+    expect(find.text('Folder set'), findsOneWidget);
+    expect(find.text('Current folder'), findsOneWidget);
+
     await tester.tap(find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)).first);
     await tester.pumpAndSettle();
 

@@ -98,29 +98,14 @@ class LibrarySidebarHeader extends StatelessWidget {
         children: [
           Row(
             children: [
+              Icon(Icons.folder_open_outlined, size: 18, color: accent),
+              const SizedBox(width: 8),
               Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: constraints.maxWidth),
-                        child: LibraryGroupModeMenuButton(
-                          type: type,
-                          groupMode: groupMode,
-                          accent: accent,
-                          icon: icon,
-                          onChanged: onChanged,
-                          sidebarVisible: true,
-                          onSidebarVisibilityChanged:
-                              onSidebarVisibilityChanged,
-                          pinnedGroupModes: pinnedGroupModes,
-                          onPinnedModesChanged: onPinnedModesChanged,
-                        ),
+                child: Text(
+                  'Folders',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
                       ),
-                    );
-                  },
                 ),
               ),
               if (groupLoading) ...[
@@ -185,6 +170,17 @@ class LibrarySidebarHeader extends StatelessWidget {
                 ),
             ],
           ),
+          const SizedBox(height: 8),
+          _LibrarySidebarFolderSetBar(
+            type: type,
+            groupMode: groupMode,
+            accent: accent,
+            icon: icon,
+            onChanged: onChanged,
+            onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+            pinnedGroupModes: pinnedGroupModes,
+            onPinnedModesChanged: onPinnedModesChanged,
+          ),
           if (breadcrumbs.length > 1) ...[
             const SizedBox(height: 4),
             SingleChildScrollView(
@@ -231,10 +227,11 @@ class LibrarySidebarHeader extends StatelessWidget {
           ],
           const SizedBox(height: 8),
           _LibrarySidebarScopeBanner(
-            icon: icon,
-            title: genericGroupModeSidebarTitle(groupMode, type),
+            icon: Icons.folder_open_outlined,
+            title: 'Current folder',
             scopeLabel: scopeLabel,
             accent: scopeAccent,
+            subtitle: genericGroupModeSidebarTitle(groupMode, type),
           ),
           const SizedBox(height: 6),
           LibrarySidebarFilteringPanel(
@@ -266,18 +263,86 @@ class LibrarySidebarHeader extends StatelessWidget {
   }
 }
 
+class _LibrarySidebarFolderSetBar extends StatelessWidget {
+  const _LibrarySidebarFolderSetBar({
+    required this.type,
+    required this.groupMode,
+    required this.accent,
+    required this.icon,
+    required this.onChanged,
+    required this.pinnedGroupModes,
+    this.onSidebarVisibilityChanged,
+    this.onPinnedModesChanged,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryGroupMode groupMode;
+  final Color accent;
+  final IconData icon;
+  final ValueChanged<LibraryGroupMode> onChanged;
+  final ValueChanged<bool>? onSidebarVisibilityChanged;
+  final Set<LibraryGroupMode> pinnedGroupModes;
+  final ValueChanged<Set<LibraryGroupMode>>? onPinnedModesChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          accent.withValues(alpha: 0.04),
+          palette.surface,
+        ),
+        border: Border(
+          top: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Folder set',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: palette.textMuted,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.3,
+                ),
+          ),
+          const SizedBox(height: 2),
+          LibraryGroupModeMenuButton(
+            type: type,
+            groupMode: groupMode,
+            accent: accent,
+            icon: icon,
+            onChanged: onChanged,
+            sidebarVisible: true,
+            onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+            pinnedGroupModes: pinnedGroupModes,
+            onPinnedModesChanged: onPinnedModesChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LibrarySidebarScopeBanner extends StatelessWidget {
   const _LibrarySidebarScopeBanner({
     required this.icon,
     required this.title,
     required this.scopeLabel,
     required this.accent,
+    this.subtitle,
   });
 
   final IconData icon;
   final String title;
   final String scopeLabel;
   final Color accent;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -323,6 +388,18 @@ class _LibrarySidebarScopeBanner extends StatelessWidget {
                         letterSpacing: 0.3,
                       ),
                 ),
+                if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: palette.textMuted,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
                 const SizedBox(height: 2),
                 Text(
                   scopeLabel,

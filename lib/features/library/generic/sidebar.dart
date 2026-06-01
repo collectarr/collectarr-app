@@ -79,8 +79,8 @@ class LibrarySidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LibrarySeriesSidebar(
-      title: genericGroupModeSidebarTitle(groupMode, type),
-      icon: genericGroupModeIcon(groupMode),
+      title: 'Folders',
+      icon: Icons.folder_open_outlined,
       series: buckets,
       selectedSeries: selectedBucket,
       onSelectSeries: onSelected,

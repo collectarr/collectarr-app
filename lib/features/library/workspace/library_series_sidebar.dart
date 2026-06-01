@@ -234,7 +234,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                 onChanged: (_) => onChanged(),
                 style: const TextStyle(fontSize: 11),
                 decoration: InputDecoration(
-                  hintText: 'Filter…',
+                  hintText: 'Find folders',
                   hintStyle: TextStyle(fontSize: 11, color: mutedTextColor),
                   prefixIcon: Icon(Icons.search, size: 14, color: mutedTextColor),
                   prefixIconConstraints:
@@ -344,10 +344,12 @@ class _LibrarySeriesRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Row(
                 children: [
-                  Container(
-                    width: 2,
-                    height: 16,
-                    color: selected ? selectedBadgeColor : Colors.transparent,
+                  Icon(
+                    selected
+                        ? Icons.folder_open_outlined
+                        : Icons.folder_outlined,
+                    size: 16,
+                    color: selected ? selectedBadgeColor : mutedTextColor,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
