@@ -88,17 +88,10 @@ class ComicInspectorHero extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: stacked ? 118 : 128,
+              width: stacked ? 112 : 122,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: border, width: 0.8),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x25000000),
-                      blurRadius: 5,
-                      offset: Offset(1, 1),
-                    ),
-                  ],
                 ),
                 child: LibraryInteractiveCover(
                   title: entry.resolvedTitle,
@@ -130,7 +123,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             _ComicCoverToggleRow(
               accent: request.accent,
               ink: ink,
@@ -145,7 +138,7 @@ class ComicInspectorHero extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 16,
+              height: 15,
               decoration: BoxDecoration(
                 color: headerSurface,
                 border: Border(bottom: BorderSide(color: border)),
@@ -154,7 +147,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
                       child: Text(
                         editionLabel,
                         maxLines: 1,
@@ -162,15 +155,15 @@ class ComicInspectorHero extends ConsumerWidget {
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: ink,
                               fontWeight: FontWeight.w800,
-                          letterSpacing: 0.04,
+                              letterSpacing: 0.02,
                               height: 1,
-                              fontSize: 9.25,
+                              fontSize: 9,
                             ),
                       ),
                     ),
                   ),
                   Container(
-                    width: 18,
+                    width: 16,
                     decoration: BoxDecoration(
                       border: Border(left: BorderSide(color: border)),
                     ),
@@ -189,7 +182,7 @@ class ComicInspectorHero extends ConsumerWidget {
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: border)),
               ),
-              padding: const EdgeInsets.fromLTRB(2.5, 1, 2.5, 1),
+              padding: const EdgeInsets.fromLTRB(2, 0.5, 2, 0.5),
               child: Column(
                 children: [
                   _ComicDetailLine(label: 'Release', value: releaseLabel),
@@ -202,8 +195,8 @@ class ComicInspectorHero extends ConsumerWidget {
             ),
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(2, 2, 2, 0),
-              padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
+              margin: const EdgeInsets.fromLTRB(1, 1, 1, 0),
+              padding: const EdgeInsets.fromLTRB(0, 0.5, 0, 0),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -212,7 +205,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 1),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0.5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -221,22 +214,22 @@ class ComicInspectorHero extends ConsumerWidget {
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: muted,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 0.3,
+                            letterSpacing: 0.24,
                             height: 1,
-                            fontSize: 7.75,
+                            fontSize: 7.5,
                           ),
                     ),
-                    const SizedBox(height: 1),
+                    const SizedBox(height: 0.5),
                     Text(
                       synopsis?.isNotEmpty == true
                           ? synopsis!
                           : 'No plot available.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: ink,
-                            height: 1.1,
+                            height: 1.06,
                             fontWeight: FontWeight.w400,
                             letterSpacing: 0,
-                            fontSize: 8.5,
+                            fontSize: 8.25,
                           ),
                       textAlign: TextAlign.start,
                     ),
@@ -259,7 +252,7 @@ class ComicInspectorHero extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     cover,
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1.5),
                     infoColumn,
                   ],
                 )
@@ -267,7 +260,7 @@ class ComicInspectorHero extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     cover,
-                    const SizedBox(width: 3),
+                    const SizedBox(width: 1.5),
                     Expanded(child: infoColumn),
                   ],
                 ),
@@ -405,19 +398,19 @@ class _ComicDetailLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 34,
+            width: 31,
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.3,
+                    letterSpacing: 0.22,
                     height: 1,
-                    fontSize: 7.75,
+                    fontSize: 7.5,
                   ),
             ),
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 2),
           Expanded(
             child: Text(
               value,
@@ -425,7 +418,7 @@ class _ComicDetailLine extends StatelessWidget {
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
                     height: 1.02,
-                    fontSize: 8.5,
+                    fontSize: 8.25,
                   ),
             ),
           ),
@@ -453,29 +446,29 @@ class _ComicCoverToggleRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.circle, size: 6, color: accent),
-        const SizedBox(width: 3),
+        Icon(Icons.circle, size: 5, color: accent),
+        const SizedBox(width: 2),
         Text(
           'Front',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: ink,
                 fontWeight: FontWeight.w700,
-          fontSize: 8,
+                fontSize: 7.5,
               ),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 4),
         Icon(
           Icons.circle,
-          size: 6,
+          size: 5,
           color: hasBackCover ? muted : muted.withValues(alpha: 0.35),
         ),
-        const SizedBox(width: 3),
+        const SizedBox(width: 2),
         Text(
           'Back',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: hasBackCover ? muted : muted.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w700,
-                fontSize: 8,
+                fontSize: 7.5,
               ),
         ),
       ],
