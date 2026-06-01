@@ -21,7 +21,9 @@ const comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
   clampColumnWidth: clampComicTableColumnWidth,
-  defaultDetailsLayout: LibraryDetailsLayout.bottom,
+  defaultDetailsWidth: 350,
+  defaultDetailsLayout: LibraryDetailsLayout.right,
+  hideDetailsWhenSelectionEmpty: true,
   sortAscendingForColumn: comicInitialSortAscending,
 );
 
@@ -110,19 +112,19 @@ LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: LibraryDetailsLayout.right,
         coverSize: kComicsDefaultCoverSize,
         visibleColumns: defaultComicTableColumns(),
       ),
     LibraryWorkspacePreset.card => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.card,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: LibraryDetailsLayout.right,
         coverSize: 150,
         visibleColumns: defaultComicTableColumns(),
       ),
     LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.list,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: LibraryDetailsLayout.right,
         coverSize: kComicsDefaultCoverSize,
         visibleColumns: {
           LibraryTableColumn.status,
@@ -139,7 +141,7 @@ LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
       ),
     LibraryWorkspacePreset.details => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: LibraryDetailsLayout.right,
         coverSize: 144,
         visibleColumns: defaultComicTableColumns(),
       ),

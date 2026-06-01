@@ -30,36 +30,41 @@ class ComicInspectorPanel extends StatelessWidget {
         children: [
           _ComicInspectorToolbar(request: request),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 16),
-              children: [
-                request.hero,
-                if (request.primarySections.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  _ComicSectionDivider(accent: accent),
-                  const SizedBox(height: 10),
-                ],
-                for (final section in request.primarySections) ...[
-                  section,
-                  const SizedBox(height: 10),
-                ],
-                if (request.ownedCopiesSection != null) ...[
-                  request.ownedCopiesSection!,
-                  const SizedBox(height: 10),
-                ],
-                if (request.bundleSection != null) ...[
-                  request.bundleSection!,
-                  const SizedBox(height: 10),
-                ],
-                if (request.conditionGradeSection != null) ...[
-                  request.conditionGradeSection!,
-                  const SizedBox(height: 10),
-                ],
-                for (final section in request.trailingSections) ...[
-                  section,
-                  const SizedBox(height: 10),
-                ],
-              ],
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    request.hero,
+                    if (request.primarySections.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _ComicSectionDivider(accent: accent),
+                      const SizedBox(height: 8),
+                    ],
+                    for (final section in request.primarySections) ...[
+                      section,
+                      const SizedBox(height: 10),
+                    ],
+                    if (request.ownedCopiesSection != null) ...[
+                      request.ownedCopiesSection!,
+                      const SizedBox(height: 10),
+                    ],
+                    if (request.bundleSection != null) ...[
+                      request.bundleSection!,
+                      const SizedBox(height: 10),
+                    ],
+                    if (request.conditionGradeSection != null) ...[
+                      request.conditionGradeSection!,
+                      const SizedBox(height: 10),
+                    ],
+                    for (final section in request.trailingSections) ...[
+                      section,
+                      const SizedBox(height: 10),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
         ],

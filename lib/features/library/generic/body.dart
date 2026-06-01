@@ -18,6 +18,21 @@ import 'package:collectarr_app/features/library/workspace/library_resizable_pane
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
+LibraryDetailsLayout resolveEffectiveLibraryDetailsLayout({
+  required LibraryDetailsLayout preferredLayout,
+  required bool compact,
+  required bool hasSelection,
+  required bool hideWhenSelectionEmpty,
+}) {
+  if (hideWhenSelectionEmpty && !hasSelection) {
+    return LibraryDetailsLayout.hidden;
+  }
+  if (compact && preferredLayout == LibraryDetailsLayout.right) {
+    return LibraryDetailsLayout.bottom;
+  }
+  return preferredLayout;
+}
+
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -160,10 +175,12 @@ class LibraryBody extends StatelessWidget {
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
         final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
         final showSidebar = canShowSidebar && viewState.isSidebarVisible;
-        final detailsLayout =
-            compact && viewState.detailsLayout == LibraryDetailsLayout.right
-                ? LibraryDetailsLayout.bottom
-                : viewState.detailsLayout;
+        final detailsLayout = resolveEffectiveLibraryDetailsLayout(
+          preferredLayout: viewState.detailsLayout,
+          compact: compact,
+          hasSelection: selected != null,
+          hideWhenSelectionEmpty: adapter.viewProfile.hideDetailsWhenSelectionEmpty,
+        );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
           minWidth: kLibraryDetailsMinWidth,
