@@ -180,6 +180,28 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     ownedCopies: ownedCopies,
                   ),
                   const SizedBox(height: 16),
+                  if (activeOwnedItem != null || activeTrackingEntry != null) ...[
+                    LibraryDetailPersonalSection(
+                      entry: widget.entry,
+                      ownedItem: activeOwnedItem,
+                      trackingEntry: activeTrackingEntry,
+                      accent: widget.accent,
+                    ),
+                    if (activeOwnedItem != null)
+                      InspectorPersonalDetailsEditor(
+                        ownedItem: activeOwnedItem,
+                        accent: widget.accent,
+                      ),
+                    if (activeTrackingEntry != null)
+                      InspectorTrackingDetailsEditor(
+                        itemId: widget.entry.id,
+                        trackingEntry: activeTrackingEntry,
+                        profile: widget.type.trackingProfile,
+                        editions: widget.entry.editions,
+                        accent: widget.accent,
+                      ),
+                    const SizedBox(height: 16),
+                  ],
                   if (activeBundleReleaseId != null) ...[
                     BundleReleaseContentsSection(
                       bundleReleaseId: activeBundleReleaseId,
@@ -233,25 +255,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     entry: widget.entry,
                     accent: widget.accent,
                   ),
-                  LibraryDetailPersonalSection(
-                    entry: widget.entry,
-                    ownedItem: activeOwnedItem,
-                    trackingEntry: activeTrackingEntry,
-                    accent: widget.accent,
-                  ),
-                  if (activeOwnedItem != null)
-                    InspectorPersonalDetailsEditor(
-                      ownedItem: activeOwnedItem,
-                      accent: widget.accent,
-                    ),
-                  if (activeTrackingEntry != null)
-                    InspectorTrackingDetailsEditor(
-                      itemId: widget.entry.id,
-                      trackingEntry: activeTrackingEntry,
-                      profile: widget.type.trackingProfile,
-                      editions: widget.entry.editions,
-                      accent: widget.accent,
-                    ),
                   WatchHistorySection(
                     itemId: widget.entry.id,
                     accent: widget.accent,

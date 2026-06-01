@@ -208,10 +208,16 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -1600));
-    await pumpUntilSettled(tester);
-
     final saveButton = find.widgetWithText(FilledButton, 'Apply tracking changes');
+    await tester.scrollUntilVisible(
+      saveButton,
+      300,
+      scrollable: find.byWidgetPredicate(
+        (widget) =>
+            widget is Scrollable && widget.axisDirection == AxisDirection.down,
+      ),
+    );
+    await pumpUntilSettled(tester);
 
     expect(find.byType(InspectorTrackingDetailsEditor), findsOneWidget);
     expect(saveButton, findsOneWidget);

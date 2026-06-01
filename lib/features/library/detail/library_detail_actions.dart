@@ -153,6 +153,7 @@ class LibraryDetailStatsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final totalCopies = ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
         ? (ownedItem?.quantity ?? 0)
@@ -160,39 +161,75 @@ class LibraryDetailStatsBar extends StatelessWidget {
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
         : ownedCopies.indexWhere((item) => item.id == ownedItem!.id);
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    final facts = <({String label, String value})>[
+      (label: 'Status', value: genericLibraryStatusLabel(entry)),
+      (label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+      (label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
+      (label: 'Quantity', value: totalQuantity.toString()),
+      if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
+      if (selectedCopyIndex != null && selectedCopyIndex >= 0)
+        (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
+      (
+        label: 'Updated',
+        value: formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
+      ),
+    ];
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(
+          top: BorderSide(color: palette.divider.withValues(alpha: 0.72)),
+          bottom: BorderSide(color: palette.divider.withValues(alpha: 0.72)),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Wrap(
+          spacing: 14,
+          runSpacing: 6,
+          children: [
+            for (final fact in facts)
+              _LibraryDetailSummaryFact(
+                label: fact.label,
+                value: fact.value,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryDetailSummaryFact extends StatelessWidget {
+  const _LibraryDetailSummaryFact({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        LibraryStatPill(
-          label: 'Status',
-          value: genericLibraryStatusLabel(entry),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: palette.textMuted,
+                fontWeight: FontWeight.w700,
+              ),
         ),
-        LibraryStatPill(
-          label: 'Cover',
-          value: entry.hasMissingCover ? 'Missing' : 'Ready',
-        ),
-        LibraryStatPill(
-          label: 'Metadata',
-          value: entry.hasMissingMetadata ? 'Missing' : 'Ready',
-        ),
-        LibraryStatPill(
-          label: 'Quantity',
-          value: totalQuantity.toString(),
-        ),
-        if (totalCopies > 1)
-          LibraryStatPill(
-            label: 'Copies',
-            value: totalCopies.toString(),
-          ),
-        if (selectedCopyIndex != null && selectedCopyIndex >= 0)
-          LibraryStatPill(
-            label: 'Selected',
-            value: 'Copy ${selectedCopyIndex + 1}',
-          ),
-        LibraryStatPill(
-          label: 'Updated',
-          value: formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: palette.textPrimary,
+                fontWeight: FontWeight.w800,
+              ),
         ),
       ],
     );
