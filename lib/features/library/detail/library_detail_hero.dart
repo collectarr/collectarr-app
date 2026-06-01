@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -31,6 +30,7 @@ class LibraryDetailHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? (ownedItem != null || entry.isOwned);
     final referenceLabel =
@@ -40,22 +40,13 @@ class LibraryDetailHero extends StatelessWidget {
         formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: accent.withValues(alpha: 0.6)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            kAppField,
-            Color.alphaBlend(
-              accent.withValues(alpha: 0.18),
-              kAppSurfaceSubtle,
-            ),
-            kAppField,
-          ],
+        color: palette.surface,
+        border: Border.all(
+          color: accent.withValues(alpha: palette.isDark ? 0.22 : 0.16),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 680;
@@ -128,13 +119,13 @@ class LibraryDetailHero extends StatelessWidget {
                 Text(
                   entry.resolvedTitle,
                   textAlign: wide ? TextAlign.start : TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: accent,
                         fontWeight: FontWeight.w900,
                         height: 1,
                       ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   [
                     type.singularLabel,
@@ -149,7 +140,7 @@ class LibraryDetailHero extends StatelessWidget {
                   ].whereType<String>().join(' | '),
                   textAlign: wide ? TextAlign.start : TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Colors.white,
+                        color: palette.textMuted,
                         fontWeight: FontWeight.w800,
                       ),
                 ),
@@ -173,11 +164,12 @@ class LibraryDetailHero extends StatelessWidget {
                       label: resolvedIsOwned ? 'Owned' : 'Not owned',
                       accent: accent,
                     ),
-                    _DetailHeaderChip(
-                      icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-                      label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
-                      accent: accent,
-                    ),
+                    if (entry.isWishlisted)
+                      _DetailHeaderChip(
+                        icon: Icons.star,
+                        label: 'Wishlisted',
+                        accent: accent,
+                      ),
                     if (referenceLabel != null)
                       _DetailHeaderChip(
                         icon: Icons.link_outlined,
@@ -190,24 +182,18 @@ class LibraryDetailHero extends StatelessWidget {
                         label: 'Format: ${entry.referenceFormatLabel!}',
                         accent: accent,
                       ),
-                    _DetailHeaderChip(
-                      icon: entry.hasMissingCover
-                          ? Icons.image_not_supported_outlined
-                          : Icons.image_outlined,
-                      label: entry.hasMissingCover
-                          ? 'Missing cover'
-                          : 'Cover ready',
-                      accent: accent,
-                    ),
-                    _DetailHeaderChip(
-                      icon: entry.hasMissingMetadata
-                          ? Icons.manage_search
-                          : Icons.fact_check_outlined,
-                      label: entry.hasMissingMetadata
-                          ? 'Missing metadata'
-                          : 'Metadata ready',
-                      accent: accent,
-                    ),
+                    if (entry.hasMissingCover)
+                      _DetailHeaderChip(
+                        icon: Icons.image_not_supported_outlined,
+                        label: 'Missing cover',
+                        accent: accent,
+                      ),
+                    if (entry.hasMissingMetadata)
+                      _DetailHeaderChip(
+                        icon: Icons.manage_search,
+                        label: 'Missing metadata',
+                        accent: accent,
+                      ),
                     if (ownedItem?.condition != null)
                       _DetailHeaderChip(
                         icon: Icons.fact_check_outlined,
@@ -302,8 +288,8 @@ class LibraryDetailHero extends StatelessWidget {
                     maxLines: wide ? 5 : 4,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: appPalette(context).textMuted,
-                          fontWeight: FontWeight.w700,
+                          color: palette.textPrimary,
+                          height: 1.35,
                         ),
                   ),
                 ],
@@ -371,12 +357,32 @@ class _DetailHeaderChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryMetaChip(
-      icon: icon,
-      label: label,
-      accent: accent,
-      borderRadius: BorderRadius.circular(3),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surfaceSubtle,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: accent.withValues(alpha: palette.isDark ? 0.22 : 0.14),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: accent),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
