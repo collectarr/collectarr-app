@@ -115,11 +115,11 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accentDivider = accentColor.withValues(alpha: 0.34);
+    final accentDivider = accentColor.withValues(alpha: 0.3);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Color.alphaBlend(
-          accentColor.withValues(alpha: 0.035),
+          accentColor.withValues(alpha: 0.028),
           palette.panel,
         ),
         border: Border(
@@ -130,15 +130,15 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            height: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
                   Color.alphaBlend(
-                    accentColor.withValues(alpha: 0.16),
+                    accentColor.withValues(alpha: 0.12),
                     palette.surface,
                   ),
                   palette.surface,
@@ -150,13 +150,14 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 14, color: accentColor),
-                const SizedBox(width: 6),
+                Icon(Icons.info_outline, size: 13, color: accentColor),
+                const SizedBox(width: 5),
                 Text(
                   'Details',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accentColor,
                         fontWeight: FontWeight.w800,
+                        fontSize: 11,
                       ),
                 ),
               ],

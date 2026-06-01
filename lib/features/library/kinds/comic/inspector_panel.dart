@@ -93,7 +93,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+        padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return _ComicToolbarGroup(
@@ -205,11 +205,11 @@ class _ComicInspectorToolbar extends StatelessWidget {
                 if (request.extraActions.isNotEmpty) ...[
                   const _ComicToolbarSeparator(),
                   for (final action in request.extraActions)
-                    Transform.scale(scale: 0.88, child: action),
+                    Transform.scale(scale: 0.84, child: action),
                 ],
                 Transform.scale(
                   alignment: Alignment.centerLeft,
-                  scale: 0.8,
+                  scale: 0.78,
                   child: _ComicToolbarMenuButton(
                     buttonKey: const ValueKey('comic-toolbar-layout-menu'),
                     label: 'Layout',
@@ -253,7 +253,7 @@ class _ComicToolbarGroup extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0.5),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -382,7 +382,7 @@ class _ComicToolbarBadgeButton extends StatelessWidget {
       icon: icon,
       tone: LibraryDenseButtonTone.subtle,
       onPressed: null,
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     );
   }
 }
