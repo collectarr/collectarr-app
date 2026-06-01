@@ -267,6 +267,7 @@ class LibraryToolbar extends StatelessWidget {
                       quickView: quickView,
                       activeSortFavoriteId: activeSortFavoriteId,
                       sortFavorites: sortFavorites,
+                      onSortFavoriteSelected: onSortFavoriteSelected,
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
