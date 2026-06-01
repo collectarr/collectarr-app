@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
+import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -81,6 +82,16 @@ class ComicInspectorHero extends ConsumerWidget {
             : 'Not owned';
     final synopsis = entry.synopsis?.trim();
     final hasBackCover = localBack != null || ownedItemId != null;
+    final slabLabel = librarySlabMarkerLabel(
+      ownedItem?.rawOrSlabbed,
+      ownedItem?.gradingCompany,
+    );
+    final slabGrade = ownedItem?.grade?.trim();
+    final showSlabOverlay =
+        ownedItem?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
+        slabLabel != null &&
+        slabGrade != null &&
+        slabGrade.isNotEmpty;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -94,33 +105,47 @@ class ComicInspectorHero extends ConsumerWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: border, width: 0.8),
                 ),
-                child: LibraryInteractiveCover(
-                  title: entry.resolvedTitle,
-                  itemNumber: entry.itemNumber,
-                  imageUrl: entry.displayCoverUrl,
-                  localBytes: localFront,
-                  secondaryLocalBytes: localBack,
-                  ownedItemId: ownedItemId,
-                  accentColor: request.accent,
-                  enableHoverCue: true,
-                  onMissingSecondaryPressed: ownedItemId == null || db == null
-                      ? null
-                      : () async {
-                          final savedType = await pickAndStoreOwnedItemImage(
-                            context: context,
-                            db: db,
-                            ownedItemId: ownedItemId,
-                            imageType: 'back_cover',
-                          );
-                          if (savedType == 'back_cover') {
-                            ref.invalidate(
-                              localItemImageProvider((
+                child: Stack(
+                  children: [
+                    LibraryInteractiveCover(
+                      title: entry.resolvedTitle,
+                      itemNumber: entry.itemNumber,
+                      imageUrl: entry.displayCoverUrl,
+                      localBytes: localFront,
+                      secondaryLocalBytes: localBack,
+                      ownedItemId: ownedItemId,
+                      accentColor: request.accent,
+                      enableHoverCue: true,
+                      onMissingSecondaryPressed: ownedItemId == null || db == null
+                          ? null
+                          : () async {
+                              final savedType = await pickAndStoreOwnedItemImage(
+                                context: context,
+                                db: db,
                                 ownedItemId: ownedItemId,
                                 imageType: 'back_cover',
-                              )),
-                            );
-                          }
-                        },
+                              );
+                              if (savedType == 'back_cover') {
+                                ref.invalidate(
+                                  localItemImageProvider((
+                                    ownedItemId: ownedItemId,
+                                    imageType: 'back_cover',
+                                  )),
+                                );
+                              }
+                            },
+                    ),
+                    if (showSlabOverlay)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: _ComicSlabCoverOverlay(
+                          label: slabLabel,
+                          grade: slabGrade,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -304,6 +329,71 @@ class _ComicHeroBlock extends StatelessWidget {
             child,
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ComicSlabCoverOverlay extends StatelessWidget {
+  const _ComicSlabCoverOverlay({
+    required this.label,
+    required this.grade,
+  });
+
+  final String label;
+  final String grade;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      key: const ValueKey('comic-inspector-slab-overlay'),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1565C0).withValues(alpha: 0.96),
+        border: Border(
+          bottom: BorderSide(
+            color: palette.surface.withValues(alpha: 0.6),
+            width: 0.6,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8.2,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.16,
+                height: 1,
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              child: Text(
+                grade,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 8.4,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -178,6 +178,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     LibraryDetailPersonalSection(
                       entry: widget.entry,
                       ownedItem: activeOwnedItem,
+                      ownedCopies: ownedCopies,
                       trackingEntry: activeTrackingEntry,
                       accent: widget.accent,
                     ),

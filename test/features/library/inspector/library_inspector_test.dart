@@ -118,6 +118,7 @@ void main() {
     expect(find.textContaining('IDW'), findsWidgets);
     expect(find.text('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsNothing);
   });
 
   testWidgets('comic inspector hero lays out in a narrow scrollable inspector', (
@@ -256,6 +257,7 @@ void main() {
 
     expect(find.byType(ComicInspectorPanel), findsOneWidget);
     expect(find.byType(ComicInspectorHero), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsOneWidget);
     expect(find.text('Quick actions'), findsNothing);
     expect(find.text('Edit'), findsWidgets);
     expect(find.text('Collect'), findsNothing);

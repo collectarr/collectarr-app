@@ -44,6 +44,15 @@ class LibraryDetailHero extends StatelessWidget {
     final totalQuantity = ownedCopies.isEmpty
         ? (ownedItem?.quantity ?? 0)
         : ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
+    final totalPaidCents = _sumOwnedValueCents(
+      ownedCopies,
+      (item) => item.pricePaidCents,
+    );
+    final totalMarketValueCents = _sumOwnedValueCents(
+      ownedCopies,
+      (item) => item.marketValueCents,
+    );
+    final totalsCurrency = _detailHeroValueCurrency(ownedCopies, ownedItem, entry);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
         : ownedCopies.indexWhere((item) => item.id == ownedItem!.id);
@@ -51,6 +60,16 @@ class LibraryDetailHero extends StatelessWidget {
       (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
       (label: 'Quantity', value: totalQuantity.toString()),
       if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
+      if (totalCopies > 1 && totalPaidCents != null)
+        (
+          label: 'Total paid',
+          value: formatMoney(totalPaidCents, totalsCurrency),
+        ),
+      if (totalCopies > 1 && totalMarketValueCents != null)
+        (
+          label: 'Total value',
+          value: formatMoney(totalMarketValueCents, totalsCurrency),
+        ),
       if (selectedCopyIndex != null && selectedCopyIndex >= 0)
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
@@ -312,6 +331,45 @@ class LibraryDetailHero extends StatelessWidget {
       ),
     );
   }
+}
+
+int? _sumOwnedValueCents(
+  List<OwnedItem> items,
+  int? Function(OwnedItem item) selector,
+) {
+  var hasValue = false;
+  var total = 0;
+  for (final item in items) {
+    final value = selector(item);
+    if (value == null) {
+      continue;
+    }
+    hasValue = true;
+    total += value;
+  }
+  return hasValue ? total : null;
+}
+
+String? _detailHeroValueCurrency(
+  List<OwnedItem> ownedCopies,
+  OwnedItem? ownedItem,
+  LibraryWorkspaceEntry entry,
+) {
+  for (final copy in ownedCopies) {
+    final currency = copy.currency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      return currency;
+    }
+  }
+  final ownedCurrency = ownedItem?.currency?.trim();
+  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
+    return ownedCurrency;
+  }
+  final entryCurrency = entry.currency?.trim();
+  if (entryCurrency != null && entryCurrency.isNotEmpty) {
+    return entryCurrency;
+  }
+  return null;
 }
 
 String? _detailPlatformLabel(List<String>? platforms) {
