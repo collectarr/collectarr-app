@@ -116,8 +116,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('IDW'), findsWidgets);
-    expect(find.text('Director Cut'), findsOneWidget);
+    expect(find.textContaining('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
+    expect(find.text('Plot Summary'), findsOneWidget);
     expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsNothing);
   });
 
@@ -180,7 +181,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Director Cut'), findsOneWidget);
+    expect(find.textContaining('Director Cut'), findsOneWidget);
   });
 
   testWidgets('library inspector uses the comic-specific full panel hook', (
@@ -261,8 +262,8 @@ void main() {
     expect(find.text('Quick actions'), findsNothing);
     expect(find.text('Edit'), findsWidgets);
     expect(find.text('Collect'), findsNothing);
-    expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Share'), findsNothing);
+    expect(find.text('Remove'), findsNothing);
+    expect(find.text('Share'), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsWidgets);
@@ -287,9 +288,11 @@ void main() {
       find.byKey(const ValueKey('comic-toolbar-more-menu')),
     );
     final moreLabels = moreMenu.entries.map((entry) => entry.label).toList();
+    expect(moreLabels, contains('Remove from collection'));
     expect(moreLabels, contains('Add copy'));
     expect(moreLabels, contains('Wishlist'));
     expect(moreLabels, contains('Open details'));
+    expect(moreLabels, contains('Find on eBay'));
     expect(moreLabels, contains('Correct metadata'));
     expect(moreLabels, isNot(contains('Update value')));
     expect(moreLabels, isNot(contains('Update Key Info')));
@@ -305,6 +308,7 @@ void main() {
 
     expect(find.text('Details'), findsOneWidget);
     expect(find.text('Collector'), findsOneWidget);
+    expect(find.text('Plot Summary'), findsOneWidget);
     expect(find.text('Value'), findsOneWidget);
     expect(find.text('Discovery'), findsNothing);
     expect(find.text('Personal details'), findsNothing);
@@ -373,19 +377,19 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    final copyMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
-      find.byKey(const ValueKey('comic-toolbar-copy-menu')),
+    final moreMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
+      find.byKey(const ValueKey('comic-toolbar-more-menu')),
     );
-    final copyLabels = copyMenu.entries.map((entry) => entry.label).toList();
-    expect(copyLabels.where((label) => label.startsWith('Viewing ')), hasLength(1));
-    expect(copyLabels.any((label) => label.contains('Near Mint')), isTrue);
-    expect(copyLabels.any((label) => label.contains('Very Fine')), isTrue);
+    final moreLabels = moreMenu.entries.map((entry) => entry.label).toList();
+    expect(moreLabels.where((label) => label.startsWith('Viewing ')), hasLength(1));
+    expect(moreLabels.any((label) => label.contains('Near Mint')), isTrue);
+    expect(moreLabels.any((label) => label.contains('Very Fine')), isTrue);
 
-    final alternateCopyEntry = copyMenu.entries.firstWhere(
-      (entry) => !entry.label.startsWith('Viewing '),
+    final alternateCopyEntry = moreMenu.entries.firstWhere(
+      (entry) => entry.label.contains('Very Fine'),
     );
-    final dynamic dynamicCopyMenu = copyMenu;
-    dynamicCopyMenu.onSelected(alternateCopyEntry.value);
+    final dynamic dynamicMoreMenu = moreMenu;
+    dynamicMoreMenu.onSelected(alternateCopyEntry.value);
     await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Edit').first);
