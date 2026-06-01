@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -45,11 +46,11 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   bool _loadingPresets = true;
   String? _editingPresetId;
   String _query = '';
-  final Map<_SortFieldGroup, bool> _expandedGroups = {
-    _SortFieldGroup.main: true,
-    _SortFieldGroup.value: false,
-    _SortFieldGroup.edition: false,
-    _SortFieldGroup.personal: true,
+  final Map<LibrarySortFieldGroup, bool> _expandedGroups = {
+    LibrarySortFieldGroup.main: true,
+    LibrarySortFieldGroup.value: false,
+    LibrarySortFieldGroup.edition: false,
+    LibrarySortFieldGroup.personal: true,
   };
 
   @override
@@ -134,7 +135,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                             title: _presetNameController.text.trim().isEmpty
                                                 ? 'Current draft'
                                                 : _presetNameController.text.trim(),
-                                            summary: _sortRuleSummary(_rules),
+                                            summary: _sortRuleSummary(widget.type, _rules),
                                             accent: accent,
                                             selected: true,
                                             onTap: () {},
@@ -146,7 +147,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                           child: _SortPresetTile(
                                             key: ValueKey('sort-preset-${preset.id ?? preset.label}'),
                                             title: preset.label,
-                                            summary: _sortRuleSummary(preset.rules),
+                                            summary: _sortRuleSummary(widget.type, preset.rules),
                                             accent: accent,
                                             icon: preset.icon,
                                             selected: matchingPreset != null &&
@@ -251,7 +252,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                               child: ListView(
                                                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                                                 children: [
-                                                  for (final group in _SortFieldGroup.values)
+                                                  for (final group in LibrarySortFieldGroup.values)
                                                     if (_groupColumns(group, availableColumns).isNotEmpty)
                                                       _SortFieldGroupPanel(
                                                         title: _groupLabel(group),
@@ -265,7 +266,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                           for (final column in _groupColumns(group, availableColumns))
                                                             _AvailableSortFieldTile(
                                                               key: ValueKey('available-sort-${column.name}'),
-                                                              label: _sortColumnLabel(column),
+                                                              label: _sortColumnLabel(widget.type, column),
                                                               directionLabel: _defaultAscending(column)
                                                                   ? 'ASC'
                                                                   : 'DESC',
@@ -326,7 +327,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                               dragHandleKey: ValueKey(
                                                 'selected-sort-${rule.column.name}-handle',
                                               ),
-                                              title: _sortColumnLabel(rule.column),
+                                              title: _sortColumnLabel(widget.type, rule.column),
                                               ascending: rule.ascending,
                                               canMoveUp: index > 0,
                                               canMoveDown: index < _rules.length - 1,
@@ -481,23 +482,25 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
       if (query.isEmpty) {
         return true;
       }
-      return _sortColumnLabel(column).toLowerCase().contains(query);
+        return _sortColumnLabel(widget.type, column)
+          .toLowerCase()
+          .contains(query);
     }).toList(growable: false);
   }
 
   List<LibrarySortColumn> _groupColumns(
-    _SortFieldGroup group,
+    LibrarySortFieldGroup group,
     List<LibrarySortColumn> columns,
   ) {
     return [
       for (final column in columns)
-        if (_sortFieldGroup(column) == group) column,
+        if (_sortFieldGroup(widget.type, column) == group) column,
     ];
   }
 
   bool _defaultAscending(LibrarySortColumn column) {
     return widget.defaultAscendingForColumn?.call(column) ??
-        _defaultSortAscending(column);
+      _defaultSortAscending(widget.type, column);
   }
 
   void _toggleColumn(LibrarySortColumn column) {
@@ -588,8 +591,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     Navigator.of(context).pop(_dedupeRules(_rules));
   }
 }
-
-enum _SortFieldGroup { main, value, edition, personal }
 
 class _DialogHeader extends StatelessWidget {
   const _DialogHeader({required this.accent});
@@ -1074,43 +1075,33 @@ bool _sameSortRules(List<LibrarySortRule> first, List<LibrarySortRule> second) {
   return true;
 }
 
-String _sortRuleSummary(List<LibrarySortRule> rules) {
+String _sortRuleSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
   return rules
-      .map((rule) => '${_sortColumnLabel(rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}')
+      .map(
+        (rule) =>
+            '${_sortColumnLabel(type, rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
+      )
       .join('  |  ');
 }
 
-_SortFieldGroup _sortFieldGroup(LibrarySortColumn column) {
-  return switch (column) {
-    LibrarySortColumn.grade ||
-    LibrarySortColumn.condition ||
-    LibrarySortColumn.price => _SortFieldGroup.value,
-    LibrarySortColumn.barcode ||
-    LibrarySortColumn.pageCount ||
-    LibrarySortColumn.rawOrSlabbed ||
-    LibrarySortColumn.gradingCompany => _SortFieldGroup.edition,
-    LibrarySortColumn.location ||
-    LibrarySortColumn.collectionStatus ||
-    LibrarySortColumn.wishlist ||
-    LibrarySortColumn.updated => _SortFieldGroup.personal,
-    _ => _SortFieldGroup.main,
-  };
+LibrarySortFieldGroup _sortFieldGroup(
+  LibraryTypeConfig type,
+  LibrarySortColumn column,
+) {
+  return type.presentation.sortColumnDefinitionFor(column).group;
 }
 
-String _groupLabel(_SortFieldGroup group) {
+String _groupLabel(LibrarySortFieldGroup group) {
   return switch (group) {
-    _SortFieldGroup.main => 'Main',
-    _SortFieldGroup.value => 'Value',
-    _SortFieldGroup.edition => 'Edition',
-    _SortFieldGroup.personal => 'Personal',
+    LibrarySortFieldGroup.main => 'Main',
+    LibrarySortFieldGroup.value => 'Value',
+    LibrarySortFieldGroup.edition => 'Edition',
+    LibrarySortFieldGroup.personal => 'Personal',
   };
 }
 
-bool _defaultSortAscending(LibrarySortColumn column) {
-  return switch (column) {
-    LibrarySortColumn.releaseDate || LibrarySortColumn.updated => false,
-    _ => true,
-  };
+bool _defaultSortAscending(LibraryTypeConfig type, LibrarySortColumn column) {
+  return type.presentation.sortColumnDefinitionFor(column).defaultAscending;
 }
 
 List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
@@ -1124,31 +1115,6 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   return deduped;
 }
 
-String _sortColumnLabel(LibrarySortColumn column) {
-  return switch (column) {
-    LibrarySortColumn.status => 'Status',
-    LibrarySortColumn.title => 'Title',
-    LibrarySortColumn.series => 'Series',
-    LibrarySortColumn.issue => 'Issue / number',
-    LibrarySortColumn.storyArc => 'Story arc',
-    LibrarySortColumn.variant => 'Variant',
-    LibrarySortColumn.publisher => 'Publisher',
-    LibrarySortColumn.releaseDate => 'Release date',
-    LibrarySortColumn.barcode => 'Barcode',
-    LibrarySortColumn.grade => 'Grade',
-    LibrarySortColumn.rawOrSlabbed => 'Raw / slabbed',
-    LibrarySortColumn.gradingCompany => 'Grading company',
-    LibrarySortColumn.condition => 'Condition',
-    LibrarySortColumn.price => 'Purchase price',
-    LibrarySortColumn.location => 'Storage box',
-    LibrarySortColumn.collectionStatus => 'Collection status',
-    LibrarySortColumn.wishlist => 'Wishlist',
-    LibrarySortColumn.keyComic => 'Key comic',
-    LibrarySortColumn.updated => 'Updated',
-    LibrarySortColumn.country => 'Country',
-    LibrarySortColumn.language => 'Language',
-    LibrarySortColumn.pageCount => 'Page count',
-    LibrarySortColumn.ageRating => 'Age rating',
-    LibrarySortColumn.imprint => 'Imprint',
-  };
+String _sortColumnLabel(LibraryTypeConfig type, LibrarySortColumn column) {
+  return type.presentation.sortColumnDefinitionFor(column).label;
 }

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -10,6 +11,7 @@ const libraryManageSortFavoritesMenuValue = 'manage_sort_favorites';
 
 Future<Set<String>?> showSortFavoritesManagerDialog({
   required BuildContext context,
+  required LibraryTypeConfig type,
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
   String? activeSortFavoriteId,
@@ -17,6 +19,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => _SortFavoritesManagerDialog(
+      type: type,
       favorites: favorites,
       initialPinnedIds: initialPinnedIds,
       activeSortFavoriteId: activeSortFavoriteId,
@@ -323,11 +326,13 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
 
 class _SortFavoritesManagerDialog extends StatefulWidget {
   const _SortFavoritesManagerDialog({
+    required this.type,
     required this.favorites,
     required this.initialPinnedIds,
     this.activeSortFavoriteId,
   });
 
+  final LibraryTypeConfig type;
   final List<LibrarySortFavorite> favorites;
   final Set<String> initialPinnedIds;
   final String? activeSortFavoriteId;
@@ -468,6 +473,7 @@ class _SortFavoritesManagerDialogState
                                             key: ValueKey(
                                               'sortFavorite_${favorite.id}',
                                             ),
+                                            type: widget.type,
                                             favorite: favorite,
                                             active: favorite.id ==
                                                 widget.activeSortFavoriteId,
@@ -507,6 +513,7 @@ class _SortFavoritesManagerDialogState
                                             key: ValueKey(
                                               'availableSortFavorite_${favorite.id}',
                                             ),
+                                            type: widget.type,
                                             favorite: favorite,
                                             active: favorite.id ==
                                                 widget.activeSortFavoriteId,
@@ -687,12 +694,14 @@ class _SortFavoritesEmptyState extends StatelessWidget {
 class _PinnedSortFavoriteTile extends StatelessWidget {
   const _PinnedSortFavoriteTile({
     super.key,
+    required this.type,
     required this.favorite,
     required this.active,
     required this.index,
     required this.onRemove,
   });
 
+  final LibraryTypeConfig type;
   final LibrarySortFavorite favorite;
   final bool active;
   final int index;
@@ -747,7 +756,7 @@ class _PinnedSortFavoriteTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _sortFavoriteSummary(favorite.rules),
+                    _sortFavoriteSummary(type, favorite.rules),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: libraryToolbarMenuMutedText(context),
                     ),
@@ -781,11 +790,13 @@ class _PinnedSortFavoriteTile extends StatelessWidget {
 class _AvailableSortFavoriteTile extends StatelessWidget {
   const _AvailableSortFavoriteTile({
     super.key,
+    required this.type,
     required this.favorite,
     required this.active,
     required this.onAdd,
   });
 
+  final LibraryTypeConfig type;
   final LibrarySortFavorite favorite;
   final bool active;
   final VoidCallback onAdd;
@@ -827,7 +838,7 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _sortFavoriteSummary(favorite.rules),
+                    _sortFavoriteSummary(type, favorite.rules),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: libraryToolbarMenuMutedText(context),
                     ),
@@ -848,42 +859,13 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
   }
 }
 
-String _sortFavoriteSummary(List<LibrarySortRule> rules) {
+String _sortFavoriteSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
-            '${_sortFavoriteColumnLabel(rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
+            '${type.presentation.sortColumnDefinitionFor(rule.column).label} ${rule.ascending ? 'ASC' : 'DESC'}',
       )
       .join('  |  ');
-}
-
-String _sortFavoriteColumnLabel(LibrarySortColumn column) {
-  return switch (column) {
-    LibrarySortColumn.status => 'Status',
-    LibrarySortColumn.title => 'Title',
-    LibrarySortColumn.series => 'Series',
-    LibrarySortColumn.issue => 'Issue',
-    LibrarySortColumn.storyArc => 'Story Arc',
-    LibrarySortColumn.variant => 'Variant',
-    LibrarySortColumn.publisher => 'Publisher',
-    LibrarySortColumn.releaseDate => 'Release Date',
-    LibrarySortColumn.barcode => 'Barcode',
-    LibrarySortColumn.grade => 'Grade',
-    LibrarySortColumn.rawOrSlabbed => 'Raw / Slabbed',
-    LibrarySortColumn.gradingCompany => 'Grading Company',
-    LibrarySortColumn.condition => 'Condition',
-    LibrarySortColumn.price => 'Purchase Price',
-    LibrarySortColumn.location => 'Storage Box',
-    LibrarySortColumn.collectionStatus => 'Collection Status',
-    LibrarySortColumn.wishlist => 'Wishlist',
-    LibrarySortColumn.keyComic => 'Key Comic',
-    LibrarySortColumn.updated => 'Updated',
-    LibrarySortColumn.country => 'Country',
-    LibrarySortColumn.language => 'Language',
-    LibrarySortColumn.pageCount => 'Page Count',
-    LibrarySortColumn.ageRating => 'Age Rating',
-    LibrarySortColumn.imprint => 'Imprint',
-  };
 }
 
 List<LibrarySortFavorite> _orderedPinnedSortFavorites(

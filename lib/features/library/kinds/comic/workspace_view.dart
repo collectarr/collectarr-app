@@ -40,6 +40,8 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   columnGroupLabel: comicTableColumnGroupLabel,
   columnIsNumeric: comicTableColumnIsNumeric,
   columnSort: comicTableColumnSort,
+  tableCellBuilder: plannedMediaTableCell,
+  compareEntriesByColumn: plannedMediaCompareEntriesByColumn,
 );
 
 const comicsTableColumnPresets = [

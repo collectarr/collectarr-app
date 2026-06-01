@@ -659,7 +659,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onLetterSelected: _setSelectedLetter,
       db: ref.read(localDatabaseProvider),
       pinnedGroupModes: _pinnedGroupModes,
-      onManageBuckets: libraryGroupModeSupportsBucketManagement(_activeGroupMode)
+      onManageBuckets: libraryGroupModeSupportsBucketManagement(
+          widget.type,
+          _activeGroupMode,
+        )
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
       onPinnedGroupModesChanged: _setPinnedGroupModes,
@@ -735,7 +738,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
     final mode = _activeGroupMode;
-    if (!libraryGroupModeSupportsBucketManagement(mode)) {
+    if (!libraryGroupModeSupportsBucketManagement(widget.type, mode)) {
       return;
     }
     final entries = [
@@ -825,6 +828,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     return LibraryProjection.fromShelf(
       shelf: shelf,
       type: widget.type,
+      adapter: _adapter,
       viewState: viewState,
       query: _searchController.text,
       linkedMetadataFilter: _linkedMetadataFilter,

@@ -4,24 +4,31 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Ownership filter options used in the generic filter dialog.
 enum LibraryOwnershipFilter { all, owned, wishlist, missingGrade, forSale, onOrder }
 
-String libraryOwnershipFilterLabel(LibraryOwnershipFilter filter) {
+String libraryOwnershipFilterLabel(
+  LibraryOwnershipFilter filter, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (filter) {
-    LibraryOwnershipFilter.all => 'All items',
-    LibraryOwnershipFilter.owned => 'Owned only',
-    LibraryOwnershipFilter.wishlist => 'Wishlist only',
-    LibraryOwnershipFilter.missingGrade => 'Missing grade',
-    LibraryOwnershipFilter.forSale => 'For sale',
-    LibraryOwnershipFilter.onOrder => 'On order',
+    LibraryOwnershipFilter.all => labels.ownershipAll,
+    LibraryOwnershipFilter.owned => labels.ownershipOwned,
+    LibraryOwnershipFilter.wishlist => labels.ownershipWishlist,
+    LibraryOwnershipFilter.missingGrade => labels.ownershipMissingGrade,
+    LibraryOwnershipFilter.forSale => labels.ownershipForSale,
+    LibraryOwnershipFilter.onOrder => labels.ownershipOnOrder,
   };
 }
 
@@ -36,10 +43,15 @@ enum LibraryTrackingStatusFilter {
   repeating,
 }
 
-String libraryTrackingStatusFilterLabel(LibraryTrackingStatusFilter filter) {
+String libraryTrackingStatusFilterLabel(
+  LibraryTrackingStatusFilter filter, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (filter) {
-    LibraryTrackingStatusFilter.all => 'Any tracking status',
-    LibraryTrackingStatusFilter.notTracked => 'Not tracked',
+    LibraryTrackingStatusFilter.all => labels.trackingAny,
+    LibraryTrackingStatusFilter.notTracked => labels.trackingNotTracked,
     LibraryTrackingStatusFilter.planned => MediaTrackingStatus.planned.label,
     LibraryTrackingStatusFilter.inProgress =>
       MediaTrackingStatus.inProgress.label,
@@ -77,23 +89,42 @@ bool libraryTrackingStatusMatchesFilter(
 
 enum LibraryLoanStatusFilter { all, onLoan, available }
 
-String libraryLoanStatusFilterLabel(LibraryLoanStatusFilter filter) {
+String libraryLoanStatusFilterLabel(
+  LibraryLoanStatusFilter filter, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (filter) {
-    LibraryLoanStatusFilter.all => 'Any loan status',
-    LibraryLoanStatusFilter.onLoan => 'Currently on loan',
-    LibraryLoanStatusFilter.available => 'Available locally',
+    LibraryLoanStatusFilter.all => labels.loanAny,
+    LibraryLoanStatusFilter.onLoan => labels.loanOnLoan,
+    LibraryLoanStatusFilter.available => labels.loanAvailable,
   };
 }
 
 enum LibraryDateRangeField { updated, purchased, started, finished }
 
-String libraryDateRangeFieldLabel(LibraryDateRangeField field) {
+String libraryDateRangeFieldLabel(
+  LibraryDateRangeField field, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (field) {
-    LibraryDateRangeField.updated => 'Updated',
-    LibraryDateRangeField.purchased => 'Purchased',
-    LibraryDateRangeField.started => 'Started',
-    LibraryDateRangeField.finished => 'Finished',
+    LibraryDateRangeField.updated => labels.dateUpdated,
+    LibraryDateRangeField.purchased => labels.datePurchased,
+    LibraryDateRangeField.started => labels.dateStarted,
+    LibraryDateRangeField.finished => labels.dateFinished,
   };
+}
+
+LibraryFilterOptionLabels _libraryFilterOptionLabels({
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  return type?.presentation.filterOptionLabels ??
+      collectarrLibraryTypes.byKind(mediaType)?.presentation.filterOptionLabels ??
+      const LibraryFilterOptionLabels();
 }
 
 class LibraryCustomFieldFilterOption {
@@ -565,7 +596,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
           for (final f in ownershipValues)
             DropdownMenuItem(
               value: f,
-              child: Text(libraryOwnershipFilterLabel(f)),
+              child: Text(libraryOwnershipFilterLabel(f, type: widget.type)),
             ),
         ],
         onChanged: (v) {
@@ -582,7 +613,9 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
           for (final filter in LibraryTrackingStatusFilter.values)
             DropdownMenuItem(
               value: filter,
-              child: Text(libraryTrackingStatusFilterLabel(filter)),
+              child: Text(
+                libraryTrackingStatusFilterLabel(filter, type: widget.type),
+              ),
             ),
         ],
         onChanged: (value) {
@@ -601,7 +634,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
           for (final filter in LibraryLoanStatusFilter.values)
             DropdownMenuItem(
               value: filter,
-              child: Text(libraryLoanStatusFilterLabel(filter)),
+              child: Text(libraryLoanStatusFilterLabel(filter, type: widget.type)),
             ),
         ],
         onChanged: (value) {
@@ -620,7 +653,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
           for (final field in LibraryDateRangeField.values)
             DropdownMenuItem(
               value: field,
-              child: Text(libraryDateRangeFieldLabel(field)),
+              child: Text(libraryDateRangeFieldLabel(field, type: widget.type)),
             ),
         ],
         onChanged: (value) {

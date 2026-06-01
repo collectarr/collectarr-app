@@ -28,6 +28,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
   builder: musicLibraryMediaBuilder,
   previewLabels: releasesPreviewLabels,
   statsLabels: musicStatsLabels,
+  referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
   groupModes: [
     LibraryGroupMode.series,

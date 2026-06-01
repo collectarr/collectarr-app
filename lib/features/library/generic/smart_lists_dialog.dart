@@ -564,11 +564,11 @@ class _SmartListDetailsPane extends StatelessWidget {
     final filter = list.filterSelection;
     return [
       if (filter.ownershipFilter != LibraryOwnershipFilter.all)
-        'Ownership: ${libraryOwnershipFilterLabel(filter.ownershipFilter)}',
+        'Ownership: ${libraryOwnershipFilterLabel(filter.ownershipFilter, mediaType: list.mediaKind)}',
       if (filter.trackingStatusFilter != LibraryTrackingStatusFilter.all)
-        'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter)}',
+        'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter, mediaType: list.mediaKind)}',
       if (filter.loanStatusFilter != LibraryLoanStatusFilter.all)
-        'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter)}',
+        'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter, mediaType: list.mediaKind)}',
       if (filter.hasActiveDateRange)
         'Date: ${_dateRangeLabel(filter)}',
       if (filter.customFieldDefinitionId != null)
@@ -597,7 +597,10 @@ class _SmartListDetailsPane extends StatelessWidget {
   }
 
   String _dateRangeLabel(LibraryFilterSelection filter) {
-    final field = libraryDateRangeFieldLabel(filter.dateRangeField);
+    final field = libraryDateRangeFieldLabel(
+      filter.dateRangeField,
+      mediaType: list.mediaKind,
+    );
     final from = filter.dateFrom == null
         ? null
         : _formatDateChip(filter.dateFrom!);

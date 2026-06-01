@@ -87,6 +87,125 @@ class LibraryMediaStatsLabels {
   final String topPublisher;
 }
 
+enum LibrarySortFieldGroup { main, value, edition, personal }
+
+class LibraryGroupModeDefinition {
+  const LibraryGroupModeDefinition({
+    required this.mode,
+    required this.label,
+    required this.sidebarTitle,
+    required this.icon,
+    this.supportsBucketManagement = false,
+    this.bucketManagerListLabel,
+  });
+
+  final LibraryGroupMode mode;
+  final String label;
+  final String sidebarTitle;
+  final IconData icon;
+  final bool supportsBucketManagement;
+  final String? bucketManagerListLabel;
+
+  String get resolvedBucketManagerListLabel =>
+      bucketManagerListLabel ?? '$label list';
+}
+
+class LibrarySortColumnDefinition {
+  const LibrarySortColumnDefinition({
+    required this.column,
+    required this.label,
+    this.group = LibrarySortFieldGroup.main,
+    this.defaultAscending = true,
+  });
+
+  final LibrarySortColumn column;
+  final String label;
+  final LibrarySortFieldGroup group;
+  final bool defaultAscending;
+}
+
+class LibraryFilterOptionLabels {
+  const LibraryFilterOptionLabels({
+    this.ownershipAll = 'All items',
+    this.ownershipOwned = 'Owned only',
+    this.ownershipWishlist = 'Wishlist only',
+    this.ownershipMissingGrade = 'Missing grade',
+    this.ownershipForSale = 'For sale',
+    this.ownershipOnOrder = 'On order',
+    this.trackingAny = 'Any tracking status',
+    this.trackingNotTracked = 'Not tracked',
+    this.loanAny = 'Any loan status',
+    this.loanOnLoan = 'Currently on loan',
+    this.loanAvailable = 'Available locally',
+    this.dateUpdated = 'Updated',
+    this.datePurchased = 'Purchased',
+    this.dateStarted = 'Started',
+    this.dateFinished = 'Finished',
+  });
+
+  final String ownershipAll;
+  final String ownershipOwned;
+  final String ownershipWishlist;
+  final String ownershipMissingGrade;
+  final String ownershipForSale;
+  final String ownershipOnOrder;
+  final String trackingAny;
+  final String trackingNotTracked;
+  final String loanAny;
+  final String loanOnLoan;
+  final String loanAvailable;
+  final String dateUpdated;
+  final String datePurchased;
+  final String dateStarted;
+  final String dateFinished;
+}
+
+class LibraryReferenceLabels {
+  const LibraryReferenceLabels({
+    this.itemScope = 'Media',
+    this.editionScope = 'Edition',
+    this.variantScope = 'Physical release',
+    this.bundleScope = 'Bundle',
+    this.bundleHierarchy = 'Bundle release',
+    this.editionHierarchy = 'Edition',
+    this.variantHierarchy = 'Physical',
+  });
+
+  final String itemScope;
+  final String editionScope;
+  final String variantScope;
+  final String bundleScope;
+  final String bundleHierarchy;
+  final String editionHierarchy;
+  final String variantHierarchy;
+
+  String get ownedAsItem => 'Owned as ${itemScope.toLowerCase()}';
+  String get ownedAsEdition => 'Owned as ${editionScope.toLowerCase()}';
+  String get ownedAsVariant => 'Owned as ${variantScope.toLowerCase()}';
+  String get ownedAsBundle => 'Owned as ${bundleScope.toLowerCase()}';
+  String get wishlistedAsItem => 'Wishlisted as ${itemScope.toLowerCase()}';
+  String get wishlistedAsEdition =>
+      'Wishlisted as ${editionScope.toLowerCase()}';
+  String get wishlistedAsVariant =>
+      'Wishlisted as ${variantScope.toLowerCase()}';
+  String get wishlistedAsBundle =>
+      'Wishlisted as ${bundleScope.toLowerCase()}';
+}
+
+class LibraryStatusLabels {
+  const LibraryStatusLabels({
+    this.owned = 'Owned',
+    this.tracked = 'Tracked',
+    this.wishlist = 'Wishlist',
+    this.localCatalog = 'Local catalog',
+  });
+
+  final String owned;
+  final String tracked;
+  final String wishlist;
+  final String localCatalog;
+}
+
 class LibraryAddSearchResultDisplay {
   const LibraryAddSearchResultDisplay({
     required this.title,
@@ -436,6 +555,11 @@ class LibraryMediaPresentation {
     this.emptyStateProviderSummarySuffix = '',
     this.sortFavorites = defaultLibrarySortFavorites,
     this.columnFavorites = defaultLibraryColumnFavorites,
+    this.filterOptionLabels = const LibraryFilterOptionLabels(),
+    this.referenceLabels = const LibraryReferenceLabels(),
+    this.statusLabels = const LibraryStatusLabels(),
+    this.groupModeDefinitions = const [],
+    this.sortColumnDefinitions = const [],
     this.groupModes = const [
       LibraryGroupMode.series,
       LibraryGroupMode.title,
@@ -460,5 +584,578 @@ class LibraryMediaPresentation {
   final String emptyStateProviderSummarySuffix;
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
+  final LibraryFilterOptionLabels filterOptionLabels;
+  final LibraryReferenceLabels referenceLabels;
+  final LibraryStatusLabels statusLabels;
+  final List<LibraryGroupModeDefinition> groupModeDefinitions;
+  final List<LibrarySortColumnDefinition> sortColumnDefinitions;
   final List<LibraryGroupMode> groupModes;
+
+  LibraryGroupModeDefinition groupModeDefinitionFor(LibraryGroupMode mode) {
+    for (final definition in groupModeDefinitions) {
+      if (definition.mode == mode) {
+        return definition;
+      }
+    }
+    return _defaultLibraryGroupModeDefinition(mode, groupLabels);
+  }
+
+  LibrarySortColumnDefinition sortColumnDefinitionFor(
+    LibrarySortColumn column,
+  ) {
+    for (final definition in sortColumnDefinitions) {
+      if (definition.column == column) {
+        return definition;
+      }
+    }
+    return _defaultLibrarySortColumnDefinition(column, groupLabels);
+  }
+}
+
+LibraryGroupModeDefinition _defaultLibraryGroupModeDefinition(
+  LibraryGroupMode mode,
+  LibraryMediaGroupLabels labels,
+) {
+  return switch (mode) {
+    LibraryGroupMode.series => LibraryGroupModeDefinition(
+        mode: mode,
+        label: labels.series,
+        sidebarTitle: labels.seriesPlural,
+        icon: Icons.collections_bookmark_outlined,
+      ),
+    LibraryGroupMode.storyArc => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.storyArc,
+        label: 'Story Arc',
+        sidebarTitle: 'Story Arcs',
+        icon: Icons.auto_stories_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.character => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.character,
+        label: 'Character',
+        sidebarTitle: 'Characters',
+        icon: Icons.groups_2_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.title => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.title,
+        label: 'Title',
+        sidebarTitle: 'Titles',
+        icon: Icons.sort_by_alpha,
+      ),
+    LibraryGroupMode.publisher => LibraryGroupModeDefinition(
+        mode: mode,
+        label: labels.publisherMode,
+        sidebarTitle: labels.publisherPlural,
+        icon: Icons.business_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.year => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.year,
+        label: 'Year',
+        sidebarTitle: 'Years',
+        icon: Icons.calendar_today_outlined,
+      ),
+    LibraryGroupMode.audienceRating => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.audienceRating,
+        label: 'Audience Rating',
+        sidebarTitle: 'Audience Ratings',
+        icon: Icons.star_half_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.color => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.color,
+        label: 'Color',
+        sidebarTitle: 'Colors',
+        icon: Icons.palette_outlined,
+      ),
+    LibraryGroupMode.genre => LibraryGroupModeDefinition(
+        mode: mode,
+        label: labels.genre,
+        sidebarTitle: labels.genrePlural,
+        icon: Icons.theater_comedy_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.country => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.country,
+        label: 'Country',
+        sidebarTitle: 'Countries',
+        icon: Icons.flag_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.language => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.language,
+        label: 'Language',
+        sidebarTitle: 'Languages',
+        icon: Icons.translate_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.ageRating => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.ageRating,
+        label: 'Age Rating',
+        sidebarTitle: 'Age Ratings',
+        icon: Icons.shield_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.movieOrTvSeries => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.movieOrTvSeries,
+        label: 'Movie / TV Series',
+        sidebarTitle: 'Movie / TV Series',
+        icon: Icons.movie_outlined,
+      ),
+    LibraryGroupMode.releaseDate => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.releaseDate,
+        label: 'Release Date',
+        sidebarTitle: 'Release Dates',
+        icon: Icons.event_outlined,
+      ),
+    LibraryGroupMode.releaseMonth => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.releaseMonth,
+        label: 'Release Month',
+        sidebarTitle: 'Release Months',
+        icon: Icons.event_outlined,
+      ),
+    LibraryGroupMode.releaseYear => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.releaseYear,
+        label: 'Release Year',
+        sidebarTitle: 'Release Years',
+        icon: Icons.event_outlined,
+      ),
+    LibraryGroupMode.audioTracks => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.audioTracks,
+        label: 'Audio Tracks',
+        sidebarTitle: 'Audio Tracks',
+        icon: Icons.audiotrack_outlined,
+      ),
+    LibraryGroupMode.boxSet => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.boxSet,
+        label: 'Box Set',
+        sidebarTitle: 'Box Sets',
+        icon: Icons.inventory_2_outlined,
+      ),
+    LibraryGroupMode.distributor => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.distributor,
+        label: 'Distributor',
+        sidebarTitle: 'Distributors',
+        icon: Icons.local_shipping_outlined,
+      ),
+    LibraryGroupMode.editionReleaseDate => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.editionReleaseDate,
+        label: 'Edition Release Date',
+        sidebarTitle: 'Edition Release Dates',
+        icon: Icons.event_outlined,
+      ),
+    LibraryGroupMode.editionReleaseMonth => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.editionReleaseMonth,
+        label: 'Edition Release Month',
+        sidebarTitle: 'Edition Release Months',
+        icon: Icons.event_outlined,
+      ),
+    LibraryGroupMode.editionReleaseYear => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.editionReleaseYear,
+        label: 'Edition Release Year',
+        sidebarTitle: 'Edition Release Years',
+        icon: Icons.event_outlined,
+      ),
+    LibraryGroupMode.extras => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.extras,
+        label: 'Extras',
+        sidebarTitle: 'Extras',
+        icon: Icons.featured_play_list_outlined,
+      ),
+    LibraryGroupMode.format => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.format,
+        label: 'Format',
+        sidebarTitle: 'Formats',
+        icon: Icons.album_outlined,
+      ),
+    LibraryGroupMode.hdr => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.hdr,
+        label: 'HDR',
+        sidebarTitle: 'HDR',
+        icon: Icons.hdr_strong_outlined,
+      ),
+    LibraryGroupMode.layers => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.layers,
+        label: 'Layers',
+        sidebarTitle: 'Layers',
+        icon: Icons.layers_outlined,
+      ),
+    LibraryGroupMode.packaging => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.packaging,
+        label: 'Packaging',
+        sidebarTitle: 'Packaging',
+        icon: Icons.inbox_outlined,
+      ),
+    LibraryGroupMode.regions => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.regions,
+        label: 'Regions',
+        sidebarTitle: 'Regions',
+        icon: Icons.public_outlined,
+      ),
+    LibraryGroupMode.screenRatios => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.screenRatios,
+        label: 'Screen Ratios',
+        sidebarTitle: 'Screen Ratios',
+        icon: Icons.aspect_ratio_outlined,
+      ),
+    LibraryGroupMode.subtitles => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.subtitles,
+        label: 'Subtitles',
+        sidebarTitle: 'Subtitles',
+        icon: Icons.subtitles_outlined,
+      ),
+    LibraryGroupMode.actor => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.actor,
+        label: 'Actor',
+        sidebarTitle: 'Actors',
+        icon: Icons.theater_comedy_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.director => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.director,
+        label: 'Director',
+        sidebarTitle: 'Directors',
+        icon: Icons.movie_creation_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.musician => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.musician,
+        label: 'Musician',
+        sidebarTitle: 'Musicians',
+        icon: Icons.music_note_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.photography => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.photography,
+        label: 'Photography',
+        sidebarTitle: 'Photography',
+        icon: Icons.camera_alt_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.producer => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.producer,
+        label: 'Producer',
+        sidebarTitle: 'Producers',
+        icon: Icons.groups_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.creator => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.creator,
+        label: 'Creator',
+        sidebarTitle: 'Creators',
+        icon: Icons.draw_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.writer => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.writer,
+        label: 'Writer',
+        sidebarTitle: 'Writers',
+        icon: Icons.edit_note_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.artist => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.artist,
+        label: 'Artist',
+        sidebarTitle: 'Artists',
+        icon: Icons.brush_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.penciller => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.penciller,
+        label: 'Penciller',
+        sidebarTitle: 'Pencillers',
+        icon: Icons.edit_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.colorist => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.colorist,
+        label: 'Colorist',
+        sidebarTitle: 'Colorists',
+        icon: Icons.format_color_fill_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.letterer => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.letterer,
+        label: 'Letterer',
+        sidebarTitle: 'Letterers',
+        icon: Icons.text_fields_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.coverArtist => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.coverArtist,
+        label: 'Cover Artist',
+        sidebarTitle: 'Cover Artists',
+        icon: Icons.image_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.editor => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.editor,
+        label: 'Editor',
+        sidebarTitle: 'Editors',
+        icon: Icons.fact_check_outlined,
+        supportsBucketManagement: true,
+      ),
+    LibraryGroupMode.location => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.location,
+        label: 'Location',
+        sidebarTitle: 'Locations',
+        icon: Icons.place_outlined,
+      ),
+    LibraryGroupMode.ownership => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.ownership,
+        label: 'Ownership',
+        sidebarTitle: 'Ownership',
+        icon: Icons.inventory_2_outlined,
+      ),
+    LibraryGroupMode.addedDate => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.addedDate,
+        label: 'Added Date',
+        sidebarTitle: 'Added Dates',
+        icon: Icons.add_task_outlined,
+      ),
+    LibraryGroupMode.addedMonth => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.addedMonth,
+        label: 'Added Month',
+        sidebarTitle: 'Added Months',
+        icon: Icons.add_task_outlined,
+      ),
+    LibraryGroupMode.addedYear => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.addedYear,
+        label: 'Added Year',
+        sidebarTitle: 'Added Years',
+        icon: Icons.add_task_outlined,
+      ),
+    LibraryGroupMode.collectionStatus => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.collectionStatus,
+        label: 'Collection Status',
+        sidebarTitle: 'Collection Status',
+        icon: Icons.stacked_bar_chart_outlined,
+      ),
+    LibraryGroupMode.grade => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.grade,
+        label: 'Grade',
+        sidebarTitle: 'Grades',
+        icon: Icons.verified_outlined,
+      ),
+    LibraryGroupMode.condition => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.condition,
+        label: 'Condition',
+        sidebarTitle: 'Conditions',
+        icon: Icons.rule_outlined,
+      ),
+    LibraryGroupMode.imageType => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.imageType,
+        label: 'Image Type',
+        sidebarTitle: 'Image Types',
+        icon: Icons.image_search_outlined,
+      ),
+    LibraryGroupMode.modifiedDate => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.modifiedDate,
+        label: 'Modified Date',
+        sidebarTitle: 'Modified Dates',
+        icon: Icons.update_outlined,
+      ),
+    LibraryGroupMode.modifiedMonth => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.modifiedMonth,
+        label: 'Modified Month',
+        sidebarTitle: 'Modified Months',
+        icon: Icons.update_outlined,
+      ),
+    LibraryGroupMode.myRating => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.myRating,
+        label: 'My Rating',
+        sidebarTitle: 'My Ratings',
+        icon: Icons.star_outline,
+      ),
+    LibraryGroupMode.owner => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.owner,
+        label: 'Owner',
+        sidebarTitle: 'Owners',
+        icon: Icons.person_outline,
+      ),
+    LibraryGroupMode.purchaseDate => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.purchaseDate,
+        label: 'Purchase Date',
+        sidebarTitle: 'Purchase Dates',
+        icon: Icons.shopping_bag_outlined,
+      ),
+    LibraryGroupMode.purchaseMonth => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.purchaseMonth,
+        label: 'Purchase Month',
+        sidebarTitle: 'Purchase Months',
+        icon: Icons.shopping_bag_outlined,
+      ),
+    LibraryGroupMode.purchaseYear => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.purchaseYear,
+        label: 'Purchase Year',
+        sidebarTitle: 'Purchase Years',
+        icon: Icons.shopping_bag_outlined,
+      ),
+    LibraryGroupMode.purchaseStore => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.purchaseStore,
+        label: 'Purchase Store',
+        sidebarTitle: 'Purchase Stores',
+        icon: Icons.storefront_outlined,
+      ),
+    LibraryGroupMode.storageDevice => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.storageDevice,
+        label: 'Storage Device',
+        sidebarTitle: 'Storage Devices',
+        icon: Icons.sd_storage_outlined,
+      ),
+    LibraryGroupMode.tags => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.tags,
+        label: 'Tags',
+        sidebarTitle: 'Tags',
+        icon: Icons.sell_outlined,
+      ),
+    LibraryGroupMode.watchDate => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.watchDate,
+        label: 'Watch Date',
+        sidebarTitle: 'Watch Dates',
+        icon: Icons.play_circle_outline,
+      ),
+    LibraryGroupMode.watchMonth => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.watchMonth,
+        label: 'Watch Month',
+        sidebarTitle: 'Watch Months',
+        icon: Icons.play_circle_outline,
+      ),
+    LibraryGroupMode.watchYear => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.watchYear,
+        label: 'Watch Year',
+        sidebarTitle: 'Watch Years',
+        icon: Icons.play_circle_outline,
+      ),
+    LibraryGroupMode.watched => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.watched,
+        label: 'Watched',
+        sidebarTitle: 'Watched',
+        icon: Icons.visibility_outlined,
+      ),
+    LibraryGroupMode.watchedWhere => const LibraryGroupModeDefinition(
+        mode: LibraryGroupMode.watchedWhere,
+        label: 'Watched Where',
+        sidebarTitle: 'Watched Where',
+        icon: Icons.tv_outlined,
+      ),
+  };
+}
+
+LibrarySortColumnDefinition _defaultLibrarySortColumnDefinition(
+  LibrarySortColumn column,
+  LibraryMediaGroupLabels labels,
+) {
+  return switch (column) {
+    LibrarySortColumn.status => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.status,
+        label: 'Status',
+      ),
+    LibrarySortColumn.title => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.title,
+        label: 'Title',
+      ),
+    LibrarySortColumn.series => LibrarySortColumnDefinition(
+        column: column,
+        label: labels.series,
+      ),
+    LibrarySortColumn.issue => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.issue,
+        label: 'Issue / number',
+      ),
+    LibrarySortColumn.storyArc => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.storyArc,
+        label: 'Story arc',
+      ),
+    LibrarySortColumn.variant => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.variant,
+        label: 'Variant',
+      ),
+    LibrarySortColumn.publisher => LibrarySortColumnDefinition(
+        column: column,
+        label: labels.publisher,
+      ),
+    LibrarySortColumn.releaseDate => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.releaseDate,
+        label: 'Release date',
+        defaultAscending: false,
+      ),
+    LibrarySortColumn.barcode => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.barcode,
+        label: 'Barcode',
+        group: LibrarySortFieldGroup.edition,
+      ),
+    LibrarySortColumn.grade => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.grade,
+        label: 'Grade',
+        group: LibrarySortFieldGroup.value,
+      ),
+    LibrarySortColumn.rawOrSlabbed => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.rawOrSlabbed,
+        label: 'Raw / slabbed',
+        group: LibrarySortFieldGroup.edition,
+      ),
+    LibrarySortColumn.gradingCompany => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.gradingCompany,
+        label: 'Grading company',
+        group: LibrarySortFieldGroup.edition,
+      ),
+    LibrarySortColumn.condition => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.condition,
+        label: 'Condition',
+        group: LibrarySortFieldGroup.value,
+      ),
+    LibrarySortColumn.price => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.price,
+        label: 'Purchase price',
+        group: LibrarySortFieldGroup.value,
+      ),
+    LibrarySortColumn.location => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.location,
+        label: 'Storage box',
+        group: LibrarySortFieldGroup.personal,
+      ),
+    LibrarySortColumn.collectionStatus => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.collectionStatus,
+        label: 'Collection status',
+        group: LibrarySortFieldGroup.personal,
+      ),
+    LibrarySortColumn.wishlist => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.wishlist,
+        label: 'Wishlist',
+        group: LibrarySortFieldGroup.personal,
+      ),
+    LibrarySortColumn.keyComic => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.keyComic,
+        label: 'Key comic',
+      ),
+    LibrarySortColumn.updated => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.updated,
+        label: 'Updated',
+        group: LibrarySortFieldGroup.personal,
+        defaultAscending: false,
+      ),
+    LibrarySortColumn.country => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.country,
+        label: 'Country',
+      ),
+    LibrarySortColumn.language => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.language,
+        label: 'Language',
+      ),
+    LibrarySortColumn.pageCount => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.pageCount,
+        label: 'Page count',
+        group: LibrarySortFieldGroup.edition,
+      ),
+    LibrarySortColumn.ageRating => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.ageRating,
+        label: 'Age rating',
+      ),
+    LibrarySortColumn.imprint => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.imprint,
+        label: 'Imprint',
+      ),
+  };
 }

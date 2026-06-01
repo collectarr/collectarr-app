@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -66,15 +67,13 @@ bool libraryShowsReadingQueue(Object? mediaType) {
 }
 
 String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
+  final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
     ownedItem?.personalAnchor,
-    itemLabel: 'Owned as ${_referenceScopeLabelForAnchor(
-      PersonalItemAnchorType.item,
-      mediaType: mediaType,
-    )!.toLowerCase()}',
-    editionLabel: 'Owned as edition',
-    variantLabel: 'Owned as physical release',
-    bundleLabel: 'Owned as bundle',
+    itemLabel: labels.ownedAsItem,
+    editionLabel: labels.ownedAsEdition,
+    variantLabel: labels.ownedAsVariant,
+    bundleLabel: labels.ownedAsBundle,
   );
 }
 
@@ -82,15 +81,13 @@ String? libraryWishlistReferenceLabel(
   WishlistItem? wishlistItem, {
   String? mediaType,
 }) {
+  final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
     wishlistItem?.personalAnchor,
-    itemLabel: 'Wishlisted as ${_referenceScopeLabelForAnchor(
-      PersonalItemAnchorType.item,
-      mediaType: mediaType,
-    )!.toLowerCase()}',
-    editionLabel: 'Wishlisted as edition',
-    variantLabel: 'Wishlisted as physical release',
-    bundleLabel: 'Wishlisted as bundle',
+    itemLabel: labels.wishlistedAsItem,
+    editionLabel: labels.wishlistedAsEdition,
+    variantLabel: labels.wishlistedAsVariant,
+    bundleLabel: labels.wishlistedAsBundle,
   );
 }
 
@@ -149,11 +146,11 @@ List<String> libraryReferenceHierarchySegments({
   String? variantId,
   String? bundleReleaseId,
 }) {
-  final itemLabel = mediaType.trim().toLowerCase() == 'music' ? 'Album' : 'Media';
-  final segments = <String>[itemLabel];
+  final labels = _libraryReferenceLabelsForMediaType(mediaType);
+  final segments = <String>[labels.itemScope];
   final normalizedBundleId = bundleReleaseId?.trim();
   if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
-    segments.add('Bundle release');
+    segments.add(labels.bundleHierarchy);
     return segments;
   }
   final resolved = _resolveLibraryReferenceRelease(
@@ -163,11 +160,11 @@ List<String> libraryReferenceHierarchySegments({
   );
   final editionTitle = resolved.edition?.title.trim();
   if (editionTitle != null && editionTitle.isNotEmpty) {
-    segments.add('Edition: $editionTitle');
+    segments.add('${labels.editionHierarchy}: $editionTitle');
   }
   final variantName = resolved.variant?.name.trim();
   if (variantName != null && variantName.isNotEmpty) {
-    segments.add('Physical: $variantName');
+    segments.add('${labels.variantHierarchy}: $variantName');
   }
   return segments;
 }
@@ -334,16 +331,19 @@ String? _referenceScopeLabelForAnchor(
   PersonalItemAnchorType? anchor, {
   String? mediaType,
 }) {
-  final itemLabel = mediaType?.trim().toLowerCase() == 'music'
-      ? 'Album'
-      : 'Media';
+  final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return switch (anchor) {
-    PersonalItemAnchorType.item => itemLabel,
-    PersonalItemAnchorType.edition => 'Edition',
-    PersonalItemAnchorType.variant => 'Physical release',
-    PersonalItemAnchorType.bundleRelease => 'Bundle',
+    PersonalItemAnchorType.item => labels.itemScope,
+    PersonalItemAnchorType.edition => labels.editionScope,
+    PersonalItemAnchorType.variant => labels.variantScope,
+    PersonalItemAnchorType.bundleRelease => labels.bundleScope,
     null => null,
   };
+}
+
+LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
+  return collectarrLibraryTypes.byKind(mediaType)?.presentation.referenceLabels ??
+      const LibraryReferenceLabels();
 }
 
 String buildOwnedCopyLabel(

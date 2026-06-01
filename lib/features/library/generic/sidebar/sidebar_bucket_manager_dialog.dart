@@ -18,39 +18,18 @@ class LibraryBucketManagerEntry {
   final int count;
 }
 
-bool libraryGroupModeSupportsBucketManagement(LibraryGroupMode mode) {
-  return switch (mode) {
-    LibraryGroupMode.genre ||
-    LibraryGroupMode.character ||
-    LibraryGroupMode.storyArc ||
-    LibraryGroupMode.creator ||
-    LibraryGroupMode.actor ||
-    LibraryGroupMode.director ||
-    LibraryGroupMode.musician ||
-    LibraryGroupMode.photography ||
-    LibraryGroupMode.producer ||
-    LibraryGroupMode.writer ||
-    LibraryGroupMode.artist ||
-    LibraryGroupMode.penciller ||
-    LibraryGroupMode.colorist ||
-    LibraryGroupMode.letterer ||
-    LibraryGroupMode.coverArtist ||
-    LibraryGroupMode.editor ||
-    LibraryGroupMode.publisher ||
-    LibraryGroupMode.country ||
-    LibraryGroupMode.language ||
-    LibraryGroupMode.ageRating ||
-    LibraryGroupMode.audienceRating =>
-      true,
-    _ => false,
-  };
+bool libraryGroupModeSupportsBucketManagement(
+  LibraryTypeConfig type,
+  LibraryGroupMode mode,
+) {
+  return type.presentation.groupModeDefinitionFor(mode).supportsBucketManagement;
 }
 
 String libraryBucketManagerListLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  return '${genericGroupModeLabel(mode, type)} list';
+  return type.presentation.groupModeDefinitionFor(mode).resolvedBucketManagerListLabel;
 }
 
 CatalogItem? renameLibraryGroupBucketValue(

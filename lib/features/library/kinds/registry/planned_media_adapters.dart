@@ -1,13 +1,19 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:flutter/material.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
 const double kPlannedMediaDefaultCoverSize = 128;
@@ -53,6 +59,8 @@ LibraryMediaAdapter plannedMediaAdapter(LibraryTypeConfig type) {
     columnGroupLabel: plannedMediaTableColumnGroupLabel,
     columnIsNumeric: plannedMediaTableColumnIsNumeric,
     columnSort: plannedMediaTableColumnSort,
+    tableCellBuilder: plannedMediaTableCell,
+    compareEntriesByColumn: plannedMediaCompareEntriesByColumn,
   );
 }
 
@@ -358,4 +366,205 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.ageRating => LibrarySortColumn.ageRating,
     LibraryTableColumn.imprint => LibrarySortColumn.imprint,
   };
+}
+
+Widget plannedMediaTableCell(
+  LibraryWorkspaceEntry entry,
+  LibraryTableColumn column,
+) {
+  return switch (column) {
+    LibraryTableColumn.status => LibraryItemStatusIcons(
+        isOwned: entry.isOwned,
+        isTracked: entry.isTracked,
+        isWishlisted: entry.isWishlisted,
+        hasMissingCover: entry.hasMissingCover,
+        hasMissingMetadata: entry.hasMissingMetadata,
+        hasKeyMarker: entry.keyComic,
+        hasSlabMarker:
+            entry.rawOrSlabbed != null || entry.gradingCompany != null,
+        hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
+      ),
+    LibraryTableColumn.cover => SizedBox(
+        width: 24,
+        height: 32,
+        child: LibraryCoverImage(
+          title: entry.resolvedTitle,
+          itemNumber: entry.itemNumber,
+          imageUrl: entry.displayCoverUrl,
+          ownedItemId: entry.ownedItemId,
+        ),
+      ),
+    LibraryTableColumn.title => Text(
+        entry.resolvedTitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+      ),
+    LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
+    LibraryTableColumn.variant => LibraryTableCellText(
+        [
+          if (entry.variant != null && entry.variant!.trim().isNotEmpty)
+            entry.variant,
+          if (entry.referenceScopeLabel != null)
+            'Scope: ${entry.referenceScopeLabel!}',
+          if (entry.referenceFormatLabel != null)
+            'Format: ${entry.referenceFormatLabel!}',
+        ].join('  ·  '),
+      ),
+    LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
+    LibraryTableColumn.releaseDate =>
+      LibraryTableCellText(formatNullableDate(entry.releaseDate)),
+    LibraryTableColumn.barcode => LibraryTableCellText(entry.barcode),
+    LibraryTableColumn.grade => LibraryTableCellText(entry.grade),
+    LibraryTableColumn.condition => LibraryTableCellText(entry.condition),
+    LibraryTableColumn.price =>
+      Text(formatMoney(entry.pricePaidCents, entry.currency)),
+    LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
+    LibraryTableColumn.wishlist =>
+      entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
+    LibraryTableColumn.updated => Text(
+        formatDate(entry.updatedAt),
+        style: const TextStyle(fontSize: 12),
+      ),
+    LibraryTableColumn.country => LibraryTableCellText(entry.country),
+    LibraryTableColumn.language => LibraryTableCellText(entry.language),
+    LibraryTableColumn.pageCount =>
+      LibraryTableCellText(entry.publishing?.pageCount?.toString()),
+    LibraryTableColumn.ageRating => LibraryTableCellText(entry.ageRating),
+    LibraryTableColumn.imprint =>
+      LibraryTableCellText(entry.publishing?.imprint),
+  };
+}
+
+int plannedMediaCompareEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) {
+  return switch (column) {
+    LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
+    LibrarySortColumn.title =>
+      _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
+    LibrarySortColumn.series =>
+      _compareNullableStrings(left.series?.seriesTitle, right.series?.seriesTitle),
+    LibrarySortColumn.issue => _compareIssueNumbers(left.itemNumber, right.itemNumber),
+    LibrarySortColumn.storyArc => _compareNullableStrings(
+        _firstStringValue(left.storyArcs),
+        _firstStringValue(right.storyArcs),
+      ),
+    LibrarySortColumn.variant =>
+      _compareNullableStrings(left.variant, right.variant),
+    LibrarySortColumn.publisher =>
+      _compareNullableStrings(left.publisher, right.publisher),
+    LibrarySortColumn.releaseDate =>
+      _compareNullableDates(left.releaseDate, right.releaseDate),
+    LibrarySortColumn.barcode =>
+      _compareNullableStrings(left.barcode, right.barcode),
+    LibrarySortColumn.grade => _compareNullableStrings(left.grade, right.grade),
+    LibrarySortColumn.rawOrSlabbed =>
+      _compareNullableStrings(left.rawOrSlabbed, right.rawOrSlabbed),
+    LibrarySortColumn.gradingCompany =>
+      _compareNullableStrings(left.gradingCompany, right.gradingCompany),
+    LibrarySortColumn.condition =>
+      _compareNullableStrings(left.condition, right.condition),
+    LibrarySortColumn.price =>
+      _compareNullableInts(left.pricePaidCents, right.pricePaidCents),
+    LibrarySortColumn.location =>
+      _compareNullableStrings(left.locationPath, right.locationPath),
+    LibrarySortColumn.collectionStatus =>
+      _compareNullableStrings(left.collectionStatus, right.collectionStatus),
+    LibrarySortColumn.wishlist => _compareBools(left.isWishlisted, right.isWishlisted),
+    LibrarySortColumn.keyComic => _compareBools(left.keyComic, right.keyComic),
+    LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
+    LibrarySortColumn.country =>
+      _compareNullableStrings(left.country, right.country),
+    LibrarySortColumn.language =>
+      _compareNullableStrings(left.language, right.language),
+    LibrarySortColumn.pageCount =>
+      _compareNullableInts(left.publishing?.pageCount, right.publishing?.pageCount),
+    LibrarySortColumn.ageRating =>
+      _compareNullableStrings(left.ageRating, right.ageRating),
+    LibrarySortColumn.imprint =>
+      _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
+  };
+}
+
+int _compareIssueNumbers(String? left, String? right) {
+  final leftNumber = _numericPrefixSortValue(left);
+  final rightNumber = _numericPrefixSortValue(right);
+  if (leftNumber != null && rightNumber != null) {
+    final numeric = leftNumber.compareTo(rightNumber);
+    if (numeric != 0) {
+      return numeric;
+    }
+  }
+  if (leftNumber != null) {
+    return -1;
+  }
+  if (rightNumber != null) {
+    return 1;
+  }
+  return _compareNullableStrings(left, right);
+}
+
+double? _numericPrefixSortValue(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return null;
+  }
+  final match = RegExp(r'^\s*(\d+(?:\.\d+)?)').firstMatch(value);
+  return match == null ? null : double.tryParse(match.group(1)!);
+}
+
+String? _firstStringValue(List<String>? values) {
+  if (values == null) {
+    return null;
+  }
+  for (final value in values) {
+    final normalized = value.trim();
+    if (normalized.isNotEmpty) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+int _compareNullableStrings(String? left, String? right) {
+  final leftValue = left?.toLowerCase() ?? '';
+  final rightValue = right?.toLowerCase() ?? '';
+  if (leftValue.isEmpty && rightValue.isNotEmpty) {
+    return 1;
+  }
+  if (leftValue.isNotEmpty && rightValue.isEmpty) {
+    return -1;
+  }
+  return leftValue.compareTo(rightValue);
+}
+
+int _compareNullableInts(int? left, int? right) {
+  if (left == null && right != null) {
+    return 1;
+  }
+  if (left != null && right == null) {
+    return -1;
+  }
+  return (left ?? 0).compareTo(right ?? 0);
+}
+
+int _compareNullableDates(DateTime? left, DateTime? right) {
+  if (left == null && right != null) {
+    return 1;
+  }
+  if (left != null && right == null) {
+    return -1;
+  }
+  return (left ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(
+    right ?? DateTime.fromMillisecondsSinceEpoch(0),
+  );
+}
+
+int _compareBools(bool left, bool right) {
+  if (left == right) {
+    return 0;
+  }
+  return left ? -1 : 1;
 }

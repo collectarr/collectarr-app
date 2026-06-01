@@ -7,12 +7,9 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_shelf_view.dart';
-import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -390,69 +387,7 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, LibraryTableColumn column) {
-    final entry = item.entry;
-    return switch (column) {
-      LibraryTableColumn.status => LibraryItemStatusIcons(
-          isOwned: entry.isOwned,
-          isTracked: entry.isTracked,
-          isWishlisted: entry.isWishlisted,
-          hasMissingCover: entry.hasMissingCover,
-          hasMissingMetadata: entry.hasMissingMetadata,
-          hasKeyMarker: entry.keyComic,
-          hasSlabMarker:
-              entry.rawOrSlabbed != null || entry.gradingCompany != null,
-            hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
-        ),
-      LibraryTableColumn.cover => SizedBox(
-          width: 24,
-          height: 32,
-          child: LibraryCoverImage(
-            title: entry.resolvedTitle,
-            itemNumber: entry.itemNumber,
-            imageUrl: entry.displayCoverUrl,
-            ownedItemId: entry.ownedItemId,
-          ),
-        ),
-      LibraryTableColumn.title => Text(
-          entry.resolvedTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-        ),
-      LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
-      LibraryTableColumn.variant => LibraryTableCellText(
-          [
-            if (entry.variant != null && entry.variant!.trim().isNotEmpty)
-              entry.variant,
-            if (entry.referenceScopeLabel != null)
-              'Scope: ${entry.referenceScopeLabel!}',
-            if (entry.referenceFormatLabel != null)
-              'Format: ${entry.referenceFormatLabel!}',
-          ].join('  ·  '),
-        ),
-      LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
-      LibraryTableColumn.releaseDate =>
-        LibraryTableCellText(formatNullableDate(entry.releaseDate)),
-      LibraryTableColumn.barcode => LibraryTableCellText(entry.barcode),
-      LibraryTableColumn.grade => LibraryTableCellText(entry.grade),
-      LibraryTableColumn.condition => LibraryTableCellText(entry.condition),
-      LibraryTableColumn.price =>
-        Text(formatMoney(entry.pricePaidCents, entry.currency)),
-      LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
-      LibraryTableColumn.wishlist =>
-        entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
-      LibraryTableColumn.updated => Text(
-          formatDate(entry.updatedAt),
-          style: const TextStyle(fontSize: 12),
-        ),
-      LibraryTableColumn.country => LibraryTableCellText(entry.country),
-      LibraryTableColumn.language => LibraryTableCellText(entry.language),
-      LibraryTableColumn.pageCount =>
-        LibraryTableCellText(entry.publishing?.pageCount?.toString()),
-      LibraryTableColumn.ageRating => LibraryTableCellText(entry.ageRating),
-      LibraryTableColumn.imprint =>
-        LibraryTableCellText(entry.publishing?.imprint),
-    };
+    return adapter.buildTableCell(item.entry, column);
   }
 }
 

@@ -95,6 +95,7 @@ extension _LibraryPageDialogs on _LibraryPageState {
   Future<void> showSortFavoritesManagerFlow() async {
     final result = await showSortFavoritesManagerDialog(
       context: context,
+      type: widget.type,
       favorites: _sortFavorites,
       initialPinnedIds: _pinnedSortFavoriteIds,
       activeSortFavoriteId: _activeSortFavorite?.id,

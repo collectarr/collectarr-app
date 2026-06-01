@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:flutter/material.dart';
 
 typedef LibraryTableColumnOrdering = List<LibraryTableColumn> Function(
   Set<LibraryTableColumn> columns,
@@ -30,6 +32,15 @@ typedef LibraryTableColumnNumericFor = bool Function(
 typedef LibraryTableColumnSortFor = LibrarySortColumn? Function(
   LibraryTableColumn column,
 );
+typedef LibraryTableCellBuilder = Widget Function(
+  LibraryWorkspaceEntry entry,
+  LibraryTableColumn column,
+);
+typedef LibraryEntryColumnComparator = int Function(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+);
 
 class LibraryMediaAdapter {
   const LibraryMediaAdapter({
@@ -45,6 +56,8 @@ class LibraryMediaAdapter {
     required this.columnGroupLabel,
     required this.columnIsNumeric,
     required this.columnSort,
+    required this.tableCellBuilder,
+    required this.compareEntriesByColumn,
   });
 
   final LibraryTypeConfig type;
@@ -59,9 +72,31 @@ class LibraryMediaAdapter {
   final LibraryTableColumnGroupLabelFor columnGroupLabel;
   final LibraryTableColumnNumericFor columnIsNumeric;
   final LibraryTableColumnSortFor columnSort;
+  final LibraryTableCellBuilder tableCellBuilder;
+  final LibraryEntryColumnComparator compareEntriesByColumn;
 
   Set<LibraryTableColumn> defaultTableColumns() {
     return Set.of(type.workspace.defaultVisibleColumns);
+  }
+
+  Widget buildTableCell(LibraryWorkspaceEntry entry, LibraryTableColumn column) {
+    return tableCellBuilder(entry, column);
+  }
+
+  int compareEntriesByRules(
+    LibraryWorkspaceEntry left,
+    LibraryWorkspaceEntry right,
+    Iterable<LibrarySortRule> rules,
+  ) {
+    for (final rule in rules) {
+      final result = compareEntriesByColumn(left, right, rule.column);
+      if (result != 0) {
+        return rule.ascending ? result : -result;
+      }
+    }
+    return left.resolvedTitle.toLowerCase().compareTo(
+          right.resolvedTitle.toLowerCase(),
+        );
   }
 }
 

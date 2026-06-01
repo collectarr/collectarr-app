@@ -239,6 +239,7 @@ void main() {
   testWidgets('sort favorites manager dialog renders pinned and available panes', (
     tester,
   ) async {
+    final type = collectarrLibraryTypes.byKind('comic')!;
     const sortFavorite = LibrarySortFavorite(
       id: 'series_issue',
       label: 'Series | Issue',
@@ -265,6 +266,7 @@ void main() {
               onPressed: () {
                 showSortFavoritesManagerDialog(
                   context: context,
+                  type: type,
                   favorites: const [sortFavorite, secondFavorite],
                   initialPinnedIds: const {'series_issue'},
                   activeSortFavoriteId: 'series_issue',

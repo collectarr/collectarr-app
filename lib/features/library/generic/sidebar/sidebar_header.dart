@@ -131,8 +131,8 @@ class LibrarySidebarHeader extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ],
-              if (onManageBuckets != null &&
-                  libraryGroupModeSupportsBucketManagement(groupMode))
+                if (onManageBuckets != null &&
+                  libraryGroupModeSupportsBucketManagement(type, groupMode))
                 IconButton(
                   tooltip:
                       'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
