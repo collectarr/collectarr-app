@@ -87,7 +87,10 @@ class ComicInspectorHero extends ConsumerWidget {
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Not owned';
-    final synopsis = entry.synopsis?.trim();
+    final synopsis = entry.plotSummary?.trim().isNotEmpty == true
+        ? entry.plotSummary?.trim()
+        : entry.synopsis?.trim();
+    final plotDescription = entry.plotDescription?.trim();
     final hasBackCover = localBack != null || ownedItemId != null;
     final slabLabel = librarySlabMarkerLabel(
       ownedItem?.rawOrSlabbed,
@@ -216,27 +219,54 @@ class ComicInspectorHero extends ConsumerWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Plot Summary',
+              'PLOT',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: muted,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.18,
                     height: 1,
-                    fontSize: 7.8,
+                    fontSize: 8.5,
                   ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              synopsis?.isNotEmpty == true ? synopsis! : 'No plot available.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: ink,
-                    height: 1.18,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0,
-                    fontSize: 8.6,
-                  ),
-              textAlign: TextAlign.start,
-            ),
+            const SizedBox(height: 3),
+            if (synopsis?.isNotEmpty == true) ...[
+              Text(
+                synopsis!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: ink,
+                      height: 1.25,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0,
+                      fontSize: 9.5,
+                    ),
+                textAlign: TextAlign.start,
+              ),
+              if (plotDescription?.isNotEmpty == true) const SizedBox(height: 6),
+            ],
+            if (plotDescription?.isNotEmpty == true)
+              Text(
+                plotDescription!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: ink.withValues(alpha: 0.85),
+                      height: 1.2,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0,
+                      fontSize: 9.0,
+                    ),
+                textAlign: TextAlign.start,
+              ),
+            if (synopsis?.isEmpty != false && plotDescription?.isEmpty != false)
+              Text(
+                'No plot available.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: muted,
+                      height: 1.18,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0,
+                      fontSize: 8.6,
+                    ),
+                textAlign: TextAlign.start,
+              ),
           ],
         );
 

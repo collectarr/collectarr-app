@@ -19,6 +19,8 @@ sealed class LibraryWorkspaceEntry {
     this.ownedItemId,
     this.itemNumber,
     this.synopsis,
+    this.plotSummary,
+    this.plotDescription,
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.publisher,
@@ -82,6 +84,8 @@ sealed class LibraryWorkspaceEntry {
     String? ownedItemId,
     String? itemNumber,
     String? synopsis,
+    String? plotSummary,
+    String? plotDescription,
     String? coverImageUrl,
     String? thumbnailImageUrl,
     String? publisher,
@@ -149,6 +153,8 @@ sealed class LibraryWorkspaceEntry {
       searchAliases: _copyStringList(searchAliases),
       itemNumber: itemNumber,
       synopsis: synopsis,
+      plotSummary: plotSummary,
+      plotDescription: plotDescription,
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl,
       publisher: publisher,
@@ -381,6 +387,8 @@ sealed class LibraryWorkspaceEntry {
   final List<String>? searchAliases;
   final String? itemNumber;
   final String? synopsis;
+  final String? plotSummary;
+  final String? plotDescription;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
@@ -481,6 +489,8 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           title: common.title,
           itemNumber: common.itemNumber,
           synopsis: common.synopsis,
+          plotSummary: common.plotSummary,
+          plotDescription: common.plotDescription,
           coverImageUrl: common.coverImageUrl,
           thumbnailImageUrl: common.thumbnailImageUrl,
           publisher: common.publisher,
@@ -705,6 +715,8 @@ class _LibraryWorkspaceCommon {
     required this.searchAliases,
     required this.itemNumber,
     required this.synopsis,
+    required this.plotSummary,
+    required this.plotDescription,
     required this.coverImageUrl,
     required this.thumbnailImageUrl,
     required this.publisher,
@@ -767,6 +779,8 @@ class _LibraryWorkspaceCommon {
   final List<String>? searchAliases;
   final String? itemNumber;
   final String? synopsis;
+  final String? plotSummary;
+  final String? plotDescription;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
