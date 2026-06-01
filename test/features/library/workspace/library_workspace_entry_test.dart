@@ -22,6 +22,7 @@ void main() {
     String? variant,
     String? referenceScopeLabel,
     String? referenceFormatLabel,
+    DateTime? addedAt,
     int? pricePaidCents,
     DateTime? releaseDate,
     DateTime? updatedAt,
@@ -45,6 +46,7 @@ void main() {
       variant: variant,
       referenceScopeLabel: referenceScopeLabel,
       referenceFormatLabel: referenceFormatLabel,
+      addedAt: addedAt,
       pricePaidCents: pricePaidCents,
       releaseDate: releaseDate,
       updatedAt: updatedAt ?? DateTime.utc(2026),
@@ -188,5 +190,33 @@ void main() {
       find.text('Foil  ·  Scope: Edition  ·  Format: Hardcover'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('adapter builds dedicated format and added cells', (
+    tester,
+  ) async {
+    final item = entry(
+      id: '1',
+      title: 'Issue A',
+      referenceFormatLabel: 'Hardcover',
+      addedAt: DateTime.utc(2026, 5, 31),
+      updatedAt: DateTime.utc(2026, 6, 1),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: Column(
+            children: [
+              comicsMediaAdapter.buildTableCell(item, LibraryTableColumn.format),
+              comicsMediaAdapter.buildTableCell(item, LibraryTableColumn.added),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Hardcover'), findsOneWidget);
+    expect(find.text('2026-05-31'), findsOneWidget);
   });
 }

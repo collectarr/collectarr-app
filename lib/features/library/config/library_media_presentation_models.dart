@@ -1072,6 +1072,11 @@ LibrarySortColumnDefinition _defaultLibrarySortColumnDefinition(
         column: LibrarySortColumn.variant,
         label: 'Variant',
       ),
+    LibrarySortColumn.format => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.format,
+        label: 'Format',
+        group: LibrarySortFieldGroup.edition,
+      ),
     LibrarySortColumn.publisher => LibrarySortColumnDefinition(
         column: column,
         label: labels.publisher,
@@ -1129,6 +1134,12 @@ LibrarySortColumnDefinition _defaultLibrarySortColumnDefinition(
     LibrarySortColumn.keyComic => const LibrarySortColumnDefinition(
         column: LibrarySortColumn.keyComic,
         label: 'Key comic',
+      ),
+    LibrarySortColumn.added => const LibrarySortColumnDefinition(
+        column: LibrarySortColumn.added,
+        label: 'Added date',
+        group: LibrarySortFieldGroup.personal,
+        defaultAscending: false,
       ),
     LibrarySortColumn.updated => const LibrarySortColumnDefinition(
         column: LibrarySortColumn.updated,

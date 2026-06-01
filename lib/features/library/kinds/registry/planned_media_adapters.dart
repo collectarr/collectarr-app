@@ -81,6 +81,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
 
 bool plannedMediaInitialSortAscending(LibrarySortColumn column) {
   return switch (column) {
+    LibrarySortColumn.added => false,
     LibrarySortColumn.updated => false,
     _ => true,
   };
@@ -122,12 +123,13 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
         visibleColumns: {
           LibraryTableColumn.status,
           LibraryTableColumn.title,
+          LibraryTableColumn.format,
           LibraryTableColumn.publisher,
           LibraryTableColumn.releaseDate,
           LibraryTableColumn.condition,
           LibraryTableColumn.price,
           LibraryTableColumn.location,
-          LibraryTableColumn.updated,
+          LibraryTableColumn.added,
         },
       ),
     LibraryWorkspacePreset.details => const LibraryWorkspaceViewPresetConfig(
@@ -181,6 +183,7 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.title => 280.0,
     LibraryTableColumn.issue => 86.0,
     LibraryTableColumn.variant => 170.0,
+    LibraryTableColumn.format => 116.0,
     LibraryTableColumn.publisher => 150.0,
     LibraryTableColumn.releaseDate => 118.0,
     LibraryTableColumn.barcode => 160.0,
@@ -189,6 +192,7 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.price => 92.0,
     LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
+    LibraryTableColumn.added => 112.0,
     LibraryTableColumn.updated => 112.0,
     LibraryTableColumn.country => 100.0,
     LibraryTableColumn.language => 100.0,
@@ -245,6 +249,7 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.title => 'Title',
     LibraryTableColumn.issue => 'Number',
     LibraryTableColumn.variant => 'Edition',
+    LibraryTableColumn.format => 'Format',
     LibraryTableColumn.publisher => 'Publisher',
     LibraryTableColumn.releaseDate => 'Release Date',
     LibraryTableColumn.barcode => 'Barcode',
@@ -253,6 +258,7 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.price => 'Price',
     LibraryTableColumn.location => 'Location',
     LibraryTableColumn.wishlist => 'Wishlist',
+    LibraryTableColumn.added => 'Added Date',
     LibraryTableColumn.updated => 'Updated',
     LibraryTableColumn.country => 'Country',
     LibraryTableColumn.language => 'Language',
@@ -304,9 +310,11 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
     LibraryTableColumn.issue ||
     LibraryTableColumn.publisher ||
     LibraryTableColumn.releaseDate ||
+    LibraryTableColumn.added ||
     LibraryTableColumn.updated =>
       LibraryTableColumnGroup.main,
     LibraryTableColumn.variant ||
+    LibraryTableColumn.format ||
     LibraryTableColumn.barcode =>
       LibraryTableColumnGroup.edition,
     LibraryTableColumn.grade ||
@@ -351,6 +359,7 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.title => LibrarySortColumn.title,
     LibraryTableColumn.issue => LibrarySortColumn.issue,
     LibraryTableColumn.variant => LibrarySortColumn.variant,
+    LibraryTableColumn.format => LibrarySortColumn.format,
     LibraryTableColumn.publisher => LibrarySortColumn.publisher,
     LibraryTableColumn.releaseDate => LibrarySortColumn.releaseDate,
     LibraryTableColumn.barcode => LibrarySortColumn.barcode,
@@ -359,6 +368,7 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.price => LibrarySortColumn.price,
     LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
+    LibraryTableColumn.added => LibrarySortColumn.added,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,
     LibraryTableColumn.language => LibrarySortColumn.language,
@@ -411,6 +421,8 @@ Widget plannedMediaTableCell(
             'Format: ${entry.referenceFormatLabel!}',
         ].join('  ·  '),
       ),
+    LibraryTableColumn.format =>
+      LibraryTableCellText(entry.referenceFormatLabel),
     LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
     LibraryTableColumn.releaseDate =>
       LibraryTableCellText(formatNullableDate(entry.releaseDate)),
@@ -422,6 +434,10 @@ Widget plannedMediaTableCell(
     LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
     LibraryTableColumn.wishlist =>
       entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
+    LibraryTableColumn.added => Text(
+        formatDate(entry.addedAt ?? entry.updatedAt),
+        style: const TextStyle(fontSize: 12),
+      ),
     LibraryTableColumn.updated => Text(
         formatDate(entry.updatedAt),
         style: const TextStyle(fontSize: 12),
@@ -454,6 +470,10 @@ int plannedMediaCompareEntriesByColumn(
       ),
     LibrarySortColumn.variant =>
       _compareNullableStrings(left.variant, right.variant),
+    LibrarySortColumn.format => _compareNullableStrings(
+        left.referenceFormatLabel,
+        right.referenceFormatLabel,
+      ),
     LibrarySortColumn.publisher =>
       _compareNullableStrings(left.publisher, right.publisher),
     LibrarySortColumn.releaseDate =>
@@ -475,6 +495,8 @@ int plannedMediaCompareEntriesByColumn(
       _compareNullableStrings(left.collectionStatus, right.collectionStatus),
     LibrarySortColumn.wishlist => _compareBools(left.isWishlisted, right.isWishlisted),
     LibrarySortColumn.keyComic => _compareBools(left.keyComic, right.keyComic),
+    LibrarySortColumn.added =>
+      _compareNullableDates(left.addedAt, right.addedAt),
     LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
     LibrarySortColumn.country =>
       _compareNullableStrings(left.country, right.country),

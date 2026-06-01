@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
@@ -325,6 +326,7 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
+        final isComicTable = type.workspace.kind == CatalogMediaKind.comic;
         final tableWidth = adapter.tableWidthForColumns(
           viewState.visibleColumns,
           viewState.columnWidths,
@@ -363,11 +365,11 @@ class LibraryWorkspace extends ConsumerWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onColumnReordered: onColumnReordered,
-                    headerHeight: 26,
-                    rowHeight: 32,
-                    columnSpacing: 8,
-                    horizontalMargin: 6,
-                    selectionRailWidth: 2,
+                  headerHeight: isComicTable ? 24 : 26,
+                  rowHeight: isComicTable ? 30 : 32,
+                  columnSpacing: isComicTable ? 6 : 8,
+                  horizontalMargin: isComicTable ? 4 : 6,
+                  selectionRailWidth: isComicTable ? 1 : 2,
                   headerColor: palette.surface,
                   dividerColor: palette.divider,
                   selectedColor: Color.lerp(Colors.black, accent, 0.45)!,

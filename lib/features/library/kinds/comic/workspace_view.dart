@@ -103,6 +103,7 @@ const comicsTableColumnPresets = [
 
 bool comicInitialSortAscending(LibrarySortColumn column) {
   return switch (column) {
+    LibrarySortColumn.added => false,
     LibrarySortColumn.updated => false,
     _ => true,
   };
@@ -135,10 +136,9 @@ LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
           LibraryTableColumn.variant,
           LibraryTableColumn.publisher,
           LibraryTableColumn.releaseDate,
-          LibraryTableColumn.grade,
-          LibraryTableColumn.condition,
-          LibraryTableColumn.price,
-          LibraryTableColumn.updated,
+          LibraryTableColumn.location,
+          LibraryTableColumn.format,
+          LibraryTableColumn.added,
         },
       ),
     LibraryWorkspacePreset.details => LibraryWorkspaceViewPresetConfig(
@@ -193,6 +193,7 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.title => 260.0,
     LibraryTableColumn.issue => 64.0,
     LibraryTableColumn.variant => 170.0,
+    LibraryTableColumn.format => 118.0,
     LibraryTableColumn.publisher => 140.0,
     LibraryTableColumn.releaseDate => 118.0,
     LibraryTableColumn.barcode => 160.0,
@@ -201,6 +202,7 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.price => 92.0,
     LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
+    LibraryTableColumn.added => 98.0,
     LibraryTableColumn.updated => 112.0,
     LibraryTableColumn.country => 100.0,
     LibraryTableColumn.language => 100.0,
@@ -248,6 +250,9 @@ double clampComicTableColumnWidth(
 String comicTableColumnLabel(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 'Series',
+    LibraryTableColumn.variant => 'Variant Description',
+    LibraryTableColumn.location => 'Storage Box',
+    LibraryTableColumn.added => 'Added Date',
     _ => plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
   };
 }
@@ -255,6 +260,9 @@ String comicTableColumnLabel(LibraryTableColumn column) {
 String comicTableColumnDisplayName(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 'Series',
+    LibraryTableColumn.variant => 'Variant Description',
+    LibraryTableColumn.location => 'Storage Box',
+    LibraryTableColumn.added => 'Added Date',
     _ => plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
   };
 }
@@ -266,6 +274,7 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.title => 'Series or item title',
     LibraryTableColumn.issue => 'Issue or item number',
     LibraryTableColumn.variant => 'Edition or variant label',
+    LibraryTableColumn.format => 'Primary physical format label',
     LibraryTableColumn.publisher => 'Publisher from catalog metadata',
     LibraryTableColumn.releaseDate => 'Known release or store date',
     LibraryTableColumn.barcode => 'UPC or barcode when available',
@@ -274,6 +283,7 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.price => 'Personal purchase price',
     LibraryTableColumn.location => 'Assigned location path',
     LibraryTableColumn.wishlist => 'Wishlist status',
+    LibraryTableColumn.added => 'Added date for owned or wishlisted items',
     LibraryTableColumn.updated => 'Most recent local update',
     LibraryTableColumn.country => 'Country of publication',
     LibraryTableColumn.language => 'Publication language',
@@ -291,9 +301,11 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
     LibraryTableColumn.issue ||
     LibraryTableColumn.publisher ||
     LibraryTableColumn.releaseDate ||
+    LibraryTableColumn.added ||
     LibraryTableColumn.updated =>
       LibraryTableColumnGroup.main,
     LibraryTableColumn.variant ||
+    LibraryTableColumn.format ||
     LibraryTableColumn.barcode =>
       LibraryTableColumnGroup.edition,
     LibraryTableColumn.grade ||
@@ -338,6 +350,7 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.title => LibrarySortColumn.title,
     LibraryTableColumn.issue => LibrarySortColumn.issue,
     LibraryTableColumn.variant => LibrarySortColumn.variant,
+    LibraryTableColumn.format => LibrarySortColumn.format,
     LibraryTableColumn.publisher => LibrarySortColumn.publisher,
     LibraryTableColumn.releaseDate => LibrarySortColumn.releaseDate,
     LibraryTableColumn.barcode => LibrarySortColumn.barcode,
@@ -346,6 +359,7 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.price => LibrarySortColumn.price,
     LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
+    LibraryTableColumn.added => LibrarySortColumn.added,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,
     LibraryTableColumn.language => LibrarySortColumn.language,

@@ -52,6 +52,7 @@ sealed class LibraryWorkspaceEntry {
     this.pricePaidCents,
     this.currency,
     this.locationPath,
+    this.addedAt,
     this.creators,
     this.characters,
     this.storyArcs,
@@ -114,6 +115,7 @@ sealed class LibraryWorkspaceEntry {
     int? pricePaidCents,
     String? currency,
     String? locationPath,
+    DateTime? addedAt,
     CatalogSeriesDetails? series,
     VideoCatalogDetails? video,
     MusicCatalogDetails? music,
@@ -180,6 +182,7 @@ sealed class LibraryWorkspaceEntry {
       pricePaidCents: pricePaidCents,
       currency: currency,
       locationPath: locationPath,
+      addedAt: addedAt,
       creators: _copyMapList(creators),
       characters: _copyStringList(characters),
       storyArcs: _copyStringList(storyArcs),
@@ -411,6 +414,7 @@ sealed class LibraryWorkspaceEntry {
   final int? pricePaidCents;
   final String? currency;
   final String? locationPath;
+  final DateTime? addedAt;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
@@ -510,6 +514,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           pricePaidCents: common.pricePaidCents,
           currency: common.currency,
           locationPath: common.locationPath,
+          addedAt: common.addedAt,
           creators: common.creators,
           characters: common.characters,
           storyArcs: common.storyArcs,
@@ -733,6 +738,7 @@ class _LibraryWorkspaceCommon {
     required this.pricePaidCents,
     required this.currency,
     required this.locationPath,
+    required this.addedAt,
     required this.creators,
     required this.characters,
     required this.storyArcs,
@@ -794,6 +800,7 @@ class _LibraryWorkspaceCommon {
   final int? pricePaidCents;
   final String? currency;
   final String? locationPath;
+  final DateTime? addedAt;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
