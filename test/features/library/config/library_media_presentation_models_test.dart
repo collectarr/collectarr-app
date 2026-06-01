@@ -1,0 +1,51 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('all library presentations declare complete group mode definitions', () {
+    final presentations = <String, LibraryMediaPresentation>{
+      'generic': genericLibraryMediaPresentation,
+      'books': booksLibraryMediaPresentation,
+      'board games': boardGamesLibraryMediaPresentation,
+      'comics': comicsLibraryMediaPresentation,
+      'games': gamesLibraryMediaPresentation,
+      'movies': moviesLibraryMediaPresentation,
+      'music': musicLibraryMediaPresentation,
+    };
+
+    for (final entry in presentations.entries) {
+      final definitionModes = [
+        for (final definition in entry.value.groupModeDefinitions)
+          definition.mode,
+      ];
+      final uniqueDefinitionModes = definitionModes.toSet();
+      final configuredModes = entry.value.groupModes.toSet();
+
+      expect(
+        definitionModes.length,
+        uniqueDefinitionModes.length,
+        reason: '${entry.key} presentation has duplicate group mode definitions.',
+      );
+      expect(
+        uniqueDefinitionModes,
+        configuredModes,
+        reason: '${entry.key} presentation groupModeDefinitions must match groupModes exactly.',
+      );
+
+      for (final mode in entry.value.groupModes) {
+        expect(
+          () => entry.value.groupModeDefinitionFor(mode),
+          returnsNormally,
+          reason: '${entry.key} presentation is missing a definition for $mode.',
+        );
+      }
+    }
+  });
+}

@@ -1,5 +1,56 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:flutter/material.dart';
+
+const genericLibraryGroupModes = [
+  LibraryGroupMode.series,
+  LibraryGroupMode.title,
+  LibraryGroupMode.publisher,
+  LibraryGroupMode.year,
+  LibraryGroupMode.location,
+  LibraryGroupMode.ownership,
+];
+
+const genericLibraryGroupModeDefinitions = [
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.series,
+    label: 'Series',
+    sidebarTitle: 'Series',
+    icon: Icons.collections_bookmark_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.publisher,
+    label: 'Publisher',
+    sidebarTitle: 'Publishers',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.year,
+    label: 'Year',
+    sidebarTitle: 'Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.location,
+    label: 'Location',
+    sidebarTitle: 'Locations',
+    icon: Icons.place_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.ownership,
+    label: 'Ownership',
+    sidebarTitle: 'Ownership',
+    icon: Icons.inventory_2_outlined,
+  ),
+];
 
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
@@ -25,4 +76,6 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: genericLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
+  groupModeDefinitions: genericLibraryGroupModeDefinitions,
+  groupModes: genericLibraryGroupModes,
 );

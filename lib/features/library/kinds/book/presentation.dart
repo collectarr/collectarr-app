@@ -2,6 +2,64 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:flutter/material.dart';
+
+const booksLibraryGroupModes = [
+  LibraryGroupMode.publisher,
+  LibraryGroupMode.series,
+  LibraryGroupMode.year,
+  LibraryGroupMode.creator,
+  LibraryGroupMode.location,
+  LibraryGroupMode.title,
+  LibraryGroupMode.ownership,
+];
+
+const booksLibraryGroupModeDefinitions = [
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.publisher,
+    label: 'Publisher',
+    sidebarTitle: 'Publishers',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.series,
+    label: 'Series',
+    sidebarTitle: 'Series',
+    icon: Icons.collections_bookmark_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.year,
+    label: 'Year',
+    sidebarTitle: 'Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.creator,
+    label: 'Creator',
+    sidebarTitle: 'Creators',
+    icon: Icons.draw_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.location,
+    label: 'Location',
+    sidebarTitle: 'Locations',
+    icon: Icons.place_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.ownership,
+    label: 'Ownership',
+    sidebarTitle: 'Ownership',
+    icon: Icons.inventory_2_outlined,
+  ),
+];
 
 const booksLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
@@ -30,13 +88,6 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     showVolumeHierarchy: true,
   ),
   previewLabels: volumesPreviewLabels,
-  groupModes: [
-    LibraryGroupMode.publisher,
-    LibraryGroupMode.series,
-    LibraryGroupMode.year,
-    LibraryGroupMode.creator,
-    LibraryGroupMode.location,
-    LibraryGroupMode.title,
-    LibraryGroupMode.ownership,
-  ],
+  groupModeDefinitions: booksLibraryGroupModeDefinitions,
+  groupModes: booksLibraryGroupModes,
 );

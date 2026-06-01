@@ -3,6 +3,55 @@ import 'package:collectarr_app/features/library/kinds/shared/presentation_suppor
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const musicLibraryGroupModes = [
+  LibraryGroupMode.series,
+  LibraryGroupMode.publisher,
+  LibraryGroupMode.year,
+  LibraryGroupMode.location,
+  LibraryGroupMode.title,
+  LibraryGroupMode.ownership,
+];
+
+const musicLibraryGroupModeDefinitions = [
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.series,
+    label: 'Artist',
+    sidebarTitle: 'Artists',
+    icon: Icons.collections_bookmark_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.publisher,
+    label: 'Label',
+    sidebarTitle: 'Labels',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.year,
+    label: 'Year',
+    sidebarTitle: 'Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.location,
+    label: 'Location',
+    sidebarTitle: 'Locations',
+    icon: Icons.place_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.ownership,
+    label: 'Ownership',
+    sidebarTitle: 'Ownership',
+    icon: Icons.inventory_2_outlined,
+  ),
+];
+
 const musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter album, artist, release, or label...',
@@ -30,12 +79,6 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: musicStatsLabels,
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
-  groupModes: [
-    LibraryGroupMode.series,
-    LibraryGroupMode.publisher,
-    LibraryGroupMode.year,
-    LibraryGroupMode.location,
-    LibraryGroupMode.title,
-    LibraryGroupMode.ownership,
-  ],
+  groupModeDefinitions: musicLibraryGroupModeDefinitions,
+  groupModes: musicLibraryGroupModes,
 );
