@@ -170,9 +170,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     try {
       final loadToken = ++_viewPreferenceLoadToken;
       final expectedKind = widget.type.workspace.kind;
+      final allowedGroupModes = widget.type.availableGroupModes;
       final quickView = await _viewPrefs.readQuickView();
-      final groupMode = await _viewPrefs.readGroupMode();
-      final pinnedModes = await _viewPrefs.readPinnedGroupModes();
+      final groupMode = await _viewPrefs.readGroupMode(
+        allowedModes: allowedGroupModes,
+      );
+      final pinnedModes = await _viewPrefs.readPinnedGroupModes(
+        allowedModes: allowedGroupModes,
+      );
       final pinnedViewPresets = await _viewPrefs.readPinnedViewPresets(
         fallback: libraryDefaultPinnedViewPresetsForType(widget.type),
       );
@@ -208,9 +213,15 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _primeCachedViewPreferences() {
+    final allowedGroupModes = widget.type.availableGroupModes.toSet();
     _quickView = _viewPrefs.cachedQuickView;
-    _groupMode = _viewPrefs.cachedGroupMode;
-    _pinnedGroupModes = _viewPrefs.cachedPinnedGroupModes;
+    _groupMode = allowedGroupModes.contains(_viewPrefs.cachedGroupMode)
+        ? _viewPrefs.cachedGroupMode
+        : null;
+    _pinnedGroupModes = {
+      for (final mode in _viewPrefs.cachedPinnedGroupModes)
+        if (allowedGroupModes.contains(mode)) mode,
+    };
     _pinnedViewPresets = _viewPrefs.cachedPinnedViewPresets.isNotEmpty
         ? _viewPrefs.cachedPinnedViewPresets
         : libraryDefaultPinnedViewPresetsForType(widget.type);
@@ -1612,7 +1623,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _applyRouteStateFromUri(Uri uri) {
-    final routeState = LibraryRouteState.fromUri(uri);
+    final routeState = LibraryRouteState.fromUri(uri).filteredForType(widget.type);
     if (!routeState.hasExplicitViewState) {
       return;
     }

@@ -428,6 +428,14 @@ class LibraryTypeConfig {
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
+    List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
+
+    List<LibrarySortColumn> get availableSortColumns =>
+      workspace.availableSortColumns;
+
+    List<LibraryTableColumn> get availableTableColumns =>
+      workspace.availableTableColumns;
+
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {
       return metadataProviders;

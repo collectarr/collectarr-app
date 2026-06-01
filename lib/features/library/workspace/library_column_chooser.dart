@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 class LibraryColumnChooserDialog extends StatefulWidget {
   const LibraryColumnChooserDialog({
+    required this.availableColumns,
     required this.selectedColumns,
     required this.defaultColumns,
     required this.columnLabel,
@@ -22,6 +23,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
     super.key,
   });
 
+  final List<LibraryTableColumn> availableColumns;
   final Set<LibraryTableColumn> selectedColumns;
   final Set<LibraryTableColumn> defaultColumns;
   final String Function(LibraryTableColumn column) columnLabel;
@@ -94,7 +96,7 @@ class _LibraryColumnChooserDialogState
     final dialogWidth = (viewport.width - 48).clamp(0.0, 1020.0);
     final dialogHeight = (viewport.height - 36).clamp(0.0, 820.0);
     final query = _query.trim().toLowerCase();
-    final columns = LibraryTableColumn.values.where((column) {
+    final columns = widget.availableColumns.where((column) {
       final label = widget.columnLabel(column).toLowerCase();
       final description =
           widget.columnDescription?.call(column)?.toLowerCase() ?? '';

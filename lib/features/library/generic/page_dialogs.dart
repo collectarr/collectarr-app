@@ -81,7 +81,9 @@ extension _LibraryPageDialogs on _LibraryPageState {
     }
     final sortRules = await showLibrarySortDialog(
       context: context,
+      type: widget.type,
       currentRules: viewState.sortRules,
+      defaultAscendingForColumn: _adapter.viewProfile.initialSortAscending,
     );
     if (sortRules != null && mounted) {
       _updateViewState(

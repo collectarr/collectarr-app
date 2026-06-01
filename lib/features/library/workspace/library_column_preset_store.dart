@@ -46,7 +46,12 @@ class LibraryColumnPresetStore {
     final nextPreset = LibraryTableColumnPreset(
       id: nextId,
       label: normalizedLabel,
-      columns: {...columns, LibraryTableColumn.title},
+      columns: {
+        for (final column in columns)
+          if (config.supportsTableColumn(column)) column,
+        if (config.supportsTableColumn(LibraryTableColumn.title))
+          LibraryTableColumn.title,
+      },
     );
     final next = existing.toList(growable: true);
     if (existingIndex == -1) {
@@ -83,7 +88,9 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnByName(value.toString()) != null)
             _columnByName(value.toString())!,
-      }..add(LibraryTableColumn.title),
+        if (config.supportsTableColumn(LibraryTableColumn.title))
+          LibraryTableColumn.title,
+      },
     );
   }
 
@@ -96,7 +103,7 @@ class LibraryColumnPresetStore {
   }
 
   LibraryTableColumn? _columnByName(String name) {
-    for (final column in LibraryTableColumn.values) {
+    for (final column in config.availableTableColumns) {
       if (column.name == name) {
         return column;
       }

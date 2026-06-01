@@ -16,6 +16,8 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFE07A2D),
   preferencePrefix: 'music',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

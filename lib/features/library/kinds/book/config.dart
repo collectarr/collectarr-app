@@ -17,6 +17,8 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFF48A868),
   preferencePrefix: 'books',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

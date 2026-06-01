@@ -115,16 +115,22 @@ extension LibraryWorkspacePresetLabels on LibraryWorkspacePreset {
 enum LibrarySortColumn {
   status,
   title,
+  series,
   issue,
+  storyArc,
   variant,
   publisher,
   releaseDate,
   barcode,
   grade,
+  rawOrSlabbed,
+  gradingCompany,
   condition,
   price,
   location,
+  collectionStatus,
   wishlist,
+  keyComic,
   updated,
   country,
   language,
@@ -132,6 +138,84 @@ enum LibrarySortColumn {
   ageRating,
   imprint,
 }
+
+const kAllLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.series,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.rawOrSlabbed,
+  LibrarySortColumn.gradingCompany,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.keyComic,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
+
+const kPlannedLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.series,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
+
+const kComicLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.series,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.rawOrSlabbed,
+  LibrarySortColumn.gradingCompany,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.keyComic,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
 
 class LibrarySortRule {
   const LibrarySortRule({required this.column, required this.ascending});
@@ -160,6 +244,24 @@ class LibrarySortRule {
   int get hashCode => Object.hash(column, ascending);
 }
 
+class LibrarySortPreset {
+  const LibrarySortPreset({
+    this.id,
+    required this.label,
+    required this.rules,
+    this.icon,
+    this.isBuiltIn = false,
+  });
+
+  final String? id;
+  final String label;
+  final List<LibrarySortRule> rules;
+  final IconData? icon;
+  final bool isBuiltIn;
+
+  bool get isSaved => id != null && !isBuiltIn;
+}
+
 enum LibraryTableColumn {
   status,
   cover,
@@ -181,6 +283,28 @@ enum LibraryTableColumn {
   ageRating,
   imprint,
 }
+
+const kAllLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.issue,
+  LibraryTableColumn.variant,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.barcode,
+  LibraryTableColumn.grade,
+  LibraryTableColumn.condition,
+  LibraryTableColumn.price,
+  LibraryTableColumn.location,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.pageCount,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.imprint,
+];
 
 enum LibraryTableColumnGroup { main, edition, value, personal }
 
@@ -207,6 +331,8 @@ class LibraryWorkspaceConfig {
     required this.preferencePrefix,
     required this.defaultSortColumn,
     required this.defaultVisibleColumns,
+    this.availableSortColumns = kAllLibrarySortColumns,
+    this.availableTableColumns = kAllLibraryTableColumns,
   });
 
   final CatalogMediaKind kind;
@@ -216,6 +342,16 @@ class LibraryWorkspaceConfig {
   final String preferencePrefix;
   final LibrarySortColumn defaultSortColumn;
   final Set<LibraryTableColumn> defaultVisibleColumns;
+  final List<LibrarySortColumn> availableSortColumns;
+  final List<LibraryTableColumn> availableTableColumns;
+
+  bool supportsSortColumn(LibrarySortColumn column) {
+    return availableSortColumns.contains(column);
+  }
+
+  bool supportsTableColumn(LibraryTableColumn column) {
+    return availableTableColumns.contains(column);
+  }
 
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -116,6 +117,34 @@ class LibraryRouteState {
       params[foldersKey] = isSidebarVisible! ? '1' : '0';
     }
     return baseUri.replace(queryParameters: params);
+  }
+
+  LibraryRouteState filteredForType(LibraryTypeConfig type) {
+    final allowedGroupModes = type.availableGroupModes.toSet();
+    final allowedSortColumns = type.availableSortColumns.toSet();
+    final filteredSortRules = sortRules == null
+        ? null
+        : [
+            for (final rule in sortRules!)
+              if (allowedSortColumns.contains(rule.column)) rule,
+          ];
+    return LibraryRouteState(
+      kind: kind,
+      searchQuery: searchQuery,
+      groupMode: groupMode != null && allowedGroupModes.contains(groupMode)
+          ? groupMode
+          : null,
+      selectedBucket: selectedBucket,
+      linkedMetadataValue: linkedMetadataValue,
+      selectedLetter: selectedLetter,
+      collectionStatusScope: collectionStatusScope,
+      quickView: quickView,
+      filterSelection: filterSelection,
+      sortRules: filteredSortRules == null || filteredSortRules.isEmpty
+          ? null
+          : filteredSortRules,
+      isSidebarVisible: isSidebarVisible,
+    );
   }
 
   static String? _encodeSortRules(List<LibrarySortRule>? rules) {

@@ -18,6 +18,8 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFE05252),
   preferencePrefix: 'movies',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

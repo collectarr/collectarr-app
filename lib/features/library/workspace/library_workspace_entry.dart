@@ -890,8 +890,12 @@ int _compareLibraryWorkspaceEntriesByColumn(
     LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
     LibrarySortColumn.title =>
       _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
+    LibrarySortColumn.series =>
+      _compareNullableStrings(left.series?.seriesTitle, right.series?.seriesTitle),
     LibrarySortColumn.issue =>
       _compareIssueNumbers(left.itemNumber, right.itemNumber),
+    LibrarySortColumn.storyArc =>
+      _compareNullableStrings(_firstStringValue(left.storyArcs), _firstStringValue(right.storyArcs)),
     LibrarySortColumn.variant =>
       _compareNullableStrings(left.variant, right.variant),
     LibrarySortColumn.publisher =>
@@ -901,14 +905,21 @@ int _compareLibraryWorkspaceEntriesByColumn(
     LibrarySortColumn.barcode =>
       _compareNullableStrings(left.barcode, right.barcode),
     LibrarySortColumn.grade => _compareNullableStrings(left.grade, right.grade),
+    LibrarySortColumn.rawOrSlabbed =>
+      _compareNullableStrings(left.rawOrSlabbed, right.rawOrSlabbed),
+    LibrarySortColumn.gradingCompany =>
+      _compareNullableStrings(left.gradingCompany, right.gradingCompany),
     LibrarySortColumn.condition =>
       _compareNullableStrings(left.condition, right.condition),
     LibrarySortColumn.price =>
       _compareNullableInts(left.pricePaidCents, right.pricePaidCents),
     LibrarySortColumn.location =>
       _compareNullableStrings(left.locationPath, right.locationPath),
+    LibrarySortColumn.collectionStatus =>
+      _compareNullableStrings(left.collectionStatus, right.collectionStatus),
     LibrarySortColumn.wishlist =>
       _compareBools(left.isWishlisted, right.isWishlisted),
+    LibrarySortColumn.keyComic => _compareBools(left.keyComic, right.keyComic),
     LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
     LibrarySortColumn.country =>
       _compareNullableStrings(left.country, right.country),
@@ -947,6 +958,19 @@ double? _numericPrefixSortValue(String? value) {
   }
   final match = RegExp(r'^\s*(\d+(?:\.\d+)?)').firstMatch(value);
   return match == null ? null : double.tryParse(match.group(1)!);
+}
+
+String? _firstStringValue(List<String>? values) {
+  if (values == null) {
+    return null;
+  }
+  for (final value in values) {
+    final normalized = value.trim();
+    if (normalized.isNotEmpty) {
+      return normalized;
+    }
+  }
+  return null;
 }
 
 int _compareNullableStrings(String? left, String? right) {

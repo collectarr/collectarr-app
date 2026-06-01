@@ -15,6 +15,8 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFE0A52B),
   preferencePrefix: 'boardgames',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

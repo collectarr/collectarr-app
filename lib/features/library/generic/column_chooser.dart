@@ -22,6 +22,7 @@ Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
   return showDialog<Set<LibraryTableColumn>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
+      availableColumns: type.availableTableColumns,
       selectedColumns: viewState.visibleColumns,
       defaultColumns: adapter.defaultTableColumns(),
       columnLabel: adapter.columnDisplayName,

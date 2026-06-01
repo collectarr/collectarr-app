@@ -15,6 +15,8 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFF7C68D8),
   preferencePrefix: 'games',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

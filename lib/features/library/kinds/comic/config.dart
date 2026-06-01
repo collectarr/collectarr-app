@@ -22,6 +22,8 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   accent: kAppTopBar,
   preferencePrefix: 'comics',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kComicLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

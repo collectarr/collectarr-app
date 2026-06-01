@@ -67,15 +67,24 @@ class LibraryViewPreferenceStore {
     }
   }
 
-  Future<LibraryGroupMode?> readGroupMode() async {
+  Future<LibraryGroupMode?> readGroupMode({
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString(_key('groupMode'));
     if (name == null) {
       _cachedGroupModes.remove(_cacheKey);
       return null;
     }
+    final allowed = allowedModes == null
+        ? null
+        : Set<LibraryGroupMode>.from(allowedModes);
     for (final mode in LibraryGroupMode.values) {
       if (mode.name == name) {
+        if (allowed != null && !allowed.contains(mode)) {
+          _cachedGroupModes.remove(_cacheKey);
+          return null;
+        }
         _cachedGroupModes[_cacheKey] = mode;
         return mode;
       }
@@ -110,17 +119,22 @@ class LibraryViewPreferenceStore {
   Set<String> get cachedPinnedColumnFavoriteKeys =>
       _cachedPinnedColumnFavoriteKeys[_cacheKey] ?? const {};
 
-  Future<Set<LibraryGroupMode>> readPinnedGroupModes() async {
+  Future<Set<LibraryGroupMode>> readPinnedGroupModes({
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final names = prefs.getStringList(_key('pinnedGroupModes'));
     if (names == null) {
       _cachedPinnedGroupModes.remove(_cacheKey);
       return const {};
     }
+    final allowed = allowedModes == null
+        ? null
+        : Set<LibraryGroupMode>.from(allowedModes);
     final modes = <LibraryGroupMode>{};
     for (final name in names) {
       for (final mode in LibraryGroupMode.values) {
-        if (mode.name == name) {
+        if (mode.name == name && (allowed == null || allowed.contains(mode))) {
           modes.add(mode);
           break;
         }

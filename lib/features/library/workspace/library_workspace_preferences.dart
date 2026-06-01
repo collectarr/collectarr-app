@@ -104,6 +104,18 @@ class LibraryWorkspacePreferences {
     final detailsHeight = prefs.getDouble(_globalKey('details_height')) ??
       prefs.getDouble(_key('details_height')) ??
       defaultDetailsHeight;
+    final sortColumn = _enumByName(
+          config.availableSortColumns,
+          prefs.getString(_key('sort_column')),
+        ) ??
+        config.defaultSortColumn;
+    final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
+    final visibleColumns = _decodeVisibleColumns(
+      prefs.getStringList(_key('visible_columns')),
+    );
+    final columnWidths = _decodeColumnWidths(
+      prefs.getStringList(_key('column_widths')),
+    );
     final snapshot = LibraryWorkspacePreferenceSnapshot(
       viewMode: _enumByName(
             LibraryViewMode.values,
@@ -118,14 +130,10 @@ class LibraryWorkspacePreferences {
           defaultDetailsLayout,
         isSidebarVisible:
           prefs.getBool(_globalKey('sidebar_visible')) ?? defaultSidebarVisible,
-        sortColumn: _enumByName(
-            LibrarySortColumn.values,
-            prefs.getString(_key('sort_column')),
-          ) ??
-          config.defaultSortColumn,
+        sortColumn: sortColumn,
       sortAscending:
           prefs.getBool(_key('sort_ascending')) ?? defaultSortAscending,
-        sortRules: _decodeSortRules(prefs.getStringList(_key('sort_rules'))),
+        sortRules: sortRules,
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
       sidebarWidth: clampLibraryPaneWidth(
         sidebarWidth,
@@ -142,12 +150,8 @@ class LibraryWorkspacePreferences {
         minHeight: kLibraryDetailsMinHeight,
         maxHeight: kLibraryPaneStoredMaxWidth,
       ),
-      visibleColumns: _decodeVisibleColumns(
-        prefs.getStringList(_key('visible_columns')),
-      ),
-      columnWidths: _decodeColumnWidths(
-        prefs.getStringList(_key('column_widths')),
-      ),
+      visibleColumns: visibleColumns,
+      columnWidths: columnWidths,
     );
     _cachedChrome = snapshot.chrome;
     _cachedSnapshots[config.preferenceKey('')] = snapshot;
@@ -155,40 +159,64 @@ class LibraryWorkspacePreferences {
   }
 
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
-    _cachedChrome = snapshot.chrome;
-    _cachedSnapshots[config.preferenceKey('')] = snapshot;
+    final normalizedVisibleColumns = _normalizeVisibleColumns(
+      snapshot.visibleColumns,
+    );
+    final normalizedColumnWidths = _normalizeColumnWidths(
+      snapshot.columnWidths,
+    );
+    final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
+    final normalizedSortColumn = config.supportsSortColumn(snapshot.sortColumn)
+        ? snapshot.sortColumn
+        : config.defaultSortColumn;
+    final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
+      viewMode: snapshot.viewMode,
+      detailsLayout: snapshot.detailsLayout,
+      isSidebarVisible: snapshot.isSidebarVisible,
+      sortColumn: normalizedSortColumn,
+      sortAscending: snapshot.sortAscending,
+      sortRules: normalizedSortRules,
+      coverSize: snapshot.coverSize,
+      sidebarWidth: snapshot.sidebarWidth,
+      detailsWidth: snapshot.detailsWidth,
+      detailsHeight: snapshot.detailsHeight,
+      visibleColumns: normalizedVisibleColumns,
+      columnWidths: normalizedColumnWidths,
+    );
+    _cachedChrome = normalizedSnapshot.chrome;
+    _cachedSnapshots[config.preferenceKey('')] = normalizedSnapshot;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key('view_mode'), snapshot.viewMode.name);
+    await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
     await prefs.setString(
       _globalKey('details_layout'),
-      snapshot.detailsLayout.name,
+      normalizedSnapshot.detailsLayout.name,
     );
     await prefs.setBool(
       _globalKey('sidebar_visible'),
-      snapshot.isSidebarVisible,
+      normalizedSnapshot.isSidebarVisible,
     );
-    await prefs.setString(_key('sort_column'), snapshot.sortColumn.name);
-    await prefs.setBool(_key('sort_ascending'), snapshot.sortAscending);
+    await prefs.setString(_key('sort_column'), normalizedSnapshot.sortColumn.name);
+    await prefs.setBool(_key('sort_ascending'), normalizedSnapshot.sortAscending);
     await prefs.setStringList(
       _key('sort_rules'),
-      _encodeSortRules(snapshot.sortRules),
+      _encodeSortRules(normalizedSnapshot.sortRules),
     );
-    await prefs.setDouble(_key('cover_size'), snapshot.coverSize);
-    await prefs.setDouble(_globalKey('sidebar_width'), snapshot.sidebarWidth);
-    await prefs.setDouble(_globalKey('details_width'), snapshot.detailsWidth);
+    await prefs.setDouble(_key('cover_size'), normalizedSnapshot.coverSize);
+    await prefs.setDouble(_globalKey('sidebar_width'), normalizedSnapshot.sidebarWidth);
+    await prefs.setDouble(_globalKey('details_width'), normalizedSnapshot.detailsWidth);
     await prefs.setDouble(
       _globalKey('details_height'),
-      snapshot.detailsHeight,
+      normalizedSnapshot.detailsHeight,
     );
     await prefs.setStringList(
       _key('visible_columns'),
-      snapshot.visibleColumns
+      normalizedSnapshot.visibleColumns
           .map((column) => column.name)
           .toList(growable: false),
     );
     await prefs.setStringList(
       _key('column_widths'),
-      _encodeColumnWidths(snapshot.columnWidths),
+      _encodeColumnWidths(normalizedSnapshot.columnWidths),
     );
   }
 
@@ -202,10 +230,11 @@ class LibraryWorkspacePreferences {
     }
     final columns = {
       for (final value in values)
-        if (_enumByName(LibraryTableColumn.values, value) != null)
-          _enumByName(LibraryTableColumn.values, value)!,
+        if (_enumByName(config.availableTableColumns, value) != null)
+          _enumByName(config.availableTableColumns, value)!,
     };
-    if (!columns.contains(LibraryTableColumn.title)) {
+    if (config.supportsTableColumn(LibraryTableColumn.title) &&
+        !columns.contains(LibraryTableColumn.title)) {
       columns.add(LibraryTableColumn.title);
     }
     return columns.isEmpty ? Set.of(config.defaultVisibleColumns) : columns;
@@ -238,7 +267,7 @@ class LibraryWorkspacePreferences {
       if (parts.length != 2) {
         continue;
       }
-      final column = _enumByName(LibrarySortColumn.values, parts.first);
+      final column = _enumByName(config.availableSortColumns, parts.first);
       if (column == null) {
         continue;
       }
@@ -262,13 +291,50 @@ class LibraryWorkspacePreferences {
       if (parts.length != 2) {
         continue;
       }
-      final column = _enumByName(LibraryTableColumn.values, parts[0]);
+      final column = _enumByName(config.availableTableColumns, parts[0]);
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
         widths[column] = width;
       }
     }
     return widths;
+  }
+
+  Set<LibraryTableColumn> _normalizeVisibleColumns(
+    Set<LibraryTableColumn> columns,
+  ) {
+    final normalized = {
+      for (final column in columns)
+        if (config.supportsTableColumn(column)) column,
+    };
+    if (config.supportsTableColumn(LibraryTableColumn.title)) {
+      normalized.add(LibraryTableColumn.title);
+    }
+    return normalized.isEmpty ? Set.of(config.defaultVisibleColumns) : normalized;
+  }
+
+  Map<LibraryTableColumn, double> _normalizeColumnWidths(
+    Map<LibraryTableColumn, double> widths,
+  ) {
+    return {
+      for (final entry in widths.entries)
+        if (config.supportsTableColumn(entry.key)) entry.key: entry.value,
+    };
+  }
+
+  List<LibrarySortRule>? _normalizeSortRules(List<LibrarySortRule>? rules) {
+    if (rules == null || rules.isEmpty) {
+      return null;
+    }
+    final normalized = <LibrarySortRule>[];
+    final seen = <LibrarySortColumn>{};
+    for (final rule in rules) {
+      if (!config.supportsSortColumn(rule.column) || !seen.add(rule.column)) {
+        continue;
+      }
+      normalized.add(rule);
+    }
+    return normalized.isEmpty ? null : normalized;
   }
 
   T? _enumByName<T extends Enum>(List<T> values, String? name) {

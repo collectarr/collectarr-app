@@ -8,9 +8,15 @@ void main() {
     required String id,
     required String title,
     String? itemNumber,
+    String? seriesTitle,
+    List<String>? storyArcs,
     bool isOwned = false,
     bool isWishlisted = false,
+    bool keyComic = false,
     String? grade,
+    String? rawOrSlabbed,
+    String? gradingCompany,
+    String? collectionStatus,
     int? pricePaidCents,
     DateTime? releaseDate,
     DateTime? updatedAt,
@@ -20,9 +26,17 @@ void main() {
       mediaType: 'comic',
       title: title,
       itemNumber: itemNumber,
+        series: seriesTitle == null
+          ? null
+          : CatalogSeriesDetails(seriesTitle: seriesTitle),
+        storyArcs: storyArcs,
       isOwned: isOwned,
       isWishlisted: isWishlisted,
+        keyComic: keyComic,
       grade: grade,
+        rawOrSlabbed: rawOrSlabbed,
+        gradingCompany: gradingCompany,
+        collectionStatus: collectionStatus,
       pricePaidCents: pricePaidCents,
       releaseDate: releaseDate,
       updatedAt: updatedAt ?? DateTime.utc(2026),
@@ -112,5 +126,38 @@ void main() {
       items.map((item) => item.title),
       ['Low price', 'High price', 'No price'],
     );
+  });
+
+  test('sorts by series title when series sort is selected', () {
+    final items = [
+      entry(id: '2', title: 'Issue B', seriesTitle: 'Zoo Crew'),
+      entry(id: '1', title: 'Issue A', seriesTitle: 'Alpha Flight'),
+      entry(id: '3', title: 'Issue C'),
+    ]..sort(
+        (left, right) => compareLibraryWorkspaceEntries(
+          left,
+          right,
+          LibrarySortColumn.series,
+          true,
+        ),
+      );
+
+    expect(items.map((item) => item.title), ['Issue A', 'Issue B', 'Issue C']);
+  });
+
+  test('sorts key comics before non-key comics', () {
+    final items = [
+      entry(id: '1', title: 'Regular issue'),
+      entry(id: '2', title: 'Key issue', keyComic: true),
+    ]..sort(
+        (left, right) => compareLibraryWorkspaceEntries(
+          left,
+          right,
+          LibrarySortColumn.keyComic,
+          true,
+        ),
+      );
+
+    expect(items.map((item) => item.title), ['Key issue', 'Regular issue']);
   });
 }
