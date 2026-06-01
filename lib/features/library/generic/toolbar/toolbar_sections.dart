@@ -49,6 +49,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.activeSortFavoriteId,
     this.sortFavorites = const [],
     this.onSortFavoriteSelected,
+    this.pinnedSortFavoriteIds = const {},
+    this.onTogglePinnedSortFavorite,
     this.onRandomPick,
     this.onDownloadAllCovers,
     this.shelfState,
@@ -93,6 +95,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final String? activeSortFavoriteId;
   final List<LibrarySortFavorite> sortFavorites;
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
+  final Set<String> pinnedSortFavoriteIds;
+  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
@@ -162,7 +166,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                           onPressed: onEditSort!,
                           sortFavorites: sortFavorites,
                           activeSortFavoriteId: activeSortFavoriteId,
+                          pinnedSortFavoriteIds: pinnedSortFavoriteIds,
                           onSortFavoriteSelected: onSortFavoriteSelected,
+                          onTogglePinnedSortFavorite: onTogglePinnedSortFavorite,
                         ),
                       ),
                     const _LibraryDesktopToolbarSeparator(),

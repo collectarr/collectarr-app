@@ -122,13 +122,17 @@ class LibraryToolbarSortButton extends StatelessWidget {
     required this.onPressed,
     required this.sortFavorites,
     required this.activeSortFavoriteId,
+    this.pinnedSortFavoriteIds = const {},
     this.onSortFavoriteSelected,
+    this.onTogglePinnedSortFavorite,
   });
 
   final VoidCallback onPressed;
   final List<LibrarySortFavorite> sortFavorites;
   final String? activeSortFavoriteId;
+  final Set<String> pinnedSortFavoriteIds;
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
+  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -192,20 +196,9 @@ class LibraryToolbarSortButton extends StatelessWidget {
             onSelected: (value) {
               if (value is LibrarySortFavorite) {
                 onSortFavoriteSelected?.call(value);
-                return;
               }
-              onPressed();
             },
             itemBuilder: (context) => [
-              const PopupMenuItem<Object>(
-                value: _LibraryToolbarSortAction.manage,
-                height: 32,
-                child: _LibraryToolbarSortMenuRow(
-                  label: 'Manage favorites',
-                  icon: Icons.settings_outlined,
-                ),
-              ),
-              if (sortFavorites.isNotEmpty) const PopupMenuDivider(height: 1),
               for (final favorite in sortFavorites)
                 PopupMenuItem<Object>(
                   value: favorite,
@@ -222,13 +215,51 @@ class LibraryToolbarSortButton extends StatelessWidget {
               child: Icon(Icons.arrow_drop_down, size: 18),
             ),
           ),
+          if (onTogglePinnedSortFavorite != null) ...[
+            Container(
+              width: 1,
+              height: 18,
+              color: palette.divider,
+            ),
+            PopupMenuButton<LibrarySortFavorite>(
+              key: const ValueKey('library-sort-manage-menu'),
+              tooltip: 'Manage favorites',
+              padding: EdgeInsets.zero,
+              color: Color.alphaBlend(
+                palette.accent.withValues(alpha: 0.025),
+                palette.panelRaised,
+              ),
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.black.withValues(alpha: 0.22),
+              menuPadding: const EdgeInsets.symmetric(vertical: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+                side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
+              ),
+              onSelected: onTogglePinnedSortFavorite,
+              itemBuilder: (context) => [
+                for (final favorite in sortFavorites)
+                  PopupMenuItem<LibrarySortFavorite>(
+                    value: favorite,
+                    height: 32,
+                    child: _LibraryToolbarPinnedSortMenuRow(
+                      label: favorite.label,
+                      icon: favorite.icon,
+                      pinned: pinnedSortFavoriteIds.contains(favorite.id),
+                    ),
+                  ),
+              ],
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+                child: Icon(Icons.settings_outlined, size: 16),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 }
-
-enum _LibraryToolbarSortAction { manage }
 
 class _LibraryToolbarSortMenuRow extends StatelessWidget {
   const _LibraryToolbarSortMenuRow({
@@ -258,6 +289,42 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
         ),
         if (active)
           Icon(Icons.check, size: 16, color: palette.textPrimary),
+      ],
+    );
+  }
+}
+
+class _LibraryToolbarPinnedSortMenuRow extends StatelessWidget {
+  const _LibraryToolbarPinnedSortMenuRow({
+    required this.label,
+    required this.icon,
+    required this.pinned,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool pinned;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: pinned ? palette.accent : palette.textMuted),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: pinned ? FontWeight.w700 : FontWeight.w500,
+                ),
+          ),
+        ),
+        Icon(
+          pinned ? Icons.check_box : Icons.check_box_outline_blank,
+          size: 16,
+          color: pinned ? palette.accent : palette.textMuted,
+        ),
       ],
     );
   }
