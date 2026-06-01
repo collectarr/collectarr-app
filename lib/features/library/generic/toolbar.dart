@@ -52,6 +52,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onSortFavoriteSelected,
     this.pinnedSortFavoriteIds = const {},
     this.onTogglePinnedSortFavorite,
+    this.onManageSortFavorites,
     this.columnFavoritePresets = const [],
     this.activeColumnFavoriteLabel,
     this.onColumnFavoriteSelected,
@@ -118,6 +119,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
   final Set<String> pinnedSortFavoriteIds;
   final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
+  final VoidCallback? onManageSortFavorites;
   final List<LibraryTableColumnPreset> columnFavoritePresets;
   final String? activeColumnFavoriteLabel;
   final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
@@ -270,6 +272,7 @@ class LibraryToolbar extends StatelessWidget {
                       onSortFavoriteSelected: onSortFavoriteSelected,
                       pinnedSortFavoriteIds: pinnedSortFavoriteIds,
                       onTogglePinnedSortFavorite: onTogglePinnedSortFavorite,
+                      onManageSortFavorites: onManageSortFavorites,
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,

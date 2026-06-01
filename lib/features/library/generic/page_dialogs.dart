@@ -92,6 +92,19 @@ extension _LibraryPageDialogs on _LibraryPageState {
     }
   }
 
+  Future<void> showSortFavoritesManagerFlow() async {
+    final result = await showSortFavoritesManagerDialog(
+      context: context,
+      favorites: _sortFavorites,
+      initialPinnedIds: _pinnedSortFavoriteIds,
+      activeSortFavoriteId: _activeSortFavorite?.id,
+    );
+    if (result != null && mounted) {
+      _rebuild(() => _pinnedSortFavoriteIds = result);
+      unawaited(_viewPrefs.writePinnedSortFavoriteIds(result));
+    }
+  }
+
   Future<void> showReadingQueueFlow() async {
     final db = ref.read(localDatabaseProvider);
     final queueIds = await ReadingQueueRepository(db).getQueue();

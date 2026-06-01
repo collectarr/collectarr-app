@@ -15,9 +15,9 @@ void main() {
   ) async {
     final type = collectarrLibraryTypes.byKind('comic')!;
     final adapter = collectarrMediaAdapters.byKind('comic')!;
-    var manageSortCount = 0;
+    var sortColumnsCount = 0;
+    var manageSortFavoritesCount = 0;
     String? appliedSortFavorite;
-    String? toggledSortFavorite;
     const sortFavorite = LibrarySortFavorite(
       id: 'series_issue',
       label: 'Series | Issue',
@@ -56,8 +56,8 @@ void main() {
               activeSortFavoriteId: 'series_issue',
               pinnedSortFavoriteIds: const {'series_issue'},
               onSortFavoriteSelected: (favorite) => appliedSortFavorite = favorite.id,
-              onTogglePinnedSortFavorite: (favorite) => toggledSortFavorite = favorite.id,
-              onEditSort: () => manageSortCount++,
+              onManageSortFavorites: () => manageSortFavoritesCount++,
+              onEditSort: () => sortColumnsCount++,
             ),
           ),
         ),
@@ -69,30 +69,26 @@ void main() {
     final sortButton = find.byType(LibraryToolbarSortButton);
     expect(sortButton, findsOneWidget);
     expect(find.byKey(const ValueKey('library-sort-split-button-menu')), findsOneWidget);
-    expect(find.byKey(const ValueKey('library-sort-manage-menu')), findsOneWidget);
 
     await tester.tap(
       find.descendant(of: sortButton, matching: find.byIcon(Icons.sort)),
     );
     await tester.pump();
 
-    expect(manageSortCount, 1);
+    expect(sortColumnsCount, 1);
 
     final popupButton = tester.widget<PopupMenuButton<Object>>(
       find.byKey(const ValueKey('library-sort-split-button-menu')),
     );
+    popupButton.onSelected?.call(libraryManageSortFavoritesMenuValue);
+    await tester.pump();
+
+    expect(manageSortFavoritesCount, 1);
+
     popupButton.onSelected?.call(sortFavorite);
     await tester.pump();
 
     expect(appliedSortFavorite, 'series_issue');
-
-    final managePopupButton = tester.widget<PopupMenuButton<LibrarySortFavorite>>(
-      find.byKey(const ValueKey('library-sort-manage-menu')),
-    );
-    managePopupButton.onSelected?.call(sortFavorite);
-    await tester.pump();
-
-    expect(toggledSortFavorite, 'series_issue');
   });
 
   testWidgets('desktop secondary toolbar exposes a split column launcher', (

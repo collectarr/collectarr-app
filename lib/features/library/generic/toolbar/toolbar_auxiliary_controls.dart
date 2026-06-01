@@ -4,6 +4,24 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+const libraryManageSortFavoritesMenuValue = 'manage_sort_favorites';
+
+Future<Set<String>?> showSortFavoritesManagerDialog({
+  required BuildContext context,
+  required List<LibrarySortFavorite> favorites,
+  required Set<String> initialPinnedIds,
+  String? activeSortFavoriteId,
+}) {
+  return showDialog<Set<String>>(
+    context: context,
+    builder: (context) => _SortFavoritesManagerDialog(
+      favorites: favorites,
+      initialPinnedIds: initialPinnedIds,
+      activeSortFavoriteId: activeSortFavoriteId,
+    ),
+  );
+}
+
 class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
   const LibraryCollectionStatusScopeDropdown({
     super.key,
@@ -124,7 +142,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
     required this.activeSortFavoriteId,
     this.pinnedSortFavoriteIds = const {},
     this.onSortFavoriteSelected,
-    this.onTogglePinnedSortFavorite,
+    this.onManageFavoritesPressed,
   });
 
   final VoidCallback onPressed;
@@ -132,7 +150,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
   final String? activeSortFavoriteId;
   final Set<String> pinnedSortFavoriteIds;
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
-  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
+  final VoidCallback? onManageFavoritesPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -194,11 +212,24 @@ class LibraryToolbarSortButton extends StatelessWidget {
               side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
             ),
             onSelected: (value) {
+              if (value == libraryManageSortFavoritesMenuValue) {
+                onManageFavoritesPressed?.call();
+                return;
+              }
               if (value is LibrarySortFavorite) {
                 onSortFavoriteSelected?.call(value);
               }
             },
             itemBuilder: (context) => [
+              PopupMenuItem<Object>(
+                value: libraryManageSortFavoritesMenuValue,
+                height: 32,
+                child: const _LibraryToolbarSortMenuRow(
+                  label: 'Manage Favorites',
+                  icon: Icons.settings_outlined,
+                ),
+              ),
+              if (sortFavorites.isNotEmpty) const PopupMenuDivider(height: 1),
               for (final favorite in sortFavorites)
                 PopupMenuItem<Object>(
                   value: favorite,
@@ -207,6 +238,8 @@ class LibraryToolbarSortButton extends StatelessWidget {
                     label: favorite.label,
                     icon: favorite.icon,
                     active: favorite.id == activeSortFavoriteId,
+                    trailingLabel:
+                        pinnedSortFavoriteIds.contains(favorite.id) ? 'Pinned' : null,
                   ),
                 ),
             ],
@@ -215,46 +248,6 @@ class LibraryToolbarSortButton extends StatelessWidget {
               child: Icon(Icons.arrow_drop_down, size: 18),
             ),
           ),
-          if (onTogglePinnedSortFavorite != null) ...[
-            Container(
-              width: 1,
-              height: 18,
-              color: palette.divider,
-            ),
-            PopupMenuButton<LibrarySortFavorite>(
-              key: const ValueKey('library-sort-manage-menu'),
-              tooltip: 'Manage favorites',
-              padding: EdgeInsets.zero,
-              color: Color.alphaBlend(
-                palette.accent.withValues(alpha: 0.025),
-                palette.panelRaised,
-              ),
-              surfaceTintColor: Colors.transparent,
-              shadowColor: Colors.black.withValues(alpha: 0.22),
-              menuPadding: const EdgeInsets.symmetric(vertical: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-                side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-              ),
-              onSelected: onTogglePinnedSortFavorite,
-              itemBuilder: (context) => [
-                for (final favorite in sortFavorites)
-                  PopupMenuItem<LibrarySortFavorite>(
-                    value: favorite,
-                    height: 32,
-                    child: _LibraryToolbarPinnedSortMenuRow(
-                      label: favorite.label,
-                      icon: favorite.icon,
-                      pinned: pinnedSortFavoriteIds.contains(favorite.id),
-                    ),
-                  ),
-              ],
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 7, vertical: 7),
-                child: Icon(Icons.settings_outlined, size: 16),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -266,11 +259,13 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     required this.label,
     required this.icon,
     this.active = false,
+    this.trailingLabel,
   });
 
   final String label;
   final IconData icon;
   final bool active;
+  final String? trailingLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -287,6 +282,16 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
                 ),
           ),
         ),
+        if (trailingLabel != null) ...[
+          Text(
+            trailingLabel!,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: palette.textMuted,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(width: 8),
+        ],
         if (active)
           Icon(Icons.check, size: 16, color: palette.textPrimary),
       ],
@@ -294,40 +299,243 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
   }
 }
 
-class _LibraryToolbarPinnedSortMenuRow extends StatelessWidget {
-  const _LibraryToolbarPinnedSortMenuRow({
-    required this.label,
-    required this.icon,
-    required this.pinned,
+class _SortFavoritesManagerDialog extends StatefulWidget {
+  const _SortFavoritesManagerDialog({
+    required this.favorites,
+    required this.initialPinnedIds,
+    this.activeSortFavoriteId,
   });
 
-  final String label;
-  final IconData icon;
-  final bool pinned;
+  final List<LibrarySortFavorite> favorites;
+  final Set<String> initialPinnedIds;
+  final String? activeSortFavoriteId;
+
+  @override
+  State<_SortFavoritesManagerDialog> createState() =>
+      _SortFavoritesManagerDialogState();
+}
+
+class _SortFavoritesManagerDialogState
+    extends State<_SortFavoritesManagerDialog> {
+  late Set<String> _pinnedIds;
+
+  @override
+  void initState() {
+    super.initState();
+    _pinnedIds = Set<String>.from(widget.initialPinnedIds);
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: pinned ? palette.accent : palette.textMuted),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: pinned ? FontWeight.w700 : FontWeight.w500,
-                ),
-          ),
+    final theme = Theme.of(context);
+    return Dialog(
+      shape: libraryToolbarDropdownMenuShape(context),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 620),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Manage Sorting Favorites',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Choose which sort favorites stay in the favorites menu.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: libraryToolbarMenuMutedText(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: libraryToolbarMenuBorder(context)),
+            Flexible(
+              child: widget.favorites.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'No sort favorites are available for this library type.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: libraryToolbarMenuMutedText(context),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: widget.favorites.length,
+                      itemBuilder: (context, index) {
+                        final favorite = widget.favorites[index];
+                        final pinned = _pinnedIds.contains(favorite.id);
+                        final active = favorite.id == widget.activeSortFavoriteId;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Material(
+                            color: active
+                                ? Color.alphaBlend(
+                                    palette.accent.withValues(alpha: 0.08),
+                                    palette.panelRaised,
+                                  )
+                                : libraryToolbarMenuHover(context),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: active
+                                    ? palette.accent.withValues(alpha: 0.45)
+                                    : libraryToolbarMenuBorder(context),
+                              ),
+                            ),
+                            child: InkWell(
+                              onTap: () => setState(() {
+                                if (pinned) {
+                                  _pinnedIds.remove(favorite.id);
+                                } else {
+                                  _pinnedIds.add(favorite.id);
+                                }
+                              }),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      pinned
+                                          ? Icons.check_box
+                                          : Icons.check_box_outline_blank,
+                                      size: 18,
+                                      color: pinned
+                                          ? palette.accent
+                                          : palette.textMuted,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Icon(
+                                      favorite.icon,
+                                      size: 18,
+                                      color: active
+                                          ? palette.accent
+                                          : palette.textMuted,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            favorite.label,
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            _sortFavoriteSummary(favorite.rules),
+                                            style: theme.textTheme.bodySmall?.copyWith(
+                                              color: libraryToolbarMenuMutedText(context),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (active) ...[
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Active',
+                                        style: theme.textTheme.labelSmall?.copyWith(
+                                          color: palette.accent,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            Divider(height: 1, color: libraryToolbarMenuBorder(context)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                    onPressed: () => Navigator.of(context).pop(_pinnedIds),
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        Icon(
-          pinned ? Icons.check_box : Icons.check_box_outline_blank,
-          size: 16,
-          color: pinned ? palette.accent : palette.textMuted,
-        ),
-      ],
+      ),
     );
   }
+}
+
+String _sortFavoriteSummary(List<LibrarySortRule> rules) {
+  return rules
+      .map(
+        (rule) =>
+            '${_sortFavoriteColumnLabel(rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
+      )
+      .join('  |  ');
+}
+
+String _sortFavoriteColumnLabel(LibrarySortColumn column) {
+  return switch (column) {
+    LibrarySortColumn.status => 'Status',
+    LibrarySortColumn.title => 'Title',
+    LibrarySortColumn.series => 'Series',
+    LibrarySortColumn.issue => 'Issue',
+    LibrarySortColumn.storyArc => 'Story Arc',
+    LibrarySortColumn.variant => 'Variant',
+    LibrarySortColumn.publisher => 'Publisher',
+    LibrarySortColumn.releaseDate => 'Release Date',
+    LibrarySortColumn.barcode => 'Barcode',
+    LibrarySortColumn.grade => 'Grade',
+    LibrarySortColumn.rawOrSlabbed => 'Raw / Slabbed',
+    LibrarySortColumn.gradingCompany => 'Grading Company',
+    LibrarySortColumn.condition => 'Condition',
+    LibrarySortColumn.price => 'Purchase Price',
+    LibrarySortColumn.location => 'Storage Box',
+    LibrarySortColumn.collectionStatus => 'Collection Status',
+    LibrarySortColumn.wishlist => 'Wishlist',
+    LibrarySortColumn.keyComic => 'Key Comic',
+    LibrarySortColumn.updated => 'Updated',
+    LibrarySortColumn.country => 'Country',
+    LibrarySortColumn.language => 'Language',
+    LibrarySortColumn.pageCount => 'Page Count',
+    LibrarySortColumn.ageRating => 'Age Rating',
+    LibrarySortColumn.imprint => 'Imprint',
+  };
 }
 
 double measureLibraryToolbarDropdownWidth(

@@ -419,6 +419,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     onTogglePinnedViewPreset: _togglePinnedViewPreset,
                     pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
                     onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
+                    onManageSortFavorites: showSortFavoritesManagerFlow,
                     columnFavoritePresets: _columnFavoritePresets,
                     activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
                     onColumnFavoriteSelected: _applyColumnFavorite,
@@ -690,6 +691,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         activeFilterCount: _filterSelection.activeFilterCount,
         activeSortFavoriteId: _activeSortFavorite?.id,
         sortFavorites: _sortFavorites,
+        onSortFavoriteSelected: _applySortFavorite,
+        pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
+        onManageSortFavorites: showSortFavoritesManagerFlow,
         onRandomPick: projection.filteredItems.isNotEmpty
             ? () => pickRandomItemFlow(projection)
             : null,
