@@ -52,7 +52,7 @@ class _ComicInspectorDashboard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= 640 ? 2 : 1;
-        const spacing = 3.0;
+        const spacing = 2.0;
 
         Widget buildPanel(_ComicPanelData panel) => _ComicPanel(
           title: panel.title,
@@ -162,21 +162,19 @@ class _ComicPanelState extends State<_ComicPanel> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final surface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.02 : 0.008),
-      palette.surface,
-    );
+    final surface = palette.surface;
     final headerSurface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.03 : 0.014),
+      widget.accent.withValues(alpha: palette.isDark ? 0.022 : 0.01),
       palette.surface,
     );
     final altSurface = palette.isDark
         ? Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.02),
-            palette.surfaceSubtle,
+            Colors.white.withValues(alpha: 0.012),
+            palette.surface,
           )
-        : const Color(0xFFF4F5F7);
-    final border = palette.divider.withValues(alpha: palette.isDark ? 0.86 : 0.64);
+        : const Color(0xFFF7F8FA);
+    final border =
+        palette.divider.withValues(alpha: palette.isDark ? 0.82 : 0.52);
 
     final canCollapse = widget.initialVisibleRows != null &&
         widget.rows.length > widget.initialVisibleRows!;
@@ -184,78 +182,75 @@ class _ComicPanelState extends State<_ComicPanel> {
         ? widget.rows.take(widget.initialVisibleRows!).toList()
         : widget.rows;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surface,
-        border: Border.all(color: border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 18,
-            padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-            decoration: BoxDecoration(
-              color: headerSurface,
-              border: Border(bottom: BorderSide(color: border)),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  widget.title,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: widget.accent,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0,
-                        fontSize: 9.75,
-                        height: 1,
-                      ),
-                ),
-                if (canCollapse) ...[
-                  const Spacer(),
-                  InkWell(
-                    onTap: () => setState(() => _expanded = !_expanded),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                      child: Row(
-                        children: [
-                          Text(
-                            _expanded ? 'Collapse' : 'View all',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: palette.textMuted,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1,
-                                  fontSize: 8.5,
-                                ),
-                          ),
-                          const SizedBox(width: 2),
-                          Icon(
-                            _expanded
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                            size: 8,
-                            color: palette.textMuted,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 17,
+          padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+          decoration: BoxDecoration(
+            color: headerSurface,
+            border: Border(
+              top: BorderSide(color: border),
+              bottom: BorderSide(color: border),
             ),
           ),
-          for (var index = 0; index < visibleRows.length; index++)
-            _ComicTableRow(
-              row: visibleRows[index],
-              shaded: index.isEven,
-              surface: surface,
-              altSurface: altSurface,
-              border: border,
-              variant: widget.variant,
-              accent: widget.accent,
-            ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: widget.accent,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0,
+                      fontSize: 9.5,
+                      height: 1,
+                    ),
+              ),
+              if (canCollapse) ...[
+                const Spacer(),
+                InkWell(
+                  onTap: () => setState(() => _expanded = !_expanded),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                    child: Row(
+                      children: [
+                        Text(
+                          _expanded ? 'Collapse' : 'View all',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: palette.textMuted,
+                                fontWeight: FontWeight.w700,
+                                height: 1,
+                                fontSize: 8.25,
+                              ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          _expanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 8,
+                          color: palette.textMuted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        for (var index = 0; index < visibleRows.length; index++)
+          _ComicTableRow(
+            row: visibleRows[index],
+            shaded: index.isEven,
+            surface: surface,
+            altSurface: altSurface,
+            border: border,
+            variant: widget.variant,
+            accent: widget.accent,
+          ),
+      ],
     );
   }
 }
