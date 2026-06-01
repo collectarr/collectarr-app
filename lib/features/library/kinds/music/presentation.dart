@@ -52,6 +52,18 @@ const musicLibraryGroupModeDefinitions = [
   ),
 ];
 
+const musicLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Artist',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Label',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+];
+
 const musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter album, artist, release, or label...',
@@ -79,6 +91,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: musicStatsLabels,
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
+  sortColumnDefinitions: musicLibrarySortColumnDefinitions,
   groupModeDefinitions: musicLibraryGroupModeDefinitions,
   groupModes: musicLibraryGroupModes,
 );

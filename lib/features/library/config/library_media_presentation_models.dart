@@ -307,6 +307,124 @@ const defaultLibraryColumnFavorites = [
   ),
 ];
 
+const kSharedSortColumnDefinitionsWithoutSeriesPublisher = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.status,
+    label: 'Status',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.title,
+    label: 'Title',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.issue,
+    label: 'Issue / number',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.storyArc,
+    label: 'Story arc',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.variant,
+    label: 'Variant',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.format,
+    label: 'Format',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.releaseDate,
+    label: 'Release date',
+    defaultAscending: false,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.barcode,
+    label: 'Barcode',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.grade,
+    label: 'Grade',
+    group: LibrarySortFieldGroup.value,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.condition,
+    label: 'Condition',
+    group: LibrarySortFieldGroup.value,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.price,
+    label: 'Purchase price',
+    group: LibrarySortFieldGroup.value,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.location,
+    label: 'Storage box',
+    group: LibrarySortFieldGroup.personal,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.collectionStatus,
+    label: 'Collection status',
+    group: LibrarySortFieldGroup.personal,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.wishlist,
+    label: 'Wishlist',
+    group: LibrarySortFieldGroup.personal,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.added,
+    label: 'Added date',
+    group: LibrarySortFieldGroup.personal,
+    defaultAscending: false,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.updated,
+    label: 'Updated',
+    group: LibrarySortFieldGroup.personal,
+    defaultAscending: false,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.country,
+    label: 'Country',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.language,
+    label: 'Language',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.pageCount,
+    label: 'Page count',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.ageRating,
+    label: 'Age rating',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.imprint,
+    label: 'Imprint',
+  ),
+];
+
+const kSharedComicOnlySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.rawOrSlabbed,
+    label: 'Raw / slabbed',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.gradingCompany,
+    label: 'Grading company',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.keyComic,
+    label: 'Key comic',
+  ),
+];
+
 class LibraryMetadataPresentation {
   const LibraryMetadataPresentation({
     required this.identityFacts,
@@ -558,7 +676,7 @@ class LibraryMediaPresentation {
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
     this.referenceLabels = const LibraryReferenceLabels(),
     this.statusLabels = const LibraryStatusLabels(),
-    this.sortColumnDefinitions = const [],
+    required this.sortColumnDefinitions,
     required this.groupModeDefinitions,
     required this.groupModes,
   });
@@ -604,134 +722,9 @@ class LibraryMediaPresentation {
         return definition;
       }
     }
-    return _defaultLibrarySortColumnDefinition(column, groupLabels);
+    throw StateError(
+      'Missing sort column definition for $column. '
+      'Ensure sortColumnDefinitions declares every available sort column.',
+    );
   }
-}
-
-LibrarySortColumnDefinition _defaultLibrarySortColumnDefinition(
-  LibrarySortColumn column,
-  LibraryMediaGroupLabels labels,
-) {
-  return switch (column) {
-    LibrarySortColumn.status => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.status,
-        label: 'Status',
-      ),
-    LibrarySortColumn.title => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.title,
-        label: 'Title',
-      ),
-    LibrarySortColumn.series => LibrarySortColumnDefinition(
-        column: column,
-        label: labels.series,
-      ),
-    LibrarySortColumn.issue => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.issue,
-        label: 'Issue / number',
-      ),
-    LibrarySortColumn.storyArc => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.storyArc,
-        label: 'Story arc',
-      ),
-    LibrarySortColumn.variant => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.variant,
-        label: 'Variant',
-      ),
-    LibrarySortColumn.format => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.format,
-        label: 'Format',
-        group: LibrarySortFieldGroup.edition,
-      ),
-    LibrarySortColumn.publisher => LibrarySortColumnDefinition(
-        column: column,
-        label: labels.publisher,
-      ),
-    LibrarySortColumn.releaseDate => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.releaseDate,
-        label: 'Release date',
-        defaultAscending: false,
-      ),
-    LibrarySortColumn.barcode => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.barcode,
-        label: 'Barcode',
-        group: LibrarySortFieldGroup.edition,
-      ),
-    LibrarySortColumn.grade => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.grade,
-        label: 'Grade',
-        group: LibrarySortFieldGroup.value,
-      ),
-    LibrarySortColumn.rawOrSlabbed => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.rawOrSlabbed,
-        label: 'Raw / slabbed',
-        group: LibrarySortFieldGroup.edition,
-      ),
-    LibrarySortColumn.gradingCompany => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.gradingCompany,
-        label: 'Grading company',
-        group: LibrarySortFieldGroup.edition,
-      ),
-    LibrarySortColumn.condition => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.condition,
-        label: 'Condition',
-        group: LibrarySortFieldGroup.value,
-      ),
-    LibrarySortColumn.price => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.price,
-        label: 'Purchase price',
-        group: LibrarySortFieldGroup.value,
-      ),
-    LibrarySortColumn.location => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.location,
-        label: 'Storage box',
-        group: LibrarySortFieldGroup.personal,
-      ),
-    LibrarySortColumn.collectionStatus => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.collectionStatus,
-        label: 'Collection status',
-        group: LibrarySortFieldGroup.personal,
-      ),
-    LibrarySortColumn.wishlist => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.wishlist,
-        label: 'Wishlist',
-        group: LibrarySortFieldGroup.personal,
-      ),
-    LibrarySortColumn.keyComic => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.keyComic,
-        label: 'Key comic',
-      ),
-    LibrarySortColumn.added => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.added,
-        label: 'Added date',
-        group: LibrarySortFieldGroup.personal,
-        defaultAscending: false,
-      ),
-    LibrarySortColumn.updated => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.updated,
-        label: 'Updated',
-        group: LibrarySortFieldGroup.personal,
-        defaultAscending: false,
-      ),
-    LibrarySortColumn.country => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.country,
-        label: 'Country',
-      ),
-    LibrarySortColumn.language => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.language,
-        label: 'Language',
-      ),
-    LibrarySortColumn.pageCount => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.pageCount,
-        label: 'Page count',
-        group: LibrarySortFieldGroup.edition,
-      ),
-    LibrarySortColumn.ageRating => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.ageRating,
-        label: 'Age rating',
-      ),
-    LibrarySortColumn.imprint => const LibrarySortColumnDefinition(
-        column: LibrarySortColumn.imprint,
-        label: 'Imprint',
-      ),
-  };
 }

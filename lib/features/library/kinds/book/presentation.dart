@@ -61,6 +61,18 @@ const booksLibraryGroupModeDefinitions = [
   ),
 ];
 
+const booksLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Publisher',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+];
+
 const booksLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -88,6 +100,7 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     showVolumeHierarchy: true,
   ),
   previewLabels: volumesPreviewLabels,
+  sortColumnDefinitions: booksLibrarySortColumnDefinitions,
   groupModeDefinitions: booksLibraryGroupModeDefinitions,
   groupModes: booksLibraryGroupModes,
 );

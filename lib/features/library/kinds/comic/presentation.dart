@@ -180,6 +180,19 @@ const comicLibrarySortFavorites = [
   ),
 ];
 
+const comicsLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Publisher',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+  ...kSharedComicOnlySortColumnDefinitions,
+];
+
 const comicsLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -213,6 +226,7 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
   supportsSeriesIssueJump: true,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
+  sortColumnDefinitions: comicsLibrarySortColumnDefinitions,
   groupModeDefinitions: comicsLibraryGroupModeDefinitions,
   groupModes: comicsLibraryGroupModes,
 );

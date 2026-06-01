@@ -52,6 +52,19 @@ const genericLibraryGroupModeDefinitions = [
   ),
 ];
 
+const genericLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Publisher',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+  ...kSharedComicOnlySortColumnDefinitions,
+];
+
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -76,6 +89,7 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: genericLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
+  sortColumnDefinitions: genericLibrarySortColumnDefinitions,
   groupModeDefinitions: genericLibraryGroupModeDefinitions,
   groupModes: genericLibraryGroupModes,
 );

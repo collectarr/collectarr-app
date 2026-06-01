@@ -405,6 +405,18 @@ const moviesLibraryGroupModeDefinitions = [
   ),
 ];
 
+const moviesLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Studio',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+];
+
 const moviesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -434,6 +446,7 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: franchiseStatsLabels,
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
+  sortColumnDefinitions: moviesLibrarySortColumnDefinitions,
   groupModeDefinitions: moviesLibraryGroupModeDefinitions,
   groupModes: moviesLibraryGroupModes,
 );

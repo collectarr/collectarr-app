@@ -52,6 +52,18 @@ const boardGamesLibraryGroupModeDefinitions = [
   ),
 ];
 
+const boardGamesLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Publisher / Designer',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+];
+
 const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -77,6 +89,7 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   builder: boardGamesLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
   statsLabels: gameStatsLabels,
+  sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
   groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
   groupModes: boardGamesLibraryGroupModes,
 );

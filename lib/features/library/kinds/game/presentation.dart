@@ -52,6 +52,18 @@ const gamesLibraryGroupModeDefinitions = [
   ),
 ];
 
+const gamesLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Publisher / Studio',
+  ),
+  ...kSharedSortColumnDefinitionsWithoutSeriesPublisher,
+];
+
 const gamesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -77,6 +89,7 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
   builder: gamesLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
   statsLabels: gameStatsLabels,
+  sortColumnDefinitions: gamesLibrarySortColumnDefinitions,
   groupModeDefinitions: gamesLibraryGroupModeDefinitions,
   groupModes: gamesLibraryGroupModes,
 );
