@@ -1133,10 +1133,14 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Manual comic issue'), findsOneWidget);
-    expect(find.text('Collection defaults'), findsOneWidget);
+    expect(anyText('Collection defaults'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
+    expect(anyText('Collector'), findsOneWidget);
     expect(find.text('Series'), findsOneWidget);
     expect(find.text('Issue No.'), findsOneWidget);
+    expect(anyText('Raw / Slabbed'), findsOneWidget);
+    expect(anyText('Grading Co.'), findsOneWidget);
+    expect(anyText('Page Quality'), findsOneWidget);
     expect(find.byTooltip('Select or manage series'), findsOneWidget);
   });
 
@@ -1171,12 +1175,23 @@ void main() {
     await pumpUntilSettled(tester);
 
     await tester.enterText(textFieldByKeyOrLabel('', 'Issue No.'), '423A');
+    await tester.scrollUntilVisible(
+      anyText('Certification No.'),
+      160,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      textFieldByKeyOrLabel('', 'Certification No.'),
+      'CGC-423',
+    );
     await tester.pump();
 
     await tester.pumpWidget(buildSubject());
     await pumpUntilSettled(tester);
 
     expect(find.text('423A'), findsOneWidget);
+    expect(find.text('CGC-423'), findsOneWidget);
   });
 
   testWidgets('showLibraryAddDialog uses comic-specific preview pane',
