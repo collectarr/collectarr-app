@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -541,10 +542,12 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = widget.type.workspace.accent;
     final hasGrades = widget.type.grades.isNotEmpty;
     final hasConditions = widget.type.conditions.isNotEmpty;
     final labels = libraryMediaFilterLabels(widget.type);
     final selectedCustomField = _selectedCustomFieldOption();
+    final viewport = MediaQuery.sizeOf(context);
     final ownershipValues = [
       LibraryOwnershipFilter.all,
       LibraryOwnershipFilter.owned,
@@ -552,321 +555,415 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
       if (hasGrades) LibraryOwnershipFilter.missingGrade,
     ];
 
-    return AlertDialog(
-      title: Text('Filter ${widget.type.pluralLabel.toLowerCase()}'),
-      content: SizedBox(
-        width: 420,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<LibraryOwnershipFilter>(
-                initialValue: _ownership,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Shelf',
-                  border: OutlineInputBorder(),
+    final generalFilters = <Widget>[
+      DropdownButtonFormField<LibraryOwnershipFilter>(
+        initialValue: _ownership,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Shelf'),
+        items: [
+          for (final f in ownershipValues)
+            DropdownMenuItem(
+              value: f,
+              child: Text(libraryOwnershipFilterLabel(f)),
+            ),
+        ],
+        onChanged: (v) {
+          if (v != null) setState(() => _ownership = v);
+        },
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<LibraryTrackingStatusFilter>(
+        initialValue: _trackingStatus,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Tracking status'),
+        items: [
+          for (final filter in LibraryTrackingStatusFilter.values)
+            DropdownMenuItem(
+              value: filter,
+              child: Text(libraryTrackingStatusFilterLabel(filter)),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _trackingStatus = value);
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<LibraryLoanStatusFilter>(
+        initialValue: _loanStatus,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Loan status'),
+        items: [
+          for (final filter in LibraryLoanStatusFilter.values)
+            DropdownMenuItem(
+              value: filter,
+              child: Text(libraryLoanStatusFilterLabel(filter)),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _loanStatus = value);
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<LibraryDateRangeField>(
+        initialValue: _dateRangeField,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Date field'),
+        items: [
+          for (final field in LibraryDateRangeField.values)
+            DropdownMenuItem(
+              value: field,
+              child: Text(libraryDateRangeFieldLabel(field)),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _dateRangeField = value);
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          Expanded(
+            child: _DateFilterButton(
+              label: 'From',
+              value: _dateFrom,
+              onPick: () => _pickDate(isStart: true),
+              onClear: _dateFrom == null
+                  ? null
+                  : () => setState(() => _dateFrom = null),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _DateFilterButton(
+              label: 'To',
+              value: _dateTo,
+              onPick: () => _pickDate(isStart: false),
+              onClear: _dateTo == null
+                  ? null
+                  : () => setState(() => _dateTo = null),
+            ),
+          ),
+        ],
+      ),
+    ];
+
+    final detailFilters = <Widget>[];
+    if (widget.options.customFields.isNotEmpty) {
+      detailFilters.addAll([
+        DropdownButtonFormField<String>(
+          initialValue: widget.options.customFields.any(
+            (field) => field.definitionId == _customFieldDefinitionId,
+          )
+              ? _customFieldDefinitionId
+              : null,
+          isExpanded: true,
+          dropdownColor: palette.panelRaised,
+          borderRadius: kAppMenuBorderRadius,
+          decoration: _filterFieldDecoration(context, label: 'Custom field'),
+          items: [
+            const DropdownMenuItem<String>(
+              value: '',
+              child: Text('Any custom field'),
+            ),
+            for (final field in widget.options.customFields)
+              DropdownMenuItem<String>(
+                value: field.definitionId,
+                child: Text(field.label),
+              ),
+          ],
+          onChanged: (value) {
+            final nextDefinitionId = value == null || value.isEmpty ? null : value;
+            setState(() {
+              _customFieldDefinitionId = nextDefinitionId;
+              final nextField = _selectedCustomFieldOption();
+              if (_customFieldValue != null &&
+                  (nextField == null ||
+                      !nextField.values.contains(_customFieldValue))) {
+                _customFieldValue = null;
+              }
+            });
+          },
+        ),
+      ]);
+    }
+    if (selectedCustomField != null && selectedCustomField.values.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: '${selectedCustomField.label} value',
+          empty: 'Any value',
+          value: _customFieldValue,
+          options: _customFieldValueOptions(selectedCustomField),
+          onChanged: (value) => setState(() => _customFieldValue = value),
+        ),
+      );
+    }
+    if (widget.options.series.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: labels.series,
+          empty: labels.anySeries,
+          value: _series,
+          options: widget.options.series,
+          onChanged: (v) => setState(() => _series = v),
+        ),
+      );
+    }
+    if (widget.options.locations.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: 'Location',
+          empty: 'Any location',
+          value: _location,
+          options: widget.options.locations,
+          onChanged: (v) => setState(() => _location = v),
+        ),
+      );
+    }
+    if (widget.options.tags.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _AutocompleteFilterField(
+          label: 'Tag',
+          hint: 'Any tag',
+          value: _tag,
+          options: widget.options.tags,
+          onChanged: (value) => setState(() => _tag = value),
+        ),
+      );
+    }
+    if (widget.options.publishers.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: labels.publisher,
+          empty: labels.anyPublisher,
+          value: _publisher,
+          options: widget.options.publishers,
+          onChanged: (v) => setState(() => _publisher = v),
+        ),
+      );
+    }
+    if (widget.options.releaseYears.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: labels.year,
+          empty: labels.anyYear,
+          value: _releaseYear,
+          options: widget.options.releaseYears,
+          onChanged: (v) => setState(() => _releaseYear = v),
+        ),
+      );
+    }
+    if (hasGrades && widget.options.grades.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: 'Grade',
+          empty: 'Any grade',
+          value: _grade,
+          options: widget.options.grades,
+          onChanged: (v) => setState(() => _grade = v),
+        ),
+      );
+    }
+    if (hasConditions && widget.options.conditions.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: 'Condition',
+          empty: 'Any condition',
+          value: _condition,
+          options: widget.options.conditions,
+          onChanged: (v) => setState(() => _condition = v),
+        ),
+      );
+    }
+    if (widget.options.countries.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: 'Country',
+          empty: 'Any country',
+          value: _country,
+          options: widget.options.countries,
+          onChanged: (v) => setState(() => _country = v),
+        ),
+      );
+    }
+    if (widget.options.languages.isNotEmpty) {
+      if (detailFilters.isNotEmpty) {
+        detailFilters.add(const SizedBox(height: 10));
+      }
+      detailFilters.add(
+        _FilterDropdown(
+          label: 'Language',
+          empty: 'Any language',
+          value: _language,
+          options: widget.options.languages,
+          onChanged: (v) => setState(() => _language = v),
+        ),
+      );
+    }
+    if (detailFilters.isNotEmpty) {
+      detailFilters.add(const SizedBox(height: 10));
+    }
+    detailFilters.addAll([
+      _FilterCheckboxTile(
+        title: 'Missing covers',
+        value: _missingCover,
+        onChanged: (value) => setState(() => _missingCover = value),
+      ),
+      const SizedBox(height: 8),
+      _FilterCheckboxTile(
+        title: 'Missing metadata',
+        value: _missingMetadata,
+        onChanged: (value) => setState(() => _missingMetadata = value),
+      ),
+    ]);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 820,
+          maxHeight: viewport.height - 36,
+        ),
+        child: SizedBox(
+          width: viewport.width - 48,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.panelRaised,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: palette.divider),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 28,
+                  offset: Offset(0, 14),
                 ),
-                items: [
-                  for (final f in ownershipValues)
-                    DropdownMenuItem(
-                      value: f,
-                      child: Text(libraryOwnershipFilterLabel(f)),
-                    ),
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _ownership = v);
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<LibraryTrackingStatusFilter>(
-                initialValue: _trackingStatus,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking status',
-                  border: OutlineInputBorder(),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _FilterDialogHeader(
+                  accent: accent,
+                  title: 'Select Filters',
+                  subtitle:
+                      'Refine ${widget.type.pluralLabel.toLowerCase()} by shelf, status, and field values',
                 ),
-                items: [
-                  for (final filter in LibraryTrackingStatusFilter.values)
-                    DropdownMenuItem(
-                      value: filter,
-                      child: Text(libraryTrackingStatusFilterLabel(filter)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _trackingStatus = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<LibraryLoanStatusFilter>(
-                initialValue: _loanStatus,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Loan status',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final filter in LibraryLoanStatusFilter.values)
-                    DropdownMenuItem(
-                      value: filter,
-                      child: Text(libraryLoanStatusFilterLabel(filter)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _loanStatus = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<LibraryDateRangeField>(
-                initialValue: _dateRangeField,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Date field',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final field in LibraryDateRangeField.values)
-                    DropdownMenuItem(
-                      value: field,
-                      child: Text(libraryDateRangeFieldLabel(field)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _dateRangeField = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _DateFilterButton(
-                      label: 'From',
-                      value: _dateFrom,
-                      onPick: () => _pickDate(isStart: true),
-                      onClear: _dateFrom == null
-                          ? null
-                          : () => setState(() => _dateFrom = null),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _DateFilterButton(
-                      label: 'To',
-                      value: _dateTo,
-                      onPick: () => _pickDate(isStart: false),
-                      onClear: _dateTo == null
-                          ? null
-                          : () => setState(() => _dateTo = null),
-                    ),
-                  ),
-                ],
-              ),
-              if (widget.options.customFields.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: widget.options.customFields.any(
-                    (field) => field.definitionId == _customFieldDefinitionId,
-                  )
-                      ? _customFieldDefinitionId
-                      : null,
-                  isExpanded: true,
-                  dropdownColor: palette.panelRaised,
-                  borderRadius: kAppMenuBorderRadius,
-                  decoration: const InputDecoration(
-                    labelText: 'Custom field',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: '',
-                      child: Text('Any custom field'),
-                    ),
-                    for (final field in widget.options.customFields)
-                      DropdownMenuItem<String>(
-                        value: field.definitionId,
-                        child: Text(field.label),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _FilterDialogPane(
+                            title: 'General Filters',
+                            subtitle: 'Shelf, tracking, loan status, and date range',
+                            accent: accent,
+                            child: Column(children: generalFilters),
+                          ),
+                          const SizedBox(height: 12),
+                          _FilterDialogPane(
+                            title: 'Field Filters',
+                            subtitle:
+                                'Metadata fields, location, tags, and missing-info flags',
+                            accent: accent,
+                            child: Column(children: detailFilters),
+                          ),
+                        ],
                       ),
-                  ],
-                  onChanged: (value) {
-                    final nextDefinitionId =
-                        value == null || value.isEmpty ? null : value;
-                    setState(() {
-                      _customFieldDefinitionId = nextDefinitionId;
-                      final nextField = _selectedCustomFieldOption();
-                      if (_customFieldValue != null &&
-                          (nextField == null ||
-                              !nextField.values.contains(_customFieldValue))) {
-                        _customFieldValue = null;
-                      }
-                    });
-                  },
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: palette.divider)),
+                  ),
+                  child: Row(
+                    children: [
+                      LibraryDenseButton(
+                        label: 'Clear',
+                        onPressed: () => Navigator.of(context).pop(
+                          LibraryFilterSelection.none,
+                        ),
+                        tone: LibraryDenseButtonTone.subtle,
+                      ),
+                      const Spacer(),
+                      LibraryDenseButton(
+                        label: 'Apply',
+                        onPressed: () =>
+                            Navigator.of(context).pop(_buildSelection()),
+                        tone: LibraryDenseButtonTone.accent,
+                      ),
+                    ],
+                  ),
                 ),
               ],
-              if (selectedCustomField != null &&
-                  selectedCustomField.values.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: '${selectedCustomField.label} value',
-                  empty: 'Any value',
-                  value: _customFieldValue,
-                  options: _customFieldValueOptions(selectedCustomField),
-                  onChanged: (value) => setState(() => _customFieldValue = value),
-                ),
-              ],
-              if (widget.options.series.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: labels.series,
-                  empty: labels.anySeries,
-                  value: _series,
-                  options: widget.options.series,
-                  onChanged: (v) => setState(() => _series = v),
-                ),
-              ],
-              if (widget.options.locations.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Location',
-                  empty: 'Any location',
-                  value: _location,
-                  options: widget.options.locations,
-                  onChanged: (v) => setState(() => _location = v),
-                ),
-              ],
-              if (widget.options.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _AutocompleteFilterField(
-                  label: 'Tag',
-                  hint: 'Any tag',
-                  value: _tag,
-                  options: widget.options.tags,
-                  onChanged: (value) => setState(() => _tag = value),
-                ),
-              ],
-              if (widget.options.publishers.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: labels.publisher,
-                  empty: labels.anyPublisher,
-                  value: _publisher,
-                  options: widget.options.publishers,
-                  onChanged: (v) => setState(() => _publisher = v),
-                ),
-              ],
-              if (widget.options.releaseYears.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: labels.year,
-                  empty: labels.anyYear,
-                  value: _releaseYear,
-                  options: widget.options.releaseYears,
-                  onChanged: (v) => setState(() => _releaseYear = v),
-                ),
-              ],
-              if (hasGrades && widget.options.grades.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Grade',
-                  empty: 'Any grade',
-                  value: _grade,
-                  options: widget.options.grades,
-                  onChanged: (v) => setState(() => _grade = v),
-                ),
-              ],
-              if (hasConditions && widget.options.conditions.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Condition',
-                  empty: 'Any condition',
-                  value: _condition,
-                  options: widget.options.conditions,
-                  onChanged: (v) => setState(() => _condition = v),
-                ),
-              ],
-              if (widget.options.countries.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Country',
-                  empty: 'Any country',
-                  value: _country,
-                  options: widget.options.countries,
-                  onChanged: (v) => setState(() => _country = v),
-                ),
-              ],
-              if (widget.options.languages.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Language',
-                  empty: 'Any language',
-                  value: _language,
-                  options: widget.options.languages,
-                  onChanged: (v) => setState(() => _language = v),
-                ),
-              ],
-              const SizedBox(height: 8),
-              CheckboxListTile(
-                value: _missingCover,
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Missing covers'),
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (v) =>
-                    setState(() => _missingCover = v ?? false),
-              ),
-              CheckboxListTile(
-                value: _missingMetadata,
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Missing metadata'),
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (v) =>
-                    setState(() => _missingMetadata = v ?? false),
-              ),
-            ],
+            ),
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () =>
-              Navigator.of(context).pop(LibraryFilterSelection.none),
-          child: const Text('Clear'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(
-            LibraryFilterSelection(
-              ownershipFilter: _ownership,
-              trackingStatusFilter: _trackingStatus,
-              loanStatusFilter: _loanStatus,
-              dateRangeField: _dateRangeField,
-              dateFrom: _dateFrom,
-              dateTo: _dateTo,
-              customFieldDefinitionId: _customFieldDefinitionId,
-              customFieldValue: _customFieldValue,
-              series: _series,
-              location: _location,
-              tag: _tag,
-              grade: _grade,
-              condition: _condition,
-              publisher: _publisher,
-              releaseYear: _releaseYear,
-              country: _country,
-              language: _language,
-              missingCover: _missingCover,
-              missingMetadata: _missingMetadata,
-            ),
-          ),
-          child: const Text('Apply'),
-        ),
-      ],
+    );
+  }
+
+  LibraryFilterSelection _buildSelection() {
+    return LibraryFilterSelection(
+      ownershipFilter: _ownership,
+      trackingStatusFilter: _trackingStatus,
+      loanStatusFilter: _loanStatus,
+      dateRangeField: _dateRangeField,
+      dateFrom: _dateFrom,
+      dateTo: _dateTo,
+      customFieldDefinitionId: _customFieldDefinitionId,
+      customFieldValue: _customFieldValue,
+      series: _series,
+      location: _location,
+      tag: _tag,
+      grade: _grade,
+      condition: _condition,
+      publisher: _publisher,
+      releaseYear: _releaseYear,
+      country: _country,
+      language: _language,
+      missingCover: _missingCover,
+      missingMetadata: _missingMetadata,
     );
   }
 
@@ -951,10 +1048,7 @@ class _FilterDropdown extends StatelessWidget {
       isExpanded: true,
       dropdownColor: palette.panelRaised,
       borderRadius: kAppMenuBorderRadius,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: _filterFieldDecoration(context, label: label),
       items: [
         DropdownMenuItem(value: '', child: Text(empty)),
         for (final option in options)
@@ -998,10 +1092,10 @@ class _AutocompleteFilterField extends StatelessWidget {
         return TextFormField(
           controller: controller,
           focusNode: focusNode,
-          decoration: InputDecoration(
-            labelText: label,
+          decoration: _filterFieldDecoration(
+            context,
+            label: label,
             hintText: hint,
-            border: const OutlineInputBorder(),
             suffixIcon: controller.text.trim().isEmpty
                 ? null
                 : IconButton(
@@ -1065,10 +1159,17 @@ class _DateFilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final formatted = value == null
         ? label
         : MaterialLocalizations.of(context).formatMediumDate(value!);
     return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        backgroundColor: palette.surfaceSubtle,
+        side: BorderSide(color: palette.divider),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      ),
       onPressed: onPick,
       icon: const Icon(Icons.calendar_today_outlined, size: 18),
       label: Row(
@@ -1093,4 +1194,176 @@ class _DateFilterButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FilterDialogHeader extends StatelessWidget {
+  const _FilterDialogHeader({
+    required this.accent,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final Color accent;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(accent.withValues(alpha: 0.12), palette.toolbar),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+        border: Border(bottom: BorderSide(color: palette.divider)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Color.alphaBlend(
+                accent.withValues(alpha: 0.14),
+                palette.surfaceSubtle,
+              ),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(Icons.filter_alt_outlined, color: accent, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: palette.textMuted,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          LibraryDenseIconButton(
+            tooltip: 'Close',
+            onPressed: () => Navigator.of(context).pop(),
+            icon: Icons.close,
+            tone: LibraryDenseButtonTone.subtle,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterDialogPane extends StatelessWidget {
+  const _FilterDialogPane({
+    required this.title,
+    required this.subtitle,
+    required this.child,
+    required this.accent,
+  });
+
+  final String title;
+  final String subtitle;
+  final Widget child;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: accent,
+              ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: palette.textMuted,
+              ),
+        ),
+        const SizedBox(height: 10),
+        child,
+      ],
+    );
+  }
+}
+
+class _FilterCheckboxTile extends StatelessWidget {
+  const _FilterCheckboxTile({
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Material(
+      color: palette.surfaceSubtle,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(color: palette.divider),
+      ),
+      child: CheckboxListTile(
+        value: value,
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        title: Text(title),
+        controlAffinity: ListTileControlAffinity.leading,
+        visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+        onChanged: (next) => onChanged(next ?? false),
+      ),
+    );
+  }
+}
+
+InputDecoration _filterFieldDecoration(
+  BuildContext context, {
+  required String label,
+  String? hintText,
+  Widget? suffixIcon,
+}) {
+  final palette = appPalette(context);
+  return InputDecoration(
+    labelText: label,
+    hintText: hintText,
+    suffixIcon: suffixIcon,
+    isDense: true,
+    filled: true,
+    fillColor: palette.surfaceSubtle,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: palette.divider),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: palette.divider),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: palette.accent, width: 1.2),
+    ),
+  );
 }
