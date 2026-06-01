@@ -27,7 +27,7 @@ class _ComicInspectorDashboard extends StatelessWidget {
     final trackingEntry = request.trackingEntry;
     final detailRows = _detailRows(entry, ownedItem);
     final collectorRows = _collectorRows(ownedItem);
-    final valueRows = _valueRows(ownedItem);
+    final valueRows = _valueRows(ownedItem, request.ownedCopies);
 
     final panels = <_ComicPanelData>[
       if (_creatorRows(entry.creators).isNotEmpty)
@@ -460,11 +460,17 @@ List<_ComicRowData> _personalRows(
   ];
 }
 
-List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
+List<_ComicRowData> _valueRows(
+  OwnedItem? ownedItem,
+  List<OwnedItem> ownedCopies,
+) {
   if (ownedItem == null) {
     return const <_ComicRowData>[];
   }
 
+  final effectiveOwnedCopies = ownedCopies.isNotEmpty
+      ? ownedCopies
+      : <OwnedItem>[ownedItem];
   final rows = <_ComicRowData>[];
   if (ownedItem.coverPriceCents != null) {
     rows.add(
@@ -490,7 +496,68 @@ List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
       ),
     );
   }
+  if (effectiveOwnedCopies.length > 1) {
+    final totalsCurrency = _inspectorValueCurrency(effectiveOwnedCopies, ownedItem);
+    final totalMarketValue = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.marketValueCents,
+    );
+    final totalPaid = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.pricePaidCents,
+    );
+    if (totalMarketValue != null) {
+      rows.add(
+        _ComicRowData(
+          label: 'Total Value',
+          value: formatMoney(totalMarketValue, totalsCurrency),
+        ),
+      );
+    }
+    if (totalPaid != null) {
+      rows.add(
+        _ComicRowData(
+          label: 'Total Paid',
+          value: formatMoney(totalPaid, totalsCurrency),
+        ),
+      );
+    }
+  }
   return rows;
+}
+
+int? _sumOwnedValueCents(
+  List<OwnedItem> items,
+  int? Function(OwnedItem item) selector,
+) {
+  var hasValue = false;
+  var total = 0;
+  for (final item in items) {
+    final value = selector(item);
+    if (value == null) {
+      continue;
+    }
+    hasValue = true;
+    total += value;
+  }
+  return hasValue ? total : null;
+}
+
+String? _inspectorValueCurrency(
+  List<OwnedItem> ownedCopies,
+  OwnedItem? ownedItem,
+) {
+  for (final copy in ownedCopies) {
+    final currency = copy.currency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      return currency;
+    }
+  }
+  final ownedCurrency = ownedItem?.currency?.trim();
+  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
+    return ownedCurrency;
+  }
+  return null;
 }
 
 List<_ComicRowData> _collectorRows(OwnedItem? ownedItem) {

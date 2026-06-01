@@ -191,6 +191,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       type: widget.type,
       entry: selected,
       ownedItem: activeOwnedItem,
+      ownedCopies: ownedCopies,
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,
       onFilterByValue: widget.onFilterByValue,

@@ -240,6 +240,38 @@ void main() {
                         marketValueCents: 1899,
                         updatedAt: DateTime.utc(2026, 5, 22),
                       ),
+                      ownedCopies: [
+                        OwnedItem(
+                          id: 'owned-1',
+                          itemId: 'comic-1',
+                          isDigital: false,
+                          currency: 'USD',
+                          coverPriceCents: 299,
+                          rawOrSlabbed: 'Slabbed',
+                          gradingCompany: 'CGC',
+                          certificationNumber: '1234567001',
+                          labelType: 'Universal',
+                          customLabel: 'Newsstand',
+                          pageQuality: 'White',
+                          graderNotes: 'Small spine stress',
+                          signedBy: 'Brian K. Vaughan',
+                          keyComic: true,
+                          keyReason: 'First appearance',
+                          keyCategory: 'First appearances',
+                          keySeverity: 'Major',
+                          pricePaidCents: 1299,
+                          marketValueCents: 1899,
+                          updatedAt: DateTime.utc(2026, 5, 22),
+                        ),
+                        OwnedItem(
+                          id: 'owned-2',
+                          itemId: 'comic-1',
+                          currency: 'USD',
+                          pricePaidCents: 999,
+                          marketValueCents: 2499,
+                          updatedAt: DateTime.utc(2026, 5, 21),
+                        ),
+                      ],
                       trackingEntry: null,
                       accent: Colors.red,
                     ),
@@ -285,6 +317,10 @@ void main() {
       expect(find.text('Cover Price'), findsOneWidget);
       expect(find.text('Current Value'), findsOneWidget);
       expect(find.text('USD 18.99'), findsOneWidget);
+      expect(find.text('Total Value'), findsOneWidget);
+      expect(find.text('USD 43.98'), findsOneWidget);
+      expect(find.text('Total Paid'), findsOneWidget);
+      expect(find.text('USD 22.98'), findsOneWidget);
     });
   });
 
