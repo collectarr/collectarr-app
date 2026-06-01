@@ -9,12 +9,15 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 LibraryProjectionItem _projectionItem({
@@ -33,7 +36,96 @@ LibraryProjectionItem _projectionItem({
   );
 }
 
+final _defaultViewState = LibraryWorkspaceViewState(
+  viewMode: LibraryViewMode.grid,
+  detailsLayout: LibraryDetailsLayout.hidden,
+  isSidebarVisible: true,
+  sortColumn: LibrarySortColumn.title,
+  sortAscending: true,
+  coverSize: 128,
+  sidebarWidth: 200,
+  detailsWidth: 300,
+  detailsHeight: 220,
+  visibleColumns: const {},
+  columnWidths: const {},
+);
+
 void main() {
+  test('projection sorts filtered items through adapter rules', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'comic-1',
+          catalogItem: CatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Owned later issue',
+            itemNumber: '10',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-1',
+            itemId: 'comic-1',
+            quantity: 1,
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'comic-2',
+          catalogItem: CatalogItem(
+            id: 'comic-2',
+            kind: 'comic',
+            title: 'Missing issue',
+            itemNumber: '1',
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'comic-3',
+          catalogItem: CatalogItem(
+            id: 'comic-3',
+            kind: 'comic',
+            title: 'Owned earlier issue',
+            itemNumber: '2',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-3',
+            itemId: 'comic-3',
+            quantity: 1,
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+      ],
+      ownedCount: 2,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = LibraryProjection.fromShelf(
+      shelf: shelf,
+      type: comicsLibraryConfig,
+      adapter: comicsMediaAdapter,
+      viewState: _defaultViewState.copyWith(
+        sortRules: const [
+          LibrarySortRule(column: LibrarySortColumn.status, ascending: true),
+          LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+        ],
+      ),
+      query: '',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.series,
+    );
+
+    expect(
+      projection.filteredItems.map((item) => item.entry.title),
+      ['Owned earlier issue', 'Owned later issue', 'Missing issue'],
+    );
+  });
+
   test('music grouping labels use artist and label terminology', () {
     expect(
       genericGroupModeLabel(LibraryGroupMode.series, musicLibraryConfig),
