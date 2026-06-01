@@ -145,6 +145,11 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   entries: [
                     _ComicToolbarMenuEntry(
+                      label: 'Add copy',
+                      icon: Icons.copy_outlined,
+                      onSelected: request.onAddCopy,
+                    ),
+                    _ComicToolbarMenuEntry(
                       label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
                       icon: entry.isWishlisted ? Icons.star : Icons.star_border,
                       onSelected: request.onToggleWishlist,
@@ -154,6 +159,12 @@ class _ComicInspectorToolbar extends StatelessWidget {
                       icon: Icons.open_in_new,
                       onSelected: request.onOpenDetails,
                     ),
+                    if (request.onCorrectMetadata != null)
+                      _ComicToolbarMenuEntry(
+                        label: 'Correct metadata',
+                        icon: Icons.fact_check_outlined,
+                        onSelected: request.onCorrectMetadata,
+                      ),
                     const _ComicToolbarMenuEntry(
                       label: 'Loan',
                       icon: Icons.handshake_outlined,
@@ -189,17 +200,6 @@ class _ComicInspectorToolbar extends StatelessWidget {
                       icon: Icons.upload_outlined,
                       enabled: false,
                     ),
-                    _ComicToolbarMenuEntry(
-                      label: 'Add copy',
-                      icon: Icons.copy_outlined,
-                      onSelected: request.onAddCopy,
-                    ),
-                    if (request.onCorrectMetadata != null)
-                      _ComicToolbarMenuEntry(
-                        label: 'Correct metadata',
-                        icon: Icons.fact_check_outlined,
-                        onSelected: request.onCorrectMetadata,
-                      ),
                   ],
                 ),
                 if (request.extraActions.isNotEmpty) ...[
@@ -377,12 +377,42 @@ class _ComicToolbarBadgeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryDenseButton(
-      label: label,
-      icon: icon,
-      tone: LibraryDenseButtonTone.subtle,
-      onPressed: null,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+    final palette = appPalette(context);
+    final borderColor = accent.withValues(alpha: palette.isDark ? 0.34 : 0.24);
+    final foreground = Color.alphaBlend(
+      accent.withValues(alpha: palette.isDark ? 0.18 : 0.08),
+      palette.textPrimary,
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surfaceSubtle,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: borderColor),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: DefaultTextStyle(
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.1,
+              ) ??
+              TextStyle(
+                color: foreground,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.1,
+              ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: foreground),
+              const SizedBox(width: 7),
+              Text(label),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

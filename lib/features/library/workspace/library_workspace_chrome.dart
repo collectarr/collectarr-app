@@ -38,6 +38,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accentDivider = accentColor.withValues(alpha: 0.3);
     final effectiveRightWidth = clampLibraryPaneWidth(
       rightWidth,
       minWidth: kLibraryDetailsMinWidth,
@@ -56,6 +57,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               const VerticalDivider(width: 1)
             else
               LibraryResizableDivider(
+                color: accentDivider,
                 onDragDelta: (delta) => onRightWidthChanged!(
                   clampLibraryPaneWidth(
                     effectiveRightWidth - delta,
@@ -81,6 +83,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
             else
               LibraryResizableDivider(
                 axis: Axis.vertical,
+                color: accentDivider,
                 onDragDelta: (delta) => onBottomHeightChanged!(
                   clampLibraryPaneHeight(
                     effectiveBottomHeight - delta,

@@ -45,11 +45,11 @@ class LibraryResizableDivider extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  width: isHorizontalResize ? 8 : null,
-                  height: isHorizontalResize ? null : 8,
+                  width: isHorizontalResize ? 7 : null,
+                  height: isHorizontalResize ? null : 7,
                   padding: isHorizontalResize
-                      ? const EdgeInsets.symmetric(vertical: 6)
-                      : const EdgeInsets.symmetric(horizontal: 6),
+                      ? const EdgeInsets.symmetric(vertical: 5)
+                      : const EdgeInsets.symmetric(horizontal: 5),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(999),
@@ -58,7 +58,7 @@ class LibraryResizableDivider extends StatelessWidget {
                       ? Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            for (var index = 0; index < 4; index++) ...[
+                            for (var index = 0; index < 3; index++) ...[
                               Container(
                                 width: 3,
                                 height: 3,
@@ -67,14 +67,14 @@ class LibraryResizableDivider extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              if (index < 3) const SizedBox(height: 3),
+                              if (index < 2) const SizedBox(height: 3),
                             ],
                           ],
                         )
                       : Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            for (var index = 0; index < 4; index++) ...[
+                            for (var index = 0; index < 3; index++) ...[
                               Container(
                                 width: 3,
                                 height: 3,
@@ -83,7 +83,7 @@ class LibraryResizableDivider extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              if (index < 3) const SizedBox(width: 3),
+                              if (index < 2) const SizedBox(width: 3),
                             ],
                           ],
                         ),
