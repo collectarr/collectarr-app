@@ -30,7 +30,7 @@ ThemeData editDialogTheme({
   return base.copyWith(
     extensions: [palette],
     visualDensity: VisualDensity.compact,
-    canvasColor: palette.panelRaised,
+    canvasColor: palette.panel,
     colorScheme: ColorScheme.fromSeed(
       seedColor: accent,
       brightness: palette.brightness,
@@ -64,11 +64,11 @@ ThemeData editDialogTheme({
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: palette.field,
+      fillColor: palette.surface,
       isDense: true,
       contentPadding: EdgeInsets.symmetric(
-        horizontal: compactDesktop ? 9 : 10,
-        vertical: compactDesktop ? 7 : 8,
+        horizontal: compactDesktop ? 8 : 9,
+        vertical: compactDesktop ? 6 : 7,
       ),
       floatingLabelBehavior:
           compactDesktop ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
@@ -87,15 +87,15 @@ ThemeData editDialogTheme({
       ),
       border: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(compactDesktop ? 3 : 4),
+        borderRadius: BorderRadius.circular(2),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(compactDesktop ? 3 : 4),
+        borderRadius: BorderRadius.circular(2),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: accent),
-        borderRadius: BorderRadius.circular(compactDesktop ? 3 : 4),
+        borderRadius: BorderRadius.circular(2),
       ),
     ),
     textTheme: base.textTheme.apply(
@@ -125,7 +125,7 @@ class EditTabShell extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final content = ListView(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
           children: children,
         );
         if (cover == null || constraints.maxWidth < 720) {
@@ -135,10 +135,10 @@ class EditTabShell extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              width: 204,
-              padding: const EdgeInsets.all(12),
+              width: 188,
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
               decoration: BoxDecoration(
-                color: appPalette(context).field,
+                color: appPalette(context).surface,
                 border: Border(right: BorderSide(color: appPalette(context).divider)),
               ),
               child: Column(
@@ -149,9 +149,9 @@ class EditTabShell extends StatelessWidget {
                     ),
                   ),
                   if (constraints.maxHeight >= 360) ...[
-                    const SizedBox(height: 10),
-                    const EditMiniBadge('Local item'),
                     const SizedBox(height: 8),
+                    const EditMiniBadge('Local item'),
+                    const SizedBox(height: 6),
                     const Text(
                       'Personal fields stay on this device or your sync service.',
                       textAlign: TextAlign.center,
@@ -189,29 +189,29 @@ class EditSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: p.gridCanvas,
-        shape: Border(
-          left: BorderSide(color: accent, width: 2),
-          top: BorderSide(color: p.surfaceBright),
-          right: BorderSide(color: p.surfaceBright),
-          bottom: BorderSide(color: p.surfaceBright),
+      padding: const EdgeInsets.only(bottom: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border(
+            top: BorderSide(color: p.divider.withValues(alpha: 0.85)),
+          ),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
+          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
                 style: TextStyle(
-                  color: accent,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
+                  color: p.textMuted,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  letterSpacing: 0.3,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               child,
             ],
           ),
@@ -234,12 +234,12 @@ class EditTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 34,
+      height: 30,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 4),
+          Icon(icon, size: 14),
+          const SizedBox(width: 3),
           Text(label),
         ],
       ),
@@ -265,14 +265,14 @@ class EditGrid extends StatelessWidget {
           children: [
             children[i],
             if (i + 1 < children.length) ...[
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               children[i + 1],
             ],
           ],
         ),
       );
       if (i + 2 < children.length) {
-        rows.add(const SizedBox(height: 8));
+        rows.add(const SizedBox(height: 6));
       }
     }
     return Column(children: rows);
@@ -293,14 +293,21 @@ class EditMiniBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color ?? kAppAccent,
+        color: (color ?? appPalette(context).accent).withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: (color ?? appPalette(context).accent).withValues(alpha: 0.22),
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
         child: Text(
           label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            color: color ?? appPalette(context).accent,
+          ),
         ),
       ),
     );

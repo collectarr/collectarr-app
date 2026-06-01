@@ -1,8 +1,8 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const double kLibraryEditTabStripHeight = 38;
-const double kLibraryEditTabStripContainerHeight = 39;
+const double kLibraryEditTabStripHeight = 32;
+const double kLibraryEditTabStripContainerHeight = 33;
 
 class LibraryEditTabStripFrame extends StatelessWidget {
   const LibraryEditTabStripFrame({super.key, required this.child});
@@ -15,7 +15,7 @@ class LibraryEditTabStripFrame extends StatelessWidget {
     return Container(
       height: kLibraryEditTabStripContainerHeight,
       decoration: BoxDecoration(
-        color: palette.panelRaised,
+        color: palette.toolbar,
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: child,
@@ -43,13 +43,17 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
     final foreground = selected ? palette.textPrimary : palette.textMuted;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: highlighted ? accent.withValues(alpha: 0.12) : Colors.transparent,
+        color: selected
+            ? palette.surface.withValues(alpha: palette.isDark ? 0.44 : 0.9)
+            : highlighted
+                ? palette.surfaceSubtle.withValues(alpha: 0.55)
+                : Colors.transparent,
         border: Border(
           bottom: BorderSide(
             color: selected ? accent : Colors.transparent,
-            width: 2,
+            width: 1.5,
           ),
         ),
       ),
@@ -57,11 +61,11 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          fontSize: 12,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+          fontSize: 11,
         ),
         child: IconTheme.merge(
-          data: IconThemeData(color: foreground, size: 16),
+          data: IconThemeData(color: foreground, size: 14),
           child: tab,
         ),
       ),
@@ -87,20 +91,21 @@ class LibraryEditDraggedTabLabel extends StatelessWidget {
     final foreground = muted ? palette.textMuted : palette.textPrimary;
     return Container(
       height: kLibraryEditTabStripHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
+        color: appPalette(context).surface,
+        borderRadius: BorderRadius.circular(2),
+        border: Border.all(color: appPalette(context).divider),
       ),
       alignment: Alignment.center,
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
           fontWeight: FontWeight.w700,
-          fontSize: 12,
+          fontSize: 11,
         ),
         child: IconTheme.merge(
-          data: IconThemeData(color: foreground, size: 16),
+          data: IconThemeData(color: foreground, size: 14),
           child: tab,
         ),
       ),
@@ -201,20 +206,20 @@ class LibraryEditMaterialTabBar extends StatelessWidget {
                     isScrollable: true,
                     tabAlignment: TabAlignment.start,
                     indicatorSize: TabBarIndicatorSize.tab,
-                    indicatorWeight: 2,
+                    indicatorWeight: 1.5,
                     indicatorColor: accent,
                     dividerColor: Colors.transparent,
                     labelColor: palette.textPrimary,
                     unselectedLabelColor: palette.textMuted,
                     labelStyle: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
                     unselectedLabelStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                     overlayColor:
                         const WidgetStatePropertyAll(Colors.transparent),
                     splashBorderRadius: BorderRadius.zero,
@@ -247,7 +252,7 @@ class _TabScrollArrow extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Icon(icon, size: 20, color: appPalette(context).textMuted),
+        child: Icon(icon, size: 16, color: appPalette(context).textMuted),
       ),
     );
   }

@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/bundles/item_bundle_release_brow
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/detail/activity_timeline_section.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -164,22 +163,17 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
                 children: [
                   LibraryDetailHero(
                     type: widget.type,
                     entry: widget.entry,
                     ownedItem: activeOwnedItem,
+                    ownedCopies: ownedCopies,
                     accent: widget.accent,
                     isOwned: isOwned,
                   ),
-                  const SizedBox(height: 12),
-                  LibraryDetailStatsBar(
-                    entry: widget.entry,
-                    ownedItem: activeOwnedItem,
-                    ownedCopies: ownedCopies,
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   if (activeOwnedItem != null || activeTrackingEntry != null) ...[
                     LibraryDetailPersonalSection(
                       entry: widget.entry,
@@ -200,20 +194,20 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                         editions: widget.entry.editions,
                         accent: widget.accent,
                       ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                   ],
                   if (activeBundleReleaseId != null) ...[
                     BundleReleaseContentsSection(
                       bundleReleaseId: activeBundleReleaseId,
                       accent: widget.accent,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                   ] else ...[
                     ItemBundleReleaseBrowserSection(
                       itemId: widget.entry.titleItemId ?? widget.entry.id,
                       accent: widget.accent,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                   ],
                   LibraryDetailMetadataSection(
                     type: widget.type,
@@ -259,7 +253,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     itemId: widget.entry.id,
                     accent: widget.accent,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   ActivityTimelineSection(
                     itemId: widget.entry.id,
                     ownedItemIds: ownedCopies.map((c) => c.id).toList(),
@@ -370,18 +364,15 @@ class _LibraryDetailToolbar extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          accent.withValues(alpha: palette.isDark ? 0.012 : 0.004),
-          palette.surface,
-        ),
+        color: palette.surface,
         border: Border(
           bottom: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.12 : 0.06),
+            color: palette.divider,
           ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(6, 6, 6, 4),
+        padding: const EdgeInsets.fromLTRB(4, 4, 4, 3),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -391,7 +382,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                 icon: Icons.edit_outlined,
                 onPressed: onEdit,
                 tone: LibraryDenseButtonTone.subtle,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               ),
               const SizedBox(width: 4),
               LibraryDenseButton(
@@ -401,7 +392,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                     : Icons.add_circle_outline,
                 onPressed: onToggleOwned,
                 tone: LibraryDenseButtonTone.subtle,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               ),
               if (hasCopyMenu) ...[
                 const SizedBox(width: 4),
@@ -410,7 +401,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   label: 'Copy',
                   icon: Icons.copy_all_outlined,
                   tone: LibraryDenseButtonTone.subtle,
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   entries: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
                       LibraryDenseMenuEntry<String>(
@@ -437,7 +428,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   icon: Icons.storefront_outlined,
                   onPressed: onSearchOnEbay,
                   tone: LibraryDenseButtonTone.subtle,
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 ),
               ],
               const SizedBox(width: 4),
@@ -446,7 +437,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                 label: 'More',
                 icon: Icons.more_vert,
                 tone: LibraryDenseButtonTone.subtle,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 entries: [
                   if (isOwned && onAddCopy != null)
                     const LibraryDenseMenuEntry<String>(
