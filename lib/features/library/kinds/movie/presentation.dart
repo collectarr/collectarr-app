@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -405,6 +406,21 @@ const moviesLibraryGroupModeDefinitions = [
   ),
 ];
 
+const moviesLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Series',
+  seriesPlural: 'Series',
+  unknownSeries: 'Unknown series',
+  publisher: 'Studio',
+  publisherPlural: 'Studios',
+  unknownPublisher: 'Unknown studio',
+  publisherMode: 'Studios',
+  genre: 'Genres',
+);
+
+String moviesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, moviesLibraryGroupLabels);
+}
+
 const moviesLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.series,
@@ -528,17 +544,11 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Studio',
     anyPublisher: 'Any studio',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Series',
-    seriesPlural: 'Series',
-    unknownSeries: 'Unknown series',
-    publisher: 'Studio',
-    publisherPlural: 'Studios',
-    unknownPublisher: 'Unknown studio',
-    publisherMode: 'Studios',
-    genre: 'Genres',
-  ),
+  groupLabels: moviesLibraryGroupLabels,
   builder: moviesLibraryMediaBuilder,
+  workspaceEntryBuilder: buildMoviesLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildMoviesLibraryReleaseEntry,
+  bucketLabelBuilder: moviesLibraryBucketLabelBuilder,
   previewLabels: defaultPreviewLabels,
   statsLabels: franchiseStatsLabels,
   compactBucketIcon: Icons.movie_filter_outlined,

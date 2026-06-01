@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -28,6 +29,7 @@ void main() {
         ),
         locationPath: 'Office › Shelf 2 › Short Box 1',
       ),
+      comicsLibraryConfig,
     );
 
     expect(projection.entry.locationPath, 'Office › Shelf 2 › Short Box 1');
@@ -55,6 +57,7 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 23),
         ),
       ),
+      comicsLibraryConfig,
     );
     final wishlistProjection = LibraryProjectionItem.fromShelf(
       ShelfEntry(
@@ -74,6 +77,7 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 23),
         ),
       ),
+      comicsLibraryConfig,
     );
 
     expect(bundleProjection.entry.primaryReferenceLabel, 'Owned as bundle');

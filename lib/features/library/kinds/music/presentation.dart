@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,19 @@ const musicLibraryGroupModeDefinitions = [
     icon: Icons.inventory_2_outlined,
   ),
 ];
+
+const musicLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Artist',
+  seriesPlural: 'Artists',
+  unknownSeries: 'Unknown artist',
+  publisher: 'Label',
+  publisherPlural: 'Labels',
+  unknownPublisher: 'Unknown label',
+);
+
+String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, musicLibraryGroupLabels);
+}
 
 const musicLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
@@ -175,15 +189,11 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Label',
     anyPublisher: 'Any label',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Artist',
-    seriesPlural: 'Artists',
-    unknownSeries: 'Unknown artist',
-    publisher: 'Label',
-    publisherPlural: 'Labels',
-    unknownPublisher: 'Unknown label',
-  ),
+  groupLabels: musicLibraryGroupLabels,
   builder: musicLibraryMediaBuilder,
+  workspaceEntryBuilder: buildMusicLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildMusicLibraryReleaseEntry,
+  bucketLabelBuilder: musicLibraryBucketLabelBuilder,
   previewLabels: releasesPreviewLabels,
   statsLabels: musicStatsLabels,
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),

@@ -72,6 +72,8 @@ enum LibraryGroupMode {
   collectionStatus,
   grade,
   condition,
+  rawOrSlabbed,
+  isKeyComic,
   imageType,
   modifiedDate,
   modifiedMonth,

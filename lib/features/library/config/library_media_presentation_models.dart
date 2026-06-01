@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -217,6 +219,56 @@ class LibraryAddSearchResultDisplay {
   final String? secondaryLine;
   final String? detailLine;
 }
+
+class LibraryBucketingContext {
+  const LibraryBucketingContext({
+    required this.source,
+    required this.entry,
+    required this.groupMode,
+  });
+
+  final ShelfEntry source;
+  final LibraryWorkspaceEntry entry;
+  final LibraryGroupMode groupMode;
+}
+
+class LibraryReleaseEntryRequest {
+  const LibraryReleaseEntryRequest({
+    required this.titleEntry,
+    required this.edition,
+    this.isOwned = false,
+    this.isWishlisted = false,
+    this.isTracked = false,
+    this.referenceEditionId,
+    this.referenceVariantId,
+    this.referenceBundleReleaseId,
+    this.editions = const <CatalogEdition>[],
+    required this.updatedAt,
+  });
+
+  final LibraryWorkspaceEntry titleEntry;
+  final CatalogEdition edition;
+  final bool isOwned;
+  final bool isWishlisted;
+  final bool isTracked;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
+  final List<CatalogEdition> editions;
+  final DateTime updatedAt;
+}
+
+typedef LibraryWorkspaceEntryBuilder = LibraryWorkspaceEntry Function(
+  ShelfEntry source,
+);
+
+typedef LibraryReleaseEntryBuilder = LibraryWorkspaceEntry Function(
+  LibraryReleaseEntryRequest request,
+);
+
+typedef LibraryBucketLabelBuilder = String Function(
+  LibraryBucketingContext context,
+);
 
 class LibrarySortFavorite {
   const LibrarySortFavorite({
@@ -530,6 +582,9 @@ class LibraryMediaPresentation {
     required this.filterLabels,
     required this.groupLabels,
     required this.builder,
+    required this.workspaceEntryBuilder,
+    required this.releaseEntryBuilder,
+    required this.bucketLabelBuilder,
     this.defaultVisibleColumns = const {
       LibraryTableColumn.status,
       LibraryTableColumn.cover,
@@ -567,6 +622,9 @@ class LibraryMediaPresentation {
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
+  final LibraryWorkspaceEntryBuilder workspaceEntryBuilder;
+  final LibraryReleaseEntryBuilder releaseEntryBuilder;
+  final LibraryBucketLabelBuilder bucketLabelBuilder;
   final Set<LibraryTableColumn> defaultVisibleColumns;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;

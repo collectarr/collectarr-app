@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,8 @@ const comicsLibraryGroupModes = [
   LibraryGroupMode.editor,
   LibraryGroupMode.grade,
   LibraryGroupMode.condition,
+  LibraryGroupMode.isKeyComic,
+  LibraryGroupMode.rawOrSlabbed,
   LibraryGroupMode.location,
   LibraryGroupMode.title,
   LibraryGroupMode.ownership,
@@ -120,6 +123,18 @@ const comicsLibraryGroupModeDefinitions = [
     icon: Icons.rule_outlined,
   ),
   LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.isKeyComic,
+    label: 'Key',
+    sidebarTitle: 'Keys',
+    icon: Icons.key_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.rawOrSlabbed,
+    label: 'Raw / Slabbed',
+    sidebarTitle: 'Raw / Slabbed',
+    icon: Icons.layers_outlined,
+  ),
+  LibraryGroupModeDefinition(
     mode: LibraryGroupMode.location,
     label: 'Location',
     sidebarTitle: 'Locations',
@@ -138,6 +153,19 @@ const comicsLibraryGroupModeDefinitions = [
     icon: Icons.inventory_2_outlined,
   ),
 ];
+
+const comicsLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Series',
+  seriesPlural: 'Series',
+  unknownSeries: 'Unknown series',
+  publisher: 'Publisher',
+  publisherPlural: 'Publishers',
+  unknownPublisher: 'Unknown publisher',
+);
+
+String comicsLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, comicsLibraryGroupLabels);
+}
 
 const comicLibrarySortFavorites = [
   LibrarySortFavorite(
@@ -317,15 +345,11 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Publisher',
     anyPublisher: 'Any publisher',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Series',
-    seriesPlural: 'Series',
-    unknownSeries: 'Unknown series',
-    publisher: 'Publisher',
-    publisherPlural: 'Publishers',
-    unknownPublisher: 'Unknown publisher',
-  ),
+  groupLabels: comicsLibraryGroupLabels,
   builder: comicsLibraryMediaBuilder,
+  workspaceEntryBuilder: buildComicsLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildComicsLibraryReleaseEntry,
+  bucketLabelBuilder: comicsLibraryBucketLabelBuilder,
   defaultVisibleColumns: issueVisibleColumns,
   previewLabels: issuesPreviewLabels,
   usesTreeProviderCandidates: true,

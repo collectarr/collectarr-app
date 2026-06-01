@@ -55,6 +55,7 @@ import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
@@ -1991,38 +1992,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           ),
         )
         .toList(growable: false);
-    final entry = LibraryWorkspaceEntry.releaseNode(
-      titleItemId: titleItem.entry.id,
-      mediaType: titleItem.entry.mediaType,
-      title: titleItem.entry.title,
-      edition: edition,
-      displayTitle: titleItem.entry.displayTitle,
-      localizedTitle: titleItem.entry.localizedTitle,
-      originalTitle: titleItem.entry.originalTitle,
-      searchAliases: titleItem.entry.searchAliases,
-      fallbackSynopsis: titleItem.entry.synopsis,
-      fallbackCoverImageUrl: titleItem.entry.coverImageUrl,
-      fallbackThumbnailImageUrl: titleItem.entry.thumbnailImageUrl,
-      fallbackPublisher: titleItem.entry.publisher,
-      fallbackReleaseYear: titleItem.entry.releaseYear,
-      fallbackSeries: titleItem.entry.series,
-      fallbackPublishing: titleItem.entry.publishing,
-      fallbackVideo: titleItem.entry.video,
-      fallbackMusic: titleItem.entry.music,
-      fallbackGame: titleItem.entry.game,
-      fallbackCreators: titleItem.entry.creators,
-      fallbackCharacters: titleItem.entry.characters,
-      fallbackStoryArcs: titleItem.entry.storyArcs,
-      fallbackGenres: titleItem.entry.genres,
-      fallbackCountry: titleItem.entry.country,
-      fallbackLanguage: titleItem.entry.language,
-      fallbackAgeRating: titleItem.entry.ageRating,
-      isOwned: matchedOwnedCopies.isNotEmpty,
-      isWishlisted: matchedWishlistItems.isNotEmpty,
-      referenceEditionId: edition.id,
-      referenceVariantId: preferredVideoEditionVariantId(edition),
-      editions: editions,
-      updatedAt: titleItem.entry.updatedAt,
+    final entry = widget.type.presentation.releaseEntryBuilder(
+      LibraryReleaseEntryRequest(
+        titleEntry: titleItem.entry,
+        edition: edition,
+        isOwned: matchedOwnedCopies.isNotEmpty,
+        isWishlisted: matchedWishlistItems.isNotEmpty,
+        referenceEditionId: edition.id,
+        referenceVariantId: preferredVideoEditionVariantId(edition),
+        editions: editions,
+        updatedAt: titleItem.entry.updatedAt,
+      ),
     );
     return _VideoShelfReleaseDrilldownItem(
       entry: entry,

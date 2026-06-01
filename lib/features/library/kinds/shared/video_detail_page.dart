@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -45,7 +46,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
   @override
   void initState() {
     super.initState();
-    final nodes = _releaseNodesFor(widget.request.entry);
+    final nodes = _releaseNodesFor(widget.request.type, widget.request.entry);
     _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
   }
 
@@ -53,7 +54,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
   void didUpdateWidget(covariant VideoLibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.request.entry.id != widget.request.entry.id) {
-      final nodes = _releaseNodesFor(widget.request.entry);
+      final nodes = _releaseNodesFor(widget.request.type, widget.request.entry);
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
       _selectedOwnedItemIdByRelease.clear();
     }
@@ -131,6 +132,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
       orElse: () => const <WishlistItem>[],
     );
     final releases = _resolvedReleasesFor(
+      request.type,
       request.entry,
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
@@ -281,40 +283,22 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
   }
 }
 
-List<LibraryBrowserNode> _releaseNodesFor(LibraryWorkspaceEntry entry) {
+List<LibraryBrowserNode> _releaseNodesFor(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
   final resolvedEditions = resolveVideoCatalogEditionsForEntry(entry);
   final nodes = <LibraryBrowserNode>[];
   for (final edition in resolvedEditions) {
-    final releaseEntry = LibraryWorkspaceEntry.releaseNode(
-      titleItemId: entry.id,
-      mediaType: entry.mediaType,
-      title: entry.title,
-      edition: edition,
-      displayTitle: entry.displayTitle,
-      localizedTitle: entry.localizedTitle,
-      originalTitle: entry.originalTitle,
-      searchAliases: entry.searchAliases,
-      fallbackSynopsis: entry.synopsis,
-      fallbackCoverImageUrl: entry.coverImageUrl,
-      fallbackThumbnailImageUrl: entry.thumbnailImageUrl,
-      fallbackPublisher: entry.publisher,
-      fallbackReleaseYear: entry.releaseYear,
-      fallbackSeries: entry.series,
-      fallbackPublishing: entry.publishing,
-      fallbackVideo: entry.video,
-      fallbackMusic: entry.music,
-      fallbackGame: entry.game,
-      fallbackCreators: entry.creators,
-      fallbackCharacters: entry.characters,
-      fallbackStoryArcs: entry.storyArcs,
-      fallbackGenres: entry.genres,
-      fallbackCountry: entry.country,
-      fallbackLanguage: entry.language,
-      fallbackAgeRating: entry.ageRating,
-      referenceEditionId: edition.id,
-      referenceVariantId: preferredVideoEditionVariantId(edition),
-      editions: resolvedEditions,
-      updatedAt: entry.updatedAt,
+    final releaseEntry = type.presentation.releaseEntryBuilder(
+      LibraryReleaseEntryRequest(
+        titleEntry: entry,
+        edition: edition,
+        referenceEditionId: edition.id,
+        referenceVariantId: preferredVideoEditionVariantId(edition),
+        editions: resolvedEditions,
+        updatedAt: entry.updatedAt,
+      ),
     );
     nodes.add(
       LibraryBrowserNode(
@@ -331,6 +315,7 @@ List<LibraryBrowserNode> _releaseNodesFor(LibraryWorkspaceEntry entry) {
 }
 
 List<_ResolvedVideoRelease> _resolvedReleasesFor(
+  LibraryTypeConfig type,
   LibraryWorkspaceEntry entry, {
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
@@ -343,6 +328,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
   return [
     for (final edition in resolvedEditions)
       _buildResolvedVideoRelease(
+        type,
         entry,
         edition,
         editions: resolvedEditions,
@@ -353,6 +339,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
 }
 
 _ResolvedVideoRelease _buildResolvedVideoRelease(
+  LibraryTypeConfig type,
   LibraryWorkspaceEntry entry,
   CatalogEdition edition, {
   required List<CatalogEdition> editions,
@@ -370,38 +357,17 @@ _ResolvedVideoRelease _buildResolvedVideoRelease(
       break;
     }
   }
-  final releaseEntry = LibraryWorkspaceEntry.releaseNode(
-    titleItemId: entry.id,
-    mediaType: entry.mediaType,
-    title: entry.title,
-    edition: edition,
-    displayTitle: entry.displayTitle,
-    localizedTitle: entry.localizedTitle,
-    originalTitle: entry.originalTitle,
-    searchAliases: entry.searchAliases,
-    fallbackSynopsis: entry.synopsis,
-    fallbackCoverImageUrl: entry.coverImageUrl,
-    fallbackThumbnailImageUrl: entry.thumbnailImageUrl,
-    fallbackPublisher: entry.publisher,
-    fallbackReleaseYear: entry.releaseYear,
-    fallbackSeries: entry.series,
-    fallbackPublishing: entry.publishing,
-    fallbackVideo: entry.video,
-    fallbackMusic: entry.music,
-    fallbackGame: entry.game,
-    fallbackCreators: entry.creators,
-    fallbackCharacters: entry.characters,
-    fallbackStoryArcs: entry.storyArcs,
-    fallbackGenres: entry.genres,
-    fallbackCountry: entry.country,
-    fallbackLanguage: entry.language,
-    fallbackAgeRating: entry.ageRating,
-    isOwned: matchedOwnedCopies.isNotEmpty,
-    isWishlisted: matchedWishlist != null,
-    referenceEditionId: edition.id,
-    referenceVariantId: preferredVideoEditionVariantId(edition),
-    editions: editions,
-    updatedAt: entry.updatedAt,
+  final releaseEntry = type.presentation.releaseEntryBuilder(
+    LibraryReleaseEntryRequest(
+      titleEntry: entry,
+      edition: edition,
+      isOwned: matchedOwnedCopies.isNotEmpty,
+      isWishlisted: matchedWishlist != null,
+      referenceEditionId: edition.id,
+      referenceVariantId: preferredVideoEditionVariantId(edition),
+      editions: editions,
+      updatedAt: entry.updatedAt,
+    ),
   );
   final node = LibraryBrowserNode(
     id: releaseEntry.id,

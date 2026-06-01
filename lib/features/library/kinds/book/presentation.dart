@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -60,6 +61,19 @@ const booksLibraryGroupModeDefinitions = [
     icon: Icons.inventory_2_outlined,
   ),
 ];
+
+const booksLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Series',
+  seriesPlural: 'Series',
+  unknownSeries: 'Unknown series',
+  publisher: 'Publisher',
+  publisherPlural: 'Publishers',
+  unknownPublisher: 'Unknown publisher',
+);
+
+String booksLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, booksLibraryGroupLabels);
+}
 
 const booksLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
@@ -184,18 +198,14 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Publisher',
     anyPublisher: 'Any publisher',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Series',
-    seriesPlural: 'Series',
-    unknownSeries: 'Unknown series',
-    publisher: 'Publisher',
-    publisherPlural: 'Publishers',
-    unknownPublisher: 'Unknown publisher',
-  ),
+  groupLabels: booksLibraryGroupLabels,
   builder: BookLibraryMediaPresentationBuilder(
     showSummary: true,
     showVolumeHierarchy: true,
   ),
+  workspaceEntryBuilder: buildBooksLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildBooksLibraryReleaseEntry,
+  bucketLabelBuilder: booksLibraryBucketLabelBuilder,
   previewLabels: volumesPreviewLabels,
   sortColumnDefinitions: booksLibrarySortColumnDefinitions,
   groupModeDefinitions: booksLibraryGroupModeDefinitions,

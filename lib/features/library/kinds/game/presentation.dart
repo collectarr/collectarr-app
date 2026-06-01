@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,19 @@ const gamesLibraryGroupModeDefinitions = [
     icon: Icons.inventory_2_outlined,
   ),
 ];
+
+const gamesLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Series',
+  seriesPlural: 'Series',
+  unknownSeries: 'Unknown series',
+  publisher: 'Publisher / Studio',
+  publisherPlural: 'Publishers / Studios',
+  unknownPublisher: 'Unknown publisher / studio',
+);
+
+String gamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, gamesLibraryGroupLabels);
+}
 
 const gamesLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
@@ -175,15 +189,11 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Publisher / Studio',
     anyPublisher: 'Any publisher / studio',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Series',
-    seriesPlural: 'Series',
-    unknownSeries: 'Unknown series',
-    publisher: 'Publisher / Studio',
-    publisherPlural: 'Publishers / Studios',
-    unknownPublisher: 'Unknown publisher / studio',
-  ),
+  groupLabels: gamesLibraryGroupLabels,
   builder: gamesLibraryMediaBuilder,
+  workspaceEntryBuilder: buildGamesLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildGamesLibraryReleaseEntry,
+  bucketLabelBuilder: gamesLibraryBucketLabelBuilder,
   previewLabels: defaultPreviewLabels,
   statsLabels: gameStatsLabels,
   sortColumnDefinitions: gamesLibrarySortColumnDefinitions,

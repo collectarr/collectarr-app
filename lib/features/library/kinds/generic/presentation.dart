@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,19 @@ const genericLibraryGroupModeDefinitions = [
     icon: Icons.inventory_2_outlined,
   ),
 ];
+
+const genericLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Series',
+  seriesPlural: 'Series',
+  unknownSeries: 'Unknown series',
+  publisher: 'Publisher',
+  publisherPlural: 'Publishers',
+  unknownPublisher: 'Unknown publisher',
+);
+
+String genericLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, genericLibraryGroupLabels);
+}
 
 const genericLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
@@ -189,15 +203,11 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Publisher',
     anyPublisher: 'Any publisher',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Series',
-    seriesPlural: 'Series',
-    unknownSeries: 'Unknown series',
-    publisher: 'Publisher',
-    publisherPlural: 'Publishers',
-    unknownPublisher: 'Unknown publisher',
-  ),
+  groupLabels: genericLibraryGroupLabels,
   builder: genericLibraryMediaBuilder,
+  workspaceEntryBuilder: buildGenericLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildGenericLibraryReleaseEntry,
+  bucketLabelBuilder: genericLibraryBucketLabelBuilder,
   previewLabels: defaultPreviewLabels,
   sortColumnDefinitions: genericLibrarySortColumnDefinitions,
   groupModeDefinitions: genericLibraryGroupModeDefinitions,

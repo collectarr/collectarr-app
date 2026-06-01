@@ -138,7 +138,7 @@ sealed class LibraryWorkspaceEntry {
     List<TrailerLink>? trailerUrls,
   }) {
     final normalizedMediaType = mediaType.trim().toLowerCase();
-    final common = _LibraryWorkspaceCommon(
+    final common = LibraryWorkspaceEntryData(
       id: id,
       browseScope: browseScope,
       titleItemId: titleItemId,
@@ -202,83 +202,15 @@ sealed class LibraryWorkspaceEntry {
       rawPlatforms: _copyStringList(game?.platforms),
       trailerUrls: trailerUrls ?? const <TrailerLink>[],
     );
-    series = series == null ? null : _seriesOrNull(series);
-    publishing = publishing == null ? null : _publishingOrNull(publishing);
-    video = video == null ? null : _videoOrNull(video);
-    music = music == null ? null : _musicOrNull(music);
-    game = game == null ? null : _gameOrNull(game);
-
-    switch (normalizedMediaType) {
-      case 'comic':
-        return ComicWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-        );
-      case 'manga':
-        return MangaWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-        );
-      case 'book':
-        return BookWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-        );
-      case 'movie':
-        return MovieWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          video: video,
-        );
-      case 'tv':
-        return TvWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          video: video,
-        );
-      case 'anime':
-        return AnimeWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          video: video,
-        );
-      case 'music':
-        return MusicWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          music: music,
-        );
-      case 'game':
-        return GameWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          game: game,
-        );
-      case 'boardgame':
-        return BoardGameWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          game: game,
-        );
-      default:
-        return GenericWorkspaceEntry._(
-          common: common,
-          series: series,
-          publishing: publishing,
-          video: video,
-          music: music,
-          game: game,
-        );
-    }
+    return _buildTypedWorkspaceEntry(
+      mediaType: normalizedMediaType,
+      common: common,
+      series: series,
+      publishing: publishing,
+      video: video,
+      music: music,
+      game: game,
+    );
   }
 
   factory LibraryWorkspaceEntry.releaseNode({
@@ -317,6 +249,7 @@ sealed class LibraryWorkspaceEntry {
     List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
   }) {
+    final normalizedMediaType = mediaType.trim().toLowerCase();
     CatalogVariant? primaryVariant;
     for (final variant in edition.variants) {
       if (variant.isPrimary) {
@@ -325,18 +258,23 @@ sealed class LibraryWorkspaceEntry {
       }
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
-    return LibraryWorkspaceEntry(
+    final common = LibraryWorkspaceEntryData(
       id: '$titleItemId:release:${edition.id}',
       browseScope: LibraryBrowserScope.release,
       titleItemId: titleItemId,
       releaseId: edition.id,
-      mediaType: mediaType,
+      copyId: null,
+      ownedItemId: null,
+      mediaType: normalizedMediaType,
       title: title,
       displayTitle: displayTitle,
       localizedTitle: localizedTitle,
       originalTitle: originalTitle,
-      searchAliases: searchAliases,
+      searchAliases: _copyStringList(searchAliases),
+      itemNumber: null,
       synopsis: fallbackSynopsis,
+      plotSummary: null,
+      plotDescription: null,
       coverImageUrl: primaryVariant?.coverImageUrl ?? fallbackCoverImageUrl,
       thumbnailImageUrl: primaryVariant?.thumbnailImageUrl ??
           primaryVariant?.coverImageUrl ??
@@ -350,26 +288,52 @@ sealed class LibraryWorkspaceEntry {
       isOwned: isOwned,
       isTracked: isTracked,
       isWishlisted: isWishlisted,
+      hasMissingCover: false,
+      hasMissingMetadata: false,
+      condition: null,
+      grade: null,
+      rawOrSlabbed: null,
+      gradingCompany: null,
+      labelType: null,
+      certificationNumber: null,
+      primaryReferenceLabel: null,
+      referenceScopeLabel: null,
       referenceFormatLabel:
           primaryVariant?.physicalFormatLabel ?? edition.physicalFormatLabel,
       referenceEditionId: referenceEditionId ?? edition.id,
       referenceVariantId: referenceVariantId ?? primaryVariant?.id,
       referenceBundleReleaseId: referenceBundleReleaseId,
-      creators: fallbackCreators,
-      characters: fallbackCharacters,
-      storyArcs: fallbackStoryArcs,
-      genres: fallbackGenres,
+      keyComic: false,
+      keyReason: null,
+      notes: null,
+      tags: null,
+      collectionStatus: null,
+      lastBagBoardDate: null,
+      pricePaidCents: null,
+      currency: null,
+      locationPath: null,
+      addedAt: null,
+      creators: _copyMapList(fallbackCreators),
+      characters: _copyStringList(fallbackCharacters),
+      storyArcs: _copyStringList(fallbackStoryArcs),
+      genres: _copyStringList(fallbackGenres),
       country: fallbackCountry,
       language: edition.language ?? fallbackLanguage,
       ageRating: fallbackAgeRating,
       audienceRating: fallbackAudienceRating,
+      editions: _copyEditionList(editions.isEmpty ? [edition] : editions),
+      updatedAt: updatedAt,
+      rawPlatforms: _copyStringList(fallbackGame?.platforms),
+      trailerUrls: const <TrailerLink>[],
+    );
+    return _buildTypedWorkspaceEntry(
+      mediaType: normalizedMediaType,
+      common: common,
       series: fallbackSeries,
       publishing: fallbackPublishing,
       video: fallbackVideo,
       music: fallbackMusic,
       game: fallbackGame,
-      editions: editions.isEmpty ? [edition] : editions,
-      updatedAt: updatedAt,
     );
   }
 
@@ -466,9 +430,91 @@ sealed class LibraryWorkspaceEntry {
 
 }
 
+LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
+  required String mediaType,
+  required LibraryWorkspaceEntryData common,
+  CatalogSeriesDetails? series,
+  CatalogPublishingDetails? publishing,
+  VideoCatalogDetails? video,
+  MusicCatalogDetails? music,
+  GameCatalogDetails? game,
+}) {
+  switch (mediaType.trim().toLowerCase()) {
+    case 'comic':
+      return ComicWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+      );
+    case 'manga':
+      return MangaWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+      );
+    case 'book':
+      return BookWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+      );
+    case 'movie':
+      return MovieWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        video: video,
+      );
+    case 'tv':
+      return TvWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        video: video,
+      );
+    case 'anime':
+      return AnimeWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        video: video,
+      );
+    case 'music':
+      return MusicWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        music: music,
+      );
+    case 'game':
+      return GameWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        game: game,
+      );
+    case 'boardgame':
+      return BoardGameWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        game: game,
+      );
+    default:
+      return GenericWorkspaceEntry(
+        common: common,
+        series: series,
+        publishing: publishing,
+        video: video,
+        music: music,
+        game: game,
+      );
+  }
+}
+
 abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
   _TypedLibraryWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+    required LibraryWorkspaceEntryData common,
     this.seriesDetails,
     this.publishingDetails,
     this.videoDetails,
@@ -562,128 +608,128 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
 }
 
 final class ComicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  ComicWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  ComicWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
         );
 }
 
 final class MangaWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  MangaWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  MangaWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
         );
 }
 
 final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  BookWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  BookWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
         );
 }
 
 final class MovieWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  MovieWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  MovieWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          videoDetails: _videoOrNull(video),
         );
 }
 
 final class TvWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  TvWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  TvWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          videoDetails: _videoOrNull(video),
         );
 }
 
 final class AnimeWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  AnimeWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  AnimeWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          videoDetails: _videoOrNull(video),
         );
 }
 
 final class MusicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  MusicWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  MusicWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     MusicCatalogDetails? music,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          musicDetails: music,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          musicDetails: _musicOrNull(music),
         );
 }
 
 final class GameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  GameWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  GameWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     GameCatalogDetails? game,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          gameDetails: game,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          gameDetails: _gameOrNull(game),
         );
 }
 
 final class BoardGameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  BoardGameWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  BoardGameWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     GameCatalogDetails? game,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          gameDetails: game,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          gameDetails: _gameOrNull(game),
         );
 }
 
 final class GenericWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
-  GenericWorkspaceEntry._({
-    required _LibraryWorkspaceCommon common,
+  GenericWorkspaceEntry({
+    required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
@@ -691,16 +737,16 @@ final class GenericWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     GameCatalogDetails? game,
   }) : super._(
           common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
-          musicDetails: music,
-          gameDetails: game,
+          seriesDetails: _seriesOrNull(series),
+          publishingDetails: _publishingOrNull(publishing),
+          videoDetails: _videoOrNull(video),
+          musicDetails: _musicOrNull(music),
+          gameDetails: _gameOrNull(game),
         );
 }
 
-class _LibraryWorkspaceCommon {
-  const _LibraryWorkspaceCommon({
+class LibraryWorkspaceEntryData {
+  const LibraryWorkspaceEntryData({
     required this.id,
     required this.browseScope,
     required this.titleItemId,
@@ -829,23 +875,38 @@ class _LibraryWorkspaceCommon {
   final List<TrailerLink> trailerUrls;
 }
 
-CatalogSeriesDetails? _seriesOrNull(CatalogSeriesDetails details) {
+CatalogSeriesDetails? _seriesOrNull(CatalogSeriesDetails? details) {
+  if (details == null) {
+    return null;
+  }
   return details.hasData ? details : null;
 }
 
-CatalogPublishingDetails? _publishingOrNull(CatalogPublishingDetails details) {
+CatalogPublishingDetails? _publishingOrNull(CatalogPublishingDetails? details) {
+  if (details == null) {
+    return null;
+  }
   return details.hasData ? details : null;
 }
 
-VideoCatalogDetails? _videoOrNull(VideoCatalogDetails details) {
+VideoCatalogDetails? _videoOrNull(VideoCatalogDetails? details) {
+  if (details == null) {
+    return null;
+  }
   return details.hasData ? details : null;
 }
 
-MusicCatalogDetails? _musicOrNull(MusicCatalogDetails details) {
+MusicCatalogDetails? _musicOrNull(MusicCatalogDetails? details) {
+  if (details == null) {
+    return null;
+  }
   return details.hasData ? details : null;
 }
 
-GameCatalogDetails? _gameOrNull(GameCatalogDetails details) {
+GameCatalogDetails? _gameOrNull(GameCatalogDetails? details) {
+  if (details == null) {
+    return null;
+  }
   return details.hasData ? details : null;
 }
 

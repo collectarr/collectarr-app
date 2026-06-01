@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,19 @@ const boardGamesLibraryGroupModeDefinitions = [
     icon: Icons.inventory_2_outlined,
   ),
 ];
+
+const boardGamesLibraryGroupLabels = LibraryMediaGroupLabels(
+  series: 'Series',
+  seriesPlural: 'Series',
+  unknownSeries: 'Unknown series',
+  publisher: 'Publisher / Designer',
+  publisherPlural: 'Publishers / Designers',
+  unknownPublisher: 'Unknown publisher / designer',
+);
+
+String boardGamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
+  return defaultLibraryBucketLabel(context, boardGamesLibraryGroupLabels);
+}
 
 const boardGamesLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
@@ -175,15 +189,11 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
     publisher: 'Publisher / Designer',
     anyPublisher: 'Any publisher / designer',
   ),
-  groupLabels: LibraryMediaGroupLabels(
-    series: 'Series',
-    seriesPlural: 'Series',
-    unknownSeries: 'Unknown series',
-    publisher: 'Publisher / Designer',
-    publisherPlural: 'Publishers / Designers',
-    unknownPublisher: 'Unknown publisher / designer',
-  ),
+  groupLabels: boardGamesLibraryGroupLabels,
   builder: boardGamesLibraryMediaBuilder,
+  workspaceEntryBuilder: buildBoardGamesLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildBoardGamesLibraryReleaseEntry,
+  bucketLabelBuilder: boardGamesLibraryBucketLabelBuilder,
   previewLabels: defaultPreviewLabels,
   statsLabels: gameStatsLabels,
   sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
