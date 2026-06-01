@@ -235,6 +235,60 @@ void main() {
     expect((items[3] as PopupMenuItem<Object>).value, secondPinnedFavorite);
     expect((items[5] as PopupMenuItem<Object>).value, overflowFavorite);
   });
+
+  testWidgets('sort favorites manager dialog renders pinned and available panes', (
+    tester,
+  ) async {
+    const sortFavorite = LibrarySortFavorite(
+      id: 'series_issue',
+      label: 'Series | Issue',
+      icon: Icons.swap_vert,
+      rules: [
+        LibrarySortRule(column: LibrarySortColumn.series, ascending: true),
+        LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+      ],
+    );
+    const secondFavorite = LibrarySortFavorite(
+      id: 'updated_desc',
+      label: 'Updated desc',
+      icon: Icons.update,
+      rules: [
+        LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => FilledButton(
+              onPressed: () {
+                showSortFavoritesManagerDialog(
+                  context: context,
+                  favorites: const [sortFavorite, secondFavorite],
+                  initialPinnedIds: const {'series_issue'},
+                  activeSortFavoriteId: 'series_issue',
+                );
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Manage Sorting Favorites'), findsOneWidget);
+    expect(find.text('Pinned Favorites'), findsOneWidget);
+    expect(find.text('Available Favorites'), findsOneWidget);
+    expect(find.byKey(const ValueKey('sortFavorite_series_issue')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('availableSortFavorite_updated_desc')),
+      findsOneWidget,
+    );
+  });
 }
 
 void _noop() {}
