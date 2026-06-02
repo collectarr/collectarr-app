@@ -31,15 +31,16 @@ class LibraryToolbarSearch extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final colorScheme = Theme.of(context).colorScheme;
+    const inputHeight = 34.0;
     final inlineActionCount =
         1 + (onScanBarcode != null ? 1 : 0) + (onScanCover != null ? 1 : 0);
-    final inlineActionsWidth = inlineActionCount * 30.0 + 8;
+    final inlineActionsWidth = inlineActionCount * 28.0 + 8;
     final inputBackground = colorScheme.brightness == Brightness.dark
-        ? const Color(0xFF34383D)
-        : const Color(0xFFF4F6F8);
+      ? Color.alphaBlend(palette.surface.withValues(alpha: 0.34), palette.field)
+      : const Color(0xFFF2F4F6);
     final borderColor = colorScheme.brightness == Brightness.dark
-        ? const Color(0xFF575D65)
-        : const Color(0xFFD6DCE3);
+      ? const Color(0xFF4F565D)
+      : const Color(0xFFD0D7DD);
     return LayoutBuilder(
       builder: (context, constraints) {
         final showFilterChip =
@@ -54,36 +55,43 @@ class LibraryToolbarSearch extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: availableWidth),
                 child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(2),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: inputBackground,
                     border: Border.all(color: borderColor),
                   ),
                   child: SizedBox(
-                    height: 38,
+                    height: inputHeight,
                     child: TextField(
                       controller: controller,
                       onChanged: onChanged,
                       onSubmitted: onSearch,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 11.5,
+                            height: 1.05,
+                          ),
                       decoration: InputDecoration(
                         isDense: true,
                         hintText: hintText,
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodyMedium
-                            ?.copyWith(color: palette.textMuted),
+                            ?.copyWith(
+                              color: palette.textMuted,
+                              fontSize: 11,
+                              height: 1.05,
+                            ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
+                          horizontal: 10,
+                          vertical: 8,
                         ),
                         suffixIconConstraints: BoxConstraints(
                           minWidth: inlineActionsWidth,
                           maxWidth: inlineActionsWidth,
-                          minHeight: 38,
-                          maxHeight: 38,
+                          minHeight: inputHeight,
+                          maxHeight: inputHeight,
                         ),
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 4),
@@ -119,11 +127,43 @@ class LibraryToolbarSearch extends StatelessWidget {
             ),
             if (showFilterChip) ...[
               const SizedBox(width: 6),
-              InputChip(
-                visualDensity: VisualDensity.compact,
-                backgroundColor: selectionColor,
-                label: Text(selectedFilterLabel!),
-                onDeleted: onClearFilter,
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Color.alphaBlend(
+                    selectionColor.withValues(alpha: 0.14),
+                    palette.surface,
+                  ),
+                  border: Border.all(
+                    color: selectionColor.withValues(alpha: 0.55),
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selectedFilterLabel!,
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      if (onClearFilter != null) ...[
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onClearFilter,
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: palette.textMuted,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ],
           ],
@@ -148,7 +188,7 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return SizedBox(
-      width: 30,
+      width: 28,
       child: IconButton(
         tooltip: tooltip,
         visualDensity: VisualDensity.compact,
@@ -159,9 +199,9 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
         ),
-        constraints: const BoxConstraints.tightFor(width: 30, height: 30),
+        constraints: const BoxConstraints.tightFor(width: 28, height: 28),
         onPressed: onPressed,
-        icon: Icon(icon, size: 19, color: palette.textPrimary),
+        icon: Icon(icon, size: 18, color: palette.textPrimary),
       ),
     );
   }

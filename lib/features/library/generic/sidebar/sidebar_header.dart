@@ -86,7 +86,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     final hideSidebar = onHideSidebar;
     final manageFavorites = onPinnedFolderPresetsChanged;
     return Container(
-      padding: const EdgeInsets.fromLTRB(6, 6, 6, 4),
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 3),
       decoration: BoxDecoration(
         color: palette.surface,
         border: Border(bottom: BorderSide(color: palette.divider)),
@@ -98,9 +98,10 @@ class LibrarySidebarHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: palette.surface,
                 border: Border.all(color: palette.divider),
+                borderRadius: BorderRadius.circular(2),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 3),
                 child: LibraryGroupModeMenuButton(
                   type: type,
                   folderPreset:
@@ -250,7 +251,7 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
         ),
         icon: Icon(
           icon,
-          size: 16,
+          size: 15,
           color: active ? resolvedActiveColor : palette.textMuted,
         ),
       ),

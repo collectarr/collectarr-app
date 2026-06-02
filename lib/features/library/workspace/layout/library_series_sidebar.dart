@@ -55,7 +55,7 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.badgeColor = kAppBadgeBackground,
     this.selectedBadgeColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
-    this.searchPlaceholder = 'Find folders',
+    this.searchPlaceholder = 'Search folders',
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.onCollectionStatusScopeChanged,
     this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
@@ -156,9 +156,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
         children: [
           widget.headerOverride ??
               Container(
-                height: 34,
+                height: 32,
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   color: resolvedHeaderColor,
                   border:
@@ -166,8 +166,8 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                 ),
                 child: Row(
                   children: [
-                    Icon(widget.icon, size: 18, color: widget.accentColor),
-                    const SizedBox(width: 8),
+                    Icon(widget.icon, size: 16, color: widget.accentColor),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         widget.title,
@@ -175,6 +175,7 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                               fontWeight: FontWeight.w800,
+                                letterSpacing: 0.12,
                             ),
                       ),
                     ),
@@ -280,7 +281,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
         children: [
           Expanded(
             child: SizedBox(
-              height: 30,
+              height: 28,
               child: Row(
                 children: [
                   Expanded(
@@ -288,21 +289,22 @@ class _SidebarSearchAndSort extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.1),
                         border: Border.all(color: dividerColor),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                       child: TextField(
                         controller: controller,
                         onChanged: (_) => onChanged(),
-                        style: const TextStyle(fontSize: 11),
+                        style: const TextStyle(fontSize: 10.5),
                         decoration: InputDecoration(
                           hintText: searchPlaceholder,
                           hintStyle: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10.5,
                             color: mutedTextColor,
                           ),
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8,
-                            vertical: 9,
+                            vertical: 8,
                           ),
                           border: InputBorder.none,
                         ),
@@ -317,6 +319,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
                         right: BorderSide(color: dividerColor),
                         bottom: BorderSide(color: dividerColor),
                       ),
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(2),
+                      ),
                     ),
                     child: InkWell(
                       onTap: () {
@@ -327,7 +332,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                       },
                       child: SizedBox(
                         width: 28,
-                        height: 30,
+                        height: 28,
                         child: Icon(
                           controller.text.isEmpty ? Icons.search : Icons.close,
                           size: 15,
@@ -391,9 +396,10 @@ class _SidebarStatusScopeButton extends StatelessWidget {
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Container(
         width: 28,
-        height: 30,
+        height: 28,
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(2),
           border: Border.all(
             color: scope == LibrarySeriesCompletionScope.all
                 ? dividerColor
@@ -458,9 +464,10 @@ class _SidebarSortSwitch extends StatelessWidget {
         onTap: onTap,
         child: Container(
           width: 52,
-          height: 30,
+          height: 28,
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(2),
             border: Border.all(color: dividerColor),
           ),
           child: Row(

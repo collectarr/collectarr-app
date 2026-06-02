@@ -349,9 +349,9 @@ IconData _viewModeIcon(LibraryViewMode mode) {
 
 String _detailsLayoutMenuLabel(LibraryDetailsLayout layout) {
   return switch (layout) {
-    LibraryDetailsLayout.right => 'Right',
-    LibraryDetailsLayout.bottom => 'Bottom',
-    LibraryDetailsLayout.hidden => 'None',
+    LibraryDetailsLayout.right => 'Vertical Split',
+    LibraryDetailsLayout.bottom => 'Horizontal Split',
+    LibraryDetailsLayout.hidden => 'No Details',
   };
 }
 
@@ -438,9 +438,9 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
 
 String _detailsLayoutTooltip(LibraryDetailsLayout layout) {
   return switch (layout) {
-    LibraryDetailsLayout.right => 'Details open on right',
-    LibraryDetailsLayout.bottom => 'Details open on bottom',
-    LibraryDetailsLayout.hidden => 'Details closed',
+    LibraryDetailsLayout.right => 'Details split vertically',
+    LibraryDetailsLayout.bottom => 'Details split horizontally',
+    LibraryDetailsLayout.hidden => 'Details hidden',
   };
 }
 

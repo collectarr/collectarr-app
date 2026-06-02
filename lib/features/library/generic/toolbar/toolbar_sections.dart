@@ -136,7 +136,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
         child: Row(
           children: [
             Expanded(
@@ -211,7 +211,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             LibraryWorkspaceControlStrip(
               children: [
                 LibraryItemCountLabel(
@@ -280,11 +280,11 @@ class _LibraryDesktopToolbarSection extends StatelessWidget {
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: palette.textMuted,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.35,
-                fontSize: 10,
+                letterSpacing: 0.22,
+                fontSize: 9,
               ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 3),
         child,
       ],
     );
@@ -297,9 +297,9 @@ class _LibraryDesktopToolbarSeparator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: SizedBox(
-        height: 20,
+        height: 18,
         child: VerticalDivider(
           width: 1,
           thickness: 1,
@@ -561,7 +561,7 @@ class _LibraryWorkspaceMenuButton extends StatelessWidget {
       _LibraryWorkspaceDestination.settings,
     ];
     return PopupMenuButton<_LibraryWorkspaceDestination>(
-      tooltip: 'Open another workspace',
+      tooltip: 'Open workspace',
       onSelected: (destination) => context.go(destination.route),
       color: palette.surface,
       surfaceTintColor: Colors.transparent,
@@ -587,20 +587,20 @@ class _LibraryWorkspaceMenuButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(2),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.apps_outlined, size: 16, color: palette.textPrimary),
-              const SizedBox(width: 6),
+              Icon(Icons.apps_outlined, size: 15, color: palette.textPrimary),
+              const SizedBox(width: 5),
               Text(
                 'Open',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
               ),
-              const SizedBox(width: 2),
-              Icon(Icons.expand_more, size: 16, color: palette.textMuted),
+              const SizedBox(width: 1),
+              Icon(Icons.expand_more, size: 15, color: palette.textMuted),
             ],
           ),
         ),
@@ -646,7 +646,7 @@ class _LibraryDesktopSyncButton extends ConsumerWidget {
               ? null
               : () => ref.read(syncControllerProvider.notifier).syncNow(),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
             decoration: BoxDecoration(
               color: background,
               border: Border.all(color: border),
@@ -662,10 +662,10 @@ class _LibraryDesktopSyncButton extends ConsumerWidget {
                       sync.isOffline
                           ? Icons.cloud_off_outlined
                           : Icons.sync_outlined,
-                      size: 16,
+                      size: 15,
                       color: sync.isSyncing ? mutedForeground : foreground,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 5),
                     Text(
                       'Sync',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(

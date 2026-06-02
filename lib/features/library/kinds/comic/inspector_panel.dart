@@ -127,6 +127,16 @@ class _ComicInspectorToolbar extends StatelessWidget {
     final onDetailsLayoutChanged = request.onDetailsLayoutChanged;
     final hasCopyMenu =
         request.ownedCopies.length > 1 && request.onSelectOwnedItem != null;
+    final moveScopeLabel = entry.isOwned
+      ? 'Move to wishlist'
+      : entry.isWishlisted
+        ? 'Move to collection'
+        : 'Move to wishlist';
+    final moveScopeAction = entry.isOwned
+      ? request.onToggleWishlist
+      : entry.isWishlisted
+        ? request.onToggleOwned
+        : request.onToggleWishlist;
     final hasMoreEntries = hasCopyMenu ||
       request.onToggleOwned != null ||
       request.onToggleWishlist != null ||
@@ -237,24 +247,18 @@ class _ComicInspectorToolbar extends StatelessWidget {
                         enabled: request.onDuplicate != null,
                       ),
                       _ComicToolbarMenuEntry(
-                        label: entry.isOwned
-                            ? 'Remove from collection'
-                            : 'Collect',
-                        icon: entry.isOwned
-                            ? Icons.remove_circle_outline
-                            : Icons.add_circle_outline,
-                        onSelected: request.onToggleOwned,
-                      ),
-                      _ComicToolbarMenuEntry(
                         label: 'Loan',
                         icon: Icons.schedule_outlined,
                         onSelected: request.onLoan,
                         enabled: request.onLoan != null,
                       ),
-                      const _ComicToolbarMenuEntry(
-                        label: 'Move to other collection',
-                        icon: Icons.storage_outlined,
-                        enabled: false,
+                      _ComicToolbarMenuEntry(
+                        label: moveScopeLabel,
+                        icon: entry.isWishlisted
+                            ? Icons.inventory_2_outlined
+                            : Icons.star_border,
+                        onSelected: moveScopeAction,
+                        enabled: moveScopeAction != null,
                       ),
                       _ComicToolbarMenuEntry(
                         label: 'Add copy',

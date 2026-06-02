@@ -23,6 +23,8 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onBulkDuplicate,
   VoidCallback? onBulkLoan,
   VoidCallback? onTransferFieldData,
+  VoidCallback? onBulkUpdateValues,
+  VoidCallback? onBulkUpdateKeyInfo,
   VoidCallback onBulkMoveToOwned,
   VoidCallback onBulkMoveToWishlist,
   VoidCallback onBulkRemove,
@@ -92,8 +94,8 @@ class LibrarySelectionControls extends StatelessWidget {
           ),
         ),
         TextButton.icon(
-          onPressed: callbacks.onBulkEdit,
-          icon: const Icon(Icons.tune, size: 15),
+          onPressed: callbacks.onBulkUpdateValues,
+          icon: const Icon(Icons.price_change_outlined, size: 15),
           label: const Text('Update values'),
           style: TextButton.styleFrom(
             visualDensity: VisualDensity.compact,
@@ -125,8 +127,8 @@ class LibrarySelectionControls extends StatelessWidget {
               _BulkAction.transferFieldData => callbacks.onTransferFieldData,
               _BulkAction.moveToOwned => callbacks.onBulkMoveToOwned,
               _BulkAction.moveToWishlist => callbacks.onBulkMoveToWishlist,
-              _BulkAction.updateValues => callbacks.onBulkEdit,
-              _BulkAction.updateKeyInfo => null,
+              _BulkAction.updateValues => callbacks.onBulkUpdateValues,
+              _BulkAction.updateKeyInfo => callbacks.onBulkUpdateKeyInfo,
               _BulkAction.updateFromCore => callbacks.onBulkRefreshMetadata,
             };
             if (callback != null) {
@@ -204,17 +206,18 @@ class LibrarySelectionControls extends StatelessWidget {
                 dense: true,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BulkAction.updateValues,
+              enabled: callbacks.onBulkUpdateValues != null,
               child: ListTile(
-                leading: Icon(Icons.tune),
+                leading: const Icon(Icons.price_change_outlined),
                 title: Text('Update values'),
                 dense: true,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BulkAction.updateKeyInfo,
-              enabled: false,
+              enabled: callbacks.onBulkUpdateKeyInfo != null,
               child: ListTile(
                 leading: Icon(Icons.key_outlined),
                 title: Text('Update Key Info'),

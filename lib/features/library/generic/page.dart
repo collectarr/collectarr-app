@@ -511,6 +511,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                           onBulkLoan: () => showLoanSelectionFlow(projection),
                         onTransferFieldData: () =>
                           showTransferFieldDataForSelectionFlow(projection),
+                        onBulkUpdateValues: null,
+                        onBulkUpdateKeyInfo: null,
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                       onBulkMoveToWishlist: () =>
                           bulkMoveToWishlistFlow(projection),

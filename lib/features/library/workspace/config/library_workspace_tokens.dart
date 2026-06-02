@@ -1,12 +1,12 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const kLibraryToolbarCompactDropdownSize = 30.0;
-const kLibraryToolbarCompactDropdownWidth = 40.0;
-const kLibraryToolbarTextDropdownHeight = 36.0;
+const kLibraryToolbarCompactDropdownSize = 28.0;
+const kLibraryToolbarCompactDropdownWidth = 38.0;
+const kLibraryToolbarTextDropdownHeight = 34.0;
 
 Color libraryToolbarMenuSurface(BuildContext context) => Color.alphaBlend(
-  Colors.black.withValues(alpha: 0.08),
+  Colors.black.withValues(alpha: 0.05),
   appPalette(context).panelRaised,
 );
 
@@ -19,20 +19,22 @@ Color libraryToolbarMenuMutedText(BuildContext context) =>
     appPalette(context).textMuted;
 
 Color libraryToolbarMenuHover(BuildContext context) => Color.alphaBlend(
-  Colors.white.withValues(alpha: 0.05),
-  appPalette(context).surfaceSubtle,
+  appPalette(context).accent.withValues(alpha: 0.05),
+  appPalette(context).panelRaised,
 );
 
 Color libraryToolbarControlSurface(BuildContext context) => Color.alphaBlend(
-  Colors.white.withValues(alpha: 0.03),
+  Colors.white.withValues(alpha: 0.015),
   appPalette(context).toolbar,
 );
 
 Color libraryToolbarControlBorder(BuildContext context) =>
     appPalette(context).divider.withValues(alpha: 0.75);
 
-Color libraryToolbarControlHover(BuildContext context) =>
-    appPalette(context).surfaceSubtle.withValues(alpha: 0.45);
+Color libraryToolbarControlHover(BuildContext context) => Color.alphaBlend(
+  appPalette(context).accent.withValues(alpha: 0.08),
+  libraryToolbarControlSurface(context),
+);
 
 Color libraryToolbarControlText(BuildContext context) => appPalette(context).textPrimary;
 
