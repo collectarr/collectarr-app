@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dar
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';

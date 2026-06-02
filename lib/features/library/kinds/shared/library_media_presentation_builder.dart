@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/seasons_section.dart';
@@ -9,9 +9,9 @@ import 'package:collectarr_app/features/library/workspace/library_inspector.dart
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
-class DefaultLibraryMediaPresentationBuilder
+class SharedLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const DefaultLibraryMediaPresentationBuilder({
+  const SharedLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.showSeasonHierarchy = false,
     this.showVolumeHierarchy = false,
@@ -141,7 +141,10 @@ class DefaultLibraryMediaPresentationBuilder
             referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
             referencePlatforms.join(', '),
           ),
-        LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryInspectorFactData(
+          'Cover',
+          entry.hasMissingCover ? 'Missing' : 'Ready',
+        ),
         LibraryInspectorFactData(
           'Metadata',
           entry.hasMissingMetadata ? 'Missing' : 'Ready',

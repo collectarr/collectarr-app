@@ -2,15 +2,15 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class BookLibraryMediaPresentationBuilder
-    extends DefaultLibraryMediaPresentationBuilder {
+  extends SharedLibraryMediaPresentationBuilder {
   const BookLibraryMediaPresentationBuilder({
     super.showSummary,
     super.showVolumeHierarchy,

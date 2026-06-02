@@ -13,7 +13,6 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     if (isMovieDesktopChrome) {
       return SizedBox(
         height: 42,

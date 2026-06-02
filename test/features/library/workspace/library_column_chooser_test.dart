@@ -5,6 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  const availableColumns = [
+    LibraryTableColumn.title,
+    LibraryTableColumn.issue,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.barcode,
+  ];
+
   String labelFor(LibraryTableColumn column) => switch (column) {
         LibraryTableColumn.title => 'Series',
         LibraryTableColumn.issue => 'Issue',
@@ -29,6 +37,7 @@ void main() {
         home: Scaffold(
           body: LibraryColumnChooserDialog(
             accent: Colors.cyan,
+            availableColumns: availableColumns,
             selectedColumns: const {
               LibraryTableColumn.title,
               LibraryTableColumn.issue,
@@ -95,6 +104,7 @@ void main() {
         home: Scaffold(
           body: LibraryColumnChooserDialog(
             accent: Colors.cyan,
+            availableColumns: availableColumns,
             selectedColumns: const {
               LibraryTableColumn.title,
               LibraryTableColumn.issue,
@@ -151,6 +161,7 @@ void main() {
         home: Scaffold(
           body: LibraryColumnChooserDialog(
             accent: Colors.cyan,
+            availableColumns: availableColumns,
             selectedColumns: const {
               LibraryTableColumn.title,
               LibraryTableColumn.issue,
