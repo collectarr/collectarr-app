@@ -379,6 +379,16 @@ class _LibraryDetailToolbar extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
+              if (Navigator.of(context).canPop())
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: LibraryDenseIconButton(
+                    tooltip: 'Back',
+                    icon: Icons.arrow_back,
+                    onPressed: () => Navigator.of(context).pop(),
+                    tone: LibraryDenseButtonTone.subtle,
+                  ),
+                ),
               LibraryDenseButton(
                 label: 'Edit',
                 icon: Icons.edit_outlined,
