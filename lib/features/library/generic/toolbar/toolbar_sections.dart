@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
+import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -437,36 +438,34 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                if (showAlphabetRow)
+                SizedBox(
+                  width: 380,
+                  child: LibraryToolbarSearch(
+                    controller: searchController,
+                    hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                    onScanBarcode: onScan,
+                    onScanCover: onScanCover,
+                    selectedFilterLabel: selectedBucket,
+                    onSearch: onSearchChanged,
+                    onClearFilter: onClearBucket,
+                    onChanged: onSearchChanged,
+                    selectionColor: appPalette(context).selection,
+                  ),
+                ),
+                if (showAlphabetRow) ...[
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.only(right: 8),
                       child: LibraryToolbarAlphabetRow(
                         letters: availableLetters,
                         selectedLetter: selectedLetter,
                         onLetterSelected: onLetterSelected!,
                       ),
                     ),
-                  )
-                else
-                  const Spacer(),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: 360,
-                    child: LibraryToolbarSearch(
-                      controller: searchController,
-                      hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-                      onScanBarcode: onScan,
-                      onScanCover: onScanCover,
-                      selectedFilterLabel: selectedBucket,
-                      onSearch: onSearchChanged,
-                      onClearFilter: onClearBucket,
-                      onChanged: onSearchChanged,
-                      selectionColor: appPalette(context).selection,
-                    ),
                   ),
-                ),
+                ] else
+                  const Spacer(),
                 const SizedBox(width: 6),
                 const _LibraryDesktopUtilityCluster(),
               ],
@@ -478,7 +477,13 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
   }
 }
 
-enum _LibraryWorkspaceDestination { shelf, calendar, admin, settings }
+enum _LibraryWorkspaceDestination {
+  shelf,
+  calendar,
+  admin,
+  settings,
+  shortcuts,
+}
 
 extension on _LibraryWorkspaceDestination {
   String get label {
@@ -491,6 +496,8 @@ extension on _LibraryWorkspaceDestination {
         return 'Admin';
       case _LibraryWorkspaceDestination.settings:
         return 'Settings';
+      case _LibraryWorkspaceDestination.shortcuts:
+        return 'Keyboard shortcuts';
     }
   }
 
@@ -504,10 +511,12 @@ extension on _LibraryWorkspaceDestination {
         return Icons.admin_panel_settings_outlined;
       case _LibraryWorkspaceDestination.settings:
         return Icons.settings_outlined;
+      case _LibraryWorkspaceDestination.shortcuts:
+        return Icons.keyboard_command_key;
     }
   }
 
-  String get route {
+  String? get route {
     switch (this) {
       case _LibraryWorkspaceDestination.shelf:
         return AppRoutes.shelf;
@@ -517,6 +526,21 @@ extension on _LibraryWorkspaceDestination {
         return AppRoutes.admin;
       case _LibraryWorkspaceDestination.settings:
         return AppRoutes.settings;
+      case _LibraryWorkspaceDestination.shortcuts:
+        return null;
+    }
+  }
+
+  String get section {
+    switch (this) {
+      case _LibraryWorkspaceDestination.shelf:
+      case _LibraryWorkspaceDestination.calendar:
+        return 'Workspace';
+      case _LibraryWorkspaceDestination.admin:
+        return 'Administration';
+      case _LibraryWorkspaceDestination.settings:
+      case _LibraryWorkspaceDestination.shortcuts:
+        return 'Help';
     }
   }
 }
@@ -559,27 +583,61 @@ class _LibraryWorkspaceMenuButton extends StatelessWidget {
       _LibraryWorkspaceDestination.calendar,
       if (isAdmin) _LibraryWorkspaceDestination.admin,
       _LibraryWorkspaceDestination.settings,
+      _LibraryWorkspaceDestination.shortcuts,
     ];
     return PopupMenuButton<_LibraryWorkspaceDestination>(
-      tooltip: 'Open workspace',
-      onSelected: (destination) => context.go(destination.route),
+      tooltip: 'Workspace menu',
+      onSelected: (destination) {
+        final route = destination.route;
+        if (route != null) {
+          context.go(route);
+          return;
+        }
+        showKeyboardShortcutsDialog(context);
+      },
       color: palette.surface,
       surfaceTintColor: Colors.transparent,
       position: PopupMenuPosition.under,
-      itemBuilder: (context) => [
-        for (final destination in destinations)
-          PopupMenuItem<_LibraryWorkspaceDestination>(
-            value: destination,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(destination.icon, size: 16, color: palette.textPrimary),
-                const SizedBox(width: 8),
-                Text(destination.label),
-              ],
+      itemBuilder: (context) {
+        final items = <PopupMenuEntry<_LibraryWorkspaceDestination>>[];
+        String? currentSection;
+        for (final destination in destinations) {
+          if (destination.section != currentSection) {
+            if (items.isNotEmpty) {
+              items.add(const PopupMenuDivider(height: 8));
+            }
+            items.add(
+              PopupMenuItem<_LibraryWorkspaceDestination>(
+                enabled: false,
+                height: 24,
+                child: Text(
+                  destination.section.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.24,
+                  ),
+                ),
+              ),
+            );
+            currentSection = destination.section;
+          }
+          items.add(
+            PopupMenuItem<_LibraryWorkspaceDestination>(
+              value: destination,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(destination.icon, size: 16, color: palette.textPrimary),
+                  const SizedBox(width: 8),
+                  Text(destination.label),
+                ],
+              ),
             ),
-          ),
-      ],
+          );
+        }
+        return items;
+      },
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: background,
@@ -591,10 +649,10 @@ class _LibraryWorkspaceMenuButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.apps_outlined, size: 15, color: palette.textPrimary),
+              Icon(Icons.menu, size: 15, color: palette.textPrimary),
               const SizedBox(width: 5),
               Text(
-                'Open',
+                'Menu',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),

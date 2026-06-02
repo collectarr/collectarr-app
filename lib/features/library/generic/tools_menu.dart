@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
@@ -58,6 +59,8 @@ class LibraryToolsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LibraryUtilityMenu<LibraryQuickView>(
+      buttonLabel: 'Tools',
+      quickViewsLabel: 'Views',
       quickViews: [
         for (final view in LibraryQuickView.values)
           if (!view.requiresGrades || type.grades.isNotEmpty)
@@ -74,6 +77,7 @@ class LibraryToolsButton extends StatelessWidget {
         LibraryUtilityMenuAction(
           icon: Icons.query_stats,
           label: 'Statistics',
+          section: 'Browse',
           onSelected: () {
             final state = shelfState;
             if (state != null) {
@@ -87,12 +91,14 @@ class LibraryToolsButton extends StatelessWidget {
           LibraryUtilityMenuAction(
             icon: Icons.casino_outlined,
             label: 'Random pick',
+            section: 'Browse',
             onSelected: onRandomPick!,
           ),
         if (shelfState != null)
           LibraryUtilityMenuAction(
             icon: Icons.compare_arrows,
             label: 'Find duplicates',
+            section: 'Browse',
             onSelected: () {
               final groups =
                   findDuplicateShelfGroups(shelfState!.entries);
@@ -102,6 +108,7 @@ class LibraryToolsButton extends StatelessWidget {
         LibraryUtilityMenuAction(
           icon: Icons.filter_alt_off_outlined,
           label: 'Clear filters',
+          section: 'Browse',
           enabled: hasActiveFilters,
           onSelected: onClearFilters,
         ),
@@ -109,17 +116,20 @@ class LibraryToolsButton extends StatelessWidget {
           LibraryUtilityMenuAction(
             icon: Icons.sort,
             label: 'Sort...',
+            section: 'Collection',
             onSelected: onEditSort!,
           ),
         if (onDownloadAllCovers != null)
           LibraryUtilityMenuAction(
             icon: Icons.download_outlined,
             label: 'Download all covers',
+            section: 'Collection',
             onSelected: onDownloadAllCovers!,
           ),
         LibraryUtilityMenuAction(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing covers',
+          section: 'Collection',
           enabled: counts.missingCover > 0,
           trailing: Text(counts.missingCover.toString()),
           onSelected: () =>
@@ -128,6 +138,7 @@ class LibraryToolsButton extends StatelessWidget {
         LibraryUtilityMenuAction(
           icon: Icons.manage_search,
           label: 'Missing metadata',
+          section: 'Collection',
           enabled: counts.missingMetadata > 0,
           trailing: Text(counts.missingMetadata.toString()),
           onSelected: () =>
@@ -136,6 +147,7 @@ class LibraryToolsButton extends StatelessWidget {
         LibraryUtilityMenuAction(
           icon: Icons.auto_fix_high,
           label: 'Pre-fill settings...',
+          section: 'Administration',
           onSelected: () {
             final accent = Theme.of(context).colorScheme.primary;
             showPrefillSettingsDialog(context: context, accent: accent);
@@ -145,62 +157,78 @@ class LibraryToolsButton extends StatelessWidget {
           LibraryUtilityMenuAction(
             icon: Icons.inventory_2_outlined,
             label: 'Condition values...',
+            section: 'Administration',
             onSelected: onEditConditionPickList!,
           ),
         if (onEditGradePickList != null)
           LibraryUtilityMenuAction(
             icon: Icons.workspace_premium_outlined,
             label: 'Grade values...',
+            section: 'Administration',
             onSelected: onEditGradePickList!,
           ),
         if (onEditTagPickList != null)
           LibraryUtilityMenuAction(
             icon: Icons.sell_outlined,
             label: 'Tag values...',
+            section: 'Administration',
             onSelected: onEditTagPickList!,
-          ),
-        if (onSmartLists != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.auto_awesome_mosaic,
-            label: 'Smart Lists...',
-            onSelected: onSmartLists!,
-          ),
-        if (onFolders != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.folder_outlined,
-            label: 'Folders...',
-            onSelected: onFolders!,
           ),
         if (onTransferFieldData != null)
           LibraryUtilityMenuAction(
             icon: Icons.swap_horiz,
             label: 'Transfer field data...',
+            section: 'Administration',
             onSelected: onTransferFieldData!,
           ),
         if (onReassignIndex != null)
           LibraryUtilityMenuAction(
             icon: Icons.format_list_numbered,
             label: 'Re-assign index values...',
+            section: 'Administration',
             onSelected: onReassignIndex!,
+          ),
+        if (onSmartLists != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.auto_awesome_mosaic,
+            label: 'Smart Lists...',
+            section: 'Lists',
+            onSelected: onSmartLists!,
+          ),
+        if (onFolders != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.folder_outlined,
+            label: 'Folders...',
+            section: 'Lists',
+            onSelected: onFolders!,
           ),
         if (onReadingQueue != null)
           LibraryUtilityMenuAction(
             icon: Icons.bookmarks_outlined,
             label: 'Reading Queue...',
+            section: 'Lists',
             onSelected: onReadingQueue!,
           ),
         if (onPrintReport != null)
           LibraryUtilityMenuAction(
             icon: Icons.print_outlined,
             label: 'Print / PDF report',
+            section: 'Share',
             onSelected: onPrintReport!,
           ),
         if (onShareCollection != null)
           LibraryUtilityMenuAction(
             icon: Icons.share_outlined,
             label: 'Share collection...',
+            section: 'Share',
             onSelected: onShareCollection!,
           ),
+        LibraryUtilityMenuAction(
+          icon: Icons.keyboard_command_key,
+          label: 'Keyboard shortcuts',
+          section: 'Help',
+          onSelected: () => showKeyboardShortcutsDialog(context),
+        ),
       ],
     );
   }
