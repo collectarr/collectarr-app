@@ -390,17 +390,16 @@ LibraryWorkspaceMetadata _buildReleaseEntryMetadata(
   LibraryReleaseEntryRequest request,
 ) {
   final entry = request.titleEntry;
-  final metadata = entry.metadata;
   return LibraryWorkspaceMetadata(
-    creators: _copyCreatorList(metadata.creators),
-    characters: _copyStringList(metadata.characters),
-    storyArcs: _copyStringList(metadata.storyArcs),
-    genres: _copyStringList(metadata.genres),
-    country: metadata.country,
-    language: request.edition.language ?? metadata.language,
-    ageRating: metadata.ageRating,
-    audienceRating: metadata.audienceRating,
-    rawPlatforms: _copyStringList(entry.game?.platforms),
+    creators: _copyCreatorList(libraryEntryCreators(entry)),
+    characters: _copyStringList(libraryEntryCharacters(entry)),
+    storyArcs: _copyStringList(libraryEntryStoryArcs(entry)),
+    genres: _copyStringList(libraryEntryGenres(entry)),
+    country: libraryEntryCountry(entry),
+    language: request.edition.language ?? libraryEntryLanguage(entry),
+    ageRating: libraryEntryAgeRating(entry),
+    audienceRating: libraryEntryAudienceRating(entry),
+    rawPlatforms: _copyStringList(libraryEntryRawPlatforms(entry)),
   );
 }
 
@@ -464,7 +463,6 @@ String defaultLibraryBucketLabel(
   LibraryMediaGroupLabels labels,
 ) {
   final entry = context.entry;
-  final metadata = entry.metadata;
   final source = context.source;
   final publisher = entry.publisher?.trim();
   return switch (context.groupMode) {
@@ -473,19 +471,19 @@ String defaultLibraryBucketLabel(
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.audienceRating => metadata.audienceRating?.trim().isNotEmpty == true
-      ? metadata.audienceRating!
+    LibraryGroupMode.audienceRating => libraryEntryAudienceRating(entry)?.trim().isNotEmpty == true
+      ? libraryEntryAudienceRating(entry)!
         : 'No audience rating',
     LibraryGroupMode.color => _stringBucket(entry.video?.color, 'No color'),
     LibraryGroupMode.publisher =>
       publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-    LibraryGroupMode.genre => _firstOrDefault(metadata.genres, 'No genre'),
+    LibraryGroupMode.genre => _firstOrDefault(libraryEntryGenres(entry), 'No genre'),
     LibraryGroupMode.country =>
-      metadata.country?.trim().isNotEmpty == true ? metadata.country! : 'Unknown country',
+      libraryEntryCountry(entry)?.trim().isNotEmpty == true ? libraryEntryCountry(entry)! : 'Unknown country',
     LibraryGroupMode.language =>
-      metadata.language?.trim().isNotEmpty == true ? metadata.language! : 'Unknown language',
+      libraryEntryLanguage(entry)?.trim().isNotEmpty == true ? libraryEntryLanguage(entry)! : 'Unknown language',
     LibraryGroupMode.ageRating =>
-      metadata.ageRating?.trim().isNotEmpty == true ? metadata.ageRating! : 'Unrated',
+      libraryEntryAgeRating(entry)?.trim().isNotEmpty == true ? libraryEntryAgeRating(entry)! : 'Unrated',
     LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
     LibraryGroupMode.releaseDate => _dateBucket(entry.releaseDate, 'Unknown release date'),
     LibraryGroupMode.releaseMonth =>
@@ -763,7 +761,7 @@ String? _referenceRegionFor(ShelfEntry source, LibraryWorkspaceEntry entry) {
 }
 
 String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
-  for (final credit in entry.metadata.creators ?? const <Map<String, dynamic>>[]) {
+  for (final credit in libraryEntryCreators(entry) ?? const <Map<String, dynamic>>[]) {
     final name = credit['name']?.toString().trim();
     if (name == null || name.isEmpty) continue;
     if (role == null) return name;
