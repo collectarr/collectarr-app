@@ -5,6 +5,34 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_inspect
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
+List<Widget> buildLibraryDetailCatalogSections({
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+  ValueChanged<String>? onFilterByValue,
+}) {
+  return [
+    LibraryDetailMetadataSection(
+      type: type,
+      entry: entry,
+      accent: accent,
+      onFilterByValue: onFilterByValue,
+    ),
+    LibraryDetailContextSection(
+      type: type,
+      entry: entry,
+      accent: accent,
+      onFilterByValue: onFilterByValue,
+    ),
+    LibraryDetailCreditsSection(
+      type: type,
+      entry: entry,
+      accent: accent,
+      onFilterByValue: onFilterByValue,
+    ),
+  ];
+}
+
 class LibraryDetailMetadataSection extends StatelessWidget {
   const LibraryDetailMetadataSection({
     super.key,

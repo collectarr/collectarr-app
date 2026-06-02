@@ -210,19 +210,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     ),
                     const SizedBox(height: 12),
                   ],
-                  LibraryDetailMetadataSection(
-                    type: widget.type,
-                    entry: widget.entry,
-                    accent: widget.accent,
-                    onFilterByValue: widget.onFilterByValue,
-                  ),
-                  LibraryDetailContextSection(
-                    type: widget.type,
-                    entry: widget.entry,
-                    accent: widget.accent,
-                    onFilterByValue: widget.onFilterByValue,
-                  ),
-                  LibraryDetailCreditsSection(
+                  ...buildLibraryDetailCatalogSections(
                     type: widget.type,
                     entry: widget.entry,
                     accent: widget.accent,
