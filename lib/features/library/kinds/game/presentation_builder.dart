@@ -24,6 +24,7 @@ class GameLibraryMediaPresentationBuilder
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(entry);
     return LibraryMetadataPresentation(
+      labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryInspectorFactData('Kind', singularLabel),

@@ -13,6 +13,7 @@ class VideoLibraryMediaPresentationBuilder
     super.showSummary,
     super.showSeasonHierarchy,
     super.showVolumeHierarchy,
+    super.metadataLabels,
   });
 
   @override
@@ -31,6 +32,7 @@ class VideoLibraryMediaPresentationBuilder
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
     return LibraryMetadataPresentation(
+      labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryInspectorFactData('Kind', singularLabel),

@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
   extends SharedLibraryMediaPresentationBuilder {
-  const MusicLibraryMediaPresentationBuilder();
+  const MusicLibraryMediaPresentationBuilder({super.metadataLabels});
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
@@ -129,6 +129,7 @@ class MusicLibraryMediaPresentationBuilder
     final music = entry.music;
     final series = entry.series;
     return LibraryMetadataPresentation(
+      labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryInspectorFactData('Kind', singularLabel),

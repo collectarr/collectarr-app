@@ -5,6 +5,21 @@ import 'package:collectarr_app/features/library/kinds/movie/presentation_builder
 import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
+const moviesMetadataLabels = LibraryMetadataLabels(
+  identitySectionTitle: 'Screen identity',
+  contextSectionTitle: 'Release context',
+  creditsSectionTitle: 'Cast & Discovery',
+  creators: 'Cast & Crew',
+);
+
+const musicMetadataLabels = LibraryMetadataLabels(
+  identitySectionTitle: 'Album identity',
+  contextSectionTitle: 'Album context',
+  creditsSectionTitle: 'Contributors & Discovery',
+  creators: 'Contributors',
+  characters: 'Featured artists',
+);
+
 const genericLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder();
 const comicsLibraryMediaBuilder =
     SharedLibraryMediaPresentationBuilder(showSummary: true);
@@ -12,8 +27,11 @@ const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
 const boardGamesLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder();
 const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
   showSummary: true,
+  metadataLabels: moviesMetadataLabels,
 );
-const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder();
+const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder(
+  metadataLabels: musicMetadataLabels,
+);
 
 const defaultPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',

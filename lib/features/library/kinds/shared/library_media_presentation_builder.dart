@@ -15,11 +15,13 @@ class SharedLibraryMediaPresentationBuilder
     this.showSummary = false,
     this.showSeasonHierarchy = false,
     this.showVolumeHierarchy = false,
+    this.metadataLabels = const LibraryMetadataLabels(),
   });
 
   final bool showSummary;
   final bool showSeasonHierarchy;
   final bool showVolumeHierarchy;
+  final LibraryMetadataLabels metadataLabels;
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
@@ -40,6 +42,7 @@ class SharedLibraryMediaPresentationBuilder
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
     return LibraryMetadataPresentation(
+      labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryInspectorFactData('Kind', singularLabel),

@@ -31,7 +31,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Catalog context'), findsOneWidget);
+    expect(find.text('Album context'), findsOneWidget);
     expect(find.text('Tracks'), findsOneWidget);
     expect(find.text('Genres'), findsOneWidget);
     expect(find.text('House'), findsOneWidget);
