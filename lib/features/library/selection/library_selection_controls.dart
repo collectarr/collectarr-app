@@ -6,6 +6,7 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback onClearSelection,
   VoidCallback onSelectAll,
   VoidCallback onBulkEdit,
+  VoidCallback? onPrintToPdf,
   VoidCallback onBulkMoveToOwned,
   VoidCallback onBulkMoveToWishlist,
   VoidCallback onBulkRemove,
@@ -62,7 +63,7 @@ class LibrarySelectionControls extends StatelessWidget {
           ),
         ),
         TextButton.icon(
-          onPressed: callbacks.onBulkRefreshMetadata,
+          onPressed: callbacks.onPrintToPdf,
           icon: const Icon(Icons.picture_as_pdf_outlined, size: 15),
           label: const Text('Print to PDF'),
           style: TextButton.styleFrom(
@@ -75,7 +76,7 @@ class LibrarySelectionControls extends StatelessWidget {
           ),
         ),
         TextButton.icon(
-          onPressed: callbacks.onBulkMoveToOwned,
+          onPressed: callbacks.onBulkEdit,
           icon: const Icon(Icons.tune, size: 15),
           label: const Text('Update values'),
           style: TextButton.styleFrom(

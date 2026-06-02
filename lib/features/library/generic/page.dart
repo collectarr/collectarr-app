@@ -503,6 +503,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                         }
                       },
                       onBulkEdit: () => bulkEditFlow(projection),
+                      onPrintToPdf: projection != null &&
+                              projection.filteredItems.isNotEmpty
+                          ? () => printReportFlow(projection)
+                          : null,
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                       onBulkMoveToWishlist: () =>
                           bulkMoveToWishlistFlow(projection),

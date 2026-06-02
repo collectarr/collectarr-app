@@ -20,6 +20,7 @@ void main() {
       onClearSelection: () {},
       onSelectAll: () {},
       onBulkEdit: () {},
+      onPrintToPdf: () {},
       onBulkMoveToOwned: () {},
       onBulkMoveToWishlist: () {},
       onBulkRemove: () {},
