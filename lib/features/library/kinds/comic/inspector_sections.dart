@@ -23,6 +23,7 @@ class _ComicInspectorDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = request.entry;
+    final metadata = entry.metadata;
     final ownedItem = request.ownedItem;
     final trackingEntry = request.trackingEntry;
     final detailRows = _detailRows(entry, ownedItem);
@@ -30,8 +31,8 @@ class _ComicInspectorDashboard extends StatelessWidget {
     final valueRows = _valueRows(ownedItem, request.ownedCopies);
 
     final panels = <_ComicPanelData>[
-      if (_creatorRows(entry.creators).isNotEmpty)
-        _ComicPanelData(title: 'Creators', rows: _creatorRows(entry.creators)),
+      if (_creatorRows(metadata.creators).isNotEmpty)
+        _ComicPanelData(title: 'Creators', rows: _creatorRows(metadata.creators)),
       if (detailRows.isNotEmpty)
         _ComicPanelData(title: 'Details', rows: detailRows),
       if (_personalRows(entry, ownedItem, trackingEntry).isNotEmpty)
@@ -393,17 +394,18 @@ List<_ComicRowData> _detailRows(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
 ) {
+  final metadata = entry.metadata;
   final rows = <_ComicRowData>[];
-  if (entry.ageRating?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Age', value: entry.ageRating!.trim()));
+  if (metadata.ageRating?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Age', value: metadata.ageRating!.trim()));
   }
   if (entry.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(
       _ComicRowData(label: 'Format', value: entry.referenceFormatLabel!.trim()),
     );
   }
-  if (entry.genres?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Genre', value: entry.genres!.join(', ')));
+  if (metadata.genres?.isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Genre', value: metadata.genres!.join(', ')));
   }
   if (entry.publishing?.pageCount != null) {
     rows.add(
@@ -413,17 +415,17 @@ List<_ComicRowData> _detailRows(
       ),
     );
   }
-  if (entry.country?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Country', value: entry.country!.trim()));
+  if (metadata.country?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Country', value: metadata.country!.trim()));
   }
-  if (entry.language?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Language', value: entry.language!.trim()));
+  if (metadata.language?.trim().isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Language', value: metadata.language!.trim()));
   }
-  if (entry.characters?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Characters', value: entry.characters!.join(', ')));
+  if (metadata.characters?.isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Characters', value: metadata.characters!.join(', ')));
   }
-  if (entry.storyArcs?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')));
+  if (metadata.storyArcs?.isNotEmpty == true) {
+    rows.add(_ComicRowData(label: 'Story Arc', value: metadata.storyArcs!.join(', ')));
   }
   return rows;
 }

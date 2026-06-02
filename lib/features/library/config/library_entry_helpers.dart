@@ -200,7 +200,7 @@ List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {
   if (variantPlatform != null && variantPlatform.isNotEmpty) {
     values.add(variantPlatform);
   }
-  final rawPlatforms = entry.game?.platforms ?? entry.rawPlatforms;
+  final rawPlatforms = entry.game?.platforms ?? entry.metadata.rawPlatforms;
   for (final platform in rawPlatforms ?? const <String>[]) {
     final normalized = platform.trim();
     if (normalized.isEmpty || values.contains(normalized)) {

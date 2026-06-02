@@ -404,22 +404,12 @@ sealed class LibraryWorkspaceEntry {
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
+  LibraryWorkspaceMetadata get metadata;
   CatalogSeriesDetails? get series;
   CatalogPublishingDetails? get publishing;
   VideoCatalogDetails? get video;
   MusicCatalogDetails? get music;
   GameCatalogDetails? get game;
-  String? get plotSummary;
-  String? get plotDescription;
-  List<Map<String, dynamic>>? get creators;
-  List<String>? get characters;
-  List<String>? get storyArcs;
-  List<String>? get genres;
-  String? get country;
-  String? get language;
-  String? get ageRating;
-  String? get audienceRating;
-  List<String>? get rawPlatforms;
 
 }
 
@@ -587,6 +577,9 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
   final GameCatalogDetails? gameDetails;
 
   @override
+  LibraryWorkspaceMetadata get metadata => metadataDetails;
+
+  @override
   CatalogSeriesDetails? get series => seriesDetails;
 
   @override
@@ -600,39 +593,6 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
 
   @override
   GameCatalogDetails? get game => gameDetails;
-
-  @override
-  String? get plotSummary => metadataDetails.plotSummary;
-
-  @override
-  String? get plotDescription => metadataDetails.plotDescription;
-
-  @override
-  List<Map<String, dynamic>>? get creators => metadataDetails.creators;
-
-  @override
-  List<String>? get characters => metadataDetails.characters;
-
-  @override
-  List<String>? get storyArcs => metadataDetails.storyArcs;
-
-  @override
-  List<String>? get genres => metadataDetails.genres;
-
-  @override
-  String? get country => metadataDetails.country;
-
-  @override
-  String? get language => metadataDetails.language;
-
-  @override
-  String? get ageRating => metadataDetails.ageRating;
-
-  @override
-  String? get audienceRating => metadataDetails.audienceRating;
-
-  @override
-  List<String>? get rawPlatforms => metadataDetails.rawPlatforms;
 }
 
 final class ComicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {

@@ -30,6 +30,7 @@ class DefaultLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
+    final metadata = entry.metadata;
     final series = entry.series;
     final publishing = entry.publishing;
     final music = entry.music;
@@ -120,16 +121,16 @@ class DefaultLibraryMediaPresentationBuilder
           ),
         if (publishing?.subtitle != null)
           LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
-        if (entry.country != null)
-          LibraryInspectorFactData('Country', entry.country!),
+        if (metadata.country != null)
+          LibraryInspectorFactData('Country', metadata.country!),
         if (music?.releaseStatus != null)
           LibraryInspectorFactData('Release Status', music!.releaseStatus!),
-        if (entry.language != null)
-          LibraryInspectorFactData('Language', entry.language!),
-        if (entry.ageRating != null)
-          LibraryInspectorFactData('Age Rating', entry.ageRating!),
-        if (entry.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
+        if (metadata.language != null)
+          LibraryInspectorFactData('Language', metadata.language!),
+        if (metadata.ageRating != null)
+          LibraryInspectorFactData('Age Rating', metadata.ageRating!),
+        if (metadata.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', metadata.audienceRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryInspectorFactData('Variant Type', variantType.trim()),
@@ -146,10 +147,10 @@ class DefaultLibraryMediaPresentationBuilder
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
         ),
       ],
-      creators: entry.creators ?? const <Map<String, dynamic>>[],
-      characters: entry.characters ?? const <String>[],
-      storyArcs: entry.storyArcs ?? const <String>[],
-      genres: entry.genres ?? const <String>[],
+      creators: metadata.creators ?? const <Map<String, dynamic>>[],
+      characters: metadata.characters ?? const <String>[],
+      storyArcs: metadata.storyArcs ?? const <String>[],
+      genres: metadata.genres ?? const <String>[],
     );
   }
 

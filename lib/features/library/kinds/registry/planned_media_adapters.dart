@@ -479,11 +479,11 @@ Widget plannedMediaTableCell(
         formatDate(entry.updatedAt),
         style: const TextStyle(fontSize: 12),
       ),
-    LibraryTableColumn.country => LibraryTableCellText(entry.country),
-    LibraryTableColumn.language => LibraryTableCellText(entry.language),
+    LibraryTableColumn.country => LibraryTableCellText(entry.metadata.country),
+    LibraryTableColumn.language => LibraryTableCellText(entry.metadata.language),
     LibraryTableColumn.pageCount =>
       LibraryTableCellText(entry.publishing?.pageCount?.toString()),
-    LibraryTableColumn.ageRating => LibraryTableCellText(entry.ageRating),
+    LibraryTableColumn.ageRating => LibraryTableCellText(entry.metadata.ageRating),
     LibraryTableColumn.imprint =>
       LibraryTableCellText(entry.publishing?.imprint),
   };
@@ -639,11 +639,11 @@ class PlannedMediaSortAccessors {
 
 final plannedDefaultSortAccessors = PlannedMediaSortAccessors(
   series: (entry) => entry.series?.seriesTitle,
-  storyArc: (entry) => _firstStringValue(entry.storyArcs),
-  country: (entry) => entry.country,
-  language: (entry) => entry.language,
+  storyArc: (entry) => _firstStringValue(entry.metadata.storyArcs),
+  country: (entry) => entry.metadata.country,
+  language: (entry) => entry.metadata.language,
   pageCount: (entry) => entry.publishing?.pageCount,
-  ageRating: (entry) => entry.ageRating,
+  ageRating: (entry) => entry.metadata.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
 );
 
@@ -658,8 +658,8 @@ LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
 ) {
   return LibraryEntryFilterValues(
     series: _trimmedOrNull(entry.series?.seriesTitle),
-    country: _trimmedOrNull(entry.country),
-    language: _trimmedOrNull(entry.language),
+    country: _trimmedOrNull(entry.metadata.country),
+    language: _trimmedOrNull(entry.metadata.language),
   );
 }
 
@@ -682,10 +682,10 @@ Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
     publishing?.seriesGroup,
     filterValues.country,
     filterValues.language,
-    entry.ageRating,
+    entry.metadata.ageRating,
   ]);
   yield* _nonEmptyValues(entry.searchAliases);
-  if (entry.creators case final creators?) {
+  if (entry.metadata.creators case final creators?) {
     for (final credit in creators) {
       final name = credit['name']?.toString();
       if (name != null && name.trim().isNotEmpty) {
@@ -693,9 +693,9 @@ Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
       }
     }
   }
-  yield* _nonEmptyValues(entry.characters);
-  yield* _nonEmptyValues(entry.storyArcs);
-  yield* _nonEmptyValues(entry.genres);
+  yield* _nonEmptyValues(entry.metadata.characters);
+  yield* _nonEmptyValues(entry.metadata.storyArcs);
+  yield* _nonEmptyValues(entry.metadata.genres);
   if (game?.platforms case final platforms?) {
     yield* _nonEmptyValues(platforms);
   }
