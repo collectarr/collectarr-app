@@ -166,6 +166,58 @@ class LibraryFilterOptionLabels {
   final String dateFinished;
 }
 
+enum LibraryFilterField {
+  series,
+  location,
+  tag,
+  publisher,
+  year,
+  grade,
+  condition,
+  country,
+  language,
+}
+
+class LibraryFilterFieldDefinition {
+  const LibraryFilterFieldDefinition(this.field);
+
+  final LibraryFilterField field;
+}
+
+const defaultLibraryFilterFieldDefinitions = [
+  LibraryFilterFieldDefinition(LibraryFilterField.series),
+  LibraryFilterFieldDefinition(LibraryFilterField.location),
+  LibraryFilterFieldDefinition(LibraryFilterField.tag),
+  LibraryFilterFieldDefinition(LibraryFilterField.publisher),
+  LibraryFilterFieldDefinition(LibraryFilterField.year),
+  LibraryFilterFieldDefinition(LibraryFilterField.grade),
+  LibraryFilterFieldDefinition(LibraryFilterField.condition),
+  LibraryFilterFieldDefinition(LibraryFilterField.country),
+  LibraryFilterFieldDefinition(LibraryFilterField.language),
+];
+
+class LibraryBucketLabelOverrides {
+  const LibraryBucketLabelOverrides({
+    this.storyArc = 'Story arc',
+    this.character = 'Character',
+    this.noGenre = 'No genre',
+    this.unknownCountry = 'Unknown country',
+    this.unknownLanguage = 'Unknown language',
+    this.owned = 'Owned',
+    this.wishlist = 'Wishlist',
+    this.catalogOnly = 'Catalog only',
+  });
+
+  final String storyArc;
+  final String character;
+  final String noGenre;
+  final String unknownCountry;
+  final String unknownLanguage;
+  final String owned;
+  final String wishlist;
+  final String catalogOnly;
+}
+
 class LibraryReferenceLabels {
   const LibraryReferenceLabels({
     this.itemScope = 'Media',
@@ -433,6 +485,46 @@ abstract class LibraryMediaPresentationBuilder {
     return const [];
   }
 
+  List<Widget> buildDetailCatalogSections({
+    required BuildContext context,
+    required String singularLabel,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
+    required LibraryWorkspaceEntry entry,
+    required Color accent,
+    ValueChanged<String>? onFilterByValue,
+  }) {
+    return [
+      buildDetailIdentitySection(
+        context: context,
+        singularLabel: singularLabel,
+        mediaFields: mediaFields,
+        releaseFields: releaseFields,
+        entry: entry,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      ),
+      buildDetailContextSection(
+        context: context,
+        singularLabel: singularLabel,
+        mediaFields: mediaFields,
+        releaseFields: releaseFields,
+        entry: entry,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      ),
+      buildDetailCreditsSection(
+        context: context,
+        singularLabel: singularLabel,
+        mediaFields: mediaFields,
+        releaseFields: releaseFields,
+        entry: entry,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      ),
+    ];
+  }
+
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
@@ -615,8 +707,10 @@ class LibraryMediaPresentation {
     this.sortFavorites = defaultLibrarySortFavorites,
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
+    this.filterFieldDefinitions = defaultLibraryFilterFieldDefinitions,
     this.referenceLabels = const LibraryReferenceLabels(),
     this.statusLabels = const LibraryStatusLabels(),
+    this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
     required this.sortColumnDefinitions,
     required this.groupModeDefinitions,
     required this.groupModes,
@@ -640,8 +734,10 @@ class LibraryMediaPresentation {
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
   final LibraryFilterOptionLabels filterOptionLabels;
+  final List<LibraryFilterFieldDefinition> filterFieldDefinitions;
   final LibraryReferenceLabels referenceLabels;
   final LibraryStatusLabels statusLabels;
+  final LibraryBucketLabelOverrides bucketLabelOverrides;
   final List<LibraryGroupModeDefinition> groupModeDefinitions;
   final List<LibrarySortColumnDefinition> sortColumnDefinitions;
   final List<LibraryGroupMode> groupModes;

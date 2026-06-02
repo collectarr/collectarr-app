@@ -46,8 +46,14 @@ const musicLibraryGroupLabels = LibraryMediaGroupLabels(
   unknownPublisher: 'Unknown label',
 );
 
+const musicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, musicLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    musicLibraryGroupLabels,
+    musicLibraryBucketLabelOverrides,
+  );
 }
 
 const musicLibrarySortColumnDefinitions = [

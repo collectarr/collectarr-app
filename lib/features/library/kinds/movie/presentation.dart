@@ -426,8 +426,14 @@ const moviesLibraryGroupLabels = LibraryMediaGroupLabels(
   genre: 'Genres',
 );
 
+const moviesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String moviesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, moviesLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    moviesLibraryGroupLabels,
+    moviesLibraryBucketLabelOverrides,
+  );
 }
 
 const moviesLibrarySortColumnDefinitions = [

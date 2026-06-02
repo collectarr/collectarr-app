@@ -435,14 +435,15 @@ List<TrailerLink> _copyTrailerList(List<TrailerLink>? values) {
 String defaultLibraryBucketLabel(
   LibraryBucketingContext context,
   LibraryMediaGroupLabels labels,
+  [LibraryBucketLabelOverrides overrides = const LibraryBucketLabelOverrides()]
 ) {
   final entry = context.entry;
   final source = context.source;
   final publisher = entry.publisher?.trim();
   return switch (context.groupMode) {
     LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-    LibraryGroupMode.storyArc => 'Story arc',
-    LibraryGroupMode.character => 'Character',
+    LibraryGroupMode.storyArc => overrides.storyArc,
+    LibraryGroupMode.character => overrides.character,
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
     LibraryGroupMode.audienceRating => entry.audienceRating?.trim().isNotEmpty == true
@@ -451,11 +452,11 @@ String defaultLibraryBucketLabel(
     LibraryGroupMode.color => _stringBucket(entry.video?.color, 'No color'),
     LibraryGroupMode.publisher =>
       publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-    LibraryGroupMode.genre => _firstOrDefault(entry.genres, 'No genre'),
+    LibraryGroupMode.genre => _firstOrDefault(entry.genres, overrides.noGenre),
     LibraryGroupMode.country =>
-      entry.country?.trim().isNotEmpty == true ? entry.country! : 'Unknown country',
+      entry.country?.trim().isNotEmpty == true ? entry.country! : overrides.unknownCountry,
     LibraryGroupMode.language =>
-      entry.language?.trim().isNotEmpty == true ? entry.language! : 'Unknown language',
+      entry.language?.trim().isNotEmpty == true ? entry.language! : overrides.unknownLanguage,
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
     LibraryGroupMode.crossover => _stringBucket(entry.crossover, 'No crossover'),
@@ -525,10 +526,10 @@ String defaultLibraryBucketLabel(
     LibraryGroupMode.editorInChief => _creatorBucketByRole(entry, 'editor in chief'),
     LibraryGroupMode.location => _locationBucket(entry.locationPath),
     LibraryGroupMode.ownership => entry.isOwned
-        ? 'Owned'
+      ? overrides.owned
         : entry.isWishlisted
-            ? 'Wishlist'
-            : 'Catalog only',
+        ? overrides.wishlist
+        : overrides.catalogOnly,
     LibraryGroupMode.addedDate => _dateBucket(
       source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
       'Unknown added date',

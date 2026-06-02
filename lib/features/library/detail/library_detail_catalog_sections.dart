@@ -6,31 +6,21 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
+  required BuildContext context,
   required LibraryTypeConfig type,
   required LibraryWorkspaceEntry entry,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
-  return [
-    LibraryDetailMetadataSection(
-      type: type,
-      entry: entry,
-      accent: accent,
-      onFilterByValue: onFilterByValue,
-    ),
-    LibraryDetailContextSection(
-      type: type,
-      entry: entry,
-      accent: accent,
-      onFilterByValue: onFilterByValue,
-    ),
-    LibraryDetailCreditsSection(
-      type: type,
-      entry: entry,
-      accent: accent,
-      onFilterByValue: onFilterByValue,
-    ),
-  ];
+  return type.presentation.builder.buildDetailCatalogSections(
+    context: context,
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    accent: accent,
+    onFilterByValue: onFilterByValue,
+  );
 }
 
 class LibraryDetailMetadataSection extends StatelessWidget {

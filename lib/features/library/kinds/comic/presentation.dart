@@ -506,8 +506,14 @@ const comicsLibraryGroupLabels = LibraryMediaGroupLabels(
   unknownPublisher: 'Unknown publisher',
 );
 
+const comicsLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String comicsLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, comicsLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    comicsLibraryGroupLabels,
+    comicsLibraryBucketLabelOverrides,
+  );
 }
 
 const comicLibrarySortFavorites = [

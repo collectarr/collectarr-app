@@ -46,8 +46,14 @@ const gamesLibraryGroupLabels = LibraryMediaGroupLabels(
   unknownPublisher: 'Unknown publisher / studio',
 );
 
+const gamesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String gamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, gamesLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    gamesLibraryGroupLabels,
+    gamesLibraryBucketLabelOverrides,
+  );
 }
 
 const gamesLibrarySortColumnDefinitions = [

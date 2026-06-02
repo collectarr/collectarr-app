@@ -46,8 +46,14 @@ const boardGamesLibraryGroupLabels = LibraryMediaGroupLabels(
   unknownPublisher: 'Unknown publisher / designer',
 );
 
+const boardGamesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String boardGamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, boardGamesLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    boardGamesLibraryGroupLabels,
+    boardGamesLibraryBucketLabelOverrides,
+  );
 }
 
 const boardGamesLibrarySortColumnDefinitions = [

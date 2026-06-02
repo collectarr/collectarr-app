@@ -55,8 +55,14 @@ const booksLibraryGroupLabels = LibraryMediaGroupLabels(
   unknownPublisher: 'Unknown publisher',
 );
 
+const booksLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String booksLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, booksLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    booksLibraryGroupLabels,
+    booksLibraryBucketLabelOverrides,
+  );
 }
 
 const booksLibrarySortColumnDefinitions = [

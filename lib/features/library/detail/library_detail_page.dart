@@ -205,6 +205,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     const SizedBox(height: 12),
                   ],
                   ...buildLibraryDetailCatalogSections(
+                    context: context,
                     type: widget.type,
                     entry: widget.entry,
                     accent: widget.accent,

@@ -867,97 +867,14 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
       );
     }
 
-    final fieldSpecs = <_DetailFilterFieldSpec>[
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.series.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: labels.series,
-          empty: labels.anySeries,
-          value: _series,
-          options: widget.options.series,
-          onChanged: (value) => setState(() => _series = value),
+    final fieldSpecs = [
+      for (final definition in widget.type.presentation.filterFieldDefinitions)
+        _buildDetailFilterFieldSpec(
+          definition: definition,
+          labels: labels,
+          hasGrades: hasGrades,
+          hasConditions: hasConditions,
         ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.locations.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: 'Location',
-          empty: 'Any location',
-          value: _location,
-          options: widget.options.locations,
-          onChanged: (value) => setState(() => _location = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.tags.isNotEmpty,
-        builder: () => _AutocompleteFilterField(
-          label: 'Tag',
-          hint: 'Any tag',
-          value: _tag,
-          options: widget.options.tags,
-          onChanged: (value) => setState(() => _tag = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.publishers.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: labels.publisher,
-          empty: labels.anyPublisher,
-          value: _publisher,
-          options: widget.options.publishers,
-          onChanged: (value) => setState(() => _publisher = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.releaseYears.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: labels.year,
-          empty: labels.anyYear,
-          value: _releaseYear,
-          options: widget.options.releaseYears,
-          onChanged: (value) => setState(() => _releaseYear = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: hasGrades && widget.options.grades.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: 'Grade',
-          empty: 'Any grade',
-          value: _grade,
-          options: widget.options.grades,
-          onChanged: (value) => setState(() => _grade = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: hasConditions && widget.options.conditions.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: 'Condition',
-          empty: 'Any condition',
-          value: _condition,
-          options: widget.options.conditions,
-          onChanged: (value) => setState(() => _condition = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.countries.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: 'Country',
-          empty: 'Any country',
-          value: _country,
-          options: widget.options.countries,
-          onChanged: (value) => setState(() => _country = value),
-        ),
-      ),
-      _DetailFilterFieldSpec(
-        isVisible: widget.options.languages.isNotEmpty,
-        builder: () => _FilterDropdown(
-          label: 'Language',
-          empty: 'Any language',
-          value: _language,
-          options: widget.options.languages,
-          onChanged: (value) => setState(() => _language = value),
-        ),
-      ),
     ];
 
     for (final spec in fieldSpecs) {
@@ -968,6 +885,106 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     }
 
     return detailFilters;
+  }
+
+  _DetailFilterFieldSpec _buildDetailFilterFieldSpec({
+    required LibraryFilterFieldDefinition definition,
+    required LibraryMediaFilterLabels labels,
+    required bool hasGrades,
+    required bool hasConditions,
+  }) {
+    return switch (definition.field) {
+      LibraryFilterField.series => _DetailFilterFieldSpec(
+        isVisible: widget.options.series.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.series,
+          empty: labels.anySeries,
+          value: _series,
+          options: widget.options.series,
+          onChanged: (value) => setState(() => _series = value),
+        ),
+      ),
+      LibraryFilterField.location => _DetailFilterFieldSpec(
+        isVisible: widget.options.locations.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Location',
+          empty: 'Any location',
+          value: _location,
+          options: widget.options.locations,
+          onChanged: (value) => setState(() => _location = value),
+        ),
+      ),
+      LibraryFilterField.tag => _DetailFilterFieldSpec(
+        isVisible: widget.options.tags.isNotEmpty,
+        builder: () => _AutocompleteFilterField(
+          label: 'Tag',
+          hint: 'Any tag',
+          value: _tag,
+          options: widget.options.tags,
+          onChanged: (value) => setState(() => _tag = value),
+        ),
+      ),
+      LibraryFilterField.publisher => _DetailFilterFieldSpec(
+        isVisible: widget.options.publishers.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.publisher,
+          empty: labels.anyPublisher,
+          value: _publisher,
+          options: widget.options.publishers,
+          onChanged: (value) => setState(() => _publisher = value),
+        ),
+      ),
+      LibraryFilterField.year => _DetailFilterFieldSpec(
+        isVisible: widget.options.releaseYears.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.year,
+          empty: labels.anyYear,
+          value: _releaseYear,
+          options: widget.options.releaseYears,
+          onChanged: (value) => setState(() => _releaseYear = value),
+        ),
+      ),
+      LibraryFilterField.grade => _DetailFilterFieldSpec(
+        isVisible: hasGrades && widget.options.grades.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Grade',
+          empty: 'Any grade',
+          value: _grade,
+          options: widget.options.grades,
+          onChanged: (value) => setState(() => _grade = value),
+        ),
+      ),
+      LibraryFilterField.condition => _DetailFilterFieldSpec(
+        isVisible: hasConditions && widget.options.conditions.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Condition',
+          empty: 'Any condition',
+          value: _condition,
+          options: widget.options.conditions,
+          onChanged: (value) => setState(() => _condition = value),
+        ),
+      ),
+      LibraryFilterField.country => _DetailFilterFieldSpec(
+        isVisible: widget.options.countries.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Country',
+          empty: 'Any country',
+          value: _country,
+          options: widget.options.countries,
+          onChanged: (value) => setState(() => _country = value),
+        ),
+      ),
+      LibraryFilterField.language => _DetailFilterFieldSpec(
+        isVisible: widget.options.languages.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Language',
+          empty: 'Any language',
+          value: _language,
+          options: widget.options.languages,
+          onChanged: (value) => setState(() => _language = value),
+        ),
+      ),
+    };
   }
 
   LibraryFilterSelection _buildSelection() {

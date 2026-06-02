@@ -62,8 +62,14 @@ const genericLibraryGroupLabels = LibraryMediaGroupLabels(
   unknownPublisher: 'Unknown publisher',
 );
 
+const genericLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
 String genericLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(context, genericLibraryGroupLabels);
+  return defaultLibraryBucketLabel(
+    context,
+    genericLibraryGroupLabels,
+    genericLibraryBucketLabelOverrides,
+  );
 }
 
 const genericLibrarySortColumnDefinitions = [
