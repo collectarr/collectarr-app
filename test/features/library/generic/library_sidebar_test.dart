@@ -45,9 +45,12 @@ void main() {
       ),
     );
 
-    expect(find.text('Folders'), findsWidgets);
-    expect(find.text('Folder set'), findsOneWidget);
-    expect(find.text('Current folder'), findsOneWidget);
+    expect(
+      find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)),
+      findsOneWidget,
+    );
+    expect(find.text('Folder set'), findsNothing);
+    expect(find.text('Current folder'), findsNothing);
 
     await tester.tap(find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)).first);
     await tester.pumpAndSettle();
@@ -55,7 +58,7 @@ void main() {
     expect(find.text('Manage Favorites'), findsOneWidget);
   expect(find.byIcon(Icons.push_pin), findsNothing);
   expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
-    expect(find.text('Folders'), findsWidgets);
+    expect(find.text('Folders'), findsOneWidget);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);

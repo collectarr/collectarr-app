@@ -85,12 +85,16 @@ class LibrarySidebar extends StatelessWidget {
       selectedSeries: selectedBucket,
       onSelectSeries: onSelected,
       accentColor: accent,
-      selectionColor: accent.withValues(alpha: 0.36),
+      selectionColor: accent.withValues(alpha: 0.42),
       backgroundColor: appPalette(context).panel,
       headerColor: appPalette(context).surface,
       dividerColor: appPalette(context).divider,
       selectedBadgeColor: appPalette(context).highlight,
       mutedTextColor: appPalette(context).textMuted,
+      searchPlaceholder:
+          'Search ${genericGroupModeLabel(groupMode, type).toLowerCase()}...',
+      collectionStatusScope: collectionStatusScope,
+      onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
       headerOverride: LibrarySidebarHeader(
         type: type,
         groupMode: groupMode,

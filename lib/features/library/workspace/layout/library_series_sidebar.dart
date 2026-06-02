@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,6 +55,9 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.badgeColor = kAppBadgeBackground,
     this.selectedBadgeColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
+    this.searchPlaceholder = 'Find folders',
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.onCollectionStatusScopeChanged,
   });
 
   final List<LibrarySeriesBucket> series;
@@ -71,6 +75,9 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final Color badgeColor;
   final Color selectedBadgeColor;
   final Color mutedTextColor;
+  final String searchPlaceholder;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final ValueChanged<LibraryCollectionStatusScope>? onCollectionStatusScopeChanged;
 
   @override
   ConsumerState<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
@@ -161,8 +168,12 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
           _SidebarSearchAndSort(
             controller: _searchController,
             sortMode: _sortMode,
+            searchPlaceholder: widget.searchPlaceholder,
+            accentColor: widget.accentColor,
             dividerColor: resolvedDividerColor,
             mutedTextColor: resolvedMutedTextColor,
+            collectionStatusScope: widget.collectionStatusScope,
+            onCollectionStatusScopeChanged: widget.onCollectionStatusScopeChanged,
             onChanged: () => setState(() {}),
             onToggleSort: () => setState(() {
               _sortMode = _sortMode == _SidebarSortMode.alphabetical
@@ -203,38 +214,50 @@ class _SidebarSearchAndSort extends StatelessWidget {
   const _SidebarSearchAndSort({
     required this.controller,
     required this.sortMode,
+    required this.searchPlaceholder,
+    required this.accentColor,
     required this.dividerColor,
     required this.mutedTextColor,
+    required this.collectionStatusScope,
+    required this.onCollectionStatusScopeChanged,
     required this.onChanged,
     required this.onToggleSort,
   });
 
   final TextEditingController controller;
   final _SidebarSortMode sortMode;
+  final String searchPlaceholder;
+  final Color accentColor;
   final Color dividerColor;
   final Color mutedTextColor;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final ValueChanged<LibraryCollectionStatusScope>? onCollectionStatusScopeChanged;
   final VoidCallback onChanged;
   final VoidCallback onToggleSort;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 28,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: dividerColor)),
       ),
       child: Row(
         children: [
           Expanded(
-            child: SizedBox(
-              height: 22,
+            child: Container(
+              height: 28,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: dividerColor),
+              ),
               child: TextField(
                 controller: controller,
                 onChanged: (_) => onChanged(),
                 style: const TextStyle(fontSize: 11),
                 decoration: InputDecoration(
-                  hintText: 'Find folders',
+                  hintText: searchPlaceholder,
                   hintStyle: TextStyle(fontSize: 11, color: mutedTextColor),
                   prefixIcon: Icon(Icons.search, size: 14, color: mutedTextColor),
                   prefixIconConstraints:
@@ -258,27 +281,171 @@ class _SidebarSearchAndSort extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 2),
-          Tooltip(
-            message: sortMode == _SidebarSortMode.alphabetical
-                ? 'Sort by count'
-                : 'Sort alphabetically',
-            child: InkWell(
-              borderRadius: BorderRadius.circular(4),
-              onTap: onToggleSort,
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Icon(
-                  sortMode == _SidebarSortMode.alphabetical
-                      ? Icons.sort_by_alpha
-                      : Icons.tag,
-                  size: 16,
-                  color: mutedTextColor,
-                ),
-              ),
+          if (onCollectionStatusScopeChanged != null) ...[
+            const SizedBox(width: 6),
+            _SidebarStatusScopeButton(
+              accentColor: accentColor,
+              mutedTextColor: mutedTextColor,
+              scope: collectionStatusScope,
+              onSelected: onCollectionStatusScopeChanged!,
             ),
+          ],
+          const SizedBox(width: 6),
+          _SidebarSortSwitch(
+            sortMode: sortMode,
+            accentColor: accentColor,
+            dividerColor: dividerColor,
+            mutedTextColor: mutedTextColor,
+            onTap: onToggleSort,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SidebarStatusScopeButton extends StatelessWidget {
+  const _SidebarStatusScopeButton({
+    required this.scope,
+    required this.accentColor,
+    required this.mutedTextColor,
+    required this.onSelected,
+  });
+
+  final LibraryCollectionStatusScope scope;
+  final Color accentColor;
+  final Color mutedTextColor;
+  final ValueChanged<LibraryCollectionStatusScope> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = scope == LibraryCollectionStatusScope.all
+        ? mutedTextColor.withValues(alpha: 0.5)
+        : accentColor.withValues(alpha: 0.9);
+    final iconColor = scope == LibraryCollectionStatusScope.all
+        ? mutedTextColor
+        : accentColor;
+    return PopupMenuButton<LibraryCollectionStatusScope>(
+      tooltip: 'Filter completed series',
+      initialValue: scope,
+      onSelected: onSelected,
+      position: PopupMenuPosition.under,
+      padding: EdgeInsets.zero,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: borderColor),
+        ),
+        alignment: Alignment.center,
+        child: Icon(Icons.checklist_outlined, size: 16, color: iconColor),
+      ),
+      itemBuilder: (context) => [
+        for (final value in LibraryCollectionStatusScope.values)
+          PopupMenuItem<LibraryCollectionStatusScope>(
+            value: value,
+            child: Row(
+              children: [
+                Icon(
+                  value == scope ? Icons.check : Icons.remove,
+                  size: 16,
+                  color: value == scope ? accentColor : Colors.transparent,
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(value.label)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _SidebarSortSwitch extends StatelessWidget {
+  const _SidebarSortSwitch({
+    required this.sortMode,
+    required this.accentColor,
+    required this.dividerColor,
+    required this.mutedTextColor,
+    required this.onTap,
+  });
+
+  final _SidebarSortMode sortMode;
+  final Color accentColor;
+  final Color dividerColor;
+  final Color mutedTextColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final alphabeticalSelected = sortMode == _SidebarSortMode.alphabetical;
+    return Tooltip(
+      message: alphabeticalSelected ? 'Sort by count' : 'Sort alphabetically',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: onTap,
+        child: Container(
+          width: 54,
+          height: 28,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: dividerColor),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _SidebarSortModeIcon(
+                  icon: Icons.sort_by_alpha,
+                  selected: alphabeticalSelected,
+                  accentColor: accentColor,
+                  mutedTextColor: mutedTextColor,
+                ),
+              ),
+              Container(width: 1, color: dividerColor),
+              Expanded(
+                child: _SidebarSortModeIcon(
+                  icon: Icons.format_list_numbered,
+                  selected: !alphabeticalSelected,
+                  accentColor: accentColor,
+                  mutedTextColor: mutedTextColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarSortModeIcon extends StatelessWidget {
+  const _SidebarSortModeIcon({
+    required this.icon,
+    required this.selected,
+    required this.accentColor,
+    required this.mutedTextColor,
+  });
+
+  final IconData icon;
+  final bool selected;
+  final Color accentColor;
+  final Color mutedTextColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: selected ? accentColor.withValues(alpha: 0.18) : Colors.transparent,
+        borderRadius: BorderRadius.circular(3),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        icon,
+        size: 15,
+        color: selected ? accentColor : mutedTextColor,
       ),
     );
   }
@@ -335,10 +502,13 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
     final gapTooltip = widget.bucket.missingNumbers.isNotEmpty
         ? 'Missing: ${_formatMissingNumbers(widget.bucket.missingNumbers)}'
         : null;
+    final activeIndicatorColor = widget.selected
+      ? widget.selectedBadgeColor
+      : widget.selectedBadgeColor.withValues(alpha: 0.9);
     final bgColor = widget.selected
         ? widget.selectionColor
         : _hovered
-            ? widget.selectionColor.withValues(alpha: 0.18)
+        ? widget.selectionColor.withValues(alpha: 0.28)
             : Colors.transparent;
     Widget row = MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -349,12 +519,20 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: bgColor,
-            border: Border(bottom: BorderSide(color: widget.dividerColor)),
+            border: Border(
+              left: BorderSide(
+                color: widget.selected || _hovered
+                    ? activeIndicatorColor
+                    : Colors.transparent,
+                width: 2,
+              ),
+              bottom: BorderSide(color: widget.dividerColor),
+            ),
           ),
           child: SizedBox(
             height: 28 + widget.extraVerticalPadding * 2,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.only(left: 4, right: 6),
               child: Row(
                 children: [
                   Icon(
