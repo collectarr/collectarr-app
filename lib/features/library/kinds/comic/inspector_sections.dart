@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -5,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 List<Widget> buildComicInspectorSections(
   BuildContext _,
@@ -28,10 +30,15 @@ class _ComicInspectorDashboard extends StatelessWidget {
     final detailRows = _detailRows(entry, ownedItem);
     final collectorRows = _collectorRows(ownedItem);
     final valueRows = _valueRows(ownedItem, request.ownedCopies);
+    final noteRows = _noteRows(entry, ownedItem);
+    final tagRows = _tagRows(entry, ownedItem);
+    final linkRows = _linkRows(entry);
 
     final panels = <_ComicPanelData>[
       if (_creatorRows(entry.creators).isNotEmpty)
         _ComicPanelData(title: 'Creators', rows: _creatorRows(entry.creators)),
+      if (_characterRows(entry.characters).isNotEmpty)
+        _ComicPanelData(title: 'Characters', rows: _characterRows(entry.characters)),
       if (detailRows.isNotEmpty)
         _ComicPanelData(title: 'Details', rows: detailRows),
       if (_personalRows(entry, ownedItem, trackingEntry).isNotEmpty)
@@ -47,6 +54,12 @@ class _ComicInspectorDashboard extends StatelessWidget {
           rows: valueRows,
           variant: _ComicPanelVariant.value,
         ),
+      if (noteRows.isNotEmpty)
+        _ComicPanelData(title: 'Notes', rows: noteRows),
+      if (tagRows.isNotEmpty)
+        _ComicPanelData(title: 'Tags', rows: tagRows),
+      if (linkRows.isNotEmpty)
+        _ComicPanelData(title: 'Links', rows: linkRows),
     ];
 
     return LayoutBuilder(
@@ -78,14 +91,19 @@ class _ComicInspectorDashboard extends StatelessWidget {
             .where(
               (panel) =>
                   panel.title == 'Creators' ||
+              panel.title == 'Characters' ||
                   panel.title == 'Personal' ||
-                  panel.title == 'Value',
+              panel.title == 'Value' ||
+              panel.title == 'Tags',
             )
             .toList();
         final rightPanels = panels
             .where(
               (panel) =>
-                  panel.title == 'Details' || panel.title == 'Collector',
+              panel.title == 'Details' ||
+              panel.title == 'Collector' ||
+              panel.title == 'Notes' ||
+              panel.title == 'Links',
             )
             .toList();
 
@@ -389,6 +407,18 @@ List<_ComicRowData> _creatorRows(List<Map<String, dynamic>>? creators) {
   ];
 }
 
+List<_ComicRowData> _characterRows(List<String>? characters) {
+  if (characters == null || characters.isEmpty) {
+    return const <_ComicRowData>[];
+  }
+
+  return [
+    for (final character in characters)
+      if (character.trim().isNotEmpty)
+        _ComicRowData(label: 'Character', value: character.trim()),
+  ];
+}
+
 List<_ComicRowData> _detailRows(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
@@ -607,6 +637,68 @@ List<_ComicRowData> _collectorRows(OwnedItem? ownedItem) {
   return rows;
 }
 
+List<_ComicRowData> _noteRows(
+  LibraryWorkspaceEntry entry,
+  OwnedItem? ownedItem,
+) {
+  final rows = <_ComicRowData>[];
+  final personalNotes = ownedItem?.personalNotes?.trim();
+  final catalogNotes = entry.notes?.trim();
+  if (personalNotes != null && personalNotes.isNotEmpty) {
+    rows.add(_ComicRowData(label: 'Personal', value: personalNotes));
+  }
+  if (catalogNotes != null && catalogNotes.isNotEmpty) {
+    rows.add(_ComicRowData(label: 'Catalog', value: catalogNotes));
+  }
+  return rows;
+}
+
+List<_ComicRowData> _tagRows(
+  LibraryWorkspaceEntry entry,
+  OwnedItem? ownedItem,
+) {
+  final seen = <String>{};
+  final values = <String>[];
+
+  void addTags(String? raw) {
+    if (raw == null || raw.trim().isEmpty) {
+      return;
+    }
+    for (final part in raw.split(',')) {
+      final normalized = part.trim();
+      if (normalized.isEmpty) {
+        continue;
+      }
+      if (seen.add(normalized.toLowerCase())) {
+        values.add(normalized);
+      }
+    }
+  }
+
+  addTags(ownedItem?.tags);
+  addTags(entry.tags);
+
+  return [
+    for (final tag in values) _ComicRowData(label: 'Tag', value: tag),
+  ];
+}
+
+List<_ComicRowData> _linkRows(LibraryWorkspaceEntry entry) {
+  if (entry.trailerUrls.isEmpty) {
+    return const <_ComicRowData>[];
+  }
+
+  return [
+    for (final trailer in entry.trailerUrls)
+      _ComicRowData(
+        label: trailer.source?.trim().isNotEmpty == true
+            ? trailer.source!.trim()
+            : 'Link',
+        valueWidget: _ComicExternalLinkRow(trailer: trailer),
+      ),
+  ];
+}
+
 class _ComicStars extends StatelessWidget {
   const _ComicStars({required this.rating});
 
@@ -710,5 +802,50 @@ class _ExpandableCreatorNamesState extends State<_ExpandableCreatorNames> {
         ],
       ],
     );
+  }
+}
+
+class _ComicExternalLinkRow extends StatelessWidget {
+  const _ComicExternalLinkRow({required this.trailer});
+
+  final TrailerLink trailer;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final label = trailer.title?.trim().isNotEmpty == true
+        ? trailer.title!.trim()
+        : trailer.url;
+    return InkWell(
+      onTap: () => _launchUrl(trailer.url),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.link_outlined, size: 11, color: palette.textMuted),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w600,
+                    height: 1.08,
+                    fontSize: 9.25,
+                    decoration: TextDecoration.underline,
+                    decorationColor: palette.textMuted.withValues(alpha: 0.45),
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String value) async {
+    final uri = Uri.tryParse(value);
+    if (uri == null) {
+      return;
+    }
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 }

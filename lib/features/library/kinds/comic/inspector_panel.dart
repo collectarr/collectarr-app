@@ -1,10 +1,12 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 Widget buildComicInspectorPanel(
   BuildContext context,
@@ -114,6 +116,14 @@ class _ComicInspectorToolbar extends StatelessWidget {
     final entry = request.inspector.entry;
     final accent = request.inspector.accent;
     final hasBarcode = entry.barcode?.trim().isNotEmpty == true;
+    final ebayQuery = [
+      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
+      entry.resolvedTitle,
+      if (entry.itemNumber?.trim().isNotEmpty == true) '#${entry.itemNumber!.trim()}',
+      if (entry.variant?.trim().isNotEmpty == true) entry.variant!.trim(),
+      if (request.inspector.ownedItem?.grade?.trim().isNotEmpty == true)
+        request.inspector.ownedItem!.grade!.trim(),
+    ].join(' ');
     final onDetailsLayoutChanged = request.onDetailsLayoutChanged;
     final hasCopyMenu =
         request.ownedCopies.length > 1 && request.onSelectOwnedItem != null;
@@ -146,15 +156,62 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   icon: Icons.edit_outlined,
                   onPressed: request.onEdit,
                 ),
-                _ComicToolbarButton(
+                _ComicToolbarMenuButton(
+                  buttonKey: const ValueKey('comic-toolbar-share-menu'),
                   label: 'Share',
                   icon: Icons.share_outlined,
-                  onPressed: () => showCollectionShareDialog(
-                    context: context,
-                    title: entry.resolvedTitle,
-                    items: [entry],
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  entries: [
+                    _ComicToolbarMenuEntry(
+                      label: 'Share comic',
+                      icon: Icons.share_outlined,
+                      onSelected: () => showCollectionShareDialog(
+                        context: context,
+                        title: entry.resolvedTitle,
+                        items: [entry],
+                      ),
+                    ),
+                    _ComicToolbarMenuEntry(
+                      label: 'Share comic via e-mail',
+                      icon: Icons.email_outlined,
+                      onSelected: () => showCollectionShareDialog(
+                        context: context,
+                        title: entry.resolvedTitle,
+                        items: [entry],
+                      ),
+                    ),
+                    _ComicToolbarMenuEntry(
+                      label: 'Copy title',
+                      icon: Icons.content_copy_outlined,
+                      onSelected: () => _copyToolbarText(
+                        context,
+                        entry.resolvedTitle,
+                        'Copied title',
+                      ),
+                    ),
+                    if (hasBarcode)
+                      _ComicToolbarMenuEntry(
+                        label: 'Copy barcode',
+                        icon: Icons.qr_code_2_outlined,
+                        onSelected: () => _copyToolbarText(
+                          context,
+                          entry.barcode!.trim(),
+                          'Copied barcode',
+                        ),
+                      ),
+                    const _ComicToolbarMenuEntry(
+                      label: 'CloudShare link',
+                      icon: Icons.cloud_outlined,
+                      enabled: false,
+                    ),
+                  ],
                 ),
+                if (ebayQuery.trim().isNotEmpty)
+                  _ComicToolbarButton(
+                    label: 'eBay',
+                    icon: Icons.storefront_outlined,
+                    onPressed: () => launchEbaySearch(ebayQuery),
+                  ),
                 if (hasMoreEntries) ...[
                   const _ComicToolbarSeparator(),
                   _ComicToolbarMenuButton(
@@ -173,6 +230,30 @@ class _ComicInspectorToolbar extends StatelessWidget {
                               : Icons.add_circle_outline,
                           onSelected: request.onToggleOwned,
                         ),
+                      _ComicToolbarMenuEntry(
+                        label: 'Duplicate',
+                        icon: Icons.copy_outlined,
+                        enabled: false,
+                      ),
+                      _ComicToolbarMenuEntry(
+                        label: entry.isOwned
+                            ? 'Remove from collection'
+                            : 'Collect',
+                        icon: entry.isOwned
+                            ? Icons.remove_circle_outline
+                            : Icons.add_circle_outline,
+                        onSelected: request.onToggleOwned,
+                      ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Loan',
+                        icon: Icons.schedule_outlined,
+                        enabled: false,
+                      ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Move to other collection',
+                        icon: Icons.storage_outlined,
+                        enabled: false,
+                      ),
                       _ComicToolbarMenuEntry(
                         label: 'Add copy',
                         icon: Icons.copy_outlined,
@@ -201,9 +282,10 @@ class _ComicInspectorToolbar extends StatelessWidget {
                           ),
                         ),
                       if (hasBarcode)
-                        const _ComicToolbarMenuEntry(
+                        _ComicToolbarMenuEntry(
                           label: 'Find on eBay',
                           icon: Icons.storefront_outlined,
+                          onSelected: () => launchEbaySearch(ebayQuery),
                         ),
                       if (request.onToggleWishlist != null)
                         _ComicToolbarMenuEntry(
@@ -216,12 +298,42 @@ class _ComicInspectorToolbar extends StatelessWidget {
                         icon: Icons.open_in_new,
                         onSelected: request.onOpenDetails,
                       ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Update value',
+                        icon: Icons.price_change_outlined,
+                        enabled: false,
+                      ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Update Key Info',
+                        icon: Icons.key_outlined,
+                        enabled: false,
+                      ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Update from Core',
+                        icon: Icons.cloud_download_outlined,
+                        enabled: false,
+                      ),
                       if (request.onCorrectMetadata != null)
                         _ComicToolbarMenuEntry(
                           label: 'Correct metadata',
                           icon: Icons.fact_check_outlined,
                           onSelected: request.onCorrectMetadata,
                         ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Relink Core variant',
+                        icon: Icons.link_outlined,
+                        enabled: false,
+                      ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Unlink from Core',
+                        icon: Icons.link_off_outlined,
+                        enabled: false,
+                      ),
+                      const _ComicToolbarMenuEntry(
+                        label: 'Submit to Core',
+                        icon: Icons.cloud_upload_outlined,
+                        enabled: false,
+                      ),
                     ],
                   ),
                 ],
@@ -239,7 +351,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   trailingIcon: null,
                   entries: [
                     _ComicToolbarMenuEntry(
-                      label: 'Open on right',
+                      label: 'Vertical Split',
                       icon: Icons.view_sidebar_outlined,
                       onSelected: onDetailsLayoutChanged == null
                           ? null
@@ -249,7 +361,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                       enabled: onDetailsLayoutChanged != null,
                     ),
                     _ComicToolbarMenuEntry(
-                      label: 'Open on bottom',
+                      label: 'Horizontal Split',
                       icon: Icons.splitscreen_outlined,
                       onSelected: onDetailsLayoutChanged == null
                           ? null
@@ -259,7 +371,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                       enabled: onDetailsLayoutChanged != null,
                     ),
                     _ComicToolbarMenuEntry(
-                      label: 'Close details',
+                      label: 'No Details',
                       icon: Icons.visibility_off_outlined,
                       onSelected: onDetailsLayoutChanged == null
                           ? null
@@ -392,6 +504,13 @@ class _ComicToolbarMenuButton extends StatelessWidget {
       onSelected: (entry) => entry.onSelected?.call(),
     );
   }
+}
+
+void _copyToolbarText(BuildContext context, String value, String message) {
+  Clipboard.setData(ClipboardData(text: value));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message)),
+  );
 }
 
 class _ComicSectionDivider extends StatelessWidget {

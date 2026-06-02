@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -82,6 +83,12 @@ class ComicInspectorHero extends ConsumerWidget {
       if (entry.publishing?.imprint?.trim().isNotEmpty == true)
       entry.publishing!.imprint!.trim(),
     ].join(' / ');
+    final subtitleParts = <String>[
+      if (entry.crossover?.trim().isNotEmpty == true) entry.crossover!.trim(),
+      if (entry.storyArcs?.isNotEmpty == true) entry.storyArcs!.first.trim(),
+      if (entry.variant?.trim().isNotEmpty == true) entry.variant!.trim(),
+    ];
+    final subtitleLabel = subtitleParts.join(' • ');
     final statusLabel = entry.isOwned
         ? 'Owned'
         : entry.isWishlisted
@@ -102,6 +109,23 @@ class ComicInspectorHero extends ConsumerWidget {
         slabLabel != null &&
         slabGrade != null &&
         slabGrade.isNotEmpty;
+    final currentValue = ownedItem?.marketValueCents != null
+        ? formatMoney(ownedItem!.marketValueCents, ownedItem.currency)
+        : null;
+    final gradeValueLabel = [
+      if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
+      if (currentValue != null) currentValue,
+    ].join('  •  ');
+    final keyReason = ownedItem?.keyReason?.trim().isNotEmpty == true
+        ? ownedItem!.keyReason!.trim()
+        : null;
+    final ebayQuery = [
+      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
+      if (seriesLabel != null) seriesLabel,
+      if (referenceLabel.trim().isNotEmpty) referenceLabel,
+      if (editionLabel.trim().isNotEmpty) editionLabel,
+      if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
+    ].join(' ');
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -173,10 +197,24 @@ class ComicInspectorHero extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (subtitleLabel.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  subtitleLabel,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: muted,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 9.2,
+                        height: 1.1,
+                      ),
+                ),
+              ),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: [
+                _ComicIssueBadge(referenceLabel: referenceLabel),
                 _ComicMetaBadge(label: 'Edition', value: editionLabel),
                 _ComicMetaBadge(
                   label: 'Status',
@@ -190,32 +228,60 @@ class ComicInspectorHero extends ConsumerWidget {
                 ),
               ],
             ),
+            if (keyReason != null) ...[
+              const SizedBox(height: 6),
+              _ComicKeyReasonBanner(reason: keyReason),
+            ],
             const SizedBox(height: 6),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border.all(color: border),
-                color: Color.alphaBlend(
-                  request.accent.withValues(alpha: 0.02),
-                  surface,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: border),
+                      color: Color.alphaBlend(
+                        request.accent.withValues(alpha: 0.02),
+                        surface,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 7, 8, 6),
+                      child: Column(
+                        children: [
+                          if (seriesLabel != null)
+                            _ComicDetailLine(label: 'Series', value: seriesLabel),
+                          if (formatLabel != null)
+                            _ComicDetailLine(label: 'Format', value: formatLabel),
+                          _ComicDetailLine(label: 'Release', value: releaseLabel),
+                          if (publisherLabel.isNotEmpty)
+                            _ComicDetailLine(label: 'Publisher', value: publisherLabel),
+                          if (entry.barcode?.trim().isNotEmpty == true)
+                            _ComicDetailLine(label: 'Barcode', value: entry.barcode!.trim()),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 7, 8, 6),
-                child: Column(
-                  children: [
-                    if (seriesLabel != null)
-                      _ComicDetailLine(label: 'Series', value: seriesLabel),
-                    _ComicDetailLine(label: 'Issue', value: referenceLabel),
-                    if (formatLabel != null)
-                      _ComicDetailLine(label: 'Format', value: formatLabel),
-                    _ComicDetailLine(label: 'Release', value: releaseLabel),
-                    if (publisherLabel.isNotEmpty)
-                      _ComicDetailLine(label: 'Publisher', value: publisherLabel),
-                    if (entry.barcode?.trim().isNotEmpty == true)
-                      _ComicDetailLine(label: 'Barcode', value: entry.barcode!.trim()),
-                  ],
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 126),
+                  child: Column(
+                    children: [
+                      if (gradeValueLabel.isNotEmpty)
+                        _ComicValueRibbon(
+                          accent: request.accent,
+                          label: gradeValueLabel,
+                        ),
+                      const SizedBox(height: 6),
+                      _ComicEbayCard(
+                        query: ebayQuery,
+                        accent: request.accent,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 6),
             Text(
@@ -275,7 +341,6 @@ class ComicInspectorHero extends ConsumerWidget {
           border: border,
           title: entry.resolvedTitle,
           overline: seriesLabel,
-          referenceLabel: referenceLabel,
           accent: request.accent,
           child: stacked
               ? Column(
@@ -308,7 +373,6 @@ class _ComicHeroBlock extends StatelessWidget {
     required this.border,
     required this.title,
     this.overline,
-    required this.referenceLabel,
     required this.accent,
     required this.child,
   });
@@ -317,7 +381,6 @@ class _ComicHeroBlock extends StatelessWidget {
   final Color border;
   final String title;
   final String? overline;
-  final String referenceLabel;
   final Color accent;
   final Widget child;
 
@@ -363,23 +426,39 @@ class _ComicHeroBlock extends StatelessWidget {
                         ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  referenceLabel,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: appPalette(context).textMuted,
-                        fontWeight: FontWeight.w900,
-                        height: 1,
-                        fontSize: 8,
-                        letterSpacing: 0.14,
-                      ),
-                ),
               ],
             ),
             const SizedBox(height: 4),
             child,
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ComicIssueBadge extends StatelessWidget {
+  const _ComicIssueBadge({required this.referenceLabel});
+
+  final String referenceLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      decoration: BoxDecoration(
+        border: Border.all(color: palette.divider),
+        color: palette.surfaceSubtle,
+      ),
+      child: Text(
+        referenceLabel,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: palette.textPrimary,
+              fontWeight: FontWeight.w900,
+              fontSize: 8.8,
+              letterSpacing: 0.14,
+            ),
       ),
     );
   }
@@ -486,6 +565,132 @@ class _ComicSlabCoverOverlay extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ComicKeyReasonBanner extends StatelessWidget {
+  const _ComicKeyReasonBanner({required this.reason});
+
+  final String reason;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: palette.surfaceSubtle,
+        border: Border.all(color: palette.divider),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.key_outlined, size: 13),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              reason,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 8.9,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComicValueRibbon extends StatelessWidget {
+  const _ComicValueRibbon({required this.accent, required this.label});
+
+  final Color accent;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(accent.withValues(alpha: 0.1), palette.surface),
+        border: Border.all(color: accent.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: accent,
+              fontWeight: FontWeight.w900,
+              fontSize: 8.9,
+            ),
+      ),
+    );
+  }
+}
+
+class _ComicEbayCard extends StatelessWidget {
+  const _ComicEbayCard({
+    required this.query,
+    required this.accent,
+  });
+
+  final String query;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return InkWell(
+      onTap: query.trim().isEmpty ? null : () => launchEbaySearch(query),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        decoration: BoxDecoration(
+          border: Border.all(color: palette.divider),
+          color: palette.surface,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.storefront_outlined, size: 13, color: accent),
+                const SizedBox(width: 4),
+                Text(
+                  'eBay',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w900,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Find sold listings',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 8.7,
+                  ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'CLZ-style quick jump for market comps',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: palette.textMuted,
+                    fontSize: 7.9,
+                    height: 1.2,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }

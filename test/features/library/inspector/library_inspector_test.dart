@@ -274,11 +274,11 @@ void main() {
     final layoutMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
       find.byKey(const ValueKey('comic-toolbar-layout-menu')),
     );
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Open on right'));
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Open on bottom'));
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Close details'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Vertical Split'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('Horizontal Split'));
+    expect(layoutMenu.entries.map((entry) => entry.label), contains('No Details'));
     final closeEntry = layoutMenu.entries.firstWhere(
-      (entry) => entry.label == 'Close details',
+      (entry) => entry.label == 'No Details',
     );
     final dynamic dynamicLayoutMenu = layoutMenu;
     dynamicLayoutMenu.onSelected(closeEntry.value);
@@ -294,9 +294,9 @@ void main() {
     expect(moreLabels, contains('Open details'));
     expect(moreLabels, contains('Find on eBay'));
     expect(moreLabels, contains('Correct metadata'));
-    expect(moreLabels, isNot(contains('Update value')));
-    expect(moreLabels, isNot(contains('Update Key Info')));
-    expect(moreLabels, isNot(contains('Submit to Core')));
+    expect(moreLabels, contains('Update value'));
+    expect(moreLabels, contains('Update Key Info'));
+    expect(moreLabels, contains('Submit to Core'));
 
     await tester.tapAt(const Offset(8, 8));
     await tester.pumpAndSettle();
