@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +110,7 @@ void main() {
     expect(restored.columnWidths[LibraryTableColumn.grade], 120);
   });
 
-  test('workspace chrome size and position are global across libraries',
+  test('workspace chrome size and position are retained per library',
       () async {
     const comicsStore = LibraryWorkspacePreferences(config);
     const mangaStore = LibraryWorkspacePreferences(mangaConfig);
@@ -141,10 +142,10 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(restored.sidebarWidth, 305);
-    expect(restored.detailsWidth, 430);
-    expect(restored.detailsHeight, 260);
+    expect(restored.detailsLayout, LibraryDetailsLayout.right);
+    expect(restored.sidebarWidth, kLibrarySidebarDefaultWidth);
+    expect(restored.detailsWidth, kLibraryDetailsDefaultWidth);
+    expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
     expect(restored.sortColumn, LibrarySortColumn.title);
     expect(restored.visibleColumns, {
@@ -186,5 +187,69 @@ void main() {
     expect(restored.sidebarWidth, 640);
     expect(restored.detailsWidth, 980);
     expect(restored.detailsHeight, 540);
+  });
+
+  test('sort and chrome preferences stay isolated between libraries', () async {
+    const comicsStore = LibraryWorkspacePreferences(config);
+    const mangaStore = LibraryWorkspacePreferences(mangaConfig);
+
+    await comicsStore.write(
+      const LibraryWorkspacePreferenceSnapshot(
+        viewMode: LibraryViewMode.list,
+        detailsLayout: LibraryDetailsLayout.bottom,
+        isSidebarVisible: false,
+        sortColumn: LibrarySortColumn.grade,
+        sortAscending: false,
+        coverSize: 144,
+        sidebarWidth: 305,
+        detailsWidth: 430,
+        detailsHeight: 260,
+        visibleColumns: {
+          LibraryTableColumn.title,
+          LibraryTableColumn.grade,
+        },
+        columnWidths: {},
+      ),
+    );
+
+    await mangaStore.write(
+      const LibraryWorkspacePreferenceSnapshot(
+        viewMode: LibraryViewMode.grid,
+        detailsLayout: LibraryDetailsLayout.right,
+        isSidebarVisible: true,
+        sortColumn: LibrarySortColumn.title,
+        sortAscending: true,
+        coverSize: 128,
+        sidebarWidth: 250,
+        detailsWidth: 340,
+        detailsHeight: 300,
+        visibleColumns: {
+          LibraryTableColumn.title,
+          LibraryTableColumn.publisher,
+        },
+        columnWidths: {},
+      ),
+    );
+
+    final comics = await comicsStore.read(
+      defaultCoverSize: 128,
+      minCoverSize: 104,
+      maxCoverSize: 188,
+    );
+    final manga = await mangaStore.read(
+      defaultCoverSize: 128,
+      minCoverSize: 104,
+      maxCoverSize: 188,
+    );
+
+    expect(comics.sortColumn, LibrarySortColumn.grade);
+    expect(comics.sortAscending, isFalse);
+    expect(comics.detailsLayout, LibraryDetailsLayout.bottom);
+    expect(comics.isSidebarVisible, isFalse);
+
+    expect(manga.sortColumn, LibrarySortColumn.title);
+    expect(manga.sortAscending, isTrue);
+    expect(manga.detailsLayout, LibraryDetailsLayout.right);
+    expect(manga.isSidebarVisible, isTrue);
   });
 }

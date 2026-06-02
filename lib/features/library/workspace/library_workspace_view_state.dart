@@ -71,7 +71,7 @@ class LibraryWorkspaceViewProfile {
     final cached = LibraryWorkspacePreferences.cachedSnapshot(config);
     if (cached != null) {
       return fromPreferences(cached)
-          .withChrome(LibraryWorkspacePreferences.cachedChrome);
+          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
     }
     final defaults = LibraryWorkspaceViewState(
       viewMode: defaultViewMode,
@@ -86,7 +86,7 @@ class LibraryWorkspaceViewProfile {
       visibleColumns: Set.of(config.defaultVisibleColumns),
       columnWidths: const {},
     );
-    return defaults.withChrome(LibraryWorkspacePreferences.cachedChrome);
+    return defaults.withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
   }
 
   LibraryWorkspaceViewState fromPreferences(

@@ -60,14 +60,16 @@ class LibraryWorkspaceChromePreferenceSnapshot {
 class LibraryWorkspacePreferences {
   const LibraryWorkspacePreferences(this.config);
 
-  static const _globalChromePrefix = 'collectarr.workspace.chrome';
-  static LibraryWorkspaceChromePreferenceSnapshot? _cachedChrome;
+  static final _cachedChromeByConfig =
+      <String, LibraryWorkspaceChromePreferenceSnapshot>{};
   static final _cachedSnapshots = <String, LibraryWorkspacePreferenceSnapshot>{};
 
   final LibraryWorkspaceConfig config;
 
-  static LibraryWorkspaceChromePreferenceSnapshot? get cachedChrome =>
-      _cachedChrome;
+  static LibraryWorkspaceChromePreferenceSnapshot? cachedChromeFor(
+    LibraryWorkspaceConfig config,
+  ) =>
+      _cachedChromeByConfig[config.preferenceKey('')];
 
   /// Returns the last loaded/written snapshot for [config], or `null` if the
   /// preferences have not been loaded yet for this media type.
@@ -77,7 +79,7 @@ class LibraryWorkspacePreferences {
       _cachedSnapshots[config.preferenceKey('')];
 
   static void resetCachedChromeForTesting() {
-    _cachedChrome = null;
+    _cachedChromeByConfig.clear();
     _cachedSnapshots.clear();
   }
 
@@ -95,14 +97,11 @@ class LibraryWorkspacePreferences {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final coverSize = prefs.getDouble(_key('cover_size')) ?? defaultCoverSize;
-    final sidebarWidth = prefs.getDouble(_globalKey('sidebar_width')) ??
-        prefs.getDouble(_key('sidebar_width')) ??
+    final sidebarWidth = prefs.getDouble(_key('sidebar_width')) ??
         defaultSidebarWidth;
-    final detailsWidth = prefs.getDouble(_globalKey('details_width')) ??
-        prefs.getDouble(_key('details_width')) ??
+    final detailsWidth = prefs.getDouble(_key('details_width')) ??
         defaultDetailsWidth;
-    final detailsHeight = prefs.getDouble(_globalKey('details_height')) ??
-      prefs.getDouble(_key('details_height')) ??
+    final detailsHeight = prefs.getDouble(_key('details_height')) ??
       defaultDetailsHeight;
     final sortColumn = _enumByName(
           config.availableSortColumns,
@@ -124,12 +123,11 @@ class LibraryWorkspacePreferences {
           defaultViewMode,
       detailsLayout: _enumByName(
             LibraryDetailsLayout.values,
-            prefs.getString(_globalKey('details_layout')) ??
-                prefs.getString(_key('details_layout')),
+            prefs.getString(_key('details_layout')),
           ) ??
           defaultDetailsLayout,
         isSidebarVisible:
-          prefs.getBool(_globalKey('sidebar_visible')) ?? defaultSidebarVisible,
+          prefs.getBool(_key('sidebar_visible')) ?? defaultSidebarVisible,
         sortColumn: sortColumn,
       sortAscending:
           prefs.getBool(_key('sort_ascending')) ?? defaultSortAscending,
@@ -153,7 +151,7 @@ class LibraryWorkspacePreferences {
       visibleColumns: visibleColumns,
       columnWidths: columnWidths,
     );
-    _cachedChrome = snapshot.chrome;
+    _cachedChromeByConfig[config.preferenceKey('')] = snapshot.chrome;
     _cachedSnapshots[config.preferenceKey('')] = snapshot;
     return snapshot;
   }
@@ -183,18 +181,12 @@ class LibraryWorkspacePreferences {
       visibleColumns: normalizedVisibleColumns,
       columnWidths: normalizedColumnWidths,
     );
-    _cachedChrome = normalizedSnapshot.chrome;
+    _cachedChromeByConfig[config.preferenceKey('')] = normalizedSnapshot.chrome;
     _cachedSnapshots[config.preferenceKey('')] = normalizedSnapshot;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
-    await prefs.setString(
-      _globalKey('details_layout'),
-      normalizedSnapshot.detailsLayout.name,
-    );
-    await prefs.setBool(
-      _globalKey('sidebar_visible'),
-      normalizedSnapshot.isSidebarVisible,
-    );
+    await prefs.setString(_key('details_layout'), normalizedSnapshot.detailsLayout.name);
+    await prefs.setBool(_key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
     await prefs.setString(_key('sort_column'), normalizedSnapshot.sortColumn.name);
     await prefs.setBool(_key('sort_ascending'), normalizedSnapshot.sortAscending);
     await prefs.setStringList(
@@ -202,12 +194,9 @@ class LibraryWorkspacePreferences {
       _encodeSortRules(normalizedSnapshot.sortRules),
     );
     await prefs.setDouble(_key('cover_size'), normalizedSnapshot.coverSize);
-    await prefs.setDouble(_globalKey('sidebar_width'), normalizedSnapshot.sidebarWidth);
-    await prefs.setDouble(_globalKey('details_width'), normalizedSnapshot.detailsWidth);
-    await prefs.setDouble(
-      _globalKey('details_height'),
-      normalizedSnapshot.detailsHeight,
-    );
+    await prefs.setDouble(_key('sidebar_width'), normalizedSnapshot.sidebarWidth);
+    await prefs.setDouble(_key('details_width'), normalizedSnapshot.detailsWidth);
+    await prefs.setDouble(_key('details_height'), normalizedSnapshot.detailsHeight);
     await prefs.setStringList(
       _key('visible_columns'),
       normalizedSnapshot.visibleColumns
@@ -221,8 +210,6 @@ class LibraryWorkspacePreferences {
   }
 
   String _key(String suffix) => config.preferenceKey(suffix);
-
-  String _globalKey(String suffix) => '$_globalChromePrefix.$suffix';
 
   Set<LibraryTableColumn> _decodeVisibleColumns(List<String>? values) {
     if (values == null || values.isEmpty) {

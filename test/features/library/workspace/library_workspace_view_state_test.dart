@@ -224,7 +224,7 @@ void main() {
     expect(restored.detailsHeight, 280);
   });
 
-  test('workspace view defaults reuse cached global chrome', () async {
+  test('workspace view defaults reuse cached library chrome', () async {
     await LibraryWorkspacePreferences(config).write(
       profile
           .defaults()
