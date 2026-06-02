@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,6 +25,7 @@ void main() {
             ],
             sidebarVisible: true,
             hasSidebarVisibilityToggle: true,
+            triggerLabel: 'Release Year',
           ),
         ),
       ),
@@ -46,6 +48,7 @@ void main() {
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
+    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
     expect(find.byKey(const ValueKey('groupModeSectionBar_Main')), findsNothing);
     expect(
       find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
@@ -63,7 +66,7 @@ void main() {
     final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
       find.byKey(const ValueKey('groupModeItemRow_releaseYear')),
     );
-    expect(selectedRow.backgroundColor, Colors.transparent);
+    expect(selectedRow.backgroundColor, isNot(Colors.transparent));
 
     final editionHeader = find.widgetWithText(InkWell, 'Edition');
     await tester.ensureVisible(editionHeader);
@@ -209,6 +212,33 @@ void main() {
     );
 
     expect(find.text('Age / Country'), findsOneWidget);
+  });
+
+  testWidgets('group mode button opens menu on hover', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeMenuButton(
+            type: moviesLibraryConfig,
+            folderPreset: LibraryFolderPreset.single(
+              LibraryGroupMode.releaseYear,
+            ),
+            accent: Colors.cyan,
+            icon: Icons.account_tree_outlined,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer();
+    await gesture.moveTo(tester.getCenter(find.byTooltip('Group by')));
+    await tester.pump(const Duration(milliseconds: 160));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Folders'), findsOneWidget);
+    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
   });
 
   testWidgets('comic group mode dropdown uses CLZ-like section taxonomy', (

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -30,7 +32,7 @@ Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   );
 }
 
-class LibraryGroupModeMenuButton extends StatelessWidget {
+class LibraryGroupModeMenuButton extends StatefulWidget {
   const LibraryGroupModeMenuButton({
     super.key,
     required this.type,
@@ -57,19 +59,56 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
   final bool iconOnly;
 
   @override
+  State<LibraryGroupModeMenuButton> createState() =>
+      _LibraryGroupModeMenuButtonState();
+}
+
+class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton> {
+  Timer? _hoverOpenTimer;
+  bool _menuOpen = false;
+
+  @override
+  void dispose() {
+    _hoverOpenTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleHoverOpen() {
+    if (_menuOpen) {
+      return;
+    }
+    _hoverOpenTimer?.cancel();
+    _hoverOpenTimer = Timer(const Duration(milliseconds: 120), () {
+      if (!mounted || _menuOpen) {
+        return;
+      }
+      _showGroupModeMenu(context);
+    });
+  }
+
+  void _cancelHoverOpen() {
+    _hoverOpenTimer?.cancel();
+    _hoverOpenTimer = null;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final label = folderPreset == null
+    final label = widget.folderPreset == null
         ? 'Group by'
-      : genericFolderPresetLabel(folderPreset!, type);
-    final child = iconOnly
-        ? LibraryToolbarCompactDropdownTrigger(icon: icon)
+      : genericFolderPresetLabel(widget.folderPreset!, widget.type);
+    final child = widget.iconOnly
+        ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
         : Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
             constraints: const BoxConstraints(minHeight: 30),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.folder_open_outlined, size: 16, color: accent),
+                Icon(
+                  Icons.folder_open_outlined,
+                  size: 16,
+                  color: widget.accent,
+                ),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -78,7 +117,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: accent,
+                          color: widget.accent,
                         ),
                   ),
                 ),
@@ -86,7 +125,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 18,
-                  color: accent,
+                  color: widget.accent,
                 ),
               ],
             ),
@@ -94,16 +133,30 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
 
     return Tooltip(
       message: 'Group by',
-      child: InkWell(
-        onTap: () => _showGroupModeMenu(context),
-        borderRadius: BorderRadius.zero,
-        child: child,
+      child: MouseRegion(
+        onEnter: (_) => _scheduleHoverOpen(),
+        onExit: (_) => _cancelHoverOpen(),
+        child: InkWell(
+          onTap: () {
+            _cancelHoverOpen();
+            _showGroupModeMenu(context);
+          },
+          borderRadius: BorderRadius.zero,
+          child: child,
+        ),
       ),
     );
   }
 
   void _showGroupModeMenu(BuildContext context) {
-    final modes = libraryGroupModesForType(type);
+    if (_menuOpen) {
+      return;
+    }
+    _menuOpen = true;
+    final label = widget.folderPreset == null
+        ? 'Group by'
+        : genericFolderPresetLabel(widget.folderPreset!, widget.type);
+    final modes = libraryGroupModesForType(widget.type);
     final overlay = Overlay.of(context, rootOverlay: true)
         .context
         .findRenderObject() as RenderBox;
@@ -127,13 +180,16 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
               top: top,
               width: menuWidth,
               child: LibraryGroupModeDropdownMenu(
-                type: type,
-                selectedPreset: folderPreset,
+                type: widget.type,
+                selectedPreset: widget.folderPreset,
                 availableModes: modes,
-                initialPinnedPresets: pinnedFolderPresets,
-                onPinnedPresetsChanged: onPinnedPresetsChanged,
-                sidebarVisible: sidebarVisible,
-                hasSidebarVisibilityToggle: onSidebarVisibilityChanged != null,
+                initialPinnedPresets: widget.pinnedFolderPresets,
+                onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
+                sidebarVisible: widget.sidebarVisible,
+                hasSidebarVisibilityToggle:
+                    widget.onSidebarVisibilityChanged != null,
+                triggerLabel: label,
+                triggerIcon: widget.icon,
               ),
             ),
           ],
@@ -155,10 +211,11 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
       },
     );
     selection.then((value) async {
+      _menuOpen = false;
       if (value is LibraryFolderPreset) {
-        onChanged(value);
-        if (!sidebarVisible && onSidebarVisibilityChanged != null) {
-          onSidebarVisibilityChanged!(true);
+        widget.onChanged(value);
+        if (!widget.sidebarVisible && widget.onSidebarVisibilityChanged != null) {
+          widget.onSidebarVisibilityChanged!(true);
         }
       } else if (value is _ManageFavoritesRequest) {
         if (!context.mounted) {
@@ -166,16 +223,16 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
         }
         final updated = await showLibraryFolderFavoritesDialog(
           context: context,
-          type: type,
+          type: widget.type,
           availableModes: modes,
           initialFavorites: value.favoritePresets,
         );
         if (updated != null && context.mounted) {
-          onPinnedPresetsChanged?.call(updated);
+          widget.onPinnedPresetsChanged?.call(updated);
         }
       } else if (value == LibraryGroupModeMenuAction.disableFolders &&
-          onSidebarVisibilityChanged != null) {
-        onSidebarVisibilityChanged!(false);
+          widget.onSidebarVisibilityChanged != null) {
+        widget.onSidebarVisibilityChanged!(false);
       }
     });
   }
@@ -191,6 +248,8 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
     this.sidebarVisible = true,
     this.hasSidebarVisibilityToggle = false,
     this.onPinnedPresetsChanged,
+    this.triggerLabel,
+    this.triggerIcon,
   });
 
   final LibraryTypeConfig type;
@@ -200,6 +259,8 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
   final bool sidebarVisible;
   final bool hasSidebarVisibilityToggle;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedPresetsChanged;
+  final String? triggerLabel;
+  final IconData? triggerIcon;
 
   @override
   State<LibraryGroupModeDropdownMenu> createState() =>
@@ -244,6 +305,54 @@ class _LibraryGroupModeDropdownMenuState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (widget.triggerLabel != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: libraryToolbarMenuHover(context),
+                        border: Border.all(
+                          color: libraryToolbarMenuBorder(context),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              widget.triggerIcon ?? Icons.folder_open_outlined,
+                              size: 16,
+                              color: libraryToolbarMenuText(context),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                widget.triggerLabel!,
+                                key: const ValueKey('groupModeMenuCurrentLabel'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: libraryToolbarMenuText(context),
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: libraryToolbarMenuMutedText(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 if (widget.hasSidebarVisibilityToggle && widget.sidebarVisible)
                   _buildActionItem(
                     context,
@@ -463,6 +572,9 @@ class _LibraryGroupModeDropdownMenuState
     required bool sectionHighlighted,
   }) {
     final isSelected = widget.selectedPreset == LibraryFolderPreset.single(mode);
+    final selectedBackground = isSelected
+      ? libraryToolbarMenuHover(context)
+      : Colors.transparent;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: Padding(
@@ -480,7 +592,7 @@ class _LibraryGroupModeDropdownMenuState
               : null,
           onTap: () => Navigator.of(context).pop(LibraryFolderPreset.single(mode)),
           padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-          backgroundColor: Colors.transparent,
+          backgroundColor: selectedBackground,
           textStyle: TextStyle(
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
             color: libraryToolbarMenuText(context),
@@ -497,6 +609,9 @@ class _LibraryGroupModeDropdownMenuState
   }) {
     final isSelected = preset == widget.selectedPreset;
     final keySuffix = preset.storageValue.replaceAll('>', '_');
+    final selectedBackground = isSelected
+      ? libraryToolbarMenuHover(context)
+      : Colors.transparent;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: Padding(
@@ -514,7 +629,7 @@ class _LibraryGroupModeDropdownMenuState
               : null,
           onTap: () => Navigator.of(context).pop(preset),
           padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-          backgroundColor: Colors.transparent,
+          backgroundColor: selectedBackground,
           textStyle: TextStyle(
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
             color: libraryToolbarMenuText(context),
