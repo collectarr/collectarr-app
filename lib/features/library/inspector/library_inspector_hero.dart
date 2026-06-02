@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/inspector/item_image_picker.dart
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
@@ -148,6 +149,7 @@ class _InspectorHeroInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final metadataPresentation = _buildInspectorMetadataPresentation(type, entry);
     final referenceLabel =
         libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
             entry.primaryReferenceLabel;
@@ -173,12 +175,13 @@ class _InspectorHeroInfo extends StatelessWidget {
         ));
       }
     }
-    final genreText = entry.genres?.join('  |  ');
+    final genreText = metadataPresentation.genres.isEmpty
+        ? null
+        : metadataPresentation.genres.join('  |  ');
     final countryLangRow = [
-      if (entry.country != null) entry.country!,
-      if (entry.language != null) entry.language!,
-      if (entry.video?.runtimeMinutes != null)
-        '${entry.video!.runtimeMinutes} min',
+      if (_metadataFactValue(metadataPresentation, 'Country') case final country?) country,
+      if (_metadataFactValue(metadataPresentation, 'Language') case final language?) language,
+      if (_metadataFactValue(metadataPresentation, 'Runtime') case final runtime?) runtime,
     ].join('  |  ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,10 +300,10 @@ class _InspectorHeroInfo extends StatelessWidget {
           ),
         ],
         if (type.capabilities.showsCreatorSpotlight &&
-            (entry.creators?.isNotEmpty ?? false)) ...[
+            metadataPresentation.creators.isNotEmpty) ...[
           const SizedBox(height: 8),
           BookAuthorSpotlight(
-            creators: entry.creators!,
+            creators: metadataPresentation.creators,
             accent: accent,
           ),
         ],
@@ -366,6 +369,35 @@ class _InspectorHeroInfo extends StatelessWidget {
       ],
     );
   }
+}
+
+LibraryMetadataPresentation _buildInspectorMetadataPresentation(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation presentation,
+  String label,
+) {
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final trimmed = fact.value.trim();
+      if (trimmed.isNotEmpty && trimmed != '-') {
+        return trimmed;
+      }
+    }
+  }
+  return null;
 }
 
 class _InspectorHeroInfoBlock extends StatelessWidget {

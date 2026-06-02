@@ -243,6 +243,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     accent: widget.accent,
                   ),
                   LibraryDetailMetadataHealthSection(
+                    type: widget.type,
                     entry: widget.entry,
                     accent: widget.accent,
                   ),

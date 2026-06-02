@@ -21,11 +21,26 @@ const double kPlannedMediaMaxCoverSize = 188;
 const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
-final booksMediaAdapter = plannedMediaAdapter(booksLibraryConfig);
-final gamesMediaAdapter = plannedMediaAdapter(gamesLibraryConfig);
-final boardGamesMediaAdapter = plannedMediaAdapter(boardGamesLibraryConfig);
-final moviesMediaAdapter = plannedMediaAdapter(moviesLibraryConfig);
-final musicMediaAdapter = plannedMediaAdapter(musicLibraryConfig);
+final booksMediaAdapter = plannedMediaAdapter(
+  booksLibraryConfig,
+  compareEntriesByColumn: compareBookEntriesByColumn,
+);
+final gamesMediaAdapter = plannedMediaAdapter(
+  gamesLibraryConfig,
+  compareEntriesByColumn: compareGameEntriesByColumn,
+);
+final boardGamesMediaAdapter = plannedMediaAdapter(
+  boardGamesLibraryConfig,
+  compareEntriesByColumn: compareBoardGameEntriesByColumn,
+);
+final moviesMediaAdapter = plannedMediaAdapter(
+  moviesLibraryConfig,
+  compareEntriesByColumn: compareMovieEntriesByColumn,
+);
+final musicMediaAdapter = plannedMediaAdapter(
+  musicLibraryConfig,
+  compareEntriesByColumn: compareMusicEntriesByColumn,
+);
 
 final plannedMediaAdapters = LibraryMediaAdapterRegistry([
   booksMediaAdapter,
@@ -35,7 +50,10 @@ final plannedMediaAdapters = LibraryMediaAdapterRegistry([
   musicMediaAdapter,
 ]);
 
-LibraryMediaAdapter plannedMediaAdapter(LibraryTypeConfig type) {
+LibraryMediaAdapter plannedMediaAdapter(
+  LibraryTypeConfig type, {
+  LibraryEntryColumnComparator? compareEntriesByColumn,
+}) {
   final viewProfile = plannedMediaWorkspaceViewProfile(type.workspace);
   return LibraryMediaAdapter(
     type: type,
@@ -60,7 +78,8 @@ LibraryMediaAdapter plannedMediaAdapter(LibraryTypeConfig type) {
     columnIsNumeric: plannedMediaTableColumnIsNumeric,
     columnSort: plannedMediaTableColumnSort,
     tableCellBuilder: plannedMediaTableCell,
-    compareEntriesByColumn: plannedMediaCompareEntriesByColumn,
+    compareEntriesByColumn:
+      compareEntriesByColumn ?? plannedMediaCompareEntriesByColumn,
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
     entryLinkedMetadataCandidatesBuilder:
         plannedMediaLinkedMetadataCandidatesForEntry,
@@ -515,6 +534,36 @@ int plannedMediaCompareEntriesByColumn(
       _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
   };
 }
+
+int compareBookEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) => plannedMediaCompareEntriesByColumn(left, right, column);
+
+int compareGameEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) => plannedMediaCompareEntriesByColumn(left, right, column);
+
+int compareBoardGameEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) => plannedMediaCompareEntriesByColumn(left, right, column);
+
+int compareMovieEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) => plannedMediaCompareEntriesByColumn(left, right, column);
+
+int compareMusicEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) => plannedMediaCompareEntriesByColumn(left, right, column);
 
 LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
   LibraryWorkspaceEntry entry,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -33,6 +34,7 @@ class LibraryDetailHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final metadataPresentation = _buildDetailMetadataPresentation(type, entry);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? (ownedItem != null || entry.isOwned);
     final referenceLabel =
@@ -233,10 +235,10 @@ class LibraryDetailHero extends StatelessWidget {
                       ),
                 ),
                 if (type.capabilities.showsCreatorSpotlight &&
-                    (entry.creators?.isNotEmpty ?? false)) ...[
+                    metadataPresentation.creators.isNotEmpty) ...[
                   const SizedBox(height: 10),
                   BookAuthorSpotlight(
-                    creators: entry.creators!,
+                    creators: metadataPresentation.creators,
                     accent: accent,
                     centered: !wide,
                   ),
@@ -266,17 +268,20 @@ class LibraryDetailHero extends StatelessWidget {
                         label: 'Format',
                         value: entry.referenceFormatLabel!,
                       ),
-                    if (entry.video?.runtimeMinutes != null)
+                    if (_metadataFactValue(metadataPresentation, 'Runtime')
+                        case final runtime?)
                       _DetailSummaryFact(
                         label: 'Runtime',
-                        value: '${entry.video!.runtimeMinutes} min',
+                        value: runtime,
                       ),
-                    if (entry.music?.trackCount != null)
+                    if (_metadataFactValue(metadataPresentation, 'Tracks')
+                        case final trackCount?)
                       _DetailSummaryFact(
                         label: 'Tracks',
-                        value: '${entry.music!.trackCount}',
+                        value: trackCount,
                       ),
-                    if (_detailPlatformLabel(entry.rawPlatforms)
+                    if ((_metadataFactValue(metadataPresentation, 'Platform') ??
+                            _metadataFactValue(metadataPresentation, 'Platforms'))
                         case final platformLabel?)
                       _DetailSummaryFact(
                         label: 'Platform',
@@ -333,6 +338,35 @@ class LibraryDetailHero extends StatelessWidget {
   }
 }
 
+LibraryMetadataPresentation _buildDetailMetadataPresentation(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation presentation,
+  String label,
+) {
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final trimmed = fact.value.trim();
+      if (trimmed.isNotEmpty && trimmed != '-') {
+        return trimmed;
+      }
+    }
+  }
+  return null;
+}
+
 int? _sumOwnedValueCents(
   List<OwnedItem> items,
   int? Function(OwnedItem item) selector,
@@ -370,20 +404,6 @@ String? _detailHeroValueCurrency(
     return entryCurrency;
   }
   return null;
-}
-
-String? _detailPlatformLabel(List<String>? platforms) {
-  if (platforms == null || platforms.isEmpty) {
-    return null;
-  }
-  final values = platforms
-      .map((value) => value.trim())
-      .where((value) => value.isNotEmpty)
-      .toList(growable: false);
-  if (values.isEmpty) {
-    return null;
-  }
-  return values.join(', ');
 }
 
 class _DetailHeaderChip extends StatelessWidget {

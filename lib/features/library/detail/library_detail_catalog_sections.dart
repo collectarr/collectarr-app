@@ -155,16 +155,18 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
 class LibraryDetailMetadataHealthSection extends StatelessWidget {
   const LibraryDetailMetadataHealthSection({
     super.key,
+    required this.type,
     required this.entry,
     required this.accent,
   });
 
+  final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    final health = _buildMetadataHealth(entry);
+    final health = _buildMetadataHealth(type, entry);
     return LibraryInspectorSection(
       title: 'Metadata health',
       accentColor: accent,
@@ -373,9 +375,21 @@ class _MetadataHealth {
   final List<String> missingSignals;
 }
 
-_MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
+_MetadataHealth _buildMetadataHealth(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
   var score = 0;
   final missingSignals = <String>[];
+  final metadata = type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+  final seriesLabel = type.presentation.filterLabels.series;
 
   void addSignal({
     required bool present,
@@ -410,7 +424,9 @@ _MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
     missingLabel: 'Release date',
   );
   addSignal(
-    present: entry.series?.seriesTitle?.trim().isNotEmpty ?? false,
+    present: metadata.identityFacts.any(
+      (fact) => fact.label == seriesLabel && fact.value.trim().isNotEmpty,
+    ),
     weight: 10,
     missingLabel: 'Series',
   );
@@ -420,22 +436,22 @@ _MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
     missingLabel: 'Item number',
   );
   addSignal(
-    present: (entry.creators?.isNotEmpty ?? false),
+    present: metadata.creators.isNotEmpty,
     weight: 12,
     missingLabel: 'Creators',
   );
   addSignal(
-    present: (entry.characters?.isNotEmpty ?? false),
+    present: metadata.characters.isNotEmpty,
     weight: 6,
     missingLabel: 'Characters',
   );
   addSignal(
-    present: (entry.storyArcs?.isNotEmpty ?? false),
+    present: metadata.storyArcs.isNotEmpty,
     weight: 4,
     missingLabel: 'Story arcs',
   );
   addSignal(
-    present: (entry.genres?.isNotEmpty ?? false),
+    present: metadata.genres.isNotEmpty,
     weight: 4,
     missingLabel: 'Genres',
   );

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -41,13 +42,19 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   columnIsNumeric: comicTableColumnIsNumeric,
   columnSort: comicTableColumnSort,
   tableCellBuilder: plannedMediaTableCell,
-  compareEntriesByColumn: plannedMediaCompareEntriesByColumn,
+  compareEntriesByColumn: compareComicEntriesByColumn,
   entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
   entryLinkedMetadataCandidatesBuilder:
       plannedMediaLinkedMetadataCandidatesForEntry,
   entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
   compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
 );
+
+int compareComicEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) => plannedMediaCompareEntriesByColumn(left, right, column);
 
 const comicsTableColumnPresets = [
   LibraryTableColumnPreset(
