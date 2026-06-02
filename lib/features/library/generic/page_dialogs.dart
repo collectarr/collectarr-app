@@ -15,6 +15,7 @@ extension _LibraryPageDialogs on _LibraryPageState {
             const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
+      adapter: _adapter,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
     );

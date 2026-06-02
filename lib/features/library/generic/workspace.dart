@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/workspace/library_flow_carousel.
 import 'package:collectarr_app/features/library/workspace/library_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -146,6 +145,7 @@ class LibraryWorkspace extends ConsumerWidget {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
             items: items,
+          adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
@@ -173,6 +173,7 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         LibraryViewMode.card => _GroupedGrid(
             items: items,
+          adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
@@ -201,6 +202,7 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
             items: items,
+          adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
@@ -430,6 +432,7 @@ class _LibraryHorizontalScrollbarState
 class _GroupedGrid extends StatefulWidget {
   const _GroupedGrid({
     required this.items,
+    required this.adapter,
     required this.type,
     required this.groupMode,
     required this.selectedId,
@@ -443,6 +446,7 @@ class _GroupedGrid extends StatefulWidget {
   });
 
   final List<LibraryProjectionItem> items;
+  final LibraryMediaAdapter adapter;
   final LibraryTypeConfig type;
   final LibraryGroupMode groupMode;
   final String? selectedId;
@@ -515,12 +519,9 @@ class _GroupedGridState extends State<_GroupedGrid> {
 
     // Check if any item has volume/season data worth sub-grouping.
     final hasSubGroups = items.any(
-      (item) {
-        final series = item.entry.series;
-        return series?.volumeName != null ||
-            series?.volumeNumber != null ||
-            series?.seasonNumber != null;
-      },
+      (item) =>
+          widget.adapter.subgroupKeyForEntry(item.entry, widget.groupMode) !=
+          null,
     );
     if (!hasSubGroups) {
       return [_buildGrid(items)];
@@ -529,10 +530,16 @@ class _GroupedGridState extends State<_GroupedGrid> {
     // Build sub-groups by volume/season.
     final subGroups = <String, List<LibraryProjectionItem>>{};
     for (final item in items) {
-      final subKey = _subGroupKey(item.entry);
+      final subKey =
+          widget.adapter.subgroupKeyForEntry(item.entry, widget.groupMode) ??
+              '—';
       (subGroups[subKey] ??= []).add(item);
     }
-    final sortedSubKeys = subGroups.keys.toList()..sort(_compareSubGroupKeys);
+    final sortedSubKeys = subGroups.keys.toList()
+      ..sort(
+        (left, right) =>
+            widget.adapter.compareSubgroupKeys(left, right, widget.groupMode),
+      );
 
     return [
       for (final subKey in sortedSubKeys) ...[
@@ -594,34 +601,6 @@ class _GroupedGridState extends State<_GroupedGrid> {
         ),
       ),
     );
-  }
-
-  static String _subGroupKey(LibraryWorkspaceEntry entry) {
-    final series = entry.series;
-    if (series?.seasonNumber != null) {
-      return 'Season ${series!.seasonNumber}';
-    }
-    if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
-      return series.volumeName!.trim();
-    }
-    if (series?.volumeNumber != null) {
-      return 'Vol. ${series!.volumeNumber}';
-    }
-    return '—';
-  }
-
-  static int _compareSubGroupKeys(String a, String b) {
-    final numA = _extractNumber(a);
-    final numB = _extractNumber(b);
-    if (numA != null && numB != null) {
-      return numA.compareTo(numB);
-    }
-    return a.compareTo(b);
-  }
-
-  static int? _extractNumber(String key) {
-    final match = RegExp(r'(\d+)').firstMatch(key);
-    return match == null ? null : int.tryParse(match.group(1)!);
   }
 }
 

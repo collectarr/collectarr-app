@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -309,6 +310,7 @@ class LibraryFilterOptions {
   factory LibraryFilterOptions.fromEntries(
     List<LibraryWorkspaceEntry> entries,
     {
+      required LibraryMediaAdapter adapter,
       List<CustomFieldDefinition> customFieldDefinitions = const [],
       Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
           const {},
@@ -330,7 +332,8 @@ class LibraryFilterOptions {
     };
 
     for (final entry in entries) {
-      final seriesTitle = entry.series?.seriesTitle?.trim();
+      final filterValues = adapter.filterValuesForEntry(entry);
+      final seriesTitle = filterValues.series;
       if (seriesTitle != null && seriesTitle.isNotEmpty) {
         series.add(seriesTitle);
       }
@@ -356,11 +359,11 @@ class LibraryFilterOptions {
       final year =
           entry.releaseYear?.toString() ?? entry.releaseDate?.year.toString();
       if (year != null) years.add(year);
-      if (entry.country?.trim().isNotEmpty == true) {
-        countries.add(entry.country!.trim());
+      if (filterValues.country?.isNotEmpty == true) {
+        countries.add(filterValues.country!);
       }
-      if (entry.language?.trim().isNotEmpty == true) {
-        languages.add(entry.language!.trim());
+      if (filterValues.language?.isNotEmpty == true) {
+        languages.add(filterValues.language!);
       }
       final ownedItemId = entry.ownedItemId;
       if (ownedItemId != null) {
@@ -430,7 +433,9 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
 bool libraryFilterMatches(
   LibraryWorkspaceEntry entry,
   LibraryFilterSelection filters,
+  LibraryMediaAdapter adapter,
 ) {
+  final filterValues = adapter.filterValuesForEntry(entry);
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
       !entry.isOwned) {
     return false;
@@ -452,8 +457,7 @@ bool libraryFilterMatches(
       !(entry.isOwned && entry.collectionStatus == 'on_order')) {
     return false;
   }
-  if (filters.series != null &&
-      entry.series?.seriesTitle?.trim() != filters.series) {
+  if (filters.series != null && filterValues.series != filters.series) {
     return false;
   }
   if (filters.location != null && entry.locationPath?.trim() != filters.location) {
@@ -479,11 +483,10 @@ bool libraryFilterMatches(
         entry.releaseYear?.toString() ?? entry.releaseDate?.year.toString();
     if (year != filters.releaseYear) return false;
   }
-  if (filters.country != null && entry.country?.trim() != filters.country) {
+  if (filters.country != null && filterValues.country != filters.country) {
     return false;
   }
-  if (filters.language != null &&
-      entry.language?.trim() != filters.language) {
+  if (filters.language != null && filterValues.language != filters.language) {
     return false;
   }
   if (filters.missingCover && !entry.hasMissingCover) return false;

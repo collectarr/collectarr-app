@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -95,6 +96,7 @@ void main() {
         const LibraryFilterSelection(
           location: 'Office > Shelf 2 > Short Box 1',
         ),
+        comicsMediaAdapter,
       ),
       isTrue,
     );
@@ -102,6 +104,7 @@ void main() {
       libraryFilterMatches(
         entry,
         const LibraryFilterSelection(location: 'Office > Shelf 2'),
+        comicsMediaAdapter,
       ),
       isFalse,
     );
@@ -120,6 +123,7 @@ void main() {
       libraryFilterMatches(
         entry,
         const LibraryFilterSelection(tag: 'signed'),
+        comicsMediaAdapter,
       ),
       isTrue,
     );
@@ -127,6 +131,7 @@ void main() {
       libraryFilterMatches(
         entry,
         const LibraryFilterSelection(tag: 'Exclusive'),
+        comicsMediaAdapter,
       ),
       isFalse,
     );
@@ -148,7 +153,7 @@ void main() {
         tags: 'variant, Sketched',
         updatedAt: DateTime.utc(2026, 5, 22),
       ),
-    ]);
+    ], adapter: comicsMediaAdapter);
 
     expect(options.tags, ['Signed', 'Sketched', 'Variant']);
   });
@@ -170,6 +175,7 @@ void main() {
                   current: LibraryFilterSelection.none,
                   options: LibraryFilterOptions.fromEntries(
                     const [],
+                    adapter: comicsMediaAdapter,
                     customFieldDefinitions: [
                       CustomFieldDefinition(
                         id: 'cf-location',

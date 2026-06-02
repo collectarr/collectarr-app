@@ -41,6 +41,33 @@ typedef LibraryEntryColumnComparator = int Function(
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
 );
+typedef LibraryEntryFilterValuesBuilder = LibraryEntryFilterValues Function(
+  LibraryWorkspaceEntry entry,
+);
+typedef LibraryEntryLinkedMetadataCandidatesBuilder = Iterable<String> Function(
+  LibraryWorkspaceEntry entry,
+);
+typedef LibraryEntrySubgroupKeyBuilder = String? Function(
+  LibraryWorkspaceEntry entry,
+  LibraryGroupMode groupMode,
+);
+typedef LibraryEntrySubgroupKeyComparator = int Function(
+  String left,
+  String right,
+  LibraryGroupMode groupMode,
+);
+
+class LibraryEntryFilterValues {
+  const LibraryEntryFilterValues({
+    this.series,
+    this.country,
+    this.language,
+  });
+
+  final String? series;
+  final String? country;
+  final String? language;
+}
 
 class LibraryMediaAdapter {
   const LibraryMediaAdapter({
@@ -58,6 +85,10 @@ class LibraryMediaAdapter {
     required this.columnSort,
     required this.tableCellBuilder,
     required this.compareEntriesByColumn,
+    required this.entryFilterValuesBuilder,
+    required this.entryLinkedMetadataCandidatesBuilder,
+    required this.entrySubgroupKeyBuilder,
+    required this.compareSubgroupKeys,
   });
 
   final LibraryTypeConfig type;
@@ -74,6 +105,11 @@ class LibraryMediaAdapter {
   final LibraryTableColumnSortFor columnSort;
   final LibraryTableCellBuilder tableCellBuilder;
   final LibraryEntryColumnComparator compareEntriesByColumn;
+  final LibraryEntryFilterValuesBuilder entryFilterValuesBuilder;
+  final LibraryEntryLinkedMetadataCandidatesBuilder
+      entryLinkedMetadataCandidatesBuilder;
+  final LibraryEntrySubgroupKeyBuilder entrySubgroupKeyBuilder;
+  final LibraryEntrySubgroupKeyComparator compareSubgroupKeys;
 
   Set<LibraryTableColumn> defaultTableColumns() {
     return Set.of(type.workspace.defaultVisibleColumns);
@@ -81,6 +117,23 @@ class LibraryMediaAdapter {
 
   Widget buildTableCell(LibraryWorkspaceEntry entry, LibraryTableColumn column) {
     return tableCellBuilder(entry, column);
+  }
+
+  LibraryEntryFilterValues filterValuesForEntry(LibraryWorkspaceEntry entry) {
+    return entryFilterValuesBuilder(entry);
+  }
+
+  Iterable<String> linkedMetadataCandidatesForEntry(
+    LibraryWorkspaceEntry entry,
+  ) {
+    return entryLinkedMetadataCandidatesBuilder(entry);
+  }
+
+  String? subgroupKeyForEntry(
+    LibraryWorkspaceEntry entry,
+    LibraryGroupMode groupMode,
+  ) {
+    return entrySubgroupKeyBuilder(entry, groupMode);
   }
 
   int compareEntriesByRules(

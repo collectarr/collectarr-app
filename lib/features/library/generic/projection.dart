@@ -140,10 +140,11 @@ class LibraryProjection {
             _matchesFilter(
               item,
               filterSelection,
+              adapter,
               activeLoanOwnedItemIds,
               customFieldValuesByDefinitionByItem,
             ) &&
-            _matchesLinkedMetadataFilter(item, linkedMetadataFilter) &&
+            _matchesLinkedMetadataFilter(item, linkedMetadataFilter, adapter) &&
             _matchesQuery(
               item,
               normalizedQuery,
@@ -367,13 +368,14 @@ bool _matchesCollectionStatusScope(
 bool _matchesFilter(
   LibraryProjectionItem item,
   LibraryFilterSelection filters,
+  LibraryMediaAdapter adapter,
   Set<String> activeLoanOwnedItemIds,
   Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
 ) {
   if (!filters.hasActiveFilters) {
     return true;
   }
-  if (!libraryFilterMatches(item.entry, filters)) {
+  if (!libraryFilterMatches(item.entry, filters, adapter)) {
     return false;
   }
   if (!libraryTrackingStatusMatchesFilter(
@@ -490,6 +492,7 @@ DateTime? _filterDateForItem(
 bool _matchesLinkedMetadataFilter(
   LibraryProjectionItem item,
   LibraryLinkedMetadataFilter? linkedMetadataFilter,
+  LibraryMediaAdapter adapter,
 ) {
   if (linkedMetadataFilter == null) {
     return true;
@@ -497,70 +500,25 @@ bool _matchesLinkedMetadataFilter(
   return libraryEntryMatchesLinkedMetadataFilter(
     item.entry,
     linkedMetadataFilter.value,
+    adapter,
   );
 }
 
 bool libraryEntryMatchesLinkedMetadataFilter(
   LibraryWorkspaceEntry entry,
   String value,
+  LibraryMediaAdapter adapter,
 ) {
   final normalized = value.trim().toLowerCase();
   if (normalized.isEmpty) {
     return true;
   }
-  for (final candidate in _linkedMetadataCandidates(entry)) {
+  for (final candidate in adapter.linkedMetadataCandidatesForEntry(entry)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }
   }
   return false;
-}
-
-Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
-  final series = entry.series;
-  final publishing = entry.publishing;
-  final game = entry.game;
-  yield* _nonEmptyValues([
-    entry.resolvedTitle,
-    entry.title,
-    entry.localizedTitle,
-    entry.originalTitle,
-    series?.seriesTitle,
-    entry.itemNumber,
-    entry.publisher,
-    entry.variant,
-    publishing?.imprint,
-    publishing?.seriesGroup,
-    entry.country,
-    entry.language,
-    entry.ageRating,
-  ]);
-  yield* _nonEmptyValues(entry.searchAliases);
-  if (entry.creators case final creators?) {
-    for (final credit in creators) {
-      final name = credit['name']?.toString();
-      if (name != null && name.trim().isNotEmpty) {
-        yield name.trim();
-      }
-    }
-  }
-  yield* _nonEmptyValues(entry.characters);
-  yield* _nonEmptyValues(entry.storyArcs);
-  yield* _nonEmptyValues(entry.genres);
-  if (game?.platforms case final platforms?) {
-    yield* _nonEmptyValues(platforms);
-  }
-}
-
-Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
-  if (values == null) {
-    return;
-  }
-  for (final value in values) {
-    if (value != null && value.trim().isNotEmpty) {
-      yield value.trim();
-    }
-  }
 }
 
 bool _matchesQuery(

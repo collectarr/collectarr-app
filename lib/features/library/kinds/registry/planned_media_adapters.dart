@@ -61,6 +61,11 @@ LibraryMediaAdapter plannedMediaAdapter(LibraryTypeConfig type) {
     columnSort: plannedMediaTableColumnSort,
     tableCellBuilder: plannedMediaTableCell,
     compareEntriesByColumn: plannedMediaCompareEntriesByColumn,
+    entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
+    entryLinkedMetadataCandidatesBuilder:
+        plannedMediaLinkedMetadataCandidatesForEntry,
+    entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
+    compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
   );
 }
 
@@ -511,6 +516,90 @@ int plannedMediaCompareEntriesByColumn(
   };
 }
 
+LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
+  LibraryWorkspaceEntry entry,
+) {
+  return LibraryEntryFilterValues(
+    series: _trimmedOrNull(entry.series?.seriesTitle),
+    country: _trimmedOrNull(entry.country),
+    language: _trimmedOrNull(entry.language),
+  );
+}
+
+Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
+  LibraryWorkspaceEntry entry,
+) sync* {
+  final filterValues = plannedMediaFilterValuesForEntry(entry);
+  final publishing = entry.publishing;
+  final game = entry.game;
+  yield* _nonEmptyValues([
+    entry.resolvedTitle,
+    entry.title,
+    entry.localizedTitle,
+    entry.originalTitle,
+    filterValues.series,
+    entry.itemNumber,
+    entry.publisher,
+    entry.variant,
+    publishing?.imprint,
+    publishing?.seriesGroup,
+    filterValues.country,
+    filterValues.language,
+    entry.ageRating,
+  ]);
+  yield* _nonEmptyValues(entry.searchAliases);
+  if (entry.creators case final creators?) {
+    for (final credit in creators) {
+      final name = credit['name']?.toString();
+      if (name != null && name.trim().isNotEmpty) {
+        yield name.trim();
+      }
+    }
+  }
+  yield* _nonEmptyValues(entry.characters);
+  yield* _nonEmptyValues(entry.storyArcs);
+  yield* _nonEmptyValues(entry.genres);
+  if (game?.platforms case final platforms?) {
+    yield* _nonEmptyValues(platforms);
+  }
+}
+
+String? plannedMediaSubgroupKeyForEntry(
+  LibraryWorkspaceEntry entry,
+  LibraryGroupMode groupMode,
+) {
+  if (groupMode != LibraryGroupMode.series) {
+    return null;
+  }
+  final series = entry.series;
+  if (series?.seasonNumber != null) {
+    return 'Season ${series!.seasonNumber}';
+  }
+  if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
+    return series.volumeName!.trim();
+  }
+  if (series?.volumeNumber != null) {
+    return 'Vol. ${series!.volumeNumber}';
+  }
+  return null;
+}
+
+int plannedMediaCompareSubgroupKeys(
+  String left,
+  String right,
+  LibraryGroupMode groupMode,
+) {
+  if (groupMode != LibraryGroupMode.series) {
+    return left.compareTo(right);
+  }
+  final leftNumber = _extractSubgroupNumber(left);
+  final rightNumber = _extractSubgroupNumber(right);
+  if (leftNumber != null && rightNumber != null) {
+    return leftNumber.compareTo(rightNumber);
+  }
+  return left.compareTo(right);
+}
+
 int _compareIssueNumbers(String? left, String? right) {
   final leftNumber = _numericPrefixSortValue(left);
   final rightNumber = _numericPrefixSortValue(right);
@@ -589,4 +678,29 @@ int _compareBools(bool left, bool right) {
     return 0;
   }
   return left ? -1 : 1;
+}
+
+String? _trimmedOrNull(String? value) {
+  if (value == null) {
+    return null;
+  }
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}
+
+Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
+  if (values == null) {
+    return;
+  }
+  for (final value in values) {
+    final trimmed = _trimmedOrNull(value);
+    if (trimmed != null) {
+      yield trimmed;
+    }
+  }
+}
+
+int? _extractSubgroupNumber(String value) {
+  final match = RegExp(r'(\d+)').firstMatch(value);
+  return match == null ? null : int.tryParse(match.group(1)!);
 }

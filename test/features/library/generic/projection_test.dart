@@ -603,12 +603,26 @@ void main() {
       updatedAt: DateTime(2026, 1, 1),
     );
 
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Image'), isTrue);
     expect(
-      libraryEntryMatchesLinkedMetadataFilter(entry, 'Brian K. Vaughan'),
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Image', comicsMediaAdapter),
       isTrue,
     );
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Sci-Fi'), isTrue);
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(
+        entry,
+        'Brian K. Vaughan',
+        comicsMediaAdapter,
+      ),
+      isTrue,
+    );
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(
+        entry,
+        'Sci-Fi',
+        comicsMediaAdapter,
+      ),
+      isTrue,
+    );
   });
 
   test('linked metadata filter does not fall back to fuzzy matches', () {
@@ -620,8 +634,14 @@ void main() {
       updatedAt: DateTime(2026, 1, 1),
     );
 
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade'), isFalse);
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner'), isFalse);
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade', comicsMediaAdapter),
+      isFalse,
+    );
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner', comicsMediaAdapter),
+      isFalse,
+    );
   });
 
   test('series buckets include owned completion percentages', () {
