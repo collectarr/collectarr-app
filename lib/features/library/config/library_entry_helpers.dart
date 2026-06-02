@@ -193,50 +193,6 @@ resolveLibraryEntryReferenceRelease(
   );
 }
 
-List<Map<String, dynamic>>? libraryEntryCreators(LibraryWorkspaceEntry entry) {
-  return entry.creators;
-}
-
-List<String>? libraryEntryCharacters(LibraryWorkspaceEntry entry) {
-  return entry.characters;
-}
-
-List<String>? libraryEntryStoryArcs(LibraryWorkspaceEntry entry) {
-  return entry.storyArcs;
-}
-
-List<String>? libraryEntryGenres(LibraryWorkspaceEntry entry) {
-  return entry.genres;
-}
-
-String? libraryEntryCountry(LibraryWorkspaceEntry entry) {
-  return entry.country;
-}
-
-String? libraryEntryLanguage(LibraryWorkspaceEntry entry) {
-  return entry.language;
-}
-
-String? libraryEntryAgeRating(LibraryWorkspaceEntry entry) {
-  return entry.ageRating;
-}
-
-String? libraryEntryAudienceRating(LibraryWorkspaceEntry entry) {
-  return entry.audienceRating;
-}
-
-String? libraryEntryPlotSummary(LibraryWorkspaceEntry entry) {
-  return entry.plotSummary;
-}
-
-String? libraryEntryPlotDescription(LibraryWorkspaceEntry entry) {
-  return entry.plotDescription;
-}
-
-List<String>? libraryEntryRawPlatforms(LibraryWorkspaceEntry entry) {
-  return entry.game?.platforms ?? entry.rawPlatforms;
-}
-
 List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {
   final resolved = resolveLibraryEntryReferenceRelease(entry);
   final values = <String>[];
@@ -244,7 +200,7 @@ List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {
   if (variantPlatform != null && variantPlatform.isNotEmpty) {
     values.add(variantPlatform);
   }
-  final rawPlatforms = libraryEntryRawPlatforms(entry);
+  final rawPlatforms = entry.game?.platforms ?? entry.rawPlatforms;
   for (final platform in rawPlatforms ?? const <String>[]) {
     final normalized = platform.trim();
     if (normalized.isEmpty || values.contains(normalized)) {

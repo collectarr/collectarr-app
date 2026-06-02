@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -365,15 +365,15 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     ),
     updatedAt: request.updatedAt,
     trailerUrls: _copyTrailerList(entry.trailerUrls),
-    creators: _copyCreatorList(libraryEntryCreators(entry)),
-    characters: _copyStringList(libraryEntryCharacters(entry)),
-    storyArcs: _copyStringList(libraryEntryStoryArcs(entry)),
-    genres: _copyStringList(libraryEntryGenres(entry)),
-    country: libraryEntryCountry(entry),
-    language: request.edition.language ?? libraryEntryLanguage(entry),
-    ageRating: libraryEntryAgeRating(entry),
-    audienceRating: libraryEntryAudienceRating(entry),
-    rawPlatforms: _copyStringList(libraryEntryRawPlatforms(entry)),
+    creators: _copyCreatorList(entry.creators),
+    characters: _copyStringList(entry.characters),
+    storyArcs: _copyStringList(entry.storyArcs),
+    genres: _copyStringList(entry.genres),
+    country: entry.country,
+    language: request.edition.language ?? entry.language,
+    ageRating: entry.ageRating,
+    audienceRating: entry.audienceRating,
+    rawPlatforms: _copyStringList(entry.game?.platforms ?? entry.rawPlatforms),
   );
 }
 
@@ -441,19 +441,19 @@ String defaultLibraryBucketLabel(
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.audienceRating => libraryEntryAudienceRating(entry)?.trim().isNotEmpty == true
-      ? libraryEntryAudienceRating(entry)!
+    LibraryGroupMode.audienceRating => entry.audienceRating?.trim().isNotEmpty == true
+      ? entry.audienceRating!
         : 'No audience rating',
     LibraryGroupMode.color => _stringBucket(entry.video?.color, 'No color'),
     LibraryGroupMode.publisher =>
       publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-    LibraryGroupMode.genre => _firstOrDefault(libraryEntryGenres(entry), 'No genre'),
+    LibraryGroupMode.genre => _firstOrDefault(entry.genres, 'No genre'),
     LibraryGroupMode.country =>
-      libraryEntryCountry(entry)?.trim().isNotEmpty == true ? libraryEntryCountry(entry)! : 'Unknown country',
+      entry.country?.trim().isNotEmpty == true ? entry.country! : 'Unknown country',
     LibraryGroupMode.language =>
-      libraryEntryLanguage(entry)?.trim().isNotEmpty == true ? libraryEntryLanguage(entry)! : 'Unknown language',
+      entry.language?.trim().isNotEmpty == true ? entry.language! : 'Unknown language',
     LibraryGroupMode.ageRating =>
-      libraryEntryAgeRating(entry)?.trim().isNotEmpty == true ? libraryEntryAgeRating(entry)! : 'Unrated',
+      entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
     LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
     LibraryGroupMode.releaseDate => _dateBucket(entry.releaseDate, 'Unknown release date'),
     LibraryGroupMode.releaseMonth =>
@@ -731,7 +731,7 @@ String? _referenceRegionFor(ShelfEntry source, LibraryWorkspaceEntry entry) {
 }
 
 String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
-  for (final credit in libraryEntryCreators(entry) ?? const <Map<String, dynamic>>[]) {
+  for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
     final name = credit['name']?.toString().trim();
     if (name == null || name.isEmpty) continue;
     if (role == null) return name;

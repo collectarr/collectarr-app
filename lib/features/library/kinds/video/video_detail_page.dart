@@ -8,12 +8,12 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
-import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';

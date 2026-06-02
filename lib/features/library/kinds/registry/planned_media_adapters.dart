@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
@@ -659,17 +659,17 @@ class PlannedMediaEntryAccessors {
 
 final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
-  storyArc: (entry) => _firstStringValue(libraryEntryStoryArcs(entry)),
-  country: libraryEntryCountry,
-  language: libraryEntryLanguage,
+  storyArc: (entry) => _firstStringValue(entry.storyArcs),
+  country: (entry) => entry.country,
+  language: (entry) => entry.language,
   pageCount: (entry) => entry.publishing?.pageCount,
-  ageRating: libraryEntryAgeRating,
+  ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
-  creators: libraryEntryCreators,
-  characters: libraryEntryCharacters,
-  storyArcs: libraryEntryStoryArcs,
-  genres: libraryEntryGenres,
-  rawPlatforms: libraryEntryRawPlatforms,
+  creators: (entry) => entry.creators,
+  characters: (entry) => entry.characters,
+  storyArcs: (entry) => entry.storyArcs,
+  genres: (entry) => entry.genres,
+  rawPlatforms: (entry) => entry.game?.platforms ?? entry.rawPlatforms,
   keyComic: (_) => false,
   rawOrSlabbed: (_) => null,
   gradingCompany: (_) => null,
@@ -677,17 +677,17 @@ final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
 
 final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
-  storyArc: (entry) => _firstStringValue(libraryEntryStoryArcs(entry)),
-  country: libraryEntryCountry,
-  language: libraryEntryLanguage,
+  storyArc: (entry) => _firstStringValue(entry.storyArcs),
+  country: (entry) => entry.country,
+  language: (entry) => entry.language,
   pageCount: (entry) => entry.publishing?.pageCount,
-  ageRating: libraryEntryAgeRating,
+  ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
-  creators: libraryEntryCreators,
-  characters: libraryEntryCharacters,
-  storyArcs: libraryEntryStoryArcs,
-  genres: libraryEntryGenres,
-  rawPlatforms: libraryEntryRawPlatforms,
+  creators: (entry) => entry.creators,
+  characters: (entry) => entry.characters,
+  storyArcs: (entry) => entry.storyArcs,
+  genres: (entry) => entry.genres,
+  rawPlatforms: (entry) => entry.game?.platforms ?? entry.rawPlatforms,
   keyComic: (entry) => entry.comic?.keyComic ?? false,
   rawOrSlabbed: (entry) => entry.comic?.rawOrSlabbed,
   gradingCompany: (entry) => entry.comic?.gradingCompany,

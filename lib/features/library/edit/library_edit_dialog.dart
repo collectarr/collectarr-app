@@ -21,8 +21,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';

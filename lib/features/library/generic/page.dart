@@ -55,24 +55,19 @@ import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
@@ -1793,11 +1788,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
-    if (item.entry.browseScope != LibraryBrowserScope.title) {
-      return false;
-    }
-    return widget.type.capabilities
-        .supportsVideoShelfDrilldown(item.entry.mediaType);
+    return canOpenVideoShelfDrilldown(widget.type, item.entry);
   }
 
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {
@@ -1866,10 +1857,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final wishlistItems = allWishlistItems
         .where((item) => item.itemId == titleItemId)
         .toList(growable: false);
-    final drilldownItems = _videoShelfReleaseItemsFor(
-      titleItem,
+    final drilldownItems = buildVideoShelfReleaseItems(
+      titleItem: titleItem,
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
+      releaseEntryBuilder: widget.type.presentation.releaseEntryBuilder,
     );
 
     if (_videoShelfDrilldownReleaseId == null && drilldownItems.isNotEmpty) {
@@ -1882,7 +1874,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       });
     }
 
-    return _VideoShelfReleaseDrilldown(
+    return VideoShelfReleaseDrilldown(
       titleItem: titleItem,
       items: drilldownItems,
       selectedReleaseId: _videoShelfDrilldownReleaseId,
@@ -1920,105 +1912,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
               unawaited(showEditDialog(titleItem!, ownedItem)),
           onFilterByValue: _toggleLinkedMetadataFilter,
         ),
-      ),
-    );
-  }
-
-  List<_VideoShelfReleaseDrilldownItem> _videoShelfReleaseItemsFor(
-    LibraryProjectionItem titleItem, {
-    required List<OwnedItem> ownedCopies,
-    required List<WishlistItem> wishlistItems,
-  }) {
-    final editions = resolveVideoCatalogEditionsForEntry(
-      titleItem.entry,
-      ownedItems: ownedCopies,
-      wishlistItems: wishlistItems,
-    );
-    final releaseEditions = [
-      for (final edition in editions)
-        if (ownedCopies.any(
-              (item) => matchesVideoReleaseAnchor(
-                edition,
-                editionId: item.editionId,
-                variantId: item.variantId,
-                bundleReleaseId: item.bundleReleaseId,
-              ),
-            ) ||
-            wishlistItems.any(
-              (item) => matchesVideoReleaseAnchor(
-                edition,
-                editionId: item.editionId,
-                variantId: item.variantId,
-                bundleReleaseId: item.bundleReleaseId,
-              ),
-            ))
-          edition,
-    ];
-    return [
-      for (final edition in releaseEditions)
-        _buildVideoShelfReleaseDrilldownItem(
-          titleItem,
-          edition,
-          editions: releaseEditions,
-          ownedCopies: ownedCopies,
-          wishlistItems: wishlistItems,
-        ),
-    ];
-  }
-
-  _VideoShelfReleaseDrilldownItem _buildVideoShelfReleaseDrilldownItem(
-    LibraryProjectionItem titleItem,
-    CatalogEdition edition, {
-    required List<CatalogEdition> editions,
-    required List<OwnedItem> ownedCopies,
-    required List<WishlistItem> wishlistItems,
-  }) {
-    final matchedOwnedCopies = ownedCopies
-        .where(
-          (item) => matchesVideoReleaseAnchor(
-            edition,
-            editionId: item.editionId,
-            variantId: item.variantId,
-            bundleReleaseId: item.bundleReleaseId,
-          ),
-        )
-        .toList(growable: false);
-    final matchedWishlistItems = wishlistItems
-        .where(
-          (item) => matchesVideoReleaseAnchor(
-            edition,
-            editionId: item.editionId,
-            variantId: item.variantId,
-            bundleReleaseId: item.bundleReleaseId,
-          ),
-        )
-        .toList(growable: false);
-    final entry = widget.type.presentation.releaseEntryBuilder(
-      LibraryReleaseEntryRequest(
-        titleEntry: titleItem.entry,
-        edition: edition,
-        isOwned: matchedOwnedCopies.isNotEmpty,
-        isWishlisted: matchedWishlistItems.isNotEmpty,
-        referenceEditionId: edition.id,
-        referenceVariantId: preferredVideoEditionVariantId(edition),
-        editions: editions,
-        updatedAt: titleItem.entry.updatedAt,
-      ),
-    );
-    return _VideoShelfReleaseDrilldownItem(
-      entry: entry,
-      sourceLabel: videoReleaseSourceLabel(edition),
-      ownedCount:
-          matchedOwnedCopies.fold<int>(0, (sum, item) => sum + item.quantity),
-      wishlistCount: matchedWishlistItems.length,
-      node: LibraryBrowserNode(
-        id: entry.id,
-        scope: entry.browseScope,
-        entry: entry,
-        titleItemId: titleItem.entry.id,
-        releaseId: edition.id,
-        edition: edition,
-        source: titleItem.source,
       ),
     );
   }
