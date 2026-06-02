@@ -196,6 +196,9 @@ class LibraryInspectorPanelRequest {
     this.onToggleWishlist,
     this.onEdit,
     this.onCorrectMetadata,
+    this.onDuplicate,
+    this.onLoan,
+    this.onRefreshMetadata,
   });
 
   final LibraryInspectorRequest inspector;
@@ -216,6 +219,9 @@ class LibraryInspectorPanelRequest {
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback? onCorrectMetadata;
+  final VoidCallback? onDuplicate;
+  final VoidCallback? onLoan;
+  final VoidCallback? onRefreshMetadata;
 }
 
 typedef LibraryInspectorPanelBuilder = Widget Function(

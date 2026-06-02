@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_launcher.d
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
@@ -19,6 +20,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_folder_secti
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -283,6 +285,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               type: widget.type,
             )
         : null;
+    final onDuplicate = activeOwnedItem == null
+        ? null
+        : () => _duplicateOwnedCopy(selected, activeOwnedItem);
+    final onLoan = activeOwnedItem == null || widget.db == null
+        ? null
+        : () => _showOwnedSectionDialog(
+              context,
+              title: 'Loans',
+              child: InspectorLoanSection(
+                ownedItemId: activeOwnedItem.id,
+                db: widget.db!,
+                accent: widget.accent,
+              ),
+            );
+    final onRefreshMetadata = widget.type.supportedMetadataProviders.isEmpty
+        ? null
+        : () => _refreshSelectedEntryMetadata(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
         context: context,
@@ -477,6 +496,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           onToggleWishlist: onToggleWishlist,
           onEdit: onEdit,
           onCorrectMetadata: onCorrectMetadata,
+          onDuplicate: onDuplicate,
+          onLoan: onLoan,
+          onRefreshMetadata: onRefreshMetadata,
         ),
       );
     }
@@ -671,6 +693,74 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       }
       _selectNewestOwnedItem = false;
     });
+  }
+
+  Future<void> _duplicateOwnedCopy(
+    LibraryWorkspaceEntry entry,
+    OwnedItem item,
+  ) async {
+    await ref.read(collectionMutationsProvider).addItem(
+          item.itemId,
+          isDigital: item.isDigital,
+          anchorType: item.anchorType,
+          editionId: item.editionId,
+          variantId: item.variantId,
+          bundleReleaseId: item.bundleReleaseId,
+          condition: item.condition,
+          grade: item.grade,
+          purchaseDate: item.purchaseDate,
+          pricePaidCents: item.pricePaidCents,
+          currency: item.currency,
+          personalNotes: item.personalNotes,
+          quantity: item.quantity,
+          locationId: item.locationId,
+          indexNumber: item.indexNumber,
+          coverPriceCents: item.coverPriceCents,
+          rawOrSlabbed: item.rawOrSlabbed,
+          gradingCompany: item.gradingCompany,
+          graderNotes: item.graderNotes,
+          signedBy: item.signedBy,
+          labelType: item.labelType,
+          certificationNumber: item.certificationNumber,
+          keyComic: item.keyComic,
+          keyReason: item.keyReason,
+          rating: item.rating,
+          readStatus: item.readStatus,
+          startedAt: item.startedAt,
+          finishedAt: item.finishedAt,
+          tags: item.tags,
+        );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _selectedOwnedItemId = null;
+      _selectNewestOwnedItem = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Duplicated "${entry.title}"')),
+    );
+  }
+
+  Future<void> _refreshSelectedEntryMetadata(LibraryWorkspaceEntry entry) async {
+    final result = await showLibraryMetadataRefreshDialog(
+      context: context,
+      type: widget.type,
+      accent: widget.accent,
+      allEntries: [entry],
+      shownEntries: [entry],
+      selectedEntry: entry,
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
+        ),
+      ),
+    );
   }
 }
 

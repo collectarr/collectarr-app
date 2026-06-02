@@ -233,7 +233,8 @@ class _ComicInspectorToolbar extends StatelessWidget {
                       _ComicToolbarMenuEntry(
                         label: 'Duplicate',
                         icon: Icons.copy_outlined,
-                        enabled: false,
+                        onSelected: request.onDuplicate,
+                        enabled: request.onDuplicate != null,
                       ),
                       _ComicToolbarMenuEntry(
                         label: entry.isOwned
@@ -244,10 +245,11 @@ class _ComicInspectorToolbar extends StatelessWidget {
                             : Icons.add_circle_outline,
                         onSelected: request.onToggleOwned,
                       ),
-                      const _ComicToolbarMenuEntry(
+                      _ComicToolbarMenuEntry(
                         label: 'Loan',
                         icon: Icons.schedule_outlined,
-                        enabled: false,
+                        onSelected: request.onLoan,
+                        enabled: request.onLoan != null,
                       ),
                       const _ComicToolbarMenuEntry(
                         label: 'Move to other collection',
@@ -308,10 +310,11 @@ class _ComicInspectorToolbar extends StatelessWidget {
                         icon: Icons.key_outlined,
                         enabled: false,
                       ),
-                      const _ComicToolbarMenuEntry(
+                      _ComicToolbarMenuEntry(
                         label: 'Update from Core',
                         icon: Icons.cloud_download_outlined,
-                        enabled: false,
+                        onSelected: request.onRefreshMetadata,
+                        enabled: request.onRefreshMetadata != null,
                       ),
                       if (request.onCorrectMetadata != null)
                         _ComicToolbarMenuEntry(
