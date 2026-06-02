@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -281,7 +282,12 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add metadata correction'),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Add metadata correction',
+        accent: widget.accent,
+        icon: Icons.tune,
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,

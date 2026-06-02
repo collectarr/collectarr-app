@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -117,7 +118,11 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Correct metadata'),
+      titlePadding: EdgeInsets.zero,
+      title: const AccentDialogHeader(
+        title: 'Correct metadata',
+        icon: Icons.edit_note,
+      ),
       content: SizedBox(
         width: 560,
         child: SingleChildScrollView(

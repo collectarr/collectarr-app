@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_media_field_label
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -915,9 +916,11 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _FilterDialogHeader(
-                  accent: accent,
+                AccentDialogHeader(
                   title: 'Select Filters',
+                  accent: accent,
+                  icon: Icons.filter_alt_outlined,
+                  onClose: () => Navigator.of(context).pop(),
                 ),
                 Flexible(
                   fit: FlexFit.loose,
@@ -1221,62 +1224,6 @@ class _DateFilterButton extends StatelessWidget {
               constraints: const BoxConstraints(),
               padding: const EdgeInsets.only(left: 8),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterDialogHeader extends StatelessWidget {
-  const _FilterDialogHeader({
-    required this.accent,
-    required this.title,
-  });
-
-  final Color accent;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: BoxDecoration(
-        color: accent,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Color.alphaBlend(
-                accent.withValues(alpha: 0.14),
-                palette.surfaceSubtle,
-              ),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(Icons.filter_alt_outlined, color: accent, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-            ),
-          ),
-          LibraryDenseIconButton(
-            tooltip: 'Close',
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icons.close,
-            tone: LibraryDenseButtonTone.subtle,
-          ),
         ],
       ),
     );

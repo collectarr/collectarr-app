@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a rich statistics dashboard dialog for any media type.
@@ -73,32 +74,10 @@ class _GenericStatsDashboard extends StatelessWidget {
           color: colors.canvas,
           child: Column(
             children: [
-              Container(
-                height: 46,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: colors.toolbar,
-                  border: Border(
-                    bottom: BorderSide(color: colors.divider),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(type.workspace.icon, color: colors.accent),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '${type.pluralLabel} Statistics',
-                        style: const TextStyle(fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Close',
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
+              AccentDialogHeader(
+                title: '${type.pluralLabel} Statistics',
+                icon: type.workspace.icon,
+                onClose: () => Navigator.of(context).pop(),
               ),
               Expanded(
                 child: SingleChildScrollView(

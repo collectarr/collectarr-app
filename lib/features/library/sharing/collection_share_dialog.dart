@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,12 +36,10 @@ class _CollectionShareDialog extends StatelessWidget {
     final palette = appPalette(context);
     return AlertDialog(
       backgroundColor: palette.panel,
-      title: Row(
-        children: [
-          const Icon(Icons.share, size: 20),
-          const SizedBox(width: 8),
-          Expanded(child: Text('Share "$title"')),
-        ],
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Share "$title"',
+        icon: Icons.share,
       ),
       content: SizedBox(
         width: 340,

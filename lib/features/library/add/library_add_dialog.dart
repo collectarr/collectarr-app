@@ -58,6 +58,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
@@ -936,10 +937,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     LibraryAddRegistry.headerBuilderFor(
                             widget.type.workspace.kind)
                         ?.call(context, headerRequest) ??
-                    _DialogHeader(
-                      type: headerRequest.type,
+                    AccentDialogHeader(
+                      title: headerRequest.isMovieDesktopChrome
+                          ? 'Add ${headerRequest.type.pluralLabel}'
+                          : 'Add ${headerRequest.type.pluralLabel} from Collectarr Core',
                       accent: headerRequest.accent,
-                      isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
+                      icon: headerRequest.type.workspace.icon,
+                      onClose: () => Navigator.of(context).pop(),
                     ),
                 widget.modeBarBuilder?.call(context, modeBarRequest) ??
                     LibraryAddRegistry.modeBarBuilderFor(

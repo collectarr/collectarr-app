@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,12 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
             ),
             child: Column(
               children: [
-                _DialogHeader(accent: accent),
+                AccentDialogHeader(
+                  title: 'Select Sort Fields',
+                  accent: accent,
+                  icon: Icons.sort,
+                  onClose: () => Navigator.of(context).pop(),
+                ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
@@ -588,44 +594,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 }
 
-class _DialogHeader extends StatelessWidget {
-  const _DialogHeader({required this.accent});
 
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: accent,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.sort, size: 18, color: Colors.white),
-          const SizedBox(width: 10),
-          Text(
-            'Select Sort Fields',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-          ),
-          const Spacer(),
-          LibraryDenseIconButton(
-            tooltip: 'Close',
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icons.close,
-            tone: LibraryDenseButtonTone.subtle,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _PaneFrame extends StatelessWidget {
   const _PaneFrame({

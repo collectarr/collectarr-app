@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
@@ -91,7 +92,12 @@ class _LibraryMetadataRefreshDialogState
     final summary = _summary();
     return AlertDialog(
       backgroundColor: palette.panel,
-      title: Text('Refresh ${widget.type.pluralLabel.toLowerCase()} metadata'),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Refresh ${widget.type.pluralLabel.toLowerCase()} metadata',
+        accent: widget.accent,
+        icon: Icons.sync,
+      ),
       content: SizedBox(
         width: 680,
         child: SingleChildScrollView(

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -74,7 +75,11 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: appPalette(context).panel,
-        title: const Text('New Location'),
+        titlePadding: EdgeInsets.zero,
+        title: const AccentDialogHeader(
+          title: 'New Location',
+          icon: Icons.add_location_alt_outlined,
+        ),
         content: TextField(
           controller: nameController,
           autofocus: true,
@@ -112,15 +117,15 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     final roots = _locations.where((location) => location.parentId == null).toList();
     return AlertDialog(
       backgroundColor: palette.panel,
-      title: Row(
-        children: [
-          const Expanded(child: Text('Assign Location')),
-          IconButton(
-            icon: const Icon(Icons.add, size: 20),
-            tooltip: 'New location',
-            onPressed: _addLocation,
-          ),
-        ],
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Assign Location',
+        icon: Icons.location_on_outlined,
+        trailing: IconButton(
+          icon: const Icon(Icons.add, size: 20, color: Colors.white),
+          tooltip: 'New location',
+          onPressed: _addLocation,
+        ),
       ),
       content: SizedBox(
         width: 320,

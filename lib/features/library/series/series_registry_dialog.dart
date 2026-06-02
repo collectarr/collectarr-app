@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -128,11 +129,16 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      title: _SeriesDialogHeader(
+      title: AccentDialogHeader(
         title: 'Select Series',
         icon: Icons.collections_bookmark_outlined,
         accent: Theme.of(context).colorScheme.primary,
-        badgeLabel: '${_entries.length} series',
+        trailing: _SeriesCountChip(
+          label: '${_entries.length} series',
+          emphasized: true,
+          backgroundColor: Colors.white.withValues(alpha: 0.18),
+          textColor: Colors.white,
+        ),
       ),
       content: SizedBox(
         width: 720,
@@ -359,11 +365,16 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      title: _SeriesDialogHeader(
+      title: AccentDialogHeader(
         title: 'Manage Series',
         icon: Icons.library_books_outlined,
         accent: Theme.of(context).colorScheme.primary,
-        badgeLabel: '${_entries.length} entries',
+        trailing: _SeriesCountChip(
+          label: '${_entries.length} entries',
+          emphasized: true,
+          backgroundColor: Colors.white.withValues(alpha: 0.18),
+          textColor: Colors.white,
+        ),
       ),
       content: SizedBox(
         width: 760,
@@ -493,7 +504,7 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      title: _SeriesDialogHeader(
+      title: AccentDialogHeader(
         title: widget.initialTitle == null ? 'New Series' : 'Edit Series',
         icon: widget.initialTitle == null
             ? Icons.add_circle_outline
@@ -551,66 +562,6 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
           child: const Text('Save'),
         ),
       ],
-    );
-  }
-}
-
-class _SeriesDialogHeader extends StatelessWidget {
-  const _SeriesDialogHeader({
-    required this.title,
-    required this.icon,
-    required this.accent,
-    this.badgeLabel,
-  });
-
-  final String title;
-  final IconData icon;
-  final Color accent;
-  final String? badgeLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent,
-        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Icon(icon, color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-            if (badgeLabel != null)
-              _SeriesCountChip(
-                label: badgeLabel!,
-                emphasized: true,
-                backgroundColor: Colors.white.withValues(alpha: 0.18),
-                textColor: Colors.white,
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

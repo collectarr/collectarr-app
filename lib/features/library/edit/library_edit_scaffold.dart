@@ -330,7 +330,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final headerHeight =
         (isMovieDesktop ? 46.0 : 48.0) + (badges.isNotEmpty ? 4.0 : 0.0);
@@ -338,12 +337,12 @@ class _LibraryEditTitleBar extends StatelessWidget {
       height: headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: palette.toolbar,
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        color: accent,
+        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
-          Icon(icon, color: accent, size: 16),
+          Icon(icon, color: Colors.white, size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -354,13 +353,11 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: isMovieDesktop ? 13 : 13.5,
-                      ),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: isMovieDesktop ? 13 : 13.5,
+                    color: Colors.white,
+                  ),
                 ),
                 if (badges.isNotEmpty) ...[
                   const SizedBox(height: 2),
@@ -378,16 +375,17 @@ class _LibraryEditTitleBar extends StatelessWidget {
               tooltip: 'Search on eBay',
               onPressed: _searchOnEbay,
               visualDensity: VisualDensity.compact,
-              icon: Icon(
+              icon: const Icon(
                 Icons.shopping_cart_outlined,
                 size: 17,
+                color: Colors.white,
               ),
             ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close, size: 18, color: Colors.white),
           ),
         ],
       ),

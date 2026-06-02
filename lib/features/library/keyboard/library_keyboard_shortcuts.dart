@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 /// Defines the keyboard shortcuts available in the library view.
@@ -103,7 +104,11 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
     final palette = appPalette(context);
     return AlertDialog(
       backgroundColor: palette.panel,
-      title: const Text('Keyboard Shortcuts'),
+      titlePadding: EdgeInsets.zero,
+      title: const AccentDialogHeader(
+        title: 'Keyboard Shortcuts',
+        icon: Icons.keyboard,
+      ),
       content: SizedBox(
         width: 360,
         child: Column(

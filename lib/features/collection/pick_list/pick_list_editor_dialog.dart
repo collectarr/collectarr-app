@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -96,7 +97,11 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
 
     return AlertDialog(
       backgroundColor: kAppPanel,
-      title: Text('Edit ${widget.label} Values'),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Edit ${widget.label} Values',
+        icon: Icons.list,
+      ),
       content: SizedBox(
         width: 320,
         height: 360,

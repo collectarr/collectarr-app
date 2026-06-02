@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
 import 'package:flutter/material.dart';
@@ -227,7 +228,12 @@ class _ReportColumnPickerDialogState extends State<_ReportColumnPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Report columns'),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Report columns',
+        accent: widget.accent,
+        icon: Icons.view_column_outlined,
+      ),
       content: SizedBox(
         width: 320,
         child: SingleChildScrollView(

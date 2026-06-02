@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -164,31 +165,10 @@ class _LibraryBucketManagerDialogState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              color: widget.accent,
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: _foregroundForAccent(widget.accent),
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Close',
-                    onPressed:
-                        _submitting ? null : () => Navigator.of(context).pop(),
-                    icon: Icon(
-                      Icons.close,
-                      color: _foregroundForAccent(widget.accent),
-                    ),
-                  ),
-                ],
-              ),
+            AccentDialogHeader(
+              title: title,
+              accent: widget.accent,
+              onClose: _submitting ? null : () => Navigator.of(context).pop(),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
@@ -551,12 +531,6 @@ class _LibraryBucketManagerDialogState
         ),
       ),
     );
-  }
-
-  Color _foregroundForAccent(Color accent) {
-    return ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-        ? Colors.white
-        : Colors.black87;
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -128,7 +129,11 @@ class _LibraryColumnChooserDialogState
           ),
           child: Column(
             children: [
-              _DialogHeader(accent: accent),
+              AccentDialogHeader(
+                title: 'Select Column Fields',
+                accent: accent,
+                onClose: () => Navigator.of(context).pop(),
+              ),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -551,42 +556,7 @@ class _SelectedColumnTile extends StatelessWidget {
   }
 }
 
-class _DialogHeader extends StatelessWidget {
-  const _DialogHeader({required this.accent});
 
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: accent,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
-      ),
-      child: Row(
-        children: [
-          Text(
-            'Select Column Fields',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-          ),
-          const Spacer(),
-          LibraryDenseIconButton(
-            tooltip: 'Close',
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icons.close,
-            tone: LibraryDenseButtonTone.subtle,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _PresetShelf extends StatelessWidget {
   const _PresetShelf({

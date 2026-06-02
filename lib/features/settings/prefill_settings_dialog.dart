@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -168,48 +169,24 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   }
 
   Widget _header() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: appPalette(context).divider),
+    return AccentDialogHeader(
+      title: 'Pre-fill Settings',
+      accent: widget.accent,
+      icon: Icons.auto_fix_high,
+      trailing: TextButton(
+        onPressed: () {
+          setState(() {
+            _conditionController.clear();
+            _gradeController.clear();
+            _selectedLocationId = null;
+            _tagsController.clear();
+            _readStatus = null;
+          });
+        },
+        child: const Text(
+          'Clear all',
+          style: TextStyle(fontSize: 12, color: Colors.white),
         ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.auto_fix_high, color: widget.accent, size: 20),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'Pre-fill Settings',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _conditionController.clear();
-                _gradeController.clear();
-                _selectedLocationId = null;
-                _tagsController.clear();
-                _readStatus = null;
-              });
-            },
-            child: const Text('Clear all', style: TextStyle(fontSize: 12)),
-          ),
-        ],
       ),
     );
   }
