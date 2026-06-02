@@ -63,13 +63,14 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
       : genericFolderPresetLabel(folderPreset!, type);
     final child = iconOnly
         ? LibraryToolbarCompactDropdownTrigger(icon: icon)
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+        : Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            constraints: const BoxConstraints(minHeight: 30),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 16, color: accent),
-                const SizedBox(width: 4),
+                Icon(Icons.folder_open_outlined, size: 16, color: accent),
+                const SizedBox(width: 6),
                 Flexible(
                   child: Text(
                     label,
@@ -81,7 +82,12 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
                         ),
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, size: 18, color: accent),
+                const SizedBox(width: 2),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: accent,
+                ),
               ],
             ),
           );

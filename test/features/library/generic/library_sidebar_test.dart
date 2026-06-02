@@ -175,4 +175,76 @@ void main() {
 
     expect(manageTapped, isTrue);
   });
+
+  testWidgets('series completion button filters sidebar buckets', (
+    tester,
+  ) async {
+    var selectedScope = LibrarySeriesCompletionScope.all;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                return SizedBox(
+                  width: 320,
+                  height: 420,
+                  child: LibrarySidebar(
+                    type: moviesLibraryConfig,
+                    accent: Colors.cyan,
+                    buckets: const [
+                      LibrarySeriesBucket(
+                        title: 'Batman',
+                        count: 10,
+                        ownedCount: 10,
+                      ),
+                      LibrarySeriesBucket(
+                        title: 'Spawn',
+                        count: 10,
+                        ownedCount: 6,
+                      ),
+                      LibrarySeriesBucket(title: 'Sandman', count: 5),
+                    ],
+                    groupMode: LibraryGroupMode.series,
+                    selectedBucket: 'Batman',
+                    onSelected: (_) {},
+                    onGroupModeChanged: (_) {},
+                    collectionStatusScope: LibraryCollectionStatusScope.all,
+                    seriesCompletionScope: selectedScope,
+                    onSeriesCompletionScopeChanged: (value) {
+                      setState(() => selectedScope = value);
+                    },
+                    onClearFilter: () {},
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Batman'), findsOneWidget);
+    expect(find.text('Spawn'), findsOneWidget);
+    expect(find.text('Sandman'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Show all series'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show completed').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batman'), findsOneWidget);
+    expect(find.text('Spawn'), findsNothing);
+    expect(find.text('Sandman'), findsNothing);
+
+    await tester.tap(find.byTooltip('Show completed'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show not completed').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batman'), findsNothing);
+    expect(find.text('Spawn'), findsOneWidget);
+    expect(find.text('Sandman'), findsOneWidget);
+  });
 }

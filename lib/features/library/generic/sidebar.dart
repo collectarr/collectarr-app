@@ -29,6 +29,7 @@ class LibrarySidebar extends StatelessWidget {
     this.activeSmartListName,
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
@@ -38,6 +39,7 @@ class LibrarySidebar extends StatelessWidget {
     this.onEditFilters,
     this.onClearFilters,
     this.onCollectionStatusScopeChanged,
+    this.onSeriesCompletionScopeChanged,
     required this.onClearFilter,
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
@@ -65,6 +67,7 @@ class LibrarySidebar extends StatelessWidget {
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
@@ -75,6 +78,8 @@ class LibrarySidebar extends StatelessWidget {
   final VoidCallback? onClearFilters;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
+    final ValueChanged<LibrarySeriesCompletionScope>?
+      onSeriesCompletionScopeChanged;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
@@ -101,6 +106,8 @@ class LibrarySidebar extends StatelessWidget {
           'Search ${genericGroupModeLabel(groupMode, type).toLowerCase()}...',
       collectionStatusScope: collectionStatusScope,
       onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
+        seriesCompletionScope: seriesCompletionScope,
+        onSeriesCompletionScopeChanged: onSeriesCompletionScopeChanged,
       ancestorScopeLabels: ancestorScopeLabels,
       onNavigateToAncestorScope: onNavigateToAncestorScope,
       headerOverride: LibrarySidebarHeader(

@@ -18,6 +18,7 @@ void main() {
       selectedLetter: 'A',
       linkedMetadataValue: 'Ridley Scott',
       collectionStatusScope: LibraryCollectionStatusScope.inCollection,
+      seriesCompletionScope: LibrarySeriesCompletionScope.completed,
       quickView: LibraryQuickView.missingMetadata,
       filterSelection: LibraryFilterSelection(
         ownershipFilter: LibraryOwnershipFilter.owned,
@@ -39,6 +40,7 @@ void main() {
     expect(uri.queryParameters['folder'], 'genre>releaseYear');
     expect(uri.queryParameters['filterValue'], 'Action');
     expect(uri.queryParameters['sort'], 'title.asc,updated.desc');
+    expect(uri.queryParameters['seriesScope'], 'completed');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');
     expect(parsed.groupMode, LibraryGroupMode.genre);
@@ -54,6 +56,10 @@ void main() {
     expect(
       parsed.collectionStatusScope,
       LibraryCollectionStatusScope.inCollection,
+    );
+    expect(
+      parsed.seriesCompletionScope,
+      LibrarySeriesCompletionScope.completed,
     );
     expect(parsed.quickView, LibraryQuickView.missingMetadata);
     expect(parsed.filterSelection.ownershipFilter, LibraryOwnershipFilter.owned);

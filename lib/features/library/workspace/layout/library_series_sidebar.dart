@@ -58,6 +58,8 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.searchPlaceholder = 'Find folders',
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.onCollectionStatusScopeChanged,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
+    this.onSeriesCompletionScopeChanged,
     this.ancestorScopeLabels = const <String>[],
     this.onNavigateToAncestorScope,
   });
@@ -80,6 +82,9 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final String searchPlaceholder;
   final LibraryCollectionStatusScope collectionStatusScope;
   final ValueChanged<LibraryCollectionStatusScope>? onCollectionStatusScopeChanged;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
+  final ValueChanged<LibrarySeriesCompletionScope>?
+      onSeriesCompletionScopeChanged;
   final List<String> ancestorScopeLabels;
   final ValueChanged<int>? onNavigateToAncestorScope;
 
@@ -104,6 +109,14 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
     var items = widget.series.where((b) {
       if (query.isEmpty) return true;
       return b.title.toLowerCase().contains(query);
+    }).where((bucket) {
+      return switch (widget.seriesCompletionScope) {
+        LibrarySeriesCompletionScope.all => true,
+        LibrarySeriesCompletionScope.completed =>
+          bucket.completionPercent != null && bucket.completionPercent! >= 100,
+        LibrarySeriesCompletionScope.notCompleted =>
+          bucket.completionPercent == null || bucket.completionPercent! < 100,
+      };
     }).toList();
     switch (_sortMode) {
       case _SidebarSortMode.alphabetical:
@@ -176,8 +189,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
             accentColor: widget.accentColor,
             dividerColor: resolvedDividerColor,
             mutedTextColor: resolvedMutedTextColor,
-            collectionStatusScope: widget.collectionStatusScope,
-            onCollectionStatusScopeChanged: widget.onCollectionStatusScopeChanged,
+              seriesCompletionScope: widget.seriesCompletionScope,
+              onSeriesCompletionScopeChanged:
+                  widget.onSeriesCompletionScopeChanged,
             onChanged: () => setState(() {}),
             onToggleSort: () => setState(() {
               _sortMode = _sortMode == _SidebarSortMode.alphabetical
@@ -237,8 +251,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
     required this.accentColor,
     required this.dividerColor,
     required this.mutedTextColor,
-    required this.collectionStatusScope,
-    required this.onCollectionStatusScopeChanged,
+    required this.seriesCompletionScope,
+    required this.onSeriesCompletionScopeChanged,
     required this.onChanged,
     required this.onToggleSort,
   });
@@ -249,8 +263,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
   final Color accentColor;
   final Color dividerColor;
   final Color mutedTextColor;
-  final LibraryCollectionStatusScope collectionStatusScope;
-  final ValueChanged<LibraryCollectionStatusScope>? onCollectionStatusScopeChanged;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
+  final ValueChanged<LibrarySeriesCompletionScope>?
+      onSeriesCompletionScopeChanged;
   final VoidCallback onChanged;
   final VoidCallback onToggleSort;
 
@@ -300,13 +315,13 @@ class _SidebarSearchAndSort extends StatelessWidget {
               ),
             ),
           ),
-          if (onCollectionStatusScopeChanged != null) ...[
+          if (onSeriesCompletionScopeChanged != null) ...[
             const SizedBox(width: 6),
             _SidebarStatusScopeButton(
               accentColor: accentColor,
               mutedTextColor: mutedTextColor,
-              scope: collectionStatusScope,
-              onSelected: onCollectionStatusScopeChanged!,
+              scope: seriesCompletionScope,
+              onSelected: onSeriesCompletionScopeChanged!,
             ),
           ],
           const SizedBox(width: 6),
@@ -331,21 +346,21 @@ class _SidebarStatusScopeButton extends StatelessWidget {
     required this.onSelected,
   });
 
-  final LibraryCollectionStatusScope scope;
+  final LibrarySeriesCompletionScope scope;
   final Color accentColor;
   final Color mutedTextColor;
-  final ValueChanged<LibraryCollectionStatusScope> onSelected;
+  final ValueChanged<LibrarySeriesCompletionScope> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = scope == LibraryCollectionStatusScope.all
+    final borderColor = scope == LibrarySeriesCompletionScope.all
         ? mutedTextColor.withValues(alpha: 0.5)
         : accentColor.withValues(alpha: 0.9);
-    final iconColor = scope == LibraryCollectionStatusScope.all
+    final iconColor = scope == LibrarySeriesCompletionScope.all
         ? mutedTextColor
         : accentColor;
-    return PopupMenuButton<LibraryCollectionStatusScope>(
-      tooltip: 'Filter completed series',
+    return PopupMenuButton<LibrarySeriesCompletionScope>(
+      tooltip: scope.label,
       initialValue: scope,
       onSelected: onSelected,
       position: PopupMenuPosition.under,
@@ -359,11 +374,11 @@ class _SidebarStatusScopeButton extends StatelessWidget {
           border: Border.all(color: borderColor),
         ),
         alignment: Alignment.center,
-        child: Icon(Icons.checklist_outlined, size: 16, color: iconColor),
+        child: Icon(scope.icon, size: 16, color: iconColor),
       ),
       itemBuilder: (context) => [
-        for (final value in LibraryCollectionStatusScope.values)
-          PopupMenuItem<LibraryCollectionStatusScope>(
+        for (final value in LibrarySeriesCompletionScope.values)
+          PopupMenuItem<LibrarySeriesCompletionScope>(
             value: value,
             child: Row(
               children: [

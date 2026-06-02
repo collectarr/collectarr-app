@@ -65,6 +65,12 @@ const comicsLibraryGroupModes = [
   LibraryGroupMode.modifiedDate,
   LibraryGroupMode.modifiedMonth,
   LibraryGroupMode.tags,
+  LibraryGroupMode.bagBoardDate,
+  LibraryGroupMode.bagBoardMonth,
+  LibraryGroupMode.bagBoardYear,
+  LibraryGroupMode.watchDate,
+  LibraryGroupMode.watchMonth,
+  LibraryGroupMode.watchYear,
 ];
 
 const comicsLibraryGroupModeDefinitions = [
@@ -452,6 +458,42 @@ const comicsLibraryGroupModeDefinitions = [
     label: 'Tags',
     sidebarTitle: 'Tags',
     icon: Icons.sell_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.bagBoardDate,
+    label: 'Bag/Board Date',
+    sidebarTitle: 'Bag/Board Dates',
+    icon: Icons.inventory_2_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.bagBoardMonth,
+    label: 'Bag/Board Month',
+    sidebarTitle: 'Bag/Board Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.bagBoardYear,
+    label: 'Bag/Board Year',
+    sidebarTitle: 'Bag/Board Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watchDate,
+    label: 'Read Date',
+    sidebarTitle: 'Read Dates',
+    icon: Icons.menu_book_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watchMonth,
+    label: 'Read Month',
+    sidebarTitle: 'Read Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watchYear,
+    label: 'Read Year',
+    sidebarTitle: 'Read Years',
+    icon: Icons.calendar_today_outlined,
   ),
 ];
 

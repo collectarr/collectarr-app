@@ -43,6 +43,31 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
   }
 }
 
+enum LibrarySeriesCompletionScope {
+  all,
+  completed,
+  notCompleted,
+}
+
+extension LibrarySeriesCompletionScopeUi on LibrarySeriesCompletionScope {
+  String get label {
+    return switch (this) {
+      LibrarySeriesCompletionScope.all => 'Show all series',
+      LibrarySeriesCompletionScope.completed => 'Show completed',
+      LibrarySeriesCompletionScope.notCompleted => 'Show not completed',
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      LibrarySeriesCompletionScope.all => Icons.select_all,
+      LibrarySeriesCompletionScope.completed => Icons.check_circle_outline,
+      LibrarySeriesCompletionScope.notCompleted =>
+        Icons.radio_button_unchecked,
+    };
+  }
+}
+
 class LibrarySeriesStatusSummary {
   const LibrarySeriesStatusSummary({
     required this.title,

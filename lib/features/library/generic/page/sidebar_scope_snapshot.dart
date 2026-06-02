@@ -9,6 +9,7 @@ class LibrarySidebarScopeSnapshot {
     this.selectedLetter,
     this.linkedMetadataFilter,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
     this.quickView,
     this.filterSelection = LibraryFilterSelection.none,
     this.activeSmartListId,
@@ -21,6 +22,7 @@ class LibrarySidebarScopeSnapshot {
   final String? selectedLetter;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
   final LibraryQuickView? quickView;
   final LibraryFilterSelection filterSelection;
   final String? activeSmartListId;
@@ -32,6 +34,7 @@ class LibrarySidebarScopeSnapshot {
       selectedLetter == null &&
       linkedMetadataFilter == null &&
       collectionStatusScope == LibraryCollectionStatusScope.all &&
+      seriesCompletionScope == LibrarySeriesCompletionScope.all &&
       quickView == null &&
       !filterSelection.hasActiveFilters &&
       activeSmartListId == null &&
@@ -48,6 +51,7 @@ class LibrarySidebarScopeSnapshot {
         other.selectedLetter == selectedLetter &&
         other.linkedMetadataFilter == linkedMetadataFilter &&
         other.collectionStatusScope == collectionStatusScope &&
+        other.seriesCompletionScope == seriesCompletionScope &&
         other.quickView == quickView &&
         other.filterSelection == filterSelection &&
         other.activeSmartListId == activeSmartListId &&
@@ -62,6 +66,7 @@ class LibrarySidebarScopeSnapshot {
         selectedLetter,
         linkedMetadataFilter,
         collectionStatusScope,
+        seriesCompletionScope,
         quickView,
         filterSelection,
         activeSmartListId,

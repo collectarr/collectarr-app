@@ -68,6 +68,7 @@ class LibraryBody extends StatelessWidget {
     this.activeSmartListName,
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.sidebarSelectedLetter,
@@ -75,6 +76,7 @@ class LibraryBody extends StatelessWidget {
     this.filterSelection = LibraryFilterSelection.none,
     this.preferToolbarAlphabet = false,
     this.onCollectionStatusScopeChanged,
+    this.onSeriesCompletionScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
@@ -135,6 +137,7 @@ class LibraryBody extends StatelessWidget {
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? sidebarSelectedLetter;
@@ -143,6 +146,8 @@ class LibraryBody extends StatelessWidget {
   final bool preferToolbarAlphabet;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
+    final ValueChanged<LibrarySeriesCompletionScope>?
+      onSeriesCompletionScopeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -338,6 +343,7 @@ class LibraryBody extends StatelessWidget {
                     activeSmartListName: activeSmartListName,
                     quickView: quickView,
                     collectionStatusScope: collectionStatusScope,
+                    seriesCompletionScope: seriesCompletionScope,
                     collectionStatusScopeLabel: collectionStatusScopeLabel,
                     linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                     selectedLetter: sidebarSelectedLetter,
@@ -348,6 +354,8 @@ class LibraryBody extends StatelessWidget {
                     onClearFilters: onClearFilters,
                     onCollectionStatusScopeChanged:
                         onCollectionStatusScopeChanged,
+                    onSeriesCompletionScopeChanged:
+                      onSeriesCompletionScopeChanged,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),

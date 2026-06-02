@@ -581,6 +581,18 @@ String defaultLibraryBucketLabel(
           .toList(),
       'No tags',
     ),
+    LibraryGroupMode.bagBoardDate => _dateBucket(
+      entry.lastBagBoardDate,
+      'Unknown bag/board date',
+    ),
+    LibraryGroupMode.bagBoardMonth => _monthBucket(
+      entry.lastBagBoardDate,
+      fallback: 'Unknown bag/board month',
+    ),
+    LibraryGroupMode.bagBoardYear => _yearBucket(
+      entry.lastBagBoardDate,
+      'Unknown bag/board year',
+    ),
     LibraryGroupMode.watchDate => _dateBucket(_latestWatchSession(source)?.watchedAt, 'Unknown watch date'),
     LibraryGroupMode.watchMonth => _monthBucket(
       _latestWatchSession(source)?.watchedAt,

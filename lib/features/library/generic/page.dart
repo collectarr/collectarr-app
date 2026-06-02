@@ -117,6 +117,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   LibraryLinkedMetadataFilter? _linkedMetadataFilter;
   LibraryQuickView? _quickView;
   var _collectionStatusScope = LibraryCollectionStatusScope.all;
+  var _seriesCompletionScope = LibrarySeriesCompletionScope.all;
   LibraryGroupMode? _groupMode;
   LibraryFolderPreset? _folderPreset;
   var _selection = LibrarySelectionState.empty();
@@ -257,6 +258,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedLetter = null;
       _linkedMetadataFilter = null;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _activeSmartListId = null;
       _activeSmartListName = null;
       _pinnedViewPresets = const {};
@@ -657,6 +659,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       activeSmartListName: _activeSmartListName,
       quickView: _quickView,
       collectionStatusScope: _collectionStatusScope,
+        seriesCompletionScope: _seriesCompletionScope,
       collectionStatusScopeLabel:
           _collectionStatusScope == LibraryCollectionStatusScope.all
               ? null
@@ -667,6 +670,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       filterSelection: _filterSelection,
       preferToolbarAlphabet: true,
       onCollectionStatusScopeChanged: _toggleCollectionStatusScope,
+      onSeriesCompletionScopeChanged: _setSeriesCompletionScope,
       onFilterByValue: _toggleLinkedMetadataFilter,
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -1157,6 +1161,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
+  void _setSeriesCompletionScope(LibrarySeriesCompletionScope scope) {
+    _mutateSidebarScope(() {
+      _seriesCompletionScope = scope;
+    });
+  }
+
   bool _canJumpToIssue(LibraryProjection? projection) {
     if (projection == null ||
         !widget.type.presentation.supportsSeriesIssueJump ||
@@ -1188,6 +1198,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedLetter = null;
       _linkedMetadataFilter = null;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
       _activeSmartListId = null;
@@ -1470,6 +1481,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       selectedLetter: _selectedLetter,
       linkedMetadataFilter: _linkedMetadataFilter,
       collectionStatusScope: _collectionStatusScope,
+      seriesCompletionScope: _seriesCompletionScope,
       quickView: _quickView,
       filterSelection: _filterSelection,
       activeSmartListId: _activeSmartListId,
@@ -1484,6 +1496,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     _selectedLetter = snapshot.selectedLetter;
     _linkedMetadataFilter = snapshot.linkedMetadataFilter;
     _collectionStatusScope = snapshot.collectionStatusScope;
+    _seriesCompletionScope = snapshot.seriesCompletionScope;
     _quickView = snapshot.quickView;
     _filterSelection = snapshot.filterSelection;
     _activeSmartListId = snapshot.activeSmartListId;
@@ -1533,6 +1546,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     if (snapshot.collectionStatusScope != LibraryCollectionStatusScope.all) {
       return snapshot.collectionStatusScope.label;
     }
+    if (snapshot.seriesCompletionScope != LibrarySeriesCompletionScope.all) {
+      return snapshot.seriesCompletionScope.label;
+    }
     if (snapshot.selectedLetter != null) {
       return 'Letter ${snapshot.selectedLetter}';
     }
@@ -1558,6 +1574,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedLetter = null;
       _linkedMetadataFilter = null;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
       _activeSmartListId = null;
@@ -1597,6 +1614,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedLetter = null;
       _linkedMetadataFilter = null;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _scopeHistory = const [];
     });
     _syncRouteState();
@@ -1609,6 +1627,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _filterSelection = LibraryFilterSelection.none;
       _quickView = null;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _searchController.clear();
       _selectedBucket = null;
       _selectedLetter = null;
@@ -1731,6 +1750,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       linkedMetadataValue: _linkedMetadataFilter?.value,
       selectedLetter: _selectedLetter,
       collectionStatusScope: _collectionStatusScope,
+      seriesCompletionScope: _seriesCompletionScope,
       quickView: _quickView,
       filterSelection: _filterSelection,
       sortRules: viewState.sortRules,
@@ -1786,6 +1806,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         ? null
         : LibraryLinkedMetadataFilter(value: routeState.linkedMetadataValue!);
     _collectionStatusScope = routeState.collectionStatusScope;
+    _seriesCompletionScope = routeState.seriesCompletionScope;
     _quickView = routeState.quickView;
     _filterSelection = routeState.filterSelection;
     _activeSmartListId = null;
@@ -1837,6 +1858,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedLetter = null;
       _linkedMetadataFilter = null;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
+      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
       _activeSmartListId = null;

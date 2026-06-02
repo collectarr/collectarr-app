@@ -16,6 +16,7 @@ class LibraryRouteState {
     this.linkedMetadataValue,
     this.selectedLetter,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
     this.quickView,
     this.filterSelection = LibraryFilterSelection.none,
     this.sortRules,
@@ -29,6 +30,7 @@ class LibraryRouteState {
   static const linkedValueKey = 'linkedValue';
   static const letterKey = 'letter';
   static const scopeKey = 'scope';
+  static const seriesScopeKey = 'seriesScope';
   static const quickKey = 'quick';
   static const filtersKey = 'filters';
   static const sortKey = 'sort';
@@ -42,6 +44,7 @@ class LibraryRouteState {
   final String? linkedMetadataValue;
   final String? selectedLetter;
   final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
   final LibraryQuickView? quickView;
   final LibraryFilterSelection filterSelection;
   final List<LibrarySortRule>? sortRules;
@@ -55,6 +58,7 @@ class LibraryRouteState {
         linkedMetadataValue != null ||
         selectedLetter != null ||
         collectionStatusScope != LibraryCollectionStatusScope.all ||
+        seriesCompletionScope != LibrarySeriesCompletionScope.all ||
         quickView != null ||
         filterSelection.hasActiveFilters ||
         (sortRules?.isNotEmpty ?? false) ||
@@ -75,6 +79,12 @@ class LibraryRouteState {
       collectionStatusScope:
           _enumByName(LibraryCollectionStatusScope.values, params[scopeKey]) ??
               LibraryCollectionStatusScope.all,
+      seriesCompletionScope:
+          _enumByName(
+            LibrarySeriesCompletionScope.values,
+            params[seriesScopeKey],
+          ) ??
+          LibrarySeriesCompletionScope.all,
       quickView: _enumByName(LibraryQuickView.values, params[quickKey]),
       filterSelection: _decodeFilterSelection(params[filtersKey]) ??
           LibraryFilterSelection.none,
@@ -107,6 +117,9 @@ class LibraryRouteState {
     }
     if (collectionStatusScope != LibraryCollectionStatusScope.all) {
       params[scopeKey] = collectionStatusScope.name;
+    }
+    if (seriesCompletionScope != LibrarySeriesCompletionScope.all) {
+      params[seriesScopeKey] = seriesCompletionScope.name;
     }
     if (quickView != null) {
       params[quickKey] = quickView!.name;
@@ -150,6 +163,7 @@ class LibraryRouteState {
       linkedMetadataValue: linkedMetadataValue,
       selectedLetter: selectedLetter,
       collectionStatusScope: collectionStatusScope,
+      seriesCompletionScope: seriesCompletionScope,
       quickView: quickView,
       filterSelection: filterSelection,
       sortRules: filteredSortRules == null || filteredSortRules.isEmpty
