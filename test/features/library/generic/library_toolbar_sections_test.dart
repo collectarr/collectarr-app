@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,6 +22,9 @@ void main() {
       onSelectAll: () {},
       onBulkEdit: () {},
       onPrintToPdf: () {},
+      onExportCsvTxt: () {},
+      onBulkDuplicate: () {},
+      onTransferFieldData: () {},
       onBulkMoveToOwned: () {},
       onBulkMoveToWishlist: () {},
       onBulkRemove: () {},
@@ -46,5 +50,43 @@ void main() {
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Update values'), findsOneWidget);
+  });
+
+  testWidgets('selection toolbar overflow exposes CLZ-like action labels', (
+    tester,
+  ) async {
+    final callbacks = (
+      onClearSelection: () {},
+      onSelectAll: () {},
+      onBulkEdit: () {},
+      onPrintToPdf: () {},
+      onExportCsvTxt: () {},
+      onBulkDuplicate: () {},
+      onTransferFieldData: () {},
+      onBulkMoveToOwned: () {},
+      onBulkMoveToWishlist: () {},
+      onBulkRemove: () {},
+      onBulkRefreshMetadata: () {},
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibrarySelectionControls(callbacks: callbacks),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Export to CSV / TXT'), findsOneWidget);
+    expect(find.text('Export to XML'), findsOneWidget);
+    expect(find.text('Export for CovrPrice'), findsOneWidget);
+    expect(find.text('Duplicate'), findsOneWidget);
+    expect(find.text('Loan'), findsOneWidget);
+    expect(find.text('Transfer Field Data'), findsOneWidget);
+    expect(find.text('Update Key Info'), findsOneWidget);
+    expect(find.text('Update from Core'), findsOneWidget);
   });
 }

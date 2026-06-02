@@ -503,10 +503,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                         }
                       },
                       onBulkEdit: () => bulkEditFlow(projection),
-                      onPrintToPdf: projection != null &&
-                              projection.filteredItems.isNotEmpty
-                          ? () => printReportFlow(projection)
-                          : null,
+                        onPrintToPdf: () => printSelectedReportFlow(projection),
+                        onExportCsvTxt: () =>
+                          shareSelectedCollectionFlow(projection),
+                        onBulkDuplicate: () => bulkDuplicateFlow(projection),
+                        onTransferFieldData: () =>
+                          showTransferFieldDataForSelectionFlow(projection),
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                       onBulkMoveToWishlist: () =>
                           bulkMoveToWishlistFlow(projection),

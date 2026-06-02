@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
 
-enum _BulkAction { owned, wishlist, refreshMetadata }
+enum _BulkAction {
+  exportCsvTxt,
+  exportXml,
+  exportCovrPrice,
+  duplicate,
+  loan,
+  transferFieldData,
+  moveToOwned,
+  moveToWishlist,
+  updateValues,
+  updateKeyInfo,
+  updateFromCore,
+}
 
 typedef LibrarySelectionCallbacks = ({
   VoidCallback onClearSelection,
   VoidCallback onSelectAll,
   VoidCallback onBulkEdit,
   VoidCallback? onPrintToPdf,
+  VoidCallback? onExportCsvTxt,
+  VoidCallback? onBulkDuplicate,
+  VoidCallback? onTransferFieldData,
   VoidCallback onBulkMoveToOwned,
   VoidCallback onBulkMoveToWishlist,
   VoidCallback onBulkRemove,
@@ -101,34 +116,115 @@ class LibrarySelectionControls extends StatelessWidget {
           icon: const Icon(Icons.more_horiz, size: 18),
           onSelected: (action) {
             final callback = switch (action) {
-              _BulkAction.owned => callbacks.onBulkMoveToOwned,
-              _BulkAction.wishlist => callbacks.onBulkMoveToWishlist,
-              _BulkAction.refreshMetadata => callbacks.onBulkRefreshMetadata,
+              _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
+              _BulkAction.exportXml => null,
+              _BulkAction.exportCovrPrice => null,
+              _BulkAction.duplicate => callbacks.onBulkDuplicate,
+              _BulkAction.loan => null,
+              _BulkAction.transferFieldData => callbacks.onTransferFieldData,
+              _BulkAction.moveToOwned => callbacks.onBulkMoveToOwned,
+              _BulkAction.moveToWishlist => callbacks.onBulkMoveToWishlist,
+              _BulkAction.updateValues => callbacks.onBulkEdit,
+              _BulkAction.updateKeyInfo => null,
+              _BulkAction.updateFromCore => callbacks.onBulkRefreshMetadata,
             };
-            _dispatchAfterMenuClose(callback);
+            if (callback != null) {
+              _dispatchAfterMenuClose(callback);
+            }
           },
-          itemBuilder: (context) => const [
+          itemBuilder: (context) => [
             PopupMenuItem(
-              value: _BulkAction.owned,
+              value: _BulkAction.exportCsvTxt,
+              enabled: callbacks.onExportCsvTxt != null,
+              child: ListTile(
+                leading: const Icon(Icons.table_view_outlined),
+                title: const Text('Export to CSV / TXT'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: _BulkAction.exportXml,
+              enabled: false,
+              child: ListTile(
+                leading: Icon(Icons.data_object_outlined),
+                title: Text('Export to XML'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: _BulkAction.exportCovrPrice,
+              enabled: false,
+              child: ListTile(
+                leading: Icon(Icons.sell_outlined),
+                title: Text('Export for CovrPrice'),
+                dense: true,
+              ),
+            ),
+            PopupMenuItem(
+              value: _BulkAction.duplicate,
+              enabled: callbacks.onBulkDuplicate != null,
+              child: ListTile(
+                leading: const Icon(Icons.copy_all_outlined),
+                title: const Text('Duplicate'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: _BulkAction.loan,
+              enabled: false,
+              child: ListTile(
+                leading: Icon(Icons.handshake_outlined),
+                title: Text('Loan'),
+                dense: true,
+              ),
+            ),
+            PopupMenuItem(
+              value: _BulkAction.transferFieldData,
+              enabled: callbacks.onTransferFieldData != null,
+              child: ListTile(
+                leading: const Icon(Icons.swap_horiz),
+                title: const Text('Transfer Field Data'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: _BulkAction.moveToOwned,
               child: ListTile(
                 leading: Icon(Icons.inventory_2_outlined),
                 title: Text('Move to owned'),
                 dense: true,
               ),
             ),
-            PopupMenuItem(
-              value: _BulkAction.wishlist,
+            const PopupMenuItem(
+              value: _BulkAction.moveToWishlist,
               child: ListTile(
                 leading: Icon(Icons.star_border),
                 title: Text('Move to wishlist'),
                 dense: true,
               ),
             ),
-            PopupMenuItem(
-              value: _BulkAction.refreshMetadata,
+            const PopupMenuItem(
+              value: _BulkAction.updateValues,
+              child: ListTile(
+                leading: Icon(Icons.tune),
+                title: Text('Update values'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: _BulkAction.updateKeyInfo,
+              enabled: false,
+              child: ListTile(
+                leading: Icon(Icons.key_outlined),
+                title: Text('Update Key Info'),
+                dense: true,
+              ),
+            ),
+            const PopupMenuItem(
+              value: _BulkAction.updateFromCore,
               child: ListTile(
                 leading: Icon(Icons.sync),
-                title: Text('Refresh metadata'),
+                title: Text('Update from Core'),
                 dense: true,
               ),
             ),

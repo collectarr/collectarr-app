@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,5 +94,32 @@ void main() {
     expect(LibraryAlphaJumpBar.matchesLetter('#DRCL', '#'), isTrue);
     expect(LibraryAlphaJumpBar.matchesLetter('Batman', 'B'), isTrue);
     expect(LibraryAlphaJumpBar.matchesLetter('7 Seeds', '#'), isFalse);
+  });
+
+  testWidgets('view toolbar dropdowns use CLZ-style labels', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Row(
+            children: [
+              LibraryViewModeDropdown(
+                viewMode: LibraryViewMode.card,
+                onChanged: (_) {},
+              ),
+              const SizedBox(width: 8),
+              LibraryDetailsLayoutDropdown(
+                detailsLayout: LibraryDetailsLayout.right,
+                onChanged: (_) {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('View'), findsOneWidget);
+    expect(find.text('Vertical Cards'), findsOneWidget);
+    expect(find.text('Layout'), findsOneWidget);
+    expect(find.text('Right'), findsOneWidget);
   });
 }

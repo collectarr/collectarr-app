@@ -204,9 +204,24 @@ class LibraryToolbarSortButton extends StatelessWidget {
                 borderRadius: const BorderRadius.horizontal(
                   left: Radius.circular(4),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                  child: Icon(Icons.sort, size: 16),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.sort, size: 16),
+                      const SizedBox(width: 7),
+                      Text(
+                        activeFavorite?.label ?? 'Sort By',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: palette.textPrimary,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.1,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

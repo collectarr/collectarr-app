@@ -29,8 +29,13 @@ class LibraryViewModeDropdown extends StatelessWidget {
       context,
       textStyle: dropdownTextStyle,
     );
+    final triggerWidth = _measureSplitTriggerWidth(
+      context,
+      leadingLabel: 'View',
+      valueLabel: _viewModeLabel(viewMode),
+    );
     return SizedBox(
-      width: kLibraryToolbarCompactDropdownWidth,
+      width: triggerWidth,
       child: PopupMenuButton<LibraryViewMode>(
         key: _viewModeDropdownKey,
         tooltip: _viewModeTooltip(viewMode),
@@ -71,8 +76,10 @@ class LibraryViewModeDropdown extends StatelessWidget {
               ),
             ),
         ],
-        child: LibraryToolbarCompactDropdownTrigger(
-          icon: _viewModeIcon(viewMode),
+        child: _LibraryToolbarSplitLabelTrigger(
+          leadingLabel: 'View',
+          valueLabel: _viewModeLabel(viewMode),
+          valueIcon: _viewModeIcon(viewMode),
         ),
       ),
     );
@@ -102,8 +109,13 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       context,
       textStyle: dropdownTextStyle,
     );
+    final triggerWidth = _measureSplitTriggerWidth(
+      context,
+      leadingLabel: 'Layout',
+      valueLabel: _detailsLayoutMenuLabel(detailsLayout),
+    );
     return SizedBox(
-      width: kLibraryToolbarCompactDropdownWidth,
+      width: triggerWidth,
       child: PopupMenuButton<LibraryDetailsLayout>(
         key: _detailsLayoutDropdownKey,
         tooltip: _detailsLayoutTooltip(detailsLayout),
@@ -148,8 +160,10 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
               ),
             ),
         ],
-        child: LibraryToolbarCompactDropdownTrigger(
-          icon: _detailsLayoutIcon(detailsLayout),
+        child: _LibraryToolbarSplitLabelTrigger(
+          leadingLabel: 'Layout',
+          valueLabel: _detailsLayoutMenuLabel(detailsLayout),
+          valueIcon: _detailsLayoutIcon(detailsLayout),
         ),
       ),
     );
@@ -311,9 +325,9 @@ double _measureViewDropdownWidth(
 
 String _viewModeLabel(LibraryViewMode mode) {
   return switch (mode) {
-    LibraryViewMode.grid => 'Grid',
-    LibraryViewMode.card => 'Cards',
-    LibraryViewMode.cardFlow => 'Flow',
+    LibraryViewMode.grid => 'Covers',
+    LibraryViewMode.card => 'Vertical Cards',
+    LibraryViewMode.cardFlow => 'Horizontal Cards',
     LibraryViewMode.list => 'List',
     LibraryViewMode.shelves => 'Shelves',
   };
@@ -335,10 +349,91 @@ IconData _viewModeIcon(LibraryViewMode mode) {
 
 String _detailsLayoutMenuLabel(LibraryDetailsLayout layout) {
   return switch (layout) {
-    LibraryDetailsLayout.right => 'Open on right',
-    LibraryDetailsLayout.bottom => 'Open on bottom',
-    LibraryDetailsLayout.hidden => 'Close details',
+    LibraryDetailsLayout.right => 'Right',
+    LibraryDetailsLayout.bottom => 'Bottom',
+    LibraryDetailsLayout.hidden => 'None',
   };
+}
+
+double _measureSplitTriggerWidth(
+  BuildContext context, {
+  required String leadingLabel,
+  required String valueLabel,
+}) {
+  final textScaler = MediaQuery.textScalerOf(context);
+  final labelStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+      );
+  final valueStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+        fontWeight: FontWeight.w800,
+      );
+  final labelPainter = TextPainter(
+    text: TextSpan(text: leadingLabel, style: labelStyle),
+    maxLines: 1,
+    textDirection: Directionality.of(context),
+    textScaler: textScaler,
+  )..layout();
+  final valuePainter = TextPainter(
+    text: TextSpan(text: valueLabel, style: valueStyle),
+    maxLines: 1,
+    textDirection: Directionality.of(context),
+    textScaler: textScaler,
+  )..layout();
+  return 76 + labelPainter.width + valuePainter.width;
+}
+
+class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
+  const _LibraryToolbarSplitLabelTrigger({
+    required this.leadingLabel,
+    required this.valueLabel,
+    required this.valueIcon,
+  });
+
+  final String leadingLabel;
+  final String valueLabel;
+  final IconData valueIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: libraryToolbarDropdownDecoration(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              leadingLabel,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: libraryToolbarControlMutedText(context),
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              valueIcon,
+              size: 15,
+              color: libraryToolbarControlText(context),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              valueLabel,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: libraryToolbarControlText(context),
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.keyboard_arrow_down,
+              size: 16,
+              color: libraryToolbarControlMutedText(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 String _detailsLayoutTooltip(LibraryDetailsLayout layout) {

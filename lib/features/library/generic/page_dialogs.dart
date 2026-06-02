@@ -237,6 +237,34 @@ extension _LibraryPageDialogs on _LibraryPageState {
     );
   }
 
+  void printSelectedReportFlow(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final items = [
+      for (final item in projection.filteredItems)
+        if (_selection.itemIds.contains(item.entry.id)) item.entry,
+    ];
+    if (items.isEmpty) return;
+    printCollectionReport(
+      context: context,
+      title: widget.type.workspace.title,
+      items: items,
+    );
+  }
+
+  void shareSelectedCollectionFlow(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final items = [
+      for (final item in projection.filteredItems)
+        if (_selection.itemIds.contains(item.entry.id)) item.entry,
+    ];
+    if (items.isEmpty) return;
+    showCollectionShareDialog(
+      context: context,
+      title: widget.type.workspace.title,
+      items: items,
+    );
+  }
+
   Future<void> showUserFoldersFlow() async {
     final db = ref.read(localDatabaseProvider);
     await showUserFoldersDialog(context: context, db: db);
@@ -252,6 +280,46 @@ extension _LibraryPageDialogs on _LibraryPageState {
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
         if (item.entry.ownedItemId != null) item.entry.ownedItemId!,
+    };
+    final items = ownedItems
+        .where((o) => !o.isDeleted && visibleIds.contains(o.id))
+        .toList(growable: false);
+    if (items.isEmpty || !mounted) return;
+
+    final mutations = ref.read(collectionMutationsProvider);
+    final result = await showTransferFieldDataDialog(
+      context: context,
+      db: db,
+      type: widget.type,
+      items: items,
+      mutations: mutations,
+      customFieldDefinitions: customFieldDefinitions,
+    );
+    if (result != null && mounted) {
+      ref.invalidate(shelfProvider);
+      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Transfer complete: ${result.transferred} transferred, '
+            '${result.skipped} skipped out of ${result.total}.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> showTransferFieldDataForSelectionFlow(
+    LibraryProjection? projection,
+  ) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final db = ref.read(localDatabaseProvider);
+    final ownedItems = await ref.read(collectionProvider.future);
+    final visibleIds = <String>{
+      for (final item in projection.filteredItems)
+        if (_selection.itemIds.contains(item.entry.id) &&
+            item.entry.ownedItemId != null)
+          item.entry.ownedItemId!,
     };
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))

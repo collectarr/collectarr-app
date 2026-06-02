@@ -164,32 +164,23 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     ],
                     if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
                     if (onEditSort != null)
-                      _LibraryDesktopToolbarSection(
-                        label: 'Sort',
-                        child: LibraryToolbarSortButton(
-                          onPressed: onEditSort!,
-                          sortFavorites: sortFavorites,
-                          activeSortFavoriteId: activeSortFavoriteId,
-                          pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                          onSortFavoriteSelected: onSortFavoriteSelected,
-                          onManageFavoritesPressed: onManageSortFavorites,
-                        ),
+                      LibraryToolbarSortButton(
+                        onPressed: onEditSort!,
+                        sortFavorites: sortFavorites,
+                        activeSortFavoriteId: activeSortFavoriteId,
+                        pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                        onSortFavoriteSelected: onSortFavoriteSelected,
+                        onManageFavoritesPressed: onManageSortFavorites,
                       ),
                     const _LibraryDesktopToolbarSeparator(),
-                    _LibraryDesktopToolbarSection(
-                      label: 'View',
-                      child: LibraryViewModeDropdown(
-                        viewMode: viewState.viewMode,
-                        onChanged: onViewModeChanged,
-                      ),
+                    LibraryViewModeDropdown(
+                      viewMode: viewState.viewMode,
+                      onChanged: onViewModeChanged,
                     ),
                     const _LibraryDesktopToolbarSeparator(),
-                    _LibraryDesktopToolbarSection(
-                      label: 'Details',
-                      child: LibraryDetailsLayoutDropdown(
-                        detailsLayout: viewState.detailsLayout,
-                        onChanged: onDetailsLayoutChanged,
-                      ),
+                    LibraryDetailsLayoutDropdown(
+                      detailsLayout: viewState.detailsLayout,
+                      onChanged: onDetailsLayoutChanged,
                     ),
                     if (viewState.viewMode == LibraryViewMode.list) ...[
                       const _LibraryDesktopToolbarSeparator(),
