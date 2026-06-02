@@ -164,18 +164,19 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
     final label = widget.folderPreset == null
         ? 'Group by'
       : genericFolderPresetLabel(widget.folderPreset!, widget.type);
+    final triggerColor = libraryToolbarMenuText(context);
     final child = widget.iconOnly
         ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
         : Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-            constraints: const BoxConstraints(minHeight: 30),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+            constraints: const BoxConstraints(minHeight: 28),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.folder_open_outlined,
                   size: 16,
-                  color: widget.accent,
+                  color: triggerColor,
                 ),
                 const SizedBox(width: 6),
                 Flexible(
@@ -185,7 +186,7 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: widget.accent,
+                          color: triggerColor,
                         ),
                   ),
                 ),
@@ -193,7 +194,7 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 18,
-                  color: widget.accent,
+                  color: triggerColor,
                 ),
               ],
             ),

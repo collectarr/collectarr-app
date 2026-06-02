@@ -86,7 +86,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     final hideSidebar = onHideSidebar;
     final manageFavorites = onPinnedFolderPresetsChanged;
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+      padding: const EdgeInsets.fromLTRB(6, 6, 6, 4),
       decoration: BoxDecoration(
         color: palette.surface,
         border: Border(bottom: BorderSide(color: palette.divider)),
@@ -96,15 +96,11 @@ class LibrarySidebarHeader extends StatelessWidget {
           Expanded(
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: Color.alphaBlend(
-                  accent.withValues(alpha: 0.08),
-                  palette.surface,
-                ),
-                borderRadius: BorderRadius.circular(4),
+                color: palette.surface,
                 border: Border.all(color: palette.divider),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: LibraryGroupModeMenuButton(
                   type: type,
                   folderPreset:
@@ -237,22 +233,20 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
         onPressed: onPressed,
         visualDensity: VisualDensity.compact,
         padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+        constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
         style: IconButton.styleFrom(
           backgroundColor: active
               ? Color.alphaBlend(
                   resolvedActiveColor.withValues(alpha: 0.16),
                   palette.surface,
                 )
-              : Colors.transparent,
+              : palette.surface,
           side: BorderSide(
             color: active
                 ? resolvedActiveColor.withValues(alpha: 0.6)
                 : palette.divider,
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
+          shape: const RoundedRectangleBorder(),
         ),
         icon: Icon(
           icon,

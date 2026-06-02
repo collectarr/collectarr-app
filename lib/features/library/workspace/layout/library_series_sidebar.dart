@@ -272,46 +272,71 @@ class _SidebarSearchAndSort extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+      padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: dividerColor)),
       ),
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              height: 28,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: dividerColor),
-              ),
-              child: TextField(
-                controller: controller,
-                onChanged: (_) => onChanged(),
-                style: const TextStyle(fontSize: 11),
-                decoration: InputDecoration(
-                  hintText: searchPlaceholder,
-                  hintStyle: TextStyle(fontSize: 11, color: mutedTextColor),
-                  prefixIcon: Icon(Icons.search, size: 14, color: mutedTextColor),
-                  prefixIconConstraints:
-                      const BoxConstraints(minWidth: 24, maxHeight: 22),
-                  suffixIcon: controller.text.isNotEmpty
-                      ? GestureDetector(
-                          onTap: () {
-                            controller.clear();
-                            onChanged();
-                          },
-                          child:
-                              Icon(Icons.close, size: 14, color: mutedTextColor),
-                        )
-                      : null,
-                  suffixIconConstraints:
-                      const BoxConstraints(minWidth: 20, maxHeight: 22),
-                  contentPadding: const EdgeInsets.only(bottom: 12),
-                  border: InputBorder.none,
-                  isDense: true,
-                ),
+            child: SizedBox(
+              height: 30,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        border: Border.all(color: dividerColor),
+                      ),
+                      child: TextField(
+                        controller: controller,
+                        onChanged: (_) => onChanged(),
+                        style: const TextStyle(fontSize: 11),
+                        decoration: InputDecoration(
+                          hintText: searchPlaceholder,
+                          hintStyle: TextStyle(
+                            fontSize: 11,
+                            color: mutedTextColor,
+                          ),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 9,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      border: Border(
+                        top: BorderSide(color: dividerColor),
+                        right: BorderSide(color: dividerColor),
+                        bottom: BorderSide(color: dividerColor),
+                      ),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        if (controller.text.isNotEmpty) {
+                          controller.clear();
+                        }
+                        onChanged();
+                      },
+                      child: SizedBox(
+                        width: 28,
+                        height: 30,
+                        child: Icon(
+                          controller.text.isEmpty ? Icons.search : Icons.close,
+                          size: 15,
+                          color: mutedTextColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -320,6 +345,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
             _SidebarStatusScopeButton(
               accentColor: accentColor,
               mutedTextColor: mutedTextColor,
+              dividerColor: dividerColor,
               scope: seriesCompletionScope,
               onSelected: onSeriesCompletionScopeChanged!,
             ),
@@ -343,52 +369,63 @@ class _SidebarStatusScopeButton extends StatelessWidget {
     required this.scope,
     required this.accentColor,
     required this.mutedTextColor,
+    required this.dividerColor,
     required this.onSelected,
   });
 
   final LibrarySeriesCompletionScope scope;
   final Color accentColor;
   final Color mutedTextColor;
+  final Color dividerColor;
   final ValueChanged<LibrarySeriesCompletionScope> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = scope == LibrarySeriesCompletionScope.all
-        ? mutedTextColor.withValues(alpha: 0.5)
-        : accentColor.withValues(alpha: 0.9);
-    final iconColor = scope == LibrarySeriesCompletionScope.all
-        ? mutedTextColor
-        : accentColor;
     return PopupMenuButton<LibrarySeriesCompletionScope>(
       tooltip: scope.label,
       initialValue: scope,
       onSelected: onSelected,
       position: PopupMenuPosition.under,
       padding: EdgeInsets.zero,
+      shape: const RoundedRectangleBorder(),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Container(
         width: 28,
-        height: 28,
+        height: 30,
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: borderColor),
+          color: Colors.black.withValues(alpha: 0.1),
+          border: Border.all(
+            color: scope == LibrarySeriesCompletionScope.all
+                ? dividerColor
+                : accentColor.withValues(alpha: 0.6),
+          ),
         ),
         alignment: Alignment.center,
-        child: Icon(scope.icon, size: 16, color: iconColor),
+        child: Icon(Icons.checklist_rounded, size: 16, color: mutedTextColor),
       ),
       itemBuilder: (context) => [
         for (final value in LibrarySeriesCompletionScope.values)
           PopupMenuItem<LibrarySeriesCompletionScope>(
             value: value,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
             child: Row(
               children: [
+                Expanded(
+                  child: Text(
+                    value.label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: value == scope
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Icon(
-                  value == scope ? Icons.check : Icons.remove,
+                  Icons.check,
                   size: 16,
                   color: value == scope ? accentColor : Colors.transparent,
                 ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(value.label)),
               ],
             ),
           ),
@@ -418,14 +455,12 @@ class _SidebarSortSwitch extends StatelessWidget {
     return Tooltip(
       message: alphabeticalSelected ? 'Sort by count' : 'Sort alphabetically',
       child: InkWell(
-        borderRadius: BorderRadius.circular(4),
         onTap: onTap,
         child: Container(
-          width: 54,
-          height: 28,
+          width: 52,
+          height: 30,
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(4),
+            color: Colors.black.withValues(alpha: 0.1),
             border: Border.all(color: dividerColor),
           ),
           child: Row(
@@ -441,7 +476,7 @@ class _SidebarSortSwitch extends StatelessWidget {
               Container(width: 1, color: dividerColor),
               Expanded(
                 child: _SidebarSortModeIcon(
-                  icon: Icons.format_list_numbered,
+                  icon: Icons.sort,
                   selected: !alphabeticalSelected,
                   accentColor: accentColor,
                   mutedTextColor: mutedTextColor,
@@ -470,16 +505,14 @@ class _SidebarSortModeIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: selected ? accentColor.withValues(alpha: 0.18) : Colors.transparent,
-        borderRadius: BorderRadius.circular(3),
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        icon,
-        size: 15,
-        color: selected ? accentColor : mutedTextColor,
+    return ColoredBox(
+      color: selected ? accentColor.withValues(alpha: 0.14) : Colors.transparent,
+      child: Center(
+        child: Icon(
+          icon,
+          size: 15,
+          color: selected ? accentColor : mutedTextColor,
+        ),
       ),
     );
   }
@@ -525,26 +558,16 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
-    final selectedBadgeTextColor = ThemeData.estimateBrightnessForColor(
-              widget.selectedBadgeColor,
-            ) ==
-            Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
-    final badgeTextColor = ThemeData.estimateBrightnessForColor(widget.badgeColor) ==
-        Brightness.dark
-      ? Colors.white
-      : Theme.of(context).colorScheme.onSurface;
+    final countTextColor = widget.selected
+        ? widget.selectedBadgeColor
+        : widget.mutedTextColor;
     final gapTooltip = widget.bucket.missingNumbers.isNotEmpty
         ? 'Missing: ${_formatMissingNumbers(widget.bucket.missingNumbers)}'
         : null;
-    final activeIndicatorColor = widget.selected
-      ? widget.selectedBadgeColor
-      : widget.selectedBadgeColor.withValues(alpha: 0.9);
     final bgColor = widget.selected
-        ? widget.selectionColor
+        ? widget.selectionColor.withValues(alpha: 0.26)
         : _hovered
-        ? widget.selectionColor.withValues(alpha: 0.28)
+            ? widget.selectionColor.withValues(alpha: 0.14)
             : Colors.transparent;
     Widget row = MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -557,8 +580,8 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
             color: bgColor,
             border: Border(
               left: BorderSide(
-                color: widget.selected || _hovered
-                    ? activeIndicatorColor
+                color: widget.selected
+                    ? widget.selectedBadgeColor
                     : Colors.transparent,
                 width: 2,
               ),
@@ -566,19 +589,22 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
             ),
           ),
           child: SizedBox(
-            height: 28 + widget.extraVerticalPadding * 2,
+            height: 30 + widget.extraVerticalPadding * 2,
             child: Padding(
-              padding: const EdgeInsets.only(left: 4, right: 6),
+              padding: const EdgeInsets.only(left: 6, right: 8),
               child: Row(
                 children: [
-                  if (widget.leadingInset > 0)
-                    SizedBox(width: widget.leadingInset),
-                  Icon(
-                    widget.selected
-                        ? Icons.folder_open_outlined
-                        : Icons.folder_outlined,
-                    size: 16,
-                    color: widget.selected ? widget.selectedBadgeColor : widget.mutedTextColor,
+                  if (widget.leadingInset > 0) SizedBox(width: widget.leadingInset),
+                  SizedBox(
+                    width: 20,
+                    child: Text(
+                      widget.bucket.count.toString(),
+                      textAlign: TextAlign.left,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: countTextColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -590,25 +616,6 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
                             color: widget.selected ? selectedTextColor : null,
                             fontWeight:
                                 widget.selected ? FontWeight.w800 : FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    constraints: const BoxConstraints(minWidth: 26),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: widget.selected ? widget.selectedBadgeColor : widget.badgeColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: Text(
-                      widget.bucket.count.toString(),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: widget.selected
-                                ? selectedBadgeTextColor
-                                : badgeTextColor,
-                            fontWeight: FontWeight.w800,
                           ),
                     ),
                   ),
