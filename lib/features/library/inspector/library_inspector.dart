@@ -19,8 +19,8 @@ import 'package:collectarr_app/features/library/inspector/inspector_location_sec
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -435,19 +435,15 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           trackingEntry: activeTrackingEntry,
           accent: widget.accent,
         ),
-      if (!usesCustomInspectorPanel && activeOwnedItem != null)
-        InspectorPersonalDetailsEditor(
-          ownedItem: activeOwnedItem,
-          accent: widget.accent,
-        ),
-      if (!usesCustomInspectorPanel && activeTrackingEntry != null)
-        InspectorTrackingDetailsEditor(
-          itemId: selected.id,
-          trackingEntry: activeTrackingEntry,
-          profile: widget.type.trackingProfile,
-          editions: selected.editions,
-          accent: widget.accent,
-        ),
+      ...?(!usesCustomInspectorPanel
+          ? buildLibraryInspectorEditorSections(
+              type: widget.type,
+              entry: selected,
+              accent: widget.accent,
+              ownedItem: activeOwnedItem,
+              trackingEntry: activeTrackingEntry,
+            )
+          : null),
       if (activeOwnedItem != null && widget.db != null)
         InspectorCustomFieldsSection(
           ownedItemId: activeOwnedItem.id,
@@ -463,8 +459,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           db: widget.db!,
           accent: widget.accent,
         ),
-      ...widget.type.presentation.builder.buildInspectorSections(
+      ...buildLibraryInspectorKindSections(
         context: context,
+        type: widget.type,
         entry: selected,
         accent: widget.accent,
       ),

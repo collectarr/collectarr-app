@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
@@ -182,19 +182,13 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                       trackingEntry: activeTrackingEntry,
                       accent: widget.accent,
                     ),
-                    if (activeOwnedItem != null)
-                      InspectorPersonalDetailsEditor(
-                        ownedItem: activeOwnedItem,
-                        accent: widget.accent,
-                      ),
-                    if (activeTrackingEntry != null)
-                      InspectorTrackingDetailsEditor(
-                        itemId: widget.entry.id,
-                        trackingEntry: activeTrackingEntry,
-                        profile: widget.type.trackingProfile,
-                        editions: widget.entry.editions,
-                        accent: widget.accent,
-                      ),
+                    ...buildLibraryInspectorEditorSections(
+                      type: widget.type,
+                      entry: widget.entry,
+                      accent: widget.accent,
+                      ownedItem: activeOwnedItem,
+                      trackingEntry: activeTrackingEntry,
+                    ),
                     const SizedBox(height: 12),
                   ],
                   if (activeBundleReleaseId != null) ...[
@@ -220,8 +214,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     trailerUrls: widget.entry.trailerUrls,
                     accent: widget.accent,
                   ),
-                  ...widget.type.presentation.builder.buildInspectorSections(
+                  ...buildLibraryInspectorKindSections(
                     context: context,
+                    type: widget.type,
                     entry: widget.entry,
                     accent: widget.accent,
                   ),
