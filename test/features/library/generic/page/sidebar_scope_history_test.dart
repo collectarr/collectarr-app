@@ -43,6 +43,22 @@ void main() {
     expect(history, isEmpty);
   });
 
+  test('updateLibrarySidebarScopeHistory keeps previous bucket on group drilldown', () {
+    final previous = buildScope(
+      groupMode: LibraryGroupMode.series,
+      bucket: 'Batman',
+    );
+    final next = buildScope(groupMode: LibraryGroupMode.publisher);
+
+    final history = updateLibrarySidebarScopeHistory(
+      history: const [],
+      previous: previous,
+      next: next,
+    );
+
+    expect(history, [previous]);
+  });
+
   test('buildLibrarySidebarBreadcrumbs avoids duplicating current label', () {
     final current = buildScope(bucket: 'Batman');
     final breadcrumbs = buildLibrarySidebarBreadcrumbs(

@@ -21,8 +21,10 @@ class LibrarySidebar extends StatelessWidget {
     required this.onSelected,
     required this.onGroupModeChanged,
     this.breadcrumbs = const [],
+    this.ancestorScopeLabels = const [],
     this.onNavigateBack,
     this.onNavigateToBreadcrumb,
+    this.onNavigateToAncestorScope,
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
@@ -53,8 +55,10 @@ class LibrarySidebar extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
   final List<String> breadcrumbs;
+  final List<String> ancestorScopeLabels;
   final VoidCallback? onNavigateBack;
   final ValueChanged<int>? onNavigateToBreadcrumb;
+  final ValueChanged<int>? onNavigateToAncestorScope;
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
@@ -95,6 +99,8 @@ class LibrarySidebar extends StatelessWidget {
           'Search ${genericGroupModeLabel(groupMode, type).toLowerCase()}...',
       collectionStatusScope: collectionStatusScope,
       onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
+      ancestorScopeLabels: ancestorScopeLabels,
+      onNavigateToAncestorScope: onNavigateToAncestorScope,
       headerOverride: LibrarySidebarHeader(
         type: type,
         groupMode: groupMode,

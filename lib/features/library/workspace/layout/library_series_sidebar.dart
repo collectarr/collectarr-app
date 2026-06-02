@@ -58,6 +58,8 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.searchPlaceholder = 'Find folders',
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.onCollectionStatusScopeChanged,
+    this.ancestorScopeLabels = const <String>[],
+    this.onNavigateToAncestorScope,
   });
 
   final List<LibrarySeriesBucket> series;
@@ -78,6 +80,8 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final String searchPlaceholder;
   final LibraryCollectionStatusScope collectionStatusScope;
   final ValueChanged<LibraryCollectionStatusScope>? onCollectionStatusScopeChanged;
+  final List<String> ancestorScopeLabels;
+  final ValueChanged<int>? onNavigateToAncestorScope;
 
   @override
   ConsumerState<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
@@ -183,9 +187,21 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: filtered.length,
+              itemCount: widget.ancestorScopeLabels.length + filtered.length,
               itemBuilder: (context, index) {
-                final bucket = filtered[index];
+                if (index < widget.ancestorScopeLabels.length) {
+                  return _SidebarAncestorScopeRow(
+                    label: widget.ancestorScopeLabels[index],
+                    depth: index,
+                    dividerColor: resolvedDividerColor,
+                    accentColor: widget.accentColor,
+                    mutedTextColor: resolvedMutedTextColor,
+                    onTap: widget.onNavigateToAncestorScope == null
+                        ? null
+                        : () => widget.onNavigateToAncestorScope!(index),
+                  );
+                }
+                final bucket = filtered[index - widget.ancestorScopeLabels.length];
                 final selected = bucket.title == widget.selectedSeries;
                 final rowPadding = ref.watch(
                   uiPreferencesProvider.select((p) => p.sidebarRowPadding),
@@ -199,6 +215,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                   selectedBadgeColor: widget.selectedBadgeColor,
                   badgeColor: resolvedBadgeColor,
                   mutedTextColor: resolvedMutedTextColor,
+                  leadingInset: widget.ancestorScopeLabels.isEmpty
+                      ? 0
+                      : 14.0 + widget.ancestorScopeLabels.length * 12.0,
                   extraVerticalPadding: rowPadding.clamp(1.0, 3.0),
                 );
               },
@@ -461,6 +480,7 @@ class _LibrarySeriesRow extends StatefulWidget {
     required this.selectedBadgeColor,
     required this.badgeColor,
     required this.mutedTextColor,
+    this.leadingInset = 0,
     this.extraVerticalPadding = 4.0,
   });
 
@@ -472,6 +492,7 @@ class _LibrarySeriesRow extends StatefulWidget {
   final Color selectedBadgeColor;
   final Color badgeColor;
   final Color mutedTextColor;
+  final double leadingInset;
   final double extraVerticalPadding;
 
   @override
@@ -535,6 +556,8 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
               padding: const EdgeInsets.only(left: 4, right: 6),
               child: Row(
                 children: [
+                  if (widget.leadingInset > 0)
+                    SizedBox(width: widget.leadingInset),
                   Icon(
                     widget.selected
                         ? Icons.folder_open_outlined
@@ -589,6 +612,62 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
       );
     }
     return row;
+  }
+}
+
+class _SidebarAncestorScopeRow extends StatelessWidget {
+  const _SidebarAncestorScopeRow({
+    required this.label,
+    required this.depth,
+    required this.dividerColor,
+    required this.accentColor,
+    required this.mutedTextColor,
+    this.onTap,
+  });
+
+  final String label;
+  final int depth;
+  final Color dividerColor;
+  final Color accentColor;
+  final Color mutedTextColor;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: dividerColor)),
+      ),
+      child: SizedBox(
+        height: 30,
+        child: Padding(
+          padding: EdgeInsets.only(left: 8 + depth * 12, right: 8),
+          child: Row(
+            children: [
+              Icon(Icons.folder_open_outlined, size: 15, color: accentColor),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: mutedTextColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+              if (onTap != null)
+                Icon(Icons.chevron_right, size: 16, color: mutedTextColor),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (onTap == null) {
+      return row;
+    }
+    return InkWell(onTap: onTap, child: row);
   }
 }
 

@@ -60,8 +60,10 @@ class LibraryBody extends StatelessWidget {
     required this.onBucketChanged,
     required this.onGroupModeChanged,
     required this.sidebarBreadcrumbs,
+    this.sidebarAncestorScopeLabels = const [],
     this.onSidebarNavigateBack,
     this.onSidebarNavigateToBreadcrumb,
+    this.onSidebarNavigateToAncestorScope,
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
@@ -124,8 +126,10 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<String?> onBucketChanged;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
   final List<String> sidebarBreadcrumbs;
+  final List<String> sidebarAncestorScopeLabels;
   final VoidCallback? onSidebarNavigateBack;
   final ValueChanged<int>? onSidebarNavigateToBreadcrumb;
+  final ValueChanged<int>? onSidebarNavigateToAncestorScope;
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
@@ -323,8 +327,11 @@ class LibraryBody extends StatelessWidget {
                     ),
                     onGroupModeChanged: onGroupModeChanged,
                     breadcrumbs: sidebarBreadcrumbs,
+                    ancestorScopeLabels: sidebarAncestorScopeLabels,
                     onNavigateBack: onSidebarNavigateBack,
                     onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
+                    onNavigateToAncestorScope:
+                      onSidebarNavigateToAncestorScope,
                     searchQuery: searchQuery,
                     activeSmartListName: activeSmartListName,
                     quickView: quickView,

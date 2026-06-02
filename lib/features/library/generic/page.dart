@@ -630,9 +630,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onItemContextMenu: (item, position) =>
           handleItemContextMenu(projection, item, position),
       sidebarBreadcrumbs: _sidebarBreadcrumbs,
+        sidebarAncestorScopeLabels: _sidebarAncestorScopeLabels,
       onSidebarNavigateBack:
           _scopeHistory.isEmpty ? null : _navigateSidebarBack,
       onSidebarNavigateToBreadcrumb: _navigateSidebarToBreadcrumb,
+        onSidebarNavigateToAncestorScope: _navigateSidebarToAncestorScope,
       searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
       activeSmartListName: _activeSmartListName,
       quickView: _quickView,
@@ -833,6 +835,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       quickView: _quickView,
       collectionStatusScope: _collectionStatusScope,
       groupMode: mode,
+      bucketScopeFilters: _sidebarBucketScopeFilters,
       overrideBuckets: facetBuckets?.buckets,
       constrainedItemIds: constrainedItemIds,
       filterSelection: _filterSelection,
@@ -1304,6 +1307,37 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
+  List<LibraryBucketScopeFilter> get _sidebarBucketScopeFilters {
+    return [
+      for (final snapshot in _scopeHistory)
+        if (snapshot.selectedBucket != null)
+          LibraryBucketScopeFilter(
+            groupMode: snapshot.groupMode,
+            bucket: snapshot.selectedBucket!,
+          ),
+    ];
+  }
+
+  List<String> get _sidebarAncestorScopeLabels {
+    return [
+      for (final snapshot in _scopeHistory)
+        if (snapshot.selectedBucket != null) _sidebarScopeLabel(snapshot),
+    ];
+  }
+
+  void _navigateSidebarToAncestorScope(int index) {
+    final bucketIndexes = <int>[
+      for (var historyIndex = 0;
+          historyIndex < _scopeHistory.length;
+          historyIndex += 1)
+        if (_scopeHistory[historyIndex].selectedBucket != null) historyIndex,
+    ];
+    if (index < 0 || index >= bucketIndexes.length) {
+      return;
+    }
+    _navigateSidebarToBreadcrumb(bucketIndexes[index] + 1);
+  }
+
   void _setSelectedBucket(String? bucket) {
     _mutateSidebarScope(() {
       _selectedBucket = bucket;
@@ -1580,16 +1614,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _setGroupMode(LibraryGroupMode mode) {
-    setState(() {
+    _mutateSidebarScope(() {
       _groupMode = mode;
       _selectedBucket = null;
-      _scopeHistory = const [];
-      final shelfState = ref.read(shelfProvider).asData?.value;
-      if (shelfState != null) {
-        _ensureFacetBucketsLoaded(shelfState, mode);
-      }
     });
-    _syncRouteState();
+    final shelfState = ref.read(shelfProvider).asData?.value;
+    if (shelfState != null) {
+      _ensureFacetBucketsLoaded(shelfState, mode);
+    }
     unawaited(_viewPrefs.writeGroupMode(mode));
   }
 

@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
@@ -123,6 +124,77 @@ void main() {
     expect(
       projection.filteredItems.map((item) => item.entry.title),
       ['Owned earlier issue', 'Owned later issue', 'Missing issue'],
+    );
+  });
+
+  test('projection applies ancestor bucket scopes to current group buckets', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'movie-1',
+          catalogItem: CatalogItem(
+            id: 'movie-1',
+            kind: 'movie',
+            title: 'Alpha 2020',
+            series: const CatalogSeriesDetails(seriesTitle: 'Alpha'),
+            releaseDate: DateTime.utc(2020, 1, 1),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'movie-2',
+          catalogItem: CatalogItem(
+            id: 'movie-2',
+            kind: 'movie',
+            title: 'Alpha 2021',
+            series: const CatalogSeriesDetails(seriesTitle: 'Alpha'),
+            releaseDate: DateTime.utc(2021, 1, 1),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'movie-3',
+          catalogItem: CatalogItem(
+            id: 'movie-3',
+            kind: 'movie',
+            title: 'Beta 2021',
+            series: const CatalogSeriesDetails(seriesTitle: 'Beta'),
+            releaseDate: DateTime.utc(2021, 1, 1),
+          ),
+        ),
+      ],
+      ownedCount: 0,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = LibraryProjection.fromShelf(
+      shelf: shelf,
+      type: moviesLibraryConfig,
+      adapter: moviesMediaAdapter,
+      viewState: _defaultViewState,
+      query: '',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.year,
+      bucketScopeFilters: const [
+        LibraryBucketScopeFilter(
+          groupMode: LibraryGroupMode.series,
+          bucket: 'Alpha',
+        ),
+      ],
+    );
+
+    expect(
+      projection.filteredItems.map((item) => item.entry.title),
+      ['Alpha 2020', 'Alpha 2021'],
+    );
+    expect(
+      projection.buckets.map((bucket) => bucket.title),
+      ['[All Movies]', '2020', '2021'],
     );
   });
 

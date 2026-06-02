@@ -26,6 +26,16 @@ class LibraryLinkedMetadataFilter {
   String get chipLabel => 'Metadata: $value';
 }
 
+class LibraryBucketScopeFilter {
+  const LibraryBucketScopeFilter({
+    required this.groupMode,
+    required this.bucket,
+  });
+
+  final LibraryGroupMode groupMode;
+  final String bucket;
+}
+
 LibraryGroupModeDefinition? libraryGroupModeDefinitionOrNull(
   LibraryGroupMode mode, [
   LibraryTypeConfig? type,
@@ -121,6 +131,7 @@ class LibraryProjection {
     LibraryCollectionStatusScope collectionStatusScope =
         LibraryCollectionStatusScope.all,
     required LibraryGroupMode groupMode,
+    List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
@@ -130,10 +141,17 @@ class LibraryProjection {
     Set<String> activeLoanOwnedItemIds = const {},
   }) {
     final allItems = libraryItemsForShelf(shelf, type);
+    final scopedBucketItems = [
+      for (final item in allItems)
+        if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&
+            _matchesConstrainedItemIds(item, constrainedItemIds))
+          item,
+    ];
     final normalizedQuery = query.trim().toLowerCase();
     final filteredItems = [
       for (final item in allItems)
-        if (_matchesBucket(item, type, groupMode, selectedBucket) &&
+        if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&
+            _matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesConstrainedItemIds(item, constrainedItemIds) &&
             _matchesCollectionStatusScope(item, collectionStatusScope) &&
             _matchesQuickView(item, quickView) &&
@@ -164,7 +182,8 @@ class LibraryProjection {
       allItems: allItems,
       filteredItems: filteredItems,
       buckets:
-          overrideBuckets ?? libraryBucketsForItems(allItems, type, groupMode),
+          overrideBuckets ??
+              libraryBucketsForItems(scopedBucketItems, type, groupMode),
       selectedItem: librarySelectedItem(filteredItems, selectedItemId),
       counts: counts,
     );
@@ -317,6 +336,19 @@ bool _matchesBucket(
 ) {
   return selectedBucket == null ||
       genericBucketForItemMode(item, type, groupMode) == selectedBucket;
+}
+
+bool _matchesBucketScopeFilters(
+  LibraryProjectionItem item,
+  LibraryTypeConfig type,
+  List<LibraryBucketScopeFilter> filters,
+) {
+  for (final filter in filters) {
+    if (genericBucketForItemMode(item, type, filter.groupMode) != filter.bucket) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool _matchesConstrainedItemIds(
