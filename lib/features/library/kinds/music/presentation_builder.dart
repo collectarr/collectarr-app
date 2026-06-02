@@ -126,7 +126,6 @@ class MusicLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final metadata = entry.metadata;
     final music = entry.music;
     final series = entry.series;
     return LibraryMetadataPresentation(
@@ -176,22 +175,22 @@ class MusicLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
         if (music?.releaseStatus != null)
           LibraryInspectorFactData('Release Status', music!.releaseStatus!),
-        if (metadata.country != null)
-          LibraryInspectorFactData('Country', metadata.country!),
-        if (metadata.language != null)
-          LibraryInspectorFactData('Language', metadata.language!),
-        if (metadata.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', metadata.audienceRating!),
+        if (entry.country != null)
+          LibraryInspectorFactData('Country', entry.country!),
+        if (entry.language != null)
+          LibraryInspectorFactData('Language', entry.language!),
+        if (entry.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
         ),
       ],
-      creators: metadata.creators ?? const <Map<String, dynamic>>[],
-      characters: metadata.characters ?? const <String>[],
-      storyArcs: metadata.storyArcs ?? const <String>[],
-      genres: metadata.genres ?? const <String>[],
+      creators: entry.creators ?? const <Map<String, dynamic>>[],
+      characters: entry.characters ?? const <String>[],
+      storyArcs: entry.storyArcs ?? const <String>[],
+      genres: entry.genres ?? const <String>[],
     );
   }
 

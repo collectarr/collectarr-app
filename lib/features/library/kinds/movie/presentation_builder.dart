@@ -24,7 +24,6 @@ class VideoLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final metadata = entry.metadata;
     final series = entry.series;
     final publishing = entry.publishing;
     final video = entry.video;
@@ -85,14 +84,14 @@ class VideoLibraryMediaPresentationBuilder
         ),
         if (video?.runtimeMinutes != null)
           LibraryInspectorFactData('Runtime', '${video!.runtimeMinutes} min'),
-        if (metadata.country != null)
-          LibraryInspectorFactData('Country', metadata.country!),
-        if (metadata.language != null)
-          LibraryInspectorFactData('Language', metadata.language!),
-        if (metadata.ageRating != null)
-          LibraryInspectorFactData('Age Rating', metadata.ageRating!),
-        if (metadata.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', metadata.audienceRating!),
+        if (entry.country != null)
+          LibraryInspectorFactData('Country', entry.country!),
+        if (entry.language != null)
+          LibraryInspectorFactData('Language', entry.language!),
+        if (entry.ageRating != null)
+          LibraryInspectorFactData('Age Rating', entry.ageRating!),
+        if (entry.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         if (publishing?.subtitle != null)
           LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
@@ -101,10 +100,10 @@ class VideoLibraryMediaPresentationBuilder
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
         ),
       ],
-      creators: metadata.creators ?? const <Map<String, dynamic>>[],
-      characters: metadata.characters ?? const <String>[],
-      storyArcs: metadata.storyArcs ?? const <String>[],
-      genres: metadata.genres ?? const <String>[],
+      creators: entry.creators ?? const <Map<String, dynamic>>[],
+      characters: entry.characters ?? const <String>[],
+      storyArcs: entry.storyArcs ?? const <String>[],
+      genres: entry.genres ?? const <String>[],
     );
   }
 }

@@ -20,7 +20,6 @@ class GameLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final metadata = entry.metadata;
     final referenceRelease = resolveLibraryEntryReferenceRelease(entry);
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(entry);
@@ -39,8 +38,8 @@ class GameLibraryMediaPresentationBuilder
           ),
         if (entry.barcode != null)
           LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
-        if (metadata.ageRating != null)
-          LibraryInspectorFactData('Age Rating', metadata.ageRating!),
+        if (entry.ageRating != null)
+          LibraryInspectorFactData('Age Rating', entry.ageRating!),
       ],
       contextFacts: [
         if (referenceVariant?.variantType case final variantType?
@@ -66,22 +65,22 @@ class GameLibraryMediaPresentationBuilder
                 entry.releaseYear?.toString(),
           ),
         ),
-        if (metadata.country != null)
-          LibraryInspectorFactData('Country', metadata.country!),
-        if (metadata.language != null)
-          LibraryInspectorFactData('Language', metadata.language!),
-        if (metadata.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', metadata.audienceRating!),
+        if (entry.country != null)
+          LibraryInspectorFactData('Country', entry.country!),
+        if (entry.language != null)
+          LibraryInspectorFactData('Language', entry.language!),
+        if (entry.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
         ),
       ],
-      creators: metadata.creators ?? const <Map<String, dynamic>>[],
-      characters: metadata.characters ?? const <String>[],
-      storyArcs: metadata.storyArcs ?? const <String>[],
-      genres: metadata.genres ?? const <String>[],
+      creators: entry.creators ?? const <Map<String, dynamic>>[],
+      characters: entry.characters ?? const <String>[],
+      storyArcs: entry.storyArcs ?? const <String>[],
+      genres: entry.genres ?? const <String>[],
     );
   }
 }

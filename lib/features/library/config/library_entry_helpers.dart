@@ -194,47 +194,47 @@ resolveLibraryEntryReferenceRelease(
 }
 
 List<Map<String, dynamic>>? libraryEntryCreators(LibraryWorkspaceEntry entry) {
-  return entry.metadata.creators;
+  return entry.creators;
 }
 
 List<String>? libraryEntryCharacters(LibraryWorkspaceEntry entry) {
-  return entry.metadata.characters;
+  return entry.characters;
 }
 
 List<String>? libraryEntryStoryArcs(LibraryWorkspaceEntry entry) {
-  return entry.metadata.storyArcs;
+  return entry.storyArcs;
 }
 
 List<String>? libraryEntryGenres(LibraryWorkspaceEntry entry) {
-  return entry.metadata.genres;
+  return entry.genres;
 }
 
 String? libraryEntryCountry(LibraryWorkspaceEntry entry) {
-  return entry.metadata.country;
+  return entry.country;
 }
 
 String? libraryEntryLanguage(LibraryWorkspaceEntry entry) {
-  return entry.metadata.language;
+  return entry.language;
 }
 
 String? libraryEntryAgeRating(LibraryWorkspaceEntry entry) {
-  return entry.metadata.ageRating;
+  return entry.ageRating;
 }
 
 String? libraryEntryAudienceRating(LibraryWorkspaceEntry entry) {
-  return entry.metadata.audienceRating;
+  return entry.audienceRating;
 }
 
 String? libraryEntryPlotSummary(LibraryWorkspaceEntry entry) {
-  return entry.metadata.plotSummary;
+  return entry.plotSummary;
 }
 
 String? libraryEntryPlotDescription(LibraryWorkspaceEntry entry) {
-  return entry.metadata.plotDescription;
+  return entry.plotDescription;
 }
 
 List<String>? libraryEntryRawPlatforms(LibraryWorkspaceEntry entry) {
-  return entry.game?.platforms ?? entry.metadata.rawPlatforms;
+  return entry.game?.platforms ?? entry.rawPlatforms;
 }
 
 List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {

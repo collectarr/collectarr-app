@@ -27,7 +27,6 @@ enum ReportColumn {
   final double flex;
 
   String extractFrom(LibraryWorkspaceEntry item) {
-    final metadata = item.metadata;
     return switch (this) {
       ReportColumn.title => item.title,
       ReportColumn.series => item.series?.seriesTitle ?? '',
@@ -40,7 +39,7 @@ enum ReportColumn {
       ReportColumn.year => item.releaseYear?.toString() ?? '',
       ReportColumn.format => item.editions.firstOrNull?.physicalFormatLabel ?? '',
       ReportColumn.creator =>
-        (metadata.creators?.firstOrNull?['name']?.toString()) ?? '',
+        (item.creators?.firstOrNull?['name']?.toString()) ?? '',
       ReportColumn.tags => item.tags ?? '',
       ReportColumn.location => item.locationPath ?? '',
     };

@@ -87,10 +87,10 @@ class ComicInspectorHero extends ConsumerWidget {
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Not owned';
-    final synopsis = entry.metadata.plotSummary?.trim().isNotEmpty == true
-      ? entry.metadata.plotSummary?.trim()
+    final synopsis = entry.plotSummary?.trim().isNotEmpty == true
+      ? entry.plotSummary?.trim()
         : entry.synopsis?.trim();
-    final plotDescription = entry.metadata.plotDescription?.trim();
+    final plotDescription = entry.plotDescription?.trim();
     final hasBackCover = localBack != null || ownedItemId != null;
     final slabLabel = librarySlabMarkerLabel(
       ownedItem?.rawOrSlabbed,
