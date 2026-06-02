@@ -456,22 +456,22 @@ _MetadataHealth _buildMetadataHealth(
   addSignal(
     present: metadata.creators.isNotEmpty,
     weight: 12,
-    missingLabel: 'Creators',
+    missingLabel: metadata.labels.creators,
   );
   addSignal(
     present: metadata.characters.isNotEmpty,
     weight: 6,
-    missingLabel: 'Characters',
+    missingLabel: metadata.labels.characters,
   );
   addSignal(
     present: metadata.storyArcs.isNotEmpty,
     weight: 4,
-    missingLabel: 'Story arcs',
+    missingLabel: metadata.labels.storyArcsInline,
   );
   addSignal(
     present: metadata.genres.isNotEmpty,
     weight: 4,
-    missingLabel: 'Genres',
+    missingLabel: metadata.labels.genres,
   );
   addSignal(
     present: !(entry.hasMissingMetadata || entry.hasMissingCover),

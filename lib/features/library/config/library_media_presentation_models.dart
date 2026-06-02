@@ -423,6 +423,7 @@ class LibraryMetadataPresentation {
     required this.characters,
     required this.storyArcs,
     required this.genres,
+    this.labels = const LibraryMetadataLabels(),
   });
 
   final List<LibraryInspectorFactData> identityFacts;
@@ -431,6 +432,7 @@ class LibraryMetadataPresentation {
   final List<String> characters;
   final List<String> storyArcs;
   final List<String> genres;
+  final LibraryMetadataLabels labels;
 
   List<LibraryInspectorFactData> get allFacts => [
         ...identityFacts,
@@ -439,6 +441,28 @@ class LibraryMetadataPresentation {
 
   bool get hasCredits =>
       creators.isNotEmpty || characters.isNotEmpty || storyArcs.isNotEmpty;
+}
+
+class LibraryMetadataLabels {
+  const LibraryMetadataLabels({
+    this.identitySectionTitle = 'Catalog identity',
+    this.contextSectionTitle = 'Catalog context',
+    this.creditsSectionTitle = 'Credits & Discovery',
+    this.creators = 'Creators',
+    this.characters = 'Characters',
+    this.storyArcs = 'Story Arcs',
+    this.storyArcsInline = 'Story arcs',
+    this.genres = 'Genres',
+  });
+
+  final String identitySectionTitle;
+  final String contextSectionTitle;
+  final String creditsSectionTitle;
+  final String creators;
+  final String characters;
+  final String storyArcs;
+  final String storyArcsInline;
+  final String genres;
 }
 
 typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
@@ -560,7 +584,7 @@ abstract class LibraryMediaPresentationBuilder {
       return fact;
     }).toList(growable: false);
     return LibraryInspectorSection(
-      title: 'Catalog identity',
+      title: presentation.labels.identitySectionTitle,
       accentColor: accent,
       children: [
         LibraryInspectorFactGrid(facts: identityFacts),
@@ -586,14 +610,14 @@ abstract class LibraryMediaPresentationBuilder {
       tapFor: _tapResolver(onFilterByValue),
     );
     return LibraryInspectorSection(
-      title: 'Catalog context',
+      title: presentation.labels.contextSectionTitle,
       accentColor: accent,
       children: [
         LibraryInspectorFactGrid(facts: presentation.contextFacts),
         if (presentation.genres.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(
-            label: 'Genres',
+            label: presentation.labels.genres,
             values: presentation.genres,
             onValueTap: onFilterByValue,
           ),
@@ -623,12 +647,12 @@ abstract class LibraryMediaPresentationBuilder {
       return const SizedBox.shrink();
     }
     return LibraryInspectorSection(
-      title: 'Credits & Discovery',
+      title: presentation.labels.creditsSectionTitle,
       accentColor: accent,
       children: [
         if (presentation.creators.isNotEmpty)
           LibraryMetadataCreditsList(
-            title: 'Creators',
+            title: presentation.labels.creators,
             credits: presentation.creators,
             onValueTap: (value) => context.push(
               '/creator/${Uri.encodeComponent(value)}',
@@ -637,7 +661,7 @@ abstract class LibraryMediaPresentationBuilder {
         if (presentation.characters.isNotEmpty) ...[
           if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
           LibraryInspectorChipWrap(
-            label: 'Characters',
+            label: presentation.labels.characters,
             values: presentation.characters,
             onValueTap: (value) => context.push(
               '/character/${Uri.encodeComponent(value)}',
@@ -649,7 +673,7 @@ abstract class LibraryMediaPresentationBuilder {
               presentation.characters.isNotEmpty)
             const SizedBox(height: 8),
           LibraryInspectorChipWrap(
-            label: 'Story Arcs',
+            label: presentation.labels.storyArcs,
             values: presentation.storyArcs,
             onValueTap: (value) => context.push(
               '/story-arc/${Uri.encodeComponent(value)}',

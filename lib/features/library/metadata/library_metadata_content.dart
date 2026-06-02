@@ -58,7 +58,7 @@ class LibraryMetadataContent extends StatelessWidget {
         if (presentation.creators.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryMetadataCreditsList(
-            title: 'Creators',
+            title: presentation.labels.creators,
             credits: presentation.creators,
             onValueTap: onFilterByValue,
           ),
@@ -66,7 +66,7 @@ class LibraryMetadataContent extends StatelessWidget {
         if (presentation.characters.isNotEmpty) ...[
           const SizedBox(height: 8),
           _LibraryMetadataValueList(
-            label: 'Characters',
+            label: presentation.labels.characters,
             values: presentation.characters,
             onValueTap: onFilterByValue,
           ),
@@ -74,7 +74,7 @@ class LibraryMetadataContent extends StatelessWidget {
         if (presentation.storyArcs.isNotEmpty) ...[
           const SizedBox(height: 8),
           _LibraryMetadataValueList(
-            label: 'Story arcs',
+            label: presentation.labels.storyArcsInline,
             values: presentation.storyArcs,
             onValueTap: onFilterByValue,
           ),
@@ -82,7 +82,7 @@ class LibraryMetadataContent extends StatelessWidget {
         if (presentation.genres.isNotEmpty) ...[
           const SizedBox(height: 8),
           _LibraryMetadataValueList(
-            label: 'Genres',
+            label: presentation.labels.genres,
             values: presentation.genres,
             onValueTap: onFilterByValue,
           ),
