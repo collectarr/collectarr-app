@@ -66,8 +66,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onPrintReport,
     this.onShareCollection,
     this.groupMode,
-    this.pinnedGroupModes = const {},
-    this.onPinnedGroupModesChanged,
+    this.folderPreset,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
   });
 
@@ -112,10 +113,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final LibraryFolderPreset? folderPreset;
   final LibraryGroupMode? groupMode;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<Set<LibraryGroupMode>>? onPinnedGroupModesChanged;
-  final ValueChanged<LibraryGroupMode>? onGroupModeChanged;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
+  final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -146,16 +148,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         onGroupModeChanged != null) ...[
                       LibraryGroupModeMenuButton(
                         type: type,
-                        groupMode: groupMode,
+                        folderPreset: folderPreset,
                         accent: libraryAccentForKind(type.workspace.kind),
-                        icon: groupMode == null
+                        icon: folderPreset == null
                             ? Icons.account_tree_outlined
-                          : genericGroupModeIcon(groupMode!, type),
+                          : genericFolderPresetIcon(folderPreset!, type),
                         onChanged: onGroupModeChanged!,
                         sidebarVisible: false,
                         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                        pinnedGroupModes: pinnedGroupModes,
-                        onPinnedModesChanged: onPinnedGroupModesChanged,
+                        pinnedFolderPresets: pinnedFolderPresets,
+                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
                         iconOnly: true,
                       ),
                       const SizedBox(width: 4),

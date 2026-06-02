@@ -100,7 +100,7 @@ const moviesLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.ageRating,
-    label: 'Age Rating',
+    label: 'Age',
     sidebarTitle: 'Age Ratings',
     icon: Icons.verified_user_outlined,
     drilldownChildMode: LibraryGroupMode.country,

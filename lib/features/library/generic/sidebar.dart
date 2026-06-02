@@ -42,14 +42,16 @@ class LibrarySidebar extends StatelessWidget {
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
     this.onManageBuckets,
-    this.pinnedGroupModes = const {},
-    this.onPinnedGroupModesChanged,
+    this.folderPreset,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
   final List<LibrarySeriesBucket> buckets;
   final LibraryGroupMode groupMode;
+  final LibraryFolderPreset? folderPreset;
   final bool groupLoading;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
@@ -77,8 +79,8 @@ class LibrarySidebar extends StatelessWidget {
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
   final VoidCallback? onManageBuckets;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<Set<LibraryGroupMode>>? onPinnedGroupModesChanged;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -104,9 +106,13 @@ class LibrarySidebar extends StatelessWidget {
       headerOverride: LibrarySidebarHeader(
         type: type,
         groupMode: groupMode,
+        folderPreset: folderPreset,
         accent: accent,
-        icon: genericGroupModeIcon(groupMode),
-        onChanged: onGroupModeChanged,
+        icon: genericFolderPresetIcon(
+          folderPreset ?? LibraryFolderPreset.single(groupMode),
+          type,
+        ),
+        onChanged: (preset) => onGroupModeChanged(preset.primaryMode),
         breadcrumbs: breadcrumbs,
         onNavigateBack: onNavigateBack,
         onNavigateToBreadcrumb: onNavigateToBreadcrumb,
@@ -129,8 +135,8 @@ class LibrarySidebar extends StatelessWidget {
         onHideSidebar: onHideSidebar,
         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
         onManageBuckets: onManageBuckets,
-        pinnedGroupModes: pinnedGroupModes,
-        onPinnedModesChanged: onPinnedGroupModesChanged,
+        pinnedFolderPresets: pinnedFolderPresets,
+        onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
       ),
     );
   }

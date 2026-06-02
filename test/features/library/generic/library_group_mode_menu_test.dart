@@ -14,9 +14,13 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: moviesLibraryConfig,
-            selectedMode: LibraryGroupMode.releaseYear,
+            selectedPreset: LibraryFolderPreset.single(
+              LibraryGroupMode.releaseYear,
+            ),
             availableModes: libraryGroupModesForType(moviesLibraryConfig),
-            initialPinnedModes: const {LibraryGroupMode.director},
+            initialPinnedPresets: [
+              LibraryFolderPreset.single(LibraryGroupMode.director),
+            ],
             sidebarVisible: true,
             hasSidebarVisibilityToggle: true,
           ),
@@ -38,7 +42,6 @@ void main() {
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Age / Country'), findsOneWidget);
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
@@ -93,9 +96,9 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: moviesLibraryConfig,
-            selectedMode: null,
+            selectedPreset: null,
             availableModes: libraryGroupModesForType(moviesLibraryConfig),
-            initialPinnedModes: const {},
+            initialPinnedPresets: const [],
             sidebarVisible: false,
             hasSidebarVisibilityToggle: true,
           ),
@@ -112,19 +115,23 @@ void main() {
   testWidgets('manage favorites button opens a dedicated dialog', (
     tester,
   ) async {
-    Set<LibraryGroupMode>? savedModes;
+    List<LibraryFolderPreset>? savedPresets;
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
-            groupMode: LibraryGroupMode.releaseYear,
+            folderPreset: LibraryFolderPreset.single(
+              LibraryGroupMode.releaseYear,
+            ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
             onChanged: (_) {},
-            pinnedGroupModes: const {LibraryGroupMode.director},
-            onPinnedModesChanged: (value) => savedModes = value,
+            pinnedFolderPresets: [
+              LibraryFolderPreset.single(LibraryGroupMode.director),
+            ],
+            onPinnedPresetsChanged: (value) => savedPresets = value,
           ),
         ),
       ),
@@ -136,14 +143,17 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Manage Group Favorites'), findsOneWidget);
+    expect(find.text('Manage Folder Favorites'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.byKey(const ValueKey('folderFavoritesManagerSaveButton')));
     await tester.pumpAndSettle();
 
-    expect(savedModes, isNotNull);
-    expect(savedModes!.toList(), [LibraryGroupMode.director]);
+    expect(savedPresets, isNotNull);
+    expect(
+      savedPresets,
+      [LibraryFolderPreset.single(LibraryGroupMode.director)],
+    );
   });
 
   testWidgets('group mode button shows the configured folder set label', (
@@ -154,7 +164,9 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
-            groupMode: LibraryGroupMode.ageRating,
+            folderPreset: LibraryFolderPreset(
+              modes: [LibraryGroupMode.ageRating, LibraryGroupMode.country],
+            ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
             onChanged: (_) {},

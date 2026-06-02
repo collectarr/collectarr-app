@@ -11,7 +11,10 @@ void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
       (tester) async {
     var selectedMode = LibraryGroupMode.releaseYear;
-    final pinnedModes = <LibraryGroupMode>{LibraryGroupMode.director};
+    var selectedPreset = LibraryFolderPreset.single(selectedMode);
+    final pinnedPresets = <LibraryFolderPreset>[
+      LibraryFolderPreset.single(LibraryGroupMode.director),
+    ];
 
     await tester.pumpWidget(
       ProviderScope(
@@ -27,16 +30,20 @@ void main() {
                   LibrarySeriesBucket(title: 'All Movies', count: 12),
                 ],
                 groupMode: selectedMode,
+                folderPreset: selectedPreset,
                 selectedBucket: 'All Movies',
                 onSelected: (_) {},
-                onGroupModeChanged: (value) => selectedMode = value,
+                onGroupModeChanged: (value) {
+                  selectedPreset = LibraryFolderPreset.single(value);
+                  selectedMode = value;
+                },
                 collectionStatusScope: LibraryCollectionStatusScope.all,
                 onClearFilter: () {},
-                pinnedGroupModes: pinnedModes,
-                onPinnedGroupModesChanged: (modes) {
-                  pinnedModes
+                pinnedFolderPresets: pinnedPresets,
+                onPinnedFolderPresetsChanged: (presets) {
+                  pinnedPresets
                     ..clear()
-                    ..addAll(modes);
+                    ..addAll(presets);
                 },
               ),
             ),
@@ -67,7 +74,6 @@ void main() {
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Age / Country'), findsOneWidget);
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);

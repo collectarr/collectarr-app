@@ -12,6 +12,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     super.key,
     required this.type,
     required this.groupMode,
+    this.folderPreset,
     required this.accent,
     required this.icon,
     required this.onChanged,
@@ -37,15 +38,16 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
     this.onManageBuckets,
-    this.pinnedGroupModes = const {},
-    this.onPinnedModesChanged,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
   });
 
   final LibraryTypeConfig type;
   final LibraryGroupMode groupMode;
+  final LibraryFolderPreset? folderPreset;
   final Color accent;
   final IconData icon;
-  final ValueChanged<LibraryGroupMode> onChanged;
+  final ValueChanged<LibraryFolderPreset> onChanged;
   final List<String> breadcrumbs;
   final VoidCallback? onNavigateBack;
   final ValueChanged<int>? onNavigateToBreadcrumb;
@@ -69,8 +71,8 @@ class LibrarySidebarHeader extends StatelessWidget {
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
   final VoidCallback? onManageBuckets;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<Set<LibraryGroupMode>>? onPinnedModesChanged;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -104,14 +106,15 @@ class LibrarySidebarHeader extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 child: LibraryGroupModeMenuButton(
                   type: type,
-                  groupMode: groupMode,
+                  folderPreset:
+                      folderPreset ?? LibraryFolderPreset.single(groupMode),
                   accent: accent,
                   icon: icon,
                   onChanged: onChanged,
                   sidebarVisible: true,
                   onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                  pinnedGroupModes: pinnedGroupModes,
-                  onPinnedModesChanged: onPinnedModesChanged,
+                  pinnedFolderPresets: pinnedFolderPresets,
+                  onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
                 ),
               ),
             ),

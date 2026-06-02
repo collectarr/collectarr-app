@@ -96,8 +96,9 @@ class LibraryBody extends StatelessWidget {
     this.availableLetters = const {},
     this.onLetterSelected,
     this.db,
-    this.pinnedGroupModes = const {},
-    this.onPinnedGroupModesChanged,
+    this.folderPreset,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
     this.onManageBuckets,
     this.desktopToolbarBand,
   });
@@ -167,8 +168,9 @@ class LibraryBody extends StatelessWidget {
   final Set<String> availableLetters;
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<Set<LibraryGroupMode>>? onPinnedGroupModesChanged;
+  final LibraryFolderPreset? folderPreset;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;
   final Widget? desktopToolbarBand;
 
@@ -351,8 +353,8 @@ class LibraryBody extends StatelessWidget {
                         : () => onBucketChanged(null),
                     onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                     onManageBuckets: onManageBuckets,
-                    pinnedGroupModes: pinnedGroupModes,
-                    onPinnedGroupModesChanged: onPinnedGroupModesChanged,
+                    pinnedFolderPresets: pinnedFolderPresets,
+                    onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
                   ),
                 ),
                 LibraryResizableDivider(

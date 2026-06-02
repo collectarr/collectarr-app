@@ -118,6 +118,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   LibraryQuickView? _quickView;
   var _collectionStatusScope = LibraryCollectionStatusScope.all;
   LibraryGroupMode? _groupMode;
+  LibraryFolderPreset? _folderPreset;
   var _selection = LibrarySelectionState.empty();
   String? _selectionAnchorId;
   var _filterSelection = LibraryFilterSelection.none;
@@ -125,7 +126,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
   final _facetLoadsInFlight = <LibraryGroupMode>{};
   Set<String> _activeLoanOwnedItemIds = const {};
-  Set<LibraryGroupMode> _pinnedGroupModes = const {};
+  List<LibraryFolderPreset> _pinnedFolderPresets = const [];
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
   String? _activeSmartListId;
@@ -171,7 +172,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       final groupMode = await _viewPrefs.readGroupMode(
         allowedModes: allowedGroupModes,
       );
-      final pinnedModes = await _viewPrefs.readPinnedGroupModes(
+      final folderPreset = await _viewPrefs.readFolderPreset(
+        allowedModes: allowedGroupModes,
+      );
+      final pinnedPresets = await _viewPrefs.readPinnedFolderPresets(
         allowedModes: allowedGroupModes,
       );
       final pinnedViewPresets = await _viewPrefs.readPinnedViewPresets(
@@ -191,8 +195,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       }
       setState(() {
         _quickView = quickView;
-        _groupMode = groupMode;
-        _pinnedGroupModes = pinnedModes;
+        _folderPreset = folderPreset;
+        _groupMode = folderPreset?.primaryMode ?? groupMode;
+        _pinnedFolderPresets = pinnedPresets;
         _pinnedViewPresets = pinnedViewPresets;
         _pinnedSortFavoriteIds = pinnedSortFavoriteIds;
         _pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
@@ -211,13 +216,26 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _primeCachedViewPreferences() {
     final allowedGroupModes = widget.type.availableGroupModes.toSet();
     _quickView = _viewPrefs.cachedQuickView;
-    _groupMode = allowedGroupModes.contains(_viewPrefs.cachedGroupMode)
+    final cachedGroupMode = allowedGroupModes.contains(_viewPrefs.cachedGroupMode)
         ? _viewPrefs.cachedGroupMode
         : null;
-    _pinnedGroupModes = {
-      for (final mode in _viewPrefs.cachedPinnedGroupModes)
-        if (allowedGroupModes.contains(mode)) mode,
-    };
+    _folderPreset = sanitizeLibraryFolderPreset(
+          _viewPrefs.cachedFolderPreset,
+          allowedModes: allowedGroupModes,
+        ) ??
+        (cachedGroupMode == null
+            ? null
+            : LibraryFolderPreset.single(cachedGroupMode));
+    _groupMode = _folderPreset?.primaryMode ?? cachedGroupMode;
+    _pinnedFolderPresets = _viewPrefs.cachedPinnedFolderPresets
+        .map(
+          (preset) => sanitizeLibraryFolderPreset(
+            preset,
+            allowedModes: allowedGroupModes,
+          ),
+        )
+        .whereType<LibraryFolderPreset>()
+        .toList(growable: false);
     _pinnedViewPresets = _viewPrefs.cachedPinnedViewPresets.isNotEmpty
         ? _viewPrefs.cachedPinnedViewPresets
         : libraryDefaultPinnedViewPresetsForType(widget.type);
@@ -656,14 +674,15 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       ),
       onLetterSelected: _setSelectedLetter,
       db: ref.read(localDatabaseProvider),
-      pinnedGroupModes: _pinnedGroupModes,
+      folderPreset: _activeFolderPreset,
+      pinnedFolderPresets: _pinnedFolderPresets,
       onManageBuckets: libraryGroupModeSupportsBucketManagement(
           widget.type,
           _activeGroupMode,
         )
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
-      onPinnedGroupModesChanged: _setPinnedGroupModes,
+      onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: widget.type,
         viewState: viewState,
@@ -726,10 +745,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => shareCollectionFlow(projection)
             : null,
+        folderPreset: _activeFolderPreset,
         groupMode: _groupMode,
-        pinnedGroupModes: _pinnedGroupModes,
-        onPinnedGroupModesChanged: _setPinnedGroupModes,
-        onGroupModeChanged: _setGroupMode,
+        pinnedFolderPresets: _pinnedFolderPresets,
+        onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
+        onGroupModeChanged: _setFolderPreset,
       ),
     );
   }
@@ -851,6 +871,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         : ((_viewState ?? _adapter.viewProfile.defaults()).isSidebarVisible
           ? libraryDefaultGroupMode(widget.type)
           : LibraryGroupMode.title);
+
+  LibraryFolderPreset get _activeFolderPreset =>
+      sanitizeLibraryFolderPreset(
+        _folderPreset,
+        allowedModes: widget.type.availableGroupModes,
+      ) ??
+      LibraryFolderPreset.single(_activeGroupMode);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||
@@ -1020,10 +1047,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     return merged;
   }
 
-  void _setPinnedGroupModes(Set<LibraryGroupMode> modes) {
-    final updated = Set<LibraryGroupMode>.from(modes);
-    setState(() => _pinnedGroupModes = updated);
-    unawaited(_viewPrefs.writePinnedGroupModes(updated));
+  void _setPinnedFolderPresets(List<LibraryFolderPreset> presets) {
+    final updated = <LibraryFolderPreset>[];
+    for (final preset in presets) {
+      final sanitized = sanitizeLibraryFolderPreset(
+        preset,
+        allowedModes: widget.type.availableGroupModes,
+      );
+      if (sanitized != null && !updated.contains(sanitized)) {
+        updated.add(sanitized);
+      }
+    }
+    setState(() => _pinnedFolderPresets = updated);
+    unawaited(_viewPrefs.writePinnedFolderPresets(updated));
   }
 
   String? get _activeColumnFavoriteLabel {
@@ -1341,7 +1377,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _setSelectedBucket(String? bucket) {
     final childMode = bucket == null
         ? null
-        : genericGroupModeDrilldownChildMode(_activeGroupMode, widget.type);
+        : _activeFolderPreset.nextModeAfter(_activeGroupMode);
     if (childMode != null) {
       final previous = _captureSidebarScope();
       final drilldownSource = LibrarySidebarScopeSnapshot(
@@ -1654,15 +1690,34 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _setGroupMode(LibraryGroupMode mode) {
-    _mutateSidebarScope(() {
-      _groupMode = mode;
+    _setFolderPreset(LibraryFolderPreset.single(mode));
+  }
+
+  void _setFolderPreset(LibraryFolderPreset preset) {
+    final sanitized = sanitizeLibraryFolderPreset(
+      preset,
+      allowedModes: widget.type.availableGroupModes,
+    );
+    if (sanitized == null) {
+      return;
+    }
+    setState(() {
+      _folderPreset = sanitized;
+      _groupMode = sanitized.primaryMode;
       _selectedBucket = null;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
     });
+    _syncRouteState();
     final shelfState = ref.read(shelfProvider).asData?.value;
     if (shelfState != null) {
-      _ensureFacetBucketsLoaded(shelfState, mode);
+      _ensureFacetBucketsLoaded(shelfState, sanitized.primaryMode);
     }
-    unawaited(_viewPrefs.writeGroupMode(mode));
+    unawaited(_viewPrefs.writeFolderPreset(sanitized));
+    unawaited(_viewPrefs.writeGroupMode(sanitized.primaryMode));
   }
 
   LibraryRouteState _buildRouteState() {
@@ -1714,6 +1769,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     _groupMode = sidebarVisible
         ? routeState.groupMode ?? libraryDefaultGroupMode(widget.type)
         : null;
+    _folderPreset = _groupMode == null
+      ? null
+      : LibraryFolderPreset.single(_groupMode!);
     _selectedBucket = routeState.selectedBucket;
     _selectedLetter = routeState.selectedLetter;
     _linkedMetadataFilter = routeState.linkedMetadataValue == null

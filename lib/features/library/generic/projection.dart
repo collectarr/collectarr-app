@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_series_
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart'
@@ -34,6 +35,97 @@ class LibraryBucketScopeFilter {
 
   final LibraryGroupMode groupMode;
   final String bucket;
+}
+
+class LibraryFolderPreset {
+  LibraryFolderPreset({required Iterable<LibraryGroupMode> modes})
+      : modes = List<LibraryGroupMode>.unmodifiable(modes) {
+    if (this.modes.isEmpty) {
+      throw ArgumentError('Folder presets must contain at least one mode.');
+    }
+    if (this.modes.length > 3) {
+      throw ArgumentError('Folder presets support at most three modes.');
+    }
+    if (this.modes.toSet().length != this.modes.length) {
+      throw ArgumentError('Folder presets cannot repeat the same mode.');
+    }
+  }
+
+  factory LibraryFolderPreset.single(LibraryGroupMode mode) =>
+      LibraryFolderPreset(modes: [mode]);
+
+  factory LibraryFolderPreset.parse(String raw) {
+    final names = raw
+        .split('>')
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty);
+    final modes = <LibraryGroupMode>[];
+    for (final name in names) {
+      final mode = LibraryGroupMode.values.where((value) => value.name == name);
+      if (mode.isEmpty) {
+        throw ArgumentError('Unknown folder preset mode: $name');
+      }
+      modes.add(mode.first);
+    }
+    return LibraryFolderPreset(modes: modes);
+  }
+
+  final List<LibraryGroupMode> modes;
+
+  LibraryGroupMode get primaryMode => modes.first;
+
+  String get storageValue => modes.map((mode) => mode.name).join('>');
+
+  LibraryGroupMode? nextModeAfter(LibraryGroupMode mode) {
+    final index = modes.indexOf(mode);
+    if (index == -1 || index >= modes.length - 1) {
+      return null;
+    }
+    return modes[index + 1];
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is LibraryFolderPreset && listEquals(other.modes, modes);
+  }
+
+  @override
+  int get hashCode => Object.hashAll(modes);
+}
+
+LibraryFolderPreset? sanitizeLibraryFolderPreset(
+  LibraryFolderPreset? preset, {
+  Iterable<LibraryGroupMode>? allowedModes,
+}) {
+  if (preset == null) {
+    return null;
+  }
+  final allowed = allowedModes == null
+      ? null
+      : Set<LibraryGroupMode>.from(allowedModes);
+  if (allowed != null && preset.modes.any((mode) => !allowed.contains(mode))) {
+    return null;
+  }
+  return preset;
+}
+
+String genericFolderPresetLabel(
+  LibraryFolderPreset preset,
+  LibraryTypeConfig type,
+) {
+  return preset.modes
+      .map((mode) => genericGroupModeLabel(mode, type))
+      .join(' / ');
+}
+
+IconData genericFolderPresetIcon(
+  LibraryFolderPreset preset, [
+  LibraryTypeConfig? type,
+]) {
+  return genericGroupModeIcon(preset.primaryMode, type);
 }
 
 LibraryGroupModeDefinition? libraryGroupModeDefinitionOrNull(
@@ -94,19 +186,7 @@ String genericGroupModeFolderSetLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  final definition = libraryGroupModeDefinitionOrNull(mode, type);
-  if (definition == null) {
-    return genericGroupModeLabel(mode, type);
-  }
-  if (definition.folderSetLabel != null &&
-      definition.folderSetLabel!.trim().isNotEmpty) {
-    return definition.folderSetLabel!;
-  }
-  final childMode = definition.drilldownChildMode;
-  if (childMode == null) {
-    return definition.label;
-  }
-  return '${definition.label} / ${genericGroupModeLabel(childMode, type)}';
+  return genericFolderPresetLabel(LibraryFolderPreset.single(mode), type);
 }
 
 String genericGroupModeSidebarTitle(
