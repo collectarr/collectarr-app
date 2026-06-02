@@ -9,11 +9,11 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliar
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

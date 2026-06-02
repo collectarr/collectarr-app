@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'library_workspace_tokens.dart';
+import '../config/library_workspace_tokens.dart';
 
 BoxDecoration libraryToolbarDropdownDecoration(
   BuildContext context, {

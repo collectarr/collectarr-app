@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const booksLibraryGroupModes = [

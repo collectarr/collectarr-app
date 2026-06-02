@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

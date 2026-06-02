@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);

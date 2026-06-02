@@ -13,11 +13,11 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 LibraryProjectionItem _projectionItem({

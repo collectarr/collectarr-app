@@ -7,9 +7,9 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
 export 'toolbar/toolbar_auxiliary_controls.dart';

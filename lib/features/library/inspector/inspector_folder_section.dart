@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

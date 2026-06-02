@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 class LibraryRouteState {
   const LibraryRouteState({

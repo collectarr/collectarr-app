@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
-import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
 Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({

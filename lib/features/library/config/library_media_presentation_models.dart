@@ -5,9 +5,9 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

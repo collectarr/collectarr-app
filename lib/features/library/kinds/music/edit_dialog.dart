@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

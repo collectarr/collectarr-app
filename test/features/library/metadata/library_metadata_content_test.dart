@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

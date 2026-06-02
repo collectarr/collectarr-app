@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -7,13 +7,13 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/workspace/library_workspace_config.dart'
+export 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart'
     show LibraryGroupMode;
 export 'projection_item.dart';
 export 'quick_view.dart';

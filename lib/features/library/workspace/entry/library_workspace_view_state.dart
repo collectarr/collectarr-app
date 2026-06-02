@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
-import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 
 class LibraryWorkspaceViewPresetConfig {
   const LibraryWorkspaceViewPresetConfig({

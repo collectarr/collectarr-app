@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists the quick-view filter, group mode, and pinned group modes

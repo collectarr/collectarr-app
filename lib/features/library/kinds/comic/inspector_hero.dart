@@ -2,8 +2,8 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

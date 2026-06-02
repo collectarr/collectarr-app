@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 
 const double kComicsMinCoverSize = 104;
 const double kComicsDefaultCoverSize = 128;

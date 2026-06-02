@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

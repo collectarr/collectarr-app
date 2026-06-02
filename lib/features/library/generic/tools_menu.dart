@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
-import 'package:collectarr_app/features/library/workspace/library_utility_menu.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:flutter/material.dart';
 

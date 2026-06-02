@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryOwnedItemResolution {

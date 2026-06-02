@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

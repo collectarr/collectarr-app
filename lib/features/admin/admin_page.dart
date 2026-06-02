@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';

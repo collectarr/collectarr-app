@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

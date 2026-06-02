@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/game/presentation_builder.
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 const genericLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder();
 const comicsLibraryMediaBuilder =

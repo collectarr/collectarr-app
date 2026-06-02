@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryColumnPresetStore {

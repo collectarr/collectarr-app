@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

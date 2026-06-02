@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_menus.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

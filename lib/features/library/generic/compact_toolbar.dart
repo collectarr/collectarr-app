@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

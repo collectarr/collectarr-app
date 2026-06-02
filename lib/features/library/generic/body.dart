@@ -9,13 +9,13 @@ import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
-import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
-import 'package:collectarr_app/features/library/workspace/library_resizable_pane.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_ctrl_scroll_zoom.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
 LibraryDetailsLayout resolveEffectiveLibraryDetailsLayout({

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

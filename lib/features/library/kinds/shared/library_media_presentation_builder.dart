@@ -5,8 +5,8 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/seasons_section.dart';
 import 'package:collectarr_app/features/library/volumes_section.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 class SharedLibraryMediaPresentationBuilder

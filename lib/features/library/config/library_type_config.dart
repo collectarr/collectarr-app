@@ -16,8 +16,8 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const kDefaultTransferableFieldKeys = [

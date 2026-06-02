@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,14 +1,14 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'library_pane_widths.dart';
-import 'library_resizable_pane.dart';
-import 'library_workspace_config.dart';
+import '../layout/library_pane_widths.dart';
+import '../layout/library_resizable_pane.dart';
+import '../config/library_workspace_config.dart';
 
 export 'library_workspace_actions.dart';
 export 'library_workspace_controls.dart';
 export 'library_workspace_menus.dart';
 export 'library_workspace_search.dart';
-export 'library_workspace_tokens.dart';
+export '../config/library_workspace_tokens.dart';
 
 class LibraryDetailsAwareLayout extends StatelessWidget {
   const LibraryDetailsAwareLayout({

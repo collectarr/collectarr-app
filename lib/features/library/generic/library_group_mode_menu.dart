@@ -2,9 +2,9 @@ import 'dart:collection';
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_menus.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryGroupModeMenuAction { disableFolders }

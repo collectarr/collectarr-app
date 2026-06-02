@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 const _videoReleaseSourceKey = 'release_source';
 const _videoReleaseAnchorKindKey = 'release_anchor_kind';

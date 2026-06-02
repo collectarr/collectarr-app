@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

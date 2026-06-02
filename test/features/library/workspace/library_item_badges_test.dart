@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

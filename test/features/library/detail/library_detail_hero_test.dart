@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';

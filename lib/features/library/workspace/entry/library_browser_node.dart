@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class LibraryBrowserNode {
   const LibraryBrowserNode({

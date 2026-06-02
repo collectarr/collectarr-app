@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/generic/sidebar/compact_bucket_bar.dart';

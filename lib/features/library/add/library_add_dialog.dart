@@ -54,7 +54,7 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';

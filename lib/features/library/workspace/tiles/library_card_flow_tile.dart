@@ -1,18 +1,18 @@
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryDateFormatter = String Function(DateTime value);
-typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
-
-class LibraryWorkspaceCard extends StatelessWidget {
-  const LibraryWorkspaceCard({
+/// A tall card showing a large cover beside rich metadata, used in "card flow"
+/// mode. Intended for a single- or two-column vertical feed layout.
+class LibraryCardFlowTile extends StatelessWidget {
+  const LibraryCardFlowTile({
     required this.entry,
     required this.selected,
     required this.onTap,
@@ -23,7 +23,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.mutedTextColor = kAppTextMuted,
-    this.coverWidth = 72,
     super.key,
   });
 
@@ -37,11 +36,14 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final Color selectedColor;
   final Color accentColor;
   final Color mutedTextColor;
-  final double coverWidth;
 
   @override
   Widget build(BuildContext context) {
+    final capabilities = collectarrLibraryTypes.capabilitiesForKind(
+      entry.mediaType,
+    );
     final metadataPresentation = _metadataPresentationForEntry(entry);
+    final theme = Theme.of(context);
     final palette = appPalette(context);
     final resolvedSelectedColor = selectedColor == kAppSelection
         ? palette.selection
@@ -53,7 +55,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
             ) ==
             Brightness.dark
         ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
+        : theme.colorScheme.onSurface;
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: entry.mediaType,
       editions: entry.editions,
@@ -72,7 +74,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
           color: selected ? accentColor : palette.cardBorder,
           width: selected ? 2 : 1,
         ),
-        borderRadius: kAppRadiusSmall,
+        borderRadius: kAppRadiusMedium,
       ),
       child: Material(
         color: Colors.transparent,
@@ -81,19 +83,19 @@ class LibraryWorkspaceCard extends StatelessWidget {
           onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
           child: Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ── Large cover ──
                 SizedBox(
-                  width: coverWidth,
+                  width: 120,
+                  height: 184,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      SlabFrameOverlay.maybeWrap(
-                        rawOrSlabbed: comic?.rawOrSlabbed,
-                        gradingCompany: comic?.gradingCompany,
-                        grade: entry.grade,
-                        labelType: comic?.labelType,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
                         child: LibraryInteractiveCover(
                           title: entry.resolvedTitle,
                           itemNumber: entry.itemNumber,
@@ -127,36 +129,50 @@ class LibraryWorkspaceCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
+                // ── Metadata ──
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Title + issue
                       Row(
                         children: [
                           Expanded(
                             child: Text(
                               entry.resolvedTitle,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    color: selected
-                                        ? selectedTitleColor
-                                        : (palette.isDark
-                                            ? kAppAccentLight
-                                            : accentColor),
-                                    fontWeight: FontWeight.w900,
-                                  ),
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: selected
+                                    ? selectedTitleColor
+                                    : kAppAccentLight,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                          if (entry.itemNumber != null)
-                            _LibraryIssuePill(label: '#${entry.itemNumber}'),
+                          if (entry.itemNumber != null) ...[
+                            const SizedBox(width: 6),
+                            _IssuePill(label: '#${entry.itemNumber}'),
+                          ],
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      // Series / subtitle
+                      if (_seriesSummary(metadataPresentation, entry)
+                          case final seriesTitle?) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          seriesTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accentColor.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      // Variant | date | publisher
                       Text(
                         [
                           if (entry.browseScope != LibraryBrowserScope.title &&
@@ -164,16 +180,19 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               entry.variant!.isNotEmpty)
                             entry.variant,
                           if (entry.releaseDate != null)
-                            dateFormatter(entry.releaseDate!),
+                            dateFormatter(entry.releaseDate!)
+                          else if (entry.releaseYear != null)
+                            entry.releaseYear.toString(),
                           if (entry.publisher != null &&
                               entry.publisher!.isNotEmpty)
                             entry.publisher,
-                        ].whereType<String>().join('  |  '),
+                        ].whereType<String>().join('  ·  '),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: theme.textTheme.bodySmall?.copyWith(
                           color: resolvedMutedTextColor,
-                            ),
+                          fontSize: 12,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       if (referenceHierarchy.length > 1) ...[
@@ -181,92 +200,59 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           referenceHierarchy.join('  ->  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: accentColor.withValues(alpha: 0.88),
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accentColor.withValues(alpha: 0.88),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(height: 8),
                       ],
+                      // Meta pills
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
                         children: [
                           if (entry.referenceScopeLabel != null)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.link_outlined,
                               label: 'Scope: ${entry.referenceScopeLabel!}',
                               accentColor: accentColor,
                             ),
-                          if (entry.browseScope != LibraryBrowserScope.title &&
-                              entry.referenceFormatLabel != null)
-                            _LibraryCompactMetaPill(
+                          if (entry.referenceFormatLabel != null)
+                            _MetaPill(
                               icon: Icons.album_outlined,
                               label: 'Format: ${entry.referenceFormatLabel!}',
                               accentColor: accentColor,
                             ),
                           if (entry.grade != null)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.workspace_premium,
                               label: entry.grade!,
                               accentColor: accentColor,
                             ),
                           if (entry.condition != null)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.fact_check_outlined,
                               label: entry.condition!,
                               accentColor: accentColor,
                             ),
                           if (_metadataFactValue(metadataPresentation, 'Runtime')
                               case final runtime?)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.schedule,
                               label: runtime,
                               accentColor: accentColor,
                             ),
-                          if (_metadataFactValue(metadataPresentation, 'Tracks')
-                              case final trackCount?)
-                            _LibraryCompactMetaPill(
-                              icon: Icons.music_note,
-                              label: '$trackCount tracks',
-                              accentColor: accentColor,
-                            ),
-                          if (_metadataFactValue(
-                                metadataPresentation,
-                                'Release Status',
-                              )
-                              case final releaseStatus?)
-                            _LibraryCompactMetaPill(
-                              icon: Icons.album,
-                              label: releaseStatus,
-                              accentColor: accentColor,
-                            ),
-                          if (_compactPlatformLabel(
-                                libraryReferencePlatforms(entry),
-                              )
-                              case final platformLabel?)
-                            _LibraryCompactMetaPill(
-                              icon: Icons.sports_esports,
-                              label: platformLabel,
-                              accentColor: accentColor,
-                            ),
-                          if (_compactNotesLabel(entry.notes)
-                              case final noteLabel?)
-                            _LibraryCompactMetaPill(
-                              icon: Icons.sticky_note_2_outlined,
-                              label: noteLabel,
-                              accentColor: accentColor,
-                            ),
                           if (comic?.keyComic == true)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.label_important,
                               label: comic?.keyReason ?? 'Key item',
                               accentColor: accentColor,
                             ),
                           if (comic?.rawOrSlabbed != null ||
                               comic?.gradingCompany != null)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.workspace_premium,
                               label: librarySlabMarkerLabel(
                                     comic?.rawOrSlabbed,
@@ -276,13 +262,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               accentColor: accentColor,
                             ),
                           if (entry.locationPath != null)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.inventory_2_outlined,
                               label: entry.locationPath!,
                               accentColor: accentColor,
                             ),
                           if (entry.pricePaidCents != null)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.attach_money,
                               label: moneyFormatter(
                                 entry.pricePaidCents,
@@ -291,24 +277,65 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               accentColor: accentColor,
                             ),
                           if (entry.isWishlisted)
-                            _LibraryCompactMetaPill(
+                            _MetaPill(
                               icon: Icons.star,
                               label: 'Wishlist',
                               accentColor: accentColor,
                             ),
+                          if (capabilities.showsTrackData)
+                            if (_metadataFactValue(metadataPresentation, 'Tracks')
+                                case final trackCount)
+                            _MetaPill(
+                              icon: Icons.music_note,
+                              label: '$trackCount tracks',
+                              accentColor: accentColor,
+                            ),
+                          if (_metadataFactValue(
+                                metadataPresentation,
+                                'Release Status',
+                              )
+                              case final releaseStatus?)
+                            _MetaPill(
+                              icon: Icons.album,
+                              label: releaseStatus,
+                              accentColor: accentColor,
+                            ),
+                          if (_platformLabel(libraryReferencePlatforms(entry))
+                              case final platformLabel?)
+                            _MetaPill(
+                              icon: Icons.sports_esports,
+                              label: platformLabel,
+                              accentColor: accentColor,
+                            ),
+                          if (_noteLabel(entry.notes) case final noteLabel?)
+                            _MetaPill(
+                              icon: Icons.sticky_note_2_outlined,
+                              label: noteLabel,
+                              accentColor: accentColor,
+                            ),
+                          if (_metadataFactValue(metadataPresentation, 'Pages')
+                              case final pageCount?)
+                            _MetaPill(
+                              icon: Icons.menu_book,
+                              label: '$pageCount pg',
+                              accentColor: accentColor,
+                            ),
                         ],
                       ),
-                      const Spacer(),
-                      if (entry.browseScope != LibraryBrowserScope.title)
+                      const SizedBox(height: 8),
+                      // Synopsis snippet
+                      if (capabilities.showsSynopsis &&
+                          entry.synopsis != null &&
+                          entry.synopsis!.isNotEmpty)
                         Text(
-                          entry.barcode == null || entry.barcode!.isEmpty
-                              ? 'No barcode'
-                              : entry.barcode!,
-                          maxLines: 1,
+                          entry.synopsis!,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: appPalette(context).textSecondary,
-                              ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: resolvedMutedTextColor.withValues(alpha: 0.7),
+                            fontSize: 11,
+                            height: 1.4,
+                          ),
                         ),
                     ],
                   ),
@@ -358,20 +385,37 @@ String? _metadataFactValue(
   return null;
 }
 
-String? _compactPlatformLabel(List<String>? platforms) {
+String? _seriesSummary(
+  LibraryMetadataPresentation? presentation,
+  LibraryWorkspaceEntry entry,
+) {
+  final seriesTitle =
+      _metadataFactValue(presentation, 'Series') ??
+      _metadataFactValue(presentation, 'Artist');
+  if (seriesTitle == null || seriesTitle == entry.title) {
+    return null;
+  }
+  return seriesTitle;
+}
+
+String? _platformLabel(List<String>? platforms) {
   if (platforms == null || platforms.isEmpty) {
     return null;
   }
-  final first = platforms.first.trim();
-  if (first.isEmpty) {
+  final values = platforms
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+  if (values.isEmpty) {
     return null;
   }
-  final extra =
-      platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
-  return extra == 0 ? first : '$first +$extra';
+  if (values.length == 1) {
+    return values.single;
+  }
+  return '${values.first} +${values.length - 1}';
 }
 
-String? _compactNotesLabel(String? notes) {
+String? _noteLabel(String? notes) {
   final trimmed = notes?.trim();
   if (trimmed == null || trimmed.isEmpty) {
     return null;
@@ -382,9 +426,10 @@ String? _compactNotesLabel(String? notes) {
   return '${trimmed.substring(0, 27)}...';
 }
 
-class _LibraryIssuePill extends StatelessWidget {
-  const _LibraryIssuePill({required this.label});
+// ─── Private helpers ────────────────────────────────────────────────────────
 
+class _IssuePill extends StatelessWidget {
+  const _IssuePill({required this.label});
   final String label;
 
   @override
@@ -398,10 +443,10 @@ class _LibraryIssuePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
           label,
-          style: TextStyle(
-            color: appPalette(context).textPrimary,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w800,
+            fontSize: 12,
           ),
         ),
       ),
@@ -409,43 +454,38 @@ class _LibraryIssuePill extends StatelessWidget {
   }
 }
 
-class _LibraryCompactMetaPill extends StatelessWidget {
-  const _LibraryCompactMetaPill({
+class _MetaPill extends StatelessWidget {
+  const _MetaPill({
     required this.icon,
     required this.label,
     required this.accentColor,
   });
-
   final IconData icon;
   final String label;
   final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: palette.tableBottomBorder,
-        borderRadius: kAppRadiusSmall,
-        border: Border.all(color: palette.divider),
+        color: accentColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 13, color: accentColor),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: accentColor),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              color: accentColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

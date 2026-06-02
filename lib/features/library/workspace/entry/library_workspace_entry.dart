@@ -1,7 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 sealed class LibraryWorkspaceEntry {
   LibraryWorkspaceEntry._({

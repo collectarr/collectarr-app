@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/library_theme.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

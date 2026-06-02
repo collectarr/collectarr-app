@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
