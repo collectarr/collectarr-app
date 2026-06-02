@@ -614,7 +614,11 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                     Icon(genericGroupModeIcon(mode), size: 18),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(genericGroupModeLabel(mode, widget.type)),
+                      child: Text(
+                        genericGroupModeLabel(mode, widget.type),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -762,20 +766,22 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                                 mode,
                                                 widget.type,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: theme.textTheme.bodyMedium
                                                   ?.copyWith(
                                                 fontWeight: FontWeight.w700,
                                               ),
                                             ),
                                           ),
-                                          TextButton.icon(
+                                          IconButton(
+                                            tooltip: 'Edit favorite',
                                             onPressed: () =>
                                                 _replaceFavorite(index),
                                             icon: const Icon(
                                               Icons.edit_outlined,
                                               size: 16,
                                             ),
-                                            label: const Text('Edit'),
                                           ),
                                           IconButton(
                                             tooltip: 'Remove favorite',

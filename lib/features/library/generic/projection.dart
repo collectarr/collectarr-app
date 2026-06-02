@@ -30,23 +30,36 @@ String genericGroupModeLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  return type.presentation.groupModeDefinitionFor(mode).label;
+  try {
+    return type.presentation.groupModeDefinitionFor(mode).label;
+  } on StateError {
+    return genericLibraryMediaPresentation.groupModeDefinitionFor(mode).label;
+  }
 }
 
 String genericGroupModeSidebarTitle(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  return type.presentation.groupModeDefinitionFor(mode).sidebarTitle;
+  try {
+    return type.presentation.groupModeDefinitionFor(mode).sidebarTitle;
+  } on StateError {
+    return genericLibraryMediaPresentation.groupModeDefinitionFor(mode)
+        .sidebarTitle;
+  }
 }
 
 IconData genericGroupModeIcon(
   LibraryGroupMode mode, [
   LibraryTypeConfig? type,
 ]) {
-  return (type?.presentation ?? genericLibraryMediaPresentation)
-      .groupModeDefinitionFor(mode)
-      .icon;
+  try {
+    return (type?.presentation ?? genericLibraryMediaPresentation)
+        .groupModeDefinitionFor(mode)
+        .icon;
+  } on StateError {
+    return genericLibraryMediaPresentation.groupModeDefinitionFor(mode).icon;
+  }
 }
 
 List<LibraryGroupMode> libraryGroupModesForType(

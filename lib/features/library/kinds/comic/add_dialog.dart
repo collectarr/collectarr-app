@@ -180,8 +180,6 @@ class _ComicManualPane extends StatelessWidget {
                       icon: request.type.workspace.icon,
                       accent: request.accent,
                       title: 'Manual comic issue',
-                      subtitle:
-                          'Use the core comic fields first, then apply your collection defaults when saving.',
                     ),
                     const SizedBox(height: 10),
                     Wrap(
@@ -450,13 +448,11 @@ class _ManualKindHeader extends StatelessWidget {
     required this.icon,
     required this.accent,
     required this.title,
-    required this.subtitle,
   });
 
   final IconData icon;
   final Color accent;
   final String title;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -476,15 +472,6 @@ class _ManualKindHeader extends StatelessWidget {
                   color: palette.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: palette.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

@@ -12,14 +12,13 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.comic,
   title: 'Comics',
   icon: Icons.library_books,
-  accent: kAppTopBar,
+  accent: Color(0xFF44BFE7),
   preferencePrefix: 'comics',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: kComicLibrarySortColumns,

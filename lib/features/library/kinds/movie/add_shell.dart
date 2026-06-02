@@ -14,49 +14,32 @@ Widget buildMovieAddHeader(
   BuildContext context,
   LibraryAddHeaderRequest request,
 ) {
-  final palette = appPalette(context);
   return SizedBox(
     height: 44,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        color: request.accent,
+        border: Border(bottom: BorderSide(color: request.accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
           const SizedBox(width: 10),
-          Icon(request.type.workspace.icon, size: 18, color: request.accent),
+          Icon(request.type.workspace.icon, size: 18, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add Movies',
-                  style: TextStyle(
-                    color: palette.textPrimary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  'Browse releases, compare covers, and add directly to your library.',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: palette.textMuted,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+            child: const Text(
+              'Add Movies',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
           IconButton(
             tooltip: 'Close',
             onPressed: request.onClose,
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close, size: 18, color: Colors.white),
             visualDensity: VisualDensity.compact,
           ),
         ],

@@ -112,7 +112,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                           width: 300,
                           child: _PaneFrame(
                             title: 'Sorting Favorites',
-                            subtitle: 'Select or save sort presets',
                             count: favoriteCount,
                             accent: accent,
                             expandChild: true,
@@ -170,7 +169,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                             children: [
                               _PaneFrame(
                                 title: 'Preset',
-                                subtitle: 'Name the current sort to save it as a reusable favorite',
                                 accent: accent,
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -221,7 +219,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                       flex: 5,
                                       child: _PaneFrame(
                                         title: 'Available fields',
-                                        subtitle: 'Search and add sort fields',
                                         count: availableColumns.length,
                                         accent: accent,
                                         expandChild: true,
@@ -289,7 +286,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                       flex: 4,
                                       child: _PaneFrame(
                                         title: 'Selected fields',
-                                        subtitle: 'Drag to reorder and toggle ASC or DESC',
                                         count: _rules.length,
                                         accent: accent,
                                         expandChild: true,
@@ -599,23 +595,23 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return Container(
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(accent.withValues(alpha: 0.12), palette.toolbar),
+        color: accent,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
-          Icon(Icons.sort, size: 18, color: accent),
+          const Icon(Icons.sort, size: 18, color: Colors.white),
           const SizedBox(width: 10),
           Text(
             'Select Sort Fields',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
+                  color: Colors.white,
                 ),
           ),
           const Spacer(),
@@ -636,7 +632,6 @@ class _PaneFrame extends StatelessWidget {
     required this.title,
     required this.child,
     required this.accent,
-    this.subtitle,
     this.count,
     this.expandChild = false,
     this.trailing,
@@ -645,7 +640,6 @@ class _PaneFrame extends StatelessWidget {
   final String title;
   final Widget child;
   final Color accent;
-  final String? subtitle;
   final int? count;
   final bool expandChild;
   final Widget? trailing;
@@ -681,15 +675,6 @@ class _PaneFrame extends StatelessWidget {
                               color: accent,
                             ),
                       ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: palette.textMuted,
-                              ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

@@ -13,51 +13,32 @@ Widget buildComicAddHeader(
   BuildContext context,
   LibraryAddHeaderRequest request,
 ) {
-  final palette = appPalette(context);
   return SizedBox(
     height: 46,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [palette.panelRaised, palette.panel],
-        ),
-        border: Border(bottom: BorderSide(color: request.accent)),
+        color: request.accent,
+        border: Border(bottom: BorderSide(color: request.accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
           const SizedBox(width: 10),
-          Icon(request.type.workspace.icon, size: 19, color: request.accent),
+          const Icon(Icons.library_books, size: 19, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add Comics',
-                  style: TextStyle(
-                    color: palette.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  'Find issues fast, compare editions, then add directly to your collection.',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: palette.textMuted,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+            child: Text(
+              'Add Comics',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
           IconButton(
             tooltip: 'Close',
             onPressed: request.onClose,
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close, size: 18, color: Colors.white),
             visualDensity: VisualDensity.compact,
           ),
         ],

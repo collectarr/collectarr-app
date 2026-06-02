@@ -15,7 +15,7 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.movie,
   title: 'Movies',
   icon: Icons.movie_outlined,
-  accent: Color(0xFFE05252),
+  accent: Color(0xFF42AA55),
   preferencePrefix: 'movies',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: kPlannedLibrarySortColumns,

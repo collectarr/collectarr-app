@@ -14,50 +14,33 @@ class _DialogHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final colorScheme = Theme.of(context).colorScheme;
     if (isMovieDesktopChrome) {
       return SizedBox(
         height: 42,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: palette.panelRaised,
-            border: Border(bottom: BorderSide(color: palette.divider)),
+            color: accent,
+            border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
           ),
           child: Row(
             children: [
               const SizedBox(width: 10),
-              Icon(type.workspace.icon, size: 18, color: accent),
+              Icon(type.workspace.icon, size: 18, color: Colors.white),
               const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Add ${type.pluralLabel}',
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    Text(
-                      'Browse matches and add directly to your library',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: palette.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Add ${type.pluralLabel}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
               IconButton(
                 tooltip: 'Close',
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, size: 18),
+                icon: const Icon(Icons.close, size: 18, color: Colors.white),
                 visualDensity: VisualDensity.compact,
               ),
             ],
@@ -69,21 +52,19 @@ class _DialogHeader extends StatelessWidget {
       height: 34,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [palette.panelRaised, palette.panel],
-          ),
-          border: Border(bottom: BorderSide(color: accent)),
+          color: accent,
+          border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
         ),
         child: Row(
           children: [
             const SizedBox(width: 8),
-            Icon(type.workspace.icon, size: 18, color: accent),
+            Icon(type.workspace.icon, size: 18, color: Colors.white),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Add ${type.pluralLabel} from Collectarr Core',
-                style: TextStyle(
-                  color: colorScheme.onSurface,
+                style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                 ),
@@ -92,7 +73,7 @@ class _DialogHeader extends StatelessWidget {
             IconButton(
               tooltip: 'Close',
               onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.close, size: 18),
+              icon: const Icon(Icons.close, size: 18, color: Colors.white),
               visualDensity: VisualDensity.compact,
             ),
           ],

@@ -226,7 +226,6 @@ class _LibraryColumnChooserDialogState
                                   flex: 4,
                                   child: _PaneFrame(
                                     title: 'Selected columns',
-                                    subtitle: 'Drag to reorder',
                                     count: selectedColumns.length,
                                     accent: accent,
                                     expandChild: true,
@@ -559,14 +558,13 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return Container(
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(accent.withValues(alpha: 0.12), palette.toolbar),
+        color: accent,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
@@ -574,6 +572,7 @@ class _DialogHeader extends StatelessWidget {
             'Select Column Fields',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
+                  color: Colors.white,
                 ),
           ),
           const Spacer(),
@@ -759,7 +758,6 @@ class _PaneFrame extends StatelessWidget {
     required this.title,
     required this.child,
     required this.accent,
-    this.subtitle,
     this.count,
     this.expandChild = false,
     this.trailing,
@@ -768,7 +766,6 @@ class _PaneFrame extends StatelessWidget {
   final String title;
   final Widget child;
   final Color accent;
-  final String? subtitle;
   final int? count;
   final bool expandChild;
   final Widget? trailing;
@@ -804,15 +801,6 @@ class _PaneFrame extends StatelessWidget {
                               color: accent,
                             ),
                       ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: palette.textMuted,
-                              ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

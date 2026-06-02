@@ -150,7 +150,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         accent: libraryAccentForKind(type.workspace.kind),
                         icon: groupMode == null
                             ? Icons.account_tree_outlined
-                            : genericGroupModeIcon(groupMode!),
+                          : genericGroupModeIcon(groupMode!, type),
                         onChanged: onGroupModeChanged!,
                         sidebarVisible: false,
                         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
@@ -1191,7 +1191,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
   }
 }
 
-class _ScopeDropdownTrigger extends StatefulWidget {
+class _ScopeDropdownTrigger extends StatelessWidget {
   const _ScopeDropdownTrigger({
     required this.scope,
     required this.accent,
@@ -1205,62 +1205,46 @@ class _ScopeDropdownTrigger extends StatefulWidget {
   final TextStyle? textStyle;
 
   @override
-  State<_ScopeDropdownTrigger> createState() => _ScopeDropdownTriggerState();
-}
-
-class _ScopeDropdownTriggerState extends State<_ScopeDropdownTrigger> {
-  bool _hovered = false;
-
-  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final borderColor = libraryCollectionStatusScopeColor(
-      widget.scope,
-      widget.accent,
+      scope,
+      accent,
       palette.textMuted,
-    ).withValues(alpha: 0.45);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: _hovered
-              ? Color.alphaBlend(
-                  palette.surfaceSubtle.withValues(alpha: 0.45),
-                  palette.panelRaised,
-                )
-              : palette.panelRaised,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: borderColor),
-        ),
-        child: SizedBox(
-          height: widget.height,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              children: [
-                LibraryCollectionStatusScopeBadge(
-                  scope: widget.scope,
-                  accent: widget.accent,
-                  muted: palette.textMuted,
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: borderColor),
+      ),
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              LibraryCollectionStatusScopeBadge(
+                scope: scope,
+                accent: accent,
+                muted: palette.textMuted,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  scope.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textStyle,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.scope.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: widget.textStyle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_drop_down,
-                  size: 18,
-                  color: palette.textPrimary,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 18,
+                color: borderColor,
+              ),
+            ],
           ),
         ),
       ),

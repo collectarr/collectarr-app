@@ -42,6 +42,11 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
+    final borderColor = libraryCollectionStatusScopeColor(
+      collectionStatusScope,
+      accent,
+      palette.textMuted,
+    );
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -102,7 +107,11 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
             ),
         ],
         child: DecoratedBox(
-          decoration: libraryToolbarDropdownDecoration(context),
+          decoration: BoxDecoration(
+            color: palette.panelRaised,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: borderColor),
+          ),
           child: SizedBox(
             height: kLibraryToolbarTextDropdownHeight,
             child: Padding(
@@ -127,7 +136,7 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
                   Icon(
                     Icons.arrow_drop_down,
                     size: 18,
-                    color: palette.textMuted,
+                    color: borderColor,
                   ),
                 ],
               ),

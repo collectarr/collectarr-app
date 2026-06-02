@@ -13,7 +13,7 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.music,
   title: 'Music',
   icon: Icons.music_note,
-  accent: Color(0xFFE07A2D),
+  accent: Color(0xFFFDAD49),
   preferencePrefix: 'music',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: kPlannedLibrarySortColumns,

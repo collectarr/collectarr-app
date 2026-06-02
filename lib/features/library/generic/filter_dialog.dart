@@ -915,8 +915,6 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                 _FilterDialogHeader(
                   accent: accent,
                   title: 'Select Filters',
-                  subtitle:
-                      'Refine ${widget.type.pluralLabel.toLowerCase()} by shelf, status, and field values',
                 ),
                 Flexible(
                   fit: FlexFit.loose,
@@ -927,15 +925,12 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                         children: [
                           _FilterDialogPane(
                             title: 'General Filters',
-                            subtitle: 'Shelf, tracking, loan status, and date range',
                             accent: accent,
                             child: Column(children: generalFilters),
                           ),
                           const SizedBox(height: 12),
                           _FilterDialogPane(
                             title: 'Field Filters',
-                            subtitle:
-                                'Metadata fields, location, tags, and missing-info flags',
                             accent: accent,
                             child: Column(children: detailFilters),
                           ),
@@ -1233,12 +1228,10 @@ class _FilterDialogHeader extends StatelessWidget {
   const _FilterDialogHeader({
     required this.accent,
     required this.title,
-    required this.subtitle,
   });
 
   final Color accent;
   final String title;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -1246,9 +1239,9 @@ class _FilterDialogHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(accent.withValues(alpha: 0.12), palette.toolbar),
+        color: accent,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1267,23 +1260,12 @@ class _FilterDialogHeader extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: palette.textMuted,
-                      ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
             ),
           ),
           LibraryDenseIconButton(
@@ -1301,19 +1283,16 @@ class _FilterDialogHeader extends StatelessWidget {
 class _FilterDialogPane extends StatelessWidget {
   const _FilterDialogPane({
     required this.title,
-    required this.subtitle,
     required this.child,
     required this.accent,
   });
 
   final String title;
-  final String subtitle;
   final Widget child;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1322,13 +1301,6 @@ class _FilterDialogPane extends StatelessWidget {
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: accent,
-              ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: palette.textMuted,
               ),
         ),
         const SizedBox(height: 10),
