@@ -1339,6 +1339,46 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _setSelectedBucket(String? bucket) {
+    final childMode = bucket == null
+        ? null
+        : genericGroupModeDrilldownChildMode(_activeGroupMode, widget.type);
+    if (childMode != null) {
+      final previous = _captureSidebarScope();
+      final drilldownSource = LibrarySidebarScopeSnapshot(
+        groupMode: previous.groupMode,
+        selectedBucket: bucket,
+        selectedLetter: null,
+        linkedMetadataFilter: null,
+        collectionStatusScope: previous.collectionStatusScope,
+        quickView: previous.quickView,
+        filterSelection: previous.filterSelection,
+        activeSmartListId: null,
+        activeSmartListName: null,
+        searchQuery: previous.searchQuery,
+      );
+      final next = LibrarySidebarScopeSnapshot(
+        groupMode: childMode,
+        collectionStatusScope: previous.collectionStatusScope,
+        quickView: previous.quickView,
+        filterSelection: previous.filterSelection,
+        searchQuery: previous.searchQuery,
+      );
+      setState(() {
+        _scopeHistory = updateLibrarySidebarScopeHistory(
+          history: _scopeHistory,
+          previous: drilldownSource,
+          next: next,
+        );
+        _groupMode = childMode;
+        _selectedBucket = null;
+        _selectedLetter = null;
+        _linkedMetadataFilter = null;
+        _activeSmartListId = null;
+        _activeSmartListName = null;
+      });
+      _syncRouteState();
+      return;
+    }
     _mutateSidebarScope(() {
       _selectedBucket = bucket;
       _selectedLetter = null;

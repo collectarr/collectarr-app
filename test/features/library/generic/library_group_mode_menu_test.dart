@@ -38,6 +38,7 @@ void main() {
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
+    expect(find.text('Age / Country'), findsOneWidget);
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
@@ -143,5 +144,25 @@ void main() {
 
     expect(savedModes, isNotNull);
     expect(savedModes!.toList(), [LibraryGroupMode.director]);
+  });
+
+  testWidgets('group mode button shows the configured folder set label', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeMenuButton(
+            type: moviesLibraryConfig,
+            groupMode: LibraryGroupMode.ageRating,
+            accent: Colors.cyan,
+            icon: Icons.account_tree_outlined,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Age / Country'), findsOneWidget);
   });
 }

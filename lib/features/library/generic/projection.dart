@@ -83,6 +83,32 @@ String genericGroupModeLabel(
       _fallbackGroupModeLabel(mode);
 }
 
+LibraryGroupMode? genericGroupModeDrilldownChildMode(
+  LibraryGroupMode mode,
+  LibraryTypeConfig type,
+) {
+  return libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildMode;
+}
+
+String genericGroupModeFolderSetLabel(
+  LibraryGroupMode mode,
+  LibraryTypeConfig type,
+) {
+  final definition = libraryGroupModeDefinitionOrNull(mode, type);
+  if (definition == null) {
+    return genericGroupModeLabel(mode, type);
+  }
+  if (definition.folderSetLabel != null &&
+      definition.folderSetLabel!.trim().isNotEmpty) {
+    return definition.folderSetLabel!;
+  }
+  final childMode = definition.drilldownChildMode;
+  if (childMode == null) {
+    return definition.label;
+  }
+  return '${definition.label} / ${genericGroupModeLabel(childMode, type)}';
+}
+
 String genericGroupModeSidebarTitle(
   LibraryGroupMode mode,
   LibraryTypeConfig type,

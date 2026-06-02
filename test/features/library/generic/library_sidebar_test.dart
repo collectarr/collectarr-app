@@ -46,13 +46,13 @@ void main() {
     );
 
     expect(
-      find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)),
+      find.text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)),
       findsOneWidget,
     );
     expect(find.text('Folder set'), findsNothing);
     expect(find.text('Current folder'), findsNothing);
 
-    await tester.tap(find.text(genericGroupModeSidebarTitle(selectedMode, moviesLibraryConfig)).first);
+    await tester.tap(find.text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)).first);
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Favorites'), findsOneWidget);
@@ -66,7 +66,8 @@ void main() {
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
-    expect(find.text('Release Years'), findsWidgets);
+    expect(find.text('Release Year'), findsWidgets);
+    expect(find.text('Age / Country'), findsOneWidget);
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);

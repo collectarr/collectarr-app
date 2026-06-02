@@ -10,6 +10,7 @@ const moviesLibraryGroupModes = [
   LibraryGroupMode.country,
   LibraryGroupMode.genre,
   LibraryGroupMode.language,
+  LibraryGroupMode.ageRating,
   LibraryGroupMode.movieOrTvSeries,
   LibraryGroupMode.releaseDate,
   LibraryGroupMode.releaseMonth,
@@ -96,6 +97,14 @@ const moviesLibraryGroupModeDefinitions = [
     sidebarTitle: 'Languages',
     icon: Icons.translate_outlined,
     supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.ageRating,
+    label: 'Age Rating',
+    sidebarTitle: 'Age Ratings',
+    icon: Icons.verified_user_outlined,
+    drilldownChildMode: LibraryGroupMode.country,
+    folderSetLabel: 'Age / Country',
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.movieOrTvSeries,

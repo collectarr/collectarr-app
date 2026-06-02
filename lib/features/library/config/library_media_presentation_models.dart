@@ -99,6 +99,8 @@ class LibraryGroupModeDefinition {
     required this.icon,
     this.supportsBucketManagement = false,
     this.bucketManagerListLabel,
+    this.drilldownChildMode,
+    this.folderSetLabel,
   });
 
   final LibraryGroupMode mode;
@@ -107,6 +109,8 @@ class LibraryGroupModeDefinition {
   final IconData icon;
   final bool supportsBucketManagement;
   final String? bucketManagerListLabel;
+  final LibraryGroupMode? drilldownChildMode;
+  final String? folderSetLabel;
 
   String get resolvedBucketManagerListLabel =>
       bucketManagerListLabel ?? '$label list';

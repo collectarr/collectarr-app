@@ -45,7 +45,7 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = groupMode == null
         ? 'Group by'
-        : genericGroupModeSidebarTitle(groupMode!, type);
+        : genericGroupModeFolderSetLabel(groupMode!, type);
     final child = iconOnly
         ? LibraryToolbarCompactDropdownTrigger(icon: icon)
         : Padding(
@@ -436,7 +436,7 @@ class _LibraryGroupModeDropdownMenuState
         padding: EdgeInsets.only(left: isSelected && !sectionHighlighted ? 10 : 0),
         child: LibraryWorkspaceMenuRow(
           key: ValueKey('groupModeItemRow_${mode.name}'),
-          label: genericGroupModeLabel(mode, widget.type),
+          label: genericGroupModeFolderSetLabel(mode, widget.type),
           leadingWidth: 16,
           leading: isSelected
               ? Icon(
@@ -615,7 +615,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        genericGroupModeLabel(mode, widget.type),
+                        genericGroupModeFolderSetLabel(mode, widget.type),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -762,7 +762,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              genericGroupModeLabel(
+                                              genericGroupModeFolderSetLabel(
                                                 mode,
                                                 widget.type,
                                               ),
