@@ -224,15 +224,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     label: selectedBucket!,
                     onClear: onClearBucket,
                   ),
-                if (counts.totalPricePaidCents > 0 ||
-                    counts.totalCoverPriceCents > 0 ||
-                    counts.totalSellPriceCents > 0)
-                  LibraryCollectionValueChip(
-                    totalPaidCents: counts.totalPricePaidCents,
-                    totalCoverCents: counts.totalCoverPriceCents,
-                    totalSellCents: counts.totalSellPriceCents,
-                    currency: counts.priceCurrency,
-                  ),
                 if (onEditFilters != null)
                   LibraryFilterButton(
                     activeCount: activeFilterCount,

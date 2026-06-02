@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/collection/services/image_download_servi
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -507,6 +508,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                         onExportCsvTxt: () =>
                           shareSelectedCollectionFlow(projection),
                         onBulkDuplicate: () => bulkDuplicateFlow(projection),
+                          onBulkLoan: () => showLoanSelectionFlow(projection),
                         onTransferFieldData: () =>
                           showTransferFieldDataForSelectionFlow(projection),
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),

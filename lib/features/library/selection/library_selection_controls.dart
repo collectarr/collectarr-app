@@ -21,6 +21,7 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onPrintToPdf,
   VoidCallback? onExportCsvTxt,
   VoidCallback? onBulkDuplicate,
+  VoidCallback? onBulkLoan,
   VoidCallback? onTransferFieldData,
   VoidCallback onBulkMoveToOwned,
   VoidCallback onBulkMoveToWishlist,
@@ -120,7 +121,7 @@ class LibrarySelectionControls extends StatelessWidget {
               _BulkAction.exportXml => null,
               _BulkAction.exportCovrPrice => null,
               _BulkAction.duplicate => callbacks.onBulkDuplicate,
-              _BulkAction.loan => null,
+              _BulkAction.loan => callbacks.onBulkLoan,
               _BulkAction.transferFieldData => callbacks.onTransferFieldData,
               _BulkAction.moveToOwned => callbacks.onBulkMoveToOwned,
               _BulkAction.moveToWishlist => callbacks.onBulkMoveToWishlist,
@@ -169,9 +170,9 @@ class LibrarySelectionControls extends StatelessWidget {
                 dense: true,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BulkAction.loan,
-              enabled: false,
+              enabled: callbacks.onBulkLoan != null,
               child: ListTile(
                 leading: Icon(Icons.handshake_outlined),
                 title: Text('Loan'),

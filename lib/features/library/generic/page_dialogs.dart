@@ -349,6 +349,55 @@ extension _LibraryPageDialogs on _LibraryPageState {
     }
   }
 
+  Future<void> showLoanSelectionFlow(
+    LibraryProjection? projection,
+  ) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final ownedItemIds = <String>{
+      for (final item in projection.filteredItems)
+        if (_selection.itemIds.contains(item.entry.id) &&
+            item.entry.ownedItemId != null &&
+            !_activeLoanOwnedItemIds.contains(item.entry.ownedItemId))
+          item.entry.ownedItemId!,
+    };
+    if (ownedItemIds.isEmpty || !mounted) return;
+
+    final draft = await showDialog<_BatchLoanDraft>(
+      context: context,
+      builder: (context) => _BatchLoanDialog(
+        accent: widget.accent,
+        itemCount: ownedItemIds.length,
+      ),
+    );
+    if (draft == null || !mounted) return;
+
+    final repo = LoanRepository(ref.read(localDatabaseProvider));
+    for (final ownedItemId in ownedItemIds) {
+      await repo.create(
+        Loan(
+          id: const Uuid().v4(),
+          ownedItemId: ownedItemId,
+          borrowerName: draft.borrowerName,
+          lentDate: draft.lentDate,
+          dueDate: draft.dueDate,
+          notes: draft.notes,
+        ),
+      );
+    }
+
+    _rebuild(() => _selection = _selection.clear());
+    await _loadActiveLoanIds();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Created ${ownedItemIds.length} loan record${ownedItemIds.length == 1 ? '' : 's'}.',
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> reassignIndexFlow(LibraryProjection projection) async {
     final items = projection.filteredItems;
     if (items.isEmpty) return;
@@ -395,5 +444,172 @@ extension _LibraryPageDialogs on _LibraryPageState {
         ),
       );
     }
+  }
+}
+
+class _BatchLoanDraft {
+  const _BatchLoanDraft({
+    required this.borrowerName,
+    required this.lentDate,
+    this.dueDate,
+    this.notes,
+  });
+
+  final String borrowerName;
+  final DateTime lentDate;
+  final DateTime? dueDate;
+  final String? notes;
+}
+
+class _BatchLoanDialog extends StatefulWidget {
+  const _BatchLoanDialog({
+    required this.accent,
+    required this.itemCount,
+  });
+
+  final Color accent;
+  final int itemCount;
+
+  @override
+  State<_BatchLoanDialog> createState() => _BatchLoanDialogState();
+}
+
+class _BatchLoanDialogState extends State<_BatchLoanDialog> {
+  final _nameController = TextEditingController();
+  final _notesController = TextEditingController();
+  DateTime _lentDate = DateTime.now();
+  DateTime? _dueDate;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return AlertDialog(
+      backgroundColor: palette.panel,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text('Loan ${widget.itemCount} items',
+          style: TextStyle(color: widget.accent)),
+      content: SizedBox(
+        width: 340,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              autofocus: true,
+              onChanged: (_) => setState(() {}),
+              decoration: const InputDecoration(
+                labelText: 'Borrower name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _BatchLoanDatePickerField(
+                    label: 'Lent date',
+                    value: _lentDate,
+                    onChanged: (d) => setState(() => _lentDate = d),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _BatchLoanDatePickerField(
+                    label: 'Due date',
+                    value: _dueDate,
+                    onChanged: (d) => setState(() => _dueDate = d),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _notesController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Notes (optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _nameController.text.trim().isEmpty ? null : _submit,
+          style: FilledButton.styleFrom(backgroundColor: widget.accent),
+          child: const Text('Loan'),
+        ),
+      ],
+    );
+  }
+
+  void _submit() {
+    final borrowerName = _nameController.text.trim();
+    if (borrowerName.isEmpty) return;
+    Navigator.pop(
+      context,
+      _BatchLoanDraft(
+        borrowerName: borrowerName,
+        lentDate: _lentDate,
+        dueDate: _dueDate,
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+      ),
+    );
+  }
+}
+
+class _BatchLoanDatePickerField extends StatelessWidget {
+  const _BatchLoanDatePickerField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final DateTime? value;
+  final ValueChanged<DateTime> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final display = value != null
+        ? '${value!.year}-${value!.month.toString().padLeft(2, '0')}-${value!.day.toString().padLeft(2, '0')}'
+        : 'Select';
+    return OutlinedButton(
+      onPressed: () async {
+        final initialDate = value ?? DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+        );
+        if (picked != null) {
+          onChanged(picked);
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          const SizedBox(height: 2),
+          Text(display),
+        ],
+      ),
+    );
   }
 }
