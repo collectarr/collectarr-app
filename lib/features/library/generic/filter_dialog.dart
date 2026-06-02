@@ -694,185 +694,14 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
       ),
     ];
 
-    final detailFilters = <Widget>[];
-    if (widget.options.customFields.isNotEmpty) {
-      detailFilters.addAll([
-        DropdownButtonFormField<String>(
-          initialValue: widget.options.customFields.any(
-            (field) => field.definitionId == _customFieldDefinitionId,
-          )
-              ? _customFieldDefinitionId
-              : null,
-          isExpanded: true,
-          dropdownColor: palette.panelRaised,
-          borderRadius: kAppMenuBorderRadius,
-          decoration: _filterFieldDecoration(context, label: 'Custom field'),
-          items: [
-            const DropdownMenuItem<String>(
-              value: '',
-              child: Text('Any custom field'),
-            ),
-            for (final field in widget.options.customFields)
-              DropdownMenuItem<String>(
-                value: field.definitionId,
-                child: Text(field.label),
-              ),
-          ],
-          onChanged: (value) {
-            final nextDefinitionId = value == null || value.isEmpty ? null : value;
-            setState(() {
-              _customFieldDefinitionId = nextDefinitionId;
-              final nextField = _selectedCustomFieldOption();
-              if (_customFieldValue != null &&
-                  (nextField == null ||
-                      !nextField.values.contains(_customFieldValue))) {
-                _customFieldValue = null;
-              }
-            });
-          },
-        ),
-      ]);
-    }
-    if (selectedCustomField != null && selectedCustomField.values.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: '${selectedCustomField.label} value',
-          empty: 'Any value',
-          value: _customFieldValue,
-          options: _customFieldValueOptions(selectedCustomField),
-          onChanged: (value) => setState(() => _customFieldValue = value),
-        ),
-      );
-    }
-    if (widget.options.series.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: labels.series,
-          empty: labels.anySeries,
-          value: _series,
-          options: widget.options.series,
-          onChanged: (v) => setState(() => _series = v),
-        ),
-      );
-    }
-    if (widget.options.locations.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: 'Location',
-          empty: 'Any location',
-          value: _location,
-          options: widget.options.locations,
-          onChanged: (v) => setState(() => _location = v),
-        ),
-      );
-    }
-    if (widget.options.tags.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _AutocompleteFilterField(
-          label: 'Tag',
-          hint: 'Any tag',
-          value: _tag,
-          options: widget.options.tags,
-          onChanged: (value) => setState(() => _tag = value),
-        ),
-      );
-    }
-    if (widget.options.publishers.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: labels.publisher,
-          empty: labels.anyPublisher,
-          value: _publisher,
-          options: widget.options.publishers,
-          onChanged: (v) => setState(() => _publisher = v),
-        ),
-      );
-    }
-    if (widget.options.releaseYears.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: labels.year,
-          empty: labels.anyYear,
-          value: _releaseYear,
-          options: widget.options.releaseYears,
-          onChanged: (v) => setState(() => _releaseYear = v),
-        ),
-      );
-    }
-    if (hasGrades && widget.options.grades.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: 'Grade',
-          empty: 'Any grade',
-          value: _grade,
-          options: widget.options.grades,
-          onChanged: (v) => setState(() => _grade = v),
-        ),
-      );
-    }
-    if (hasConditions && widget.options.conditions.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: 'Condition',
-          empty: 'Any condition',
-          value: _condition,
-          options: widget.options.conditions,
-          onChanged: (v) => setState(() => _condition = v),
-        ),
-      );
-    }
-    if (widget.options.countries.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: 'Country',
-          empty: 'Any country',
-          value: _country,
-          options: widget.options.countries,
-          onChanged: (v) => setState(() => _country = v),
-        ),
-      );
-    }
-    if (widget.options.languages.isNotEmpty) {
-      if (detailFilters.isNotEmpty) {
-        detailFilters.add(const SizedBox(height: 10));
-      }
-      detailFilters.add(
-        _FilterDropdown(
-          label: 'Language',
-          empty: 'Any language',
-          value: _language,
-          options: widget.options.languages,
-          onChanged: (v) => setState(() => _language = v),
-        ),
-      );
-    }
+    final detailFilters = _buildDetailFilters(
+      context: context,
+      labels: labels,
+      palette: palette,
+      hasGrades: hasGrades,
+      hasConditions: hasConditions,
+      selectedCustomField: selectedCustomField,
+    );
     if (detailFilters.isNotEmpty) {
       detailFilters.add(const SizedBox(height: 10));
     }
@@ -975,6 +804,170 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildDetailFilters({
+    required BuildContext context,
+    required LibraryMediaFilterLabels labels,
+    required AppThemePalette palette,
+    required bool hasGrades,
+    required bool hasConditions,
+    required LibraryCustomFieldFilterOption? selectedCustomField,
+  }) {
+    final detailFilters = <Widget>[];
+    if (widget.options.customFields.isNotEmpty) {
+      _appendFilterField(
+        detailFilters,
+        DropdownButtonFormField<String>(
+          initialValue: widget.options.customFields.any(
+            (field) => field.definitionId == _customFieldDefinitionId,
+          )
+              ? _customFieldDefinitionId
+              : null,
+          isExpanded: true,
+          dropdownColor: palette.panelRaised,
+          borderRadius: kAppMenuBorderRadius,
+          decoration: _filterFieldDecoration(context, label: 'Custom field'),
+          items: [
+            const DropdownMenuItem<String>(
+              value: '',
+              child: Text('Any custom field'),
+            ),
+            for (final field in widget.options.customFields)
+              DropdownMenuItem<String>(
+                value: field.definitionId,
+                child: Text(field.label),
+              ),
+          ],
+          onChanged: (value) {
+            final nextDefinitionId = value == null || value.isEmpty ? null : value;
+            setState(() {
+              _customFieldDefinitionId = nextDefinitionId;
+              final nextField = _selectedCustomFieldOption();
+              if (_customFieldValue != null &&
+                  (nextField == null ||
+                      !nextField.values.contains(_customFieldValue))) {
+                _customFieldValue = null;
+              }
+            });
+          },
+        ),
+      );
+    }
+    if (selectedCustomField != null && selectedCustomField.values.isNotEmpty) {
+      _appendFilterField(
+        detailFilters,
+        _FilterDropdown(
+          label: '${selectedCustomField.label} value',
+          empty: 'Any value',
+          value: _customFieldValue,
+          options: _customFieldValueOptions(selectedCustomField),
+          onChanged: (value) => setState(() => _customFieldValue = value),
+        ),
+      );
+    }
+
+    final fieldSpecs = <_DetailFilterFieldSpec>[
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.series.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.series,
+          empty: labels.anySeries,
+          value: _series,
+          options: widget.options.series,
+          onChanged: (value) => setState(() => _series = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.locations.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Location',
+          empty: 'Any location',
+          value: _location,
+          options: widget.options.locations,
+          onChanged: (value) => setState(() => _location = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.tags.isNotEmpty,
+        builder: () => _AutocompleteFilterField(
+          label: 'Tag',
+          hint: 'Any tag',
+          value: _tag,
+          options: widget.options.tags,
+          onChanged: (value) => setState(() => _tag = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.publishers.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.publisher,
+          empty: labels.anyPublisher,
+          value: _publisher,
+          options: widget.options.publishers,
+          onChanged: (value) => setState(() => _publisher = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.releaseYears.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.year,
+          empty: labels.anyYear,
+          value: _releaseYear,
+          options: widget.options.releaseYears,
+          onChanged: (value) => setState(() => _releaseYear = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: hasGrades && widget.options.grades.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Grade',
+          empty: 'Any grade',
+          value: _grade,
+          options: widget.options.grades,
+          onChanged: (value) => setState(() => _grade = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: hasConditions && widget.options.conditions.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Condition',
+          empty: 'Any condition',
+          value: _condition,
+          options: widget.options.conditions,
+          onChanged: (value) => setState(() => _condition = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.countries.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Country',
+          empty: 'Any country',
+          value: _country,
+          options: widget.options.countries,
+          onChanged: (value) => setState(() => _country = value),
+        ),
+      ),
+      _DetailFilterFieldSpec(
+        isVisible: widget.options.languages.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Language',
+          empty: 'Any language',
+          value: _language,
+          options: widget.options.languages,
+          onChanged: (value) => setState(() => _language = value),
+        ),
+      ),
+    ];
+
+    for (final spec in fieldSpecs) {
+      if (!spec.isVisible) {
+        continue;
+      }
+      _appendFilterField(detailFilters, spec.builder());
+    }
+
+    return detailFilters;
   }
 
   LibraryFilterSelection _buildSelection() {
@@ -1228,6 +1221,23 @@ class _DateFilterButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void _appendFilterField(List<Widget> fields, Widget field) {
+  if (fields.isNotEmpty) {
+    fields.add(const SizedBox(height: 10));
+  }
+  fields.add(field);
+}
+
+class _DetailFilterFieldSpec {
+  const _DetailFilterFieldSpec({
+    required this.isVisible,
+    required this.builder,
+  });
+
+  final bool isVisible;
+  final Widget Function() builder;
 }
 
 class _FilterDialogPane extends StatelessWidget {
