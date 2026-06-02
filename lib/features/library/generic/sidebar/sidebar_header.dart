@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/generic/library_group_mode_menu.
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_panels.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -78,14 +77,6 @@ class LibrarySidebarHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final isRootScope = onClearFilter == null;
-    final scopeAccent = libraryCollectionStatusScopeColor(
-      collectionStatusScope,
-      accent,
-      palette.textMuted,
-    );
-    final scopeLabel = breadcrumbs.isNotEmpty
-        ? breadcrumbs.last
-        : (isRootScope ? 'All ${type.pluralLabel}' : selectedBucket);
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
@@ -181,59 +172,7 @@ class LibrarySidebarHeader extends StatelessWidget {
             pinnedGroupModes: pinnedGroupModes,
             onPinnedModesChanged: onPinnedModesChanged,
           ),
-          if (breadcrumbs.length > 1) ...[
-            const SizedBox(height: 4),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (var index = 0; index < breadcrumbs.length; index++) ...[
-                    if (index > 0)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Icon(
-                          Icons.chevron_right,
-                          size: 14,
-                          color: palette.textMuted,
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 2),
-                      child: index == breadcrumbs.length - 1
-                          ? Text(
-                              breadcrumbs[index],
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
-                            )
-                          : ActionChip(
-                              label: Text(
-                                breadcrumbs[index],
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              onPressed: onNavigateToBreadcrumb == null
-                                  ? null
-                                  : () => onNavigateToBreadcrumb!(index),
-                              visualDensity: VisualDensity.compact,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                            ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
           const SizedBox(height: 8),
-          _LibrarySidebarScopeBanner(
-            icon: Icons.folder_open_outlined,
-            title: 'Current folder',
-            scopeLabel: scopeLabel,
-            accent: scopeAccent,
-            subtitle: genericGroupModeSidebarTitle(groupMode, type),
-          ),
-          const SizedBox(height: 6),
           LibrarySidebarFilteringPanel(
             type: type,
             activeSmartListName: activeSmartListName,
@@ -322,95 +261,6 @@ class _LibrarySidebarFolderSetBar extends StatelessWidget {
             onSidebarVisibilityChanged: onSidebarVisibilityChanged,
             pinnedGroupModes: pinnedGroupModes,
             onPinnedModesChanged: onPinnedModesChanged,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LibrarySidebarScopeBanner extends StatelessWidget {
-  const _LibrarySidebarScopeBanner({
-    required this.icon,
-    required this.title,
-    required this.scopeLabel,
-    required this.accent,
-    this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String scopeLabel;
-  final Color accent;
-  final String? subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          accent.withValues(alpha: 0.05),
-          palette.surface,
-        ),
-        border: Border(
-          top: BorderSide(color: palette.divider),
-          bottom: BorderSide(color: palette.divider),
-          left: BorderSide(color: accent, width: 3),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Icon(icon, size: 16, color: accent),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: palette.textMuted,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
-                      ),
-                ),
-                if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: palette.textMuted,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ],
-                const SizedBox(height: 2),
-                Text(
-                  scopeLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

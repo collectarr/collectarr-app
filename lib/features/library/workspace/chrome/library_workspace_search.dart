@@ -50,9 +50,10 @@ class LibraryToolbarSearch extends StatelessWidget {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: availableWidth),
-              child: ClipRRect(
+            Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: availableWidth),
+                child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -114,6 +115,7 @@ class LibraryToolbarSearch extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
             ),
             if (showFilterChip) ...[
               const SizedBox(width: 6),

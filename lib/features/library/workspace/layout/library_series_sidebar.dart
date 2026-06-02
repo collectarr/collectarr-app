@@ -284,7 +284,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
   }
 }
 
-class _LibrarySeriesRow extends StatelessWidget {
+class _LibrarySeriesRow extends StatefulWidget {
   const _LibrarySeriesRow({
     required this.bucket,
     required this.selected,
@@ -308,59 +308,72 @@ class _LibrarySeriesRow extends StatelessWidget {
   final double extraVerticalPadding;
 
   @override
+  State<_LibrarySeriesRow> createState() => _LibrarySeriesRowState();
+}
+
+class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final selectedTextColor = ThemeData.estimateBrightnessForColor(
-              selectionColor,
+              widget.selectionColor,
             ) ==
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
     final selectedBadgeTextColor = ThemeData.estimateBrightnessForColor(
-              selectedBadgeColor,
+              widget.selectedBadgeColor,
             ) ==
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
-    final badgeTextColor = ThemeData.estimateBrightnessForColor(badgeColor) ==
+    final badgeTextColor = ThemeData.estimateBrightnessForColor(widget.badgeColor) ==
         Brightness.dark
       ? Colors.white
       : Theme.of(context).colorScheme.onSurface;
-    final gapTooltip = bucket.missingNumbers.isNotEmpty
-        ? 'Missing: ${_formatMissingNumbers(bucket.missingNumbers)}'
+    final gapTooltip = widget.bucket.missingNumbers.isNotEmpty
+        ? 'Missing: ${_formatMissingNumbers(widget.bucket.missingNumbers)}'
         : null;
-    Widget row = Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        hoverColor: selectionColor.withValues(alpha: 0.22),
+    final bgColor = widget.selected
+        ? widget.selectionColor
+        : _hovered
+            ? widget.selectionColor.withValues(alpha: 0.18)
+            : Colors.transparent;
+    Widget row = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: selected ? selectionColor : Colors.transparent,
-            border: Border(bottom: BorderSide(color: dividerColor)),
+            color: bgColor,
+            border: Border(bottom: BorderSide(color: widget.dividerColor)),
           ),
           child: SizedBox(
-            height: 28 + extraVerticalPadding * 2,
+            height: 28 + widget.extraVerticalPadding * 2,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Row(
                 children: [
                   Icon(
-                    selected
+                    widget.selected
                         ? Icons.folder_open_outlined
                         : Icons.folder_outlined,
                     size: 16,
-                    color: selected ? selectedBadgeColor : mutedTextColor,
+                    color: widget.selected ? widget.selectedBadgeColor : widget.mutedTextColor,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      bucket.title,
+                      widget.bucket.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: selected ? selectedTextColor : null,
+                            color: widget.selected ? selectedTextColor : null,
                             fontWeight:
-                                selected ? FontWeight.w800 : FontWeight.w600,
+                                widget.selected ? FontWeight.w800 : FontWeight.w600,
                           ),
                     ),
                   ),
@@ -369,14 +382,14 @@ class _LibrarySeriesRow extends StatelessWidget {
                     constraints: const BoxConstraints(minWidth: 26),
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
-                      color: selected ? selectedBadgeColor : badgeColor,
+                      color: widget.selected ? widget.selectedBadgeColor : widget.badgeColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: Text(
-                      bucket.count.toString(),
+                      widget.bucket.count.toString(),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: selected
+                            color: widget.selected
                                 ? selectedBadgeTextColor
                                 : badgeTextColor,
                             fontWeight: FontWeight.w800,
