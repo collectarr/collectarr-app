@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -39,6 +41,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final metadataPresentation = _metadataPresentationForEntry(entry);
     final palette = appPalette(context);
     final resolvedSelectedColor = selectedColor == kAppSelection
         ? palette.selection
@@ -214,25 +217,33 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: entry.condition!,
                               accentColor: accentColor,
                             ),
-                          if (entry.video?.runtimeMinutes != null)
+                          if (_metadataFactValue(metadataPresentation, 'Runtime')
+                              case final runtime?)
                             _LibraryCompactMetaPill(
                               icon: Icons.schedule,
-                              label: '${entry.video!.runtimeMinutes} min',
+                              label: runtime,
                               accentColor: accentColor,
                             ),
-                          if (entry.music?.trackCount != null)
+                          if (_metadataFactValue(metadataPresentation, 'Tracks')
+                              case final trackCount?)
                             _LibraryCompactMetaPill(
                               icon: Icons.music_note,
-                              label: '${entry.music!.trackCount} tracks',
+                              label: '$trackCount tracks',
                               accentColor: accentColor,
                             ),
-                          if (entry.music?.releaseStatus != null)
+                          if (_metadataFactValue(
+                                metadataPresentation,
+                                'Release Status',
+                              )
+                              case final releaseStatus?)
                             _LibraryCompactMetaPill(
                               icon: Icons.album,
-                              label: entry.music!.releaseStatus!,
+                              label: releaseStatus,
                               accentColor: accentColor,
                             ),
-                          if (_compactPlatformLabel(entry.rawPlatforms)
+                          if (_compactPlatformLabel(
+                                libraryReferencePlatforms(entry),
+                              )
                               case final platformLabel?)
                             _LibraryCompactMetaPill(
                               icon: Icons.sports_esports,
@@ -309,6 +320,41 @@ class LibraryWorkspaceCard extends StatelessWidget {
     ),
     );
   }
+}
+
+LibraryMetadataPresentation? _metadataPresentationForEntry(
+  LibraryWorkspaceEntry entry,
+) {
+  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  if (type == null) {
+    return null;
+  }
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation? presentation,
+  String label,
+) {
+  if (presentation == null) {
+    return null;
+  }
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final value = fact.value.trim();
+      if (value.isNotEmpty && value != '-') {
+        return value;
+      }
+    }
+  }
+  return null;
 }
 
 String? _compactPlatformLabel(List<String>? platforms) {

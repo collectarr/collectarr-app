@@ -23,22 +23,27 @@ const double kPlannedMediaTableHorizontalMargin = 8;
 
 final booksMediaAdapter = plannedMediaAdapter(
   booksLibraryConfig,
+  sortAccessors: plannedBookSortAccessors,
   compareEntriesByColumn: compareBookEntriesByColumn,
 );
 final gamesMediaAdapter = plannedMediaAdapter(
   gamesLibraryConfig,
+  sortAccessors: plannedGameSortAccessors,
   compareEntriesByColumn: compareGameEntriesByColumn,
 );
 final boardGamesMediaAdapter = plannedMediaAdapter(
   boardGamesLibraryConfig,
+  sortAccessors: plannedBoardGameSortAccessors,
   compareEntriesByColumn: compareBoardGameEntriesByColumn,
 );
 final moviesMediaAdapter = plannedMediaAdapter(
   moviesLibraryConfig,
+  sortAccessors: plannedMovieSortAccessors,
   compareEntriesByColumn: compareMovieEntriesByColumn,
 );
 final musicMediaAdapter = plannedMediaAdapter(
   musicLibraryConfig,
+  sortAccessors: plannedMusicSortAccessors,
   compareEntriesByColumn: compareMusicEntriesByColumn,
 );
 
@@ -52,8 +57,10 @@ final plannedMediaAdapters = LibraryMediaAdapterRegistry([
 
 LibraryMediaAdapter plannedMediaAdapter(
   LibraryTypeConfig type, {
+  PlannedMediaSortAccessors? sortAccessors,
   LibraryEntryColumnComparator? compareEntriesByColumn,
 }) {
+  final resolvedSortAccessors = sortAccessors ?? plannedDefaultSortAccessors;
   final viewProfile = plannedMediaWorkspaceViewProfile(type.workspace);
   return LibraryMediaAdapter(
     type: type,
@@ -78,8 +85,14 @@ LibraryMediaAdapter plannedMediaAdapter(
     columnIsNumeric: plannedMediaTableColumnIsNumeric,
     columnSort: plannedMediaTableColumnSort,
     tableCellBuilder: plannedMediaTableCell,
-    compareEntriesByColumn:
-      compareEntriesByColumn ?? plannedMediaCompareEntriesByColumn,
+    compareEntriesByColumn: compareEntriesByColumn ??
+        (left, right, column) =>
+            comparePlannedMediaEntriesByColumn(
+              left,
+              right,
+              column,
+              resolvedSortAccessors,
+            ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
     entryLinkedMetadataCandidatesBuilder:
         plannedMediaLinkedMetadataCandidatesForEntry,
@@ -481,16 +494,30 @@ int plannedMediaCompareEntriesByColumn(
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
 ) {
+  return comparePlannedMediaEntriesByColumn(
+    left,
+    right,
+    column,
+    plannedDefaultSortAccessors,
+  );
+}
+
+int comparePlannedMediaEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+  PlannedMediaSortAccessors accessors,
+) {
   return switch (column) {
     LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
     LibrarySortColumn.title =>
       _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
     LibrarySortColumn.series =>
-      _compareNullableStrings(left.series?.seriesTitle, right.series?.seriesTitle),
+      _compareNullableStrings(accessors.series(left), accessors.series(right)),
     LibrarySortColumn.issue => _compareIssueNumbers(left.itemNumber, right.itemNumber),
     LibrarySortColumn.storyArc => _compareNullableStrings(
-        _firstStringValue(left.storyArcs),
-        _firstStringValue(right.storyArcs),
+        accessors.storyArc(left),
+        accessors.storyArc(right),
       ),
     LibrarySortColumn.variant =>
       _compareNullableStrings(left.variant, right.variant),
@@ -523,15 +550,15 @@ int plannedMediaCompareEntriesByColumn(
       _compareNullableDates(left.addedAt, right.addedAt),
     LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
     LibrarySortColumn.country =>
-      _compareNullableStrings(left.country, right.country),
+      _compareNullableStrings(accessors.country(left), accessors.country(right)),
     LibrarySortColumn.language =>
-      _compareNullableStrings(left.language, right.language),
+      _compareNullableStrings(accessors.language(left), accessors.language(right)),
     LibrarySortColumn.pageCount =>
-      _compareNullableInts(left.publishing?.pageCount, right.publishing?.pageCount),
+      _compareNullableInts(accessors.pageCount(left), accessors.pageCount(right)),
     LibrarySortColumn.ageRating =>
-      _compareNullableStrings(left.ageRating, right.ageRating),
+      _compareNullableStrings(accessors.ageRating(left), accessors.ageRating(right)),
     LibrarySortColumn.imprint =>
-      _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
+      _compareNullableStrings(accessors.imprint(left), accessors.imprint(right)),
   };
 }
 
@@ -539,31 +566,92 @@ int compareBookEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => plannedMediaCompareEntriesByColumn(left, right, column);
+) => comparePlannedMediaEntriesByColumn(
+  left,
+  right,
+  column,
+  plannedBookSortAccessors,
+);
 
 int compareGameEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => plannedMediaCompareEntriesByColumn(left, right, column);
+) => comparePlannedMediaEntriesByColumn(
+  left,
+  right,
+  column,
+  plannedGameSortAccessors,
+);
 
 int compareBoardGameEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => plannedMediaCompareEntriesByColumn(left, right, column);
+) => comparePlannedMediaEntriesByColumn(
+  left,
+  right,
+  column,
+  plannedBoardGameSortAccessors,
+);
 
 int compareMovieEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => plannedMediaCompareEntriesByColumn(left, right, column);
+) => comparePlannedMediaEntriesByColumn(
+  left,
+  right,
+  column,
+  plannedMovieSortAccessors,
+);
 
 int compareMusicEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => plannedMediaCompareEntriesByColumn(left, right, column);
+) => comparePlannedMediaEntriesByColumn(
+  left,
+  right,
+  column,
+  plannedMusicSortAccessors,
+);
+
+class PlannedMediaSortAccessors {
+  const PlannedMediaSortAccessors({
+    required this.series,
+    required this.storyArc,
+    required this.country,
+    required this.language,
+    required this.pageCount,
+    required this.ageRating,
+    required this.imprint,
+  });
+
+  final String? Function(LibraryWorkspaceEntry entry) series;
+  final String? Function(LibraryWorkspaceEntry entry) storyArc;
+  final String? Function(LibraryWorkspaceEntry entry) country;
+  final String? Function(LibraryWorkspaceEntry entry) language;
+  final int? Function(LibraryWorkspaceEntry entry) pageCount;
+  final String? Function(LibraryWorkspaceEntry entry) ageRating;
+  final String? Function(LibraryWorkspaceEntry entry) imprint;
+}
+
+final plannedDefaultSortAccessors = PlannedMediaSortAccessors(
+  series: (entry) => entry.series?.seriesTitle,
+  storyArc: (entry) => _firstStringValue(entry.storyArcs),
+  country: (entry) => entry.country,
+  language: (entry) => entry.language,
+  pageCount: (entry) => entry.publishing?.pageCount,
+  ageRating: (entry) => entry.ageRating,
+  imprint: (entry) => entry.publishing?.imprint,
+);
+
+final plannedBookSortAccessors = plannedDefaultSortAccessors;
+final plannedGameSortAccessors = plannedDefaultSortAccessors;
+final plannedBoardGameSortAccessors = plannedDefaultSortAccessors;
+final plannedMovieSortAccessors = plannedDefaultSortAccessors;
+final plannedMusicSortAccessors = plannedDefaultSortAccessors;
 
 LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
   LibraryWorkspaceEntry entry,

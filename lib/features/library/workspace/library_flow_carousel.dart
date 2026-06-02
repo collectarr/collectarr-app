@@ -2,10 +2,13 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -712,10 +715,11 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   @override
   Widget build(BuildContext context) {
     final entry = widget.item.entry;
+    final metadataPresentation = _metadataPresentationForEntry(entry);
     final palette = appPalette(context);
     final meta = [
-      if (entry.series?.seriesTitle != null && entry.series!.seriesTitle!.trim().isNotEmpty)
-        entry.series!.seriesTitle,
+      _metadataFactValue(metadataPresentation, 'Series'),
+      _metadataFactValue(metadataPresentation, 'Artist'),
       if (entry.publisher != null && entry.publisher!.trim().isNotEmpty)
         entry.publisher,
       if (entry.releaseDate != null)
@@ -842,6 +846,41 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       ),
     );
   }
+}
+
+LibraryMetadataPresentation? _metadataPresentationForEntry(
+  LibraryWorkspaceEntry entry,
+) {
+  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  if (type == null) {
+    return null;
+  }
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation? presentation,
+  String label,
+) {
+  if (presentation == null) {
+    return null;
+  }
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final value = fact.value.trim();
+      if (value.isNotEmpty && value != '-') {
+        return value;
+      }
+    }
+  }
+  return null;
 }
 
 class _FlowCarouselReleaseRow extends StatelessWidget {

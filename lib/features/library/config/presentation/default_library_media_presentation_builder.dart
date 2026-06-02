@@ -128,6 +128,8 @@ class DefaultLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Language', entry.language!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
+        if (entry.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryInspectorFactData('Variant Type', variantType.trim()),

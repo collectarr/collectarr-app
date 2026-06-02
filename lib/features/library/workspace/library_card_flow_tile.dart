@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -41,6 +42,7 @@ class LibraryCardFlowTile extends StatelessWidget {
     final capabilities = collectarrLibraryTypes.capabilitiesForKind(
       entry.mediaType,
     );
+    final metadataPresentation = _metadataPresentationForEntry(entry);
     final theme = Theme.of(context);
     final palette = appPalette(context);
     final resolvedSelectedColor = selectedColor == kAppSelection
@@ -156,11 +158,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                         ],
                       ),
                       // Series / subtitle
-                      if (entry.series?.seriesTitle != null &&
-                          entry.series!.seriesTitle != entry.title) ...[
+                      if (_seriesSummary(metadataPresentation, entry)
+                          case final seriesTitle?) ...[
                         const SizedBox(height: 4),
                         Text(
-                          entry.series!.seriesTitle!,
+                          seriesTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -234,10 +236,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: entry.condition!,
                               accentColor: accentColor,
                             ),
-                          if (entry.video?.runtimeMinutes != null)
+                          if (_metadataFactValue(metadataPresentation, 'Runtime')
+                              case final runtime?)
                             _MetaPill(
                               icon: Icons.schedule,
-                              label: '${entry.video!.runtimeMinutes} min',
+                              label: runtime,
                               accentColor: accentColor,
                             ),
                           if (entry.keyComic)
@@ -278,20 +281,25 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: 'Wishlist',
                               accentColor: accentColor,
                             ),
-                          if (capabilities.showsTrackData &&
-                              entry.music?.trackCount != null)
+                          if (capabilities.showsTrackData)
+                            if (_metadataFactValue(metadataPresentation, 'Tracks')
+                                case final trackCount)
                             _MetaPill(
                               icon: Icons.music_note,
-                              label: '${entry.music!.trackCount} tracks',
+                              label: '$trackCount tracks',
                               accentColor: accentColor,
                             ),
-                          if (entry.music?.releaseStatus != null)
+                          if (_metadataFactValue(
+                                metadataPresentation,
+                                'Release Status',
+                              )
+                              case final releaseStatus?)
                             _MetaPill(
                               icon: Icons.album,
-                              label: entry.music!.releaseStatus!,
+                              label: releaseStatus,
                               accentColor: accentColor,
                             ),
-                          if (_platformLabel(entry.rawPlatforms)
+                          if (_platformLabel(libraryReferencePlatforms(entry))
                               case final platformLabel?)
                             _MetaPill(
                               icon: Icons.sports_esports,
@@ -304,10 +312,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: noteLabel,
                               accentColor: accentColor,
                             ),
-                          if (entry.publishing?.pageCount != null)
+                          if (_metadataFactValue(metadataPresentation, 'Pages')
+                              case final pageCount?)
                             _MetaPill(
                               icon: Icons.menu_book,
-                              label: '${entry.publishing!.pageCount} pg',
+                              label: '$pageCount pg',
                               accentColor: accentColor,
                             ),
                         ],
@@ -338,6 +347,54 @@ class LibraryCardFlowTile extends StatelessWidget {
     ),
     );
   }
+}
+
+LibraryMetadataPresentation? _metadataPresentationForEntry(
+  LibraryWorkspaceEntry entry,
+) {
+  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  if (type == null) {
+    return null;
+  }
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation? presentation,
+  String label,
+) {
+  if (presentation == null) {
+    return null;
+  }
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final value = fact.value.trim();
+      if (value.isNotEmpty && value != '-') {
+        return value;
+      }
+    }
+  }
+  return null;
+}
+
+String? _seriesSummary(
+  LibraryMetadataPresentation? presentation,
+  LibraryWorkspaceEntry entry,
+) {
+  final seriesTitle =
+      _metadataFactValue(presentation, 'Series') ??
+      _metadataFactValue(presentation, 'Artist');
+  if (seriesTitle == null || seriesTitle == entry.title) {
+    return null;
+  }
+  return seriesTitle;
 }
 
 String? _platformLabel(List<String>? platforms) {

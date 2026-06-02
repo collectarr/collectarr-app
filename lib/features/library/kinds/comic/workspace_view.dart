@@ -54,7 +54,12 @@ int compareComicEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => plannedMediaCompareEntriesByColumn(left, right, column);
+) => comparePlannedMediaEntriesByColumn(
+  left,
+  right,
+  column,
+  plannedDefaultSortAccessors,
+);
 
 const comicsTableColumnPresets = [
   LibraryTableColumnPreset(

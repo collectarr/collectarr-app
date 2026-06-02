@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -60,6 +61,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final metadataPresentation = _metadataPresentationForEntry(type, entry);
     final aliasValues = <String>{
       if (entry.originalTitle?.trim().isNotEmpty == true)
         entry.originalTitle!.trim(),
@@ -69,12 +71,12 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
       ...?entry.searchAliases,
     }.toList(growable: false);
     final creatorNames = <String>[
-      for (final credit in entry.creators ?? const <Map<String, dynamic>>[])
+      for (final credit in metadataPresentation.creators)
         if (credit['name']?.toString().trim().isNotEmpty == true)
           credit['name'].toString().trim(),
     ];
     final creatorsByRole = <String, List<String>>{};
-    for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
+    for (final credit in metadataPresentation.creators) {
       final name = credit['name']?.toString().trim();
       if (name == null || name.isEmpty) continue;
       final role = credit['role']?.toString().trim();
@@ -94,10 +96,11 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
               LibraryInspectorFactData('Original title', entry.originalTitle!),
             if (entry.publisher?.trim().isNotEmpty == true)
               LibraryInspectorFactData('Studio', entry.publisher!),
-            if (entry.video?.runtimeMinutes != null)
+            if (_metadataFactValue(metadataPresentation, 'Runtime')
+                case final runtime?)
               LibraryInspectorFactData(
                 'Runtime',
-                '${entry.video!.runtimeMinutes} min',
+                runtime,
               ),
             LibraryInspectorFactData(
               'Releases',
@@ -110,7 +113,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
           ],
         ),
         _buildEditionFormatBadges(entry),
-        if (entry.genres case final genres? when genres.isNotEmpty) ...[
+        if (metadataPresentation.genres case final genres when genres.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(label: 'Genres', values: genres),
         ],
@@ -130,6 +133,35 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
       ],
     );
   }
+}
+
+LibraryMetadataPresentation _metadataPresentationForEntry(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation presentation,
+  String label,
+) {
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final value = fact.value.trim();
+      if (value.isNotEmpty && value != '-') {
+        return value;
+      }
+    }
+  }
+  return null;
 }
 
 Widget _buildEditionFormatBadges(LibraryWorkspaceEntry entry) {

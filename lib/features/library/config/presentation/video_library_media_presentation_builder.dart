@@ -90,6 +90,8 @@ class VideoLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Language', entry.language!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
+        if (entry.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         if (publishing?.subtitle != null)
           LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),

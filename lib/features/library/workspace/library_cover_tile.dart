@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
@@ -40,9 +42,45 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
 class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   bool _hovered = false;
 
+  LibraryMetadataPresentation? _metadataPresentationForEntry(
+    LibraryWorkspaceEntry entry,
+  ) {
+    final type = collectarrLibraryTypes.byKind(entry.mediaType);
+    if (type == null) {
+      return null;
+    }
+    return type.presentation.builder.buildMetadataPresentation(
+      singularLabel: type.singularLabel,
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
+      entry: entry,
+      includeIdentityFacts: true,
+      tapFor: (_) => null,
+    );
+  }
+
+  String? _metadataFactValue(
+    LibraryMetadataPresentation? presentation,
+    String label,
+  ) {
+    if (presentation == null) {
+      return null;
+    }
+    for (final fact in presentation.allFacts) {
+      if (fact.label == label) {
+        final value = fact.value.trim();
+        if (value.isNotEmpty && value != '-') {
+          return value;
+        }
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
+    final metadataPresentation = _metadataPresentationForEntry(entry);
     final selected = widget.selected;
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
@@ -69,7 +107,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showSelectionToggle = selected || _hovered;
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, entry);
-    final scoreLabel = _audienceScoreLabel(entry);
+    final scoreLabel = _audienceScoreLabel(metadataPresentation);
     final auxiliaryBadges = _auxiliaryBadges(entry);
 
     return RepaintBoundary(
@@ -338,8 +376,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     );
   }
 
-  String? _audienceScoreLabel(LibraryWorkspaceEntry entry) {
-    final raw = entry.audienceRating?.trim();
+  String? _audienceScoreLabel(LibraryMetadataPresentation? presentation) {
+    final raw = _metadataFactValue(presentation, 'Audience Rating');
     if (raw == null || raw.isEmpty) {
       return null;
     }

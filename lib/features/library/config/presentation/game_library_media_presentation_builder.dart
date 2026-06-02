@@ -69,6 +69,8 @@ class GameLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Country', entry.country!),
         if (entry.language != null)
           LibraryInspectorFactData('Language', entry.language!),
+        if (entry.audienceRating != null)
+          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',
