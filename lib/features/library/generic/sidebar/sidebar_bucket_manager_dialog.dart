@@ -22,14 +22,18 @@ bool libraryGroupModeSupportsBucketManagement(
   LibraryTypeConfig type,
   LibraryGroupMode mode,
 ) {
-  return type.presentation.groupModeDefinitionFor(mode).supportsBucketManagement;
+  return libraryGroupModeDefinitionOrNull(mode, type)
+          ?.supportsBucketManagement ??
+      false;
 }
 
 String libraryBucketManagerListLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  return type.presentation.groupModeDefinitionFor(mode).resolvedBucketManagerListLabel;
+  return libraryGroupModeDefinitionOrNull(mode, type)
+          ?.resolvedBucketManagerListLabel ??
+      genericGroupModeSidebarTitle(mode, type);
 }
 
 CatalogItem? renameLibraryGroupBucketValue(

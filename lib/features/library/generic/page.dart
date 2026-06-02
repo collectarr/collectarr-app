@@ -848,10 +848,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   LibraryGroupMode get _activeGroupMode =>
-      _groupMode ??
-      ((_viewState ?? _adapter.viewProfile.defaults()).isSidebarVisible
-        ? libraryDefaultGroupMode(widget.type)
-        : LibraryGroupMode.title);
+      widget.type.availableGroupModes.contains(_groupMode)
+        ? _groupMode!
+        : ((_viewState ?? _adapter.viewProfile.defaults()).isSidebarVisible
+          ? libraryDefaultGroupMode(widget.type)
+          : LibraryGroupMode.title);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||

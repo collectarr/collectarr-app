@@ -26,40 +26,67 @@ class LibraryLinkedMetadataFilter {
   String get chipLabel => 'Metadata: $value';
 }
 
+LibraryGroupModeDefinition? libraryGroupModeDefinitionOrNull(
+  LibraryGroupMode mode, [
+  LibraryTypeConfig? type,
+]) {
+  if (type != null) {
+    for (final definition in type.presentation.groupModeDefinitions) {
+      if (definition.mode == mode) {
+        return definition;
+      }
+    }
+  }
+  for (final definition in genericLibraryMediaPresentation.groupModeDefinitions) {
+    if (definition.mode == mode) {
+      return definition;
+    }
+  }
+  return null;
+}
+
+String _fallbackGroupModeLabel(LibraryGroupMode mode) {
+  final raw = mode.name;
+  final words = raw.replaceAllMapped(
+    RegExp(r'([a-z0-9])([A-Z])'),
+    (match) => '${match.group(1)} ${match.group(2)}',
+  );
+  return words[0].toUpperCase() + words.substring(1);
+}
+
+String _fallbackGroupModeSidebarTitle(LibraryGroupMode mode) {
+  final label = _fallbackGroupModeLabel(mode);
+  if (label.endsWith('s')) {
+    return label;
+  }
+  if (label.endsWith('y')) {
+    return '${label.substring(0, label.length - 1)}ies';
+  }
+  return '${label}s';
+}
+
 String genericGroupModeLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  try {
-    return type.presentation.groupModeDefinitionFor(mode).label;
-  } on StateError {
-    return genericLibraryMediaPresentation.groupModeDefinitionFor(mode).label;
-  }
+  return libraryGroupModeDefinitionOrNull(mode, type)?.label ??
+      _fallbackGroupModeLabel(mode);
 }
 
 String genericGroupModeSidebarTitle(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  try {
-    return type.presentation.groupModeDefinitionFor(mode).sidebarTitle;
-  } on StateError {
-    return genericLibraryMediaPresentation.groupModeDefinitionFor(mode)
-        .sidebarTitle;
-  }
+  return libraryGroupModeDefinitionOrNull(mode, type)?.sidebarTitle ??
+      _fallbackGroupModeSidebarTitle(mode);
 }
 
 IconData genericGroupModeIcon(
   LibraryGroupMode mode, [
   LibraryTypeConfig? type,
 ]) {
-  try {
-    return (type?.presentation ?? genericLibraryMediaPresentation)
-        .groupModeDefinitionFor(mode)
-        .icon;
-  } on StateError {
-    return genericLibraryMediaPresentation.groupModeDefinitionFor(mode).icon;
-  }
+  return libraryGroupModeDefinitionOrNull(mode, type)?.icon ??
+      Icons.account_tree_outlined;
 }
 
 List<LibraryGroupMode> libraryGroupModesForType(
