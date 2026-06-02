@@ -241,6 +241,42 @@ void main() {
     expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
   });
 
+  testWidgets('group mode button closes menu after pointer leaves trigger and menu', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: LibraryGroupModeMenuButton(
+              type: moviesLibraryConfig,
+              folderPreset: LibraryFolderPreset.single(
+                LibraryGroupMode.releaseYear,
+              ),
+              accent: Colors.cyan,
+              icon: Icons.account_tree_outlined,
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer();
+    await gesture.moveTo(tester.getCenter(find.byTooltip('Group by')));
+    await tester.pump(const Duration(milliseconds: 160));
+    await tester.pump(const Duration(milliseconds: 180));
+
+    expect(find.text('Folders'), findsOneWidget);
+
+    await gesture.moveTo(const Offset(700, 500));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.text('Folders'), findsNothing);
+  });
+
   testWidgets('comic group mode dropdown uses CLZ-like section taxonomy', (
     tester,
   ) async {

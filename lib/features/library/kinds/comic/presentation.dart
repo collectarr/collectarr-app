@@ -570,11 +570,11 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.issue,
-    label: 'Issue / number',
+    label: 'Issue / Number',
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.storyArc,
-    label: 'Story arc',
+    label: 'Story Arc',
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.variant,
@@ -587,7 +587,7 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.releaseDate,
-    label: 'Release date',
+    label: 'Release Date',
     defaultAscending: false,
   ),
   LibrarySortColumnDefinition(
@@ -602,12 +602,12 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.rawOrSlabbed,
-    label: 'Raw / slabbed',
+    label: 'Raw / Slabbed',
     group: LibrarySortFieldGroup.edition,
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.gradingCompany,
-    label: 'Grading company',
+    label: 'Grading Company',
     group: LibrarySortFieldGroup.edition,
   ),
   LibrarySortColumnDefinition(
@@ -617,17 +617,17 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.price,
-    label: 'Purchase price',
+    label: 'Purchase Price',
     group: LibrarySortFieldGroup.value,
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.location,
-    label: 'Storage box',
+    label: 'Storage Box',
     group: LibrarySortFieldGroup.personal,
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.collectionStatus,
-    label: 'Collection status',
+    label: 'Collection Status',
     group: LibrarySortFieldGroup.personal,
   ),
   LibrarySortColumnDefinition(
@@ -637,11 +637,11 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.keyComic,
-    label: 'Key comic',
+    label: 'Key Comic',
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.added,
-    label: 'Added date',
+    label: 'Added Date',
     group: LibrarySortFieldGroup.personal,
     defaultAscending: false,
   ),
@@ -661,12 +661,12 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.pageCount,
-    label: 'Page count',
+    label: 'Page Count',
     group: LibrarySortFieldGroup.edition,
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.ageRating,
-    label: 'Age rating',
+    label: 'Age Rating',
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.imprint,

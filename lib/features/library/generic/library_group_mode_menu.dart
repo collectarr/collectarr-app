@@ -64,12 +64,20 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
 }
 
 class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton> {
+  static const _menuWidth = 280.0;
   Timer? _hoverOpenTimer;
+  Timer? _hoverCloseTimer;
+  final _layerLink = LayerLink();
   bool _menuOpen = false;
+  bool _hoveringTrigger = false;
+  bool _hoveringMenu = false;
+  OverlayEntry? _menuOverlayEntry;
 
   @override
   void dispose() {
     _hoverOpenTimer?.cancel();
+    _hoverCloseTimer?.cancel();
+    _removeMenuOverlay();
     super.dispose();
   }
 
@@ -89,6 +97,66 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
   void _cancelHoverOpen() {
     _hoverOpenTimer?.cancel();
     _hoverOpenTimer = null;
+  }
+
+  void _cancelHoverClose() {
+    _hoverCloseTimer?.cancel();
+    _hoverCloseTimer = null;
+  }
+
+  void _scheduleHoverClose() {
+    if (!_menuOpen || _hoveringTrigger || _hoveringMenu) {
+      return;
+    }
+    _cancelHoverClose();
+    _hoverCloseTimer = Timer(const Duration(milliseconds: 160), () {
+      if (!mounted || !_menuOpen || _hoveringTrigger || _hoveringMenu) {
+        return;
+      }
+      _closeGroupModeMenu();
+    });
+  }
+
+  void _removeMenuOverlay() {
+    _menuOverlayEntry?.remove();
+    _menuOverlayEntry = null;
+  }
+
+  void _closeGroupModeMenu() {
+    _cancelHoverOpen();
+    _cancelHoverClose();
+    _hoveringMenu = false;
+    if (!_menuOpen) {
+      return;
+    }
+    _menuOpen = false;
+    _removeMenuOverlay();
+  }
+
+  void _handleMenuSelection(Object? value, List<LibraryGroupMode> modes) async {
+    _closeGroupModeMenu();
+    if (value is LibraryFolderPreset) {
+      widget.onChanged(value);
+      if (!widget.sidebarVisible && widget.onSidebarVisibilityChanged != null) {
+        widget.onSidebarVisibilityChanged!(true);
+      }
+    } else if (value is _ManageFavoritesRequest) {
+      if (!mounted) {
+        return;
+      }
+      final updated = await showLibraryFolderFavoritesDialog(
+        context: context,
+        type: widget.type,
+        availableModes: modes,
+        initialFavorites: value.favoritePresets,
+      );
+      if (updated != null && mounted) {
+        widget.onPinnedPresetsChanged?.call(updated);
+      }
+    } else if (value == LibraryGroupModeMenuAction.disableFolders &&
+        widget.onSidebarVisibilityChanged != null) {
+      widget.onSidebarVisibilityChanged!(false);
+    }
   }
 
   @override
@@ -133,16 +201,31 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
 
     return Tooltip(
       message: 'Group by',
-      child: MouseRegion(
-        onEnter: (_) => _scheduleHoverOpen(),
-        onExit: (_) => _cancelHoverOpen(),
-        child: InkWell(
-          onTap: () {
-            _cancelHoverOpen();
-            _showGroupModeMenu(context);
+      child: CompositedTransformTarget(
+        link: _layerLink,
+        child: MouseRegion(
+          onEnter: (_) {
+            _hoveringTrigger = true;
+            _cancelHoverClose();
+            _scheduleHoverOpen();
           },
-          borderRadius: BorderRadius.zero,
-          child: child,
+          onExit: (_) {
+            _hoveringTrigger = false;
+            _cancelHoverOpen();
+            _scheduleHoverClose();
+          },
+          child: InkWell(
+            onTap: () {
+              _cancelHoverOpen();
+              if (_menuOpen) {
+                _closeGroupModeMenu();
+              } else {
+                _showGroupModeMenu(context);
+              }
+            },
+            borderRadius: BorderRadius.zero,
+            child: child,
+          ),
         ),
       ),
     );
@@ -153,6 +236,7 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
       return;
     }
     _menuOpen = true;
+    _hoveringMenu = false;
     final label = widget.folderPreset == null
         ? 'Group by'
         : genericFolderPresetLabel(widget.folderPreset!, widget.type);
@@ -162,79 +246,59 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
         .findRenderObject() as RenderBox;
     final box = context.findRenderObject() as RenderBox;
     final target = box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
-    final selection = showGeneralDialog<Object?>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Dismiss group mode menu',
-      barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 140),
-      pageBuilder: (dialogContext, _, __) {
-        const menuWidth = 280.0;
-        final screenSize = overlay.size;
-        final left = target.left.clamp(8.0, screenSize.width - menuWidth - 8.0);
-        final top = (target.bottom + 4).clamp(8.0, screenSize.height - 420.0);
+    final rightOverflow = target.left + _menuWidth + 8.0 - overlay.size.width;
+    final dx = rightOverflow > 0 ? -rightOverflow : 0.0;
+    _menuOverlayEntry = OverlayEntry(
+      builder: (overlayContext) {
         return Stack(
           children: [
-            Positioned(
-              left: left,
-              top: top,
-              width: menuWidth,
-              child: LibraryGroupModeDropdownMenu(
-                type: widget.type,
-                selectedPreset: widget.folderPreset,
-                availableModes: modes,
-                initialPinnedPresets: widget.pinnedFolderPresets,
-                onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
-                sidebarVisible: widget.sidebarVisible,
-                hasSidebarVisibilityToggle:
-                    widget.onSidebarVisibilityChanged != null,
-                triggerLabel: label,
-                triggerIcon: widget.icon,
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _closeGroupModeMenu,
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              targetAnchor: Alignment.bottomLeft,
+              followerAnchor: Alignment.topLeft,
+              offset: Offset(dx, 0),
+              child: MouseRegion(
+                onEnter: (_) {
+                  _hoveringMenu = true;
+                  _cancelHoverClose();
+                },
+                onExit: (_) {
+                  _hoveringMenu = false;
+                  _scheduleHoverClose();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: SizedBox(
+                    width: _menuWidth,
+                    child: LibraryGroupModeDropdownMenu(
+                      type: widget.type,
+                      selectedPreset: widget.folderPreset,
+                      availableModes: modes,
+                      initialPinnedPresets: widget.pinnedFolderPresets,
+                      onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
+                      sidebarVisible: widget.sidebarVisible,
+                      hasSidebarVisibilityToggle:
+                          widget.onSidebarVisibilityChanged != null,
+                      triggerLabel: label,
+                      triggerIcon: widget.icon,
+                      onSelected: (value) => _handleMenuSelection(value, modes),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
         );
       },
-      transitionBuilder: (context, animation, _, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.97, end: 1).animate(curved),
-            alignment: Alignment.topLeft,
-            child: child,
-          ),
-        );
-      },
     );
-    selection.then((value) async {
-      _menuOpen = false;
-      if (value is LibraryFolderPreset) {
-        widget.onChanged(value);
-        if (!widget.sidebarVisible && widget.onSidebarVisibilityChanged != null) {
-          widget.onSidebarVisibilityChanged!(true);
-        }
-      } else if (value is _ManageFavoritesRequest) {
-        if (!context.mounted) {
-          return;
-        }
-        final updated = await showLibraryFolderFavoritesDialog(
-          context: context,
-          type: widget.type,
-          availableModes: modes,
-          initialFavorites: value.favoritePresets,
-        );
-        if (updated != null && context.mounted) {
-          widget.onPinnedPresetsChanged?.call(updated);
-        }
-      } else if (value == LibraryGroupModeMenuAction.disableFolders &&
-          widget.onSidebarVisibilityChanged != null) {
-        widget.onSidebarVisibilityChanged!(false);
-      }
-    });
+    Overlay.of(context, rootOverlay: true).insert(_menuOverlayEntry!);
   }
 }
 
@@ -250,6 +314,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
     this.onPinnedPresetsChanged,
     this.triggerLabel,
     this.triggerIcon,
+    this.onSelected,
   });
 
   final LibraryTypeConfig type;
@@ -261,6 +326,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedPresetsChanged;
   final String? triggerLabel;
   final IconData? triggerIcon;
+  final ValueChanged<Object?>? onSelected;
 
   @override
   State<LibraryGroupModeDropdownMenu> createState() =>
@@ -272,6 +338,15 @@ class _LibraryGroupModeDropdownMenuState
   late List<LibraryFolderPreset> _pinnedPresets;
   late Map<String, bool> _expandedSections;
   late List<_GroupModeCategory> _categories;
+
+  void _emitSelection(Object? value) {
+    final onSelected = widget.onSelected;
+    if (onSelected != null) {
+      onSelected(value);
+      return;
+    }
+    Navigator.of(context).pop(value);
+  }
 
   @override
   void initState() {
@@ -358,7 +433,7 @@ class _LibraryGroupModeDropdownMenuState
                     context,
                     icon: Icons.folder_off_outlined,
                     label: 'No folders',
-                    onTap: () => Navigator.of(context).pop(
+                    onTap: () => _emitSelection(
                       LibraryGroupModeMenuAction.disableFolders,
                     ),
                   ),
@@ -380,7 +455,7 @@ class _LibraryGroupModeDropdownMenuState
                         key: const ValueKey('manageGroupFavoritesButton'),
                         onPressed: widget.onPinnedPresetsChanged == null
                             ? null
-                            : () => Navigator.of(context).pop(
+                            : () => _emitSelection(
                                   _ManageFavoritesRequest(
                                     List<LibraryFolderPreset>.from(
                                       _pinnedPresets,
@@ -590,7 +665,7 @@ class _LibraryGroupModeDropdownMenuState
                   color: libraryToolbarMenuText(context),
                 )
               : null,
-          onTap: () => Navigator.of(context).pop(LibraryFolderPreset.single(mode)),
+          onTap: () => _emitSelection(LibraryFolderPreset.single(mode)),
           padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
           backgroundColor: selectedBackground,
           textStyle: TextStyle(
@@ -627,7 +702,7 @@ class _LibraryGroupModeDropdownMenuState
                   color: libraryToolbarMenuText(context),
                 )
               : null,
-          onTap: () => Navigator.of(context).pop(preset),
+          onTap: () => _emitSelection(preset),
           padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
           backgroundColor: selectedBackground,
           textStyle: TextStyle(
