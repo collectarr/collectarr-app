@@ -235,7 +235,7 @@ void main() {
     await gesture.addPointer();
     await gesture.moveTo(tester.getCenter(find.byTooltip('Group by')));
     await tester.pump(const Duration(milliseconds: 160));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 180));
 
     expect(find.text('Folders'), findsOneWidget);
     expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
