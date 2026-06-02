@@ -453,8 +453,6 @@ class _SortFavoritesManagerDialogState
                             Expanded(
                               child: _SortFavoritesPaneFrame(
                                 title: 'Pinned Favorites',
-                                subtitle:
-                                    'Shown first in the sort menu. Drag to reorder.',
                                 count: _pinnedFavorites.length,
                                 child: _pinnedFavorites.isEmpty
                                     ? _SortFavoritesEmptyState(
@@ -504,8 +502,6 @@ class _SortFavoritesManagerDialogState
                             Expanded(
                               child: _SortFavoritesPaneFrame(
                                 title: 'Available Favorites',
-                                subtitle:
-                                    'Add more presets to the pinned favorites list.',
                                 count: _availableFavorites.length,
                                 child: _availableFavorites.isEmpty
                                     ? const _SortFavoritesEmptyState(
@@ -599,13 +595,11 @@ class _SortFavoritesManagerDialogState
 class _SortFavoritesPaneFrame extends StatelessWidget {
   const _SortFavoritesPaneFrame({
     required this.title,
-    required this.subtitle,
     required this.count,
     required this.child,
   });
 
   final String title;
-  final String subtitle;
   final int count;
   final Widget child;
 
@@ -640,13 +634,6 @@ class _SortFavoritesPaneFrame extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               color: palette.accent,
-                            ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: palette.textMuted,
                             ),
                       ),
                     ],
