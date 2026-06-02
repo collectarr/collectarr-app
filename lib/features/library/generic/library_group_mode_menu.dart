@@ -535,12 +535,15 @@ List<_GroupModeCategory> _categorizeGroupModes(
       LibraryGroupMode.series,
       LibraryGroupMode.ageRating,
       LibraryGroupMode.country,
+      LibraryGroupMode.crossover,
       LibraryGroupMode.genre,
+      LibraryGroupMode.imprint,
       LibraryGroupMode.language,
       LibraryGroupMode.publisher,
       LibraryGroupMode.releaseDate,
       LibraryGroupMode.releaseMonth,
       LibraryGroupMode.releaseYear,
+      LibraryGroupMode.seriesGroup,
       LibraryGroupMode.storyArc,
     };
     const valueModes = {
@@ -556,6 +559,9 @@ List<_GroupModeCategory> _categorizeGroupModes(
       LibraryGroupMode.owner,
     };
     const editionModes = {
+      LibraryGroupMode.coverDate,
+      LibraryGroupMode.coverMonth,
+      LibraryGroupMode.coverYear,
       LibraryGroupMode.format,
     };
     const creatorsAndCharactersModes = {
@@ -564,9 +570,22 @@ List<_GroupModeCategory> _categorizeGroupModes(
       LibraryGroupMode.character,
       LibraryGroupMode.colorist,
       LibraryGroupMode.coverArtist,
+      LibraryGroupMode.coverColorist,
+      LibraryGroupMode.coverInker,
+      LibraryGroupMode.coverPainter,
+      LibraryGroupMode.coverPenciller,
+      LibraryGroupMode.coverSeparator,
       LibraryGroupMode.editor,
+      LibraryGroupMode.editorInChief,
+      LibraryGroupMode.inker,
+      LibraryGroupMode.layouts,
       LibraryGroupMode.letterer,
+      LibraryGroupMode.painter,
       LibraryGroupMode.penciller,
+      LibraryGroupMode.plotter,
+      LibraryGroupMode.scripter,
+      LibraryGroupMode.separator,
+      LibraryGroupMode.translator,
       LibraryGroupMode.writer,
     };
     final main = modes.where(mainModes.contains).toList();

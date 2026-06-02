@@ -229,10 +229,12 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
       coverImageUrl: item.coverImageUrl,
       thumbnailImageUrl: item.thumbnailImageUrl,
       publisher: item.publisher,
+      coverDate: item.coverDate,
       releaseDate: item.releaseDate,
       releaseYear: item.releaseYear,
       barcode: item.barcode,
       variant: item.displayEditionLabel,
+      crossover: item.crossover,
       isOwned: source.isOwned,
       isTracked: source.isTracked,
       isWishlisted: source.isWishlisted,
@@ -334,10 +336,12 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
         entry.thumbnailImageUrl ??
         entry.coverImageUrl,
     publisher: request.edition.publisher ?? entry.publisher,
+    coverDate: entry.coverDate,
     releaseDate: request.edition.releaseDate,
     releaseYear: request.edition.releaseDate?.year ?? entry.releaseYear,
     barcode: primaryVariant?.barcode ?? request.edition.upc,
     variant: primaryVariant?.name ?? request.edition.title,
+    crossover: entry.crossover,
     isOwned: request.isOwned,
     isTracked: request.isTracked,
     isWishlisted: request.isWishlisted,
@@ -454,6 +458,10 @@ String defaultLibraryBucketLabel(
       entry.language?.trim().isNotEmpty == true ? entry.language! : 'Unknown language',
     LibraryGroupMode.ageRating =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
+    LibraryGroupMode.crossover => _stringBucket(entry.crossover, 'No crossover'),
+    LibraryGroupMode.imprint => _stringBucket(entry.publishing?.imprint, 'No imprint'),
+    LibraryGroupMode.seriesGroup =>
+      _stringBucket(entry.publishing?.seriesGroup, 'No series group'),
     LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
     LibraryGroupMode.releaseDate => _dateBucket(entry.releaseDate, 'Unknown release date'),
     LibraryGroupMode.releaseMonth =>
@@ -462,6 +470,10 @@ String defaultLibraryBucketLabel(
       entry.releaseDate ?? (entry.releaseYear == null ? null : DateTime(entry.releaseYear!)),
       'Unknown release year',
     ),
+    LibraryGroupMode.coverDate => _dateBucket(entry.coverDate, 'Unknown cover date'),
+    LibraryGroupMode.coverMonth =>
+      _monthBucket(entry.coverDate, fallback: 'Unknown cover month'),
+    LibraryGroupMode.coverYear => _yearBucket(entry.coverDate, 'Unknown cover year'),
     LibraryGroupMode.audioTracks => _stringBucket(entry.video?.audioTracks, 'No audio tracks'),
     LibraryGroupMode.boxSet => _stringBucket(source.ownedItem?.boxSetName, 'No box set'),
     LibraryGroupMode.distributor => _stringBucket(source.ownedItem?.distributor, 'No distributor'),
@@ -494,10 +506,23 @@ String defaultLibraryBucketLabel(
     LibraryGroupMode.writer => _creatorBucketByRole(entry, 'writer'),
     LibraryGroupMode.artist => _creatorBucketByRole(entry, 'artist'),
     LibraryGroupMode.penciller => _creatorBucketByRole(entry, 'penciller'),
+    LibraryGroupMode.inker => _creatorBucketByRole(entry, 'inker'),
     LibraryGroupMode.colorist => _creatorBucketByRole(entry, 'colorist'),
+    LibraryGroupMode.painter => _creatorBucketByRole(entry, 'painter'),
     LibraryGroupMode.letterer => _creatorBucketByRole(entry, 'letterer'),
+    LibraryGroupMode.separator => _creatorBucketByRole(entry, 'separator'),
+    LibraryGroupMode.layouts => _creatorBucketByRole(entry, 'layouts'),
+    LibraryGroupMode.translator => _creatorBucketByRole(entry, 'translator'),
+    LibraryGroupMode.plotter => _creatorBucketByRole(entry, 'plotter'),
+    LibraryGroupMode.scripter => _creatorBucketByRole(entry, 'scripter'),
     LibraryGroupMode.coverArtist => _creatorBucketByRole(entry, 'cover'),
+    LibraryGroupMode.coverPenciller => _creatorBucketByRole(entry, 'cover penciller'),
+    LibraryGroupMode.coverPainter => _creatorBucketByRole(entry, 'cover painter'),
+    LibraryGroupMode.coverInker => _creatorBucketByRole(entry, 'cover inker'),
+    LibraryGroupMode.coverColorist => _creatorBucketByRole(entry, 'cover colorist'),
+    LibraryGroupMode.coverSeparator => _creatorBucketByRole(entry, 'cover separator'),
     LibraryGroupMode.editor => _creatorBucketByRole(entry, 'editor'),
+    LibraryGroupMode.editorInChief => _creatorBucketByRole(entry, 'editor in chief'),
     LibraryGroupMode.location => _locationBucket(entry.locationPath),
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
@@ -754,6 +779,21 @@ bool _matchesCreatorRole(String creditRole, String role) {
       creditRole.contains('photography') ||
       creditRole.contains('director of photography') ||
       creditRole.contains('cinemat'),
+    'artist' => creditRole.contains('artist') && !creditRole.contains('cover'),
+    'painter' => creditRole.contains('paint') && !creditRole.contains('cover'),
+    'cover penciller' =>
+      creditRole.contains('cover') &&
+      (creditRole.contains('pencil') || creditRole.contains('penciller')),
+    'cover painter' =>
+      creditRole.contains('cover') && creditRole.contains('paint'),
+    'cover inker' => creditRole.contains('cover') && creditRole.contains('ink'),
+    'cover colorist' =>
+      creditRole.contains('cover') && creditRole.contains('color'),
+    'cover separator' =>
+      creditRole.contains('cover') && creditRole.contains('separator'),
+    'editor in chief' =>
+      creditRole.contains('editor in chief') ||
+      creditRole.contains('editor-in-chief'),
     _ => creditRole.contains(role),
   };
 }

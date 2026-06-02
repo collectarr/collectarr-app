@@ -245,6 +245,8 @@ void main() {
     expect(find.text('All Creators'), findsOneWidget);
     expect(find.text('Character'), findsOneWidget);
     expect(find.text('Writer'), findsOneWidget);
+    expect(find.text('Inker'), findsOneWidget);
+    expect(find.text('Editor in Chief'), findsOneWidget);
 
     final valueHeader = find.widgetWithText(InkWell, 'Value');
     await tester.ensureVisible(valueHeader);
@@ -254,5 +256,18 @@ void main() {
     expect(find.text('Grade'), findsOneWidget);
     expect(find.text('Purchase Date'), findsOneWidget);
     expect(find.text('My Rating'), findsOneWidget);
+
+    expect(find.text('Crossover'), findsOneWidget);
+    expect(find.text('Imprint'), findsOneWidget);
+    expect(find.text('Series Group'), findsOneWidget);
+
+    final editionHeader = find.widgetWithText(InkWell, 'Edition');
+    await tester.ensureVisible(editionHeader);
+    await tester.tap(editionHeader);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cover Date'), findsOneWidget);
+    expect(find.text('Cover Month'), findsOneWidget);
+    expect(find.text('Cover Year'), findsOneWidget);
   });
 }

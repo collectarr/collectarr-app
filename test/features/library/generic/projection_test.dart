@@ -267,14 +267,14 @@ void main() {
 
     expect(
       genericGroupModeLabel(LibraryGroupMode.location, comicsLibraryConfig),
-      'Location',
+      'Storage Box',
     );
     expect(
       genericGroupModeSidebarTitle(
         LibraryGroupMode.location,
         comicsLibraryConfig,
       ),
-      'Locations',
+      'Storage Boxes',
     );
     expect(
       genericBucketForItemMode(
@@ -344,6 +344,85 @@ void main() {
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
       '1992',
+    );
+  });
+
+  test('comic CLZ grouping uses crossover, imprint, series group, and cover date', () {
+    final item = _projectionItem(
+      source: const ShelfEntry(itemId: 'comic-main-1'),
+      entry: LibraryWorkspaceEntry(
+        id: 'comic-main-1',
+        mediaType: 'comic',
+        title: 'Batman #608',
+        coverDate: DateTime.utc(2002, 10, 1),
+        crossover: 'Hush',
+        publishing: const CatalogPublishingDetails(
+          imprint: 'DC Black Label',
+          seriesGroup: 'Batman Events',
+        ),
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.crossover),
+      'Hush',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.imprint),
+      'DC Black Label',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.seriesGroup),
+      'Batman Events',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverDate),
+      '2002-10-01',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverMonth),
+      'October 2002',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverYear),
+      '2002',
+    );
+  });
+
+  test('comic creator grouping resolves extended CLZ roles', () {
+    final item = _projectionItem(
+      source: const ShelfEntry(itemId: 'comic-credits-1'),
+      entry: LibraryWorkspaceEntry(
+        id: 'comic-credits-1',
+        mediaType: 'comic',
+        title: 'Spawn #1',
+        creators: const [
+          {'name': 'Scott Williams', 'role': 'Inker'},
+          {'name': 'Brian Haberlin', 'role': 'Cover Colorist'},
+          {'name': 'Tom Orzechowski', 'role': 'Letterer'},
+          {'name': 'Neil Gaiman', 'role': 'Plotter'},
+          {'name': 'Tom DeFalco', 'role': 'Editor in Chief'},
+        ],
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.inker),
+      'Scott Williams',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverColorist),
+      'Brian Haberlin',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.plotter),
+      'Neil Gaiman',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.editorInChief),
+      'Tom DeFalco',
     );
   });
 

@@ -22,10 +22,12 @@ sealed class LibraryWorkspaceEntry {
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.publisher,
+    this.coverDate,
     this.releaseDate,
     this.releaseYear,
     this.barcode,
     this.variant,
+    this.crossover,
     this.isOwned = false,
     this.isTracked = false,
     this.isWishlisted = false,
@@ -83,10 +85,12 @@ sealed class LibraryWorkspaceEntry {
     String? coverImageUrl,
     String? thumbnailImageUrl,
     String? publisher,
+    DateTime? coverDate,
     DateTime? releaseDate,
     int? releaseYear,
     String? barcode,
     String? variant,
+    String? crossover,
     bool isOwned = false,
     bool isTracked = false,
     bool isWishlisted = false,
@@ -150,10 +154,12 @@ sealed class LibraryWorkspaceEntry {
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl,
       publisher: publisher,
+      coverDate: coverDate,
       releaseDate: releaseDate,
       releaseYear: releaseYear,
       barcode: barcode,
       variant: variant,
+      crossover: crossover,
       isOwned: isOwned,
       isTracked: isTracked,
       isWishlisted: isWishlisted,
@@ -222,7 +228,9 @@ sealed class LibraryWorkspaceEntry {
     String? fallbackCoverImageUrl,
     String? fallbackThumbnailImageUrl,
     String? fallbackPublisher,
+    DateTime? fallbackCoverDate,
     int? fallbackReleaseYear,
+    String? fallbackCrossover,
     CatalogSeriesDetails? fallbackSeries,
     CatalogPublishingDetails? fallbackPublishing,
     VideoCatalogDetails? fallbackVideo,
@@ -275,10 +283,12 @@ sealed class LibraryWorkspaceEntry {
           fallbackThumbnailImageUrl ??
           fallbackCoverImageUrl,
       publisher: edition.publisher ?? fallbackPublisher,
+        coverDate: fallbackCoverDate,
       releaseDate: edition.releaseDate,
       releaseYear: edition.releaseDate?.year ?? fallbackReleaseYear,
       barcode: primaryVariant?.barcode ?? edition.upc,
       variant: primaryVariant?.name ?? edition.title,
+        crossover: fallbackCrossover,
       isOwned: isOwned,
       isTracked: isTracked,
       isWishlisted: isWishlisted,
@@ -343,10 +353,12 @@ sealed class LibraryWorkspaceEntry {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
+  final DateTime? coverDate;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? crossover;
   final bool isOwned;
   final bool isTracked;
   final bool isWishlisted;
@@ -526,10 +538,12 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           coverImageUrl: common.coverImageUrl,
           thumbnailImageUrl: common.thumbnailImageUrl,
           publisher: common.publisher,
+          coverDate: common.coverDate,
           releaseDate: common.releaseDate,
           releaseYear: common.releaseYear,
           barcode: common.barcode,
           variant: common.variant,
+          crossover: common.crossover,
           isOwned: common.isOwned,
           isTracked: common.isTracked,
           isWishlisted: common.isWishlisted,
@@ -778,10 +792,12 @@ class LibraryWorkspaceEntryData {
     required this.coverImageUrl,
     required this.thumbnailImageUrl,
     required this.publisher,
+    required this.coverDate,
     required this.releaseDate,
     required this.releaseYear,
     required this.barcode,
     required this.variant,
+    required this.crossover,
     required this.isOwned,
     required this.isTracked,
     required this.isWishlisted,
@@ -836,10 +852,12 @@ class LibraryWorkspaceEntryData {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
+  final DateTime? coverDate;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? crossover;
   final bool isOwned;
   final bool isTracked;
   final bool isWishlisted;

@@ -567,10 +567,23 @@ CatalogItem? _updatedCatalogItemForBucket(
     case LibraryGroupMode.writer:
     case LibraryGroupMode.artist:
     case LibraryGroupMode.penciller:
+    case LibraryGroupMode.inker:
     case LibraryGroupMode.colorist:
+    case LibraryGroupMode.painter:
     case LibraryGroupMode.letterer:
+    case LibraryGroupMode.separator:
+    case LibraryGroupMode.layouts:
+    case LibraryGroupMode.translator:
+    case LibraryGroupMode.plotter:
+    case LibraryGroupMode.scripter:
     case LibraryGroupMode.coverArtist:
+    case LibraryGroupMode.coverPenciller:
+    case LibraryGroupMode.coverPainter:
+    case LibraryGroupMode.coverInker:
+    case LibraryGroupMode.coverColorist:
+    case LibraryGroupMode.coverSeparator:
     case LibraryGroupMode.editor:
+    case LibraryGroupMode.editorInChief:
       final creators =
           _updatedCreators(item.creators, mode, currentLabel, replacement);
       return identical(creators, _bucketManagerNoChange)
@@ -600,6 +613,30 @@ CatalogItem? _updatedCatalogItemForBucket(
       return identical(ageRating, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, ageRating: ageRating);
+    case LibraryGroupMode.crossover:
+      final crossover =
+          _updatedStringValue(item.crossover, currentLabel, replacement);
+      return identical(crossover, _bucketManagerNoChange)
+          ? null
+          : _rebuildCatalogItem(item, crossover: crossover);
+    case LibraryGroupMode.imprint:
+      final imprint = _updatedStringValue(
+        item.publishing?.imprint,
+        currentLabel,
+        replacement,
+      );
+      return identical(imprint, _bucketManagerNoChange)
+          ? null
+          : _rebuildCatalogItem(item, imprint: imprint);
+    case LibraryGroupMode.seriesGroup:
+      final seriesGroup = _updatedStringValue(
+        item.publishing?.seriesGroup,
+        currentLabel,
+        replacement,
+      );
+      return identical(seriesGroup, _bucketManagerNoChange)
+          ? null
+          : _rebuildCatalogItem(item, seriesGroup: seriesGroup);
     case LibraryGroupMode.audienceRating:
       final audienceRating = _updatedStringValue(
         item.audienceRating,
@@ -624,6 +661,9 @@ CatalogItem? _rebuildCatalogItem(
   Object? country = _bucketManagerUnset,
   Object? language = _bucketManagerUnset,
   Object? ageRating = _bucketManagerUnset,
+  Object? crossover = _bucketManagerUnset,
+  Object? imprint = _bucketManagerUnset,
+  Object? seriesGroup = _bucketManagerUnset,
   Object? audienceRating = _bucketManagerUnset,
 }) {
   if (identical(creators, _bucketManagerUnset) &&
@@ -634,9 +674,17 @@ CatalogItem? _rebuildCatalogItem(
       identical(country, _bucketManagerUnset) &&
       identical(language, _bucketManagerUnset) &&
       identical(ageRating, _bucketManagerUnset) &&
+      identical(crossover, _bucketManagerUnset) &&
+      identical(imprint, _bucketManagerUnset) &&
+      identical(seriesGroup, _bucketManagerUnset) &&
       identical(audienceRating, _bucketManagerUnset)) {
     return null;
   }
+  final updatedPublishing = _rebuildPublishingDetails(
+    item.publishing,
+    imprint: imprint,
+    seriesGroup: seriesGroup,
+  );
   return CatalogItem(
     id: item.id,
     mediaKind: item.mediaKind,
@@ -658,15 +706,19 @@ CatalogItem? _rebuildCatalogItem(
     publisher: identical(publisher, _bucketManagerUnset)
         ? item.publisher
         : publisher as String?,
+    coverDate: item.coverDate,
     releaseDate: item.releaseDate,
     releaseYear: item.releaseYear,
     barcode: item.barcode,
     variant: item.variant,
+    crossover: identical(crossover, _bucketManagerUnset)
+      ? item.crossover
+      : crossover as String?,
     series: item.series,
     video: item.video,
     music: item.music,
     game: item.game,
-    publishing: item.publishing,
+    publishing: updatedPublishing,
     creators: identical(creators, _bucketManagerUnset)
         ? item.creators
         : creators as List<Map<String, dynamic>>?,
@@ -695,6 +747,32 @@ CatalogItem? _rebuildCatalogItem(
         ? item.audienceRating
         : audienceRating as String?,
   );
+}
+
+CatalogPublishingDetails? _rebuildPublishingDetails(
+  CatalogPublishingDetails? details, {
+  Object? imprint = _bucketManagerUnset,
+  Object? seriesGroup = _bucketManagerUnset,
+}) {
+  if (identical(imprint, _bucketManagerUnset) &&
+      identical(seriesGroup, _bucketManagerUnset)) {
+    return details;
+  }
+  final nextImprint = identical(imprint, _bucketManagerUnset)
+      ? details?.imprint
+      : imprint as String?;
+  final nextSeriesGroup = identical(seriesGroup, _bucketManagerUnset)
+      ? details?.seriesGroup
+      : seriesGroup as String?;
+  final nextDetails = CatalogPublishingDetails(
+    pageCount: details?.pageCount,
+    coverPriceCents: details?.coverPriceCents,
+    currency: details?.currency,
+    imprint: nextImprint,
+    subtitle: details?.subtitle,
+    seriesGroup: nextSeriesGroup,
+  );
+  return nextDetails.hasData ? nextDetails : null;
 }
 
 Object? _updatedStringList(
@@ -817,10 +895,29 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, LibraryGroupMode mode) {
     LibraryGroupMode.artist =>
       role.contains('artist') && !role.contains('cover'),
     LibraryGroupMode.penciller => role.contains('pencil'),
+    LibraryGroupMode.inker => role.contains('ink') && !role.contains('cover'),
     LibraryGroupMode.colorist => role.contains('color'),
+    LibraryGroupMode.painter => role.contains('paint') && !role.contains('cover'),
     LibraryGroupMode.letterer => role.contains('letter'),
+    LibraryGroupMode.separator => role.contains('separator'),
+    LibraryGroupMode.layouts => role.contains('layout'),
+    LibraryGroupMode.translator => role.contains('translat'),
+    LibraryGroupMode.plotter => role.contains('plotter'),
+    LibraryGroupMode.scripter => role.contains('script'),
     LibraryGroupMode.coverArtist => role.contains('cover'),
+    LibraryGroupMode.coverPenciller =>
+      role.contains('cover') && (role.contains('pencil') || role.contains('penciller')),
+    LibraryGroupMode.coverPainter =>
+      role.contains('cover') && role.contains('paint'),
+    LibraryGroupMode.coverInker =>
+      role.contains('cover') && role.contains('ink'),
+    LibraryGroupMode.coverColorist =>
+      role.contains('cover') && role.contains('color'),
+    LibraryGroupMode.coverSeparator =>
+      role.contains('cover') && role.contains('separator'),
     LibraryGroupMode.editor => role.contains('editor'),
+    LibraryGroupMode.editorInChief =>
+      role.contains('editor in chief') || role.contains('editor-in-chief'),
     _ => false,
   };
 }
