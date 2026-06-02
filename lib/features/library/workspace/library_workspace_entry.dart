@@ -19,8 +19,6 @@ sealed class LibraryWorkspaceEntry {
     this.ownedItemId,
     this.itemNumber,
     this.synopsis,
-    this.plotSummary,
-    this.plotDescription,
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.publisher,
@@ -55,17 +53,8 @@ sealed class LibraryWorkspaceEntry {
     this.currency,
     this.locationPath,
     this.addedAt,
-    this.creators,
-    this.characters,
-    this.storyArcs,
-    this.genres,
-    this.country,
-    this.language,
-    this.ageRating,
-    this.audienceRating,
     this.editions = const <CatalogEdition>[],
     required this.updatedAt,
-    this.rawPlatforms,
     this.trailerUrls = const <TrailerLink>[],
   });
 
@@ -153,8 +142,6 @@ sealed class LibraryWorkspaceEntry {
       searchAliases: _copyStringList(searchAliases),
       itemNumber: itemNumber,
       synopsis: synopsis,
-      plotSummary: plotSummary,
-      plotDescription: plotDescription,
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl,
       publisher: publisher,
@@ -189,6 +176,13 @@ sealed class LibraryWorkspaceEntry {
       currency: currency,
       locationPath: locationPath,
       addedAt: addedAt,
+      editions: _copyEditionList(editions),
+      updatedAt: updatedAt,
+      trailerUrls: trailerUrls ?? const <TrailerLink>[],
+    );
+    final metadata = LibraryWorkspaceMetadata(
+      plotSummary: plotSummary,
+      plotDescription: plotDescription,
       creators: _copyMapList(creators),
       characters: _copyStringList(characters),
       storyArcs: _copyStringList(storyArcs),
@@ -197,14 +191,12 @@ sealed class LibraryWorkspaceEntry {
       language: language,
       ageRating: ageRating,
       audienceRating: audienceRating,
-      editions: _copyEditionList(editions),
-      updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
-      trailerUrls: trailerUrls ?? const <TrailerLink>[],
     );
     return _buildTypedWorkspaceEntry(
       mediaType: normalizedMediaType,
       common: common,
+      metadata: metadata,
       series: series,
       publishing: publishing,
       video: video,
@@ -273,8 +265,6 @@ sealed class LibraryWorkspaceEntry {
       searchAliases: _copyStringList(searchAliases),
       itemNumber: null,
       synopsis: fallbackSynopsis,
-      plotSummary: null,
-      plotDescription: null,
       coverImageUrl: primaryVariant?.coverImageUrl ?? fallbackCoverImageUrl,
       thumbnailImageUrl: primaryVariant?.thumbnailImageUrl ??
           primaryVariant?.coverImageUrl ??
@@ -313,6 +303,11 @@ sealed class LibraryWorkspaceEntry {
       currency: null,
       locationPath: null,
       addedAt: null,
+      editions: _copyEditionList(editions.isEmpty ? [edition] : editions),
+      updatedAt: updatedAt,
+      trailerUrls: const <TrailerLink>[],
+    );
+    final metadata = LibraryWorkspaceMetadata(
       creators: _copyMapList(fallbackCreators),
       characters: _copyStringList(fallbackCharacters),
       storyArcs: _copyStringList(fallbackStoryArcs),
@@ -321,14 +316,12 @@ sealed class LibraryWorkspaceEntry {
       language: edition.language ?? fallbackLanguage,
       ageRating: fallbackAgeRating,
       audienceRating: fallbackAudienceRating,
-      editions: _copyEditionList(editions.isEmpty ? [edition] : editions),
-      updatedAt: updatedAt,
       rawPlatforms: _copyStringList(fallbackGame?.platforms),
-      trailerUrls: const <TrailerLink>[],
     );
     return _buildTypedWorkspaceEntry(
       mediaType: normalizedMediaType,
       common: common,
+      metadata: metadata,
       series: fallbackSeries,
       publishing: fallbackPublishing,
       video: fallbackVideo,
@@ -351,8 +344,6 @@ sealed class LibraryWorkspaceEntry {
   final List<String>? searchAliases;
   final String? itemNumber;
   final String? synopsis;
-  final String? plotSummary;
-  final String? plotDescription;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
@@ -387,17 +378,8 @@ sealed class LibraryWorkspaceEntry {
   final String? currency;
   final String? locationPath;
   final DateTime? addedAt;
-  final List<Map<String, dynamic>>? creators;
-  final List<String>? characters;
-  final List<String>? storyArcs;
-  final List<String>? genres;
-  final String? country;
-  final String? language;
-  final String? ageRating;
-  final String? audienceRating;
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
-  final List<String>? rawPlatforms;
   final List<TrailerLink> trailerUrls;
 
   String get resolvedTitle {
@@ -427,12 +409,24 @@ sealed class LibraryWorkspaceEntry {
   VideoCatalogDetails? get video;
   MusicCatalogDetails? get music;
   GameCatalogDetails? get game;
+  String? get plotSummary;
+  String? get plotDescription;
+  List<Map<String, dynamic>>? get creators;
+  List<String>? get characters;
+  List<String>? get storyArcs;
+  List<String>? get genres;
+  String? get country;
+  String? get language;
+  String? get ageRating;
+  String? get audienceRating;
+  List<String>? get rawPlatforms;
 
 }
 
 LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
   required String mediaType,
   required LibraryWorkspaceEntryData common,
+  required LibraryWorkspaceMetadata metadata,
   CatalogSeriesDetails? series,
   CatalogPublishingDetails? publishing,
   VideoCatalogDetails? video,
@@ -443,24 +437,28 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     case 'comic':
       return ComicWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
       );
     case 'manga':
       return MangaWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
       );
     case 'book':
       return BookWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
       );
     case 'movie':
       return MovieWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
@@ -468,6 +466,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     case 'tv':
       return TvWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
@@ -475,6 +474,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     case 'anime':
       return AnimeWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
@@ -482,6 +482,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     case 'music':
       return MusicWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         music: music,
@@ -489,6 +490,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     case 'game':
       return GameWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         game: game,
@@ -496,6 +498,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     case 'boardgame':
       return BoardGameWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         game: game,
@@ -503,6 +506,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
     default:
       return GenericWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
@@ -515,6 +519,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
 abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
   _TypedLibraryWorkspaceEntry._({
     required LibraryWorkspaceEntryData common,
+    required this.metadataDetails,
     this.seriesDetails,
     this.publishingDetails,
     this.videoDetails,
@@ -535,8 +540,6 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           title: common.title,
           itemNumber: common.itemNumber,
           synopsis: common.synopsis,
-          plotSummary: common.plotSummary,
-          plotDescription: common.plotDescription,
           coverImageUrl: common.coverImageUrl,
           thumbnailImageUrl: common.thumbnailImageUrl,
           publisher: common.publisher,
@@ -571,20 +574,12 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           currency: common.currency,
           locationPath: common.locationPath,
           addedAt: common.addedAt,
-          creators: common.creators,
-          characters: common.characters,
-          storyArcs: common.storyArcs,
-          genres: common.genres,
-          country: common.country,
-          language: common.language,
-          ageRating: common.ageRating,
-          audienceRating: common.audienceRating,
           editions: common.editions,
           updatedAt: common.updatedAt,
-          rawPlatforms: common.rawPlatforms,
           trailerUrls: common.trailerUrls,
         );
 
+  final LibraryWorkspaceMetadata metadataDetails;
   final CatalogSeriesDetails? seriesDetails;
   final CatalogPublishingDetails? publishingDetails;
   final VideoCatalogDetails? videoDetails;
@@ -605,15 +600,50 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
 
   @override
   GameCatalogDetails? get game => gameDetails;
+
+  @override
+  String? get plotSummary => metadataDetails.plotSummary;
+
+  @override
+  String? get plotDescription => metadataDetails.plotDescription;
+
+  @override
+  List<Map<String, dynamic>>? get creators => metadataDetails.creators;
+
+  @override
+  List<String>? get characters => metadataDetails.characters;
+
+  @override
+  List<String>? get storyArcs => metadataDetails.storyArcs;
+
+  @override
+  List<String>? get genres => metadataDetails.genres;
+
+  @override
+  String? get country => metadataDetails.country;
+
+  @override
+  String? get language => metadataDetails.language;
+
+  @override
+  String? get ageRating => metadataDetails.ageRating;
+
+  @override
+  String? get audienceRating => metadataDetails.audienceRating;
+
+  @override
+  List<String>? get rawPlatforms => metadataDetails.rawPlatforms;
 }
 
 final class ComicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   ComicWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
         );
@@ -622,10 +652,12 @@ final class ComicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class MangaWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   MangaWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
         );
@@ -634,10 +666,12 @@ final class MangaWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   BookWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
         );
@@ -646,11 +680,13 @@ final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class MovieWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   MovieWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           videoDetails: _videoOrNull(video),
@@ -660,11 +696,13 @@ final class MovieWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class TvWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   TvWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           videoDetails: _videoOrNull(video),
@@ -674,11 +712,13 @@ final class TvWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class AnimeWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   AnimeWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           videoDetails: _videoOrNull(video),
@@ -688,11 +728,13 @@ final class AnimeWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class MusicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   MusicWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     MusicCatalogDetails? music,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           musicDetails: _musicOrNull(music),
@@ -702,11 +744,13 @@ final class MusicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class GameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   GameWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     GameCatalogDetails? game,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           gameDetails: _gameOrNull(game),
@@ -716,11 +760,13 @@ final class GameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class BoardGameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   BoardGameWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     GameCatalogDetails? game,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           gameDetails: _gameOrNull(game),
@@ -730,6 +776,7 @@ final class BoardGameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 final class GenericWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   GenericWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
+    required LibraryWorkspaceMetadata metadata,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     VideoCatalogDetails? video,
@@ -737,12 +784,41 @@ final class GenericWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     GameCatalogDetails? game,
   }) : super._(
           common: common,
+          metadataDetails: metadata,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           videoDetails: _videoOrNull(video),
           musicDetails: _musicOrNull(music),
           gameDetails: _gameOrNull(game),
         );
+}
+
+class LibraryWorkspaceMetadata {
+  const LibraryWorkspaceMetadata({
+    this.plotSummary,
+    this.plotDescription,
+    this.creators,
+    this.characters,
+    this.storyArcs,
+    this.genres,
+    this.country,
+    this.language,
+    this.ageRating,
+    this.audienceRating,
+    this.rawPlatforms,
+  });
+
+  final String? plotSummary;
+  final String? plotDescription;
+  final List<Map<String, dynamic>>? creators;
+  final List<String>? characters;
+  final List<String>? storyArcs;
+  final List<String>? genres;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? audienceRating;
+  final List<String>? rawPlatforms;
 }
 
 class LibraryWorkspaceEntryData {
@@ -761,8 +837,6 @@ class LibraryWorkspaceEntryData {
     required this.searchAliases,
     required this.itemNumber,
     required this.synopsis,
-    required this.plotSummary,
-    required this.plotDescription,
     required this.coverImageUrl,
     required this.thumbnailImageUrl,
     required this.publisher,
@@ -797,17 +871,8 @@ class LibraryWorkspaceEntryData {
     required this.currency,
     required this.locationPath,
     required this.addedAt,
-    required this.creators,
-    required this.characters,
-    required this.storyArcs,
-    required this.genres,
-    required this.country,
-    required this.language,
-    required this.ageRating,
-    required this.audienceRating,
     required this.editions,
     required this.updatedAt,
-    required this.rawPlatforms,
     required this.trailerUrls,
   });
 
@@ -825,8 +890,6 @@ class LibraryWorkspaceEntryData {
   final List<String>? searchAliases;
   final String? itemNumber;
   final String? synopsis;
-  final String? plotSummary;
-  final String? plotDescription;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
@@ -861,17 +924,8 @@ class LibraryWorkspaceEntryData {
   final String? currency;
   final String? locationPath;
   final DateTime? addedAt;
-  final List<Map<String, dynamic>>? creators;
-  final List<String>? characters;
-  final List<String>? storyArcs;
-  final List<String>? genres;
-  final String? country;
-  final String? language;
-  final String? ageRating;
-  final String? audienceRating;
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
-  final List<String>? rawPlatforms;
   final List<TrailerLink> trailerUrls;
 }
 

@@ -18,6 +18,7 @@ LibraryWorkspaceEntry buildGenericLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source);
   return GenericWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
     video: input.item.video,
@@ -32,6 +33,7 @@ LibraryWorkspaceEntry buildBooksLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'book');
   return BookWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
   );
@@ -43,6 +45,7 @@ LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'boardgame');
   return BoardGameWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
     game: input.item.game,
@@ -55,6 +58,7 @@ LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'game');
   return GameWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
     game: input.item.game,
@@ -67,6 +71,7 @@ LibraryWorkspaceEntry buildMusicLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'music');
   return MusicWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
     music: input.item.music,
@@ -79,6 +84,7 @@ LibraryWorkspaceEntry buildMoviesLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source);
   return _buildVideoWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
     video: input.item.video,
@@ -91,6 +97,7 @@ LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
   final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'comic');
   return ComicWorkspaceEntry(
     common: input.common,
+    metadata: input.metadata,
     series: input.item.series,
     publishing: input.item.publishing,
   );
@@ -102,6 +109,7 @@ LibraryWorkspaceEntry buildGenericLibraryReleaseEntry(
   final entry = request.titleEntry;
   return GenericWorkspaceEntry(
     common: _buildReleaseEntryData(request),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
     video: entry.video,
@@ -116,6 +124,7 @@ LibraryWorkspaceEntry buildBooksLibraryReleaseEntry(
   final entry = request.titleEntry;
   return BookWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'book'),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
   );
@@ -127,6 +136,7 @@ LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
   final entry = request.titleEntry;
   return BoardGameWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'boardgame'),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
     game: entry.game,
@@ -139,6 +149,7 @@ LibraryWorkspaceEntry buildGamesLibraryReleaseEntry(
   final entry = request.titleEntry;
   return GameWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'game'),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
     game: entry.game,
@@ -151,6 +162,7 @@ LibraryWorkspaceEntry buildMusicLibraryReleaseEntry(
   final entry = request.titleEntry;
   return MusicWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'music'),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
     music: entry.music,
@@ -163,6 +175,7 @@ LibraryWorkspaceEntry buildMoviesLibraryReleaseEntry(
   final entry = request.titleEntry;
   return _buildVideoWorkspaceEntry(
     common: _buildReleaseEntryData(request),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
     video: entry.video,
@@ -175,6 +188,7 @@ LibraryWorkspaceEntry buildComicsLibraryReleaseEntry(
   final entry = request.titleEntry;
   return ComicWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'comic'),
+    metadata: _buildReleaseEntryMetadata(request),
     series: entry.series,
     publishing: entry.publishing,
   );
@@ -184,10 +198,12 @@ class _ShelfWorkspaceEntryInput {
   const _ShelfWorkspaceEntryInput({
     required this.item,
     required this.common,
+    required this.metadata,
   });
 
   final CatalogItem item;
   final LibraryWorkspaceEntryData common;
+  final LibraryWorkspaceMetadata metadata;
 }
 
 _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
@@ -222,8 +238,6 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
       searchAliases: _copyStringList(item.searchAliases),
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
-      plotSummary: item.plotSummary,
-      plotDescription: item.plotDescription,
       coverImageUrl: item.coverImageUrl,
       thumbnailImageUrl: item.thumbnailImageUrl,
       publisher: item.publisher,
@@ -274,6 +288,13 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
       currency: source.ownedItem?.currency,
       locationPath: source.locationPath,
       addedAt: source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
+      editions: _copyEditionList(resolvedEditions),
+      updatedAt: source.updatedAt,
+      trailerUrls: _copyTrailerList(item.trailerUrls),
+    ),
+    metadata: LibraryWorkspaceMetadata(
+      plotSummary: item.plotSummary,
+      plotDescription: item.plotDescription,
       creators: _copyCreatorList(item.creators),
       characters: _copyStringList(item.characters),
       storyArcs: _copyStringList(item.storyArcs),
@@ -282,10 +303,7 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
       language: item.language,
       ageRating: item.ageRating,
       audienceRating: item.audienceRating,
-      editions: _copyEditionList(resolvedEditions),
-      updatedAt: source.updatedAt,
       rawPlatforms: _copyStringList(item.game?.platforms),
-      trailerUrls: _copyTrailerList(item.trailerUrls),
     ),
   );
 }
@@ -320,8 +338,6 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     searchAliases: _copyStringList(entry.searchAliases),
     itemNumber: null,
     synopsis: entry.synopsis,
-    plotSummary: null,
-    plotDescription: null,
     coverImageUrl: primaryVariant?.coverImageUrl ?? entry.coverImageUrl,
     thumbnailImageUrl: primaryVariant?.thumbnailImageUrl ??
         primaryVariant?.coverImageUrl ??
@@ -360,6 +376,19 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     currency: null,
     locationPath: null,
     addedAt: null,
+    editions: _copyEditionList(
+      request.editions.isEmpty ? [request.edition] : request.editions,
+    ),
+    updatedAt: request.updatedAt,
+    trailerUrls: _copyTrailerList(entry.trailerUrls),
+  );
+}
+
+LibraryWorkspaceMetadata _buildReleaseEntryMetadata(
+  LibraryReleaseEntryRequest request,
+) {
+  final entry = request.titleEntry;
+  return LibraryWorkspaceMetadata(
     creators: _copyCreatorList(entry.creators),
     characters: _copyStringList(entry.characters),
     storyArcs: _copyStringList(entry.storyArcs),
@@ -368,17 +397,13 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     language: request.edition.language ?? entry.language,
     ageRating: entry.ageRating,
     audienceRating: entry.audienceRating,
-    editions: _copyEditionList(
-      request.editions.isEmpty ? [request.edition] : request.editions,
-    ),
-    updatedAt: request.updatedAt,
     rawPlatforms: _copyStringList(entry.game?.platforms),
-    trailerUrls: _copyTrailerList(entry.trailerUrls),
   );
 }
 
 LibraryWorkspaceEntry _buildVideoWorkspaceEntry({
   required LibraryWorkspaceEntryData common,
+  required LibraryWorkspaceMetadata metadata,
   CatalogSeriesDetails? series,
   CatalogPublishingDetails? publishing,
   VideoCatalogDetails? video,
@@ -386,18 +411,21 @@ LibraryWorkspaceEntry _buildVideoWorkspaceEntry({
   return switch (common.mediaType) {
     'tv' => TvWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
       ),
     'anime' => AnimeWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
       ),
     _ => MovieWorkspaceEntry(
         common: common,
+        metadata: metadata,
         series: series,
         publishing: publishing,
         video: video,
