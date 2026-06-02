@@ -1061,10 +1061,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       });
       return;
     }
-    final confirmed = await _confirmMetadataCorrectionPreview(
-      _catalogCorrectionPreview(item, correction),
-    );
-    if (!mounted || !confirmed) {
+    if (!mounted) {
       return;
     }
     setState(() {

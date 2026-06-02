@@ -118,7 +118,7 @@ void main() {
     expect(find.textContaining('IDW'), findsWidgets);
     expect(find.textContaining('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
-    expect(find.text('Plot Summary'), findsOneWidget);
+    expect(find.text('PLOT'), findsOneWidget);
     expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsNothing);
   });
 
@@ -308,7 +308,7 @@ void main() {
 
     expect(find.text('Details'), findsOneWidget);
     expect(find.text('Collector'), findsOneWidget);
-    expect(find.text('Plot Summary'), findsOneWidget);
+    expect(find.text('PLOT'), findsOneWidget);
     expect(find.text('Value'), findsOneWidget);
     expect(find.text('Discovery'), findsNothing);
     expect(find.text('Personal details'), findsNothing);

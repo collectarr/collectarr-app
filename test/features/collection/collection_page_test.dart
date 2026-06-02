@@ -6,12 +6,14 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('shelf page shows local collection stats and filters',
       (tester) async {
+    SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1100, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -102,5 +104,8 @@ void main() {
 
     expect(find.text('Superman, Vol. 4 #8A'), findsNothing);
     expect(find.textContaining('Catalog item'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

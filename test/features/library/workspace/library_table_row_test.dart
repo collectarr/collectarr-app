@@ -33,7 +33,7 @@ void main() {
     final paddingFinder = find.byWidgetPredicate(
       (widget) =>
           widget is Padding &&
-          widget.padding == const EdgeInsets.fromLTRB(8, 2, 5, 2),
+          widget.padding == const EdgeInsets.fromLTRB(8, 1, 5, 1),
     );
     final decoration = tester
         .widget<DecoratedBox>(find.byType(DecoratedBox))

@@ -1457,11 +1457,7 @@ void main() {
 
     expect(find.text('Add Movies'), findsOneWidget);
     expect(find.text('Add Movies from Collectarr Core'), findsNothing);
-    expect(
-      find.text(
-          'Browse releases, compare covers, and add directly to your library.'),
-      findsOneWidget,
-    );
+    expect(find.text('Find movies or box sets'), findsOneWidget);
     expect(find.text('Movies'), findsWidgets);
     expect(find.text('TV'), findsNothing);
     expect(find.text('Box Sets'), findsOneWidget);

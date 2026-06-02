@@ -79,8 +79,8 @@ void main() {
     expect(
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
-    expect(moviesWorkspaceConfig.accent, const Color(0xFFE05252));
-    expect(libraryAccentForKind('anime'), const Color(0xFFE05252));
+    expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
+    expect(libraryAccentForKind('anime'), const Color(0xFF42AA55));
     expect(libraryIconForKind('tv'), Icons.movie_outlined);
     expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
   });
@@ -432,6 +432,7 @@ void main() {
       LibraryGroupMode.country,
       LibraryGroupMode.genre,
       LibraryGroupMode.language,
+      LibraryGroupMode.ageRating,
       LibraryGroupMode.movieOrTvSeries,
       LibraryGroupMode.releaseDate,
       LibraryGroupMode.releaseMonth,

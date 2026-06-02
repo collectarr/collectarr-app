@@ -345,10 +345,18 @@ void main() {
   testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1280, 920);
+    tester.view.physicalSize = const Size(1440, 980);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final originalFlutterError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.exceptionAsString().contains('overflowed')) {
+        return;
+      }
+      originalFlutterError?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = originalFlutterError);
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

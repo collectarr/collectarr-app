@@ -73,14 +73,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select Series'), findsOneWidget);
-    expect(
-      find.text('Choose the series entry this comic should use.'),
-      findsOneWidget,
-    );
     expect(find.text('Name'), findsOneWidget);
     expect(find.text('Sort Name'), findsOneWidget);
     expect(find.text('Count'), findsOneWidget);
     expect(find.text('2 series'), findsOneWidget);
+    expect(find.text('Search by series name or sort name'), findsOneWidget);
 
     await tester.tap(find.text('Beta Squad').first);
     await tester.pumpAndSettle();
@@ -143,10 +140,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Series'), findsOneWidget);
-    expect(
-      find.text('Rename, merge, and normalize the local series registry.'),
-      findsOneWidget,
-    );
+    expect(find.text('Search by series name or sort name'), findsOneWidget);
+    expect(find.text('2 entries'), findsOneWidget);
     expect(find.text('Actions'), findsOneWidget);
     expect(find.byTooltip('Edit series'), findsNWidgets(2));
     expect(find.byTooltip('Merge series'), findsNWidgets(2));
