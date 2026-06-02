@@ -18,6 +18,7 @@ void main() {
   testWidgets('selection toolbar band shows selection controls', (tester) async {
     final callbacks = (
       onClearSelection: () {},
+      onSelectAll: () {},
       onBulkEdit: () {},
       onBulkMoveToOwned: () {},
       onBulkMoveToWishlist: () {},
@@ -30,15 +31,19 @@ void main() {
         home: Scaffold(
           body: LibrarySelectionToolbarBand(
             selectedCount: 3,
+            totalSelectableCount: 12,
             callbacks: callbacks,
           ),
         ),
       ),
     );
 
-    expect(find.text('3 selected'), findsOneWidget);
-    expect(find.text('Clear selection'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
+    expect(find.text('All'), findsOneWidget);
+    expect(find.text('3 of 12 selected'), findsOneWidget);
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Print to PDF'), findsOneWidget);
+    expect(find.text('Update values'), findsOneWidget);
   });
 }

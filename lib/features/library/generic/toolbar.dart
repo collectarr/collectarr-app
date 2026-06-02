@@ -69,6 +69,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onDownloadAllCovers,
     this.selectionEnabled = false,
     this.selectedCount = 0,
+    this.totalSelectableCount = 0,
     this.selectionCallbacks,
     this.shelfState,
     this.onSmartLists,
@@ -137,6 +138,7 @@ class LibraryToolbar extends StatelessWidget {
   final ShelfState? shelfState;
   final bool selectionEnabled;
   final int selectedCount;
+  final int totalSelectableCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
@@ -221,6 +223,7 @@ class LibraryToolbar extends StatelessWidget {
                   onLetterSelected: onLetterSelected,
                   selectionCallbacks: selectionCallbacks,
                   selectedCount: selectedCount,
+                  totalSelectableCount: totalSelectableCount,
                 );
               }
 
@@ -296,6 +299,7 @@ class LibraryToolbar extends StatelessWidget {
                     const LibraryToolbarDividerLine(),
                     LibrarySelectionToolbarBand(
                       selectedCount: selectedCount,
+                      totalSelectableCount: totalSelectableCount,
                       callbacks: selectionCallbacks!,
                     ),
                   ],

@@ -490,12 +490,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                         : null,
                     selectionEnabled: _selection.enabled,
                     selectedCount: _selection.selectedCount,
+                    totalSelectableCount: projection?.filteredItems.length ?? 0,
                     includeDesktopSecondaryBand: false,
                     selectionCallbacks: (
                       onClearSelection: () => setState(() {
                             _selection = _selection.clear();
                             _selectionAnchorId = null;
                           }),
+                      onSelectAll: () {
+                        if (projection != null) {
+                          _selectAllVisible(projection);
+                        }
+                      },
                       onBulkEdit: () => bulkEditFlow(projection),
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                       onBulkMoveToWishlist: () =>

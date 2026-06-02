@@ -744,10 +744,12 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
   const LibrarySelectionToolbarBand({
     super.key,
     required this.selectedCount,
+    required this.totalSelectableCount,
     required this.callbacks,
   });
 
   final int selectedCount;
+  final int totalSelectableCount;
   final LibrarySelectionCallbacks callbacks;
 
   @override
@@ -755,53 +757,61 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: palette.highlight.withValues(alpha: 0.78),
+        color: palette.panel,
         border: Border(
           top: BorderSide(color: palette.divider),
           bottom: BorderSide(color: palette.divider),
         ),
       ),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 8,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        alignment: WrapAlignment.spaceBetween,
+      child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: palette.surface.withValues(alpha: 0.38),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: palette.divider),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.checklist, size: 16, color: palette.textMuted),
-                const SizedBox(width: 6),
-                Text(
-                  '$selectedCount selected',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          TextButton.icon(
+          TextButton(
             onPressed: callbacks.onClearSelection,
-            icon: const Icon(Icons.close, size: 16),
-            label: const Text('Clear selection'),
             style: TextButton.styleFrom(
               visualDensity: VisualDensity.compact,
               foregroundColor: palette.textMuted,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: callbacks.onSelectAll,
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              foregroundColor: palette.textPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            child: const Text('All'),
+          ),
+          Container(
+            width: 1,
+            height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            color: palette.divider,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: LibrarySelectionControls(
+                callbacks: callbacks,
+              ),
             ),
           ),
-          LibrarySelectionControls(
-            selectedCount: selectedCount,
-            callbacks: callbacks,
+          const SizedBox(width: 12),
+          Text(
+            '$selectedCount of $totalSelectableCount selected',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: palette.textMuted,
+                ),
           ),
         ],
       ),
@@ -865,6 +875,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.onLetterSelected,
     this.selectionCallbacks,
     this.selectedCount = 0,
+    this.totalSelectableCount = 0,
   });
 
   final LibraryTypeConfig type;
@@ -921,6 +932,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final ValueChanged<String?>? onLetterSelected;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
+  final int totalSelectableCount;
 
   @override
   Widget build(BuildContext context) {
@@ -1033,6 +1045,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
           const LibraryToolbarDividerLine(),
           LibrarySelectionToolbarBand(
             selectedCount: selectedCount,
+            totalSelectableCount: totalSelectableCount,
             callbacks: selectionCallbacks!,
           ),
         ],

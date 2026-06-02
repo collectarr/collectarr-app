@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-enum _BulkAction { edit, owned, wishlist, remove, refreshMetadata, clear }
+enum _BulkAction { owned, wishlist, refreshMetadata }
 
 typedef LibrarySelectionCallbacks = ({
   VoidCallback onClearSelection,
+  VoidCallback onSelectAll,
   VoidCallback onBulkEdit,
   VoidCallback onBulkMoveToOwned,
   VoidCallback onBulkMoveToWishlist,
@@ -14,11 +15,9 @@ typedef LibrarySelectionCallbacks = ({
 class LibrarySelectionControls extends StatelessWidget {
   const LibrarySelectionControls({
     super.key,
-    required this.selectedCount,
     required this.callbacks,
   });
 
-  final int selectedCount;
   final LibrarySelectionCallbacks callbacks;
 
   void _dispatchAfterMenuClose(VoidCallback action) {
@@ -27,62 +26,87 @@ class LibrarySelectionControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (selectedCount == 0) {
-      return const SizedBox.shrink();
-    }
     return Wrap(
       spacing: 6,
       runSpacing: 6,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        FilledButton.tonalIcon(
+        TextButton.icon(
           onPressed: callbacks.onBulkEdit,
-          icon: const Icon(Icons.edit_outlined, size: 16),
+          icon: const Icon(Icons.edit_outlined, size: 15),
           label: const Text('Edit'),
-          style: FilledButton.styleFrom(
+          style: TextButton.styleFrom(
             visualDensity: VisualDensity.compact,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
           ),
         ),
-        const SizedBox(width: 6),
-        FilledButton.tonalIcon(
+        TextButton.icon(
           onPressed: callbacks.onBulkRemove,
-          icon: const Icon(Icons.delete_outline, size: 16),
+          icon: Icon(
+            Icons.delete_outline,
+            size: 15,
+            color: Theme.of(context).colorScheme.error,
+          ),
           label: const Text('Remove'),
-          style: FilledButton.styleFrom(
+          style: TextButton.styleFrom(
             visualDensity: VisualDensity.compact,
             foregroundColor: Theme.of(context).colorScheme.error,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: callbacks.onBulkRefreshMetadata,
+          icon: const Icon(Icons.picture_as_pdf_outlined, size: 15),
+          label: const Text('Print to PDF'),
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: callbacks.onBulkMoveToOwned,
+          icon: const Icon(Icons.tune, size: 15),
+          label: const Text('Update values'),
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
           ),
         ),
         PopupMenuButton<_BulkAction>(
-          tooltip: 'More bulk actions',
-          enabled: selectedCount > 0,
-          style: FilledButton.styleFrom(
+          tooltip: 'More selection actions',
+          style: TextButton.styleFrom(
             visualDensity: VisualDensity.compact,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
           ),
-          icon: const Icon(Icons.more_horiz),
+          icon: const Icon(Icons.more_horiz, size: 18),
           onSelected: (action) {
             final callback = switch (action) {
-              _BulkAction.edit => callbacks.onBulkEdit,
               _BulkAction.owned => callbacks.onBulkMoveToOwned,
               _BulkAction.wishlist => callbacks.onBulkMoveToWishlist,
-              _BulkAction.remove => callbacks.onBulkRemove,
               _BulkAction.refreshMetadata => callbacks.onBulkRefreshMetadata,
-              _BulkAction.clear => callbacks.onClearSelection,
             };
             _dispatchAfterMenuClose(callback);
           },
           itemBuilder: (context) => const [
-            PopupMenuItem(
-              value: _BulkAction.edit,
-              child: ListTile(
-                leading: Icon(Icons.edit_note),
-                title: Text('Bulk edit'),
-                dense: true,
-              ),
-            ),
             PopupMenuItem(
               value: _BulkAction.owned,
               child: ListTile(
@@ -100,26 +124,10 @@ class LibrarySelectionControls extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
-              value: _BulkAction.remove,
-              child: ListTile(
-                leading: Icon(Icons.delete_outline),
-                title: Text('Remove selected'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
               value: _BulkAction.refreshMetadata,
               child: ListTile(
                 leading: Icon(Icons.sync),
                 title: Text('Refresh metadata'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
-              value: _BulkAction.clear,
-              child: ListTile(
-                leading: Icon(Icons.deselect),
-                title: Text('Clear selection'),
                 dense: true,
               ),
             ),
