@@ -63,8 +63,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Favorites'), findsOneWidget);
-  expect(find.byIcon(Icons.push_pin), findsNothing);
-  expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
+    expect(find.byIcon(Icons.push_pin), findsNothing);
+    expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Folders'), findsOneWidget);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
@@ -91,6 +91,48 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Format'), findsNothing);
+  });
+
+  testWidgets('sidebar header exposes a separate favorites manager button', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              height: 420,
+              child: LibrarySidebar(
+                type: moviesLibraryConfig,
+                accent: Colors.cyan,
+                buckets: const [
+                  LibrarySeriesBucket(title: 'All Movies', count: 12),
+                ],
+                groupMode: LibraryGroupMode.releaseYear,
+                folderPreset: LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
+                selectedBucket: 'All Movies',
+                onSelected: (_) {},
+                onGroupModeChanged: (_) {},
+                collectionStatusScope: LibraryCollectionStatusScope.all,
+                onClearFilter: () {},
+                pinnedFolderPresets: [
+                  LibraryFolderPreset.single(LibraryGroupMode.director),
+                ],
+                onPinnedFolderPresetsChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Manage favorites'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Manage favorites'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Manage Folder Favorites'), findsOneWidget);
   });
 
   testWidgets('sidebar shows a manage button for editable group buckets', (

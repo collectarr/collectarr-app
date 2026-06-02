@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
@@ -11,6 +12,22 @@ class _ManageFavoritesRequest {
   const _ManageFavoritesRequest(this.favoritePresets);
 
   final List<LibraryFolderPreset> favoritePresets;
+}
+
+Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
+  required BuildContext context,
+  required LibraryTypeConfig type,
+  required List<LibraryGroupMode> availableModes,
+  List<LibraryFolderPreset> initialFavorites = const [],
+}) {
+  return showDialog<List<LibraryFolderPreset>>(
+    context: context,
+    builder: (dialogContext) => _GroupModeFavoritesDialog(
+      type: type,
+      availableModes: availableModes,
+      initialFavorites: initialFavorites,
+    ),
+  );
 }
 
 class LibraryGroupModeMenuButton extends StatelessWidget {
@@ -141,13 +158,11 @@ class LibraryGroupModeMenuButton extends StatelessWidget {
         if (!context.mounted) {
           return;
         }
-        final updated = await showDialog<List<LibraryFolderPreset>>(
+        final updated = await showLibraryFolderFavoritesDialog(
           context: context,
-          builder: (dialogContext) => _GroupModeFavoritesDialog(
-            type: type,
-            availableModes: modes,
-            initialFavorites: value.favoritePresets,
-          ),
+          type: type,
+          availableModes: modes,
+          initialFavorites: value.favoritePresets,
         );
         if (updated != null && context.mounted) {
           onPinnedPresetsChanged?.call(updated);
@@ -195,7 +210,7 @@ class _LibraryGroupModeDropdownMenuState
   void initState() {
     super.initState();
     _pinnedPresets = List<LibraryFolderPreset>.from(widget.initialPinnedPresets);
-    _categories = _categorizeGroupModes(widget.availableModes);
+    _categories = _categorizeGroupModes(widget.type, widget.availableModes);
     _expandedSections = {
       if (_pinnedPresets.isNotEmpty) 'Favorites': true,
       for (final category in _categories)
@@ -511,7 +526,71 @@ class _GroupModeCategory {
   final List<LibraryGroupMode> modes;
 }
 
-List<_GroupModeCategory> _categorizeGroupModes(List<LibraryGroupMode> modes) {
+List<_GroupModeCategory> _categorizeGroupModes(
+  LibraryTypeConfig type,
+  List<LibraryGroupMode> modes,
+) {
+  if (type.workspace.kind == CatalogMediaKind.comic) {
+    const mainModes = {
+      LibraryGroupMode.series,
+      LibraryGroupMode.ageRating,
+      LibraryGroupMode.country,
+      LibraryGroupMode.genre,
+      LibraryGroupMode.language,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.releaseDate,
+      LibraryGroupMode.releaseMonth,
+      LibraryGroupMode.releaseYear,
+      LibraryGroupMode.storyArc,
+    };
+    const valueModes = {
+      LibraryGroupMode.grade,
+      LibraryGroupMode.condition,
+      LibraryGroupMode.isKeyComic,
+      LibraryGroupMode.rawOrSlabbed,
+      LibraryGroupMode.myRating,
+      LibraryGroupMode.purchaseDate,
+      LibraryGroupMode.purchaseMonth,
+      LibraryGroupMode.purchaseYear,
+      LibraryGroupMode.purchaseStore,
+      LibraryGroupMode.owner,
+    };
+    const editionModes = {
+      LibraryGroupMode.format,
+    };
+    const creatorsAndCharactersModes = {
+      LibraryGroupMode.creator,
+      LibraryGroupMode.artist,
+      LibraryGroupMode.character,
+      LibraryGroupMode.colorist,
+      LibraryGroupMode.coverArtist,
+      LibraryGroupMode.editor,
+      LibraryGroupMode.letterer,
+      LibraryGroupMode.penciller,
+      LibraryGroupMode.writer,
+    };
+    final main = modes.where(mainModes.contains).toList();
+    final value = modes.where(valueModes.contains).toList();
+    final edition = modes.where(editionModes.contains).toList();
+    final creatorsAndCharacters = modes
+        .where(creatorsAndCharactersModes.contains)
+        .toList();
+    final personal = modes
+        .where((mode) =>
+            !mainModes.contains(mode) &&
+            !valueModes.contains(mode) &&
+            !editionModes.contains(mode) &&
+            !creatorsAndCharactersModes.contains(mode))
+        .toList();
+    return [
+      if (main.isNotEmpty) _GroupModeCategory('Main', main),
+      if (value.isNotEmpty) _GroupModeCategory('Value', value),
+      if (edition.isNotEmpty) _GroupModeCategory('Edition', edition),
+      if (creatorsAndCharacters.isNotEmpty)
+        _GroupModeCategory('Creators & Characters', creatorsAndCharacters),
+      if (personal.isNotEmpty) _GroupModeCategory('Personal', personal),
+    ];
+  }
   const mainModes = {
     LibraryGroupMode.series,
     LibraryGroupMode.storyArc,
@@ -613,7 +692,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     _fieldSearchController = TextEditingController();
     _draftModes = const [];
     _expandedEditorSections = {
-      for (final category in _categorizeGroupModes(widget.availableModes))
+      for (final category in _categorizeGroupModes(widget.type, widget.availableModes))
         category.label: category.label == 'Main',
     };
   }
@@ -779,7 +858,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   List<_GroupModeCategory> get _filteredCategories {
     final query = _fieldSearch.trim().toLowerCase();
-    final categories = _categorizeGroupModes(widget.availableModes);
+    final categories = _categorizeGroupModes(widget.type, widget.availableModes);
     if (query.isEmpty) {
       return categories;
     }

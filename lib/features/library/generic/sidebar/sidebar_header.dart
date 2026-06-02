@@ -84,6 +84,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     final navigateBack = onNavigateBack;
     final clearFilter = onClearFilter;
     final hideSidebar = onHideSidebar;
+    final manageFavorites = onPinnedFolderPresetsChanged;
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
@@ -127,7 +128,27 @@ class LibrarySidebarHeader extends StatelessWidget {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ],
-            if (manageBuckets != null &&
+          if (manageFavorites != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: 'Manage favorites',
+              icon: Icons.list_alt_outlined,
+              onPressed: () async {
+                final updated = await showLibraryFolderFavoritesDialog(
+                  context: context,
+                  type: type,
+                  availableModes: libraryGroupModesForType(type),
+                  initialFavorites: pinnedFolderPresets,
+                );
+                if (updated != null && context.mounted) {
+                  manageFavorites(updated);
+                }
+              },
+              active: pinnedFolderPresets.isNotEmpty,
+              activeColor: accent,
+            ),
+          ],
+          if (manageBuckets != null &&
               libraryGroupModeSupportsBucketManagement(type, groupMode)) ...[
             const SizedBox(width: 4),
             _LibrarySidebarToolbarButton(

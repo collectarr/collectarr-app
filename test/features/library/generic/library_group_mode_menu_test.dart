@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:flutter/material.dart';
@@ -208,5 +209,50 @@ void main() {
     );
 
     expect(find.text('Age / Country'), findsOneWidget);
+  });
+
+  testWidgets('comic group mode dropdown uses CLZ-like section taxonomy', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeDropdownMenu(
+            type: comicsLibraryConfig,
+            selectedPreset: LibraryFolderPreset.single(LibraryGroupMode.publisher),
+            availableModes: libraryGroupModesForType(comicsLibraryConfig),
+            initialPinnedPresets: [
+              LibraryFolderPreset.single(LibraryGroupMode.series),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Edition'), findsOneWidget);
+    expect(find.text('Creators & Characters'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Cast & Crew'), findsNothing);
+    expect(find.text('All Creators'), findsNothing);
+
+    final creatorsHeader = find.widgetWithText(InkWell, 'Creators & Characters');
+    await tester.ensureVisible(creatorsHeader);
+    await tester.tap(creatorsHeader);
+    await tester.pumpAndSettle();
+
+    expect(find.text('All Creators'), findsOneWidget);
+    expect(find.text('Character'), findsOneWidget);
+    expect(find.text('Writer'), findsOneWidget);
+
+    final valueHeader = find.widgetWithText(InkWell, 'Value');
+    await tester.ensureVisible(valueHeader);
+    await tester.tap(valueHeader);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Grade'), findsOneWidget);
+    expect(find.text('Purchase Date'), findsOneWidget);
+    expect(find.text('My Rating'), findsOneWidget);
   });
 }
