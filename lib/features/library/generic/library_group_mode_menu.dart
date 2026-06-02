@@ -597,6 +597,7 @@ class _GroupModeFavoritesDialog extends StatefulWidget {
 class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
   late final List<LibraryFolderPreset> _favoritePresets;
   int? _editingIndex;
+  var _isCreatingFavorite = false;
   late List<LibraryGroupMode> _draftModes;
   late final TextEditingController _fieldSearchController;
   late Map<String, bool> _expandedEditorSections;
@@ -623,12 +624,13 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     super.dispose();
   }
 
-  bool get _isEditorVisible => _editingIndex != null || _draftModes.isNotEmpty;
+  bool get _isEditorVisible =>
+      _isCreatingFavorite || _editingIndex != null || _draftModes.isNotEmpty;
 
   bool get _hasDraft => _draftModes.isNotEmpty;
 
   String get _draftTitle {
-    if (_editingIndex == null) {
+    if (_isCreatingFavorite) {
       return 'Select one or more fields';
     }
     return 'Edit folder favorite';
@@ -652,6 +654,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   void _startAddFavorite() {
     setState(() {
+      _isCreatingFavorite = true;
       _editingIndex = null;
       _draftModes = [];
       _fieldSearch = '';
@@ -661,6 +664,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   void _startEditFavorite(int index) {
     setState(() {
+      _isCreatingFavorite = false;
       _editingIndex = index;
       _draftModes = List<LibraryGroupMode>.from(_favoritePresets[index].modes);
       _fieldSearch = '';
@@ -670,6 +674,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   void _cancelEditor() {
     setState(() {
+      _isCreatingFavorite = false;
       _editingIndex = null;
       _draftModes = [];
       _fieldSearch = '';
@@ -764,6 +769,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
       } else {
         _favoritePresets[_editingIndex!] = preset;
       }
+      _isCreatingFavorite = false;
       _editingIndex = null;
       _draftModes = [];
       _fieldSearch = '';
@@ -995,29 +1001,40 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                                             style: OutlinedButton.styleFrom(
                                                               visualDensity: VisualDensity.compact,
                                                               padding: const EdgeInsets.symmetric(
-                                                                horizontal: 10,
-                                                                vertical: 8,
+                                                                horizontal: 9,
+                                                                vertical: 7,
                                                               ),
                                                               shape: const RoundedRectangleBorder(),
+                                                              minimumSize: const Size(0, 30),
                                                             ),
                                                           ),
                                                           const SizedBox(width: 8),
                                                           FilledButton.tonal(
-                                                            onPressed: () => setState(() {
-                                                              _favoritePresets.removeAt(index);
-                                                              if (_editingIndex == index) {
-                                                                _cancelEditor();
-                                                              }
-                                                            }),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _favoritePresets.removeAt(index);
+                                                                if (_editingIndex == index) {
+                                                                  _isCreatingFavorite = false;
+                                                                  _editingIndex = null;
+                                                                  _draftModes = [];
+                                                                  _fieldSearch = '';
+                                                                  _fieldSearchController.clear();
+                                                                } else if (_editingIndex != null &&
+                                                                    index < _editingIndex!) {
+                                                                  _editingIndex = _editingIndex! - 1;
+                                                                }
+                                                              });
+                                                            },
                                                             style: FilledButton.styleFrom(
                                                               backgroundColor: theme.colorScheme.errorContainer,
                                                               foregroundColor: theme.colorScheme.onErrorContainer,
                                                               visualDensity: VisualDensity.compact,
                                                               padding: const EdgeInsets.symmetric(
-                                                                horizontal: 10,
-                                                                vertical: 8,
+                                                                horizontal: 9,
+                                                                vertical: 7,
                                                               ),
                                                               shape: const RoundedRectangleBorder(),
+                                                              minimumSize: const Size(30, 30),
                                                             ),
                                                             child: const Icon(Icons.delete_outline, size: 16),
                                                           ),
@@ -1075,6 +1092,10 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                             onChanged: (value) => setState(() => _fieldSearch = value),
                                             decoration: InputDecoration(
                                               isDense: true,
+                                              contentPadding: const EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 10,
+                                              ),
                                               prefixIcon: const Icon(Icons.search, size: 18),
                                               suffixIcon: _fieldSearch.isEmpty
                                                   ? null
@@ -1204,6 +1225,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                                                           IconButton(
                                                                             tooltip: 'Remove field',
                                                                             onPressed: () => _toggleDraftMode(mode),
+                                                                            visualDensity: VisualDensity.compact,
                                                                             icon: const Icon(Icons.close, size: 16),
                                                                           ),
                                                                         ],
@@ -1305,7 +1327,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
         InkWell(
           onTap: () => _toggleEditorSection(category.label),
           child: Container(
-            padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
             decoration: BoxDecoration(
               color: libraryToolbarControlSurface(context),
               border: Border(
@@ -1354,7 +1376,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
               InkWell(
                 onTap: () => _toggleDraftMode(mode),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  padding: const EdgeInsets.fromLTRB(12, 7, 12, 7),
                   child: Row(
                     children: [
                       Icon(

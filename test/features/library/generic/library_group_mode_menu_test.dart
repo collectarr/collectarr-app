@@ -156,6 +156,38 @@ void main() {
     );
   });
 
+  testWidgets('add favorite button opens the editor pane', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeMenuButton(
+            type: moviesLibraryConfig,
+            folderPreset: LibraryFolderPreset.single(
+              LibraryGroupMode.releaseYear,
+            ),
+            accent: Colors.cyan,
+            icon: Icons.account_tree_outlined,
+            onChanged: (_) {},
+            pinnedFolderPresets: const [],
+            onPinnedPresetsChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('folderFavoritesAddButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select one or more fields'), findsWidgets);
+    expect(find.byKey(const ValueKey('folderFavoritesDraftSaveButton')), findsOneWidget);
+  });
+
   testWidgets('group mode button shows the configured folder set label', (
     tester,
   ) async {

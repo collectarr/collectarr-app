@@ -1726,6 +1726,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       kind: widget.type.workspace.kind.apiValue,
       searchQuery: _trimmedQuery(_searchController.text),
       groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
+      folderPreset: viewState.isSidebarVisible ? _activeFolderPreset : null,
       selectedBucket: _selectedBucket,
       linkedMetadataValue: _linkedMetadataFilter?.value,
       selectedLetter: _selectedLetter,
@@ -1766,12 +1767,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       sortRules: routeState.sortRules ?? currentViewState.sortRules,
     );
     final sidebarVisible = _viewState!.isSidebarVisible;
+    final routeFolderPreset = sanitizeLibraryFolderPreset(
+      routeState.folderPreset,
+      allowedModes: widget.type.availableGroupModes,
+    );
     _groupMode = sidebarVisible
-        ? routeState.groupMode ?? libraryDefaultGroupMode(widget.type)
-        : null;
-    _folderPreset = _groupMode == null
+      ? routeFolderPreset?.primaryMode ??
+        routeState.groupMode ??
+        libraryDefaultGroupMode(widget.type)
+      : null;
+    _folderPreset = !sidebarVisible
       ? null
-      : LibraryFolderPreset.single(_groupMode!);
+      : routeFolderPreset ??
+        (_groupMode == null ? null : LibraryFolderPreset.single(_groupMode!));
     _selectedBucket = routeState.selectedBucket;
     _selectedLetter = routeState.selectedLetter;
     _linkedMetadataFilter = routeState.linkedMetadataValue == null

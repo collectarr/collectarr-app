@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
@@ -11,6 +11,7 @@ class LibraryRouteState {
     this.kind,
     this.searchQuery,
     this.groupMode,
+    this.folderPreset,
     this.selectedBucket,
     this.linkedMetadataValue,
     this.selectedLetter,
@@ -36,6 +37,7 @@ class LibraryRouteState {
   final String? kind;
   final String? searchQuery;
   final LibraryGroupMode? groupMode;
+  final LibraryFolderPreset? folderPreset;
   final String? selectedBucket;
   final String? linkedMetadataValue;
   final String? selectedLetter;
@@ -47,6 +49,7 @@ class LibraryRouteState {
 
   bool get hasExplicitViewState {
     return searchQuery != null ||
+      folderPreset != null ||
         groupMode != null ||
         selectedBucket != null ||
         linkedMetadataValue != null ||
@@ -60,10 +63,12 @@ class LibraryRouteState {
 
   factory LibraryRouteState.fromUri(Uri uri) {
     final params = uri.queryParameters;
+    final folderPreset = _decodeFolderPreset(params[folderKey]);
     return LibraryRouteState(
       kind: _trimmed(params[kindKey])?.toLowerCase(),
       searchQuery: _trimmed(params[searchKey]),
-      groupMode: _enumByName(LibraryGroupMode.values, params[folderKey]),
+      groupMode: folderPreset?.primaryMode,
+      folderPreset: folderPreset,
       selectedBucket: _trimmed(params[filterValueKey]),
       linkedMetadataValue: _trimmed(params[linkedValueKey]),
       selectedLetter: _trimmed(params[letterKey]),
@@ -84,8 +89,9 @@ class LibraryRouteState {
     if (trimmedQuery != null) {
       params[searchKey] = trimmedQuery;
     }
-    if (groupMode != null) {
-      params[folderKey] = groupMode!.name;
+    final encodedFolderPreset = folderPreset?.storageValue ?? groupMode?.name;
+    if (encodedFolderPreset != null) {
+      params[folderKey] = encodedFolderPreset;
     }
     final trimmedBucket = _trimmed(selectedBucket);
     if (trimmedBucket != null) {
@@ -121,6 +127,10 @@ class LibraryRouteState {
 
   LibraryRouteState filteredForType(LibraryTypeConfig type) {
     final allowedGroupModes = type.availableGroupModes.toSet();
+    final filteredFolderPreset = sanitizeLibraryFolderPreset(
+      folderPreset,
+      allowedModes: allowedGroupModes,
+    );
     final allowedSortColumns = type.availableSortColumns.toSet();
     final filteredSortRules = sortRules == null
         ? null
@@ -131,9 +141,11 @@ class LibraryRouteState {
     return LibraryRouteState(
       kind: kind,
       searchQuery: searchQuery,
-      groupMode: groupMode != null && allowedGroupModes.contains(groupMode)
-          ? groupMode
-          : null,
+        groupMode: filteredFolderPreset?.primaryMode ??
+          (groupMode != null && allowedGroupModes.contains(groupMode)
+            ? groupMode
+            : null),
+        folderPreset: filteredFolderPreset,
       selectedBucket: selectedBucket,
       linkedMetadataValue: linkedMetadataValue,
       selectedLetter: selectedLetter,
@@ -177,6 +189,18 @@ class LibraryRouteState {
       );
     }
     return decoded.isEmpty ? null : decoded;
+  }
+
+  static LibraryFolderPreset? _decodeFolderPreset(String? rawValue) {
+    final trimmedValue = _trimmed(rawValue);
+    if (trimmedValue == null) {
+      return null;
+    }
+    try {
+      return LibraryFolderPreset.parse(trimmedValue);
+    } catch (_) {
+      return null;
+    }
   }
 
   static String? _encodeFilterSelection(LibraryFilterSelection selection) {

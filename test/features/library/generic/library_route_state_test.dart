@@ -1,16 +1,19 @@
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('library route state round-trips reproducible view params', () {
-    const state = LibraryRouteState(
+    final state = LibraryRouteState(
       kind: 'movie',
       searchQuery: 'alien',
       groupMode: LibraryGroupMode.genre,
+      folderPreset: LibraryFolderPreset(
+        modes: [LibraryGroupMode.genre, LibraryGroupMode.releaseYear],
+      ),
       selectedBucket: 'Action',
       selectedLetter: 'A',
       linkedMetadataValue: 'Ridley Scott',
@@ -33,12 +36,18 @@ void main() {
     final parsed = LibraryRouteState.fromUri(uri);
 
     expect(uri.queryParameters['kind'], 'movie');
-    expect(uri.queryParameters['folder'], 'genre');
+    expect(uri.queryParameters['folder'], 'genre>releaseYear');
     expect(uri.queryParameters['filterValue'], 'Action');
     expect(uri.queryParameters['sort'], 'title.asc,updated.desc');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');
     expect(parsed.groupMode, LibraryGroupMode.genre);
+    expect(
+      parsed.folderPreset,
+      LibraryFolderPreset(
+        modes: [LibraryGroupMode.genre, LibraryGroupMode.releaseYear],
+      ),
+    );
     expect(parsed.selectedBucket, 'Action');
     expect(parsed.selectedLetter, 'A');
     expect(parsed.linkedMetadataValue, 'Ridley Scott');
@@ -70,6 +79,7 @@ void main() {
 
     expect(parsed.kind, 'movie');
     expect(parsed.groupMode, isNull);
+    expect(parsed.folderPreset, isNull);
     expect(parsed.sortRules, isNull);
     expect(parsed.filterSelection, LibraryFilterSelection.none);
     expect(parsed.isSidebarVisible, isNull);
