@@ -33,18 +33,12 @@ sealed class LibraryWorkspaceEntry {
     this.hasMissingMetadata = false,
     this.condition,
     this.grade,
-    this.rawOrSlabbed,
-    this.gradingCompany,
-    this.labelType,
-    this.certificationNumber,
     this.primaryReferenceLabel,
     this.referenceScopeLabel,
     this.referenceFormatLabel,
     this.referenceEditionId,
     this.referenceVariantId,
     this.referenceBundleReleaseId,
-    this.keyComic = false,
-    this.keyReason,
     this.notes,
     this.tags,
     this.collectionStatus,
@@ -156,18 +150,12 @@ sealed class LibraryWorkspaceEntry {
       hasMissingMetadata: hasMissingMetadata,
       condition: condition,
       grade: grade,
-      rawOrSlabbed: rawOrSlabbed,
-      gradingCompany: gradingCompany,
-      labelType: labelType,
-      certificationNumber: certificationNumber,
       primaryReferenceLabel: primaryReferenceLabel,
       referenceScopeLabel: referenceScopeLabel,
       referenceFormatLabel: referenceFormatLabel,
       referenceEditionId: referenceEditionId,
       referenceVariantId: referenceVariantId,
       referenceBundleReleaseId: referenceBundleReleaseId,
-      keyComic: keyComic,
-      keyReason: keyReason,
       notes: notes,
       tags: tags,
       collectionStatus: collectionStatus,
@@ -197,6 +185,14 @@ sealed class LibraryWorkspaceEntry {
       mediaType: normalizedMediaType,
       common: common,
       metadata: metadata,
+      comic: _comicOrNull(
+        rawOrSlabbed: rawOrSlabbed,
+        gradingCompany: gradingCompany,
+        labelType: labelType,
+        certificationNumber: certificationNumber,
+        keyComic: keyComic,
+        keyReason: keyReason,
+      ),
       series: series,
       publishing: publishing,
       video: video,
@@ -282,10 +278,6 @@ sealed class LibraryWorkspaceEntry {
       hasMissingMetadata: false,
       condition: null,
       grade: null,
-      rawOrSlabbed: null,
-      gradingCompany: null,
-      labelType: null,
-      certificationNumber: null,
       primaryReferenceLabel: null,
       referenceScopeLabel: null,
       referenceFormatLabel:
@@ -293,8 +285,6 @@ sealed class LibraryWorkspaceEntry {
       referenceEditionId: referenceEditionId ?? edition.id,
       referenceVariantId: referenceVariantId ?? primaryVariant?.id,
       referenceBundleReleaseId: referenceBundleReleaseId,
-      keyComic: false,
-      keyReason: null,
       notes: null,
       tags: null,
       collectionStatus: null,
@@ -322,6 +312,7 @@ sealed class LibraryWorkspaceEntry {
       mediaType: normalizedMediaType,
       common: common,
       metadata: metadata,
+      comic: null,
       series: fallbackSeries,
       publishing: fallbackPublishing,
       video: fallbackVideo,
@@ -358,18 +349,12 @@ sealed class LibraryWorkspaceEntry {
   final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
-  final String? rawOrSlabbed;
-  final String? gradingCompany;
-  final String? labelType;
-  final String? certificationNumber;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
   final String? referenceEditionId;
   final String? referenceVariantId;
   final String? referenceBundleReleaseId;
-  final bool keyComic;
-  final String? keyReason;
   final String? notes;
   final String? tags;
   final String? collectionStatus;
@@ -405,6 +390,7 @@ sealed class LibraryWorkspaceEntry {
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
   LibraryWorkspaceMetadata get metadata;
+  ComicWorkspaceDetails? get comic;
   CatalogSeriesDetails? get series;
   CatalogPublishingDetails? get publishing;
   VideoCatalogDetails? get video;
@@ -417,6 +403,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
   required String mediaType,
   required LibraryWorkspaceEntryData common,
   required LibraryWorkspaceMetadata metadata,
+  ComicWorkspaceDetails? comic,
   CatalogSeriesDetails? series,
   CatalogPublishingDetails? publishing,
   VideoCatalogDetails? video,
@@ -428,6 +415,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
       return ComicWorkspaceEntry(
         common: common,
         metadata: metadata,
+        comic: comic,
         series: series,
         publishing: publishing,
       );
@@ -510,6 +498,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
   _TypedLibraryWorkspaceEntry._({
     required LibraryWorkspaceEntryData common,
     required this.metadataDetails,
+    this.comicDetails,
     this.seriesDetails,
     this.publishingDetails,
     this.videoDetails,
@@ -544,18 +533,12 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           hasMissingMetadata: common.hasMissingMetadata,
           condition: common.condition,
           grade: common.grade,
-          rawOrSlabbed: common.rawOrSlabbed,
-          gradingCompany: common.gradingCompany,
-          labelType: common.labelType,
-          certificationNumber: common.certificationNumber,
           primaryReferenceLabel: common.primaryReferenceLabel,
           referenceScopeLabel: common.referenceScopeLabel,
           referenceFormatLabel: common.referenceFormatLabel,
           referenceEditionId: common.referenceEditionId,
           referenceVariantId: common.referenceVariantId,
           referenceBundleReleaseId: common.referenceBundleReleaseId,
-          keyComic: common.keyComic,
-          keyReason: common.keyReason,
           notes: common.notes,
           tags: common.tags,
           collectionStatus: common.collectionStatus,
@@ -570,6 +553,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
         );
 
   final LibraryWorkspaceMetadata metadataDetails;
+  final ComicWorkspaceDetails? comicDetails;
   final CatalogSeriesDetails? seriesDetails;
   final CatalogPublishingDetails? publishingDetails;
   final VideoCatalogDetails? videoDetails;
@@ -578,6 +562,9 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
 
   @override
   LibraryWorkspaceMetadata get metadata => metadataDetails;
+
+  @override
+  ComicWorkspaceDetails? get comic => comicDetails;
 
   @override
   CatalogSeriesDetails? get series => seriesDetails;
@@ -599,11 +586,13 @@ final class ComicWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
   ComicWorkspaceEntry({
     required LibraryWorkspaceEntryData common,
     required LibraryWorkspaceMetadata metadata,
+    ComicWorkspaceDetails? comic,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
   }) : super._(
           common: common,
           metadataDetails: metadata,
+          comicDetails: comic,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
         );
@@ -781,6 +770,32 @@ class LibraryWorkspaceMetadata {
   final List<String>? rawPlatforms;
 }
 
+class ComicWorkspaceDetails {
+  const ComicWorkspaceDetails({
+    this.rawOrSlabbed,
+    this.gradingCompany,
+    this.labelType,
+    this.certificationNumber,
+    this.keyComic = false,
+    this.keyReason,
+  });
+
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? labelType;
+  final String? certificationNumber;
+  final bool keyComic;
+  final String? keyReason;
+
+  bool get hasData =>
+      rawOrSlabbed != null ||
+      gradingCompany != null ||
+      labelType != null ||
+      certificationNumber != null ||
+      keyComic ||
+      keyReason != null;
+}
+
 class LibraryWorkspaceEntryData {
   const LibraryWorkspaceEntryData({
     required this.id,
@@ -811,18 +826,12 @@ class LibraryWorkspaceEntryData {
     required this.hasMissingMetadata,
     required this.condition,
     required this.grade,
-    required this.rawOrSlabbed,
-    required this.gradingCompany,
-    required this.labelType,
-    required this.certificationNumber,
     required this.primaryReferenceLabel,
     required this.referenceScopeLabel,
     required this.referenceFormatLabel,
     required this.referenceEditionId,
     required this.referenceVariantId,
     required this.referenceBundleReleaseId,
-    required this.keyComic,
-    required this.keyReason,
     required this.notes,
     required this.tags,
     required this.collectionStatus,
@@ -864,18 +873,12 @@ class LibraryWorkspaceEntryData {
   final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
-  final String? rawOrSlabbed;
-  final String? gradingCompany;
-  final String? labelType;
-  final String? certificationNumber;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
   final String? referenceEditionId;
   final String? referenceVariantId;
   final String? referenceBundleReleaseId;
-  final bool keyComic;
-  final String? keyReason;
   final String? notes;
   final String? tags;
   final String? collectionStatus;
@@ -921,6 +924,25 @@ GameCatalogDetails? _gameOrNull(GameCatalogDetails? details) {
   if (details == null) {
     return null;
   }
+  return details.hasData ? details : null;
+}
+
+ComicWorkspaceDetails? _comicOrNull({
+  String? rawOrSlabbed,
+  String? gradingCompany,
+  String? labelType,
+  String? certificationNumber,
+  bool keyComic = false,
+  String? keyReason,
+}) {
+  final details = ComicWorkspaceDetails(
+    rawOrSlabbed: rawOrSlabbed,
+    gradingCompany: gradingCompany,
+    labelType: labelType,
+    certificationNumber: certificationNumber,
+    keyComic: keyComic,
+    keyReason: keyReason,
+  );
   return details.hasData ? details : null;
 }
 

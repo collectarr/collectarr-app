@@ -41,11 +41,16 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   columnGroupLabel: comicTableColumnGroupLabel,
   columnIsNumeric: comicTableColumnIsNumeric,
   columnSort: comicTableColumnSort,
-  tableCellBuilder: plannedMediaTableCell,
+    tableCellBuilder: (entry, column) =>
+      plannedMediaTableCell(entry, column, plannedComicEntryAccessors),
   compareEntriesByColumn: compareComicEntriesByColumn,
-  entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
-  entryLinkedMetadataCandidatesBuilder:
-      plannedMediaLinkedMetadataCandidatesForEntry,
+    entryFilterValuesBuilder: (entry) =>
+      plannedMediaFilterValuesForEntry(entry, plannedComicEntryAccessors),
+    entryLinkedMetadataCandidatesBuilder: (entry) =>
+      plannedMediaLinkedMetadataCandidatesForEntry(
+      entry,
+      plannedComicEntryAccessors,
+      ),
   entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
   compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
 );
@@ -58,7 +63,7 @@ int compareComicEntriesByColumn(
   left,
   right,
   column,
-  plannedDefaultSortAccessors,
+  plannedComicEntryAccessors,
 );
 
 const comicsTableColumnPresets = [

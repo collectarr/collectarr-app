@@ -98,6 +98,7 @@ LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
   return ComicWorkspaceEntry(
     common: input.common,
     metadata: input.metadata,
+    comic: input.comic,
     series: input.item.series,
     publishing: input.item.publishing,
   );
@@ -189,6 +190,7 @@ LibraryWorkspaceEntry buildComicsLibraryReleaseEntry(
   return ComicWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'comic'),
     metadata: _buildReleaseEntryMetadata(request),
+    comic: entry.comic,
     series: entry.series,
     publishing: entry.publishing,
   );
@@ -199,11 +201,13 @@ class _ShelfWorkspaceEntryInput {
     required this.item,
     required this.common,
     required this.metadata,
+    required this.comic,
   });
 
   final CatalogItem item;
   final LibraryWorkspaceEntryData common;
   final LibraryWorkspaceMetadata metadata;
+  final ComicWorkspaceDetails? comic;
 }
 
 _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
@@ -252,10 +256,6 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
       hasMissingMetadata: genericHasMissingCoreMetadata(item),
       condition: source.ownedItem?.condition,
       grade: source.ownedItem?.grade,
-      rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
-      gradingCompany: source.ownedItem?.gradingCompany,
-      labelType: source.ownedItem?.labelType,
-      certificationNumber: source.ownedItem?.certificationNumber,
       primaryReferenceLabel: libraryPrimaryReferenceLabel(
         ownedItem: source.ownedItem,
         wishlistItem: source.wishlistItem,
@@ -278,8 +278,6 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
           source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
       referenceBundleReleaseId:
           source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
-      keyComic: source.ownedItem?.keyComic ?? false,
-      keyReason: source.ownedItem?.keyReason,
       notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
       tags: source.ownedItem?.tags,
       collectionStatus: source.ownedItem?.collectionStatus,
@@ -305,6 +303,16 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
       audienceRating: item.audienceRating,
       rawPlatforms: _copyStringList(item.game?.platforms),
     ),
+    comic: normalizedMediaType == 'comic'
+        ? ComicWorkspaceDetails(
+            rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
+            gradingCompany: source.ownedItem?.gradingCompany,
+            labelType: source.ownedItem?.labelType,
+            certificationNumber: source.ownedItem?.certificationNumber,
+            keyComic: source.ownedItem?.keyComic ?? false,
+            keyReason: source.ownedItem?.keyReason,
+          )
+        : null,
   );
 }
 
@@ -355,10 +363,6 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     hasMissingMetadata: false,
     condition: null,
     grade: null,
-    rawOrSlabbed: null,
-    gradingCompany: null,
-    labelType: null,
-    certificationNumber: null,
     primaryReferenceLabel: null,
     referenceScopeLabel: null,
     referenceFormatLabel:
@@ -366,8 +370,6 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     referenceEditionId: request.referenceEditionId ?? request.edition.id,
     referenceVariantId: request.referenceVariantId ?? primaryVariant?.id,
     referenceBundleReleaseId: request.referenceBundleReleaseId,
-    keyComic: false,
-    keyReason: null,
     notes: null,
     tags: null,
     collectionStatus: null,
@@ -555,10 +557,10 @@ String defaultLibraryBucketLabel(
     LibraryGroupMode.condition => entry.condition?.trim().isNotEmpty == true
         ? entry.condition!
         : 'No condition',
-    LibraryGroupMode.rawOrSlabbed => entry.rawOrSlabbed?.trim().isNotEmpty == true
-        ? entry.rawOrSlabbed!
+    LibraryGroupMode.rawOrSlabbed => entry.comic?.rawOrSlabbed?.trim().isNotEmpty == true
+      ? entry.comic!.rawOrSlabbed!
         : 'Raw',
-    LibraryGroupMode.isKeyComic => entry.keyComic ? 'Key' : 'Not special',
+    LibraryGroupMode.isKeyComic => entry.comic?.keyComic == true ? 'Key' : 'Not special',
     LibraryGroupMode.imageType => _imageTypeBucket(source),
     LibraryGroupMode.modifiedDate => formatCompactDate(entry.updatedAt),
     LibraryGroupMode.modifiedMonth => _monthBucket(entry.updatedAt),

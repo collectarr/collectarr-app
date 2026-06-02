@@ -33,10 +33,10 @@ void main() {
     );
 
     expect(projection.entry.locationPath, 'Office › Shelf 2 › Short Box 1');
-    expect(projection.entry.rawOrSlabbed, 'Slabbed');
-    expect(projection.entry.gradingCompany, 'CGC');
-    expect(projection.entry.keyComic, isTrue);
-    expect(projection.entry.keyReason, 'First appearance');
+    expect(projection.entry.comic?.rawOrSlabbed, 'Slabbed');
+    expect(projection.entry.comic?.gradingCompany, 'CGC');
+    expect(projection.entry.comic?.keyComic, isTrue);
+    expect(projection.entry.comic?.keyReason, 'First appearance');
     expect(projection.entry.notes, 'Newsstand copy');
   });
 

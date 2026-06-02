@@ -63,6 +63,7 @@ class LibraryCardFlowTile extends StatelessWidget {
       variantId: entry.referenceVariantId,
       bundleReleaseId: entry.referenceBundleReleaseId,
     );
+    final comic = entry.comic;
     return RepaintBoundary(
       child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -115,12 +116,12 @@ class LibraryCardFlowTile extends StatelessWidget {
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
                           keyLabel: libraryKeyMarkerLabel(
-                            entry.keyComic,
-                            entry.keyReason,
+                            comic?.keyComic ?? false,
+                            comic?.keyReason,
                           ),
                           slabLabel: librarySlabMarkerLabel(
-                            entry.rawOrSlabbed,
-                            entry.gradingCompany,
+                            comic?.rawOrSlabbed,
+                            comic?.gradingCompany,
                           ),
                           notesLabel: libraryNotesMarkerLabel(entry.notes),
                         ),
@@ -243,19 +244,19 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: runtime,
                               accentColor: accentColor,
                             ),
-                          if (entry.keyComic)
+                          if (comic?.keyComic == true)
                             _MetaPill(
                               icon: Icons.label_important,
-                              label: entry.keyReason ?? 'Key item',
+                              label: comic?.keyReason ?? 'Key item',
                               accentColor: accentColor,
                             ),
-                          if (entry.rawOrSlabbed != null ||
-                              entry.gradingCompany != null)
+                          if (comic?.rawOrSlabbed != null ||
+                              comic?.gradingCompany != null)
                             _MetaPill(
                               icon: Icons.workspace_premium,
                               label: librarySlabMarkerLabel(
-                                    entry.rawOrSlabbed,
-                                    entry.gradingCompany,
+                                    comic?.rawOrSlabbed,
+                                    comic?.gradingCompany,
                                   ) ??
                                   'Collector copy',
                               accentColor: accentColor,

@@ -108,6 +108,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, entry);
     final scoreLabel = _audienceScoreLabel(metadataPresentation);
+    final comic = entry.comic;
     final auxiliaryBadges = _auxiliaryBadges(entry);
 
     return RepaintBoundary(
@@ -160,10 +161,10 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                     fit: StackFit.expand,
                     children: [
                       SlabFrameOverlay.maybeWrap(
-                        rawOrSlabbed: entry.rawOrSlabbed,
-                        gradingCompany: entry.gradingCompany,
+                        rawOrSlabbed: comic?.rawOrSlabbed,
+                        gradingCompany: comic?.gradingCompany,
                         grade: entry.grade,
-                        labelType: entry.labelType,
+                        labelType: comic?.labelType,
                         child: LibraryInteractiveCover(
                           title: entry.resolvedTitle,
                           itemNumber: entry.itemNumber,
@@ -287,6 +288,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   }
 
   List<Widget> _auxiliaryBadges(LibraryWorkspaceEntry entry) {
+    final comic = entry.comic;
     return [
       if (entry.hasMissingCover)
         const LibraryCoverBadge(
@@ -298,12 +300,13 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           icon: Icons.manage_search,
           label: 'Missing metadata',
         ),
-      if (libraryKeyMarkerLabel(entry.keyComic, entry.keyReason) case final label?)
+      if (libraryKeyMarkerLabel(comic?.keyComic ?? false, comic?.keyReason)
+          case final label?)
         LibraryCoverBadge(
           icon: Icons.label_important,
           label: label,
         ),
-      if (librarySlabMarkerLabel(entry.rawOrSlabbed, entry.gradingCompany)
+      if (librarySlabMarkerLabel(comic?.rawOrSlabbed, comic?.gradingCompany)
           case final label?)
         LibraryCoverBadge(
           icon: Icons.workspace_premium,

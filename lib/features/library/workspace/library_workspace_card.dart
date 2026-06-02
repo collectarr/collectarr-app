@@ -61,6 +61,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       variantId: entry.referenceVariantId,
       bundleReleaseId: entry.referenceBundleReleaseId,
     );
+    final comic = entry.comic;
     return RepaintBoundary(
       child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -89,10 +90,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       SlabFrameOverlay.maybeWrap(
-                        rawOrSlabbed: entry.rawOrSlabbed,
-                        gradingCompany: entry.gradingCompany,
+                        rawOrSlabbed: comic?.rawOrSlabbed,
+                        gradingCompany: comic?.gradingCompany,
                         grade: entry.grade,
-                        labelType: entry.labelType,
+                        labelType: comic?.labelType,
                         child: LibraryInteractiveCover(
                           title: entry.resolvedTitle,
                           itemNumber: entry.itemNumber,
@@ -113,12 +114,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
                           keyLabel: libraryKeyMarkerLabel(
-                            entry.keyComic,
-                            entry.keyReason,
+                            comic?.keyComic ?? false,
+                            comic?.keyReason,
                           ),
                           slabLabel: librarySlabMarkerLabel(
-                            entry.rawOrSlabbed,
-                            entry.gradingCompany,
+                            comic?.rawOrSlabbed,
+                            comic?.gradingCompany,
                           ),
                           notesLabel: libraryNotesMarkerLabel(entry.notes),
                         ),
@@ -257,19 +258,19 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: noteLabel,
                               accentColor: accentColor,
                             ),
-                          if (entry.keyComic)
+                          if (comic?.keyComic == true)
                             _LibraryCompactMetaPill(
                               icon: Icons.label_important,
-                              label: entry.keyReason ?? 'Key item',
+                              label: comic?.keyReason ?? 'Key item',
                               accentColor: accentColor,
                             ),
-                          if (entry.rawOrSlabbed != null ||
-                              entry.gradingCompany != null)
+                          if (comic?.rawOrSlabbed != null ||
+                              comic?.gradingCompany != null)
                             _LibraryCompactMetaPill(
                               icon: Icons.workspace_premium,
                               label: librarySlabMarkerLabel(
-                                    entry.rawOrSlabbed,
-                                    entry.gradingCompany,
+                                    comic?.rawOrSlabbed,
+                                    comic?.gradingCompany,
                                   ) ??
                                   'Collector copy',
                               accentColor: accentColor,
