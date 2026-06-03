@@ -4,19 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       metadata_base_url:
-        description: "Collectarr Core metadata API base URL"
-        required: true
-        default: "http://192.168.0.142:8010"
-        type: string
-      sync_base_url:
-        description: "Collectarr Sync API base URL"
-        required: true
-        default: "http://192.168.0.142:8020"
-        type: string
-      sync_key:
-        description: "Sync API key embedded in web build"
-        required: true
-        default: "replace-with-sync-key"
+        description: "Optional override for Core metadata API base URL"
+        required: false
+        default: ""
         type: string
 
 permissions:
@@ -90,11 +80,15 @@ jobs:
 
       - name: Build web bundle
         if: steps.semantic_preview.outputs.new_release_published == 'true'
+        env:
+          METADATA_BASE_URL: ${{ inputs.metadata_base_url != '' && inputs.metadata_base_url || secrets.COLLECTARR_METADATA_BASE_URL }}
         run: |
+          if [ -z "$METADATA_BASE_URL" ]; then
+            echo "::error title=Missing metadata URL::Set COLLECTARR_METADATA_BASE_URL as a repo/org secret or provide metadata_base_url when running workflow_dispatch."
+            exit 1
+          fi
           flutter build web --release \
-            --dart-define=COLLECTARR_API_BASE_URL=${{ inputs.metadata_base_url }} \
-            --dart-define=COLLECTARR_SYNC_BASE_URL=${{ inputs.sync_base_url }} \
-            --dart-define=COLLECTARR_SYNC_KEY=${{ inputs.sync_key }}
+            --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
 
       - name: Set up Docker Buildx
         if: steps.semantic_preview.outputs.new_release_published == 'true'
