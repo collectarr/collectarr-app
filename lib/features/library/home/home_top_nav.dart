@@ -44,69 +44,55 @@ class MediaLibraryNav extends ConsumerWidget {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selectedGroup.primaryType.kind);
     final palette = appPalette(context);
-    final selectedIcon =
-      registry.byKind(selectedGroup.primaryType.kind)?.workspace.icon ??
-        libraryIconForKind(selectedGroup.primaryType.kind);
 
     return AnimatedContainer(
       duration: animationDuration,
       curve: Curves.easeOutCubic,
       height: 36,
       decoration: BoxDecoration(
-        color: palette.surface,
+        gradient: libraryChromeGradient(
+          accent,
+          brightness: palette.brightness,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         border: Border(
-          top: BorderSide(color: palette.divider),
-          bottom: BorderSide(color: palette.divider),
+          top: BorderSide(
+            color: libraryChromeBorderColor(
+              accent,
+              brightness: palette.brightness,
+            ),
+          ),
+          bottom: BorderSide(
+            color: libraryChromeBorderColor(
+              accent,
+              brightness: palette.brightness,
+            ),
+          ),
         ),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final titleWidth = _headerTitleWidth(
-            labels: groups.map((group) => group.label),
-            maxWidth: constraints.maxWidth,
-          );
-          return Row(
-            children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: palette.divider)),
-                ),
-                child: SizedBox(
-                  width: titleWidth,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 6),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _MediaLibraryTitle(
-                        icon: selectedIcon,
-                        label: selectedGroup.label,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: MediaLibraryNavStrip(
-                  types: types,
-                  counts: counts,
-                  registry: registry,
-                  selectedKind: selected.kind,
-                  onSelected: onSelected,
-                  animationDuration: animationDuration,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: _MediaLibraryHeaderActions(
-                  accent: accent,
-                  overdueLoanCount: overdueLoanCount,
-                  selectedOverdueLoanCount: selectedOverdueLoanCount,
-                  selectedLabel: selectedLabel,
-                ),
-              ),
-            ],
-          );
-        },
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 6, right: 4),
+            child: _MediaLibraryHeaderActions(
+              accent: accent,
+              overdueLoanCount: overdueLoanCount,
+              selectedOverdueLoanCount: selectedOverdueLoanCount,
+              selectedLabel: selectedLabel,
+            ),
+          ),
+          Expanded(
+            child: MediaLibraryNavStrip(
+              types: types,
+              counts: counts,
+              registry: registry,
+              selectedKind: selected.kind,
+              onSelected: onSelected,
+              animationDuration: animationDuration,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -141,10 +127,25 @@ class MediaLibraryTitleBar extends ConsumerWidget {
       curve: Curves.easeOutCubic,
       height: 36,
       decoration: BoxDecoration(
-        color: palette.surface,
+        gradient: libraryChromeGradient(
+          accent,
+          brightness: palette.brightness,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         border: Border(
-          top: BorderSide(color: palette.divider),
-          bottom: BorderSide(color: palette.divider),
+          top: BorderSide(
+            color: libraryChromeBorderColor(
+              accent,
+              brightness: palette.brightness,
+            ),
+          ),
+          bottom: BorderSide(
+            color: libraryChromeBorderColor(
+              accent,
+              brightness: palette.brightness,
+            ),
+          ),
         ),
       ),
       child: LayoutBuilder(
