@@ -227,7 +227,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   late final TextEditingController collectionStatusCtl;
   late final TextEditingController indexNumberCtl;
   late final TextEditingController quantityCtl;
-  late final TextEditingController storageBoxCtl;
+  late final TextEditingController locationCtl;
   late final TextEditingController characterDraftCtl;
   final List<_EditableComicCreator> _creators = [];
   final List<_EditableComicCharacter> _characters = [];
@@ -376,7 +376,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     quantityCtl = _createController(
       (owned?.quantity ?? 1).toString(),
     );
-    storageBoxCtl = _createController(owned?.storageDevice ?? '');
+    locationCtl = _createController(owned?.storageDevice ?? '');
     characterDraftCtl = _createController();
     final decodedPlot = _decodePlotFields(
       item.plotSummary,
@@ -2818,7 +2818,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
             flex: 4,
             child: _preFooterField(
               label: 'Location',
-              controller: storageBoxCtl,
+              controller: locationCtl,
               key: const ValueKey('edit-storage-box'),
             ),
           ),
@@ -2949,7 +2949,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
       'collectionStatus': collectionStatusCtl.text,
       'indexNumber': indexNumberCtl.text,
       'quantity': quantityCtl.text,
-      'storageBox': storageBoxCtl.text,
+      'location': locationCtl.text,
       'creators': _creators.map((creator) => creator.toMap()).toList(),
       'characters': _characters
           .map((character) => character.nameController.text)
