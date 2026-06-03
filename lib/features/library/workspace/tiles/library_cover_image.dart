@@ -360,7 +360,6 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     final previewWidth = (size.width * 0.70).clamp(420.0, size.width * 0.92);
     final previewHeight =
         (size.height * 0.70).clamp(320.0, size.height * 0.92);
-    final hasBothCovers = _hasFront && _hasSecondary;
     var showBackOnly = _showSecondary;
     await showGeneralDialog<void>(
       context: context,
@@ -387,12 +386,24 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                       builder: (context, setDialogState) {
                         final contentWidth = previewWidth - 28;
                         final contentHeight = previewHeight - 28;
+                        final hasExplicitFront =
+                          (widget.localBytes?.isNotEmpty ?? false) ||
+                          (widget.imageUrl?.trim().isNotEmpty ?? false);
+                        final hasExplicitBack =
+                          (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
+                          (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
                         final expectedSingleCoverWidth = contentHeight * (2 / 3);
                         final requiredSideBySideWidth =
                             expectedSingleCoverWidth * 2 + 12;
                         final showSideBySide =
-                            hasBothCovers && contentWidth >= requiredSideBySideWidth;
-                        final showSwitchBadges = hasBothCovers && !showSideBySide;
+                          hasExplicitFront &&
+                          hasExplicitBack &&
+                          contentWidth >= requiredSideBySideWidth;
+                        final showSwitchBadges =
+                          widget.enableSecondaryControl &&
+                          hasExplicitFront &&
+                          hasExplicitBack &&
+                          !showSideBySide;
 
                         Widget buildCover({
                           required String? imageUrl,

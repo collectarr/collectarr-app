@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -124,7 +123,6 @@ class _ComicInspectorToolbar extends StatelessWidget {
       if (request.inspector.ownedItem?.grade?.trim().isNotEmpty == true)
         request.inspector.ownedItem!.grade!.trim(),
     ].join(' ');
-    final onDetailsLayoutChanged = request.onDetailsLayoutChanged;
     final hasCopyMenu =
         request.ownedCopies.length > 1 && request.onSelectOwnedItem != null;
     final moveScopeLabel = entry.isOwned
@@ -349,46 +347,6 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   for (final action in request.extraActions)
                     action,
                 ],
-                const _ComicToolbarSeparator(),
-                _ComicToolbarMenuButton(
-                  buttonKey: const ValueKey('comic-toolbar-layout-menu'),
-                  label: 'Layout',
-                  icon: Icons.view_sidebar_outlined,
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  trailingIcon: null,
-                  entries: [
-                    _ComicToolbarMenuEntry(
-                      label: 'Vertical Split',
-                      icon: Icons.view_sidebar_outlined,
-                      onSelected: onDetailsLayoutChanged == null
-                          ? null
-                          : () => onDetailsLayoutChanged(
-                                LibraryDetailsLayout.right,
-                              ),
-                      enabled: onDetailsLayoutChanged != null,
-                    ),
-                    _ComicToolbarMenuEntry(
-                      label: 'Horizontal Split',
-                      icon: Icons.splitscreen_outlined,
-                      onSelected: onDetailsLayoutChanged == null
-                          ? null
-                          : () => onDetailsLayoutChanged(
-                                LibraryDetailsLayout.bottom,
-                              ),
-                      enabled: onDetailsLayoutChanged != null,
-                    ),
-                    _ComicToolbarMenuEntry(
-                      label: 'No Details',
-                      icon: Icons.visibility_off_outlined,
-                      onSelected: onDetailsLayoutChanged == null
-                          ? null
-                          : () => onDetailsLayoutChanged(
-                                LibraryDetailsLayout.hidden,
-                              ),
-                      enabled: onDetailsLayoutChanged != null,
-                    ),
-                  ],
-                ),
               ],
             );
           },
@@ -480,7 +438,6 @@ class _ComicToolbarMenuButton extends StatelessWidget {
     required this.icon,
     required this.entries,
     this.padding,
-    this.trailingIcon = Icons.keyboard_arrow_down,
   });
 
   final Key? buttonKey;
@@ -488,7 +445,6 @@ class _ComicToolbarMenuButton extends StatelessWidget {
   final IconData icon;
   final List<_ComicToolbarMenuEntry> entries;
   final EdgeInsetsGeometry? padding;
-  final IconData? trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -498,7 +454,7 @@ class _ComicToolbarMenuButton extends StatelessWidget {
       icon: icon,
       tone: LibraryDenseButtonTone.subtle,
       padding: padding,
-      trailingIcon: trailingIcon,
+      trailingIcon: Icons.keyboard_arrow_down,
       entries: [
         for (final entry in entries)
           LibraryDenseMenuEntry<_ComicToolbarMenuEntry>(
