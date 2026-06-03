@@ -75,7 +75,8 @@ class LibraryCoverImage extends ConsumerWidget {
         child: Image.network(
           url,
           fit: fit,
-          cacheWidth: cacheWidth,
+          // Keep a stable decoded image across layout switches.
+          cacheWidth: null,
           gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
@@ -91,7 +92,8 @@ class LibraryCoverImage extends ConsumerWidget {
       child: CachedNetworkImage(
         imageUrl: url,
         fit: fit,
-        memCacheWidth: cacheWidth,
+        // Avoid size-keyed cache churn when switching library layouts.
+        memCacheWidth: null,
         useOldImageOnUrlChange: true,
         fadeInDuration: Duration.zero,
         fadeOutDuration: Duration.zero,
@@ -305,6 +307,23 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool _hovered = false;
   bool _showSecondary = false;
 
+  @override
+  void didUpdateWidget(covariant LibraryInteractiveCover oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final coverChanged =
+        oldWidget.ownedItemId != widget.ownedItemId ||
+        oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.secondaryImageUrl != widget.secondaryImageUrl ||
+        oldWidget.localBytes != widget.localBytes ||
+        oldWidget.secondaryLocalBytes != widget.secondaryLocalBytes;
+    if (coverChanged && (_showSecondary || _hovered)) {
+      setState(() {
+        _showSecondary = false;
+        _hovered = false;
+      });
+    }
+  }
+
   bool get _hasSecondary {
     return (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
         (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
@@ -392,13 +411,17 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         final hasExplicitBack =
                           (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
                           (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
-                        final expectedSingleCoverWidth = contentHeight * (2 / 3);
-                        final requiredSideBySideWidth =
-                            expectedSingleCoverWidth * 2 + 12;
+                        final maxSideBySideCoverWidth = math.min(
+                          (contentWidth - 12) / 2,
+                          contentHeight * (2 / 3),
+                        );
+                        // Show both covers whenever each can remain readable.
+                        const minReadableSideBySideCoverWidth = 210.0;
                         final showSideBySide =
                           hasExplicitFront &&
                           hasExplicitBack &&
-                          contentWidth >= requiredSideBySideWidth;
+                          maxSideBySideCoverWidth >=
+                              minReadableSideBySideCoverWidth;
                         final showSwitchBadges =
                           widget.enableSecondaryControl &&
                           hasExplicitFront &&

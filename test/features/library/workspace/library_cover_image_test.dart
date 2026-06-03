@@ -157,6 +157,11 @@ void main() {
   testWidgets('preview shows Front/Back badges when dual covers do not fit side-by-side', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(500, 420);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
