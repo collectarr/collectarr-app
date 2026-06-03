@@ -792,7 +792,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ? auth.isAdmin
                                   ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
                                   : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
-                              : 'You can browse the app and send metadata proposals without signing in. Sign in is only needed for server features.',
+                            : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -816,7 +816,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               FilledButton.icon(
                                 onPressed: () => context.go(AppRoutes.auth),
                                 icon: const Icon(Icons.login),
-                                label: const Text('Sign in'),
+                                label: const Text('Admin sign in'),
                               ),
                           ],
                         ),
