@@ -342,30 +342,53 @@ class LibraryInspectorChipWrap extends StatelessWidget {
   }
 }
 
-class LibraryInspectorChip extends StatelessWidget {
+class LibraryInspectorChip extends StatefulWidget {
   const LibraryInspectorChip(this.value, {super.key, this.onTap});
 
   final String value;
   final VoidCallback? onTap;
 
   @override
+  State<LibraryInspectorChip> createState() => _LibraryInspectorChipState();
+}
+
+class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final chipColor = palette.selection;
+    final baseChipColor = palette.selection;
+    final chipColor = _hovered
+        ? Color.alphaBlend(
+            (ThemeData.estimateBrightnessForColor(baseChipColor) ==
+                        Brightness.dark
+                    ? Colors.white
+                    : Colors.black)
+                .withValues(alpha: 0.08),
+            baseChipColor,
+          )
+        : baseChipColor;
     final chipTextColor = ThemeData.estimateBrightnessForColor(chipColor) ==
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
-    final chip = DecoratedBox(
+    final chip = AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
       decoration: BoxDecoration(
         color: chipColor,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: kAppAccent.withValues(alpha: 0.35)),
+        border: Border.all(
+          color: _hovered
+              ? kAppAccent.withValues(alpha: 0.62)
+              : kAppAccent.withValues(alpha: 0.35),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Text(
-          value,
+          widget.value,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: chipTextColor,
                 fontWeight: FontWeight.w700,
@@ -373,15 +396,23 @@ class LibraryInspectorChip extends StatelessWidget {
         ),
       ),
     );
-    if (onTap == null) {
+    if (widget.onTap == null) {
       return chip;
     }
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(3),
-        child: chip,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(3),
+          hoverColor: Colors.transparent,
+          splashColor: chipTextColor.withValues(alpha: 0.12),
+          highlightColor: chipTextColor.withValues(alpha: 0.06),
+          child: chip,
+        ),
       ),
     );
   }

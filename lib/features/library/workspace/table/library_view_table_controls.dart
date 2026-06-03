@@ -18,42 +18,45 @@ class LibraryViewTableControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Tooltip(
-          message: state.isSidebarVisible
-              ? 'Hide folders panel'
-              : 'Show folders panel',
-          child: LibraryWorkspaceIconButton(
-            onPressed: () =>
-                callbacks.onSidebarVisibilityChanged(!state.isSidebarVisible),
-            icon: state.isSidebarVisible ? Icons.menu_open : Icons.menu,
-          ),
-        ),
-        const SizedBox(width: 6),
-        if (state.canEditColumns)
-          _LibraryLegacyColumnLauncher(state: state, callbacks: callbacks)
-        else
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Tooltip(
-            message: 'Select columns',
+            message: state.isSidebarVisible
+                ? 'Hide folders panel'
+                : 'Show folders panel',
             child: LibraryWorkspaceIconButton(
-              onPressed: null,
-              icon: Icons.view_column,
+              onPressed: () =>
+                  callbacks.onSidebarVisibilityChanged(!state.isSidebarVisible),
+              icon: state.isSidebarVisible ? Icons.menu_open : Icons.menu,
             ),
           ),
-        const SizedBox(width: 6),
-        LibraryViewControls(
-          viewMode: state.viewMode,
-          detailsLayout: state.detailsLayout,
-          coverSize: state.coverSize,
-          minCoverSize: state.minCoverSize,
-          maxCoverSize: state.maxCoverSize,
-          onViewModeChanged: callbacks.onViewModeChanged,
-          onDetailsLayoutChanged: callbacks.onDetailsLayoutChanged,
-          onCoverSizeChanged: callbacks.onCoverSizeChanged,
-        ),
-      ],
+          const SizedBox(width: 6),
+          if (state.canEditColumns)
+            _LibraryLegacyColumnLauncher(state: state, callbacks: callbacks)
+          else
+            Tooltip(
+              message: 'Select columns',
+              child: LibraryWorkspaceIconButton(
+                onPressed: null,
+                icon: Icons.view_column,
+              ),
+            ),
+          const SizedBox(width: 6),
+          LibraryViewControls(
+            viewMode: state.viewMode,
+            detailsLayout: state.detailsLayout,
+            coverSize: state.coverSize,
+            minCoverSize: state.minCoverSize,
+            maxCoverSize: state.maxCoverSize,
+            onViewModeChanged: callbacks.onViewModeChanged,
+            onDetailsLayoutChanged: callbacks.onDetailsLayoutChanged,
+            onCoverSizeChanged: callbacks.onCoverSizeChanged,
+          ),
+        ],
+      ),
     );
   }
 }

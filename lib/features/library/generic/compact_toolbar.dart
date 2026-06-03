@@ -129,60 +129,63 @@ void _showCompactCoverSizeSheet(
 ) {
   showModalBottomSheet<void>(
     context: context,
-    builder: (context) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
+    builder: (context) => Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
             leading: const Icon(Icons.grid_view),
             title: const Text('Grid view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.grid);
             },
-          ),
-          ListTile(
+            ),
+            ListTile(
             leading: const Icon(Icons.view_module),
             title: const Text('Cards view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.card);
             },
-          ),
-          ListTile(
+            ),
+            ListTile(
             leading: const Icon(Icons.view_agenda),
             title: const Text('Flow view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.cardFlow);
             },
-          ),
-          ListTile(
+            ),
+            ListTile(
             leading: const Icon(Icons.view_list),
             title: const Text('List view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.list);
             },
-          ),
-          const Divider(height: 1),
-          ListTile(
+            ),
+            const Divider(height: 1),
+            ListTile(
             leading: const Icon(Icons.photo_size_select_small),
             title: const Text('Small covers'),
             onTap: () {
               Navigator.of(context).pop();
               onCoverSizeChanged(96);
             },
-          ),
-          ListTile(
+            ),
+            ListTile(
             leading: const Icon(Icons.photo_size_select_large),
             title: const Text('Large covers'),
             onTap: () {
               Navigator.of(context).pop();
               onCoverSizeChanged(188);
             },
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     ),
   );

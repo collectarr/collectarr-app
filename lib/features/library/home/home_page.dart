@@ -13,9 +13,7 @@ import 'package:collectarr_app/features/library/providers/library_nav_preference
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -55,51 +53,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   void _recordSwitchMetrics({
     required String previousKind,
     required String nextKind,
-  }) {
-    if (!kDebugMode) {
-      return;
-    }
-    final stopwatch = Stopwatch()..start();
-    int? firstFrameMs;
-    final timings = <FrameTiming>[];
-    var completedFrames = 0;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      firstFrameMs ??= stopwatch.elapsedMilliseconds;
-    });
-
-    void onTimings(List<FrameTiming> values) {
-      timings.addAll(values);
-      completedFrames += values.length;
-      if (completedFrames < 12) {
-        return;
-      }
-      SchedulerBinding.instance.removeTimingsCallback(onTimings);
-      if (timings.isEmpty) {
-        return;
-      }
-      final buildTotalMicros = timings.fold<int>(
-        0,
-        (sum, value) => sum + value.buildDuration.inMicroseconds,
-      );
-      final rasterTotalMicros = timings.fold<int>(
-        0,
-        (sum, value) => sum + value.rasterDuration.inMicroseconds,
-      );
-      final frameCount = timings.length;
-      final averageBuildMs = buildTotalMicros / frameCount / 1000;
-      final averageRasterMs = rasterTotalMicros / frameCount / 1000;
-      debugPrint(
-        '[LibrarySwitchPerf][$previousKind->$nextKind] '
-        'firstFrame=${firstFrameMs ?? stopwatch.elapsedMilliseconds}ms '
-        'avgBuild=${averageBuildMs.toStringAsFixed(2)}ms '
-        'avgRaster=${averageRasterMs.toStringAsFixed(2)}ms '
-        'frames=$frameCount',
-      );
-    }
-
-    SchedulerBinding.instance.addTimingsCallback(onTimings);
-  }
+  }) {}
 
   Widget _buildCachedKindBody({
     required CatalogMediaType selected,

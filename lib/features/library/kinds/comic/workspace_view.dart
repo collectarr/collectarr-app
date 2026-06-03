@@ -273,7 +273,7 @@ String comicTableColumnLabel(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 'Series',
     LibraryTableColumn.variant => 'Variant Description',
-    LibraryTableColumn.location => 'Storage Box',
+    LibraryTableColumn.location => 'Location',
     LibraryTableColumn.added => 'Added Date',
     _ => plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
   };
@@ -283,7 +283,7 @@ String comicTableColumnDisplayName(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 'Series',
     LibraryTableColumn.variant => 'Variant Description',
-    LibraryTableColumn.location => 'Storage Box',
+    LibraryTableColumn.location => 'Location',
     LibraryTableColumn.added => 'Added Date',
     _ => plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
   };

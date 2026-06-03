@@ -426,8 +426,8 @@ const comicsLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.location,
-    label: 'Storage Box',
-    sidebarTitle: 'Storage Boxes',
+    label: 'Location',
+    sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
   ),
   LibraryGroupModeDefinition(
@@ -653,7 +653,7 @@ const comicsLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.location,
-    label: 'Storage Box',
+    label: 'Location',
     group: LibrarySortFieldGroup.personal,
   ),
   LibrarySortColumnDefinition(

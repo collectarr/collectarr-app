@@ -2817,7 +2817,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
           Expanded(
             flex: 4,
             child: _preFooterField(
-              label: 'Storage Box',
+              label: 'Location',
               controller: storageBoxCtl,
               key: const ValueKey('edit-storage-box'),
             ),
