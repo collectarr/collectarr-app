@@ -6,8 +6,6 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Displays user metadata corrections for a catalog item, with a side-by-side
-/// diff of original vs corrected values and controls to add/edit/remove.
 class MetadataCorrectionsSection extends ConsumerWidget {
   const MetadataCorrectionsSection({
     super.key,
@@ -20,8 +18,7 @@ class MetadataCorrectionsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overrides = ref
-            .watch(metadataOverridesByItemProvider)[itemId] ??
+    final overrides = ref.watch(metadataOverridesByItemProvider)[itemId] ??
         const <UserMetadataOverride>[];
     final palette = appPalette(context);
     return DecoratedBox(
@@ -58,13 +55,14 @@ class MetadataCorrectionsSection extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  'No corrections — tap + to override a field',
+                  'No corrections - tap + to override a field',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: palette.textMuted,
                       ),
                 ),
               ),
-            for (final o in overrides) _OverrideTile(entry: o, accent: accent),
+            for (final override in overrides)
+              _OverrideTile(entry: override, accent: accent),
           ],
         ),
       ),
@@ -76,13 +74,15 @@ class MetadataCorrectionsSection extends ConsumerWidget {
       context: context,
       builder: (_) => _OverrideFormDialog(accent: accent),
     );
-    if (result == null || !context.mounted) return;
+    if (result == null || !context.mounted) {
+      return;
+    }
     await ref.read(collectionMutationsProvider).setMetadataOverride(
-      itemId,
-      fieldPath: result.fieldPath,
-      overrideValue: result.overrideValue,
-      originalValue: result.originalValue,
-    );
+          itemId,
+          fieldPath: result.fieldPath,
+          overrideValue: result.overrideValue,
+          originalValue: result.originalValue,
+        );
   }
 }
 
@@ -111,7 +111,6 @@ class _OverrideTile extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Field label
                 Text(
                   _humanFieldPath(entry.fieldPath),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -120,15 +119,13 @@ class _OverrideTile extends ConsumerWidget {
                       ),
                 ),
                 const SizedBox(height: 6),
-                // Side-by-side diff
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Original
                     Expanded(
                       child: _DiffColumn(
                         label: 'Original',
-                        value: entry.originalValue ?? '—',
+                        value: entry.originalValue ?? '-',
                         color: palette.textMuted,
                         decoration: TextDecoration.lineThrough,
                       ),
@@ -136,7 +133,6 @@ class _OverrideTile extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Icon(Icons.arrow_forward, size: 14, color: accent),
                     const SizedBox(width: 8),
-                    // Corrected
                     Expanded(
                       child: _DiffColumn(
                         label: 'Corrected',
@@ -181,7 +177,7 @@ class _OverrideTile extends ConsumerWidget {
   }
 
   static String _humanFieldPath(String path) {
-    return path.replaceAll('_', ' ').replaceAll('.', ' › ');
+    return path.replaceAll('_', ' ').replaceAll('.', ' > ');
   }
 }
 
@@ -265,8 +261,7 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
   final _originalController = TextEditingController();
   final _overrideController = TextEditingController();
 
-  String get _fieldPath =>
-      _selectedField ?? _customFieldController.text.trim();
+  String get _fieldPath => _selectedField ?? _customFieldController.text.trim();
 
   bool get _isValid =>
       _fieldPath.isNotEmpty && _overrideController.text.trim().isNotEmpty;
@@ -297,11 +292,14 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
               initialValue: _selectedField,
               decoration: const InputDecoration(labelText: 'Field'),
               items: [
-                for (final f in _commonFields)
-                  DropdownMenuItem(value: f, child: Text(f.replaceAll('_', ' '))),
-                const DropdownMenuItem(value: null, child: Text('Custom…')),
+                for (final field in _commonFields)
+                  DropdownMenuItem(
+                    value: field,
+                    child: Text(field.replaceAll('_', ' ')),
+                  ),
+                const DropdownMenuItem(value: null, child: Text('Custom...')),
               ],
-              onChanged: (v) => setState(() => _selectedField = v),
+              onChanged: (value) => setState(() => _selectedField = value),
             ),
             if (_selectedField == null) ...[
               const SizedBox(height: 8),

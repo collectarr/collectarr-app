@@ -105,25 +105,6 @@ LibraryWorkspaceEntryData buildShelfWorkspaceEntryData(
   );
 }
 
-ComicWorkspaceDetails? buildComicWorkspaceDetailsFromShelf(
-  ShelfEntry source, {
-  String? mediaType,
-}) {
-  final normalizedMediaType =
-      (mediaType ?? source.catalogItem!.kind).trim().toLowerCase();
-  if (normalizedMediaType != 'comic') {
-    return null;
-  }
-  return ComicWorkspaceDetails(
-    rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
-    gradingCompany: source.ownedItem?.gradingCompany,
-    labelType: source.ownedItem?.labelType,
-    certificationNumber: source.ownedItem?.certificationNumber,
-    keyComic: source.ownedItem?.keyComic ?? false,
-    keyReason: source.ownedItem?.keyReason,
-  );
-}
-
 LibraryWorkspaceEntryData buildReleaseEntryData(
   LibraryReleaseEntryRequest request, {
   String? mediaType,
@@ -203,34 +184,6 @@ LibraryWorkspaceEntryData buildReleaseEntryData(
     audienceRating: entry.audienceRating,
     rawPlatforms: _copyStringList(entry.game?.platforms ?? entry.rawPlatforms),
   );
-}
-
-LibraryWorkspaceEntry buildVideoWorkspaceEntry({
-  required LibraryWorkspaceEntryData common,
-  CatalogSeriesDetails? series,
-  CatalogPublishingDetails? publishing,
-  VideoCatalogDetails? video,
-}) {
-  return switch (common.mediaType) {
-    'tv' => TvWorkspaceEntry(
-        common: common,
-        series: series,
-        publishing: publishing,
-        video: video,
-      ),
-    'anime' => AnimeWorkspaceEntry(
-        common: common,
-        series: series,
-        publishing: publishing,
-        video: video,
-      ),
-    _ => MovieWorkspaceEntry(
-        common: common,
-        series: series,
-        publishing: publishing,
-        video: video,
-      ),
-  };
 }
 
 List<String>? _copyStringList(List<String>? values) {

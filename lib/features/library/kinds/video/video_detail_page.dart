@@ -9,10 +9,10 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
-import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -272,7 +272,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
               itemId: request.entry.id,
               accent: request.accent,
             ),
-            MetadataCorrectionsSection(
+            VideoMetadataCorrectionsSection(
               itemId: request.entry.id,
               accent: request.accent,
             ),

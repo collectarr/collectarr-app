@@ -10,11 +10,11 @@ import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/detail/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
-import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
