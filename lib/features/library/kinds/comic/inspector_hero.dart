@@ -98,7 +98,6 @@ class ComicInspectorHero extends ConsumerWidget {
       ? entry.plotSummary?.trim()
         : entry.synopsis?.trim();
     final plotDescription = entry.plotDescription?.trim();
-    final hasBackCover = localBack != null || ownedItemId != null;
     final slabLabel = librarySlabMarkerLabel(
       ownedItem?.rawOrSlabbed,
       ownedItem?.gradingCompany,
@@ -183,13 +182,6 @@ class ComicInspectorHero extends ConsumerWidget {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 1),
-            _ComicCoverToggleRow(
-              accent: request.accent,
-              ink: ink,
-              muted: muted,
-              hasBackCover: hasBackCover,
             ),
           ],
         );
@@ -770,54 +762,6 @@ class _ComicDetailLine extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ComicCoverToggleRow extends StatelessWidget {
-  const _ComicCoverToggleRow({
-    required this.accent,
-    required this.ink,
-    required this.muted,
-    required this.hasBackCover,
-  });
-
-  final Color accent;
-  final Color ink;
-  final Color muted;
-  final bool hasBackCover;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.circle, size: 5, color: accent),
-        const SizedBox(width: 2),
-        Text(
-          'Front',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: ink,
-                fontWeight: FontWeight.w700,
-                fontSize: 10,
-              ),
-        ),
-        const SizedBox(width: 4),
-        Icon(
-          Icons.circle,
-          size: 5,
-          color: hasBackCover ? muted : muted.withValues(alpha: 0.35),
-        ),
-        const SizedBox(width: 2),
-        Text(
-          'Back',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: hasBackCover ? muted : muted.withValues(alpha: 0.6),
-                fontWeight: FontWeight.w700,
-                fontSize: 10,
-              ),
-        ),
-      ],
     );
   }
 }

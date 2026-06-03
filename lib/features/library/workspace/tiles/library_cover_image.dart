@@ -80,27 +80,25 @@ class LibraryCoverImage extends ConsumerWidget {
           gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
-          loadingBuilder: (context, child, loadingProgress) {
-            return loadingProgress == null ? child : placeholder;
-          },
           errorBuilder: (_, __, ___) => placeholder,
         ),
       );
     }
+    final provider = CachedNetworkImageProvider(url);
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: CachedNetworkImage(
-        imageUrl: url,
+      child: Image(
+        image: provider,
         fit: fit,
-        // Avoid size-keyed cache churn when switching library layouts.
-        memCacheWidth: null,
-        useOldImageOnUrlChange: true,
-        fadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        placeholderFadeInDuration: Duration.zero,
+        gaplessPlayback: true,
         filterQuality: FilterQuality.medium,
-        placeholder: (_, __) => placeholder,
-        errorWidget: (_, __, ___) => placeholder,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded || frame != null) {
+            return child;
+          }
+          return placeholder;
+        },
+        errorBuilder: (_, __, ___) => placeholder,
       ),
     );
       },

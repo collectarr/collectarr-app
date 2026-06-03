@@ -636,17 +636,17 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onCoverSizeChanged: (size) => _updateViewState(
         (state) => state.copyWith(coverSize: size),
       ),
-      onSidebarWidthChanged: (width) => _updateViewState(
+      onSidebarWidthChanged: (width) => _updateViewChrome(
         (state) => state.copyWith(sidebarWidth: width),
       ),
       onSidebarVisibilityChanged: _setGroupingPanelVisibility,
       onDetailsLayoutChanged: (layout) => _updateViewState(
         (state) => state.copyWith(detailsLayout: layout),
       ),
-      onDetailsWidthChanged: (width) => _updateViewState(
+      onDetailsWidthChanged: (width) => _updateViewChrome(
         (state) => state.copyWith(detailsWidth: width),
       ),
-      onDetailsHeightChanged: (height) => _updateViewState(
+      onDetailsHeightChanged: (height) => _updateViewChrome(
         (state) => state.copyWith(detailsHeight: height),
       ),
       onAddOwned: (item) => runCollectionAction(
@@ -1688,6 +1688,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
     _syncRouteState();
+    unawaited(_adapter.viewProfile.save(next));
+  }
+
+  void _updateViewChrome(
+    LibraryWorkspaceViewState Function(LibraryWorkspaceViewState state) update,
+  ) {
+    final next = update(_viewState ?? _adapter.viewProfile.defaults());
+    setState(() => _viewState = next);
     unawaited(_adapter.viewProfile.save(next));
   }
 

@@ -76,12 +76,13 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final padding = widget.padding.resolve(Directionality.of(context));
-        final gridWidth = constraints.maxWidth - padding.left - padding.right;
+        final gridWidth =
+            math.max(0.0, constraints.maxWidth - padding.left - padding.right);
         final crossAxisCount = math.max(
           1,
           ((gridWidth + widget.crossAxisSpacing) /
                   (widget.maxCrossAxisExtent + widget.crossAxisSpacing))
-              .ceil(),
+              .floor(),
         );
         final tileWidth =
             (gridWidth - ((crossAxisCount - 1) * widget.crossAxisSpacing)) /
