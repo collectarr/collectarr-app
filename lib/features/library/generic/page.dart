@@ -95,6 +95,7 @@ part 'page_facet_controller.dart';
 part 'page_scope_controller.dart';
 part 'page_view_state_controller.dart';
 part 'page_projection_controller.dart';
+part 'page_selection_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -1631,85 +1632,27 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _selectItem(String id) {
-    setState(() {
-      _selectedId = id;
-      if (_videoShelfDrilldownTitleItemId != null &&
-          _videoShelfDrilldownTitleItemId != id) {
-        _videoShelfDrilldownTitleItemId = null;
-        _videoShelfDrilldownReleaseId = null;
-      }
-    });
-    _selectionHydrationDebounce?.cancel();
-    _selectionHydrationDebounce = Timer(const Duration(milliseconds: 250), () {
-      if (!mounted || _selectedId != id) {
-        return;
-      }
-      unawaited(_hydrateSelectedItem(id));
-    });
+    _LibrarySelectionControllerOps.selectItem(this, id);
   }
 
   void _activateItem(String id) {
-    if (_selection.enabled) {
-      setState(() => _selection = _selection.clear());
-    }
-    _selectionAnchorId = id;
-    _selectItem(id);
+    _LibrarySelectionControllerOps.activateItem(this, id);
   }
 
   void _toggleSelectionItem(String id) {
-    setState(() {
-      _selection = _selection.toggle(id);
-      _selectedId = id;
-      _selectionAnchorId = id;
-    });
+    _LibrarySelectionControllerOps.toggleSelectionItem(this, id);
   }
 
   void _applySelection(Set<String> ids, String focusedId) {
-    setState(() {
-      _selection = _selection.replace(ids);
-      _selectedId = focusedId;
-      _selectionAnchorId ??= focusedId;
-    });
+    _LibrarySelectionControllerOps.applySelection(this, ids, focusedId);
   }
 
   void _selectAllVisible(LibraryProjection projection) {
-    if (_isTextInputFocused) {
-      return;
-    }
-    final visibleIds = _visibleSelectionItemIds(projection);
-    if (visibleIds.isEmpty) {
-      return;
-    }
-    _applySelection(visibleIds, _selectedId ?? visibleIds.first);
+    _LibrarySelectionControllerOps.selectAllVisible(this, projection);
   }
 
   void _removeVisibleSelection(LibraryProjection projection) {
-    if (_isTextInputFocused || _selection.itemIds.isEmpty) {
-      return;
-    }
-    unawaited(bulkRemoveFlow(projection));
-  }
-
-  Set<String> _visibleSelectionItemIds(LibraryProjection projection) {
-    final visibleItems = _selectedLetter == null
-        ? projection.filteredItems
-        : projection.filteredItems
-            .where(
-              (item) => LibraryAlphaJumpBar.matchesLetter(
-                item.entry.resolvedTitle,
-                _selectedLetter!,
-              ),
-            )
-            .toList(growable: false);
-    return visibleItems.map((item) => item.entry.id).toSet();
-  }
-
-  bool get _isTextInputFocused {
-    final focusedContext = FocusManager.instance.primaryFocus?.context;
-    if (focusedContext == null) {
-      return false;
-    }
-    return focusedContext.widget is EditableText;
+    _LibrarySelectionControllerOps.removeVisibleSelection(this, projection);
   }
 
   bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
