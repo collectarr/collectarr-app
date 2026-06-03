@@ -55,7 +55,7 @@ LibraryWorkspaceEntryData buildShelfWorkspaceEntryData(
     isTracked: source.isTracked,
     isWishlisted: source.isWishlisted,
     hasMissingCover: item.displayCoverUrl == null,
-    hasMissingMetadata: genericHasMissingCoreMetadata(item),
+    hasMissingMetadata: _hasMissingCoreMetadata(item),
     condition: source.ownedItem?.condition,
     grade: source.ownedItem?.grade,
     primaryReferenceLabel: libraryPrimaryReferenceLabel(
@@ -385,14 +385,6 @@ String defaultLibraryBucketLabel(
   };
 }
 
-bool genericHasMissingCoreMetadata(CatalogItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-      item.displayCoverUrl == null &&
-      item.displayEditionLabel == null;
-}
-
 const _monthNames = <String>[
   'January',
   'February',
@@ -413,6 +405,14 @@ const _imageTypeLabels = <String, String>{
   'back_cover': 'Back Cover',
   'auxiliary': 'Photos',
 };
+
+bool _hasMissingCoreMetadata(CatalogItem item) {
+  return item.publisher == null &&
+      item.releaseDate == null &&
+      item.releaseYear == null &&
+      item.displayCoverUrl == null &&
+      item.displayEditionLabel == null;
+}
 
 String _dateBucket(DateTime? value, String fallback) {
   return value == null ? fallback : formatCompactDate(value);

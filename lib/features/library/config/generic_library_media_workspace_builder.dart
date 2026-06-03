@@ -4,8 +4,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart'
-  show genericHasMissingCoreMetadata;
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -229,4 +227,12 @@ List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
 List<TrailerLink> _copyTrailerList(List<TrailerLink>? values) {
   if (values == null) return const <TrailerLink>[];
   return List<TrailerLink>.unmodifiable(values);
+}
+
+bool genericHasMissingCoreMetadata(CatalogItem item) {
+  return item.publisher == null &&
+      item.releaseDate == null &&
+      item.releaseYear == null &&
+      item.displayCoverUrl == null &&
+      item.displayEditionLabel == null;
 }
