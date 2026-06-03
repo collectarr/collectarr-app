@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
+import 'package:collectarr_app/features/library/kinds/movie/page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnimeLibraryPage extends GenericLibraryPage {
   const AnimeLibraryPage({
@@ -9,4 +11,9 @@ class AnimeLibraryPage extends GenericLibraryPage {
     required super.routeUri,
   }) : super(
         );
+
+  @override
+  ConsumerState<GenericLibraryPage> createState() => AnimeLibraryPageState();
 }
+
+class AnimeLibraryPageState extends VideoDrilldownLibraryPageState {}

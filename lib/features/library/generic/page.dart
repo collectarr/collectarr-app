@@ -470,9 +470,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onSmartLists: () => showSmartListsFlow(shelfState),
                     onFolders: showUserFoldersFlow,
                     onReadingQueue:
-                        libraryShowsReadingQueue(widget.type.workspace.kind)
-                            ? showReadingQueueFlow
-                            : null,
+                      showsReadingQueue() ? showReadingQueueFlow : null,
                     onTransferFieldData: projection != null &&
                             projection.filteredItems.isNotEmpty
                         ? () => showTransferFieldDataFlow(projection)
@@ -696,10 +694,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       db: ref.read(localDatabaseProvider),
       folderPreset: _activeFolderPreset,
       pinnedFolderPresets: _pinnedFolderPresets,
-      onManageBuckets: libraryGroupModeSupportsBucketManagement(
-          widget.type,
-          _activeGroupMode,
-        )
+      onManageBuckets: supportsBucketManagement(_activeGroupMode)
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
@@ -744,9 +739,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onSmartLists: () =>
             showSmartListsFlow(ref.read(shelfProvider).asData?.value),
         onFolders: showUserFoldersFlow,
-        onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
-            ? showReadingQueueFlow
-            : null,
+        onReadingQueue: showsReadingQueue() ? showReadingQueueFlow : null,
         onEditConditionPickList: widget.type.conditions.isNotEmpty
             ? showConditionPickListEditorFlow
             : null,
@@ -776,7 +769,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
     final mode = _activeGroupMode;
-    if (!libraryGroupModeSupportsBucketManagement(widget.type, mode)) {
+    if (!supportsBucketManagement(mode)) {
       return;
     }
     final entries = [
@@ -1968,8 +1961,23 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
+  bool showsReadingQueue() {
+    return false;
+  }
+
+  @protected
+  bool supportsBucketManagement(LibraryGroupMode mode) {
+    return libraryGroupModeSupportsBucketManagement(widget.type, mode);
+  }
+
+  @protected
+  bool canOpenDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
     return _canOpenVideoShelfDrilldown(item);
+  }
+
+  @protected
+  bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
+    return false;
   }
 
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {
@@ -1981,8 +1989,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  void openItemDetailDrilldown(LibraryProjectionItem item) {
+  void openDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
     _openVideoShelfDrilldown(item);
+  }
+
+  @protected
+  void openItemDetailDrilldown(LibraryProjectionItem item) {
+    return;
   }
 
   Future<void> _refreshVideoTitleFromCore(LibraryProjectionItem item) async {
@@ -2103,7 +2116,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  Widget? buildWorkspaceOverride(
+  Widget? buildDefaultVideoShelfWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required List<OwnedItem> allOwnedCopies,
@@ -2115,6 +2128,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
+  }
+
+  @protected
+  Widget? buildWorkspaceOverride(
+    LibraryProjection projection,
+    LibraryWorkspaceViewState viewState, {
+    required List<OwnedItem> allOwnedCopies,
+    required List<WishlistItem> allWishlistItems,
+  }) {
+    return null;
   }
 
   Future<void> _hydrateSelectedItem(String itemId) async {

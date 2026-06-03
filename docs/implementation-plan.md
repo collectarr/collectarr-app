@@ -98,13 +98,13 @@
 - [x] Reduce `kinds/shared/workspace_presentation_support.dart` so it no longer owns workspace/release factory wiring
 - [x] Move simple bucket-label builders into `book`, `game`, `boardgame`, `music`, and generic presentation files
 - [x] Make `BookLibraryPageState` the first concrete kind state and move the drilldown decision into that local state
-- [ ] Fork concrete page-state ownership for `game`, `boardgame`, `music`, `movie`, and `comic`
+- [x] Fork concrete page-state ownership for `game`, `boardgame`, `music`, `movie`, and `comic`
 - [ ] Continue exposing small overridable hooks from `GenericLibraryPageState` and move the corresponding behavior into kind-local states one decision at a time
-- [ ] Decide whether `movie` keeps the shared video drilldown behavior as a reusable base hook or gets its own explicit local implementation
+- [x] Decide whether `movie` keeps the shared video drilldown behavior as a reusable base hook or gets its own explicit local implementation
 - [ ] Move any remaining kind-specific toolbar/sidebar/detail-shell decisions out of `generic/page.dart` into `kinds/*/page.dart`
 - [ ] Shrink `GenericLibraryPage` to a thin fallback shell plus shared utilities instead of the primary behavior owner for known kinds
 - [ ] Re-evaluate `kinds/shared/workspace_presentation_support.dart` after movie/comic migration; keep only helpers that are still truly shared after the shell split
-- [ ] Add focused page-state coverage for kind-local hook overrides so further shell extraction stays safe
+- [x] Add focused page-state coverage for kind-local hook overrides so further shell extraction stays safe
 
 Architecture rule for this track: prefer kind-local ownership and explicit code over additional generic helper layers, even when that introduces controlled duplication.
 
@@ -213,11 +213,11 @@ Current app-side parity work is largely complete; the main remaining app archite
 This is the concrete backlog for the current `lib/features/library/**`
 ownership pass.
 
-1. Move one more behavior hook from `GenericLibraryPageState` into `BookLibraryPageState`.
-2. Create matching concrete state classes for `game`, `boardgame`, `music`, `movie`, and `comic` pages.
+1. [x] Move one more behavior hook from `GenericLibraryPageState` into `BookLibraryPageState`.
+2. [x] Create matching concrete state classes for `game`, `boardgame`, `music`, `movie`, and `comic` pages.
 3. Split the remaining shell decisions into explicit hooks: workspace override, detail/drilldown routing, sidebar scope behavior, and any kind-specific toolbar actions.
-4. Decide whether movie/video drilldown stays as a shared reusable behavior or moves fully into `movie/page.dart`.
+4. [x] Decide whether movie/video drilldown stays as a shared reusable behavior or moves fully into `movie/page.dart`.
 5. Remove any generic shell branches that become dead once a kind owns the behavior locally.
 6. Re-check `kinds/shared/workspace_presentation_support.dart` and keep only helpers still used by multiple concrete kinds after the page-state split.
-7. Add or extend focused widget tests around kind-page dispatch and state-hook behavior each time a new hook moves.
+7. [x] Add or extend focused widget tests around kind-page dispatch and state-hook behavior each time a new hook moves.
 8. When enough hooks have moved, split `generic/page.dart` further so the fallback shell is assembled from smaller shared utilities instead of one monolithic state class.

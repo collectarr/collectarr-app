@@ -19,4 +19,7 @@ class BookLibraryPage extends GenericLibraryPage {
 class BookLibraryPageState extends GenericLibraryPageState {
   @override
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) => false;
+
+  @override
+  bool showsReadingQueue() => true;
 }
