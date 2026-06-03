@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
 
-class MovieLibraryPage extends LibraryPage {
+class MovieLibraryPage extends GenericLibraryPage {
   const MovieLibraryPage({
     super.key,
     required super.type,

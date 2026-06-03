@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
 
-class MusicLibraryPage extends LibraryPage {
+class MusicLibraryPage extends GenericLibraryPage {
   const MusicLibraryPage({
     super.key,
     required super.type,

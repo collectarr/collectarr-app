@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
 
-class GameLibraryPage extends LibraryPage {
+class GameLibraryPage extends GenericLibraryPage {
   const GameLibraryPage({
     super.key,
     required super.type,

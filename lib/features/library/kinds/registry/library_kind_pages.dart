@@ -51,7 +51,7 @@ Widget buildLibraryKindPage({
         accent: accent,
         routeUri: routeUri,
       ),
-    _ => LibraryPage(
+    _ => GenericLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,

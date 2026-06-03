@@ -90,8 +90,8 @@ part 'page_edit_handler.dart';
 part 'page_dialogs.dart';
 part 'page_collection_actions.dart';
 
-class LibraryPage extends ConsumerStatefulWidget {
-  const LibraryPage({
+class GenericLibraryPage extends ConsumerStatefulWidget {
+  const GenericLibraryPage({
     super.key,
     required this.type,
     required this.topBar,
@@ -105,10 +105,10 @@ class LibraryPage extends ConsumerStatefulWidget {
   final Uri routeUri;
 
   @override
-  ConsumerState<LibraryPage> createState() => _LibraryPageState();
+  ConsumerState<GenericLibraryPage> createState() => _LibraryPageState();
 }
 
-class _LibraryPageState extends ConsumerState<LibraryPage>
+class _LibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
@@ -251,7 +251,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   @override
-  void didUpdateWidget(covariant LibraryPage oldWidget) {
+  void didUpdateWidget(covariant GenericLibraryPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.type.workspace.kind != widget.type.workspace.kind) {
       _selectedId = null;
@@ -992,7 +992,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       });
     } catch (e, st) {
       logRecoverableError(
-        source: 'LibraryPage',
+        source: 'GenericLibraryPage',
         message: 'Facet load failed for $mode',
         error: e,
         stackTrace: st,
