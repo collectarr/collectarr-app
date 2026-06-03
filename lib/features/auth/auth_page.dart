@@ -213,7 +213,7 @@ class _AuthBrandPanel extends StatelessWidget {
                     height: 1,
                   ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Your self-hosted media collection manager',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -221,13 +221,13 @@ class _AuthBrandPanel extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             const Text(
               'Comics, manga, movies, games, music, books — all in one place. '  
               'Your data stays on your server.',
               style: TextStyle(color: _authMuted, height: 1.35),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
             const Wrap(
               spacing: 10,
               runSpacing: 8,
@@ -544,7 +544,7 @@ class _PreviewSeriesList extends StatelessWidget {
           for (final row in rows)
             Container(
               height: 22,
-              margin: const EdgeInsets.only(bottom: 3),
+              margin: const EdgeInsets.only(bottom: 4),
               padding: const EdgeInsets.symmetric(horizontal: 5),
               color: row.$1 == 'Superman, Vol. 4'
                   ? const Color(0xFF0B7893)
@@ -608,7 +608,7 @@ class _PreviewInspector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF171717),
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.all(10),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,7 +619,7 @@ class _PreviewInspector extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: _authAccent, fontWeight: FontWeight.w900),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 4),
             const Text('#8A', style: TextStyle(color: _authYellow)),
             const SizedBox(height: 8),
             const SizedBox(
@@ -760,7 +760,7 @@ class _TinyMeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
           SizedBox(
@@ -856,7 +856,7 @@ class CollectarrRestoreScreen extends StatelessWidget {
                               color: _authAccent,
                               size: 34,
                             ),
-                            SizedBox(height: 14),
+                            SizedBox(height: 16),
                             Text(
                               'Restoring session',
                               style: TextStyle(
@@ -864,9 +864,9 @@ class CollectarrRestoreScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            LinearProgressIndicator(),
                             SizedBox(height: 12),
+                            LinearProgressIndicator(),
+                            SizedBox(height: 14),
                             Text(
                               'Checking the stored JWT and reconnecting metadata search.',
                               textAlign: TextAlign.center,
