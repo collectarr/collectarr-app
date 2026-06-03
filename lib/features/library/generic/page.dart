@@ -1888,9 +1888,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _videoShelfDrilldownReleaseId = null;
       }
     });
-    if (widget.type.capabilities.showsTrackData) {
-      unawaited(_hydrateSelectedItem(id));
-    }
+    unawaited(_hydrateSelectedItem(id));
   }
 
   void _activateItem(String id) {
