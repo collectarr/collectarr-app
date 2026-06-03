@@ -75,8 +75,7 @@ class MediaLibraryNav extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 6, right: 4),
-            child: _MediaLibraryHeaderActions(
-              accent: accent,
+            child: _MediaLibraryOverdueActions(
               overdueLoanCount: overdueLoanCount,
               selectedOverdueLoanCount: selectedOverdueLoanCount,
               selectedLabel: selectedLabel,
@@ -91,6 +90,10 @@ class MediaLibraryNav extends ConsumerWidget {
               onSelected: onSelected,
               animationDuration: animationDuration,
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, right: 6),
+            child: _LibraryNavCollapseButton(accent: accent),
           ),
         ],
       ),
@@ -174,11 +177,17 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
-                _MediaLibraryHeaderActions(
-                  accent: accent,
-                  overdueLoanCount: overdueLoanCount,
-                  selectedOverdueLoanCount: selectedOverdueLoanCount,
-                  selectedLabel: selectedLabel,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _MediaLibraryOverdueActions(
+                      overdueLoanCount: overdueLoanCount,
+                      selectedOverdueLoanCount: selectedOverdueLoanCount,
+                      selectedLabel: selectedLabel,
+                    ),
+                    const SizedBox(width: 6),
+                    _LibraryNavCollapseButton(accent: accent),
+                  ],
                 ),
               ],
             ),
@@ -232,22 +241,19 @@ class _MediaLibraryTitle extends StatelessWidget {
   }
 }
 
-class _MediaLibraryHeaderActions extends ConsumerWidget {
-  const _MediaLibraryHeaderActions({
-    required this.accent,
+class _MediaLibraryOverdueActions extends StatelessWidget {
+  const _MediaLibraryOverdueActions({
     required this.overdueLoanCount,
     required this.selectedOverdueLoanCount,
     required this.selectedLabel,
   });
 
-  final Color accent;
   final int overdueLoanCount;
   final int selectedOverdueLoanCount;
   final String selectedLabel;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final navPrefs = ref.watch(libraryNavPreferencesProvider);
+  Widget build(BuildContext context) {
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
@@ -261,20 +267,30 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
               selectedLabel: selectedLabel,
               onPressed: () => context.go('${AppRoutes.shelf}?filter=overdue'),
             ),
-            const SizedBox(width: 6),
           ],
-          _HeaderActionButton(
-            tooltip: navPrefs.collapsed
-                ? 'Show library selector'
-                : 'Hide library selector',
-            label: '',
-            icon: navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
-            onPressed: () => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .toggleCollapsed(),
-          ),
         ],
       ),
+    );
+  }
+}
+
+class _LibraryNavCollapseButton extends ConsumerWidget {
+  const _LibraryNavCollapseButton({required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navPrefs = ref.watch(libraryNavPreferencesProvider);
+    return _HeaderActionButton(
+      tooltip: navPrefs.collapsed
+          ? 'Show library selector'
+          : 'Hide library selector',
+      label: '',
+      icon: navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
+      onPressed: () => ref
+          .read(libraryNavPreferencesProvider.notifier)
+          .toggleCollapsed(),
     );
   }
 }
@@ -492,7 +508,7 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                         minWidth: (constraints.maxWidth - 2).clamp(0.0, double.infinity),
                       ),
                       child: Align(
-                        alignment: Alignment.center,
+                        alignment: Alignment.centerLeft,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
