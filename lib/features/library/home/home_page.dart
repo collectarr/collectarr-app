@@ -30,6 +30,7 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   final Map<String, Widget> _cachedKindPages = <String, Widget>{};
+  final List<String> _cachedKindOrder = <String>[];
 
   String? _routeKind() {
     return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
@@ -59,8 +60,13 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       return;
     }
     final stopwatch = Stopwatch()..start();
+    int? firstFrameMs;
     final timings = <FrameTiming>[];
     var completedFrames = 0;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      firstFrameMs ??= stopwatch.elapsedMilliseconds;
+    });
 
     void onTimings(List<FrameTiming> values) {
       timings.addAll(values);
@@ -85,7 +91,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       final averageRasterMs = rasterTotalMicros / frameCount / 1000;
       debugPrint(
         '[LibrarySwitchPerf][$previousKind->$nextKind] '
-        'firstFrame=${stopwatch.elapsedMilliseconds}ms '
+        'firstFrame=${firstFrameMs ?? stopwatch.elapsedMilliseconds}ms '
         'avgBuild=${averageBuildMs.toStringAsFixed(2)}ms '
         'avgRaster=${averageRasterMs.toStringAsFixed(2)}ms '
         'frames=$frameCount',
@@ -114,12 +120,32 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       ),
     );
 
+    _cachedKindOrder.remove(selected.kind);
+    _cachedKindOrder.add(selected.kind);
+
     final visibleKindOrder = <String>{
       for (final type in visibleTypes) type.kind,
     };
     _cachedKindPages.removeWhere((kind, _) => !visibleKindOrder.contains(kind));
 
-    final cachedKinds = _cachedKindPages.keys.toList(growable: false);
+    _cachedKindOrder.removeWhere((kind) => !visibleKindOrder.contains(kind));
+
+    const maxCachedKinds = 2;
+    while (_cachedKindOrder.length > maxCachedKinds) {
+      final removeIndex = _cachedKindOrder.indexWhere(
+        (kind) => kind != selected.kind,
+      );
+      if (removeIndex < 0) {
+        break;
+      }
+      final evictedKind = _cachedKindOrder.removeAt(removeIndex);
+      _cachedKindPages.remove(evictedKind);
+    }
+
+    final cachedKinds = [
+      for (final kind in _cachedKindOrder)
+        if (_cachedKindPages.containsKey(kind)) kind,
+    ];
     final selectedIndex = cachedKinds.indexOf(selected.kind);
     if (selectedIndex < 0) {
       return const SizedBox.shrink();
