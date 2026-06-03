@@ -223,7 +223,7 @@ class LibraryInspectorFact extends StatelessWidget {
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: resolvedMutedTextColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 10,
+                    fontSize: 11,
                   ),
             ),
           ),

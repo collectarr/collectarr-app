@@ -196,7 +196,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                         color: selectedType
                                             ? selectedTileForeground
                                             : unselectedTileForeground,
-                                        fontSize: 10,
+                                        fontSize: 11,
                                         fontWeight: FontWeight.w900,
                                       ),
                                     ),
@@ -392,7 +392,7 @@ class _RailSyncButton extends ConsumerWidget {
                             ? '99+'
                             : sync.pendingCount.toString(),
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 11,
                           color: pendingBadgeForeground,
                           fontWeight: FontWeight.w800,
                         ),

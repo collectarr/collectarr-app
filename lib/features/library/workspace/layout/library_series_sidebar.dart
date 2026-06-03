@@ -281,7 +281,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
         children: [
           Expanded(
             child: SizedBox(
-              height: 28,
+              height: 30,
               child: Row(
                 children: [
                   Expanded(
@@ -294,11 +294,11 @@ class _SidebarSearchAndSort extends StatelessWidget {
                       child: TextField(
                         controller: controller,
                         onChanged: (_) => onChanged(),
-                        style: const TextStyle(fontSize: 10.5),
+                        style: const TextStyle(fontSize: 11),
                         decoration: InputDecoration(
                           hintText: searchPlaceholder,
                           hintStyle: TextStyle(
-                            fontSize: 10.5,
+                            fontSize: 11,
                             color: mutedTextColor,
                           ),
                           isDense: true,
@@ -332,7 +332,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                       },
                       child: SizedBox(
                         width: 28,
-                        height: 28,
+                        height: 30,
                         child: Icon(
                           controller.text.isEmpty ? Icons.search : Icons.close,
                           size: 15,

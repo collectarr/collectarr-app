@@ -55,7 +55,7 @@ class MediaLibraryNavButton extends StatelessWidget {
           child: AnimatedContainer(
             duration: animationDuration,
             curve: Curves.easeOutCubic,
-            height: 26,
+            height: 28,
             decoration: BoxDecoration(
               color: fillColor,
               borderRadius: BorderRadius.circular(2),
@@ -89,7 +89,7 @@ class MediaLibraryNavButton extends StatelessWidget {
                         resolvedLabel,
                         style: TextStyle(
                           color: selected ? selectedTextColor : unselectedTextColor,
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
                           height: 1,
                         ),
@@ -99,7 +99,7 @@ class MediaLibraryNavButton extends StatelessWidget {
                         count.toString(),
                         style: TextStyle(
                           color: selected ? selectedCountColor : unselectedCountColor,
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           height: 1,
                         ),

@@ -238,7 +238,7 @@ class _ShelfRow<T> extends StatelessWidget {
                           textAlign: TextAlign.center,
                           maxLines: 4,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 9),
+                          style: const TextStyle(fontSize: 10),
                         ),
                       ),
                     // Spine edge gradient (left side)

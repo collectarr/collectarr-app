@@ -396,7 +396,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             style: TextStyle(
                               color: headerTextColor,
                               fontWeight: FontWeight.w800,
-                              fontSize: 10,
+                              fontSize: 11,
                             ),
                           ),
                         ),
@@ -428,7 +428,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                               style: TextStyle(
                                 color: accentColor,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 10,
+                                fontSize: 11,
                               ),
                             ),
                           ),
