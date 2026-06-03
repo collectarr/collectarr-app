@@ -38,7 +38,7 @@ void main() {
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Open cover'), findsNothing);
+    expect(find.text('Fullscreen'), findsNothing);
     expect(find.byIcon(Icons.open_in_full), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -70,7 +70,7 @@ void main() {
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Open cover'), findsOneWidget);
+    expect(find.text('Fullscreen'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -157,7 +157,7 @@ void main() {
   testWidgets('preview shows Front/Back badges when dual covers do not fit side-by-side', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(500, 420);
+    tester.view.physicalSize = const Size(500, 220);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -282,8 +282,7 @@ void main() {
     await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
-    final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
-    expect(opacity.opacity, 0);
+    expect(find.byType(AnimatedOpacity), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

@@ -376,9 +376,16 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       return;
     }
     final size = MediaQuery.sizeOf(context);
-    final previewWidth = (size.width * 0.70).clamp(420.0, size.width * 0.92);
-    final previewHeight =
-        (size.height * 0.70).clamp(320.0, size.height * 0.92);
+    final maxPreviewWidth = size.width * 0.92;
+    final maxPreviewHeight = size.height * 0.92;
+    final previewWidth = maxPreviewWidth < 420
+      ? maxPreviewWidth
+      : (size.width * 0.70).clamp(420.0, maxPreviewWidth);
+    final previewHeight = maxPreviewHeight < 320
+      ? maxPreviewHeight
+      : (size.height * 0.70).clamp(320.0, maxPreviewHeight);
+    final effectivePreviewWidth = math.max(0.0, previewWidth);
+    final effectivePreviewHeight = math.max(0.0, previewHeight);
     var showBackOnly = _showSecondary;
     await showGeneralDialog<void>(
       context: context,
@@ -403,8 +410,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                     padding: const EdgeInsets.all(24),
                     child: StatefulBuilder(
                       builder: (context, setDialogState) {
-                        final contentWidth = previewWidth - 28;
-                        final contentHeight = previewHeight - 28;
+                        final contentWidth = effectivePreviewWidth - 28;
+                        final contentHeight = effectivePreviewHeight - 28;
                         final hasExplicitFront =
                           (widget.localBytes?.isNotEmpty ?? false) ||
                           (widget.imageUrl?.trim().isNotEmpty ?? false);
@@ -416,7 +423,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                           contentHeight * (2 / 3),
                         );
                         // Show both covers whenever each can remain readable.
-                        const minReadableSideBySideCoverWidth = 210.0;
+                        const minReadableSideBySideCoverWidth = 150.0;
                         final showSideBySide =
                           hasExplicitFront &&
                           hasExplicitBack &&
@@ -439,7 +446,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: widget.accentColor.withValues(alpha: 0.42),
+                                  color: Colors.white.withValues(alpha: 0.78),
+                                  width: 1,
                                 ),
                               ),
                               child: ClipRRect(
@@ -475,105 +483,93 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                               maxHeight: size.height * 0.92,
                             ),
                             child: SizedBox(
-                              width: previewWidth,
-                              height: previewHeight,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: appPalette(context)
-                                      .surface
-                                      .withValues(alpha: 0.92),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color:
-                                        widget.accentColor.withValues(alpha: 0.32),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(14),
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: InteractiveViewer(
-                                          minScale: 0.5,
-                                          maxScale: 5,
-                                          child: Center(
-                                            child: showSideBySide
-                                                ? Row(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      ConstrainedBox(
-                                                        constraints: BoxConstraints(
-                                                          maxHeight: contentHeight,
-                                                          maxWidth:
-                                                              (contentWidth - 12) / 2,
-                                                        ),
-                                                        child: buildCover(
-                                                          imageUrl: widget.imageUrl,
-                                                          localBytes: widget.localBytes,
-                                                          ownedItemId:
-                                                              widget.ownedItemId,
-                                                        ),
+                              width: effectivePreviewWidth,
+                              height: effectivePreviewHeight,
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: InteractiveViewer(
+                                        minScale: 0.5,
+                                        maxScale: 5,
+                                        child: Center(
+                                          child: showSideBySide
+                                              ? Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    ConstrainedBox(
+                                                      constraints: BoxConstraints(
+                                                        maxHeight: contentHeight,
+                                                        maxWidth:
+                                                            (contentWidth - 12) / 2,
                                                       ),
-                                                      const SizedBox(width: 12),
-                                                      ConstrainedBox(
-                                                        constraints: BoxConstraints(
-                                                          maxHeight: contentHeight,
-                                                          maxWidth:
-                                                              (contentWidth - 12) / 2,
-                                                        ),
-                                                        child: buildCover(
-                                                          imageUrl:
-                                                              widget.secondaryImageUrl,
-                                                          localBytes:
-                                                              widget.secondaryLocalBytes,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                : ConstrainedBox(
-                                                    constraints: BoxConstraints(
-                                                      maxHeight: contentHeight,
-                                                      maxWidth: math.min(
-                                                        contentWidth,
-                                                        contentHeight * (2 / 3),
+                                                      child: buildCover(
+                                                        imageUrl: widget.imageUrl,
+                                                        localBytes: widget.localBytes,
+                                                        ownedItemId:
+                                                            widget.ownedItemId,
                                                       ),
                                                     ),
-                                                    child: singleCover,
+                                                    const SizedBox(width: 12),
+                                                    ConstrainedBox(
+                                                      constraints: BoxConstraints(
+                                                        maxHeight: contentHeight,
+                                                        maxWidth:
+                                                            (contentWidth - 12) / 2,
+                                                      ),
+                                                      child: buildCover(
+                                                        imageUrl:
+                                                            widget.secondaryImageUrl,
+                                                        localBytes:
+                                                            widget.secondaryLocalBytes,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                    maxHeight: contentHeight,
+                                                    maxWidth: math.min(
+                                                      contentWidth,
+                                                      contentHeight * (2 / 3),
+                                                    ),
                                                   ),
-                                          ),
+                                                  child: singleCover,
+                                                ),
                                         ),
                                       ),
-                                      if (showSwitchBadges)
-                                        Positioned(
-                                          left: 8,
-                                          right: 8,
-                                          bottom: 8,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              _PreviewCoverSwitchBadge(
-                                                label: 'Front',
-                                                selected: !showBackOnly,
-                                                accentColor: widget.accentColor,
-                                                onPressed: () => setDialogState(
-                                                  () => showBackOnly = false,
-                                                ),
+                                    ),
+                                    if (showSwitchBadges)
+                                      Positioned(
+                                        left: 8,
+                                        right: 8,
+                                        bottom: 8,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            _PreviewCoverSwitchBadge(
+                                              label: 'Front',
+                                              selected: !showBackOnly,
+                                              accentColor: widget.accentColor,
+                                              onPressed: () => setDialogState(
+                                                () => showBackOnly = false,
                                               ),
-                                              const SizedBox(width: 8),
-                                              _PreviewCoverSwitchBadge(
-                                                label: 'Back',
-                                                selected: showBackOnly,
-                                                accentColor: widget.accentColor,
-                                                onPressed: () => setDialogState(
-                                                  () => showBackOnly = true,
-                                                ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            _PreviewCoverSwitchBadge(
+                                              label: 'Back',
+                                              selected: showBackOnly,
+                                              accentColor: widget.accentColor,
+                                              onPressed: () => setDialogState(
+                                                () => showBackOnly = true,
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
-                                    ],
-                                  ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -674,7 +670,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                       ),
                     ),
                   ),
-                  if (interactive)
+                  if (interactive && hoverCue)
                     Positioned(
                       right: 8,
                       bottom: 8,
