@@ -155,7 +155,7 @@ class LibraryWorkspace extends ConsumerWidget {
             mainAxisExtent: viewState.coverSize * 1.53,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCoverTile(
-              key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -183,7 +183,7 @@ class LibraryWorkspace extends ConsumerWidget {
             mainAxisExtent: cardTileHeight,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
-              key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -233,7 +233,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
-            key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -262,7 +262,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
-            key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -563,40 +563,23 @@ class _GroupedGridState extends State<_GroupedGrid> {
   }
 
   Widget _buildGrid(List<LibraryProjectionItem> items) {
-    if (widget.onSelectionChanged != null) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: LibraryWorkspaceGrid<LibraryProjectionItem>(
-            items: items,
-            itemBuilder: widget.itemBuilder,
-            emptyBuilder: (_) => const SizedBox.shrink(),
-            maxCrossAxisExtent: widget.maxCrossAxisExtent,
-            mainAxisExtent: widget.mainAxisExtent,
-            selectionEnabled: widget.selectionEnabled,
-            selectedIds: widget.selectedIds,
-            itemIdOf: (item) => item.entry.id,
-            onSelectionChanged: widget.onSelectionChanged,
-            shrinkWrap: true,
-            scrollable: false,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            backgroundColor: Colors.transparent,
-          ),
-        ),
-      );
-    }
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => widget.itemBuilder(context, items[index]),
-          childCount: items.length,
-        ),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: LibraryWorkspaceGrid<LibraryProjectionItem>(
+          items: items,
+          itemBuilder: widget.itemBuilder,
+          emptyBuilder: (_) => const SizedBox.shrink(),
           maxCrossAxisExtent: widget.maxCrossAxisExtent,
           mainAxisExtent: widget.mainAxisExtent,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
+          selectionEnabled: widget.selectionEnabled,
+          selectedIds: widget.selectedIds,
+          itemIdOf: (item) => item.entry.id,
+          onSelectionChanged: widget.onSelectionChanged,
+          shrinkWrap: true,
+          scrollable: false,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          backgroundColor: Colors.transparent,
         ),
       ),
     );

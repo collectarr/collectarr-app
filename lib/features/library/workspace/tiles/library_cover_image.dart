@@ -30,9 +30,12 @@ class LibraryCoverImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Resolve local image: prefer explicit local bytes, then look up from DB.
+    final url = _normalizedImageUrl(imageUrl);
+
+    // Resolve local image: prefer explicit local bytes; query DB only when
+    // there is no usable remote URL to avoid first-load source swapping.
     var local = localBytes;
-    if (local == null && ownedItemId != null) {
+    if (local == null && ownedItemId != null && url == null) {
       local = ref.watch(localCoverImageProvider(ownedItemId!)).value;
     }
 
@@ -60,12 +63,12 @@ class LibraryCoverImage extends ConsumerWidget {
           local,
           fit: fit,
           cacheWidth: cacheWidth,
+          gaplessPlayback: true,
           filterQuality: FilterQuality.medium,
           errorBuilder: (_, __, ___) => placeholder,
         ),
       );
     }
-    final url = _normalizedImageUrl(imageUrl);
     if (url == null) {
       return placeholder;
     }

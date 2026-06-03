@@ -46,8 +46,8 @@ class MediaLibraryNav extends ConsumerWidget {
     final palette = appPalette(context);
 
     return AnimatedContainer(
-      duration: animationDuration,
-      curve: Curves.easeOutCubic,
+      duration: Duration.zero,
+      curve: Curves.linear,
       height: 36,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
@@ -126,8 +126,8 @@ class MediaLibraryTitleBar extends ConsumerWidget {
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
     return AnimatedContainer(
-      duration: animationDuration,
-      curve: Curves.easeOutCubic,
+      duration: Duration.zero,
+      curve: Curves.linear,
       height: 36,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(

@@ -55,6 +55,7 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
 class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
   final _scrollController = ScrollController();
   final _selectionRectNotifier = ValueNotifier<Rect?>(null);
+  int? _stableCrossAxisCount;
   Offset? _dragStart;
   Set<String> _dragBaseSelection = const {};
 
@@ -63,6 +64,17 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     _selectionRectNotifier.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryWorkspaceGrid<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.maxCrossAxisExtent != widget.maxCrossAxisExtent ||
+        oldWidget.crossAxisSpacing != widget.crossAxisSpacing ||
+        oldWidget.mainAxisExtent != widget.mainAxisExtent ||
+        oldWidget.padding != widget.padding) {
+      _stableCrossAxisCount = null;
+    }
   }
 
   @override
@@ -78,12 +90,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final padding = widget.padding.resolve(Directionality.of(context));
         final gridWidth =
             math.max(0.0, constraints.maxWidth - padding.left - padding.right);
-        final crossAxisCount = math.max(
-          1,
-          ((gridWidth + widget.crossAxisSpacing) /
-              (widget.maxCrossAxisExtent + widget.crossAxisSpacing))
-            .ceil(),
-        );
+        final crossAxisCount = _resolveStableCrossAxisCount(gridWidth);
         final tileWidth =
             (gridWidth - ((crossAxisCount - 1) * widget.crossAxisSpacing)) /
                 crossAxisCount;
@@ -191,6 +198,36 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         );
       },
     );
+  }
+
+  int _resolveStableCrossAxisCount(double gridWidth) {
+    final spacing = widget.crossAxisSpacing;
+    final cellAndGap = widget.maxCrossAxisExtent + spacing;
+    final computed = math.max(1, ((gridWidth + spacing) / cellAndGap).ceil());
+    final previous = _stableCrossAxisCount;
+    if (previous == null) {
+      _stableCrossAxisCount = computed;
+      return computed;
+    }
+
+    // Keep a wider dead-zone for larger covers to avoid resize oscillation.
+    final hysteresis = (widget.maxCrossAxisExtent * 0.14)
+      .clamp(18.0, 54.0)
+      .toDouble();
+    final growThreshold = (previous * cellAndGap) - spacing + hysteresis;
+    final shrinkThreshold = ((previous - 1) * cellAndGap) - spacing - hysteresis;
+
+    var next = previous;
+    if (computed > previous && gridWidth >= growThreshold) {
+      next = computed;
+    } else if (computed < previous && gridWidth <= shrinkThreshold) {
+      next = computed;
+    }
+    if (next < 1) {
+      next = 1;
+    }
+    _stableCrossAxisCount = next;
+    return next;
   }
 
   bool get _selectionIsAdditive {

@@ -111,6 +111,8 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
 
 class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
+  static bool _viewStateCacheWarmupStarted = false;
+
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
   String? _selectedId;
@@ -155,6 +157,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
+    unawaited(_warmViewStateCachesOnce());
     _viewState = _adapter.viewProfile.defaults();
     _primeCachedViewPreferences();
     _applyRouteStateFromUri(widget.routeUri);
@@ -1669,6 +1672,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       if (mounted &&
           token == _viewStateLoadToken &&
           widget.type.workspace.kind == expectedKind) {
+        if (_viewStateEquals(_viewState, state)) {
+          return;
+        }
         setState(() {
           _viewState = state;
           _applyRouteStateFromUri(widget.routeUri);
@@ -1682,6 +1688,48 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         stackTrace: stackTrace,
       );
     }
+  }
+
+  Future<void> _warmViewStateCachesOnce() async {
+    if (_viewStateCacheWarmupStarted) {
+      return;
+    }
+    _viewStateCacheWarmupStarted = true;
+    for (final adapter in collectarrMediaAdapters.adapters) {
+      try {
+        await adapter.viewProfile.load();
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_page',
+          message: 'Failed to warm library view-state cache.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+  }
+
+  bool _viewStateEquals(
+    LibraryWorkspaceViewState? left,
+    LibraryWorkspaceViewState right,
+  ) {
+    if (left == null) {
+      return false;
+    }
+    if (left.viewMode != right.viewMode ||
+        left.detailsLayout != right.detailsLayout ||
+        left.isSidebarVisible != right.isSidebarVisible ||
+        left.sortColumn != right.sortColumn ||
+        left.sortAscending != right.sortAscending ||
+        left.coverSize != right.coverSize ||
+        left.sidebarWidth != right.sidebarWidth ||
+        left.detailsWidth != right.detailsWidth ||
+        left.detailsHeight != right.detailsHeight) {
+      return false;
+    }
+    return setEquals(left.visibleColumns, right.visibleColumns) &&
+        mapEquals(left.columnWidths, right.columnWidths) &&
+        listEquals(left.sortRules, right.sortRules);
   }
 
   void _updateViewState(

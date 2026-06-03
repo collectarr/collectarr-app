@@ -12,7 +12,7 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.tv,
   title: 'TV',
   icon: Icons.tv_outlined,
-  accent: Color(0xFF3D8DBF),
+  accent: Color(0xFF00A7A0),
   preferencePrefix: 'tv',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: kPlannedLibrarySortColumns,

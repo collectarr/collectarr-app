@@ -1187,116 +1187,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return fields;
   }
 
-  List<_CorrectionPreviewEntry> _catalogCorrectionPreview(
-    AdminMetadataItem item,
-    _CatalogCorrection correction,
-  ) {
-    final edition = item.primaryEdition;
-    final variant = item.primaryVariant;
-    final changes = <_CorrectionPreviewEntry>[];
-
-    void add(String label, Object? before, Object? after) {
-      final beforeText = _previewCorrectionValue(before);
-      final afterText = _previewCorrectionValue(after);
-      if (beforeText == afterText) {
-        return;
-      }
-      changes.add(
-        _CorrectionPreviewEntry(
-          label: label,
-          before: beforeText,
-          after: afterText,
-        ),
-      );
-    }
-
-    add('Title', item.title, correction.title);
-    add('Item number', item.itemNumber, correction.itemNumber);
-    add('Publisher', edition?.publisher ?? item.publisher, correction.publisher);
-    add('Edition title', edition?.title, correction.editionTitle);
-    add('Barcode', variant?.barcode ?? item.barcode, correction.barcode);
-    add('Primary variant', variant?.name, correction.variantName);
-    add('Page count', item.publishing?.pageCount, correction.pageCount);
-    add('Runtime', item.video?.runtimeMinutes, correction.runtimeMinutes);
-    add('Release date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
-    add('Imprint', item.publishing?.imprint, correction.imprint);
-    add('Subtitle', item.publishing?.subtitle, correction.subtitle);
-    add('Series group', item.publishing?.seriesGroup, correction.seriesGroup);
-    add('Country', item.country, correction.country);
-    add('Language', item.language, correction.language);
-    add('Age rating', item.ageRating, correction.ageRating);
-    add('Catalog number', item.music?.catalogNumber, correction.catalogNumber);
-    add('Release status', item.music?.releaseStatus, correction.releaseStatus);
-    add('Physical format', edition?.physicalFormat, correction.physicalFormat);
-    add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
-    add('Thumbnail URL', variant?.thumbnailImageUrl, correction.thumbnailImageUrl);
-    add('Synopsis', item.synopsis, correction.synopsis);
-    add(
-      'Series tags',
-      _normalizedAdminTags(item.series?.tags).join(', '),
-      _normalizedAdminTags(correction.seriesTags).join(', '),
-    );
-    return changes;
-  }
-
   List<String> _normalizedAdminTags(List<String>? tags) {
     return (tags ?? const <String>[])
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty)
         .toList(growable: false);
-  }
-
-  Future<bool> _confirmMetadataCorrectionPreview(
-    List<_CorrectionPreviewEntry> changes,
-  ) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) => AccentAlertDialog(
-            title: const Text('Preview metadata correction'),
-            content: SizedBox(
-              width: 620,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const _DestructiveWarning(
-                      icon: Icons.fact_check_outlined,
-                      message:
-                          'This edits canonical catalog metadata and affects every user who sees this item. Review the diff before saving.',
-                    ),
-                    const SizedBox(height: 12),
-                    for (final change in changes)
-                      _CorrectionPreviewRow(change: change),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Back to edit'),
-              ),
-              FilledButton.icon(
-                onPressed: () => Navigator.of(context).pop(true),
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save correction'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-  }
-
-  String _previewCorrectionValue(Object? value) {
-    if (value == null) {
-      return '(empty)';
-    }
-    if (value is DateTime) {
-      return _formatDate(value);
-    }
-    final text = value.toString().trim();
-    return text.isEmpty ? '(empty)' : text;
   }
 
   Future<void> _showCoverInspectionDialog(AdminMetadataItem item) async {

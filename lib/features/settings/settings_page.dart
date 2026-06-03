@@ -426,6 +426,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onVisibilityChanged: (kind, visible) => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .setKindVisible(kind, visible),
+                        onAccentChanged: (kind, color) => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .setKindAccent(kind, color),
                       onReset: () => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .reset(),

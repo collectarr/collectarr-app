@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
@@ -6,12 +7,15 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,12 +29,18 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 }
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
+  final Map<String, Widget> _cachedKindPages = <String, Widget>{};
+
   String? _routeKind() {
     return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
   }
 
   void _replaceLibraryKind(String kind) {
     final normalized = canonicalLibraryNavKind(kind) ?? 'comic';
+    final previousKind = ref.read(selectedLibraryKindProvider);
+    if (previousKind != normalized) {
+      _recordSwitchMetrics(previousKind: previousKind, nextKind: normalized);
+    }
     ref.read(selectedLibraryKindProvider.notifier).select(normalized);
     final nextUri = widget.routeUri.replace(
       queryParameters: {'kind': normalized},
@@ -39,6 +49,107 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         GoRouter.maybeOf(context) != null) {
       context.replace(nextUri.toString());
     }
+  }
+
+  void _recordSwitchMetrics({
+    required String previousKind,
+    required String nextKind,
+  }) {
+    if (!kDebugMode) {
+      return;
+    }
+    final stopwatch = Stopwatch()..start();
+    final timings = <FrameTiming>[];
+    var completedFrames = 0;
+
+    void onTimings(List<FrameTiming> values) {
+      timings.addAll(values);
+      completedFrames += values.length;
+      if (completedFrames < 12) {
+        return;
+      }
+      SchedulerBinding.instance.removeTimingsCallback(onTimings);
+      if (timings.isEmpty) {
+        return;
+      }
+      final buildTotalMicros = timings.fold<int>(
+        0,
+        (sum, value) => sum + value.buildDuration.inMicroseconds,
+      );
+      final rasterTotalMicros = timings.fold<int>(
+        0,
+        (sum, value) => sum + value.rasterDuration.inMicroseconds,
+      );
+      final frameCount = timings.length;
+      final averageBuildMs = buildTotalMicros / frameCount / 1000;
+      final averageRasterMs = rasterTotalMicros / frameCount / 1000;
+      debugPrint(
+        '[LibrarySwitchPerf][$previousKind->$nextKind] '
+        'firstFrame=${stopwatch.elapsedMilliseconds}ms '
+        'avgBuild=${averageBuildMs.toStringAsFixed(2)}ms '
+        'avgRaster=${averageRasterMs.toStringAsFixed(2)}ms '
+        'frames=$frameCount',
+      );
+    }
+
+    SchedulerBinding.instance.addTimingsCallback(onTimings);
+  }
+
+  Widget _buildCachedKindBody({
+    required CatalogMediaType selected,
+    required LibraryTypeConfig selectedConfig,
+    required Widget resolvedTopBar,
+    required Color accent,
+    required Uri routeUri,
+    required List<CatalogMediaType> visibleTypes,
+    required Duration animationDuration,
+  }) {
+    _cachedKindPages[selected.kind] = KeyedSubtree(
+      key: ValueKey('library-kind-${selected.kind}'),
+      child: buildLibraryKindPage(
+        type: selectedConfig,
+        topBar: resolvedTopBar,
+        accent: accent,
+        routeUri: routeUri,
+      ),
+    );
+
+    final visibleKindOrder = <String>{
+      for (final type in visibleTypes) type.kind,
+    };
+    _cachedKindPages.removeWhere((kind, _) => !visibleKindOrder.contains(kind));
+
+    final cachedKinds = _cachedKindPages.keys.toList(growable: false);
+    final selectedIndex = cachedKinds.indexOf(selected.kind);
+    if (selectedIndex < 0) {
+      return const SizedBox.shrink();
+    }
+
+    final stack = IndexedStack(
+      index: selectedIndex,
+      children: [
+        for (final kind in cachedKinds)
+          TickerMode(
+            enabled: kind == selected.kind,
+            child: RepaintBoundary(child: _cachedKindPages[kind]!),
+          ),
+      ],
+    );
+
+    if (animationDuration == Duration.zero) {
+      return stack;
+    }
+
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('library-kind-fade-${selected.kind}'),
+      tween: Tween<double>(begin: 0.96, end: 1),
+      duration: animationDuration,
+      curve: Curves.easeOut,
+      child: stack,
+      builder: (context, value, child) {
+        return Opacity(opacity: value, child: child);
+      },
+    );
   }
 
   @override
@@ -56,7 +167,10 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         ? kAppAnimNormal
         : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
-    final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
+    final visibleTypes = _ensureCoreKindsVisible(
+      visibleLibraryHomeTypes(allTypes, navPreferences),
+      allTypes,
+    );
     final rawRouteKind = widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
     final routeKind = _routeKind();
     final routeSelected = routeKind == null
@@ -65,11 +179,12 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final selected = routeSelected ??
         selectedLibraryHomeType(visibleTypes, selectedKind);
     if (routeKind != null && rawRouteKind != routeKind) {
+      final normalizedRouteKind = routeKind;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
           return;
         }
-        _replaceLibraryKind(routeKind);
+        _replaceLibraryKind(normalizedRouteKind);
       });
     }
     if (selected.kind != selectedKind) {
@@ -143,11 +258,14 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       children: [
         if (offlineBanner != null) offlineBanner,
         Expanded(
-          child: buildLibraryKindPage(
-            type: selectedConfig,
-            topBar: resolvedTopBar,
+          child: _buildCachedKindBody(
+            selected: selected,
+            selectedConfig: selectedConfig,
+            resolvedTopBar: resolvedTopBar,
             accent: accent,
             routeUri: widget.routeUri,
+            visibleTypes: visibleTypes,
+            animationDuration: animationDuration,
           ),
         ),
       ],
@@ -176,4 +294,26 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
     return content;
   }
+}
+
+List<CatalogMediaType> _ensureCoreKindsVisible(
+  List<CatalogMediaType> visible,
+  List<CatalogMediaType> available,
+) {
+  const requiredKinds = {'anime', 'manga', 'tv'};
+  final result = visible.toList(growable: true);
+  final visibleKinds = {for (final type in result) type.kind};
+  for (final kind in requiredKinds) {
+    if (visibleKinds.contains(kind)) {
+      continue;
+    }
+    for (final type in available) {
+      if (type.kind == kind) {
+        result.add(type);
+        visibleKinds.add(kind);
+        break;
+      }
+    }
+  }
+  return result;
 }

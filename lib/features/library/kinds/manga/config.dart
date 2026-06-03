@@ -11,8 +11,8 @@ import 'package:flutter/material.dart';
 const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.manga,
   title: 'Manga',
-  icon: Icons.auto_stories_outlined,
-  accent: Color(0xFFDA8A2C),
+  icon: Icons.import_contacts_outlined,
+  accent: Color(0xFFFF6F91),
   preferencePrefix: 'manga',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: kComicLibrarySortColumns,

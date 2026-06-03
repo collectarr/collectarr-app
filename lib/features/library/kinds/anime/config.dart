@@ -11,8 +11,8 @@ import 'package:flutter/material.dart';
 const animeWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.anime,
   title: 'Anime',
-  icon: Icons.live_tv_outlined,
-  accent: Color(0xFFE05A47),
+  icon: Icons.movie_filter_outlined,
+  accent: Color(0xFFC94DFF),
   preferencePrefix: 'anime',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: kPlannedLibrarySortColumns,

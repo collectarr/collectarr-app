@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.comic,
   title: 'Comics',
-  icon: Icons.library_books,
+  icon: Icons.collections_bookmark_outlined,
   accent: Color(0xFF44BFE7),
   preferencePrefix: 'comics',
   defaultSortColumn: LibrarySortColumn.title,

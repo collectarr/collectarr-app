@@ -76,7 +76,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
         libraryIconForKind(selected.kind);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
-      duration: kAppAnimNormal,
+      duration: Duration.zero,
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final animatedAccent = color ?? accent;

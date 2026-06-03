@@ -24,7 +24,7 @@ const comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   clampColumnWidth: clampComicTableColumnWidth,
   defaultDetailsWidth: 350,
   defaultDetailsLayout: LibraryDetailsLayout.right,
-  hideDetailsWhenSelectionEmpty: true,
+  hideDetailsWhenSelectionEmpty: false,
   sortAscendingForColumn: comicInitialSortAscending,
 );
 

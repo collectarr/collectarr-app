@@ -65,56 +65,14 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
 
 class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton> {
   static const _menuWidth = 280.0;
-  Timer? _hoverOpenTimer;
-  Timer? _hoverCloseTimer;
   final _layerLink = LayerLink();
   bool _menuOpen = false;
-  bool _hoveringTrigger = false;
-  bool _hoveringMenu = false;
   OverlayEntry? _menuOverlayEntry;
 
   @override
   void dispose() {
-    _hoverOpenTimer?.cancel();
-    _hoverCloseTimer?.cancel();
     _removeMenuOverlay();
     super.dispose();
-  }
-
-  void _scheduleHoverOpen() {
-    if (_menuOpen) {
-      return;
-    }
-    _hoverOpenTimer?.cancel();
-    _hoverOpenTimer = Timer(const Duration(milliseconds: 120), () {
-      if (!mounted || _menuOpen) {
-        return;
-      }
-      _showGroupModeMenu(context);
-    });
-  }
-
-  void _cancelHoverOpen() {
-    _hoverOpenTimer?.cancel();
-    _hoverOpenTimer = null;
-  }
-
-  void _cancelHoverClose() {
-    _hoverCloseTimer?.cancel();
-    _hoverCloseTimer = null;
-  }
-
-  void _scheduleHoverClose() {
-    if (!_menuOpen || _hoveringTrigger || _hoveringMenu) {
-      return;
-    }
-    _cancelHoverClose();
-    _hoverCloseTimer = Timer(const Duration(milliseconds: 160), () {
-      if (!mounted || !_menuOpen || _hoveringTrigger || _hoveringMenu) {
-        return;
-      }
-      _closeGroupModeMenu();
-    });
   }
 
   void _removeMenuOverlay() {
@@ -123,9 +81,6 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
   }
 
   void _closeGroupModeMenu() {
-    _cancelHoverOpen();
-    _cancelHoverClose();
-    _hoveringMenu = false;
     if (!_menuOpen) {
       return;
     }
@@ -204,29 +159,16 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
       message: 'Group by',
       child: CompositedTransformTarget(
         link: _layerLink,
-        child: MouseRegion(
-          onEnter: (_) {
-            _hoveringTrigger = true;
-            _cancelHoverClose();
-            _scheduleHoverOpen();
+        child: InkWell(
+          onTap: () {
+            if (_menuOpen) {
+              _closeGroupModeMenu();
+            } else {
+              _showGroupModeMenu(context);
+            }
           },
-          onExit: (_) {
-            _hoveringTrigger = false;
-            _cancelHoverOpen();
-            _scheduleHoverClose();
-          },
-          child: InkWell(
-            onTap: () {
-              _cancelHoverOpen();
-              if (_menuOpen) {
-                _closeGroupModeMenu();
-              } else {
-                _showGroupModeMenu(context);
-              }
-            },
-            borderRadius: BorderRadius.zero,
-            child: child,
-          ),
+          borderRadius: BorderRadius.zero,
+          child: child,
         ),
       ),
     );
@@ -237,7 +179,6 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
       return;
     }
     _menuOpen = true;
-    _hoveringMenu = false;
     final label = widget.folderPreset == null
         ? 'Group by'
         : genericFolderPresetLabel(widget.folderPreset!, widget.type);
@@ -265,32 +206,22 @@ class _LibraryGroupModeMenuButtonState extends State<LibraryGroupModeMenuButton>
               targetAnchor: Alignment.bottomLeft,
               followerAnchor: Alignment.topLeft,
               offset: Offset(dx, 0),
-              child: MouseRegion(
-                onEnter: (_) {
-                  _hoveringMenu = true;
-                  _cancelHoverClose();
-                },
-                onExit: (_) {
-                  _hoveringMenu = false;
-                  _scheduleHoverClose();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: SizedBox(
-                    width: _menuWidth,
-                    child: LibraryGroupModeDropdownMenu(
-                      type: widget.type,
-                      selectedPreset: widget.folderPreset,
-                      availableModes: modes,
-                      initialPinnedPresets: widget.pinnedFolderPresets,
-                      onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
-                      sidebarVisible: widget.sidebarVisible,
-                      hasSidebarVisibilityToggle:
-                          widget.onSidebarVisibilityChanged != null,
-                      triggerLabel: label,
-                      triggerIcon: widget.icon,
-                      onSelected: (value) => _handleMenuSelection(value, modes),
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: SizedBox(
+                  width: _menuWidth,
+                  child: LibraryGroupModeDropdownMenu(
+                    type: widget.type,
+                    selectedPreset: widget.folderPreset,
+                    availableModes: modes,
+                    initialPinnedPresets: widget.pinnedFolderPresets,
+                    onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
+                    sidebarVisible: widget.sidebarVisible,
+                    hasSidebarVisibilityToggle:
+                        widget.onSidebarVisibilityChanged != null,
+                    triggerLabel: label,
+                    triggerIcon: widget.icon,
+                    onSelected: (value) => _handleMenuSelection(value, modes),
                   ),
                 ),
               ),
@@ -452,7 +383,7 @@ class _LibraryGroupModeDropdownMenuState
                             .titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
-                      FilledButton.tonalIcon(
+                      IconButton(
                         key: const ValueKey('manageGroupFavoritesButton'),
                         onPressed: widget.onPinnedPresetsChanged == null
                             ? null
@@ -463,15 +394,8 @@ class _LibraryGroupModeDropdownMenuState
                                     ),
                                   ),
                                 ),
-                        icon: const Icon(Icons.tune, size: 16),
-                        label: const Text('Manage Favorites'),
-                        style: FilledButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
+                        icon: const Icon(Icons.settings, size: 18),
+                        visualDensity: VisualDensity.compact,
                       ),
                     ],
                   ),
