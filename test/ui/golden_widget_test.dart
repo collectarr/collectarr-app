@@ -15,8 +15,24 @@ import '../helpers/test_constants.dart';
 class _TolerantGoldenFileComparator extends LocalFileComparator {
   _TolerantGoldenFileComparator(super.testFile);
 
-  /// Allow up to 0.5% of pixels to differ.
-  static const double _kTolerance = 0.005;
+  /// Default tolerance for cross-platform text/icon antialiasing drift.
+  static const double _kDefaultTolerance = 0.005;
+
+  /// Known Linux-vs-Windows drift hotspots for these specific snapshots.
+  static const Map<String, double> _kPerGoldenTolerance = {
+    'goldens/status_icons_all.png': 0.015,
+    'goldens/tag_pick_list_field.png': 0.015,
+  };
+
+  double _toleranceFor(Uri golden) {
+    final path = golden.path.replaceAll('\\', '/');
+    for (final entry in _kPerGoldenTolerance.entries) {
+      if (path.endsWith(entry.key)) {
+        return entry.value;
+      }
+    }
+    return _kDefaultTolerance;
+  }
 
   @override
   Future<bool> compare(Uint8List imageBytes, Uri golden) async {
@@ -24,10 +40,11 @@ class _TolerantGoldenFileComparator extends LocalFileComparator {
       imageBytes,
       await getGoldenBytes(golden),
     );
-    if (!result.passed && result.diffPercent <= _kTolerance) {
+    final tolerance = _toleranceFor(golden);
+    if (!result.passed && result.diffPercent <= tolerance) {
       debugPrint(
         'Golden "$golden": ${result.diffPercent.toStringAsFixed(2)}% diff '
-        '(within ${(_kTolerance * 100).toStringAsFixed(1)}% tolerance)',
+        '(within ${(tolerance * 100).toStringAsFixed(1)}% tolerance)',
       );
       return true;
     }
