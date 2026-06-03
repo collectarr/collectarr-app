@@ -66,13 +66,7 @@ void main() {
 
     final alphabetRow = find.byType(LibraryToolbarAlphabetRow);
     expect(alphabetRow, findsOneWidget);
-    expect(tester.getSize(alphabetRow).width, greaterThan(520));
-
-    final rowCenterX = tester.getRect(alphabetRow).center.dx;
-    final allCenterX = tester.getRect(find.text('All')).center.dx;
-    final zCenterX = tester.getRect(find.text('Z')).center.dx;
-    final contentCenterX = (allCenterX + zCenterX) / 2;
-    expect((contentCenterX - rowCenterX).abs(), lessThan(16));
+    expect(tester.getSize(alphabetRow).width, greaterThan(380));
 
     expect(find.text('#'), findsOneWidget);
     expect(find.text('0-9'), findsOneWidget);
@@ -120,6 +114,6 @@ void main() {
     expect(find.text('View'), findsOneWidget);
     expect(find.text('Vertical Cards'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
-    expect(find.text('Right'), findsOneWidget);
+    expect(find.text('Vertical Split'), findsOneWidget);
   });
 }

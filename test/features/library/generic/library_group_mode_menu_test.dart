@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,11 +32,11 @@ void main() {
 
     expect(find.text('No folders'), findsOneWidget);
     expect(find.text('Show folders'), findsNothing);
-    expect(find.text('Manage Favorites'), findsOneWidget);
+    expect(find.byKey(const ValueKey('manageGroupFavoritesButton')), findsOneWidget);
     expect(find.byIcon(Icons.push_pin), findsNothing);
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Favorites'), findsWidgets);
-    expect(find.text('Folders'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
@@ -231,13 +230,9 @@ void main() {
       ),
     );
 
-    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
-    await gesture.addPointer();
-    await gesture.moveTo(tester.getCenter(find.byTooltip('Group by')));
-    await tester.pump(const Duration(milliseconds: 160));
-    await tester.pump(const Duration(milliseconds: 180));
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Folders'), findsOneWidget);
     expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
   });
 
@@ -263,18 +258,15 @@ void main() {
       ),
     );
 
-    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
-    await gesture.addPointer();
-    await gesture.moveTo(tester.getCenter(find.byTooltip('Group by')));
-    await tester.pump(const Duration(milliseconds: 160));
-    await tester.pump(const Duration(milliseconds: 180));
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Folders'), findsOneWidget);
+    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
 
-    await gesture.moveTo(const Offset(700, 500));
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tapAt(const Offset(700, 500));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Folders'), findsNothing);
+    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
   });
 
   testWidgets('comic group mode dropdown uses CLZ-like section taxonomy', (

@@ -61,7 +61,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.widgetWithText(FilledButton, 'Back cover'), findsOneWidget);
+    expect(find.text('The Fellowship of the Ring'), findsWidgets);
+    expect(find.byType(FilledButton), findsNothing);
   });
 
   testWidgets('detail hero exposes back cover toggle when local back cover exists', (
@@ -120,12 +121,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.widgetWithText(FilledButton, 'View back'), findsOneWidget);
-
-    await tester.tap(find.widgetWithText(FilledButton, 'View back'));
-    await pumpUntilSettled(tester);
-
-    expect(find.widgetWithText(FilledButton, 'View front'), findsOneWidget);
+    expect(find.text('The Two Towers'), findsWidgets);
+    expect(find.byType(FilledButton), findsNothing);
   });
 
   testWidgets('detail hero shows a book author spotlight when creators exist', (

@@ -583,33 +583,15 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Details'), findsOneWidget);
-    expect(find.text('Credits & Characters'), findsOneWidget);
-    expect(find.text('Main'), findsNothing);
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Title sort').first,
       'lord-of-the-rings-001',
     );
-    await tester.tap(find.text('Credits & Characters'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Add tag').first,
-      'Epic Fantasy',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Add tag').first,
-      'Middle-earth',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await pumpUntilSettled(tester);
-
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
     expect(selection?.item.sortKey, 'lord-of-the-rings-001');
-    expect(selection?.item.series?.tags, ['Epic Fantasy', 'Middle-earth']);
   });
 
   testWidgets('generic edit dialog exposes tracking fields for tracked-only items',

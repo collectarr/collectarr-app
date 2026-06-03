@@ -19,9 +19,10 @@ void main() {
 
     final catalog = await container.read(mediaCatalogProvider.future);
 
-    expect(catalog.map((type) => type.kind), containsAll(['comic', 'movie']));
-    expect(catalog.map((type) => type.kind), isNot(contains('manga')));
-    expect(catalog.map((type) => type.kind), isNot(contains('tv')));
+    expect(
+      catalog.map((type) => type.kind),
+      containsAll(['comic', 'manga', 'movie', 'tv', 'anime']),
+    );
     expect(
       catalog.firstWhere((type) => type.kind == 'comic').providers,
       containsAll(['comicvine', 'mangadex', 'anilist']),

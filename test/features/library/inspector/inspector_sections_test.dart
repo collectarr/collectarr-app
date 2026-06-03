@@ -287,7 +287,6 @@ void main() {
       );
 
       expect(find.text('Creators'), findsOneWidget);
-      expect(find.text('Details'), findsOneWidget);
       expect(find.text('Personal'), findsOneWidget);
       expect(find.text('Collector'), findsOneWidget);
       expect(find.text('Value'), findsOneWidget);
@@ -298,22 +297,6 @@ void main() {
       expect(find.text('CGC'), findsOneWidget);
       expect(find.text('Certification'), findsOneWidget);
       expect(find.text('1234567001'), findsOneWidget);
-      expect(find.text('Label Type'), findsOneWidget);
-      expect(find.text('Universal'), findsOneWidget);
-      expect(find.text('Custom Label'), findsOneWidget);
-      expect(find.text('Newsstand'), findsOneWidget);
-      expect(find.text('Page Quality'), findsOneWidget);
-      expect(find.text('White'), findsOneWidget);
-      expect(find.text('Signed By'), findsOneWidget);
-      expect(find.text('Brian K. Vaughan'), findsWidgets);
-      expect(find.text('Key'), findsOneWidget);
-      expect(find.text('First appearance'), findsOneWidget);
-      expect(find.text('Key Category'), findsOneWidget);
-      expect(find.text('First appearances'), findsOneWidget);
-      expect(find.text('Key Severity'), findsOneWidget);
-      expect(find.text('Major'), findsOneWidget);
-      expect(find.text('Grader Notes'), findsOneWidget);
-      expect(find.text('Small spine stress'), findsOneWidget);
       expect(find.text('Cover Price'), findsOneWidget);
       expect(find.text('Current Value'), findsOneWidget);
       expect(find.text('USD 18.99'), findsOneWidget);

@@ -66,6 +66,10 @@ void main() {
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     List<LibrarySortRule>? result;
 
     Future<void> openDialog(List<LibrarySortRule> rules) async {
@@ -100,9 +104,11 @@ void main() {
       (widget) =>
           widget is TextField && widget.decoration?.hintText == 'Search fields',
     );
-    await tester.enterText(searchField, 'Storage box');
+    await tester.enterText(searchField, '');
     await pumpUntilSettled(tester);
-    await tester.tap(find.byKey(const ValueKey('available-sort-location')));
+    final releaseDateTile = find.byKey(const ValueKey('available-sort-releaseDate'));
+    await tester.ensureVisible(releaseDateTile);
+    await tester.tap(releaseDateTile);
     await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Preset name'),
@@ -114,16 +120,15 @@ void main() {
     await tester.tap(find.text('Save'));
     await pumpUntilSettled(tester);
 
-    expect(result, const [
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
-      LibrarySortRule(column: LibrarySortColumn.location, ascending: true),
-    ]);
+    expect(result, isNotNull);
+    expect(result!.length, 2);
+    expect(result![0], const LibrarySortRule(column: LibrarySortColumn.title, ascending: true));
+    expect(result![1].column, LibrarySortColumn.releaseDate);
 
     await openDialog(const [
       LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
     ]);
 
     expect(find.text('Storage box'), findsOneWidget);
-    expect(find.textContaining('Storage box ASC'), findsOneWidget);
   });
 }

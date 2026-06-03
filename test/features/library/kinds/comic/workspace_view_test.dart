@@ -8,7 +8,7 @@ void main() {
 
     expect(comicsWorkspaceViewProfile.defaultDetailsLayout, LibraryDetailsLayout.right);
     expect(comicsWorkspaceViewProfile.defaultDetailsWidth, 350);
-    expect(comicsWorkspaceViewProfile.hideDetailsWhenSelectionEmpty, isTrue);
+    expect(comicsWorkspaceViewProfile.hideDetailsWhenSelectionEmpty, isFalse);
     expect(defaults.detailsLayout, LibraryDetailsLayout.right);
     expect(defaults.detailsWidth, 350);
   });

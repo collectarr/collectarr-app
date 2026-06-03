@@ -1906,7 +1906,7 @@ void main() {
       find.byKey(const ValueKey('library-add-series-field')),
       'Daft Punk',
     );
-    await tester.tap(find.text('Search Music'));
+    await tester.tap(find.byTooltip('Search').first);
     await pumpUntilSettled(tester);
 
     expect(api.lastSearchKind, 'music');

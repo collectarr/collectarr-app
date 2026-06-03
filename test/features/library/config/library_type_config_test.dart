@@ -78,8 +78,8 @@ void main() {
     expect(mangaLibraryConfig.workspace.kind, CatalogMediaKind.manga);
     expect(mangaLibraryConfig.singularLabel, 'Manga');
     expect(mangaLibraryConfig.pluralLabel, 'Manga');
-    expect(mangaLibraryConfig.defaultMetadataProvider, 'mangadex');
-    expect(mangaLibraryConfig.defaultSupportedMetadataProvider, 'mangadex');
+    expect(mangaLibraryConfig.defaultMetadataProvider, 'hardcover');
+    expect(mangaLibraryConfig.defaultSupportedMetadataProvider, 'hardcover');
     expect(mangaLibraryConfig.supportsMetadataProvider('mangadex'), isTrue);
     expect(mangaLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
     expect(mangaLibraryConfig.trackingProfile, comicTrackingProfile);
@@ -94,7 +94,7 @@ void main() {
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
     expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
-    expect(libraryAccentForKind('anime'), const Color(0xFFE05A47));
+    expect(libraryAccentForKind('anime'), const Color(0xFFC94DFF));
     expect(libraryIconForKind('tv'), Icons.tv_outlined);
     expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
   });
@@ -223,7 +223,7 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('manga').map((row) => row.id),
-      ['mangadex', 'anilist', 'comicvine', 'hardcover'],
+      ['hardcover', 'comicvine', 'anilist', 'mangadex'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('book').map((row) => row.id),
@@ -247,7 +247,7 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('anime').map((row) => row.id),
-      ['anilist', 'tmdb'],
+      ['anilist'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('music').map((row) => row.id),

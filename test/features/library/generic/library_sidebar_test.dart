@@ -62,10 +62,10 @@ void main() {
     await tester.tap(find.text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)).first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Manage Favorites'), findsOneWidget);
+    expect(find.byKey(const ValueKey('manageGroupFavoritesButton')), findsOneWidget);
     expect(find.byIcon(Icons.push_pin), findsNothing);
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
-    expect(find.text('Folders'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
     expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);

@@ -145,7 +145,7 @@ void main() {
     expect(
       navigationBar.indicatorColor,
       libraryAccentForKind(
-        canonicalLibraryNavKind('manga') ?? 'manga',
+        canonicalLibraryNavKind('comic') ?? 'comic',
       ).withValues(alpha: 0.52),
     );
   });
@@ -211,7 +211,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.byType(NavigationBar), findsNothing);
-    expect(find.text('Open'), findsOneWidget);
+    expect(find.byType(AppShell), findsOneWidget);
+    expect(find.byKey(const ValueKey('library-kind-comic')), findsWidgets);
   });
 
   testWidgets('app shell shows admin destination for admin accounts',

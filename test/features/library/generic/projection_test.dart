@@ -267,14 +267,14 @@ void main() {
 
     expect(
       genericGroupModeLabel(LibraryGroupMode.location, comicsLibraryConfig),
-      'Storage Box',
+      'Location',
     );
     expect(
       genericGroupModeSidebarTitle(
         LibraryGroupMode.location,
         comicsLibraryConfig,
       ),
-      'Storage Boxes',
+      'Locations',
     );
     expect(
       genericBucketForItemMode(
