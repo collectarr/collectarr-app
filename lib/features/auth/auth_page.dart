@@ -440,7 +440,7 @@ class _MiniWorkspacePreview extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: 26,
+              height: 28,
               color: const Color(0xFF2C2C2C),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -458,14 +458,14 @@ class _MiniWorkspacePreview extends StatelessWidget {
                       _AlphaTab(label: label, selected: label == 'All'),
                     Container(
                       width: 112,
-                      height: 18,
+                      height: 20,
                       margin: const EdgeInsets.only(right: 8),
                       color: const Color(0xFF0F0F0F),
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                       child: const Text(
                         'Search comics...',
-                        style: TextStyle(color: _authMuted, fontSize: 10),
+                        style: TextStyle(color: _authMuted, fontSize: 11),
                       ),
                     ),
                   ],
@@ -500,14 +500,14 @@ class _AlphaTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: label.length > 1 ? 36 : 28,
-      height: 18,
+      height: 20,
       margin: const EdgeInsets.only(right: 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: selected ? _authAccent : kAppFieldDark,
         border: Border.all(color: _authDivider),
       ),
-      child: Text(label, style: const TextStyle(fontSize: 10)),
+      child: Text(label, style: const TextStyle(fontSize: 11)),
     );
   }
 }
@@ -531,19 +531,19 @@ class _PreviewSeriesList extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 18,
+            height: 20,
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 5),
             color: const Color(0xFF0E0E0E),
             child: const Text(
               'Search series...',
-              style: TextStyle(color: _authMuted, fontSize: 10),
+              style: TextStyle(color: _authMuted, fontSize: 11),
             ),
           ),
           const SizedBox(height: 6),
           for (final row in rows)
             Container(
-              height: 20,
+              height: 22,
               margin: const EdgeInsets.only(bottom: 3),
               padding: const EdgeInsets.symmetric(horizontal: 5),
               color: row.$1 == 'Superman, Vol. 4'
@@ -556,14 +556,14 @@ class _PreviewSeriesList extends StatelessWidget {
                       row.$1,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10),
+                      style: const TextStyle(fontSize: 11),
                     ),
                   ),
                   Container(
                     width: 22,
                     alignment: Alignment.center,
                     color: kAppSurface,
-                    child: Text(row.$2, style: const TextStyle(fontSize: 10)),
+                    child: Text(row.$2, style: const TextStyle(fontSize: 11)),
                   ),
                 ],
               ),
@@ -767,7 +767,7 @@ class _TinyMeta extends StatelessWidget {
             width: 42,
             child: Text(
               label,
-              style: const TextStyle(color: _authMuted, fontSize: 10),
+              style: const TextStyle(color: _authMuted, fontSize: 11),
             ),
           ),
           Expanded(
@@ -775,7 +775,7 @@ class _TinyMeta extends StatelessWidget {
               value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -790,7 +790,7 @@ class _AuthStatusBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 24,
+      height: 26,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: const BoxDecoration(
         color: Color(0xFF242424),

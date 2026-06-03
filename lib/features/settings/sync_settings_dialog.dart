@@ -261,7 +261,7 @@ class _SyncFieldRow extends StatelessWidget {
           ),
           Expanded(
             child: Container(
-              height: 28,
+              height: 30,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: appPalette(context).panelRaised,
