@@ -129,6 +129,12 @@ class OwnedItemsCache extends Table {
   TextColumn get collectionStatus => text().nullable()();
   DateTimeColumn get lastBagBoardDate => dateTime().nullable()();
   IntColumn get marketValueCents => integer().nullable()();
+  TextColumn get gameCompleteness => text().nullable()();
+  BoolColumn get gameHasBox => boolean().nullable()();
+  BoolColumn get gameHasManual => boolean().nullable()();
+  TextColumn get gamePriceChartingId => text().nullable()();
+  TextColumn get gameCoreRegion => text().nullable()();
+  BoolColumn get gameValueIsLocked => boolean().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -417,7 +423,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {

@@ -37,6 +37,19 @@ class LibraryEditValueTab extends StatelessWidget {
     required this.onCollectionStatusChanged,
     required this.lastBagBoardDate,
     required this.onLastBagBoardDateChanged,
+    this.isGameKind = false,
+    this.gameCompleteness,
+    this.onGameCompletenessChanged,
+    this.gameHasBox = false,
+    this.onGameHasBoxChanged,
+    this.gameHasManual = false,
+    this.onGameHasManualChanged,
+    this.gamePriceChartingId,
+    this.onGamePriceChartingIdChanged,
+    this.gameCoreRegion,
+    this.onGameCoreRegionChanged,
+    this.gameValueIsLocked = false,
+    this.onGameValueIsLockedChanged,
   });
 
   final Color accent;
@@ -54,6 +67,19 @@ class LibraryEditValueTab extends StatelessWidget {
   final ValueChanged<String?> onCollectionStatusChanged;
   final DateTime? lastBagBoardDate;
   final ValueChanged<DateTime?> onLastBagBoardDateChanged;
+  final bool isGameKind;
+  final String? gameCompleteness;
+  final ValueChanged<String?>? onGameCompletenessChanged;
+  final bool gameHasBox;
+  final ValueChanged<bool>? onGameHasBoxChanged;
+  final bool gameHasManual;
+  final ValueChanged<bool>? onGameHasManualChanged;
+  final String? gamePriceChartingId;
+  final ValueChanged<String?>? onGamePriceChartingIdChanged;
+  final String? gameCoreRegion;
+  final ValueChanged<String?>? onGameCoreRegionChanged;
+  final bool gameValueIsLocked;
+  final ValueChanged<bool>? onGameValueIsLockedChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +152,94 @@ class LibraryEditValueTab extends StatelessWidget {
                 value: lastBagBoardDate,
                 onChanged: onLastBagBoardDateChanged,
               ),
+              if (isGameKind) ...[
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  initialValue: gameCompleteness,
+                  isExpanded: true,
+                  dropdownColor: appPalette(context).panelRaised,
+                  borderRadius: kEditMenuBorderRadius,
+                  decoration: const InputDecoration(
+                    labelText: 'Completeness',
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('CIB')),
+                    DropdownMenuItem(value: 'na', child: Text('N/A')),
+                    DropdownMenuItem(value: 'loose', child: Text('Loose')),
+                    DropdownMenuItem(value: 'cib', child: Text('CIB')),
+                    DropdownMenuItem(value: 'new', child: Text('New')),
+                    DropdownMenuItem(value: 'graded', child: Text('Graded')),
+                  ],
+                  onChanged: onGameCompletenessChanged,
+                ),
+                const SizedBox(height: 10),
+                buildResponsiveFields([
+                  Material(
+                    type: MaterialType.transparency,
+                    child: CheckboxListTile(
+                      value: gameHasBox,
+                      onChanged: onGameHasBoxChanged == null
+                          ? null
+                          : (value) =>
+                              onGameHasBoxChanged!(value ?? false),
+                      dense: true,
+                      title: const Text('Has box'),
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
+                  Material(
+                    type: MaterialType.transparency,
+                    child: CheckboxListTile(
+                      value: gameHasManual,
+                      onChanged: onGameHasManualChanged == null
+                          ? null
+                          : (value) =>
+                              onGameHasManualChanged!(value ?? false),
+                      dense: true,
+                      title: const Text('Has manual'),
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                buildResponsiveFields([
+                  TextFormField(
+                    initialValue: gamePriceChartingId,
+                    onChanged: onGamePriceChartingIdChanged,
+                    decoration: const InputDecoration(
+                      labelText: 'PriceCharting ID',
+                    ),
+                  ),
+                  DropdownButtonFormField<String>(
+                    initialValue: gameCoreRegion,
+                    isExpanded: true,
+                    dropdownColor: appPalette(context).panelRaised,
+                    borderRadius: kEditMenuBorderRadius,
+                    decoration: const InputDecoration(
+                      labelText: 'Core region',
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text('Auto')),
+                      DropdownMenuItem(value: 'us', child: Text('US')),
+                      DropdownMenuItem(value: 'eu', child: Text('EU')),
+                    ],
+                    onChanged: onGameCoreRegionChanged,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                Material(
+                  type: MaterialType.transparency,
+                  child: SwitchListTile(
+                    value: gameValueIsLocked,
+                    onChanged: onGameValueIsLockedChanged,
+                    dense: true,
+                    title: const Text('Lock value'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

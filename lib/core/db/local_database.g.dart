@@ -3228,6 +3228,51 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<int> marketValueCents = GeneratedColumn<int>(
       'market_value_cents', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _gameCompletenessMeta =
+      const VerificationMeta('gameCompleteness');
+  @override
+  late final GeneratedColumn<String> gameCompleteness = GeneratedColumn<String>(
+      'game_completeness', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gameHasBoxMeta =
+      const VerificationMeta('gameHasBox');
+  @override
+  late final GeneratedColumn<bool> gameHasBox = GeneratedColumn<bool>(
+      'game_has_box', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("game_has_box" IN (0, 1))'));
+  static const VerificationMeta _gameHasManualMeta =
+      const VerificationMeta('gameHasManual');
+  @override
+  late final GeneratedColumn<bool> gameHasManual = GeneratedColumn<bool>(
+      'game_has_manual', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("game_has_manual" IN (0, 1))'));
+  static const VerificationMeta _gamePriceChartingIdMeta =
+      const VerificationMeta('gamePriceChartingId');
+  @override
+  late final GeneratedColumn<String> gamePriceChartingId =
+      GeneratedColumn<String>('game_price_charting_id', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gameCoreRegionMeta =
+      const VerificationMeta('gameCoreRegion');
+  @override
+  late final GeneratedColumn<String> gameCoreRegion = GeneratedColumn<String>(
+      'game_core_region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gameValueIsLockedMeta =
+      const VerificationMeta('gameValueIsLocked');
+  @override
+  late final GeneratedColumn<bool> gameValueIsLocked = GeneratedColumn<bool>(
+      'game_value_is_locked', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("game_value_is_locked" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -3284,7 +3329,13 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         distributor,
         collectionStatus,
         lastBagBoardDate,
-        marketValueCents
+        marketValueCents,
+        gameCompleteness,
+        gameHasBox,
+        gameHasManual,
+        gamePriceChartingId,
+        gameCoreRegion,
+        gameValueIsLocked
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3582,6 +3633,42 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           marketValueCents.isAcceptableOrUnknown(
               data['market_value_cents']!, _marketValueCentsMeta));
     }
+    if (data.containsKey('game_completeness')) {
+      context.handle(
+          _gameCompletenessMeta,
+          gameCompleteness.isAcceptableOrUnknown(
+              data['game_completeness']!, _gameCompletenessMeta));
+    }
+    if (data.containsKey('game_has_box')) {
+      context.handle(
+          _gameHasBoxMeta,
+          gameHasBox.isAcceptableOrUnknown(
+              data['game_has_box']!, _gameHasBoxMeta));
+    }
+    if (data.containsKey('game_has_manual')) {
+      context.handle(
+          _gameHasManualMeta,
+          gameHasManual.isAcceptableOrUnknown(
+              data['game_has_manual']!, _gameHasManualMeta));
+    }
+    if (data.containsKey('game_price_charting_id')) {
+      context.handle(
+          _gamePriceChartingIdMeta,
+          gamePriceChartingId.isAcceptableOrUnknown(
+              data['game_price_charting_id']!, _gamePriceChartingIdMeta));
+    }
+    if (data.containsKey('game_core_region')) {
+      context.handle(
+          _gameCoreRegionMeta,
+          gameCoreRegion.isAcceptableOrUnknown(
+              data['game_core_region']!, _gameCoreRegionMeta));
+    }
+    if (data.containsKey('game_value_is_locked')) {
+      context.handle(
+          _gameValueIsLockedMeta,
+          gameValueIsLocked.isAcceptableOrUnknown(
+              data['game_value_is_locked']!, _gameValueIsLockedMeta));
+    }
     return context;
   }
 
@@ -3701,6 +3788,19 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           DriftSqlType.dateTime, data['${effectivePrefix}last_bag_board_date']),
       marketValueCents: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}market_value_cents']),
+      gameCompleteness: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}game_completeness']),
+      gameHasBox: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}game_has_box']),
+      gameHasManual: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}game_has_manual']),
+      gamePriceChartingId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}game_price_charting_id']),
+      gameCoreRegion: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}game_core_region']),
+      gameValueIsLocked: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}game_value_is_locked']),
     );
   }
 
@@ -3767,6 +3867,12 @@ class OwnedItemsCacheData extends DataClass
   final String? collectionStatus;
   final DateTime? lastBagBoardDate;
   final int? marketValueCents;
+  final String? gameCompleteness;
+  final bool? gameHasBox;
+  final bool? gameHasManual;
+  final String? gamePriceChartingId;
+  final String? gameCoreRegion;
+  final bool? gameValueIsLocked;
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
@@ -3822,7 +3928,13 @@ class OwnedItemsCacheData extends DataClass
       this.distributor,
       this.collectionStatus,
       this.lastBagBoardDate,
-      this.marketValueCents});
+      this.marketValueCents,
+      this.gameCompleteness,
+      this.gameHasBox,
+      this.gameHasManual,
+      this.gamePriceChartingId,
+      this.gameCoreRegion,
+      this.gameValueIsLocked});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3981,6 +4093,24 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || marketValueCents != null) {
       map['market_value_cents'] = Variable<int>(marketValueCents);
     }
+    if (!nullToAbsent || gameCompleteness != null) {
+      map['game_completeness'] = Variable<String>(gameCompleteness);
+    }
+    if (!nullToAbsent || gameHasBox != null) {
+      map['game_has_box'] = Variable<bool>(gameHasBox);
+    }
+    if (!nullToAbsent || gameHasManual != null) {
+      map['game_has_manual'] = Variable<bool>(gameHasManual);
+    }
+    if (!nullToAbsent || gamePriceChartingId != null) {
+      map['game_price_charting_id'] = Variable<String>(gamePriceChartingId);
+    }
+    if (!nullToAbsent || gameCoreRegion != null) {
+      map['game_core_region'] = Variable<String>(gameCoreRegion);
+    }
+    if (!nullToAbsent || gameValueIsLocked != null) {
+      map['game_value_is_locked'] = Variable<bool>(gameValueIsLocked);
+    }
     return map;
   }
 
@@ -4134,6 +4264,24 @@ class OwnedItemsCacheData extends DataClass
       marketValueCents: marketValueCents == null && nullToAbsent
           ? const Value.absent()
           : Value(marketValueCents),
+      gameCompleteness: gameCompleteness == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gameCompleteness),
+      gameHasBox: gameHasBox == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gameHasBox),
+      gameHasManual: gameHasManual == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gameHasManual),
+      gamePriceChartingId: gamePriceChartingId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gamePriceChartingId),
+      gameCoreRegion: gameCoreRegion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gameCoreRegion),
+      gameValueIsLocked: gameValueIsLocked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gameValueIsLocked),
     );
   }
 
@@ -4198,6 +4346,13 @@ class OwnedItemsCacheData extends DataClass
       lastBagBoardDate:
           serializer.fromJson<DateTime?>(json['lastBagBoardDate']),
       marketValueCents: serializer.fromJson<int?>(json['marketValueCents']),
+      gameCompleteness: serializer.fromJson<String?>(json['gameCompleteness']),
+      gameHasBox: serializer.fromJson<bool?>(json['gameHasBox']),
+      gameHasManual: serializer.fromJson<bool?>(json['gameHasManual']),
+      gamePriceChartingId:
+          serializer.fromJson<String?>(json['gamePriceChartingId']),
+      gameCoreRegion: serializer.fromJson<String?>(json['gameCoreRegion']),
+      gameValueIsLocked: serializer.fromJson<bool?>(json['gameValueIsLocked']),
     );
   }
   @override
@@ -4259,6 +4414,12 @@ class OwnedItemsCacheData extends DataClass
       'collectionStatus': serializer.toJson<String?>(collectionStatus),
       'lastBagBoardDate': serializer.toJson<DateTime?>(lastBagBoardDate),
       'marketValueCents': serializer.toJson<int?>(marketValueCents),
+      'gameCompleteness': serializer.toJson<String?>(gameCompleteness),
+      'gameHasBox': serializer.toJson<bool?>(gameHasBox),
+      'gameHasManual': serializer.toJson<bool?>(gameHasManual),
+      'gamePriceChartingId': serializer.toJson<String?>(gamePriceChartingId),
+      'gameCoreRegion': serializer.toJson<String?>(gameCoreRegion),
+      'gameValueIsLocked': serializer.toJson<bool?>(gameValueIsLocked),
     };
   }
 
@@ -4317,7 +4478,13 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> distributor = const Value.absent(),
           Value<String?> collectionStatus = const Value.absent(),
           Value<DateTime?> lastBagBoardDate = const Value.absent(),
-          Value<int?> marketValueCents = const Value.absent()}) =>
+          Value<int?> marketValueCents = const Value.absent(),
+          Value<String?> gameCompleteness = const Value.absent(),
+          Value<bool?> gameHasBox = const Value.absent(),
+          Value<bool?> gameHasManual = const Value.absent(),
+          Value<String?> gamePriceChartingId = const Value.absent(),
+          Value<String?> gameCoreRegion = const Value.absent(),
+          Value<bool?> gameValueIsLocked = const Value.absent()}) =>
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -4395,6 +4562,20 @@ class OwnedItemsCacheData extends DataClass
         marketValueCents: marketValueCents.present
             ? marketValueCents.value
             : this.marketValueCents,
+        gameCompleteness: gameCompleteness.present
+            ? gameCompleteness.value
+            : this.gameCompleteness,
+        gameHasBox: gameHasBox.present ? gameHasBox.value : this.gameHasBox,
+        gameHasManual:
+            gameHasManual.present ? gameHasManual.value : this.gameHasManual,
+        gamePriceChartingId: gamePriceChartingId.present
+            ? gamePriceChartingId.value
+            : this.gamePriceChartingId,
+        gameCoreRegion:
+            gameCoreRegion.present ? gameCoreRegion.value : this.gameCoreRegion,
+        gameValueIsLocked: gameValueIsLocked.present
+            ? gameValueIsLocked.value
+            : this.gameValueIsLocked,
       );
   OwnedItemsCacheData copyWithCompanion(OwnedItemsCacheCompanion data) {
     return OwnedItemsCacheData(
@@ -4498,6 +4679,23 @@ class OwnedItemsCacheData extends DataClass
       marketValueCents: data.marketValueCents.present
           ? data.marketValueCents.value
           : this.marketValueCents,
+      gameCompleteness: data.gameCompleteness.present
+          ? data.gameCompleteness.value
+          : this.gameCompleteness,
+      gameHasBox:
+          data.gameHasBox.present ? data.gameHasBox.value : this.gameHasBox,
+      gameHasManual: data.gameHasManual.present
+          ? data.gameHasManual.value
+          : this.gameHasManual,
+      gamePriceChartingId: data.gamePriceChartingId.present
+          ? data.gamePriceChartingId.value
+          : this.gamePriceChartingId,
+      gameCoreRegion: data.gameCoreRegion.present
+          ? data.gameCoreRegion.value
+          : this.gameCoreRegion,
+      gameValueIsLocked: data.gameValueIsLocked.present
+          ? data.gameValueIsLocked.value
+          : this.gameValueIsLocked,
     );
   }
 
@@ -4558,7 +4756,13 @@ class OwnedItemsCacheData extends DataClass
           ..write('distributor: $distributor, ')
           ..write('collectionStatus: $collectionStatus, ')
           ..write('lastBagBoardDate: $lastBagBoardDate, ')
-          ..write('marketValueCents: $marketValueCents')
+          ..write('marketValueCents: $marketValueCents, ')
+          ..write('gameCompleteness: $gameCompleteness, ')
+          ..write('gameHasBox: $gameHasBox, ')
+          ..write('gameHasManual: $gameHasManual, ')
+          ..write('gamePriceChartingId: $gamePriceChartingId, ')
+          ..write('gameCoreRegion: $gameCoreRegion, ')
+          ..write('gameValueIsLocked: $gameValueIsLocked')
           ..write(')'))
         .toString();
   }
@@ -4619,7 +4823,13 @@ class OwnedItemsCacheData extends DataClass
         distributor,
         collectionStatus,
         lastBagBoardDate,
-        marketValueCents
+        marketValueCents,
+        gameCompleteness,
+        gameHasBox,
+        gameHasManual,
+        gamePriceChartingId,
+        gameCoreRegion,
+        gameValueIsLocked
       ]);
   @override
   bool operator ==(Object other) =>
@@ -4679,7 +4889,13 @@ class OwnedItemsCacheData extends DataClass
           other.distributor == this.distributor &&
           other.collectionStatus == this.collectionStatus &&
           other.lastBagBoardDate == this.lastBagBoardDate &&
-          other.marketValueCents == this.marketValueCents);
+          other.marketValueCents == this.marketValueCents &&
+          other.gameCompleteness == this.gameCompleteness &&
+          other.gameHasBox == this.gameHasBox &&
+          other.gameHasManual == this.gameHasManual &&
+          other.gamePriceChartingId == this.gamePriceChartingId &&
+          other.gameCoreRegion == this.gameCoreRegion &&
+          other.gameValueIsLocked == this.gameValueIsLocked);
 }
 
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
@@ -4738,6 +4954,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> collectionStatus;
   final Value<DateTime?> lastBagBoardDate;
   final Value<int?> marketValueCents;
+  final Value<String?> gameCompleteness;
+  final Value<bool?> gameHasBox;
+  final Value<bool?> gameHasManual;
+  final Value<String?> gamePriceChartingId;
+  final Value<String?> gameCoreRegion;
+  final Value<bool?> gameValueIsLocked;
   final Value<int> rowid;
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
@@ -4795,6 +5017,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.collectionStatus = const Value.absent(),
     this.lastBagBoardDate = const Value.absent(),
     this.marketValueCents = const Value.absent(),
+    this.gameCompleteness = const Value.absent(),
+    this.gameHasBox = const Value.absent(),
+    this.gameHasManual = const Value.absent(),
+    this.gamePriceChartingId = const Value.absent(),
+    this.gameCoreRegion = const Value.absent(),
+    this.gameValueIsLocked = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OwnedItemsCacheCompanion.insert({
@@ -4853,6 +5081,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.collectionStatus = const Value.absent(),
     this.lastBagBoardDate = const Value.absent(),
     this.marketValueCents = const Value.absent(),
+    this.gameCompleteness = const Value.absent(),
+    this.gameHasBox = const Value.absent(),
+    this.gameHasManual = const Value.absent(),
+    this.gamePriceChartingId = const Value.absent(),
+    this.gameCoreRegion = const Value.absent(),
+    this.gameValueIsLocked = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -4913,6 +5147,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? collectionStatus,
     Expression<DateTime>? lastBagBoardDate,
     Expression<int>? marketValueCents,
+    Expression<String>? gameCompleteness,
+    Expression<bool>? gameHasBox,
+    Expression<bool>? gameHasManual,
+    Expression<String>? gamePriceChartingId,
+    Expression<String>? gameCoreRegion,
+    Expression<bool>? gameValueIsLocked,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4972,6 +5212,13 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (collectionStatus != null) 'collection_status': collectionStatus,
       if (lastBagBoardDate != null) 'last_bag_board_date': lastBagBoardDate,
       if (marketValueCents != null) 'market_value_cents': marketValueCents,
+      if (gameCompleteness != null) 'game_completeness': gameCompleteness,
+      if (gameHasBox != null) 'game_has_box': gameHasBox,
+      if (gameHasManual != null) 'game_has_manual': gameHasManual,
+      if (gamePriceChartingId != null)
+        'game_price_charting_id': gamePriceChartingId,
+      if (gameCoreRegion != null) 'game_core_region': gameCoreRegion,
+      if (gameValueIsLocked != null) 'game_value_is_locked': gameValueIsLocked,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5032,6 +5279,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? collectionStatus,
       Value<DateTime?>? lastBagBoardDate,
       Value<int?>? marketValueCents,
+      Value<String?>? gameCompleteness,
+      Value<bool?>? gameHasBox,
+      Value<bool?>? gameHasManual,
+      Value<String?>? gamePriceChartingId,
+      Value<String?>? gameCoreRegion,
+      Value<bool?>? gameValueIsLocked,
       Value<int>? rowid}) {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
@@ -5089,6 +5342,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       collectionStatus: collectionStatus ?? this.collectionStatus,
       lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
       marketValueCents: marketValueCents ?? this.marketValueCents,
+      gameCompleteness: gameCompleteness ?? this.gameCompleteness,
+      gameHasBox: gameHasBox ?? this.gameHasBox,
+      gameHasManual: gameHasManual ?? this.gameHasManual,
+      gamePriceChartingId: gamePriceChartingId ?? this.gamePriceChartingId,
+      gameCoreRegion: gameCoreRegion ?? this.gameCoreRegion,
+      gameValueIsLocked: gameValueIsLocked ?? this.gameValueIsLocked,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5261,6 +5520,25 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (marketValueCents.present) {
       map['market_value_cents'] = Variable<int>(marketValueCents.value);
     }
+    if (gameCompleteness.present) {
+      map['game_completeness'] = Variable<String>(gameCompleteness.value);
+    }
+    if (gameHasBox.present) {
+      map['game_has_box'] = Variable<bool>(gameHasBox.value);
+    }
+    if (gameHasManual.present) {
+      map['game_has_manual'] = Variable<bool>(gameHasManual.value);
+    }
+    if (gamePriceChartingId.present) {
+      map['game_price_charting_id'] =
+          Variable<String>(gamePriceChartingId.value);
+    }
+    if (gameCoreRegion.present) {
+      map['game_core_region'] = Variable<String>(gameCoreRegion.value);
+    }
+    if (gameValueIsLocked.present) {
+      map['game_value_is_locked'] = Variable<bool>(gameValueIsLocked.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5325,6 +5603,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('collectionStatus: $collectionStatus, ')
           ..write('lastBagBoardDate: $lastBagBoardDate, ')
           ..write('marketValueCents: $marketValueCents, ')
+          ..write('gameCompleteness: $gameCompleteness, ')
+          ..write('gameHasBox: $gameHasBox, ')
+          ..write('gameHasManual: $gameHasManual, ')
+          ..write('gamePriceChartingId: $gamePriceChartingId, ')
+          ..write('gameCoreRegion: $gameCoreRegion, ')
+          ..write('gameValueIsLocked: $gameValueIsLocked, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14690,6 +14974,12 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> collectionStatus,
   Value<DateTime?> lastBagBoardDate,
   Value<int?> marketValueCents,
+  Value<String?> gameCompleteness,
+  Value<bool?> gameHasBox,
+  Value<bool?> gameHasManual,
+  Value<String?> gamePriceChartingId,
+  Value<String?> gameCoreRegion,
+  Value<bool?> gameValueIsLocked,
   Value<int> rowid,
 });
 typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
@@ -14749,6 +15039,12 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> collectionStatus,
   Value<DateTime?> lastBagBoardDate,
   Value<int?> marketValueCents,
+  Value<String?> gameCompleteness,
+  Value<bool?> gameHasBox,
+  Value<bool?> gameHasManual,
+  Value<String?> gamePriceChartingId,
+  Value<String?> gameCoreRegion,
+  Value<bool?> gameValueIsLocked,
   Value<int> rowid,
 });
 
@@ -14934,6 +15230,28 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gameCompleteness => $composableBuilder(
+      column: $table.gameCompleteness,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get gameHasBox => $composableBuilder(
+      column: $table.gameHasBox, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get gameHasManual => $composableBuilder(
+      column: $table.gameHasManual, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gamePriceChartingId => $composableBuilder(
+      column: $table.gamePriceChartingId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gameCoreRegion => $composableBuilder(
+      column: $table.gameCoreRegion,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get gameValueIsLocked => $composableBuilder(
+      column: $table.gameValueIsLocked,
       builder: (column) => ColumnFilters(column));
 }
 
@@ -15125,6 +15443,29 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gameCompleteness => $composableBuilder(
+      column: $table.gameCompleteness,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get gameHasBox => $composableBuilder(
+      column: $table.gameHasBox, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get gameHasManual => $composableBuilder(
+      column: $table.gameHasManual,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gamePriceChartingId => $composableBuilder(
+      column: $table.gamePriceChartingId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gameCoreRegion => $composableBuilder(
+      column: $table.gameCoreRegion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get gameValueIsLocked => $composableBuilder(
+      column: $table.gameValueIsLocked,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$OwnedItemsCacheTableAnnotationComposer
@@ -15300,6 +15641,24 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents, builder: (column) => column);
+
+  GeneratedColumn<String> get gameCompleteness => $composableBuilder(
+      column: $table.gameCompleteness, builder: (column) => column);
+
+  GeneratedColumn<bool> get gameHasBox => $composableBuilder(
+      column: $table.gameHasBox, builder: (column) => column);
+
+  GeneratedColumn<bool> get gameHasManual => $composableBuilder(
+      column: $table.gameHasManual, builder: (column) => column);
+
+  GeneratedColumn<String> get gamePriceChartingId => $composableBuilder(
+      column: $table.gamePriceChartingId, builder: (column) => column);
+
+  GeneratedColumn<String> get gameCoreRegion => $composableBuilder(
+      column: $table.gameCoreRegion, builder: (column) => column);
+
+  GeneratedColumn<bool> get gameValueIsLocked => $composableBuilder(
+      column: $table.gameValueIsLocked, builder: (column) => column);
 }
 
 class $$OwnedItemsCacheTableTableManager extends RootTableManager<
@@ -15385,6 +15744,12 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> collectionStatus = const Value.absent(),
             Value<DateTime?> lastBagBoardDate = const Value.absent(),
             Value<int?> marketValueCents = const Value.absent(),
+            Value<String?> gameCompleteness = const Value.absent(),
+            Value<bool?> gameHasBox = const Value.absent(),
+            Value<bool?> gameHasManual = const Value.absent(),
+            Value<String?> gamePriceChartingId = const Value.absent(),
+            Value<String?> gameCoreRegion = const Value.absent(),
+            Value<bool?> gameValueIsLocked = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion(
@@ -15443,6 +15808,12 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             collectionStatus: collectionStatus,
             lastBagBoardDate: lastBagBoardDate,
             marketValueCents: marketValueCents,
+            gameCompleteness: gameCompleteness,
+            gameHasBox: gameHasBox,
+            gameHasManual: gameHasManual,
+            gamePriceChartingId: gamePriceChartingId,
+            gameCoreRegion: gameCoreRegion,
+            gameValueIsLocked: gameValueIsLocked,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -15501,6 +15872,12 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> collectionStatus = const Value.absent(),
             Value<DateTime?> lastBagBoardDate = const Value.absent(),
             Value<int?> marketValueCents = const Value.absent(),
+            Value<String?> gameCompleteness = const Value.absent(),
+            Value<bool?> gameHasBox = const Value.absent(),
+            Value<bool?> gameHasManual = const Value.absent(),
+            Value<String?> gamePriceChartingId = const Value.absent(),
+            Value<String?> gameCoreRegion = const Value.absent(),
+            Value<bool?> gameValueIsLocked = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion.insert(
@@ -15559,6 +15936,12 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             collectionStatus: collectionStatus,
             lastBagBoardDate: lastBagBoardDate,
             marketValueCents: marketValueCents,
+            gameCompleteness: gameCompleteness,
+            gameHasBox: gameHasBox,
+            gameHasManual: gameHasManual,
+            gamePriceChartingId: gamePriceChartingId,
+            gameCoreRegion: gameCoreRegion,
+            gameValueIsLocked: gameValueIsLocked,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

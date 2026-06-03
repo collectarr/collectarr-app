@@ -208,6 +208,12 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         lastBagBoardDate: personal.lastBagBoardDate,
         marketValueCents: personal.marketValueCents,
         ownerLabel: personal.ownerLabel,
+        gameCompleteness: personal.gameCompleteness,
+        gameHasBox: personal.gameHasBox,
+        gameHasManual: personal.gameHasManual,
+        gamePriceChartingId: personal.gamePriceChartingId,
+        gameCoreRegion: personal.gameCoreRegion,
+        gameValueIsLocked: personal.gameValueIsLocked,
       );
       await mutations.syncOwnedTrackingEntry(
         updatedOwned,

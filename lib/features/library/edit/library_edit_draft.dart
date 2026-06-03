@@ -134,6 +134,12 @@ class LibraryEditDraft {
     required this.hdrFormats,
     required this.collectionStatus,
     required this.lastBagBoardDate,
+    required this.gameCompleteness,
+    required this.gameHasBox,
+    required this.gameHasManual,
+    required this.gamePriceChartingId,
+    required this.gameCoreRegion,
+    required this.gameValueIsLocked,
     required this.physicalFormatId,
     required this.seriesId,
     required this.customFieldEdits,
@@ -474,6 +480,12 @@ class LibraryEditDraft {
       hdrFormats: List<String>.from(ownedItem?.hdrFormats ?? const <String>[]),
       collectionStatus: ownedItem?.collectionStatus,
       lastBagBoardDate: ownedItem?.lastBagBoardDate,
+      gameCompleteness: ownedItem?.gameCompleteness,
+      gameHasBox: ownedItem?.gameHasBox ?? true,
+      gameHasManual: ownedItem?.gameHasManual ?? true,
+      gamePriceChartingId: ownedItem?.gamePriceChartingId,
+      gameCoreRegion: ownedItem?.gameCoreRegion,
+      gameValueIsLocked: ownedItem?.gameValueIsLocked ?? false,
       physicalFormatId: initialPhysicalFormatId,
       seriesId: item.series?.seriesId,
       customFieldEdits: {
@@ -594,6 +606,12 @@ class LibraryEditDraft {
   List<String> hdrFormats;
   String? collectionStatus;
   DateTime? lastBagBoardDate;
+  String? gameCompleteness;
+  bool gameHasBox;
+  bool gameHasManual;
+  String? gamePriceChartingId;
+  String? gameCoreRegion;
+  bool gameValueIsLocked;
   String? physicalFormatId;
   String? seriesId;
   Map<String, String?> customFieldEdits;
@@ -805,6 +823,12 @@ class LibraryEditDraft {
               lastBagBoardDate: lastBagBoardDate,
               marketValueCents: parseMoneyCents(marketValueController.text),
               ownerLabel: emptyToNull(ownerLabelController.text),
+              gameCompleteness: gameCompleteness,
+              gameHasBox: gameHasBox,
+              gameHasManual: gameHasManual,
+              gamePriceChartingId: emptyToNull(gamePriceChartingId ?? ''),
+              gameCoreRegion: emptyToNull(gameCoreRegion ?? ''),
+              gameValueIsLocked: gameValueIsLocked,
             ),
       wishlist: wishlistItem == null
           ? null

@@ -279,6 +279,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   set _collectionStatus(String? value) => _draft.collectionStatus = value;
   DateTime? get _lastBagBoardDate => _draft.lastBagBoardDate;
   set _lastBagBoardDate(DateTime? value) => _draft.lastBagBoardDate = value;
+  String? get _gameCompleteness => _draft.gameCompleteness;
+  set _gameCompleteness(String? value) => _draft.gameCompleteness = value;
+  bool get _gameHasBox => _draft.gameHasBox;
+  set _gameHasBox(bool value) => _draft.gameHasBox = value;
+  bool get _gameHasManual => _draft.gameHasManual;
+  set _gameHasManual(bool value) => _draft.gameHasManual = value;
+  String? get _gamePriceChartingId => _draft.gamePriceChartingId;
+  set _gamePriceChartingId(String? value) => _draft.gamePriceChartingId = value;
+  String? get _gameCoreRegion => _draft.gameCoreRegion;
+  set _gameCoreRegion(String? value) => _draft.gameCoreRegion = value;
+  bool get _gameValueIsLocked => _draft.gameValueIsLocked;
+  set _gameValueIsLocked(bool value) => _draft.gameValueIsLocked = value;
     TextEditingController get _marketValueController =>
       _draft.marketValueController;
     TextEditingController get _audioTracksController =>
@@ -919,6 +931,23 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       lastBagBoardDate: _lastBagBoardDate,
       onLastBagBoardDateChanged: (value) =>
           setState(() => _lastBagBoardDate = value),
+        isGameKind: widget.type.workspace.kind.apiValue == 'game',
+        gameCompleteness: _gameCompleteness,
+        onGameCompletenessChanged: (value) =>
+          setState(() => _gameCompleteness = value),
+        gameHasBox: _gameHasBox,
+        onGameHasBoxChanged: (value) => setState(() => _gameHasBox = value),
+        gameHasManual: _gameHasManual,
+        onGameHasManualChanged: (value) => setState(() => _gameHasManual = value),
+        gamePriceChartingId: _gamePriceChartingId,
+        onGamePriceChartingIdChanged: (value) =>
+          setState(() => _gamePriceChartingId = value),
+        gameCoreRegion: _gameCoreRegion,
+        onGameCoreRegionChanged: (value) =>
+          setState(() => _gameCoreRegion = value),
+        gameValueIsLocked: _gameValueIsLocked,
+        onGameValueIsLockedChanged: (value) =>
+          setState(() => _gameValueIsLocked = value),
     );
   }
 

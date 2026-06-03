@@ -60,6 +60,12 @@ class OwnedItem {
     this.collectionStatus,
     this.lastBagBoardDate,
     this.marketValueCents,
+    this.gameCompleteness,
+    this.gameHasBox,
+    this.gameHasManual,
+    this.gamePriceChartingId,
+    this.gameCoreRegion,
+    this.gameValueIsLocked,
   }) : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
@@ -120,6 +126,12 @@ class OwnedItem {
   final String? collectionStatus;
   final DateTime? lastBagBoardDate;
   final int? marketValueCents;
+  final String? gameCompleteness;
+  final bool? gameHasBox;
+  final bool? gameHasManual;
+  final String? gamePriceChartingId;
+  final String? gameCoreRegion;
+  final bool? gameValueIsLocked;
 
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;
@@ -183,6 +195,14 @@ class OwnedItem {
       if (lastBagBoardDate != null)
         'last_bag_board_date': lastBagBoardDate!.toUtc().toIso8601String(),
       if (marketValueCents != null) 'market_value_cents': marketValueCents,
+      if (gameCompleteness != null) 'game_completeness': gameCompleteness,
+      if (gameHasBox != null) 'game_has_box': gameHasBox,
+      if (gameHasManual != null) 'game_has_manual': gameHasManual,
+      if (gamePriceChartingId != null)
+        'game_pricecharting_id': gamePriceChartingId,
+      if (gameCoreRegion != null) 'game_core_region': gameCoreRegion,
+      if (gameValueIsLocked != null)
+        'game_value_is_locked': gameValueIsLocked,
     };
   }
 
@@ -262,6 +282,12 @@ class OwnedItem {
           ? null
           : DateTime.parse(json['last_bag_board_date'] as String),
       marketValueCents: json['market_value_cents'] as int?,
+      gameCompleteness: json['game_completeness'] as String?,
+      gameHasBox: json['game_has_box'] as bool?,
+      gameHasManual: json['game_has_manual'] as bool?,
+      gamePriceChartingId: json['game_pricecharting_id'] as String?,
+      gameCoreRegion: json['game_core_region'] as String?,
+      gameValueIsLocked: json['game_value_is_locked'] as bool?,
     );
   }
 
@@ -322,6 +348,12 @@ class OwnedItem {
     String? collectionStatus,
     DateTime? lastBagBoardDate,
     int? marketValueCents,
+    String? gameCompleteness,
+    bool? gameHasBox,
+    bool? gameHasManual,
+    String? gamePriceChartingId,
+    String? gameCoreRegion,
+    bool? gameValueIsLocked,
   }) {
     final resolvedAnchor = identical(anchor, _ownedItemUnset)
         ? PersonalItemAnchor.fromRaw(
@@ -385,6 +417,12 @@ class OwnedItem {
       collectionStatus: collectionStatus ?? this.collectionStatus,
       lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
       marketValueCents: marketValueCents ?? this.marketValueCents,
+      gameCompleteness: gameCompleteness ?? this.gameCompleteness,
+      gameHasBox: gameHasBox ?? this.gameHasBox,
+      gameHasManual: gameHasManual ?? this.gameHasManual,
+      gamePriceChartingId: gamePriceChartingId ?? this.gamePriceChartingId,
+      gameCoreRegion: gameCoreRegion ?? this.gameCoreRegion,
+      gameValueIsLocked: gameValueIsLocked ?? this.gameValueIsLocked,
     );
   }
 }
