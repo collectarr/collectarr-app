@@ -150,6 +150,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _crossoverController => _draft.crossoverController;
   TextEditingController get _storyArcsController =>
     _draft.storyArcsController;
+  TextEditingController get _seriesTitleController =>
+    _draft.seriesTitleController;
+  TextEditingController get _developersController =>
+    _draft.developersController;
   TextEditingController get _ownerLabelController =>
     _draft.ownerLabelController;
   TextEditingController get _imprintController => _draft.imprintController;
@@ -321,6 +325,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isVideoKind {
     return widget.item.mediaKind.isVideoLibraryKind;
+  }
+
+  bool get _isGameKind {
+    return widget.type.workspace.kind.apiValue == 'game';
   }
 
   bool get _hasReleaseAnchor {
@@ -574,6 +582,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               _responsiveFields([
                 _publisherField(label: mediaFields.publisherLabel),
               ]),
+              if (_isGameKind) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(controller: _seriesTitleController, label: 'Series'),
+                  _field(
+                    controller: _developersController,
+                    label: 'Developer',
+                    hint: 'Comma-separated',
+                  ),
+                ]),
+              ],
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
@@ -588,6 +607,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   validator: optionalIntValidator,
                 ),
               ]),
+              if (_isGameKind) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _audienceRatingController,
+                    label: 'Audience rating',
+                  ),
+                  _field(
+                    controller: _genresEditController,
+                    label: 'Genre',
+                    hint: 'Comma-separated',
+                  ),
+                ]),
+              ],
               if (mediaFields.showPageCount ||
                   mediaFields.showImprint ||
                   mediaFields.showSeriesGroup) ...[
@@ -687,6 +720,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 _responsiveFields([
                   _publisherField(label: mediaFields.publisherLabel),
                 ]),
+                if (_isGameKind) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _field(controller: _seriesTitleController, label: 'Series'),
+                    _field(
+                      controller: _developersController,
+                      label: 'Developer',
+                      hint: 'Comma-separated',
+                    ),
+                  ]),
+                ],
                 const SizedBox(height: 10),
                 _responsiveFields([
                   _field(
@@ -701,6 +745,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     validator: optionalIntValidator,
                   ),
                 ]),
+                if (_isGameKind) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _field(
+                      controller: _audienceRatingController,
+                      label: 'Audience rating',
+                    ),
+                    _field(
+                      controller: _genresEditController,
+                      label: 'Genre',
+                      hint: 'Comma-separated',
+                    ),
+                  ]),
+                ],
                 if (mediaFields.showPageCount ||
                     mediaFields.showImprint ||
                     mediaFields.showSeriesGroup) ...[
