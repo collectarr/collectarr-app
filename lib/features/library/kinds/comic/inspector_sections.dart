@@ -65,7 +65,7 @@ class _ComicInspectorDashboard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= 640 ? 2 : 1;
-        const spacing = 2.0;
+        const spacing = 8.0;
 
         Widget buildPanel(_ComicPanelData panel) => _ComicPanel(
           title: panel.title,
@@ -182,17 +182,14 @@ class _ComicPanelState extends State<_ComicPanel> {
     final palette = appPalette(context);
     final surface = palette.surface;
     final headerSurface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.022 : 0.01),
+      widget.accent.withValues(alpha: palette.isDark ? 0.016 : 0.008),
       palette.surface,
     );
-    final altSurface = palette.isDark
-        ? Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.012),
-            palette.surface,
-          )
-        : const Color(0xFFF7F8FA);
+    final altSurface = palette.surfaceSubtle.withValues(
+      alpha: palette.isDark ? 0.46 : 0.82,
+    );
     final border =
-        palette.divider.withValues(alpha: palette.isDark ? 0.82 : 0.52);
+        palette.divider.withValues(alpha: palette.isDark ? 0.7 : 0.45);
 
     final canCollapse = widget.initialVisibleRows != null &&
         widget.rows.length > widget.initialVisibleRows!;
@@ -200,75 +197,85 @@ class _ComicPanelState extends State<_ComicPanel> {
         ? widget.rows.take(widget.initialVisibleRows!).toList()
         : widget.rows;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 17,
-          padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-          decoration: BoxDecoration(
-            color: headerSurface,
-            border: Border(
-              top: BorderSide(color: border),
-              bottom: BorderSide(color: border),
-            ),
-          ),
-          child: Row(
-            children: [
-              Text(
-                widget.title,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: widget.accent,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0,
-                      fontSize: 10.5,
-                      height: 1,
-                    ),
+    return Container(
+      decoration: BoxDecoration(
+        color: surface,
+        border: Border.all(color: border),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 24,
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            decoration: BoxDecoration(
+              color: headerSurface,
+              border: Border(
+                bottom: BorderSide(color: border.withValues(alpha: 0.9)),
               ),
-              if (canCollapse) ...[
-                const Spacer(),
-                InkWell(
-                  onTap: () => setState(() => _expanded = !_expanded),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                    child: Row(
-                      children: [
-                        Text(
-                          _expanded ? 'Collapse' : 'View all',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: palette.textMuted,
-                                fontWeight: FontWeight.w700,
-                                height: 1,
-                                fontSize: 10,
-                              ),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(
-                          _expanded
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          size: 8,
-                          color: palette.textMuted,
-                        ),
-                      ],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+              ),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  widget.title,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: palette.textMuted,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.24,
+                        fontSize: 10,
+                        height: 1,
+                      ),
+                ),
+                if (canCollapse) ...[
+                  const Spacer(),
+                  InkWell(
+                    onTap: () => setState(() => _expanded = !_expanded),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      child: Row(
+                        children: [
+                          Text(
+                            _expanded ? 'Collapse' : 'View all',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: palette.textMuted,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1,
+                                  fontSize: 10,
+                                ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(
+                            _expanded
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            size: 10,
+                            color: palette.textMuted,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-        for (var index = 0; index < visibleRows.length; index++)
-          _ComicTableRow(
-            row: visibleRows[index],
-            shaded: index.isEven,
-            surface: surface,
-            altSurface: altSurface,
-            border: border,
-            variant: widget.variant,
-            accent: widget.accent,
-          ),
-      ],
+          for (var index = 0; index < visibleRows.length; index++)
+            _ComicTableRow(
+              row: visibleRows[index],
+              shaded: index.isEven,
+              surface: surface,
+              altSurface: altSurface,
+              border: border,
+              variant: widget.variant,
+              accent: widget.accent,
+            ),
+        ],
+      ),
     );
   }
 }
@@ -299,9 +306,9 @@ class _ComicTableRow extends StatelessWidget {
       return Container(
         decoration: BoxDecoration(
           color: shaded ? altSurface : surface,
-          border: Border(top: BorderSide(color: border)),
+          border: Border(top: BorderSide(color: border.withValues(alpha: 0.72))),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.75),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -317,7 +324,7 @@ class _ComicTableRow extends StatelessWidget {
                     ),
               ),
             ),
-            const SizedBox(width: 3),
+            const SizedBox(width: 8),
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
@@ -353,9 +360,9 @@ class _ComicTableRow extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: shaded ? altSurface : surface,
-        border: Border(top: BorderSide(color: border)),
+          border: Border(top: BorderSide(color: border.withValues(alpha: 0.72))),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.75),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -367,11 +374,11 @@ class _ComicTableRow extends StatelessWidget {
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
                     height: 1,
-                  fontSize: 10,
+                    fontSize: 10,
                   ),
             ),
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 8),
           Expanded(child: valueWidget),
         ],
       ),

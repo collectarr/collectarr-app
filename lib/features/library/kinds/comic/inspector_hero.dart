@@ -29,7 +29,7 @@ class ComicInspectorHero extends ConsumerWidget {
     final ownedItem = request.ownedItem;
     final surface = palette.surface;
     final border =
-        palette.divider.withValues(alpha: palette.isDark ? 0.82 : 0.52);
+      palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
@@ -233,13 +233,12 @@ class ComicInspectorHero extends ConsumerWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       border: Border.all(color: border),
-                      color: Color.alphaBlend(
-                        request.accent.withValues(alpha: 0.02),
-                        surface,
+                      color: palette.surfaceSubtle.withValues(
+                        alpha: palette.isDark ? 0.6 : 0.9,
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 7, 8, 6),
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                       child: Column(
                         children: [
                           if (seriesLabel != null)
@@ -294,7 +293,7 @@ class ComicInspectorHero extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: ink,
                       height: 1.25,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 0,
                       fontSize: 10,
                     ),
@@ -383,9 +382,17 @@ class _ComicHeroBlock extends StatelessWidget {
       decoration: BoxDecoration(
         color: surface,
         border: Border.all(color: border),
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -397,10 +404,11 @@ class _ComicHeroBlock extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: appPalette(context).textMuted,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 0.12,
+                      letterSpacing: 0.16,
+                      fontSize: 10,
                     ),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 4),
             ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,17 +419,17 @@ class _ComicHeroBlock extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: accent,
+                          color: appPalette(context).textPrimary,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.1,
                           height: 1,
-                          fontSize: 12.8,
+                          fontSize: 13,
                         ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             child,
           ],
         ),
@@ -441,15 +449,18 @@ class _ComicIssueBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
       decoration: BoxDecoration(
-        border: Border.all(color: palette.divider),
-        color: palette.surfaceSubtle,
+        border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
+        color: Color.alphaBlend(
+          palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+          palette.surface,
+        ),
       ),
       child: Text(
         referenceLabel,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: palette.textPrimary,
               fontWeight: FontWeight.w900,
-            fontSize: 10,
+              fontSize: 10,
               letterSpacing: 0.14,
             ),
       ),
@@ -471,10 +482,22 @@ class _ComicMetaBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: palette.textMuted,
+          fontWeight: FontWeight.w700,
+          fontSize: 10,
+          letterSpacing: 0.08,
+        );
+    final valueStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: palette.textPrimary,
+          fontWeight: FontWeight.w800,
+          fontSize: 10,
+          letterSpacing: 0.08,
+        );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        border: Border.all(color: palette.divider),
+        border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
         color: palette.surface,
       ),
       child: Row(
@@ -485,12 +508,12 @@ class _ComicMetaBadge extends StatelessWidget {
             const SizedBox(width: 4),
           ],
           Text(
-            '$label: $value',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: palette.textPrimary,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.08,
-                ),
+            '$label ',
+            style: labelStyle,
+          ),
+          Text(
+            value,
+            style: valueStyle,
           ),
         ],
       ),

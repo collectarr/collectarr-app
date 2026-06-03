@@ -39,22 +39,19 @@ class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final request = widget.request;
     final accent = request.inspector.accent;
-    final themedPanel = Color.alphaBlend(
-      accent.withValues(alpha: palette.isDark ? 0.018 : 0.008),
-      palette.surface,
-    );
+    final panelSurface = palette.surface;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: themedPanel,
+        color: panelSurface,
         border: Border(
           left: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.16 : 0.08),
+            color: accent.withValues(alpha: palette.isDark ? 0.11 : 0.06),
+            width: 1,
           ),
         ),
       ),
@@ -67,7 +64,7 @@ class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
               child: SingleChildScrollView(
                 controller: _scrollController,
                 primary: false,
-                padding: const EdgeInsets.fromLTRB(8, 6, 8, 14),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -79,19 +76,19 @@ class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
                     ],
                     for (final section in request.primarySections) ...[
                       section,
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                     ],
                     if (request.bundleSection != null) ...[
                       request.bundleSection!,
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                     ],
                     if (request.conditionGradeSection != null) ...[
                       request.conditionGradeSection!,
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                     ],
                     for (final section in request.trailingSections) ...[
                       section,
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                     ],
                   ],
                 ),
@@ -143,18 +140,18 @@ class _ComicInspectorToolbar extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          accent.withValues(alpha: palette.isDark ? 0.012 : 0.004),
-          palette.surface,
-        ),
+        color: palette.surface,
         border: Border(
           bottom: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.12 : 0.06),
+            color: Color.alphaBlend(
+              accent.withValues(alpha: palette.isDark ? 0.08 : 0.04),
+              palette.divider,
+            ),
           ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(6, 2, 6, 2),
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return _ComicToolbarGroup(
@@ -163,12 +160,13 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   label: 'Edit',
                   icon: Icons.edit_outlined,
                   onPressed: request.onEdit,
+                  tone: LibraryDenseButtonTone.accent,
                 ),
                 _ComicToolbarMenuButton(
                   buttonKey: const ValueKey('comic-toolbar-share-menu'),
                   label: 'Share',
                   icon: Icons.share_outlined,
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   entries: [
                     _ComicToolbarMenuEntry(
                       label: 'Share comic',
@@ -226,7 +224,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                     buttonKey: const ValueKey('comic-toolbar-more-menu'),
                     label: 'More',
                     icon: Icons.more_horiz,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     entries: [
                       if (request.onToggleOwned != null)
                         _ComicToolbarMenuEntry(
@@ -383,11 +381,13 @@ class _ComicToolbarButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.tone = LibraryDenseButtonTone.subtle,
   });
 
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
+  final LibraryDenseButtonTone tone;
 
   @override
   Widget build(BuildContext context) {
@@ -395,8 +395,8 @@ class _ComicToolbarButton extends StatelessWidget {
       label: label,
       icon: icon,
       onPressed: onPressed,
-      tone: LibraryDenseButtonTone.subtle,
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+      tone: tone,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     );
   }
 }
@@ -409,9 +409,9 @@ class _ComicToolbarSeparator extends StatelessWidget {
     return SizedBox(
       height: 12,
       child: VerticalDivider(
-        width: 4,
+        width: 6,
         thickness: 1,
-        color: appPalette(context).divider.withValues(alpha: 0.58),
+        color: appPalette(context).divider.withValues(alpha: 0.5),
       ),
     );
   }
@@ -487,7 +487,7 @@ class _ComicSectionDivider extends StatelessWidget {
     return Container(
       height: 1,
       color: Color.alphaBlend(
-        accent.withValues(alpha: 0.16),
+        accent.withValues(alpha: 0.1),
         palette.divider,
       ),
     );
