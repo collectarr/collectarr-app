@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/inspector/item_image_picker.dart
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorItemImagesRequest = ({
@@ -121,7 +122,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: const Text('Delete image?'),
         content: const Text('This image will be removed from your collection.'),
         actions: [

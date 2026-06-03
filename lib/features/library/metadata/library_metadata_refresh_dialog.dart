@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _maxRefreshTargets = 100;
@@ -90,7 +91,7 @@ class _LibraryMetadataRefreshDialogState
     final visibleTargets = targets.take(_maxRefreshTargets).toList();
     final overLimit = targets.length > visibleTargets.length;
     final summary = _summary();
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(

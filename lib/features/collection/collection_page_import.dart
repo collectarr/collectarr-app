@@ -25,7 +25,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   @override
   Widget build(BuildContext context) {
     final preview = _preview;
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Import CSV'),
       content: SizedBox(
         width: 760,
@@ -675,7 +675,7 @@ class _ResolveImportRowDialogState
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Resolve CSV row'),
       content: SizedBox(
         width: 760,
@@ -840,7 +840,7 @@ class _ImportProposalDialogState extends State<_ImportProposalDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Propose metadata'),
       content: SizedBox(
         width: 560,

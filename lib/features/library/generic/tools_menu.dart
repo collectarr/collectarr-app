@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 class LibraryToolsButton extends StatelessWidget {
   const LibraryToolsButton({
@@ -245,7 +246,7 @@ void _showGenericStatsDialog(
 ) {
   showDialog<void>(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => AccentAlertDialog(
       title: Text('${type.pluralLabel} statistics'),
       content: Column(
         mainAxisSize: MainAxisSize.min,

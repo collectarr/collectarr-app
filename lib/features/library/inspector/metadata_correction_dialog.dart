@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Shows a dialog to propose metadata corrections for any media type.
@@ -117,7 +118,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       titlePadding: EdgeInsets.zero,
       title: const AccentDialogHeader(
         title: 'Correct metadata',

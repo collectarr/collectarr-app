@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/foundation.dart';
 
 const _bucketManagerUnset = Object();
@@ -374,7 +375,7 @@ class _LibraryBucketManagerDialogState
     final controller = TextEditingController(text: entry.label);
     final nextLabel = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: Text(
             'Rename ${genericGroupModeLabel(widget.groupMode, widget.type)}'),
         content: TextField(
@@ -422,7 +423,7 @@ class _LibraryBucketManagerDialogState
   Future<void> _deleteEntry(LibraryBucketManagerEntry entry) async {
     final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => AccentAlertDialog(
             title: Text('Delete ${entry.label}?'),
             content: Text(
               'Remove this ${genericGroupModeLabel(widget.groupMode, widget.type).toLowerCase()} value from all items currently bucketed under it?',
@@ -477,7 +478,7 @@ class _LibraryBucketManagerDialogState
     final confirmedTarget = await showDialog<String>(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+        builder: (context, setState) => AccentAlertDialog(
           title: Text('Merge ${entry.label} into...'),
           content: DropdownButtonFormField<String>(
             initialValue: targetLabel,

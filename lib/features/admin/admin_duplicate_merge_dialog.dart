@@ -55,7 +55,7 @@ class _DuplicateMergeReviewDialogState
   @override
   Widget build(BuildContext context) {
     final candidate = widget.candidate;
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Merge review: ${candidate.displayTitle}'),
       content: SizedBox(
         width: 560,

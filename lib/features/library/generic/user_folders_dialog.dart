@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Shows the user folders (shortlists) management dialog.
 Future<void> showUserFoldersDialog({
@@ -81,7 +82,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   Future<void> _deleteFolder(UserFolder folder) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Folder'),
         content: Text(
@@ -116,7 +117,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
     return showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
@@ -144,7 +145,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: Row(
         children: [

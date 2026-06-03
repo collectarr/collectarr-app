@@ -266,7 +266,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     );
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         title: const Text('Duplicate items'),
         content: Text(
           'Create a copy of ${entries.length} '
@@ -375,7 +375,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   }) async {
     await showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         backgroundColor: appPalette(dialogContext).panel,
         title: const Text('Cover Matches'),
         content: ConstrainedBox(

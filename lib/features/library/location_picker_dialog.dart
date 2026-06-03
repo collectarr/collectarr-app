@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<String?> showLocationPickerDialog({
   required BuildContext context,
@@ -73,7 +74,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     final nameController = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         backgroundColor: appPalette(context).panel,
         titlePadding: EdgeInsets.zero,
         title: const AccentDialogHeader(
@@ -115,7 +116,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final roots = _locations.where((location) => location.parentId == null).toList();
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(

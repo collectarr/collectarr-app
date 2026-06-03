@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VideoMetadataCorrectionsSection extends ConsumerWidget {
@@ -153,7 +154,7 @@ class _OverrideTile extends ConsumerWidget {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         title: const Text('Remove correction?'),
         content: Text(
           'This will restore the original value for '
@@ -276,7 +277,7 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Add metadata correction',

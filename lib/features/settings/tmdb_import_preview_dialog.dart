@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 enum TmdbImportPreviewFilter {
   all,
@@ -72,7 +73,7 @@ class _TmdbImportPreviewDialogState extends State<_TmdbImportPreviewDialog> {
         (viewSize.width - 48).clamp(320.0, 820.0).toDouble();
     final dialogHeight =
         (viewSize.height - 96).clamp(360.0, 560.0).toDouble();
-    return AlertDialog(
+    return AccentAlertDialog(
       insetPadding: const EdgeInsets.all(24),
       title: Text(preview.collection.label),
       content: SizedBox(

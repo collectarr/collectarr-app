@@ -17,6 +17,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const double _kInspectorEditorLabelWidth = 92;
@@ -834,7 +835,7 @@ class _InspectorTrackingDetailsEditorState
     final controller = TextEditingController();
     final title = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         backgroundColor: appPalette(context).panel,
         title: const Text('New edition'),
         content: TextField(
@@ -904,7 +905,7 @@ class _InspectorTrackingDetailsEditorState
   Future<void> _stopTracking() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         backgroundColor: appPalette(context).panel,
         title: const Text('Stop tracking'),
         content: const Text(

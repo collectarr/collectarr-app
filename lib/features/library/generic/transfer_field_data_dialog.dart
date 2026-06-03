@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
 
 /// Result returned when the transfer completes.
@@ -309,7 +310,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     final sourceCount = _itemsWithSourceData;
     final targetCount = _itemsWithTargetData;
 
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Row(
         children: [
           Icon(Icons.swap_horiz, size: 24),

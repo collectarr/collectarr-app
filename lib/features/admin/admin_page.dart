@@ -20,6 +20,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'admin_item_inspection.dart';
@@ -1250,7 +1251,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   ) async {
     return await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => AccentAlertDialog(
             title: const Text('Preview metadata correction'),
             content: SizedBox(
               width: 620,
@@ -1559,7 +1560,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
     final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => AccentAlertDialog(
             title: const Text('Ignore duplicate group?'),
             content: SizedBox(
               width: 440,

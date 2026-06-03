@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/pick_list_reposi
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Shows a dialog to manage pick list values for a given list.
 Future<void> showPickListEditorDialog({
@@ -95,7 +96,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
   Widget build(BuildContext context) {
     final allValues = [...widget.builtInValues, ..._customValues];
 
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(

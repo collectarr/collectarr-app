@@ -3,6 +3,7 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -227,7 +228,7 @@ class _ReportColumnPickerDialogState extends State<_ReportColumnPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Report columns',

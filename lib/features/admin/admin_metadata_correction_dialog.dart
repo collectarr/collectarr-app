@@ -125,7 +125,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       shape: _kAdminDialogShape,
       title: Text('Edit metadata: ${widget.item.displayTitle}'),
       content: SizedBox(
@@ -339,7 +339,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   ) async {
     return await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => AccentAlertDialog(
             shape: _kAdminDialogShape,
             title: const Text('Preview metadata correction'),
             content: SizedBox(

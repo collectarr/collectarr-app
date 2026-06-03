@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Result returned when the user selects a smart list to load.
 class SmartListLoadResult {
@@ -132,7 +133,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
     return showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
@@ -202,7 +203,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Future<void> _overwriteFromCurrentView(SmartList list) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Overwrite Smart List'),
         content: Text(
@@ -232,7 +233,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Future<void> _delete(SmartList list) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Smart List'),
         content: Text('Delete "${list.name}"?'),
@@ -288,7 +289,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedList = _selectedList;
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: Row(
         children: [

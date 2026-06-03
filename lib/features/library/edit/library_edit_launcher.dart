@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 typedef LibraryEditDialogRequestLoader = Future<LibraryEditDialogRequest>
     Function();
@@ -62,7 +63,7 @@ class _DeferredLibraryEditDialogState extends State<_DeferredLibraryEditDialog> 
           return widget.builder(context, snapshot.data!);
         }
         if (snapshot.hasError) {
-          return AlertDialog(
+          return AccentAlertDialog(
             title: const Text('Could not open editor'),
             content: Text(
               'Failed to load edit data for ${widget.initialRequest.item.title}.',

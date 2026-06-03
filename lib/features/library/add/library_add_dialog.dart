@@ -65,6 +65,7 @@ import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -2758,7 +2759,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     try {
       final result = await showDialog<String>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => AccentAlertDialog(
           title: const Text('Owned default tags'),
           content: SizedBox(
             width: 440,

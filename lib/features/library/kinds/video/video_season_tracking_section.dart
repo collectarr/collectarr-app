@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/providers/seasons_provider.dart'
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VideoSeasonTrackingSection extends ConsumerStatefulWidget {
@@ -700,7 +701,7 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Add custom episode',

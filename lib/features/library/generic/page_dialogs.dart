@@ -403,7 +403,7 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     if (items.isEmpty) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         title: const Text('Re-assign index values'),
         content: Text(
           'Assign sequential index numbers (1–${items.length}) '
@@ -490,7 +490,7 @@ class _BatchLoanDialogState extends State<_BatchLoanDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text('Loan ${widget.itemCount} items',

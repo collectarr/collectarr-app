@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<void> showReadingQueueDialog({
   required BuildContext context,
@@ -178,7 +179,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final filteredEntries = _filteredEntries;
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: Row(
         children: [

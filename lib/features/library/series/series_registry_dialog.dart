@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/series/series_registry_repositor
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<SeriesRegistryEntry?> showSeriesPickerDialog({
   required BuildContext context,
@@ -124,7 +125,7 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -315,7 +316,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
         String? selectedId;
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
+            return AccentAlertDialog(
               backgroundColor: kAppPanel,
               title: Text('Merge ${source.title} Into'),
               content: DropdownButtonFormField<String>(
@@ -360,7 +361,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -499,7 +500,7 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
