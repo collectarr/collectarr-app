@@ -103,6 +103,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     this.onDetailsLayoutChanged,
     this.onFilterByValue,
     this.db,
+    this.contextLabel,
   });
 
   final LibraryTypeConfig type;
@@ -117,6 +118,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
   final LocalDatabase? db;
+  final String? contextLabel;
 
   @override
   ConsumerState<LibraryInspector> createState() => _LibraryInspectorState();
@@ -335,6 +337,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           entry: selected,
           ownedItem: activeOwnedItem,
           accent: widget.accent,
+          contextLabel: widget.contextLabel,
         );
     final primarySections = widget.type.inspectorSectionsBuilder?.call(
           context,

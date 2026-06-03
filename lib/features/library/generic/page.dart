@@ -705,6 +705,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
+    final releasePositionLabel =
+        _releasePositionLabelForProjection(projection);
     if (_releaseFolderTitleItemId != null && projection.filteredItems.isNotEmpty) {
       final hasSelection = projection.filteredItems.any(
         (item) => item.entry.id == _selectedId,
@@ -862,6 +864,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
+      inspectorContextLabel: releasePositionLabel,
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: widget.type,
         viewState: viewState,
@@ -1129,6 +1132,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       }
     }
     return null;
+  }
+
+  String? _releasePositionLabelForProjection(LibraryProjection projection) {
+    if (_releaseFolderTitleItemId == null) {
+      return null;
+    }
+    final items = projection.filteredItems;
+    if (items.isEmpty) {
+      return null;
+    }
+    final selectedIndex = items.indexWhere((item) => item.entry.id == _selectedId);
+    final index = selectedIndex < 0 ? 0 : selectedIndex;
+    return 'Release ${index + 1}/${items.length}';
   }
 
   LibraryFolderPreset get _activeFolderPreset =>

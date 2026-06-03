@@ -21,12 +21,14 @@ class InspectorHero extends StatelessWidget {
     required this.entry,
     required this.ownedItem,
     required this.accent,
+    this.contextLabel,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final Color accent;
+  final String? contextLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +99,7 @@ class InspectorHero extends StatelessWidget {
           entry: entry,
           ownedItem: ownedItem,
           accent: accent,
+          contextLabel: contextLabel,
         );
         return DecoratedBox(
           decoration: BoxDecoration(
@@ -141,12 +144,14 @@ class _InspectorHeroInfo extends StatelessWidget {
     required this.entry,
     required this.ownedItem,
     required this.accent,
+    required this.contextLabel,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final Color accent;
+  final String? contextLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +213,13 @@ class _InspectorHeroInfo extends StatelessWidget {
               LibraryItemPill(
                 label: entry.itemNumber!,
                 color: kAppHighlight,
+              ),
+            ],
+            if (contextLabel != null && contextLabel!.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              LibraryItemPill(
+                label: contextLabel!,
+                color: accent,
               ),
             ],
           ],

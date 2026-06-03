@@ -102,6 +102,7 @@ class LibraryBody extends StatelessWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onManageBuckets,
+    this.inspectorContextLabel,
     this.desktopToolbarBand,
   });
 
@@ -177,6 +178,7 @@ class LibraryBody extends StatelessWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;
+  final String? inspectorContextLabel;
   final Widget? desktopToolbarBand;
 
   @override
@@ -268,6 +270,7 @@ class LibraryBody extends StatelessWidget {
           entry: selected?.entry,
           ownedItem: selected?.source.ownedItem,
           accent: accent,
+          contextLabel: inspectorContextLabel,
           onAddOwned: selected == null ? null : () => onAddOwned(selected),
           onRemoveOwned: selected?.source.ownedItem == null
               ? null
