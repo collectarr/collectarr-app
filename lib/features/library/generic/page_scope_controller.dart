@@ -211,6 +211,75 @@ abstract final class _LibraryScopeControllerOps {
     state._syncRouteState();
   }
 
+  static void clearFilters(GenericLibraryPageState state) {
+    state._mutateState(() {
+      state._selectedBucket = null;
+      state._selectedLetter = null;
+      state._linkedMetadataFilter = null;
+      state._collectionStatusScope = LibraryCollectionStatusScope.all;
+      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._quickView = null;
+      state._filterSelection = LibraryFilterSelection.none;
+      state._activeSmartListId = null;
+      state._activeSmartListName = null;
+      state._scopeHistory = const [];
+      state._searchController.clear();
+      state._selectionAnchorId = null;
+    });
+    state._syncRouteState();
+  }
+
+  static void applySmartList(GenericLibraryPageState state, SmartList smartList) {
+    state._mutateState(() {
+      state._activeSmartListId = smartList.id;
+      state._activeSmartListName = smartList.name;
+      state._filterSelection = smartList.filterSelection;
+      state._quickView = smartList.quickView;
+      if (smartList.searchQuery != null) {
+        state._searchController.text = smartList.searchQuery!;
+      } else {
+        state._searchController.clear();
+      }
+      if (state._viewState != null) {
+        if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
+          state._viewState = state._viewState!.withSortRules(
+            smartList.sortRules!,
+            state._adapter.viewProfile,
+          );
+        } else if (smartList.sortColumn != null) {
+          state._viewState = state._viewState!.copyWith(
+            sortColumn: smartList.sortColumn,
+            sortAscending: smartList.sortAscending ?? true,
+          );
+        }
+      }
+      state._selectedBucket = null;
+      state._selectedLetter = null;
+      state._linkedMetadataFilter = null;
+      state._collectionStatusScope = LibraryCollectionStatusScope.all;
+      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._scopeHistory = const [];
+    });
+    state._syncRouteState();
+  }
+
+  static void clearSmartList(GenericLibraryPageState state) {
+    state._mutateState(() {
+      state._activeSmartListId = null;
+      state._activeSmartListName = null;
+      state._filterSelection = LibraryFilterSelection.none;
+      state._quickView = null;
+      state._collectionStatusScope = LibraryCollectionStatusScope.all;
+      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._searchController.clear();
+      state._selectedBucket = null;
+      state._selectedLetter = null;
+      state._linkedMetadataFilter = null;
+      state._scopeHistory = const [];
+    });
+    state._syncRouteState();
+  }
+
   static String sidebarScopeLabel(
     GenericLibraryPageState state,
     LibrarySidebarScopeSnapshot snapshot,

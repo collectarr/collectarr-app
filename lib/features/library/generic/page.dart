@@ -1409,72 +1409,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _clearFilters() {
-    setState(() {
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _collectionStatusScope = LibraryCollectionStatusScope.all;
-      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _quickView = null;
-      _filterSelection = LibraryFilterSelection.none;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _scopeHistory = const [];
-      _searchController.clear();
-      _selectionAnchorId = null;
-    });
-    _syncRouteState();
+    _LibraryScopeControllerOps.clearFilters(this);
   }
 
   void _applySmartList(SmartList smartList) {
-    setState(() {
-      _activeSmartListId = smartList.id;
-      _activeSmartListName = smartList.name;
-      _filterSelection = smartList.filterSelection;
-      _quickView = smartList.quickView;
-      if (smartList.searchQuery != null) {
-        _searchController.text = smartList.searchQuery!;
-      } else {
-        _searchController.clear();
-      }
-      if (_viewState != null) {
-        if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
-          _viewState = _viewState!.withSortRules(
-            smartList.sortRules!,
-            _adapter.viewProfile,
-          );
-        } else if (smartList.sortColumn != null) {
-          _viewState = _viewState!.copyWith(
-            sortColumn: smartList.sortColumn,
-            sortAscending: smartList.sortAscending ?? true,
-          );
-        }
-      }
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _collectionStatusScope = LibraryCollectionStatusScope.all;
-      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _scopeHistory = const [];
-    });
-    _syncRouteState();
+    _LibraryScopeControllerOps.applySmartList(this, smartList);
   }
 
   void _clearSmartList() {
-    setState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _filterSelection = LibraryFilterSelection.none;
-      _quickView = null;
-      _collectionStatusScope = LibraryCollectionStatusScope.all;
-      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _searchController.clear();
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _scopeHistory = const [];
-    });
-    _syncRouteState();
+    _LibraryScopeControllerOps.clearSmartList(this);
   }
 
   void _clearToolbarSearchChip() {
