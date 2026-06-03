@@ -145,30 +145,18 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
-  Timer? _viewChromeSaveDebounce;
+  Timer? _viewStateSaveDebounce;
   Timer? _searchDebounce;
+  Timer? _selectionHydrationDebounce;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   String? _lastFacetEnsureSignature;
   LibraryGroupMode? _lastFacetEnsureMode;
 
-  ShelfState? _cachedProjectionShelf;
-  LibraryWorkspaceViewState? _cachedProjectionViewState;
-  String? _cachedProjectionQuery;
-  LibraryLinkedMetadataFilter? _cachedProjectionLinkedMetadataFilter;
-  String? _cachedProjectionSelectedBucket;
-  String? _cachedProjectionSelectedItemId;
-  LibraryQuickView? _cachedProjectionQuickView;
-  LibraryCollectionStatusScope? _cachedProjectionCollectionStatusScope;
-  LibraryGroupMode? _cachedProjectionGroupMode;
-  List<LibraryBucketScopeFilter>? _cachedProjectionBucketScopeFilters;
-  List<LibrarySeriesBucket>? _cachedProjectionOverrideBuckets;
-  Set<String>? _cachedProjectionConstrainedItemIds;
-  LibraryFilterSelection? _cachedProjectionFilterSelection;
-  Map<String, List<String>>? _cachedProjectionCustomFieldValuesByItem;
-  Map<String, Map<String, String>>?
-      _cachedProjectionCustomFieldValuesByDefinitionByItem;
-  Set<String>? _cachedProjectionActiveLoanOwnedItemIds;
+  String? _cachedProjectionSignature;
   LibraryProjection? _cachedProjection;
+  ShelfState? _cachedSignatureShelf;
+  String? _cachedSignatureKind;
+  String? _cachedShelfSignature;
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -390,8 +378,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   void dispose() {
-    _viewChromeSaveDebounce?.cancel();
+    _viewStateSaveDebounce?.cancel();
     _searchDebounce?.cancel();
+    _selectionHydrationDebounce?.cancel();
     _shelfSubscription?.close();
     _searchController.dispose();
     super.dispose();
@@ -548,8 +537,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                         : null,
                     onScanCover: () => scanCoverFlow(),
                     onDownloadAllCovers: shelfState != null
-                        ? () => downloadAllCoversFlow(shelfState)
-                        : null,
+                      ? () => downloadAllCoversFlow(shelfState)
+                      : null,
                     counts: projection?.counts ?? const LibraryToolbarCounts(),
                     shelfState: shelfState,
                     onEditConditionPickList: widget.type.conditions.isNotEmpty
@@ -616,6 +605,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                       data: (state) => _buildBody(
                         projection ?? _projectionForShelf(state, viewState),
                         viewState,
+                        shelfState: state,
                         allOwnedCopies: allOwnedCopies,
                         allWishlistItems: allWishlistItems,
                       ),
@@ -652,6 +642,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget _buildBody(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
+    required ShelfState shelfState,
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
@@ -824,12 +815,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onRandomPick: projection.filteredItems.isNotEmpty
             ? () => pickRandomItemFlow(projection)
             : null,
-        onDownloadAllCovers: ref.read(shelfProvider).asData?.value != null
-            ? () => downloadAllCoversFlow(ref.read(shelfProvider).asData!.value)
-            : null,
-        shelfState: ref.read(shelfProvider).asData?.value,
-        onSmartLists: () =>
-            showSmartListsFlow(ref.read(shelfProvider).asData?.value),
+        onDownloadAllCovers: () => downloadAllCoversFlow(shelfState),
+        shelfState: shelfState,
+        onSmartLists: () => showSmartListsFlow(shelfState),
         onFolders: showUserFoldersFlow,
         onReadingQueue: showsReadingQueue() ? showReadingQueueFlow : null,
         onEditConditionPickList: widget.type.conditions.isNotEmpty
@@ -962,30 +950,24 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         customFieldValuesByDefinitionByItem;
     final activeLoanOwnedItemIds = _activeLoanOwnedItemIds;
     final query = _searchController.text;
+    final projectionSignature = _projectionSignature(
+      shelf: shelf,
+      viewState: viewState,
+      query: query,
+      mode: mode,
+      selectedBucket: selectedBucket,
+      selectedItemId: selectedItemId,
+      quickView: quickView,
+      collectionStatusScope: collectionStatusScope,
+      filterSelection: filterSelection,
+      constrainedItemIds: constrainedItemIds,
+      customFieldValuesByItem: customFieldValues,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
+      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+    );
 
-    final canReuseProjection = _cachedProjection != null &&
-        identical(_cachedProjectionShelf, shelf) &&
-        identical(_cachedProjectionViewState, viewState) &&
-        _cachedProjectionQuery == query &&
-        identical(_cachedProjectionLinkedMetadataFilter, linkedMetadataFilter) &&
-        _cachedProjectionSelectedBucket == selectedBucket &&
-        _cachedProjectionSelectedItemId == selectedItemId &&
-        _cachedProjectionQuickView == quickView &&
-        _cachedProjectionCollectionStatusScope == collectionStatusScope &&
-        _cachedProjectionGroupMode == mode &&
-        identical(_cachedProjectionBucketScopeFilters, bucketScopeFilters) &&
-        identical(_cachedProjectionOverrideBuckets, overrideBuckets) &&
-        identical(_cachedProjectionConstrainedItemIds, constrainedItemIds) &&
-        identical(_cachedProjectionFilterSelection, filterSelection) &&
-        identical(_cachedProjectionCustomFieldValuesByItem, customFieldValues) &&
-        identical(
-          _cachedProjectionCustomFieldValuesByDefinitionByItem,
-          customFieldValuesByDefinition,
-        ) &&
-        identical(
-          _cachedProjectionActiveLoanOwnedItemIds,
-          activeLoanOwnedItemIds,
-        );
+    final canReuseProjection =
+        _cachedProjection != null && _cachedProjectionSignature == projectionSignature;
 
     if (canReuseProjection) {
       return _cachedProjection!;
@@ -1012,25 +994,56 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,
     );
 
-    _cachedProjectionShelf = shelf;
-    _cachedProjectionViewState = viewState;
-    _cachedProjectionQuery = query;
-    _cachedProjectionLinkedMetadataFilter = linkedMetadataFilter;
-    _cachedProjectionSelectedBucket = selectedBucket;
-    _cachedProjectionSelectedItemId = selectedItemId;
-    _cachedProjectionQuickView = quickView;
-    _cachedProjectionCollectionStatusScope = collectionStatusScope;
-    _cachedProjectionGroupMode = mode;
-    _cachedProjectionBucketScopeFilters = bucketScopeFilters;
-    _cachedProjectionOverrideBuckets = overrideBuckets;
-    _cachedProjectionConstrainedItemIds = constrainedItemIds;
-    _cachedProjectionFilterSelection = filterSelection;
-    _cachedProjectionCustomFieldValuesByItem = customFieldValues;
-    _cachedProjectionCustomFieldValuesByDefinitionByItem =
-        customFieldValuesByDefinition;
-    _cachedProjectionActiveLoanOwnedItemIds = activeLoanOwnedItemIds;
+    _cachedProjectionSignature = projectionSignature;
     _cachedProjection = projection;
     return projection;
+  }
+
+  String _projectionSignature({
+    required ShelfState shelf,
+    required LibraryWorkspaceViewState viewState,
+    required String query,
+    required LibraryGroupMode mode,
+    required String? selectedBucket,
+    required String? selectedItemId,
+    required LibraryQuickView? quickView,
+    required LibraryCollectionStatusScope collectionStatusScope,
+    required LibraryFilterSelection filterSelection,
+    required Set<String>? constrainedItemIds,
+    required Map<String, List<String>> customFieldValuesByItem,
+    required Map<String, Map<String, String>>
+        customFieldValuesByDefinitionByItem,
+    required Set<String> activeLoanOwnedItemIds,
+  }) {
+    final shelfSignature = _genericShelfSignature(shelf);
+    final normalizedQuery = query.trim().toLowerCase();
+    return Object.hashAll([
+      shelfSignature,
+      viewState.hashCode,
+      normalizedQuery,
+      mode,
+      selectedBucket,
+      selectedItemId,
+      quickView,
+      collectionStatusScope,
+      _seriesCompletionScope,
+      filterSelection.hashCode,
+      _linkedMetadataFilter?.value,
+      _stableSetSignature(constrainedItemIds),
+      _stableSetSignature(activeLoanOwnedItemIds),
+      customFieldValuesByItem.length,
+      customFieldValuesByDefinitionByItem.length,
+      identityHashCode(customFieldValuesByItem),
+      identityHashCode(customFieldValuesByDefinitionByItem),
+    ]).toString();
+  }
+
+  int _stableSetSignature(Set<String>? values) {
+    if (values == null || values.isEmpty) {
+      return 0;
+    }
+    final sorted = values.toList(growable: false)..sort();
+    return Object.hash(values.length, Object.hashAll(sorted));
   }
 
   LibraryGroupMode get _activeGroupMode =>
@@ -1175,10 +1188,20 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   String _genericShelfSignature(ShelfState shelf) {
-    return LibraryPageUtilities.shelfSignature([
+    final kind = widget.type.workspace.kind.apiValue;
+    if (identical(_cachedSignatureShelf, shelf) &&
+        _cachedSignatureKind == kind &&
+        _cachedShelfSignature != null) {
+      return _cachedShelfSignature!;
+    }
+    final signature = LibraryPageUtilities.shelfSignature([
       for (final item in libraryItemsForShelf(shelf, widget.type))
         item.entry.id,
     ]);
+    _cachedSignatureShelf = shelf;
+    _cachedSignatureKind = kind;
+    _cachedShelfSignature = signature;
+    return signature;
   }
 
   Future<void> _loadColumnFavoritePresets() async {
@@ -1887,7 +1910,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
     _syncRouteState();
-    unawaited(_adapter.viewProfile.save(next));
+    _scheduleViewStateSave(next);
+  }
+
+  void _scheduleViewStateSave(LibraryWorkspaceViewState state) {
+    _viewStateSaveDebounce?.cancel();
+    _viewStateSaveDebounce = Timer(const Duration(milliseconds: 250), () {
+      unawaited(_adapter.viewProfile.save(state));
+    });
   }
 
   void _updateViewChrome(
@@ -1895,10 +1925,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ) {
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
-    _viewChromeSaveDebounce?.cancel();
-    _viewChromeSaveDebounce = Timer(const Duration(milliseconds: 150), () {
-      unawaited(_adapter.viewProfile.save(next));
-    });
+    _scheduleViewStateSave(next);
   }
 
   void _setGroupingPanelVisibility(bool isVisible) {
@@ -1916,7 +1943,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       unawaited(_viewPrefs.writeGroupMode(null));
     }
     _syncRouteState();
-    unawaited(_adapter.viewProfile.save(next));
+    _scheduleViewStateSave(next);
   }
 
   void _setQuickView(LibraryQuickView? view) {
@@ -1953,7 +1980,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _syncRouteState();
     final shelfState = ref.read(shelfProvider).asData?.value;
     if (shelfState != null) {
-      _ensureFacetBucketsLoaded(shelfState, sanitized.primaryMode);
+      _maybeEnsureFacetBucketsLoaded(shelfState, sanitized.primaryMode);
     }
     unawaited(_viewPrefs.writeFolderPreset(sanitized));
     unawaited(_viewPrefs.writeGroupMode(sanitized.primaryMode));
@@ -2098,7 +2125,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _videoShelfDrilldownReleaseId = null;
       }
     });
-    unawaited(_hydrateSelectedItem(id));
+    _selectionHydrationDebounce?.cancel();
+    _selectionHydrationDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted || _selectedId != id) {
+        return;
+      }
+      unawaited(_hydrateSelectedItem(id));
+    });
   }
 
   void _activateItem(String id) {
