@@ -45,9 +45,10 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+      // Quantize to 64-pixel steps so resizing panels doesn't re-decode.
       final resolvedCacheWidth = constraints.hasBoundedWidth &&
         constraints.maxWidth > 0
-          ? (constraints.maxWidth * pixelRatio).ceil()
+          ? (((constraints.maxWidth * pixelRatio) / 64).ceil() * 64)
             : null;
       final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
 
