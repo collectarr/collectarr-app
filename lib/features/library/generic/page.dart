@@ -91,11 +91,11 @@ import 'package:uuid/uuid.dart';
 part 'page_edit_handler.dart';
 part 'page_dialogs.dart';
 part 'page_collection_actions.dart';
-part 'page_facet_controller.dart';
-part 'page_scope_controller.dart';
-part 'page_view_state_controller.dart';
-part 'page_projection_controller.dart';
-part 'page_selection_controller.dart';
+part 'page/controllers/page_facet_controller.dart';
+part 'page/controllers/page_scope_controller.dart';
+part 'page/controllers/page_view_state_controller.dart';
+part 'page/controllers/page_projection_controller.dart';
+part 'page/controllers/page_selection_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({

@@ -1,4 +1,4 @@
-part of 'page.dart';
+part of '../../page.dart';
 
 abstract final class _LibraryFacetControllerOps {
   static LibraryFacetControllerState _controllerState(

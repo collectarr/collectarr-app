@@ -1,4 +1,4 @@
-part of 'page.dart';
+part of '../../page.dart';
 
 abstract final class _LibrarySelectionControllerOps {
   static void selectItem(GenericLibraryPageState state, String id) {
