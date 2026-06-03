@@ -26,6 +26,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.onSave,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
+    this.tabReorderLongPressDelay = const Duration(milliseconds: 220),
     this.tabOrderKey,
     this.ebaySearchQuery,
   }) : assert(
@@ -49,6 +50,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final VoidCallback onSave;
   final LibraryEditChromeVariant chromeVariant;
   final bool allowTabReorder;
+  final Duration tabReorderLongPressDelay;
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
   /// If non-null, an eBay search button appears in the title bar.
@@ -134,8 +136,11 @@ class _LibraryEditDialogScaffoldState
         : (viewport.width > 1440 ? 1180.0 : 1100.0);
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
     return Dialog(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(6),
       ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       clipBehavior: Clip.antiAlias,
@@ -150,12 +155,12 @@ class _LibraryEditDialogScaffoldState
           return DecoratedBox(
             decoration: BoxDecoration(
               color: p.panel,
-              border: Border.all(color: p.divider),
+              borderRadius: BorderRadius.circular(6),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x66000000),
-                  blurRadius: 14,
-                  offset: Offset(0, 4),
+                  color: Color(0x80000000),
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
@@ -182,6 +187,7 @@ class _LibraryEditDialogScaffoldState
                           tabs: orderedTabs,
                           accent: widget.accent,
                           allowReorder: widget.allowTabReorder,
+                          longPressDelay: widget.tabReorderLongPressDelay,
                           onReorderItem: _onReorderItem,
                         ),
                       ),
@@ -223,6 +229,7 @@ class _ReorderableTabStrip extends StatelessWidget {
     required this.tabs,
     required this.accent,
     required this.allowReorder,
+    required this.longPressDelay,
     required this.onReorderItem,
   });
 
@@ -231,6 +238,7 @@ class _ReorderableTabStrip extends StatelessWidget {
   final List<Widget> tabs;
   final Color accent;
   final bool allowReorder;
+  final Duration longPressDelay;
   final void Function(int oldIndex, int newIndex) onReorderItem;
 
   @override
@@ -257,6 +265,7 @@ class _ReorderableTabStrip extends StatelessWidget {
                             return LongPressDraggable<int>(
                               data: i,
                               axis: Axis.horizontal,
+                              delay: longPressDelay,
                               feedback: Material(
                                 elevation: 2,
                                 color: Colors.transparent,
