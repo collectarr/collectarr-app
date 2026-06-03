@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
@@ -302,16 +304,15 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool _hovered = false;
   bool _showSecondary = false;
 
-  bool get _showSecondaryControl {
-    if (!widget.enableSecondaryControl) {
-      return false;
-    }
-    return _hasSecondary || (widget.ownedItemId?.trim().isNotEmpty ?? false);
-  }
-
   bool get _hasSecondary {
     return (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
         (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
+  }
+
+  bool get _hasFront {
+    return (widget.localBytes?.isNotEmpty ?? false) ||
+        (widget.imageUrl?.trim().isNotEmpty ?? false) ||
+        (widget.ownedItemId?.trim().isNotEmpty ?? false);
   }
 
   String? get _activeImageUrl =>
@@ -322,25 +323,27 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
 
   bool get _canPreview {
     return widget.enableFullscreen &&
-        ((_activeImageUrl?.trim().isNotEmpty ?? false) ||
-        (_activeLocalBytes?.isNotEmpty ?? false) ||
-            (widget.ownedItemId?.trim().isNotEmpty ?? false));
+        (_hasFront || _hasSecondary);
   }
 
   Future<void> _warmPreviewImage() async {
-    final imageUrl = _activeImageUrl?.trim();
-    if (imageUrl == null || imageUrl.isEmpty || !mounted) {
+    if (!mounted) {
       return;
     }
-    try {
-      await precacheImage(NetworkImage(imageUrl), context);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_cover_image',
-        message: 'Failed to precache cover preview image.',
-        error: error,
-        stackTrace: stackTrace,
-      );
+    for (final imageUrl in [widget.imageUrl?.trim(), widget.secondaryImageUrl?.trim()]) {
+      if (imageUrl == null || imageUrl.isEmpty) {
+        continue;
+      }
+      try {
+        await precacheImage(NetworkImage(imageUrl), context);
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_cover_image',
+          message: 'Failed to precache cover preview image.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
     }
   }
 
@@ -353,8 +356,11 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       return;
     }
     final size = MediaQuery.sizeOf(context);
-    final previewWidth = (size.width * 0.55).clamp(280.0, 720.0);
-    final previewHeight = (size.height * 0.88).clamp(280.0, 1200.0);
+    final previewWidth = (size.width * 0.70).clamp(420.0, size.width * 0.92);
+    final previewHeight =
+        (size.height * 0.70).clamp(320.0, size.height * 0.92);
+    final hasBothCovers = _hasFront && _hasSecondary;
+    var showBackOnly = _showSecondary;
     await showGeneralDialog<void>(
       context: context,
       barrierLabel: 'Close cover preview',
@@ -374,37 +380,171 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                   ),
                 ),
                 Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: size.width * 0.92,
-                      maxHeight: size.height * 0.92,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: previewWidth,
-                            maxHeight: previewHeight,
-                          ),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {},
-                            child: InteractiveViewer(
-                              minScale: 0.5,
-                              maxScale: 5,
-                              child: LibraryCoverImage(
-                                title: widget.title,
-                                itemNumber: widget.itemNumber,
-                                imageUrl: _activeImageUrl,
-                                localBytes: _activeLocalBytes,
-                                ownedItemId: widget.ownedItemId,
-                                borderRadius: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: StatefulBuilder(
+                      builder: (context, setDialogState) {
+                        final contentWidth = previewWidth - 28;
+                        final contentHeight = previewHeight - 28;
+                        final expectedSingleCoverWidth = contentHeight * (2 / 3);
+                        final requiredSideBySideWidth =
+                            expectedSingleCoverWidth * 2 + 12;
+                        final showSideBySide =
+                            hasBothCovers && contentWidth >= requiredSideBySideWidth;
+                        final showSwitchBadges = hasBothCovers && !showSideBySide;
+
+                        Widget buildCover({
+                          required String? imageUrl,
+                          required Uint8List? localBytes,
+                          String? ownedItemId,
+                        }) {
+                          return AspectRatio(
+                            aspectRatio: 2 / 3,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: widget.accentColor.withValues(alpha: 0.42),
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(7),
+                                child: LibraryCoverImage(
+                                  title: widget.title,
+                                  itemNumber: widget.itemNumber,
+                                  imageUrl: imageUrl,
+                                  localBytes: localBytes,
+                                  ownedItemId: ownedItemId,
+                                  borderRadius: 0,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        final singleCover = buildCover(
+                          imageUrl:
+                              showBackOnly ? widget.secondaryImageUrl : widget.imageUrl,
+                          localBytes: showBackOnly
+                              ? widget.secondaryLocalBytes
+                              : widget.localBytes,
+                          ownedItemId: showBackOnly ? null : widget.ownedItemId,
+                        );
+
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {},
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: size.width * 0.92,
+                              maxHeight: size.height * 0.92,
+                            ),
+                            child: SizedBox(
+                              width: previewWidth,
+                              height: previewHeight,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: appPalette(context)
+                                      .surface
+                                      .withValues(alpha: 0.92),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color:
+                                        widget.accentColor.withValues(alpha: 0.32),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: InteractiveViewer(
+                                          minScale: 0.5,
+                                          maxScale: 5,
+                                          child: Center(
+                                            child: showSideBySide
+                                                ? Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      ConstrainedBox(
+                                                        constraints: BoxConstraints(
+                                                          maxHeight: contentHeight,
+                                                          maxWidth:
+                                                              (contentWidth - 12) / 2,
+                                                        ),
+                                                        child: buildCover(
+                                                          imageUrl: widget.imageUrl,
+                                                          localBytes: widget.localBytes,
+                                                          ownedItemId:
+                                                              widget.ownedItemId,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      ConstrainedBox(
+                                                        constraints: BoxConstraints(
+                                                          maxHeight: contentHeight,
+                                                          maxWidth:
+                                                              (contentWidth - 12) / 2,
+                                                        ),
+                                                        child: buildCover(
+                                                          imageUrl:
+                                                              widget.secondaryImageUrl,
+                                                          localBytes:
+                                                              widget.secondaryLocalBytes,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : ConstrainedBox(
+                                                    constraints: BoxConstraints(
+                                                      maxHeight: contentHeight,
+                                                      maxWidth: math.min(
+                                                        contentWidth,
+                                                        contentHeight * (2 / 3),
+                                                      ),
+                                                    ),
+                                                    child: singleCover,
+                                                  ),
+                                          ),
+                                        ),
+                                      ),
+                                      if (showSwitchBadges)
+                                        Positioned(
+                                          left: 8,
+                                          right: 8,
+                                          bottom: 8,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              _PreviewCoverSwitchBadge(
+                                                label: 'Front',
+                                                selected: !showBackOnly,
+                                                accentColor: widget.accentColor,
+                                                onPressed: () => setDialogState(
+                                                  () => showBackOnly = false,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              _PreviewCoverSwitchBadge(
+                                                label: 'Back',
+                                                selected: showBackOnly,
+                                                accentColor: widget.accentColor,
+                                                onPressed: () => setDialogState(
+                                                  () => showBackOnly = true,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -434,24 +574,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
         );
       },
     );
-  }
-
-  Future<void> _handleSecondaryPressed() async {
-    if (_hasSecondary) {
-      setState(() => _showSecondary = !_showSecondary);
+    if (!mounted) {
       return;
     }
-    if (widget.onMissingSecondaryPressed != null) {
-      await widget.onMissingSecondaryPressed!();
-      return;
-    }
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    messenger?.hideCurrentSnackBar();
-    messenger?.showSnackBar(
-      const SnackBar(
-        content: Text('No back cover is saved for this item yet.'),
-      ),
-    );
+    setState(() => _showSecondary = showBackOnly);
   }
 
   @override
@@ -513,110 +639,54 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                       ),
                     ),
                   ),
-                  if (_showSecondaryControl)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: FilledButton.tonalIcon(
-                        onPressed: () {
-                          _handleSecondaryPressed();
-                        },
-                        icon: Icon(
-                          _hasSecondary
-                              ? (_showSecondary
-                                  ? Icons.flip_to_front_outlined
-                                  : Icons.flip_to_back_outlined)
-                              : Icons.photo_library_outlined,
-                          size: 14,
-                        ),
-                        label: Text(
-                          _hasSecondary
-                              ? (_showSecondary ? 'View front' : 'View back')
-                              : 'Back cover',
-                        ),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          visualDensity: VisualDensity.compact,
-                          backgroundColor: controlBackground,
-                          foregroundColor: controlForeground,
-                          side: BorderSide(
-                            color: widget.accentColor.withValues(alpha: 0.45),
-                          ),
-                        ),
-                      ),
-                    ),
                   if (interactive)
-                    IgnorePointer(
+                    Positioned(
+                      right: 8,
+                      bottom: 8,
                       child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 170),
-                        opacity: _hovered ? 1 : 0,
+                        duration: const Duration(milliseconds: 140),
+                        opacity: _hovered ? 1 : 0.92,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(
-                              widget.borderRadius + 8,
-                            ),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                palette.surface.withValues(alpha: 0.12),
-                                palette.surface.withValues(alpha: 0.9),
-                              ],
+                            color: controlBackground.withValues(alpha: 0.96),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: widget.accentColor.withValues(alpha: 0.7),
                             ),
                           ),
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: controlBackground.withValues(alpha: 0.96),
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(
-                                    color: widget.accentColor
-                                        .withValues(alpha: 0.7),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: compactHoverCue ? 8 : 10,
-                                    vertical: compactHoverCue ? 4 : 5,
-                                  ),
-                                  child: compactHoverCue
-                                      ? Icon(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: compactHoverCue ? 8 : 10,
+                              vertical: compactHoverCue ? 4 : 5,
+                            ),
+                            child: compactHoverCue
+                                ? Icon(
+                                    Icons.open_in_full,
+                                    size: 14,
+                                    color: widget.accentColor,
+                                  )
+                                : FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
                                           Icons.open_in_full,
                                           size: 14,
                                           color: widget.accentColor,
-                                        )
-                                      : FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.open_in_full,
-                                                size: 14,
-                                                color: widget.accentColor,
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                'Open cover',
-                                                style: TextStyle(
-                                                  color: controlForeground,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w800,
-                                                ),
-                                              ),
-                                            ],
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          'Fullscreen',
+                                          style: TextStyle(
+                                            color: controlForeground,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w800,
                                           ),
                                         ),
-                                ),
-                              ),
-                            ),
+                                      ],
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -627,6 +697,43 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
           ),
         );
       },
+    );
+  }
+}
+
+class _PreviewCoverSwitchBadge extends StatelessWidget {
+  const _PreviewCoverSwitchBadge({
+    required this.label,
+    required this.selected,
+    required this.accentColor,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool selected;
+  final Color accentColor;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final background = selected
+        ? Color.alphaBlend(accentColor.withValues(alpha: 0.34), palette.surface)
+        : Color.alphaBlend(accentColor.withValues(alpha: 0.1), palette.surface);
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(64, 30),
+        visualDensity: VisualDensity.compact,
+        backgroundColor: background,
+        foregroundColor: selected ? Colors.white : palette.textPrimary,
+        side: BorderSide(color: accentColor.withValues(alpha: 0.6)),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+      ),
     );
   }
 }
