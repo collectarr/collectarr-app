@@ -147,6 +147,25 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   int _viewPreferenceLoadToken = 0;
   Timer? _viewChromeSaveDebounce;
 
+  ShelfState? _cachedProjectionShelf;
+  LibraryWorkspaceViewState? _cachedProjectionViewState;
+  String? _cachedProjectionQuery;
+  LibraryLinkedMetadataFilter? _cachedProjectionLinkedMetadataFilter;
+  String? _cachedProjectionSelectedBucket;
+  String? _cachedProjectionSelectedItemId;
+  LibraryQuickView? _cachedProjectionQuickView;
+  LibraryCollectionStatusScope? _cachedProjectionCollectionStatusScope;
+  LibraryGroupMode? _cachedProjectionGroupMode;
+  List<LibraryBucketScopeFilter>? _cachedProjectionBucketScopeFilters;
+  List<LibrarySeriesBucket>? _cachedProjectionOverrideBuckets;
+  Set<String>? _cachedProjectionConstrainedItemIds;
+  LibraryFilterSelection? _cachedProjectionFilterSelection;
+  Map<String, List<String>>? _cachedProjectionCustomFieldValuesByItem;
+  Map<String, Map<String, String>>?
+      _cachedProjectionCustomFieldValuesByDefinitionByItem;
+  Set<String>? _cachedProjectionActiveLoanOwnedItemIds;
+  LibraryProjection? _cachedProjection;
+
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
       plannedMediaAdapter(widget.type);
@@ -862,26 +881,89 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         (_usesExternalFacetBuckets(mode) && _selectedBucket != null)
             ? facetBuckets?.itemIdsByBucket[_selectedBucket!]
             : null;
-    return LibraryProjection.fromShelf(
+    final bucketScopeFilters = _sidebarBucketScopeFilters;
+    final overrideBuckets = facetBuckets?.buckets;
+    final linkedMetadataFilter = _linkedMetadataFilter;
+    final selectedBucket =
+        _usesExternalFacetBuckets(mode) ? null : _selectedBucket;
+    final selectedItemId = _selectedId;
+    final quickView = _quickView;
+    final collectionStatusScope = _collectionStatusScope;
+    final filterSelection = _filterSelection;
+    final customFieldValues = customFieldValuesByItem;
+    final customFieldValuesByDefinition =
+        customFieldValuesByDefinitionByItem;
+    final activeLoanOwnedItemIds = _activeLoanOwnedItemIds;
+    final query = _searchController.text;
+
+    final canReuseProjection = _cachedProjection != null &&
+        identical(_cachedProjectionShelf, shelf) &&
+        identical(_cachedProjectionViewState, viewState) &&
+        _cachedProjectionQuery == query &&
+        identical(_cachedProjectionLinkedMetadataFilter, linkedMetadataFilter) &&
+        _cachedProjectionSelectedBucket == selectedBucket &&
+        _cachedProjectionSelectedItemId == selectedItemId &&
+        _cachedProjectionQuickView == quickView &&
+        _cachedProjectionCollectionStatusScope == collectionStatusScope &&
+        _cachedProjectionGroupMode == mode &&
+        identical(_cachedProjectionBucketScopeFilters, bucketScopeFilters) &&
+        identical(_cachedProjectionOverrideBuckets, overrideBuckets) &&
+        identical(_cachedProjectionConstrainedItemIds, constrainedItemIds) &&
+        identical(_cachedProjectionFilterSelection, filterSelection) &&
+        identical(_cachedProjectionCustomFieldValuesByItem, customFieldValues) &&
+        identical(
+          _cachedProjectionCustomFieldValuesByDefinitionByItem,
+          customFieldValuesByDefinition,
+        ) &&
+        identical(
+          _cachedProjectionActiveLoanOwnedItemIds,
+          activeLoanOwnedItemIds,
+        );
+
+    if (canReuseProjection) {
+      return _cachedProjection!;
+    }
+
+    final projection = LibraryProjection.fromShelf(
       shelf: shelf,
       type: widget.type,
       adapter: _adapter,
       viewState: viewState,
-      query: _searchController.text,
-      linkedMetadataFilter: _linkedMetadataFilter,
-      selectedBucket: _usesExternalFacetBuckets(mode) ? null : _selectedBucket,
-      selectedItemId: _selectedId,
-      quickView: _quickView,
-      collectionStatusScope: _collectionStatusScope,
+      query: query,
+      linkedMetadataFilter: linkedMetadataFilter,
+      selectedBucket: selectedBucket,
+      selectedItemId: selectedItemId,
+      quickView: quickView,
+      collectionStatusScope: collectionStatusScope,
       groupMode: mode,
-      bucketScopeFilters: _sidebarBucketScopeFilters,
-      overrideBuckets: facetBuckets?.buckets,
+      bucketScopeFilters: bucketScopeFilters,
+      overrideBuckets: overrideBuckets,
       constrainedItemIds: constrainedItemIds,
-      filterSelection: _filterSelection,
-      customFieldValuesByItem: customFieldValuesByItem,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      activeLoanOwnedItemIds: _activeLoanOwnedItemIds,
+      filterSelection: filterSelection,
+      customFieldValuesByItem: customFieldValues,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
+      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
     );
+
+    _cachedProjectionShelf = shelf;
+    _cachedProjectionViewState = viewState;
+    _cachedProjectionQuery = query;
+    _cachedProjectionLinkedMetadataFilter = linkedMetadataFilter;
+    _cachedProjectionSelectedBucket = selectedBucket;
+    _cachedProjectionSelectedItemId = selectedItemId;
+    _cachedProjectionQuickView = quickView;
+    _cachedProjectionCollectionStatusScope = collectionStatusScope;
+    _cachedProjectionGroupMode = mode;
+    _cachedProjectionBucketScopeFilters = bucketScopeFilters;
+    _cachedProjectionOverrideBuckets = overrideBuckets;
+    _cachedProjectionConstrainedItemIds = constrainedItemIds;
+    _cachedProjectionFilterSelection = filterSelection;
+    _cachedProjectionCustomFieldValuesByItem = customFieldValues;
+    _cachedProjectionCustomFieldValuesByDefinitionByItem =
+        customFieldValuesByDefinition;
+    _cachedProjectionActiveLoanOwnedItemIds = activeLoanOwnedItemIds;
+    _cachedProjection = projection;
+    return projection;
   }
 
   LibraryGroupMode get _activeGroupMode =>
