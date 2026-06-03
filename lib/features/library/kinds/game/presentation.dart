@@ -1,9 +1,21 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/game/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/planned_media_presentation_support.dart';
-import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
+
+const gamesPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Items',
+);
+
+const gamesStatsLabels = LibraryMediaStatsLabels(
+  topSeries: 'Top Series',
+  topPublisher: 'Top Publishers / Studios',
+);
 
 const gamesLibraryGroupModes = [
   LibraryGroupMode.publisher,
@@ -87,8 +99,8 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildGamesLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildGamesLibraryReleaseEntry,
   bucketLabelBuilder: gamesLibraryBucketLabelBuilder,
-  previewLabels: defaultPreviewLabels,
-  statsLabels: gameStatsLabels,
+  previewLabels: gamesPreviewLabels,
+  statsLabels: gamesStatsLabels,
   sortColumnDefinitions: gamesLibrarySortColumnDefinitions,
   groupModeDefinitions: gamesLibraryGroupModeDefinitions,
   groupModes: gamesLibraryGroupModes,

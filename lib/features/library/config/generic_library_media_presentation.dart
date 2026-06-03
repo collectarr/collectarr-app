@@ -1,8 +1,15 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const genericLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder();
+
+const genericPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Items',
+);
 
 const genericLibraryGroupModes = [
   LibraryGroupMode.series,
@@ -214,7 +221,7 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildGenericLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildGenericLibraryReleaseEntry,
   bucketLabelBuilder: genericLibraryBucketLabelBuilder,
-  previewLabels: defaultPreviewLabels,
+  previewLabels: genericPreviewLabels,
   sortColumnDefinitions: genericLibrarySortColumnDefinitions,
   groupModeDefinitions: genericLibraryGroupModeDefinitions,
   groupModes: genericLibraryGroupModes,

@@ -1,9 +1,21 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/shared/planned_media_presentation_support.dart';
-import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const boardGamesLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder();
+
+const boardGamesPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Items',
+);
+
+const boardGamesStatsLabels = LibraryMediaStatsLabels(
+  topSeries: 'Top Series',
+  topPublisher: 'Top Publishers / Designers',
+);
 
 const boardGamesLibraryGroupModes = [
   LibraryGroupMode.publisher,
@@ -87,8 +99,8 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildBoardGamesLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildBoardGamesLibraryReleaseEntry,
   bucketLabelBuilder: boardGamesLibraryBucketLabelBuilder,
-  previewLabels: defaultPreviewLabels,
-  statsLabels: gameStatsLabels,
+  previewLabels: boardGamesPreviewLabels,
+  statsLabels: boardGamesStatsLabels,
   sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
   groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
   groupModes: boardGamesLibraryGroupModes,

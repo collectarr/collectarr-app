@@ -1,9 +1,33 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const comicsLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder(
+  showSummary: true,
+);
+
+const comicsPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Issues',
+);
+
+const comicsIssueVisibleColumns = {
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.issue,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.barcode,
+  LibraryTableColumn.condition,
+  LibraryTableColumn.price,
+  LibraryTableColumn.location,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+};
 
 const comicsLibraryGroupModes = [
   LibraryGroupMode.series,
@@ -699,8 +723,8 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildComicsLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildComicsLibraryReleaseEntry,
   bucketLabelBuilder: comicsLibraryBucketLabelBuilder,
-  defaultVisibleColumns: issueVisibleColumns,
-  previewLabels: issuesPreviewLabels,
+  defaultVisibleColumns: comicsIssueVisibleColumns,
+  previewLabels: comicsPreviewLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketModes: [
     LibraryGroupMode.storyArc,

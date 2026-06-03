@@ -1,8 +1,30 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
+import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const moviesMetadataLabels = LibraryMetadataLabels(
+  identitySectionTitle: 'Screen identity',
+  contextSectionTitle: 'Release context',
+  creditsSectionTitle: 'Cast & Discovery',
+  creators: 'Cast & Crew',
+);
+
+const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
+  showSummary: true,
+  metadataLabels: moviesMetadataLabels,
+);
+
+const moviesPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Items',
+);
+
+const moviesStatsLabels = LibraryMediaStatsLabels(
+  topSeries: 'Top Franchises',
+  topPublisher: 'Top Studios',
+);
 
 const moviesLibraryGroupModes = [
   LibraryGroupMode.audienceRating,
@@ -564,8 +586,8 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildMoviesLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildMoviesLibraryReleaseEntry,
   bucketLabelBuilder: moviesLibraryBucketLabelBuilder,
-  previewLabels: defaultPreviewLabels,
-  statsLabels: franchiseStatsLabels,
+  previewLabels: moviesPreviewLabels,
+  statsLabels: moviesStatsLabels,
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   sortColumnDefinitions: moviesLibrarySortColumnDefinitions,

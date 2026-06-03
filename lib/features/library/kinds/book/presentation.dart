@@ -1,10 +1,14 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/planned_media_presentation_support.dart';
-import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+const booksPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Volumes',
+);
 
 const booksLibraryGroupModes = [
   LibraryGroupMode.publisher,
@@ -99,7 +103,7 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildBooksLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildBooksLibraryReleaseEntry,
   bucketLabelBuilder: booksLibraryBucketLabelBuilder,
-  previewLabels: volumesPreviewLabels,
+  previewLabels: booksPreviewLabels,
   sortColumnDefinitions: booksLibrarySortColumnDefinitions,
   groupModeDefinitions: booksLibraryGroupModeDefinitions,
   groupModes: booksLibraryGroupModes,
