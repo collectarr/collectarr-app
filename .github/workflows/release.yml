@@ -2,6 +2,22 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      metadata_base_url:
+        description: "Collectarr Core metadata API base URL"
+        required: true
+        default: "http://192.168.0.142:8010"
+        type: string
+      sync_base_url:
+        description: "Collectarr Sync API base URL"
+        required: true
+        default: "http://192.168.0.142:8020"
+        type: string
+      sync_key:
+        description: "Sync API key embedded in web build"
+        required: true
+        default: "replace-with-sync-key"
+        type: string
 
 permissions:
   contents: write
@@ -74,7 +90,11 @@ jobs:
 
       - name: Build web bundle
         if: steps.semantic_preview.outputs.new_release_published == 'true'
-        run: flutter build web --release
+        run: |
+          flutter build web --release \
+            --dart-define=COLLECTARR_API_BASE_URL=${{ inputs.metadata_base_url }} \
+            --dart-define=COLLECTARR_SYNC_BASE_URL=${{ inputs.sync_base_url }} \
+            --dart-define=COLLECTARR_SYNC_KEY=${{ inputs.sync_key }}
 
       - name: Set up Docker Buildx
         if: steps.semantic_preview.outputs.new_release_published == 'true'
