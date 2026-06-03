@@ -1115,6 +1115,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _selectedLetter = null;
       _selectedId = item.entry.id;
     });
+    _syncRouteState();
   }
 
   void _closeReleaseFolder() {

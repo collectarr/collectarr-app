@@ -72,6 +72,7 @@ abstract final class _LibraryViewStateControllerOps {
     state._mutateState(() {
       state._viewState = next;
     });
+    state._syncRouteState();
     scheduleViewStateSave(state, next);
   }
 

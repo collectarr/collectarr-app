@@ -151,8 +151,10 @@ abstract final class _LibraryFacetControllerOps {
         state._selectedBucket = null;
       });
     } finally {
-      _controllerNotifier(state).finishLoad(loadKey);
-      state._mutateState(() {});
+      if (state.mounted) {
+        _controllerNotifier(state).finishLoad(loadKey);
+        state._mutateState(() {});
+      }
     }
   }
 
