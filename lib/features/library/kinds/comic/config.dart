@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -55,6 +56,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
   addDialogLauncher: showComicLibraryAddDialog,
   trackingProfile: comicTrackingProfile,
   editDialogBuilder: buildComicLibraryEditDialog,
+  inspectorPanelBuilder: buildComicInspectorPanel,
   inspectorHeroBuilder: buildComicInspectorHero,
   inspectorSectionsBuilder: buildComicInspectorSections,
   showsDefaultInspectorPersonalSection: false,

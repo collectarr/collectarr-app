@@ -558,9 +558,17 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
       },
     );
     if (result == null || !mounted) return;
+    final role =
+        result['role']?.toString().trim().isNotEmpty == true
+            ? result['role']!.toString().trim()
+            : result['job']?.toString().trim().isNotEmpty == true
+                ? result['job']!.toString().trim()
+                : '';
     setState(() {
-      _creators[idx].nameController.text =
-          result['name']?.toString() ?? '';
+      _creators[idx].nameController.text = result['name']?.toString() ?? '';
+      if (role.isNotEmpty) {
+        _creators[idx].roleController.text = role;
+      }
       _creators[idx].metadata
         ..addAll(result)
         ..['source_type'] = 'core';
@@ -2288,30 +2296,39 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                       const SizedBox(width: 8),
                       SizedBox(
                         width: 140,
-                        child: DropdownButtonFormField<String>(
-                          initialValue: _commonCreatorRoles.contains(
-                                  _creators[i].roleController.text.trim())
-                              ? _creators[i].roleController.text.trim()
-                              : null,
-                          isDense: true,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            hintText: 'Job',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                          style: const TextStyle(fontSize: 12),
-                          items: [
-                            for (final role in _commonCreatorRoles)
-                              DropdownMenuItem(
-                                  value: role, child: Text(role)),
-                          ],
-                          onChanged: (v) {
-                            if (v != null) {
-                              _creators[i].roleController.text = v;
-                            }
+                        child: Builder(
+                          builder: (context) {
+                            final currentRole =
+                                _creators[i].roleController.text.trim();
+                            final roles = <String>[
+                              if (currentRole.isNotEmpty &&
+                                  !_commonCreatorRoles.contains(currentRole))
+                                currentRole,
+                              ..._commonCreatorRoles,
+                            ];
+                            return DropdownButtonFormField<String>(
+                              initialValue: currentRole.isEmpty ? null : currentRole,
+                              isDense: true,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                hintText: 'Job',
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 8),
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                              style: const TextStyle(fontSize: 12),
+                              items: [
+                                for (final role in roles)
+                                  DropdownMenuItem(
+                                      value: role, child: Text(role)),
+                              ],
+                              onChanged: (v) {
+                                if (v != null) {
+                                  _creators[i].roleController.text = v;
+                                }
+                              },
+                            );
                           },
                         ),
                       ),
@@ -2979,10 +2996,16 @@ class _EditableComicCreator {
   }
 
   factory _EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
+    final role =
+        result['role']?.toString().trim().isNotEmpty == true
+            ? result['role']!.toString().trim()
+            : result['job']?.toString().trim().isNotEmpty == true
+                ? result['job']!.toString().trim()
+                : '';
     return _EditableComicCreator(
       nameController:
           TextEditingController(text: result['name']?.toString() ?? ''),
-      roleController: TextEditingController(),
+      roleController: TextEditingController(text: role),
       metadata: {
         ...result,
         'source_type': 'core',

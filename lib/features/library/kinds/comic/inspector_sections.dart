@@ -15,235 +15,234 @@ List<Widget> buildComicInspectorSections(
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;
 
-  return [
-    _buildFactSection(
-      title: 'Creators',
-      rows: _creatorRows(entry.creators),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Characters',
-      rows: _characterRows(entry.characters),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Details',
-      rows: _detailRows(entry),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Personal',
-      rows: _personalRows(entry, ownedItem, trackingEntry),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Collector',
-      rows: _collectorRows(ownedItem),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Value',
-      rows: _valueRows(ownedItem, request.ownedCopies),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Notes',
-      rows: _noteRows(entry, ownedItem),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Tags',
-      rows: _tagRows(entry, ownedItem),
-      accent: request.accent,
-    ),
-    _buildFactSection(
-      title: 'Links',
-      rows: _linkRows(entry),
-      accent: request.accent,
-    ),
-  ].whereType<Widget>().toList(growable: false);
-}
+  final sections = <Widget>[];
 
-Widget? _buildFactSection({
-  required String title,
-  required List<_ComicRowData> rows,
-  required Color accent,
-}) {
-  if (rows.isEmpty) {
-    return null;
-  }
-  return LibraryInspectorSection(
-    title: title,
-    accentColor: accent,
-    children: [
-      LibraryInspectorFactGrid(
-        facts: [
-          for (final row in rows)
-            LibraryInspectorFactData(
-              row.label,
-              row.value,
-              onTap: row.onTap,
-            ),
-        ],
+  final creatorNames = _creatorNames(entry.creators);
+  if (creatorNames.isNotEmpty) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Creators',
+        values: creatorNames,
+        onValueTap: request.onFilterByValue,
       ),
-    ],
-  );
-}
-
-class _ComicRowData {
-  const _ComicRowData({required this.label, required this.value, this.onTap});
-
-  final String label;
-  final String value;
-  final VoidCallback? onTap;
-}
-
-List<_ComicRowData> _creatorRows(List<Map<String, dynamic>>? creators) {
-  if (creators == null || creators.isEmpty) {
-    return const <_ComicRowData>[];
+    );
   }
 
-  final grouped = <String, List<String>>{};
-  for (final credit in creators) {
-    final name = credit['name']?.toString().trim();
+  if (entry.characters?.isNotEmpty == true) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Characters',
+        values: entry.characters!,
+        onValueTap: request.onFilterByValue,
+      ),
+    );
+  }
+
+  if (entry.storyArcs?.isNotEmpty == true) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Story Arcs',
+        values: entry.storyArcs!,
+        onValueTap: request.onFilterByValue,
+      ),
+    );
+  }
+
+  if (entry.genres?.isNotEmpty == true) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Genres',
+        values: entry.genres!,
+        onValueTap: request.onFilterByValue,
+      ),
+    );
+  }
+
+  final details = _detailFacts(entry);
+  if (details.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Details',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: details)],
+      ),
+    );
+  }
+
+  final collector = _collectorFacts(ownedItem);
+  if (collector.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Collector',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: collector)],
+      ),
+    );
+  }
+
+  final personal = _personalFacts(entry, ownedItem, trackingEntry);
+  if (personal.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Personal',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: personal)],
+      ),
+    );
+  }
+
+  final value = _valueFacts(ownedItem, request.ownedCopies);
+  if (value.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Value',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: value)],
+      ),
+    );
+  }
+
+  final notes = _noteFacts(entry, ownedItem);
+  if (notes.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Notes',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: notes)],
+      ),
+    );
+  }
+
+  final links = _linkFacts(entry);
+  if (links.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Links',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: links)],
+      ),
+    );
+  }
+
+  return sections;
+}
+
+List<String> _creatorNames(List<Map<String, dynamic>>? creators) {
+  if (creators == null || creators.isEmpty) {
+    return const [];
+  }
+  final seen = <String>{};
+  final values = <String>[];
+  for (final creator in creators) {
+    final name = creator['name']?.toString().trim();
     if (name == null || name.isEmpty) {
       continue;
     }
-    final role = credit['role']?.toString().trim();
-    final key = role == null || role.isEmpty ? 'Creator' : role;
-    grouped.putIfAbsent(key, () => <String>[]).add(name);
+    final key = name.toLowerCase();
+    if (seen.add(key)) {
+      values.add(name);
+    }
   }
-
-  return [
-    for (final entry in grouped.entries)
-      _ComicRowData(label: entry.key, value: entry.value.join(' | ')),
-  ];
+  return values;
 }
 
-List<_ComicRowData> _characterRows(List<String>? characters) {
-  if (characters == null || characters.isEmpty) {
-    return const <_ComicRowData>[];
-  }
-  final filtered = [
-    for (final character in characters)
-      if (character.trim().isNotEmpty) character.trim(),
-  ];
-  if (filtered.isEmpty) {
-    return const <_ComicRowData>[];
-  }
-  return [
-    _ComicRowData(label: 'Featured', value: filtered.join(', ')),
-  ];
-}
-
-List<_ComicRowData> _detailRows(LibraryWorkspaceEntry entry) {
-  final rows = <_ComicRowData>[];
-  if (entry.ageRating?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Age', value: entry.ageRating!.trim()));
-  }
+List<LibraryInspectorFactData> _detailFacts(LibraryWorkspaceEntry entry) {
+  final rows = <LibraryInspectorFactData>[];
   if (entry.referenceFormatLabel?.trim().isNotEmpty == true) {
-    rows.add(
-      _ComicRowData(label: 'Format', value: entry.referenceFormatLabel!.trim()),
-    );
-  }
-  if (entry.genres?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Genre', value: entry.genres!.join(', ')));
-  }
-  if (entry.publishing?.pageCount != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Pages',
-        value: entry.publishing!.pageCount.toString(),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()));
   }
   if (entry.country?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Country', value: entry.country!.trim()));
+    rows.add(LibraryInspectorFactData('Country', entry.country!.trim()));
   }
   if (entry.language?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Language', value: entry.language!.trim()));
+    rows.add(LibraryInspectorFactData('Language', entry.language!.trim()));
   }
-  if (entry.storyArcs?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')));
+  if (entry.ageRating?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Age', entry.ageRating!.trim()));
+  }
+  if (entry.publishing?.pageCount != null) {
+    rows.add(LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()));
   }
   return rows;
 }
 
-List<_ComicRowData> _personalRows(
+List<LibraryInspectorFactData> _collectorFacts(OwnedItem? ownedItem) {
+  if (ownedItem == null) {
+    return const [];
+  }
+  final rows = <LibraryInspectorFactData>[];
+  if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Raw / Slabbed', ownedItem.rawOrSlabbed!.trim()));
+  }
+  if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Grading Co.', ownedItem.gradingCompany!.trim()));
+  }
+  if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Certification', ownedItem.certificationNumber!.trim()));
+  }
+  if (ownedItem.keyComic == true) {
+    rows.add(LibraryInspectorFactData('Key', ownedItem.keyReason?.trim().isNotEmpty == true ? ownedItem.keyReason!.trim() : 'Yes'));
+  }
+  return rows;
+}
+
+List<LibraryInspectorFactData> _personalFacts(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
 ) {
   if (ownedItem == null && trackingEntry == null) {
-    return const <_ComicRowData>[];
+    return const [];
   }
-
-  final rows = <_ComicRowData>[];
+  final rows = <LibraryInspectorFactData>[];
   final rating = trackingEntry?.rating ?? ownedItem?.rating;
+  if (rating != null && rating > 0) {
+    rows.add(LibraryInspectorFactData('My Rating', '$rating / 10'));
+  }
   final trackingStatusLabel = trackingEntry?.status?.label;
   final readStatus =
       trackingStatusLabel == null || trackingStatusLabel == 'Not tracked'
       ? ownedItem?.readStatus
       : trackingStatusLabel;
-
-  if (rating != null && rating > 0) {
-    rows.add(_ComicRowData(label: 'My Rating', value: '$rating / 10'));
-  }
-  rows.add(_ComicRowData(label: 'Read', value: _readLabel(readStatus)));
+  rows.add(LibraryInspectorFactData('Read', _readLabel(readStatus)));
   if (ownedItem?.indexNumber != null) {
-    rows.add(_ComicRowData(label: 'Index', value: ownedItem!.indexNumber.toString()));
+    rows.add(LibraryInspectorFactData('Index', ownedItem!.indexNumber.toString()));
   }
   rows.add(
-    _ComicRowData(
-      label: 'Added',
-      value: _formatTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
+    LibraryInspectorFactData(
+      'Added',
+      _formatTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
     ),
   );
   rows.add(
-    _ComicRowData(
-      label: 'Modified',
-      value: _formatTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
+    LibraryInspectorFactData(
+      'Modified',
+      _formatTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
     ),
   );
   return rows;
 }
 
-List<_ComicRowData> _valueRows(
+List<LibraryInspectorFactData> _valueFacts(
   OwnedItem? ownedItem,
   List<OwnedItem> ownedCopies,
 ) {
   if (ownedItem == null) {
-    return const <_ComicRowData>[];
+    return const [];
   }
-
   final effectiveOwnedCopies = ownedCopies.isNotEmpty
       ? ownedCopies
       : <OwnedItem>[ownedItem];
-  final rows = <_ComicRowData>[];
 
+  final rows = <LibraryInspectorFactData>[];
   if (ownedItem.coverPriceCents != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Cover Price',
-        value: formatMoney(ownedItem.coverPriceCents, ownedItem.currency),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Cover Price', formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
   }
   if (ownedItem.marketValueCents != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Current Value',
-        value: formatMoney(ownedItem.marketValueCents, ownedItem.currency),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Current Value', formatMoney(ownedItem.marketValueCents, ownedItem.currency)));
   }
   if (ownedItem.pricePaidCents != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Paid',
-        value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Paid', formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
   }
 
   if (effectiveOwnedCopies.length > 1) {
@@ -257,23 +256,12 @@ List<_ComicRowData> _valueRows(
       (item) => item.pricePaidCents,
     );
     if (totalMarketValue != null) {
-      rows.add(
-        _ComicRowData(
-          label: 'Total Value',
-          value: formatMoney(totalMarketValue, totalsCurrency),
-        ),
-      );
+      rows.add(LibraryInspectorFactData('Total Value', formatMoney(totalMarketValue, totalsCurrency)));
     }
     if (totalPaid != null) {
-      rows.add(
-        _ComicRowData(
-          label: 'Total Paid',
-          value: formatMoney(totalPaid, totalsCurrency),
-        ),
-      );
+      rows.add(LibraryInspectorFactData('Total Paid', formatMoney(totalPaid, totalsCurrency)));
     }
   }
-
   return rows;
 }
 
@@ -311,106 +299,34 @@ String? _inspectorValueCurrency(
   return null;
 }
 
-List<_ComicRowData> _collectorRows(OwnedItem? ownedItem) {
-  if (ownedItem == null) {
-    return const <_ComicRowData>[];
-  }
-
-  final rows = <_ComicRowData>[];
-  if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
-  }
-  if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Grading Co.', value: ownedItem.gradingCompany!.trim()));
-  }
-  if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Certification', value: ownedItem.certificationNumber!.trim()));
-  }
-  if (ownedItem.labelType?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Label Type', value: ownedItem.labelType!.trim()));
-  }
-  if (ownedItem.customLabel?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Custom Label', value: ownedItem.customLabel!.trim()));
-  }
-  if (ownedItem.pageQuality?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Page Quality', value: ownedItem.pageQuality!.trim()));
-  }
-  if (ownedItem.signedBy?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Signed By', value: ownedItem.signedBy!.trim()));
-  }
-  if (ownedItem.keyComic == true) {
-    rows.add(_ComicRowData(label: 'Key', value: ownedItem.keyReason ?? 'Yes'));
-  }
-  if (ownedItem.keyCategory?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Key Category', value: ownedItem.keyCategory!.trim()));
-  }
-  if (ownedItem.keySeverity?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Key Severity', value: ownedItem.keySeverity!.trim()));
-  }
-  if (ownedItem.graderNotes?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem.graderNotes!.trim()));
-  }
-  return rows;
-}
-
-List<_ComicRowData> _noteRows(
+List<LibraryInspectorFactData> _noteFacts(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
 ) {
-  final rows = <_ComicRowData>[];
+  final rows = <LibraryInspectorFactData>[];
   final personalNotes = ownedItem?.personalNotes?.trim();
   final catalogNotes = entry.notes?.trim();
   if (personalNotes != null && personalNotes.isNotEmpty) {
-    rows.add(_ComicRowData(label: 'Personal', value: personalNotes));
+    rows.add(LibraryInspectorFactData('Personal', personalNotes));
   }
   if (catalogNotes != null && catalogNotes.isNotEmpty) {
-    rows.add(_ComicRowData(label: 'Catalog', value: catalogNotes));
+    rows.add(LibraryInspectorFactData('Catalog', catalogNotes));
   }
   return rows;
 }
 
-List<_ComicRowData> _tagRows(
-  LibraryWorkspaceEntry entry,
-  OwnedItem? ownedItem,
-) {
-  final seen = <String>{};
-  final values = <String>[];
-
-  void addTags(String? raw) {
-    if (raw == null || raw.trim().isEmpty) {
-      return;
-    }
-    for (final part in raw.split(',')) {
-      final normalized = part.trim();
-      if (normalized.isEmpty) {
-        continue;
-      }
-      if (seen.add(normalized.toLowerCase())) {
-        values.add(normalized);
-      }
-    }
-  }
-
-  addTags(ownedItem?.tags);
-  addTags(entry.tags);
-
-  return [
-    for (final tag in values) _ComicRowData(label: 'Tag', value: tag),
-  ];
-}
-
-List<_ComicRowData> _linkRows(LibraryWorkspaceEntry entry) {
+List<LibraryInspectorFactData> _linkFacts(LibraryWorkspaceEntry entry) {
   if (entry.trailerUrls.isEmpty) {
-    return const <_ComicRowData>[];
+    return const [];
   }
 
   return [
     for (final trailer in entry.trailerUrls)
-      _ComicRowData(
-        label: trailer.source?.trim().isNotEmpty == true
+      LibraryInspectorFactData(
+        trailer.source?.trim().isNotEmpty == true
             ? trailer.source!.trim()
             : 'Link',
-        value: trailer.title?.trim().isNotEmpty == true
+        trailer.title?.trim().isNotEmpty == true
             ? trailer.title!.trim()
             : trailer.url,
         onTap: () => _launchUrl(trailer.url),

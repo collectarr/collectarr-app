@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 const Color _kDefaultAccent = kAppAccent;
 const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
-const double _kInspectorSectionSpacing = 8;
+const double _kInspectorSectionSpacing = 10;
 const double _kInspectorSectionRadius = 2;
-const double _kInspectorSectionContentTopPadding = 6;
-const double _kInspectorFactLabelWidth = 92;
+const double _kInspectorSectionContentTopPadding = 7;
+const double _kInspectorFactLabelWidth = 104;
 
 class LibraryInspectorFactData {
   const LibraryInspectorFactData(this.label, this.value, {this.onTap});
@@ -112,7 +112,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: palette.textMuted,
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 11,
+                                fontSize: 12,
                                     letterSpacing: 0.35,
                                   ),
                             ),
@@ -223,7 +223,7 @@ class LibraryInspectorFact extends StatelessWidget {
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: resolvedMutedTextColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 11,
+                  fontSize: 12,
                   ),
             ),
           ),
@@ -240,6 +240,7 @@ class LibraryInspectorFact extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: onSurfaceColor,
                             fontWeight: FontWeight.w600,
+                            fontSize: 13,
                             decoration: TextDecoration.underline,
                           decorationColor: onSurfaceColor.withValues(alpha: 0.4),
                           ),
@@ -252,6 +253,7 @@ class LibraryInspectorFact extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: onSurfaceColor,
                           fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                   ),
           ),

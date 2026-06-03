@@ -187,6 +187,72 @@ class BookLibraryMediaPresentationBuilder
         ),
       );
     }
+
+    final creatorNames = <String>[
+      for (final creator in entry.creators ?? const <Map<String, dynamic>>[])
+        if (creator['name']?.toString().trim().isNotEmpty == true)
+          creator['name']!.toString().trim(),
+    ];
+    if (creatorNames.isNotEmpty) {
+      sections.add(
+        LibraryInspectorChipSection(
+          title: 'Creators',
+          values: creatorNames,
+        ),
+      );
+    }
+
+    if (entry.characters?.isNotEmpty == true) {
+      sections.add(
+        LibraryInspectorChipSection(
+          title: 'Characters',
+          values: entry.characters!,
+        ),
+      );
+    }
+
+    if (entry.storyArcs?.isNotEmpty == true) {
+      sections.add(
+        LibraryInspectorChipSection(
+          title: 'Story Arcs',
+          values: entry.storyArcs!,
+        ),
+      );
+    }
+
+    if (entry.genres?.isNotEmpty == true) {
+      sections.add(
+        LibraryInspectorChipSection(
+          title: 'Genres',
+          values: entry.genres!,
+        ),
+      );
+    }
+
+    final detailFacts = <LibraryInspectorFactData>[
+      if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()),
+      if (entry.country?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Country', entry.country!.trim()),
+      if (entry.language?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Language', entry.language!.trim()),
+      if (entry.ageRating?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
+      if (entry.publishing?.pageCount != null)
+        LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()),
+    ];
+    if (detailFacts.isNotEmpty) {
+      sections.add(
+        LibraryInspectorSection(
+          title: 'Details',
+          accentColor: accent,
+          children: [
+            LibraryInspectorFactGrid(facts: detailFacts),
+          ],
+        ),
+      );
+    }
+
     return sections;
   }
 
