@@ -53,6 +53,7 @@ import 'package:collectarr_app/features/library/generic/view_preference_store.da
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
+import 'package:collectarr_app/features/library/generic/facet_controller_provider.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -132,8 +133,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   String? _selectionAnchorId;
   var _filterSelection = LibraryFilterSelection.none;
   final _detailHydrationInFlight = <String>{};
-  final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
-  final _facetLoadsInFlight = <String>{};
   Set<String> _activeLoanOwnedItemIds = const {};
   List<LibraryFolderPreset> _pinnedFolderPresets = const [];
   String? _videoShelfDrilldownTitleItemId;
@@ -341,8 +340,20 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _selectionAnchorId = null;
       _videoShelfDrilldownTitleItemId = null;
       _videoShelfDrilldownReleaseId = null;
-      _facetBucketsByMode.clear();
-      _facetLoadsInFlight.clear();
+      ref
+          .read(
+            libraryFacetControllerProvider(
+              oldWidget.type.workspace.kind.apiValue,
+            ).notifier,
+          )
+          .clearAll();
+      ref
+          .read(
+            libraryFacetControllerProvider(
+              widget.type.workspace.kind.apiValue,
+            ).notifier,
+          )
+          .clearAll();
       _lastFacetEnsureSignature = null;
       _lastFacetEnsureMode = null;
       _searchController.clear();
@@ -434,6 +445,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   String _facetLoadKey(LibraryGroupMode mode, String signature) {
     return _LibraryFacetControllerOps.facetLoadKey(this, mode, signature);
+  }
+
+  bool _isFacetLoadInFlight(String loadKey) {
+    return _LibraryFacetControllerOps.isFacetLoadInFlight(this, loadKey);
   }
 
   String _genericShelfSignature(ShelfState shelf) {
@@ -698,7 +713,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       selectedAnchorId: _selectionAnchorId,
       selectedBucket: _selectedBucket,
       groupMode: activeProjectionGroupMode,
-      groupLoading: _facetLoadsInFlight.contains(activeFacetLoadKey),
+      groupLoading: _isFacetLoadInFlight(activeFacetLoadKey),
       accent: widget.accent,
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => showAddDialogFlow(),

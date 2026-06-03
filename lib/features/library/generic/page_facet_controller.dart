@@ -1,6 +1,24 @@
 part of 'page.dart';
 
 abstract final class _LibraryFacetControllerOps {
+  static LibraryFacetControllerState _controllerState(
+    GenericLibraryPageState state,
+  ) {
+    return state.ref.read(
+      libraryFacetControllerProvider(state.widget.type.workspace.kind.apiValue),
+    );
+  }
+
+  static LibraryFacetControllerNotifier _controllerNotifier(
+    GenericLibraryPageState state,
+  ) {
+    return state.ref.read(
+      libraryFacetControllerProvider(
+        state.widget.type.workspace.kind.apiValue,
+      ).notifier,
+    );
+  }
+
   static void maybeEnsureFacetBucketsLoaded(
     GenericLibraryPageState state,
     ShelfState shelf,
@@ -32,7 +50,7 @@ abstract final class _LibraryFacetControllerOps {
       return null;
     }
     final signature = genericShelfSignature(state, shelf);
-    final cached = state._facetBucketsByMode[mode];
+    final cached = _controllerState(state).bucketsByMode[mode];
     if (cached != null && cached.shelfSignature == signature) {
       return cached;
     }
@@ -57,15 +75,15 @@ abstract final class _LibraryFacetControllerOps {
       return;
     }
     final signature = genericShelfSignature(state, shelf);
-    final cached = state._facetBucketsByMode[mode];
+    final cached = _controllerState(state).bucketsByMode[mode];
     if (cached != null && cached.shelfSignature == signature) {
       return;
     }
     final loadKey = facetLoadKey(state, mode, signature);
-    if (state._facetLoadsInFlight.contains(loadKey)) {
+    if (_controllerState(state).loadsInFlight.contains(loadKey)) {
       return;
     }
-    state._facetLoadsInFlight.add(loadKey);
+    _controllerNotifier(state).startLoad(loadKey);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       state._mutateState(() {});
     });
@@ -96,8 +114,8 @@ abstract final class _LibraryFacetControllerOps {
           genericShelfSignature(state, latestShelf) != signature) {
         return;
       }
+      _controllerNotifier(state).setBuckets(mode, buckets);
       state._mutateState(() {
-        state._facetBucketsByMode[mode] = buckets;
         if (state._selectedBucket != null &&
             !buckets.buckets.any((b) => b.title == state._selectedBucket)) {
           state._selectedBucket = null;
@@ -118,23 +136,31 @@ abstract final class _LibraryFacetControllerOps {
           genericShelfSignature(state, latestShelf) != signature) {
         return;
       }
+      final fallback = FacetBuckets(
+        shelfSignature: signature,
+        buckets: [
+          LibrarySeriesBucket(
+            title: genericAllBucketLabel(state.widget.type),
+            count: shelfItemIds.length,
+          ),
+        ],
+        itemIdsByBucket: const {},
+      );
+      _controllerNotifier(state).setBuckets(mode, fallback);
       state._mutateState(() {
-        state._facetBucketsByMode[mode] = FacetBuckets(
-          shelfSignature: signature,
-          buckets: [
-            LibrarySeriesBucket(
-              title: genericAllBucketLabel(state.widget.type),
-              count: shelfItemIds.length,
-            ),
-          ],
-          itemIdsByBucket: const {},
-        );
         state._selectedBucket = null;
       });
     } finally {
-      state._facetLoadsInFlight.remove(loadKey);
+      _controllerNotifier(state).finishLoad(loadKey);
       state._mutateState(() {});
     }
+  }
+
+  static bool isFacetLoadInFlight(
+    GenericLibraryPageState state,
+    String loadKey,
+  ) {
+    return _controllerState(state).loadsInFlight.contains(loadKey);
   }
 
   static String facetLoadKey(
