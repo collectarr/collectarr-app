@@ -404,21 +404,20 @@ enum CatalogMediaKind {
 }
 
 extension CatalogMediaKindLibrarySemantics on CatalogMediaKind {
-  CatalogMediaKind get libraryKind {
+  CatalogMediaKind get libraryKind => this;
+
+  bool get isVideoLibraryKind {
     return switch (this) {
-      CatalogMediaKind.anime => CatalogMediaKind.movie,
-      CatalogMediaKind.manga => CatalogMediaKind.comic,
-      CatalogMediaKind.tv => CatalogMediaKind.movie,
-      _ => this,
+      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime =>
+        true,
+      _ => false,
     };
   }
-
-  bool get isVideoLibraryKind => libraryKind == CatalogMediaKind.movie;
 }
 
 CatalogMediaKind catalogMediaKindFromValue(Object? value) {
   if (value is CatalogMediaKind) {
-    return value.libraryKind;
+    return value;
   }
   if (value is String?) {
     return catalogMediaKindFromApiValue(value);
@@ -429,12 +428,6 @@ CatalogMediaKind catalogMediaKindFromValue(Object? value) {
 CatalogMediaKind catalogMediaKindFromApiValue(String? value) {
   final normalized = value?.trim().toLowerCase();
   if (normalized == null) return CatalogMediaKind.unknown;
-
-  // Map legacy and merged kinds to canonical kinds so the frontend uses
-  // consolidated comic/movie libraries.
-  if (normalized == 'anime') return CatalogMediaKind.movie;
-  if (normalized == 'manga') return CatalogMediaKind.comic;
-  if (normalized == 'tv') return CatalogMediaKind.movie;
 
   for (final kind in CatalogMediaKind.values) {
     if (kind.apiValue == normalized) {
@@ -532,8 +525,7 @@ sealed class CatalogItem {
     String? ageRating,
     String? audienceRating,
   }) {
-    final resolvedMediaKind =
-      mediaKind?.libraryKind ?? catalogMediaKindFromApiValue(kind);
+    final resolvedMediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
     final common = _CatalogItemCommon(
       id: id,
       mediaKind: resolvedMediaKind,

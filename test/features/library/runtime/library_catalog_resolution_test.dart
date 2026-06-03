@@ -1,7 +1,11 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -50,5 +54,45 @@ void main() {
         'custom-provider');
     expect(resolvedBooks.supportedMetadataProviders.single.label,
         'Custom Provider');
+  });
+
+  test('catalog resolution preserves first-class manga, tv, and anime kinds', () {
+    final resolvedManga = mangaLibraryConfig.resolveWithCatalog(const [
+      CatalogMediaType(
+        kind: 'manga',
+        singularLabel: 'Manga',
+        pluralLabel: 'Manga',
+        routeSegments: ['manga'],
+        defaultProvider: 'mangadex',
+        providers: ['mangadex', 'anilist'],
+      ),
+    ]);
+    final resolvedTv = tvLibraryConfig.resolveWithCatalog(const [
+      CatalogMediaType(
+        kind: 'tv',
+        singularLabel: 'TV Show',
+        pluralLabel: 'TV Shows',
+        routeSegments: ['tv'],
+        defaultProvider: 'tmdb',
+        providers: ['tmdb'],
+      ),
+    ]);
+    final resolvedAnime = animeLibraryConfig.resolveWithCatalog(const [
+      CatalogMediaType(
+        kind: 'anime',
+        singularLabel: 'Anime',
+        pluralLabel: 'Anime',
+        routeSegments: ['anime'],
+        defaultProvider: 'anilist',
+        providers: ['anilist', 'tmdb'],
+      ),
+    ]);
+
+    expect(resolvedManga.workspace.kind, CatalogMediaKind.manga);
+    expect(resolvedManga.defaultSupportedMetadataProvider, 'mangadex');
+    expect(resolvedTv.workspace.kind, CatalogMediaKind.tv);
+    expect(resolvedTv.defaultSupportedMetadataProvider, 'tmdb');
+    expect(resolvedAnime.workspace.kind, CatalogMediaKind.anime);
+    expect(resolvedAnime.defaultSupportedMetadataProvider, 'anilist');
   });
 }

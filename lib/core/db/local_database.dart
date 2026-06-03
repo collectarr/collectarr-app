@@ -7,11 +7,17 @@ class CatalogCache extends Table {
   TextColumn get id => text()();
   TextColumn get kind => text()();
   TextColumn get title => text()();
+  TextColumn get displayTitle => text().nullable()();
+  TextColumn get localizedTitle => text().nullable()();
+  TextColumn get originalTitle => text().nullable()();
+  TextColumn get titleExtension => text().nullable()();
+  TextColumn get searchAliasesJson => text().nullable()();
   TextColumn get sortKey => text().nullable()();
   TextColumn get itemNumber => text().nullable()();
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get thumbnailImageUrl => text().nullable()();
+  TextColumn get coverImageData => text().nullable()();
   TextColumn get editionTitle => text().nullable()();
   TextColumn get physicalFormat => text().nullable()();
   TextColumn get physicalFormatLabel => text().nullable()();
@@ -21,6 +27,9 @@ class CatalogCache extends Table {
   IntColumn get releaseYear => integer().nullable()();
   TextColumn get barcode => text().nullable()();
   TextColumn get variant => text().nullable()();
+  TextColumn get crossover => text().nullable()();
+  TextColumn get plotSummary => text().nullable()();
+  TextColumn get plotDescription => text().nullable()();
   TextColumn get seriesId => text().nullable()();
   TextColumn get seriesTitle => text().nullable()();
   TextColumn get volumeName => text().nullable()();
@@ -34,6 +43,7 @@ class CatalogCache extends Table {
   TextColumn get editionsJson => text().nullable()();
   TextColumn get creatorsJson => text().nullable()();
   TextColumn get charactersJson => text().nullable()();
+  TextColumn get characterDetailsJson => text().nullable()();
   TextColumn get storyArcsJson => text().nullable()();
   TextColumn get seriesTagsJson => text().nullable()();
   TextColumn get platformsJson => text().nullable()();
@@ -407,7 +417,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {

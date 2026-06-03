@@ -24,6 +24,36 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _displayTitleMeta =
+      const VerificationMeta('displayTitle');
+  @override
+  late final GeneratedColumn<String> displayTitle = GeneratedColumn<String>(
+      'display_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localizedTitleMeta =
+      const VerificationMeta('localizedTitle');
+  @override
+  late final GeneratedColumn<String> localizedTitle = GeneratedColumn<String>(
+      'localized_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _originalTitleMeta =
+      const VerificationMeta('originalTitle');
+  @override
+  late final GeneratedColumn<String> originalTitle = GeneratedColumn<String>(
+      'original_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _titleExtensionMeta =
+      const VerificationMeta('titleExtension');
+  @override
+  late final GeneratedColumn<String> titleExtension = GeneratedColumn<String>(
+      'title_extension', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _searchAliasesJsonMeta =
+      const VerificationMeta('searchAliasesJson');
+  @override
+  late final GeneratedColumn<String> searchAliasesJson =
+      GeneratedColumn<String>('search_aliases_json', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sortKeyMeta =
       const VerificationMeta('sortKey');
   @override
@@ -54,6 +84,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> thumbnailImageUrl =
       GeneratedColumn<String>('thumbnail_image_url', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageDataMeta =
+      const VerificationMeta('coverImageData');
+  @override
+  late final GeneratedColumn<String> coverImageData = GeneratedColumn<String>(
+      'cover_image_data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _editionTitleMeta =
       const VerificationMeta('editionTitle');
   @override
@@ -107,6 +143,24 @@ class $CatalogCacheTable extends CatalogCache
   @override
   late final GeneratedColumn<String> variant = GeneratedColumn<String>(
       'variant', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _crossoverMeta =
+      const VerificationMeta('crossover');
+  @override
+  late final GeneratedColumn<String> crossover = GeneratedColumn<String>(
+      'crossover', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _plotSummaryMeta =
+      const VerificationMeta('plotSummary');
+  @override
+  late final GeneratedColumn<String> plotSummary = GeneratedColumn<String>(
+      'plot_summary', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _plotDescriptionMeta =
+      const VerificationMeta('plotDescription');
+  @override
+  late final GeneratedColumn<String> plotDescription = GeneratedColumn<String>(
+      'plot_description', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _seriesIdMeta =
       const VerificationMeta('seriesId');
@@ -186,6 +240,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> charactersJson = GeneratedColumn<String>(
       'characters_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _characterDetailsJsonMeta =
+      const VerificationMeta('characterDetailsJson');
+  @override
+  late final GeneratedColumn<String> characterDetailsJson =
+      GeneratedColumn<String>('character_details_json', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _storyArcsJsonMeta =
       const VerificationMeta('storyArcsJson');
   @override
@@ -333,11 +393,17 @@ class $CatalogCacheTable extends CatalogCache
         id,
         kind,
         title,
+        displayTitle,
+        localizedTitle,
+        originalTitle,
+        titleExtension,
+        searchAliasesJson,
         sortKey,
         itemNumber,
         synopsis,
         coverImageUrl,
         thumbnailImageUrl,
+        coverImageData,
         editionTitle,
         physicalFormat,
         physicalFormatLabel,
@@ -347,6 +413,9 @@ class $CatalogCacheTable extends CatalogCache
         releaseYear,
         barcode,
         variant,
+        crossover,
+        plotSummary,
+        plotDescription,
         seriesId,
         seriesTitle,
         volumeName,
@@ -360,6 +429,7 @@ class $CatalogCacheTable extends CatalogCache
         editionsJson,
         creatorsJson,
         charactersJson,
+        characterDetailsJson,
         storyArcsJson,
         seriesTagsJson,
         platformsJson,
@@ -412,6 +482,36 @@ class $CatalogCacheTable extends CatalogCache
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
+    if (data.containsKey('display_title')) {
+      context.handle(
+          _displayTitleMeta,
+          displayTitle.isAcceptableOrUnknown(
+              data['display_title']!, _displayTitleMeta));
+    }
+    if (data.containsKey('localized_title')) {
+      context.handle(
+          _localizedTitleMeta,
+          localizedTitle.isAcceptableOrUnknown(
+              data['localized_title']!, _localizedTitleMeta));
+    }
+    if (data.containsKey('original_title')) {
+      context.handle(
+          _originalTitleMeta,
+          originalTitle.isAcceptableOrUnknown(
+              data['original_title']!, _originalTitleMeta));
+    }
+    if (data.containsKey('title_extension')) {
+      context.handle(
+          _titleExtensionMeta,
+          titleExtension.isAcceptableOrUnknown(
+              data['title_extension']!, _titleExtensionMeta));
+    }
+    if (data.containsKey('search_aliases_json')) {
+      context.handle(
+          _searchAliasesJsonMeta,
+          searchAliasesJson.isAcceptableOrUnknown(
+              data['search_aliases_json']!, _searchAliasesJsonMeta));
+    }
     if (data.containsKey('sort_key')) {
       context.handle(_sortKeyMeta,
           sortKey.isAcceptableOrUnknown(data['sort_key']!, _sortKeyMeta));
@@ -437,6 +537,12 @@ class $CatalogCacheTable extends CatalogCache
           _thumbnailImageUrlMeta,
           thumbnailImageUrl.isAcceptableOrUnknown(
               data['thumbnail_image_url']!, _thumbnailImageUrlMeta));
+    }
+    if (data.containsKey('cover_image_data')) {
+      context.handle(
+          _coverImageDataMeta,
+          coverImageData.isAcceptableOrUnknown(
+              data['cover_image_data']!, _coverImageDataMeta));
     }
     if (data.containsKey('edition_title')) {
       context.handle(
@@ -483,6 +589,22 @@ class $CatalogCacheTable extends CatalogCache
     if (data.containsKey('variant')) {
       context.handle(_variantMeta,
           variant.isAcceptableOrUnknown(data['variant']!, _variantMeta));
+    }
+    if (data.containsKey('crossover')) {
+      context.handle(_crossoverMeta,
+          crossover.isAcceptableOrUnknown(data['crossover']!, _crossoverMeta));
+    }
+    if (data.containsKey('plot_summary')) {
+      context.handle(
+          _plotSummaryMeta,
+          plotSummary.isAcceptableOrUnknown(
+              data['plot_summary']!, _plotSummaryMeta));
+    }
+    if (data.containsKey('plot_description')) {
+      context.handle(
+          _plotDescriptionMeta,
+          plotDescription.isAcceptableOrUnknown(
+              data['plot_description']!, _plotDescriptionMeta));
     }
     if (data.containsKey('series_id')) {
       context.handle(_seriesIdMeta,
@@ -559,6 +681,12 @@ class $CatalogCacheTable extends CatalogCache
           _charactersJsonMeta,
           charactersJson.isAcceptableOrUnknown(
               data['characters_json']!, _charactersJsonMeta));
+    }
+    if (data.containsKey('character_details_json')) {
+      context.handle(
+          _characterDetailsJsonMeta,
+          characterDetailsJson.isAcceptableOrUnknown(
+              data['character_details_json']!, _characterDetailsJsonMeta));
     }
     if (data.containsKey('story_arcs_json')) {
       context.handle(
@@ -701,6 +829,16 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      displayTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}display_title']),
+      localizedTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}localized_title']),
+      originalTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}original_title']),
+      titleExtension: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title_extension']),
+      searchAliasesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}search_aliases_json']),
       sortKey: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}sort_key']),
       itemNumber: attachedDatabase.typeMapping
@@ -711,6 +849,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
       thumbnailImageUrl: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}thumbnail_image_url']),
+      coverImageData: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}cover_image_data']),
       editionTitle: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edition_title']),
       physicalFormat: attachedDatabase.typeMapping
@@ -729,6 +869,12 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}barcode']),
       variant: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}variant']),
+      crossover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}crossover']),
+      plotSummary: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}plot_summary']),
+      plotDescription: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}plot_description']),
       seriesId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}series_id']),
       seriesTitle: attachedDatabase.typeMapping
@@ -755,6 +901,9 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}creators_json']),
       charactersJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}characters_json']),
+      characterDetailsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}character_details_json']),
       storyArcsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}story_arcs_json']),
       seriesTagsJson: attachedDatabase.typeMapping.read(
@@ -817,11 +966,17 @@ class CatalogCacheData extends DataClass
   final String id;
   final String kind;
   final String title;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final String? titleExtension;
+  final String? searchAliasesJson;
   final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? coverImageData;
   final String? editionTitle;
   final String? physicalFormat;
   final String? physicalFormatLabel;
@@ -831,6 +986,9 @@ class CatalogCacheData extends DataClass
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? crossover;
+  final String? plotSummary;
+  final String? plotDescription;
   final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
@@ -844,6 +1002,7 @@ class CatalogCacheData extends DataClass
   final String? editionsJson;
   final String? creatorsJson;
   final String? charactersJson;
+  final String? characterDetailsJson;
   final String? storyArcsJson;
   final String? seriesTagsJson;
   final String? platformsJson;
@@ -872,11 +1031,17 @@ class CatalogCacheData extends DataClass
       {required this.id,
       required this.kind,
       required this.title,
+      this.displayTitle,
+      this.localizedTitle,
+      this.originalTitle,
+      this.titleExtension,
+      this.searchAliasesJson,
       this.sortKey,
       this.itemNumber,
       this.synopsis,
       this.coverImageUrl,
       this.thumbnailImageUrl,
+      this.coverImageData,
       this.editionTitle,
       this.physicalFormat,
       this.physicalFormatLabel,
@@ -886,6 +1051,9 @@ class CatalogCacheData extends DataClass
       this.releaseYear,
       this.barcode,
       this.variant,
+      this.crossover,
+      this.plotSummary,
+      this.plotDescription,
       this.seriesId,
       this.seriesTitle,
       this.volumeName,
@@ -899,6 +1067,7 @@ class CatalogCacheData extends DataClass
       this.editionsJson,
       this.creatorsJson,
       this.charactersJson,
+      this.characterDetailsJson,
       this.storyArcsJson,
       this.seriesTagsJson,
       this.platformsJson,
@@ -929,6 +1098,21 @@ class CatalogCacheData extends DataClass
     map['id'] = Variable<String>(id);
     map['kind'] = Variable<String>(kind);
     map['title'] = Variable<String>(title);
+    if (!nullToAbsent || displayTitle != null) {
+      map['display_title'] = Variable<String>(displayTitle);
+    }
+    if (!nullToAbsent || localizedTitle != null) {
+      map['localized_title'] = Variable<String>(localizedTitle);
+    }
+    if (!nullToAbsent || originalTitle != null) {
+      map['original_title'] = Variable<String>(originalTitle);
+    }
+    if (!nullToAbsent || titleExtension != null) {
+      map['title_extension'] = Variable<String>(titleExtension);
+    }
+    if (!nullToAbsent || searchAliasesJson != null) {
+      map['search_aliases_json'] = Variable<String>(searchAliasesJson);
+    }
     if (!nullToAbsent || sortKey != null) {
       map['sort_key'] = Variable<String>(sortKey);
     }
@@ -943,6 +1127,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || thumbnailImageUrl != null) {
       map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl);
+    }
+    if (!nullToAbsent || coverImageData != null) {
+      map['cover_image_data'] = Variable<String>(coverImageData);
     }
     if (!nullToAbsent || editionTitle != null) {
       map['edition_title'] = Variable<String>(editionTitle);
@@ -970,6 +1157,15 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || variant != null) {
       map['variant'] = Variable<String>(variant);
+    }
+    if (!nullToAbsent || crossover != null) {
+      map['crossover'] = Variable<String>(crossover);
+    }
+    if (!nullToAbsent || plotSummary != null) {
+      map['plot_summary'] = Variable<String>(plotSummary);
+    }
+    if (!nullToAbsent || plotDescription != null) {
+      map['plot_description'] = Variable<String>(plotDescription);
     }
     if (!nullToAbsent || seriesId != null) {
       map['series_id'] = Variable<String>(seriesId);
@@ -1009,6 +1205,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || charactersJson != null) {
       map['characters_json'] = Variable<String>(charactersJson);
+    }
+    if (!nullToAbsent || characterDetailsJson != null) {
+      map['character_details_json'] = Variable<String>(characterDetailsJson);
     }
     if (!nullToAbsent || storyArcsJson != null) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson);
@@ -1088,6 +1287,21 @@ class CatalogCacheData extends DataClass
       id: Value(id),
       kind: Value(kind),
       title: Value(title),
+      displayTitle: displayTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayTitle),
+      localizedTitle: localizedTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localizedTitle),
+      originalTitle: originalTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalTitle),
+      titleExtension: titleExtension == null && nullToAbsent
+          ? const Value.absent()
+          : Value(titleExtension),
+      searchAliasesJson: searchAliasesJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(searchAliasesJson),
       sortKey: sortKey == null && nullToAbsent
           ? const Value.absent()
           : Value(sortKey),
@@ -1103,6 +1317,9 @@ class CatalogCacheData extends DataClass
       thumbnailImageUrl: thumbnailImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(thumbnailImageUrl),
+      coverImageData: coverImageData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageData),
       editionTitle: editionTitle == null && nullToAbsent
           ? const Value.absent()
           : Value(editionTitle),
@@ -1130,6 +1347,15 @@ class CatalogCacheData extends DataClass
       variant: variant == null && nullToAbsent
           ? const Value.absent()
           : Value(variant),
+      crossover: crossover == null && nullToAbsent
+          ? const Value.absent()
+          : Value(crossover),
+      plotSummary: plotSummary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(plotSummary),
+      plotDescription: plotDescription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(plotDescription),
       seriesId: seriesId == null && nullToAbsent
           ? const Value.absent()
           : Value(seriesId),
@@ -1169,6 +1395,9 @@ class CatalogCacheData extends DataClass
       charactersJson: charactersJson == null && nullToAbsent
           ? const Value.absent()
           : Value(charactersJson),
+      characterDetailsJson: characterDetailsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(characterDetailsJson),
       storyArcsJson: storyArcsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(storyArcsJson),
@@ -1247,12 +1476,19 @@ class CatalogCacheData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       kind: serializer.fromJson<String>(json['kind']),
       title: serializer.fromJson<String>(json['title']),
+      displayTitle: serializer.fromJson<String?>(json['displayTitle']),
+      localizedTitle: serializer.fromJson<String?>(json['localizedTitle']),
+      originalTitle: serializer.fromJson<String?>(json['originalTitle']),
+      titleExtension: serializer.fromJson<String?>(json['titleExtension']),
+      searchAliasesJson:
+          serializer.fromJson<String?>(json['searchAliasesJson']),
       sortKey: serializer.fromJson<String?>(json['sortKey']),
       itemNumber: serializer.fromJson<String?>(json['itemNumber']),
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       thumbnailImageUrl:
           serializer.fromJson<String?>(json['thumbnailImageUrl']),
+      coverImageData: serializer.fromJson<String?>(json['coverImageData']),
       editionTitle: serializer.fromJson<String?>(json['editionTitle']),
       physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
       physicalFormatLabel:
@@ -1263,6 +1499,9 @@ class CatalogCacheData extends DataClass
       releaseYear: serializer.fromJson<int?>(json['releaseYear']),
       barcode: serializer.fromJson<String?>(json['barcode']),
       variant: serializer.fromJson<String?>(json['variant']),
+      crossover: serializer.fromJson<String?>(json['crossover']),
+      plotSummary: serializer.fromJson<String?>(json['plotSummary']),
+      plotDescription: serializer.fromJson<String?>(json['plotDescription']),
       seriesId: serializer.fromJson<String?>(json['seriesId']),
       seriesTitle: serializer.fromJson<String?>(json['seriesTitle']),
       volumeName: serializer.fromJson<String?>(json['volumeName']),
@@ -1276,6 +1515,8 @@ class CatalogCacheData extends DataClass
       editionsJson: serializer.fromJson<String?>(json['editionsJson']),
       creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
       charactersJson: serializer.fromJson<String?>(json['charactersJson']),
+      characterDetailsJson:
+          serializer.fromJson<String?>(json['characterDetailsJson']),
       storyArcsJson: serializer.fromJson<String?>(json['storyArcsJson']),
       seriesTagsJson: serializer.fromJson<String?>(json['seriesTagsJson']),
       platformsJson: serializer.fromJson<String?>(json['platformsJson']),
@@ -1309,11 +1550,17 @@ class CatalogCacheData extends DataClass
       'id': serializer.toJson<String>(id),
       'kind': serializer.toJson<String>(kind),
       'title': serializer.toJson<String>(title),
+      'displayTitle': serializer.toJson<String?>(displayTitle),
+      'localizedTitle': serializer.toJson<String?>(localizedTitle),
+      'originalTitle': serializer.toJson<String?>(originalTitle),
+      'titleExtension': serializer.toJson<String?>(titleExtension),
+      'searchAliasesJson': serializer.toJson<String?>(searchAliasesJson),
       'sortKey': serializer.toJson<String?>(sortKey),
       'itemNumber': serializer.toJson<String?>(itemNumber),
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'thumbnailImageUrl': serializer.toJson<String?>(thumbnailImageUrl),
+      'coverImageData': serializer.toJson<String?>(coverImageData),
       'editionTitle': serializer.toJson<String?>(editionTitle),
       'physicalFormat': serializer.toJson<String?>(physicalFormat),
       'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
@@ -1323,6 +1570,9 @@ class CatalogCacheData extends DataClass
       'releaseYear': serializer.toJson<int?>(releaseYear),
       'barcode': serializer.toJson<String?>(barcode),
       'variant': serializer.toJson<String?>(variant),
+      'crossover': serializer.toJson<String?>(crossover),
+      'plotSummary': serializer.toJson<String?>(plotSummary),
+      'plotDescription': serializer.toJson<String?>(plotDescription),
       'seriesId': serializer.toJson<String?>(seriesId),
       'seriesTitle': serializer.toJson<String?>(seriesTitle),
       'volumeName': serializer.toJson<String?>(volumeName),
@@ -1336,6 +1586,7 @@ class CatalogCacheData extends DataClass
       'editionsJson': serializer.toJson<String?>(editionsJson),
       'creatorsJson': serializer.toJson<String?>(creatorsJson),
       'charactersJson': serializer.toJson<String?>(charactersJson),
+      'characterDetailsJson': serializer.toJson<String?>(characterDetailsJson),
       'storyArcsJson': serializer.toJson<String?>(storyArcsJson),
       'seriesTagsJson': serializer.toJson<String?>(seriesTagsJson),
       'platformsJson': serializer.toJson<String?>(platformsJson),
@@ -1367,11 +1618,17 @@ class CatalogCacheData extends DataClass
           {String? id,
           String? kind,
           String? title,
+          Value<String?> displayTitle = const Value.absent(),
+          Value<String?> localizedTitle = const Value.absent(),
+          Value<String?> originalTitle = const Value.absent(),
+          Value<String?> titleExtension = const Value.absent(),
+          Value<String?> searchAliasesJson = const Value.absent(),
           Value<String?> sortKey = const Value.absent(),
           Value<String?> itemNumber = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> thumbnailImageUrl = const Value.absent(),
+          Value<String?> coverImageData = const Value.absent(),
           Value<String?> editionTitle = const Value.absent(),
           Value<String?> physicalFormat = const Value.absent(),
           Value<String?> physicalFormatLabel = const Value.absent(),
@@ -1381,6 +1638,9 @@ class CatalogCacheData extends DataClass
           Value<int?> releaseYear = const Value.absent(),
           Value<String?> barcode = const Value.absent(),
           Value<String?> variant = const Value.absent(),
+          Value<String?> crossover = const Value.absent(),
+          Value<String?> plotSummary = const Value.absent(),
+          Value<String?> plotDescription = const Value.absent(),
           Value<String?> seriesId = const Value.absent(),
           Value<String?> seriesTitle = const Value.absent(),
           Value<String?> volumeName = const Value.absent(),
@@ -1394,6 +1654,7 @@ class CatalogCacheData extends DataClass
           Value<String?> editionsJson = const Value.absent(),
           Value<String?> creatorsJson = const Value.absent(),
           Value<String?> charactersJson = const Value.absent(),
+          Value<String?> characterDetailsJson = const Value.absent(),
           Value<String?> storyArcsJson = const Value.absent(),
           Value<String?> seriesTagsJson = const Value.absent(),
           Value<String?> platformsJson = const Value.absent(),
@@ -1422,6 +1683,17 @@ class CatalogCacheData extends DataClass
         id: id ?? this.id,
         kind: kind ?? this.kind,
         title: title ?? this.title,
+        displayTitle:
+            displayTitle.present ? displayTitle.value : this.displayTitle,
+        localizedTitle:
+            localizedTitle.present ? localizedTitle.value : this.localizedTitle,
+        originalTitle:
+            originalTitle.present ? originalTitle.value : this.originalTitle,
+        titleExtension:
+            titleExtension.present ? titleExtension.value : this.titleExtension,
+        searchAliasesJson: searchAliasesJson.present
+            ? searchAliasesJson.value
+            : this.searchAliasesJson,
         sortKey: sortKey.present ? sortKey.value : this.sortKey,
         itemNumber: itemNumber.present ? itemNumber.value : this.itemNumber,
         synopsis: synopsis.present ? synopsis.value : this.synopsis,
@@ -1430,6 +1702,8 @@ class CatalogCacheData extends DataClass
         thumbnailImageUrl: thumbnailImageUrl.present
             ? thumbnailImageUrl.value
             : this.thumbnailImageUrl,
+        coverImageData:
+            coverImageData.present ? coverImageData.value : this.coverImageData,
         editionTitle:
             editionTitle.present ? editionTitle.value : this.editionTitle,
         physicalFormat:
@@ -1443,6 +1717,11 @@ class CatalogCacheData extends DataClass
         releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
         barcode: barcode.present ? barcode.value : this.barcode,
         variant: variant.present ? variant.value : this.variant,
+        crossover: crossover.present ? crossover.value : this.crossover,
+        plotSummary: plotSummary.present ? plotSummary.value : this.plotSummary,
+        plotDescription: plotDescription.present
+            ? plotDescription.value
+            : this.plotDescription,
         seriesId: seriesId.present ? seriesId.value : this.seriesId,
         seriesTitle: seriesTitle.present ? seriesTitle.value : this.seriesTitle,
         volumeName: volumeName.present ? volumeName.value : this.volumeName,
@@ -1465,6 +1744,9 @@ class CatalogCacheData extends DataClass
             creatorsJson.present ? creatorsJson.value : this.creatorsJson,
         charactersJson:
             charactersJson.present ? charactersJson.value : this.charactersJson,
+        characterDetailsJson: characterDetailsJson.present
+            ? characterDetailsJson.value
+            : this.characterDetailsJson,
         storyArcsJson:
             storyArcsJson.present ? storyArcsJson.value : this.storyArcsJson,
         seriesTagsJson:
@@ -1510,6 +1792,21 @@ class CatalogCacheData extends DataClass
       id: data.id.present ? data.id.value : this.id,
       kind: data.kind.present ? data.kind.value : this.kind,
       title: data.title.present ? data.title.value : this.title,
+      displayTitle: data.displayTitle.present
+          ? data.displayTitle.value
+          : this.displayTitle,
+      localizedTitle: data.localizedTitle.present
+          ? data.localizedTitle.value
+          : this.localizedTitle,
+      originalTitle: data.originalTitle.present
+          ? data.originalTitle.value
+          : this.originalTitle,
+      titleExtension: data.titleExtension.present
+          ? data.titleExtension.value
+          : this.titleExtension,
+      searchAliasesJson: data.searchAliasesJson.present
+          ? data.searchAliasesJson.value
+          : this.searchAliasesJson,
       sortKey: data.sortKey.present ? data.sortKey.value : this.sortKey,
       itemNumber:
           data.itemNumber.present ? data.itemNumber.value : this.itemNumber,
@@ -1520,6 +1817,9 @@ class CatalogCacheData extends DataClass
       thumbnailImageUrl: data.thumbnailImageUrl.present
           ? data.thumbnailImageUrl.value
           : this.thumbnailImageUrl,
+      coverImageData: data.coverImageData.present
+          ? data.coverImageData.value
+          : this.coverImageData,
       editionTitle: data.editionTitle.present
           ? data.editionTitle.value
           : this.editionTitle,
@@ -1537,6 +1837,12 @@ class CatalogCacheData extends DataClass
           data.releaseYear.present ? data.releaseYear.value : this.releaseYear,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       variant: data.variant.present ? data.variant.value : this.variant,
+      crossover: data.crossover.present ? data.crossover.value : this.crossover,
+      plotSummary:
+          data.plotSummary.present ? data.plotSummary.value : this.plotSummary,
+      plotDescription: data.plotDescription.present
+          ? data.plotDescription.value
+          : this.plotDescription,
       seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
       seriesTitle:
           data.seriesTitle.present ? data.seriesTitle.value : this.seriesTitle,
@@ -1570,6 +1876,9 @@ class CatalogCacheData extends DataClass
       charactersJson: data.charactersJson.present
           ? data.charactersJson.value
           : this.charactersJson,
+      characterDetailsJson: data.characterDetailsJson.present
+          ? data.characterDetailsJson.value
+          : this.characterDetailsJson,
       storyArcsJson: data.storyArcsJson.present
           ? data.storyArcsJson.value
           : this.storyArcsJson,
@@ -1628,11 +1937,17 @@ class CatalogCacheData extends DataClass
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('title: $title, ')
+          ..write('displayTitle: $displayTitle, ')
+          ..write('localizedTitle: $localizedTitle, ')
+          ..write('originalTitle: $originalTitle, ')
+          ..write('titleExtension: $titleExtension, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
           ..write('sortKey: $sortKey, ')
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('coverImageData: $coverImageData, ')
           ..write('editionTitle: $editionTitle, ')
           ..write('physicalFormat: $physicalFormat, ')
           ..write('physicalFormatLabel: $physicalFormatLabel, ')
@@ -1642,6 +1957,9 @@ class CatalogCacheData extends DataClass
           ..write('releaseYear: $releaseYear, ')
           ..write('barcode: $barcode, ')
           ..write('variant: $variant, ')
+          ..write('crossover: $crossover, ')
+          ..write('plotSummary: $plotSummary, ')
+          ..write('plotDescription: $plotDescription, ')
           ..write('seriesId: $seriesId, ')
           ..write('seriesTitle: $seriesTitle, ')
           ..write('volumeName: $volumeName, ')
@@ -1655,6 +1973,7 @@ class CatalogCacheData extends DataClass
           ..write('editionsJson: $editionsJson, ')
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
+          ..write('characterDetailsJson: $characterDetailsJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
           ..write('seriesTagsJson: $seriesTagsJson, ')
           ..write('platformsJson: $platformsJson, ')
@@ -1688,11 +2007,17 @@ class CatalogCacheData extends DataClass
         id,
         kind,
         title,
+        displayTitle,
+        localizedTitle,
+        originalTitle,
+        titleExtension,
+        searchAliasesJson,
         sortKey,
         itemNumber,
         synopsis,
         coverImageUrl,
         thumbnailImageUrl,
+        coverImageData,
         editionTitle,
         physicalFormat,
         physicalFormatLabel,
@@ -1702,6 +2027,9 @@ class CatalogCacheData extends DataClass
         releaseYear,
         barcode,
         variant,
+        crossover,
+        plotSummary,
+        plotDescription,
         seriesId,
         seriesTitle,
         volumeName,
@@ -1715,6 +2043,7 @@ class CatalogCacheData extends DataClass
         editionsJson,
         creatorsJson,
         charactersJson,
+        characterDetailsJson,
         storyArcsJson,
         seriesTagsJson,
         platformsJson,
@@ -1747,11 +2076,17 @@ class CatalogCacheData extends DataClass
           other.id == this.id &&
           other.kind == this.kind &&
           other.title == this.title &&
+          other.displayTitle == this.displayTitle &&
+          other.localizedTitle == this.localizedTitle &&
+          other.originalTitle == this.originalTitle &&
+          other.titleExtension == this.titleExtension &&
+          other.searchAliasesJson == this.searchAliasesJson &&
           other.sortKey == this.sortKey &&
           other.itemNumber == this.itemNumber &&
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
           other.thumbnailImageUrl == this.thumbnailImageUrl &&
+          other.coverImageData == this.coverImageData &&
           other.editionTitle == this.editionTitle &&
           other.physicalFormat == this.physicalFormat &&
           other.physicalFormatLabel == this.physicalFormatLabel &&
@@ -1761,6 +2096,9 @@ class CatalogCacheData extends DataClass
           other.releaseYear == this.releaseYear &&
           other.barcode == this.barcode &&
           other.variant == this.variant &&
+          other.crossover == this.crossover &&
+          other.plotSummary == this.plotSummary &&
+          other.plotDescription == this.plotDescription &&
           other.seriesId == this.seriesId &&
           other.seriesTitle == this.seriesTitle &&
           other.volumeName == this.volumeName &&
@@ -1774,6 +2112,7 @@ class CatalogCacheData extends DataClass
           other.editionsJson == this.editionsJson &&
           other.creatorsJson == this.creatorsJson &&
           other.charactersJson == this.charactersJson &&
+          other.characterDetailsJson == this.characterDetailsJson &&
           other.storyArcsJson == this.storyArcsJson &&
           other.seriesTagsJson == this.seriesTagsJson &&
           other.platformsJson == this.platformsJson &&
@@ -1804,11 +2143,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String> id;
   final Value<String> kind;
   final Value<String> title;
+  final Value<String?> displayTitle;
+  final Value<String?> localizedTitle;
+  final Value<String?> originalTitle;
+  final Value<String?> titleExtension;
+  final Value<String?> searchAliasesJson;
   final Value<String?> sortKey;
   final Value<String?> itemNumber;
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
   final Value<String?> thumbnailImageUrl;
+  final Value<String?> coverImageData;
   final Value<String?> editionTitle;
   final Value<String?> physicalFormat;
   final Value<String?> physicalFormatLabel;
@@ -1818,6 +2163,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<int?> releaseYear;
   final Value<String?> barcode;
   final Value<String?> variant;
+  final Value<String?> crossover;
+  final Value<String?> plotSummary;
+  final Value<String?> plotDescription;
   final Value<String?> seriesId;
   final Value<String?> seriesTitle;
   final Value<String?> volumeName;
@@ -1831,6 +2179,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> editionsJson;
   final Value<String?> creatorsJson;
   final Value<String?> charactersJson;
+  final Value<String?> characterDetailsJson;
   final Value<String?> storyArcsJson;
   final Value<String?> seriesTagsJson;
   final Value<String?> platformsJson;
@@ -1860,11 +2209,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.id = const Value.absent(),
     this.kind = const Value.absent(),
     this.title = const Value.absent(),
+    this.displayTitle = const Value.absent(),
+    this.localizedTitle = const Value.absent(),
+    this.originalTitle = const Value.absent(),
+    this.titleExtension = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
     this.sortKey = const Value.absent(),
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.thumbnailImageUrl = const Value.absent(),
+    this.coverImageData = const Value.absent(),
     this.editionTitle = const Value.absent(),
     this.physicalFormat = const Value.absent(),
     this.physicalFormatLabel = const Value.absent(),
@@ -1874,6 +2229,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseYear = const Value.absent(),
     this.barcode = const Value.absent(),
     this.variant = const Value.absent(),
+    this.crossover = const Value.absent(),
+    this.plotSummary = const Value.absent(),
+    this.plotDescription = const Value.absent(),
     this.seriesId = const Value.absent(),
     this.seriesTitle = const Value.absent(),
     this.volumeName = const Value.absent(),
@@ -1887,6 +2245,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.editionsJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
+    this.characterDetailsJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
     this.seriesTagsJson = const Value.absent(),
     this.platformsJson = const Value.absent(),
@@ -1917,11 +2276,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     required String id,
     required String kind,
     required String title,
+    this.displayTitle = const Value.absent(),
+    this.localizedTitle = const Value.absent(),
+    this.originalTitle = const Value.absent(),
+    this.titleExtension = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
     this.sortKey = const Value.absent(),
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.thumbnailImageUrl = const Value.absent(),
+    this.coverImageData = const Value.absent(),
     this.editionTitle = const Value.absent(),
     this.physicalFormat = const Value.absent(),
     this.physicalFormatLabel = const Value.absent(),
@@ -1931,6 +2296,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseYear = const Value.absent(),
     this.barcode = const Value.absent(),
     this.variant = const Value.absent(),
+    this.crossover = const Value.absent(),
+    this.plotSummary = const Value.absent(),
+    this.plotDescription = const Value.absent(),
     this.seriesId = const Value.absent(),
     this.seriesTitle = const Value.absent(),
     this.volumeName = const Value.absent(),
@@ -1944,6 +2312,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.editionsJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
+    this.characterDetailsJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
     this.seriesTagsJson = const Value.absent(),
     this.platformsJson = const Value.absent(),
@@ -1977,11 +2346,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? id,
     Expression<String>? kind,
     Expression<String>? title,
+    Expression<String>? displayTitle,
+    Expression<String>? localizedTitle,
+    Expression<String>? originalTitle,
+    Expression<String>? titleExtension,
+    Expression<String>? searchAliasesJson,
     Expression<String>? sortKey,
     Expression<String>? itemNumber,
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
     Expression<String>? thumbnailImageUrl,
+    Expression<String>? coverImageData,
     Expression<String>? editionTitle,
     Expression<String>? physicalFormat,
     Expression<String>? physicalFormatLabel,
@@ -1991,6 +2366,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<int>? releaseYear,
     Expression<String>? barcode,
     Expression<String>? variant,
+    Expression<String>? crossover,
+    Expression<String>? plotSummary,
+    Expression<String>? plotDescription,
     Expression<String>? seriesId,
     Expression<String>? seriesTitle,
     Expression<String>? volumeName,
@@ -2004,6 +2382,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? editionsJson,
     Expression<String>? creatorsJson,
     Expression<String>? charactersJson,
+    Expression<String>? characterDetailsJson,
     Expression<String>? storyArcsJson,
     Expression<String>? seriesTagsJson,
     Expression<String>? platformsJson,
@@ -2034,11 +2413,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (id != null) 'id': id,
       if (kind != null) 'kind': kind,
       if (title != null) 'title': title,
+      if (displayTitle != null) 'display_title': displayTitle,
+      if (localizedTitle != null) 'localized_title': localizedTitle,
+      if (originalTitle != null) 'original_title': originalTitle,
+      if (titleExtension != null) 'title_extension': titleExtension,
+      if (searchAliasesJson != null) 'search_aliases_json': searchAliasesJson,
       if (sortKey != null) 'sort_key': sortKey,
       if (itemNumber != null) 'item_number': itemNumber,
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (coverImageData != null) 'cover_image_data': coverImageData,
       if (editionTitle != null) 'edition_title': editionTitle,
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
@@ -2049,6 +2434,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (releaseYear != null) 'release_year': releaseYear,
       if (barcode != null) 'barcode': barcode,
       if (variant != null) 'variant': variant,
+      if (crossover != null) 'crossover': crossover,
+      if (plotSummary != null) 'plot_summary': plotSummary,
+      if (plotDescription != null) 'plot_description': plotDescription,
       if (seriesId != null) 'series_id': seriesId,
       if (seriesTitle != null) 'series_title': seriesTitle,
       if (volumeName != null) 'volume_name': volumeName,
@@ -2062,6 +2450,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (editionsJson != null) 'editions_json': editionsJson,
       if (creatorsJson != null) 'creators_json': creatorsJson,
       if (charactersJson != null) 'characters_json': charactersJson,
+      if (characterDetailsJson != null)
+        'character_details_json': characterDetailsJson,
       if (storyArcsJson != null) 'story_arcs_json': storyArcsJson,
       if (seriesTagsJson != null) 'series_tags_json': seriesTagsJson,
       if (platformsJson != null) 'platforms_json': platformsJson,
@@ -2094,11 +2484,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       {Value<String>? id,
       Value<String>? kind,
       Value<String>? title,
+      Value<String?>? displayTitle,
+      Value<String?>? localizedTitle,
+      Value<String?>? originalTitle,
+      Value<String?>? titleExtension,
+      Value<String?>? searchAliasesJson,
       Value<String?>? sortKey,
       Value<String?>? itemNumber,
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
       Value<String?>? thumbnailImageUrl,
+      Value<String?>? coverImageData,
       Value<String?>? editionTitle,
       Value<String?>? physicalFormat,
       Value<String?>? physicalFormatLabel,
@@ -2108,6 +2504,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<int?>? releaseYear,
       Value<String?>? barcode,
       Value<String?>? variant,
+      Value<String?>? crossover,
+      Value<String?>? plotSummary,
+      Value<String?>? plotDescription,
       Value<String?>? seriesId,
       Value<String?>? seriesTitle,
       Value<String?>? volumeName,
@@ -2121,6 +2520,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? editionsJson,
       Value<String?>? creatorsJson,
       Value<String?>? charactersJson,
+      Value<String?>? characterDetailsJson,
       Value<String?>? storyArcsJson,
       Value<String?>? seriesTagsJson,
       Value<String?>? platformsJson,
@@ -2150,11 +2550,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       id: id ?? this.id,
       kind: kind ?? this.kind,
       title: title ?? this.title,
+      displayTitle: displayTitle ?? this.displayTitle,
+      localizedTitle: localizedTitle ?? this.localizedTitle,
+      originalTitle: originalTitle ?? this.originalTitle,
+      titleExtension: titleExtension ?? this.titleExtension,
+      searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
       sortKey: sortKey ?? this.sortKey,
       itemNumber: itemNumber ?? this.itemNumber,
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      coverImageData: coverImageData ?? this.coverImageData,
       editionTitle: editionTitle ?? this.editionTitle,
       physicalFormat: physicalFormat ?? this.physicalFormat,
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
@@ -2164,6 +2570,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       releaseYear: releaseYear ?? this.releaseYear,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
+      crossover: crossover ?? this.crossover,
+      plotSummary: plotSummary ?? this.plotSummary,
+      plotDescription: plotDescription ?? this.plotDescription,
       seriesId: seriesId ?? this.seriesId,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       volumeName: volumeName ?? this.volumeName,
@@ -2177,6 +2586,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       editionsJson: editionsJson ?? this.editionsJson,
       creatorsJson: creatorsJson ?? this.creatorsJson,
       charactersJson: charactersJson ?? this.charactersJson,
+      characterDetailsJson: characterDetailsJson ?? this.characterDetailsJson,
       storyArcsJson: storyArcsJson ?? this.storyArcsJson,
       seriesTagsJson: seriesTagsJson ?? this.seriesTagsJson,
       platformsJson: platformsJson ?? this.platformsJson,
@@ -2217,6 +2627,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (displayTitle.present) {
+      map['display_title'] = Variable<String>(displayTitle.value);
+    }
+    if (localizedTitle.present) {
+      map['localized_title'] = Variable<String>(localizedTitle.value);
+    }
+    if (originalTitle.present) {
+      map['original_title'] = Variable<String>(originalTitle.value);
+    }
+    if (titleExtension.present) {
+      map['title_extension'] = Variable<String>(titleExtension.value);
+    }
+    if (searchAliasesJson.present) {
+      map['search_aliases_json'] = Variable<String>(searchAliasesJson.value);
+    }
     if (sortKey.present) {
       map['sort_key'] = Variable<String>(sortKey.value);
     }
@@ -2231,6 +2656,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (thumbnailImageUrl.present) {
       map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl.value);
+    }
+    if (coverImageData.present) {
+      map['cover_image_data'] = Variable<String>(coverImageData.value);
     }
     if (editionTitle.present) {
       map['edition_title'] = Variable<String>(editionTitle.value);
@@ -2259,6 +2687,15 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (variant.present) {
       map['variant'] = Variable<String>(variant.value);
+    }
+    if (crossover.present) {
+      map['crossover'] = Variable<String>(crossover.value);
+    }
+    if (plotSummary.present) {
+      map['plot_summary'] = Variable<String>(plotSummary.value);
+    }
+    if (plotDescription.present) {
+      map['plot_description'] = Variable<String>(plotDescription.value);
     }
     if (seriesId.present) {
       map['series_id'] = Variable<String>(seriesId.value);
@@ -2298,6 +2735,10 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (charactersJson.present) {
       map['characters_json'] = Variable<String>(charactersJson.value);
+    }
+    if (characterDetailsJson.present) {
+      map['character_details_json'] =
+          Variable<String>(characterDetailsJson.value);
     }
     if (storyArcsJson.present) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson.value);
@@ -2383,11 +2824,17 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('title: $title, ')
+          ..write('displayTitle: $displayTitle, ')
+          ..write('localizedTitle: $localizedTitle, ')
+          ..write('originalTitle: $originalTitle, ')
+          ..write('titleExtension: $titleExtension, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
           ..write('sortKey: $sortKey, ')
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('coverImageData: $coverImageData, ')
           ..write('editionTitle: $editionTitle, ')
           ..write('physicalFormat: $physicalFormat, ')
           ..write('physicalFormatLabel: $physicalFormatLabel, ')
@@ -2397,6 +2844,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('releaseYear: $releaseYear, ')
           ..write('barcode: $barcode, ')
           ..write('variant: $variant, ')
+          ..write('crossover: $crossover, ')
+          ..write('plotSummary: $plotSummary, ')
+          ..write('plotDescription: $plotDescription, ')
           ..write('seriesId: $seriesId, ')
           ..write('seriesTitle: $seriesTitle, ')
           ..write('volumeName: $volumeName, ')
@@ -2410,6 +2860,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('editionsJson: $editionsJson, ')
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
+          ..write('characterDetailsJson: $characterDetailsJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
           ..write('seriesTagsJson: $seriesTagsJson, ')
           ..write('platformsJson: $platformsJson, ')
@@ -13079,11 +13530,17 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   required String id,
   required String kind,
   required String title,
+  Value<String?> displayTitle,
+  Value<String?> localizedTitle,
+  Value<String?> originalTitle,
+  Value<String?> titleExtension,
+  Value<String?> searchAliasesJson,
   Value<String?> sortKey,
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
   Value<String?> thumbnailImageUrl,
+  Value<String?> coverImageData,
   Value<String?> editionTitle,
   Value<String?> physicalFormat,
   Value<String?> physicalFormatLabel,
@@ -13093,6 +13550,9 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<int?> releaseYear,
   Value<String?> barcode,
   Value<String?> variant,
+  Value<String?> crossover,
+  Value<String?> plotSummary,
+  Value<String?> plotDescription,
   Value<String?> seriesId,
   Value<String?> seriesTitle,
   Value<String?> volumeName,
@@ -13106,6 +13566,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> editionsJson,
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
+  Value<String?> characterDetailsJson,
   Value<String?> storyArcsJson,
   Value<String?> seriesTagsJson,
   Value<String?> platformsJson,
@@ -13137,11 +13598,17 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String> id,
   Value<String> kind,
   Value<String> title,
+  Value<String?> displayTitle,
+  Value<String?> localizedTitle,
+  Value<String?> originalTitle,
+  Value<String?> titleExtension,
+  Value<String?> searchAliasesJson,
   Value<String?> sortKey,
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
   Value<String?> thumbnailImageUrl,
+  Value<String?> coverImageData,
   Value<String?> editionTitle,
   Value<String?> physicalFormat,
   Value<String?> physicalFormatLabel,
@@ -13151,6 +13618,9 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<int?> releaseYear,
   Value<String?> barcode,
   Value<String?> variant,
+  Value<String?> crossover,
+  Value<String?> plotSummary,
+  Value<String?> plotDescription,
   Value<String?> seriesId,
   Value<String?> seriesTitle,
   Value<String?> volumeName,
@@ -13164,6 +13634,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> editionsJson,
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
+  Value<String?> characterDetailsJson,
   Value<String?> storyArcsJson,
   Value<String?> seriesTagsJson,
   Value<String?> platformsJson,
@@ -13209,6 +13680,24 @@ class $$CatalogCacheTableFilterComposer
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get displayTitle => $composableBuilder(
+      column: $table.displayTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localizedTitle => $composableBuilder(
+      column: $table.localizedTitle,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalTitle => $composableBuilder(
+      column: $table.originalTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get titleExtension => $composableBuilder(
+      column: $table.titleExtension,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get sortKey => $composableBuilder(
       column: $table.sortKey, builder: (column) => ColumnFilters(column));
 
@@ -13223,6 +13712,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get thumbnailImageUrl => $composableBuilder(
       column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageData => $composableBuilder(
+      column: $table.coverImageData,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get editionTitle => $composableBuilder(
@@ -13253,6 +13746,16 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get variant => $composableBuilder(
       column: $table.variant, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get crossover => $composableBuilder(
+      column: $table.crossover, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get plotSummary => $composableBuilder(
+      column: $table.plotSummary, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get plotDescription => $composableBuilder(
+      column: $table.plotDescription,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get seriesId => $composableBuilder(
       column: $table.seriesId, builder: (column) => ColumnFilters(column));
@@ -13294,6 +13797,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get charactersJson => $composableBuilder(
       column: $table.charactersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get characterDetailsJson => $composableBuilder(
+      column: $table.characterDetailsJson,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get storyArcsJson => $composableBuilder(
@@ -13393,6 +13900,26 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get displayTitle => $composableBuilder(
+      column: $table.displayTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localizedTitle => $composableBuilder(
+      column: $table.localizedTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalTitle => $composableBuilder(
+      column: $table.originalTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get titleExtension => $composableBuilder(
+      column: $table.titleExtension,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get sortKey => $composableBuilder(
       column: $table.sortKey, builder: (column) => ColumnOrderings(column));
 
@@ -13408,6 +13935,10 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get thumbnailImageUrl => $composableBuilder(
       column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageData => $composableBuilder(
+      column: $table.coverImageData,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get editionTitle => $composableBuilder(
@@ -13439,6 +13970,16 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get variant => $composableBuilder(
       column: $table.variant, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get crossover => $composableBuilder(
+      column: $table.crossover, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get plotSummary => $composableBuilder(
+      column: $table.plotSummary, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get plotDescription => $composableBuilder(
+      column: $table.plotDescription,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get seriesId => $composableBuilder(
       column: $table.seriesId, builder: (column) => ColumnOrderings(column));
@@ -13485,6 +14026,10 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get charactersJson => $composableBuilder(
       column: $table.charactersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get characterDetailsJson => $composableBuilder(
+      column: $table.characterDetailsJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get storyArcsJson => $composableBuilder(
@@ -13589,6 +14134,21 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
+  GeneratedColumn<String> get displayTitle => $composableBuilder(
+      column: $table.displayTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get localizedTitle => $composableBuilder(
+      column: $table.localizedTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get originalTitle => $composableBuilder(
+      column: $table.originalTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get titleExtension => $composableBuilder(
+      column: $table.titleExtension, builder: (column) => column);
+
+  GeneratedColumn<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson, builder: (column) => column);
+
   GeneratedColumn<String> get sortKey =>
       $composableBuilder(column: $table.sortKey, builder: (column) => column);
 
@@ -13603,6 +14163,9 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get thumbnailImageUrl => $composableBuilder(
       column: $table.thumbnailImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageData => $composableBuilder(
+      column: $table.coverImageData, builder: (column) => column);
 
   GeneratedColumn<String> get editionTitle => $composableBuilder(
       column: $table.editionTitle, builder: (column) => column);
@@ -13630,6 +14193,15 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get variant =>
       $composableBuilder(column: $table.variant, builder: (column) => column);
+
+  GeneratedColumn<String> get crossover =>
+      $composableBuilder(column: $table.crossover, builder: (column) => column);
+
+  GeneratedColumn<String> get plotSummary => $composableBuilder(
+      column: $table.plotSummary, builder: (column) => column);
+
+  GeneratedColumn<String> get plotDescription => $composableBuilder(
+      column: $table.plotDescription, builder: (column) => column);
 
   GeneratedColumn<String> get seriesId =>
       $composableBuilder(column: $table.seriesId, builder: (column) => column);
@@ -13669,6 +14241,9 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get charactersJson => $composableBuilder(
       column: $table.charactersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get characterDetailsJson => $composableBuilder(
+      column: $table.characterDetailsJson, builder: (column) => column);
 
   GeneratedColumn<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => column);
@@ -13772,11 +14347,17 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> kind = const Value.absent(),
             Value<String> title = const Value.absent(),
+            Value<String?> displayTitle = const Value.absent(),
+            Value<String?> localizedTitle = const Value.absent(),
+            Value<String?> originalTitle = const Value.absent(),
+            Value<String?> titleExtension = const Value.absent(),
+            Value<String?> searchAliasesJson = const Value.absent(),
             Value<String?> sortKey = const Value.absent(),
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<String?> coverImageData = const Value.absent(),
             Value<String?> editionTitle = const Value.absent(),
             Value<String?> physicalFormat = const Value.absent(),
             Value<String?> physicalFormatLabel = const Value.absent(),
@@ -13786,6 +14367,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> releaseYear = const Value.absent(),
             Value<String?> barcode = const Value.absent(),
             Value<String?> variant = const Value.absent(),
+            Value<String?> crossover = const Value.absent(),
+            Value<String?> plotSummary = const Value.absent(),
+            Value<String?> plotDescription = const Value.absent(),
             Value<String?> seriesId = const Value.absent(),
             Value<String?> seriesTitle = const Value.absent(),
             Value<String?> volumeName = const Value.absent(),
@@ -13799,6 +14383,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> editionsJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
+            Value<String?> characterDetailsJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
             Value<String?> seriesTagsJson = const Value.absent(),
             Value<String?> platformsJson = const Value.absent(),
@@ -13829,11 +14414,17 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             id: id,
             kind: kind,
             title: title,
+            displayTitle: displayTitle,
+            localizedTitle: localizedTitle,
+            originalTitle: originalTitle,
+            titleExtension: titleExtension,
+            searchAliasesJson: searchAliasesJson,
             sortKey: sortKey,
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
             thumbnailImageUrl: thumbnailImageUrl,
+            coverImageData: coverImageData,
             editionTitle: editionTitle,
             physicalFormat: physicalFormat,
             physicalFormatLabel: physicalFormatLabel,
@@ -13843,6 +14434,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseYear: releaseYear,
             barcode: barcode,
             variant: variant,
+            crossover: crossover,
+            plotSummary: plotSummary,
+            plotDescription: plotDescription,
             seriesId: seriesId,
             seriesTitle: seriesTitle,
             volumeName: volumeName,
@@ -13856,6 +14450,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             editionsJson: editionsJson,
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
+            characterDetailsJson: characterDetailsJson,
             storyArcsJson: storyArcsJson,
             seriesTagsJson: seriesTagsJson,
             platformsJson: platformsJson,
@@ -13886,11 +14481,17 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             required String id,
             required String kind,
             required String title,
+            Value<String?> displayTitle = const Value.absent(),
+            Value<String?> localizedTitle = const Value.absent(),
+            Value<String?> originalTitle = const Value.absent(),
+            Value<String?> titleExtension = const Value.absent(),
+            Value<String?> searchAliasesJson = const Value.absent(),
             Value<String?> sortKey = const Value.absent(),
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<String?> coverImageData = const Value.absent(),
             Value<String?> editionTitle = const Value.absent(),
             Value<String?> physicalFormat = const Value.absent(),
             Value<String?> physicalFormatLabel = const Value.absent(),
@@ -13900,6 +14501,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> releaseYear = const Value.absent(),
             Value<String?> barcode = const Value.absent(),
             Value<String?> variant = const Value.absent(),
+            Value<String?> crossover = const Value.absent(),
+            Value<String?> plotSummary = const Value.absent(),
+            Value<String?> plotDescription = const Value.absent(),
             Value<String?> seriesId = const Value.absent(),
             Value<String?> seriesTitle = const Value.absent(),
             Value<String?> volumeName = const Value.absent(),
@@ -13913,6 +14517,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> editionsJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
+            Value<String?> characterDetailsJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
             Value<String?> seriesTagsJson = const Value.absent(),
             Value<String?> platformsJson = const Value.absent(),
@@ -13943,11 +14548,17 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             id: id,
             kind: kind,
             title: title,
+            displayTitle: displayTitle,
+            localizedTitle: localizedTitle,
+            originalTitle: originalTitle,
+            titleExtension: titleExtension,
+            searchAliasesJson: searchAliasesJson,
             sortKey: sortKey,
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
             thumbnailImageUrl: thumbnailImageUrl,
+            coverImageData: coverImageData,
             editionTitle: editionTitle,
             physicalFormat: physicalFormat,
             physicalFormatLabel: physicalFormatLabel,
@@ -13957,6 +14568,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseYear: releaseYear,
             barcode: barcode,
             variant: variant,
+            crossover: crossover,
+            plotSummary: plotSummary,
+            plotDescription: plotDescription,
             seriesId: seriesId,
             seriesTitle: seriesTitle,
             volumeName: volumeName,
@@ -13970,6 +14584,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             editionsJson: editionsJson,
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
+            characterDetailsJson: characterDetailsJson,
             storyArcsJson: storyArcsJson,
             seriesTagsJson: seriesTagsJson,
             platformsJson: platformsJson,

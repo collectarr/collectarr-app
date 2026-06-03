@@ -1,10 +1,13 @@
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_add_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
@@ -14,10 +17,13 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
 
 const collectarrLibraryTypes = LibraryTypeRegistry([
   comicsLibraryConfig,
+  mangaLibraryConfig,
   booksLibraryConfig,
   gamesLibraryConfig,
   boardGamesLibraryConfig,
   moviesLibraryConfig,
+  tvLibraryConfig,
+  animeLibraryConfig,
   musicLibraryConfig,
 ]);
 

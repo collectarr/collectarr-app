@@ -1,11 +1,14 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
 import 'package:collectarr_app/features/library/kinds/book/page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/page.dart';
 import 'package:collectarr_app/features/library/kinds/game/page.dart';
+import 'package:collectarr_app/features/library/kinds/manga/page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/page.dart';
 import 'package:collectarr_app/features/library/kinds/music/page.dart';
+import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:flutter/material.dart';
 
 Widget buildLibraryKindPage({
@@ -33,6 +36,12 @@ Widget buildLibraryKindPage({
         accent: accent,
         routeUri: routeUri,
       ),
+    'manga' => MangaLibraryPage(
+        type: type,
+        topBar: topBar,
+        accent: accent,
+        routeUri: routeUri,
+      ),
     'game' => GameLibraryPage(
         type: type,
         topBar: topBar,
@@ -40,6 +49,18 @@ Widget buildLibraryKindPage({
         routeUri: routeUri,
       ),
     'movie' => MovieLibraryPage(
+        type: type,
+        topBar: topBar,
+        accent: accent,
+        routeUri: routeUri,
+      ),
+    'tv' => TvLibraryPage(
+        type: type,
+        topBar: topBar,
+        accent: accent,
+        routeUri: routeUri,
+      ),
+    'anime' => AnimeLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
