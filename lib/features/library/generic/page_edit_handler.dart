@@ -6,8 +6,8 @@ part of 'page.dart';
 
 extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
   void showDetailPage(LibraryProjectionItem item) {
-    if (_canOpenVideoShelfDrilldown(item)) {
-      _openVideoShelfDrilldown(item);
+    if (canOpenItemDetailDrilldown(item)) {
+      openItemDetailDrilldown(item);
       return;
     }
     showLibraryDetailPage(

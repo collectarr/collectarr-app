@@ -565,7 +565,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    final workspaceOverride = _buildVideoShelfDrilldown(
+    final workspaceOverride = buildWorkspaceOverride(
       projection,
       viewState,
       allOwnedCopies: allOwnedCopies,
@@ -1967,12 +1967,22 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return canOpenVideoShelfDrilldown(widget.type, item.entry);
   }
 
+  @protected
+  bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
+    return _canOpenVideoShelfDrilldown(item);
+  }
+
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {
     setState(() {
       _selectedId = item.entry.id;
       _videoShelfDrilldownTitleItemId = item.entry.id;
       _videoShelfDrilldownReleaseId = null;
     });
+  }
+
+  @protected
+  void openItemDetailDrilldown(LibraryProjectionItem item) {
+    _openVideoShelfDrilldown(item);
   }
 
   Future<void> _refreshVideoTitleFromCore(LibraryProjectionItem item) async {
@@ -2089,6 +2099,21 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           onFilterByValue: _toggleLinkedMetadataFilter,
         ),
       ),
+    );
+  }
+
+  @protected
+  Widget? buildWorkspaceOverride(
+    LibraryProjection projection,
+    LibraryWorkspaceViewState viewState, {
+    required List<OwnedItem> allOwnedCopies,
+    required List<WishlistItem> allWishlistItems,
+  }) {
+    return _buildVideoShelfDrilldown(
+      projection,
+      viewState,
+      allOwnedCopies: allOwnedCopies,
+      allWishlistItems: allWishlistItems,
     );
   }
 
