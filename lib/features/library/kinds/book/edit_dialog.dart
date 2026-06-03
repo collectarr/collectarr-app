@@ -206,6 +206,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _notesController = _draft.notesController;
     _ratingController = _draft.ratingController;
     _trackingController = _draft.trackingController;
+    _trackingController.text =
+      _type.trackingProfile.normalizeStorageValue(_trackingController.text) ?? '';
     _tagsController = _draft.tagsController;
     _tagOptions = List<String>.from(_draft.tagOptions);
     _sellPriceController = _draft.sellPriceController;
@@ -857,16 +859,19 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 ),
               ),
               const SizedBox(height: 10),
-              SwitchListTile(
-                value: _soldAt != null,
-                onChanged: (value) {
-                  setState(() {
-                    _soldAt = value ? DateTime.now() : null;
-                  });
-                },
-                title: const Text('Mark as sold'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
+              Material(
+                type: MaterialType.transparency,
+                child: SwitchListTile(
+                  value: _soldAt != null,
+                  onChanged: (value) {
+                    setState(() {
+                      _soldAt = value ? DateTime.now() : null;
+                    });
+                  },
+                  title: const Text('Mark as sold'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
               ),
               if (_soldAt != null) ...[
                 const SizedBox(height: 10),

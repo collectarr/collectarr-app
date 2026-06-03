@@ -331,11 +331,10 @@ class _LibraryEditTitleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final headerHeight =
-        (isMovieDesktop ? 46.0 : 48.0) + (badges.isNotEmpty ? 4.0 : 0.0);
+    final headerMinHeight = isMovieDesktop ? 46.0 : 48.0;
     return Container(
-      height: headerHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      constraints: BoxConstraints(minHeight: headerMinHeight),
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       decoration: BoxDecoration(
         color: accent,
         border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),

@@ -148,7 +148,7 @@ class EditTabShell extends StatelessWidget {
                       child: AspectRatio(aspectRatio: 2 / 3, child: cover!),
                     ),
                   ),
-                  if (constraints.maxHeight >= 360) ...[
+                  if (constraints.maxHeight >= 430) ...[
                     const SizedBox(height: 8),
                     const EditMiniBadge('Local item'),
                     const SizedBox(height: 6),
