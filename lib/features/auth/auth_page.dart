@@ -541,33 +541,41 @@ class _PreviewSeriesList extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          for (final row in rows)
-            Container(
-              height: 22,
-              margin: const EdgeInsets.only(bottom: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-              color: row.$1 == 'Superman, Vol. 4'
-                  ? const Color(0xFF0B7893)
-                  : Colors.transparent,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      row.$1,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11),
-                    ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: rows.length,
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) {
+                final row = rows[index];
+                return Container(
+                  height: 22,
+                  margin: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  color: row.$1 == 'Superman, Vol. 4'
+                      ? const Color(0xFF0B7893)
+                      : Colors.transparent,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          row.$1,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        alignment: Alignment.center,
+                        color: kAppSurface,
+                        child: Text(row.$2, style: const TextStyle(fontSize: 11)),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: 24,
-                    alignment: Alignment.center,
-                    color: kAppSurface,
-                    child: Text(row.$2, style: const TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
+          ),
         ],
       ),
     );

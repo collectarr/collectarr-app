@@ -154,97 +154,92 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
         child: Row(
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!viewState.isSidebarVisible && onGroupModeChanged != null) ...[
-                  LibraryGroupModeMenuButton(
-                    type: type,
-                    folderPreset: folderPreset,
-                    accent: libraryAccentForKind(type.workspace.kind),
-                    icon: folderPreset == null
-                        ? Icons.account_tree_outlined
-                      : genericFolderPresetIcon(folderPreset!, type),
-                    onChanged: onGroupModeChanged!,
-                    sidebarVisible: false,
-                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                    pinnedFolderPresets: pinnedFolderPresets,
-                    onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-                    iconOnly: true,
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
-                if (onEditSort != null)
-                  LibraryToolbarSortButton(
-                    onPressed: onEditSort!,
-                    sortFavorites: sortFavorites,
-                    activeSortFavoriteId: activeSortFavoriteId,
-                    pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                    onSortFavoriteSelected: onSortFavoriteSelected,
-                    onManageFavoritesPressed: onManageSortFavorites,
-                  ),
-                const _LibraryDesktopToolbarSeparator(),
-                LibraryViewModeDropdown(
-                  viewMode: viewState.viewMode,
-                  onChanged: onViewModeChanged,
-                ),
-                if (supportsMediaReleaseSplit) ...[
-                  const _LibraryDesktopToolbarSeparator(),
-                  _LibraryDesktopToolbarSection(
-                    label: 'Scope',
-                    child: PopupMenuButton<LibraryWorkspaceBrowserMode>(
-                      tooltip: 'Browser scope',
-                      initialValue: browserMode,
-                      onSelected: onBrowserModeChanged,
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: LibraryWorkspaceBrowserMode.media,
-                          child: Text(mediaScopeLabel),
-                        ),
-                        const PopupMenuItem(
-                          value: LibraryWorkspaceBrowserMode.releases,
-                          child: Text('Releases'),
-                        ),
-                      ],
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: appPalette(context).divider),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              browserMode == LibraryWorkspaceBrowserMode.media
-                                  ? mediaScopeLabel
-                                  : 'Releases',
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.arrow_drop_down, size: 16),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                const _LibraryDesktopToolbarSeparator(),
-                LibraryDetailsLayoutDropdown(
-                  detailsLayout: viewState.detailsLayout,
-                  onChanged: onDetailsLayoutChanged,
-                ),
-              ],
-            ),
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
+                    if (!viewState.isSidebarVisible && onGroupModeChanged != null) ...[
+                      LibraryGroupModeMenuButton(
+                        type: type,
+                        folderPreset: folderPreset,
+                        accent: libraryAccentForKind(type.workspace.kind),
+                        icon: folderPreset == null
+                            ? Icons.account_tree_outlined
+                            : genericFolderPresetIcon(folderPreset!, type),
+                        onChanged: onGroupModeChanged!,
+                        sidebarVisible: false,
+                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                        pinnedFolderPresets: pinnedFolderPresets,
+                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+                        iconOnly: true,
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                    if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
+                    if (onEditSort != null)
+                      LibraryToolbarSortButton(
+                        onPressed: onEditSort!,
+                        sortFavorites: sortFavorites,
+                        activeSortFavoriteId: activeSortFavoriteId,
+                        pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                        onSortFavoriteSelected: onSortFavoriteSelected,
+                        onManageFavoritesPressed: onManageSortFavorites,
+                      ),
+                    const _LibraryDesktopToolbarSeparator(),
+                    LibraryViewModeDropdown(
+                      viewMode: viewState.viewMode,
+                      onChanged: onViewModeChanged,
+                    ),
+                    if (supportsMediaReleaseSplit) ...[
+                      const _LibraryDesktopToolbarSeparator(),
+                      _LibraryDesktopToolbarSection(
+                        label: 'Scope',
+                        child: PopupMenuButton<LibraryWorkspaceBrowserMode>(
+                          tooltip: 'Browser scope',
+                          initialValue: browserMode,
+                          onSelected: onBrowserModeChanged,
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: LibraryWorkspaceBrowserMode.media,
+                              child: Text(mediaScopeLabel),
+                            ),
+                            const PopupMenuItem(
+                              value: LibraryWorkspaceBrowserMode.releases,
+                              child: Text('Releases'),
+                            ),
+                          ],
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: appPalette(context).divider),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  browserMode == LibraryWorkspaceBrowserMode.media
+                                      ? mediaScopeLabel
+                                      : 'Releases',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.arrow_drop_down, size: 16),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    const _LibraryDesktopToolbarSeparator(),
+                    LibraryDetailsLayoutDropdown(
+                      detailsLayout: viewState.detailsLayout,
+                      onChanged: onDetailsLayoutChanged,
+                    ),
                     if (viewState.viewMode == LibraryViewMode.list) ...[
                       const _LibraryDesktopToolbarSeparator(),
                       _LibraryDesktopToolbarSection(
@@ -486,8 +481,10 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     final showAlphabetRow = onLetterSelected != null;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Row(
-        children: [
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
           LibraryToolbarPrimaryActions(
             addLabel: 'Add ${type.pluralLabel}',
             onAdd: onAdd,
@@ -506,48 +503,42 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   onCollectionStatusScopeChanged!,
             ),
           ],
-          const SizedBox(width: 8),
-          Expanded(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 380,
-                  child: LibraryToolbarSearch(
-                    controller: searchController,
-                    hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-                    onScanBarcode: onScan,
-                    onScanCover: onScanCover,
-                    selectedFilterLabel: selectedBucket,
-                    onSearch: onSearchChanged,
-                    onClearFilter: onClearBucket,
-                    onChanged: onSearchChanged,
-                    selectionColor: appPalette(context).selection,
-                  ),
-                ),
-                if (showAlphabetRow) ...[
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 420,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: LibraryToolbarAlphabetRow(
-                          letters: availableLetters,
-                          selectedLetter: selectedLetter,
-                          onLetterSelected: onLetterSelected!,
-                        ),
-                      ),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: 380,
+              child: LibraryToolbarSearch(
+                controller: searchController,
+                hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                onScanBarcode: onScan,
+                onScanCover: onScanCover,
+                selectedFilterLabel: selectedBucket,
+                onSearch: onSearchChanged,
+                onClearFilter: onClearBucket,
+                onChanged: onSearchChanged,
+                selectionColor: appPalette(context).selection,
+              ),
+            ),
+            if (showAlphabetRow) ...[
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 420,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: LibraryToolbarAlphabetRow(
+                      letters: availableLetters,
+                      selectedLetter: selectedLetter,
+                      onLetterSelected: onLetterSelected!,
                     ),
                   ),
-                ],
-                const Spacer(),
-                const SizedBox(width: 6),
-                const _LibraryDesktopUtilityCluster(),
-              ],
-            ),
-          ),
-        ],
+                ),
+              ),
+            ],
+            const SizedBox(width: 6),
+            const _LibraryDesktopUtilityCluster(),
+          ],
+        ),
       ),
     );
   }
