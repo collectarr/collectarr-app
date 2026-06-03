@@ -164,6 +164,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   List<OwnedItem>? _cachedOwnedCopiesActive;
   List<WishlistItem>? _cachedWishlistSource;
   List<WishlistItem>? _cachedWishlistActive;
+  Map<String, List<String>>? _cachedCustomFieldValuesForSignature;
+  int? _cachedCustomFieldValuesSignature;
+  Map<String, Map<String, String>>?
+  _cachedCustomFieldValuesByDefinitionForSignature;
+  int? _cachedCustomFieldValuesByDefinitionSignature;
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -194,9 +199,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     unawaited(_loadViewState());
     unawaited(_loadViewPreferences());
     unawaited(_loadColumnFavoritePresets());
-    unawaited(
-      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
-    );
     unawaited(_loadActiveLoanIds());
   }
 
@@ -226,7 +228,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         fallback: libraryDefaultPinnedColumnFavoriteKeysForType(widget.type),
       );
 
-      final results = await Future.wait<Object?>([
+      final (
+        quickView,
+        groupMode,
+        folderPreset,
+        pinnedPresets,
+        pinnedViewPresets,
+        pinnedSortFavoriteIds,
+        pinnedColumnFavoriteKeys,
+      ) = await (
         quickViewFuture,
         groupModeFuture,
         folderPresetFuture,
@@ -234,17 +244,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         pinnedViewPresetsFuture,
         pinnedSortFavoriteIdsFuture,
         pinnedColumnFavoriteKeysFuture,
-      ]);
-
-      final quickView = results[0] as LibraryQuickView?;
-      final groupMode = results[1] as LibraryGroupMode?;
-      final folderPreset = results[2] as LibraryFolderPreset?;
-      final pinnedPresets =
-          results[3] as List<LibraryFolderPreset>;
-      final pinnedViewPresets =
-          results[4] as Set<LibraryWorkspacePreset>;
-      final pinnedSortFavoriteIds = results[5] as Set<String>;
-      final pinnedColumnFavoriteKeys = results[6] as Set<String>;
+      ).wait;
       if (!mounted ||
           loadToken != _viewPreferenceLoadToken ||
           widget.type.workspace.kind != expectedKind) {
@@ -453,9 +453,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final shelfState = shelf.asData?.value;
     final allOwnedCopies = _activeOwnedCopies(ownedCopiesValue);
     final allWishlistItems = _activeWishlistItems(wishlistValue);
-    if (shelfState != null) {
-      _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
-    }
     final projection = shelfState == null
         ? null
         : _projectionForShelf(
@@ -1091,11 +1088,58 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _linkedMetadataFilter?.value,
       _stableSetSignature(constrainedItemIds),
       _stableSetSignature(activeLoanOwnedItemIds),
-      customFieldValuesByItem.length,
-      customFieldValuesByDefinitionByItem.length,
-      identityHashCode(customFieldValuesByItem),
-      identityHashCode(customFieldValuesByDefinitionByItem),
+      _customFieldValuesSignatureForProjection(customFieldValuesByItem),
+      _customFieldValuesByDefinitionSignatureForProjection(
+        customFieldValuesByDefinitionByItem,
+      ),
     ]).toString();
+  }
+
+  int _customFieldValuesSignatureForProjection(
+    Map<String, List<String>> values,
+  ) {
+    if (identical(_cachedCustomFieldValuesForSignature, values) &&
+        _cachedCustomFieldValuesSignature != null) {
+      return _cachedCustomFieldValuesSignature!;
+    }
+    final sortedKeys = values.keys.toList(growable: false)..sort();
+    var signature = values.length;
+    for (final key in sortedKeys) {
+      final entries = List<String>.from(values[key] ?? const <String>[])
+        ..sort();
+      signature = Object.hash(
+        signature,
+        key,
+        entries.length,
+        Object.hashAll(entries),
+      );
+    }
+    _cachedCustomFieldValuesForSignature = values;
+    _cachedCustomFieldValuesSignature = signature;
+    return signature;
+  }
+
+  int _customFieldValuesByDefinitionSignatureForProjection(
+    Map<String, Map<String, String>> values,
+  ) {
+    if (identical(_cachedCustomFieldValuesByDefinitionForSignature, values) &&
+        _cachedCustomFieldValuesByDefinitionSignature != null) {
+      return _cachedCustomFieldValuesByDefinitionSignature!;
+    }
+    final sortedOuterKeys = values.keys.toList(growable: false)..sort();
+    var signature = values.length;
+    for (final outerKey in sortedOuterKeys) {
+      final inner = values[outerKey] ?? const <String, String>{};
+      final sortedInnerKeys = inner.keys.toList(growable: false)..sort();
+      var innerSignature = inner.length;
+      for (final innerKey in sortedInnerKeys) {
+        innerSignature = Object.hash(innerSignature, innerKey, inner[innerKey]);
+      }
+      signature = Object.hash(signature, outerKey, innerSignature);
+    }
+    _cachedCustomFieldValuesByDefinitionForSignature = values;
+    _cachedCustomFieldValuesByDefinitionSignature = signature;
+    return signature;
   }
 
   int _stableSetSignature(Set<String>? values) {
@@ -1728,6 +1772,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       selection: TextSelection.collapsed(offset: routeQuery.length),
       composing: TextRange.empty,
     );
+    final shelfState = ref.read(shelfProvider).asData?.value;
+    if (shelfState != null) {
+      _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
+    }
   }
 
   String? _trimmedQuery(String value) {
