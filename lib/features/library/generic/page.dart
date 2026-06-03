@@ -275,9 +275,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _facetLoadsInFlight.clear();
       _searchController.clear();
       _primeCachedViewPreferences();
-      _viewState = _adapter.viewProfile.defaults().withChrome(
-            _viewState?.toPreferenceSnapshot().chrome,
-          );
+      // Start from the next kind's own cached defaults/chrome to avoid
+      // a one-frame layout jump (e.g. right -> bottom details panel).
+      _viewState = _adapter.viewProfile.defaults();
       unawaited(_loadViewState());
       unawaited(_loadViewPreferences());
       unawaited(_loadColumnFavoritePresets());

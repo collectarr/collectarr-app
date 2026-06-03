@@ -71,7 +71,6 @@ class LibraryCoverImage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: Image.network(
           url,
-          key: ValueKey(url),
           fit: fit,
           cacheWidth: cacheWidth,
           gaplessPlayback: true,
@@ -87,11 +86,13 @@ class LibraryCoverImage extends ConsumerWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: CachedNetworkImage(
-        key: ValueKey(url),
         imageUrl: url,
         fit: fit,
         memCacheWidth: cacheWidth,
         useOldImageOnUrlChange: true,
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
         filterQuality: FilterQuality.medium,
         placeholder: (_, __) => placeholder,
         errorWidget: (_, __, ___) => placeholder,
