@@ -129,7 +129,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   var _filterSelection = LibraryFilterSelection.none;
   final _detailHydrationInFlight = <String>{};
   final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
-  final _facetLoadsInFlight = <LibraryGroupMode>{};
+  final _facetLoadsInFlight = <String>{};
   Set<String> _activeLoanOwnedItemIds = const {};
   List<LibraryFolderPreset> _pinnedFolderPresets = const [];
   String? _videoShelfDrilldownTitleItemId;
@@ -157,6 +157,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ShelfState? _cachedSignatureShelf;
   String? _cachedSignatureKind;
   String? _cachedShelfSignature;
+  List<OwnedItem>? _cachedOwnedCopiesSource;
+  List<OwnedItem>? _cachedOwnedCopiesActive;
+  List<WishlistItem>? _cachedWishlistSource;
+  List<WishlistItem>? _cachedWishlistActive;
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -424,16 +428,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final wishlistValue = ref.watch(wishlistProvider);
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
-    final allOwnedCopies = ownedCopiesValue.maybeWhen(
-      data: (items) =>
-          items.where((item) => !item.isDeleted).toList(growable: false),
-      orElse: () => const <OwnedItem>[],
-    );
-    final allWishlistItems = wishlistValue.maybeWhen(
-      data: (items) =>
-          items.where((item) => !item.isDeleted).toList(growable: false),
-      orElse: () => const <WishlistItem>[],
-    );
+    final allOwnedCopies = _activeOwnedCopies(ownedCopiesValue);
+    final allWishlistItems = _activeWishlistItems(wishlistValue);
     if (shelfState != null) {
       _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
     }
@@ -667,6 +663,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _activateItem(firstVisibleId);
       });
     }
+    final activeProjectionGroupMode = _projectionGroupMode;
+    final activeFacetLoadKey = _facetLoadKey(
+      activeProjectionGroupMode,
+      _genericShelfSignature(shelfState),
+    );
     return LibraryBody(
       type: widget.type,
       adapter: _adapter,
@@ -675,8 +676,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       selectedId: _selectedId,
       selectedAnchorId: _selectionAnchorId,
       selectedBucket: _selectedBucket,
-      groupMode: _activeGroupMode,
-      groupLoading: _facetLoadsInFlight.contains(_activeGroupMode),
+      groupMode: activeProjectionGroupMode,
+      groupLoading: _facetLoadsInFlight.contains(activeFacetLoadKey),
       accent: widget.accent,
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => showAddDialogFlow(),
@@ -777,7 +778,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       db: ref.read(localDatabaseProvider),
       folderPreset: _activeFolderPreset,
       pinnedFolderPresets: _pinnedFolderPresets,
-      onManageBuckets: supportsBucketManagement(_activeGroupMode)
+        onManageBuckets: supportsBucketManagement(activeProjectionGroupMode)
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
@@ -839,12 +840,48 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             ? () => shareCollectionFlow(projection)
             : null,
         folderPreset: _activeFolderPreset,
-        groupMode: _groupMode,
+        groupMode: _activeSidebarGroupMode,
         pinnedFolderPresets: _pinnedFolderPresets,
         onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
         onGroupModeChanged: _setFolderPreset,
       ),
     );
+  }
+
+  List<OwnedItem> _activeOwnedCopies(AsyncValue<List<OwnedItem>> value) {
+    final items = value.asData?.value;
+    if (items == null) {
+      return const <OwnedItem>[];
+    }
+    if (identical(_cachedOwnedCopiesSource, items) &&
+        _cachedOwnedCopiesActive != null) {
+      return _cachedOwnedCopiesActive!;
+    }
+    final active = items
+        .where((item) => !item.isDeleted)
+        .toList(growable: false);
+    _cachedOwnedCopiesSource = items;
+    _cachedOwnedCopiesActive = active;
+    return active;
+  }
+
+  List<WishlistItem> _activeWishlistItems(
+    AsyncValue<List<WishlistItem>> value,
+  ) {
+    final items = value.asData?.value;
+    if (items == null) {
+      return const <WishlistItem>[];
+    }
+    if (identical(_cachedWishlistSource, items) &&
+        _cachedWishlistActive != null) {
+      return _cachedWishlistActive!;
+    }
+    final active = items
+        .where((item) => !item.isDeleted)
+        .toList(growable: false);
+    _cachedWishlistSource = items;
+    _cachedWishlistActive = active;
+    return active;
   }
 
   Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
@@ -1046,12 +1083,21 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return Object.hash(values.length, Object.hashAll(sorted));
   }
 
-  LibraryGroupMode get _activeGroupMode =>
-      widget.type.availableGroupModes.contains(_groupMode)
-        ? _groupMode!
-        : ((_viewState ?? _adapter.viewProfile.defaults()).isSidebarVisible
-          ? libraryDefaultGroupMode(widget.type)
-          : LibraryGroupMode.title);
+  LibraryGroupMode? get _activeSidebarGroupMode {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    if (!viewState.isSidebarVisible) {
+      return null;
+    }
+    if (widget.type.availableGroupModes.contains(_groupMode)) {
+      return _groupMode;
+    }
+    return libraryDefaultGroupMode(widget.type);
+  }
+
+  LibraryGroupMode get _projectionGroupMode =>
+      _activeSidebarGroupMode ?? LibraryGroupMode.title;
+
+  LibraryGroupMode get _activeGroupMode => _projectionGroupMode;
 
   LibraryFolderPreset get _activeFolderPreset =>
       sanitizeLibraryFolderPreset(
@@ -1110,10 +1156,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (cached != null && cached.shelfSignature == signature) {
       return;
     }
-    if (_facetLoadsInFlight.contains(mode)) {
+    final loadKey = _facetLoadKey(mode, signature);
+    if (_facetLoadsInFlight.contains(loadKey)) {
       return;
     }
-    _facetLoadsInFlight.add(mode);
+    _facetLoadsInFlight.add(loadKey);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {});
@@ -1127,6 +1174,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     ShelfState shelf,
     String signature,
   ) async {
+    final loadKey = _facetLoadKey(mode, signature);
     final shelfItemIds = {
       for (final item in libraryItemsForShelf(shelf, widget.type))
         item.entry.id,
@@ -1180,11 +1228,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _selectedBucket = null;
       });
     } finally {
-      _facetLoadsInFlight.remove(mode);
+      _facetLoadsInFlight.remove(loadKey);
       if (mounted) {
         setState(() {});
       }
     }
+  }
+
+  String _facetLoadKey(LibraryGroupMode mode, String signature) {
+    return '${widget.type.workspace.kind.apiValue}|$mode|$signature';
   }
 
   String _genericShelfSignature(ShelfState shelf) {
@@ -2270,13 +2322,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (titleItemId == null) {
       return null;
     }
-    LibraryProjectionItem? titleItem;
-    for (final item in projection.allItems) {
-      if (item.entry.id == titleItemId) {
-        titleItem = item;
-        break;
-      }
-    }
+    final itemsById = {
+      for (final item in projection.allItems) item.entry.id: item,
+    };
+    final titleItem = itemsById[titleItemId];
     if (titleItem == null || !_canOpenVideoShelfDrilldown(titleItem)) {
       if (_videoShelfDrilldownTitleItemId != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2292,12 +2341,20 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return null;
     }
 
-    final ownedCopies = allOwnedCopies
-        .where((item) => item.itemId == titleItemId)
-        .toList(growable: false);
-    final wishlistItems = allWishlistItems
-        .where((item) => item.itemId == titleItemId)
-        .toList(growable: false);
+    final ownedCopiesByItemId = <String, List<OwnedItem>>{};
+    for (final ownedItem in allOwnedCopies) {
+      (ownedCopiesByItemId[ownedItem.itemId] ??= <OwnedItem>[])
+        .add(ownedItem);
+    }
+    final wishlistByItemId = <String, List<WishlistItem>>{};
+    for (final wishlistItem in allWishlistItems) {
+      (wishlistByItemId[wishlistItem.itemId] ??= <WishlistItem>[])
+        .add(wishlistItem);
+    }
+    final ownedCopies =
+      ownedCopiesByItemId[titleItemId] ?? const <OwnedItem>[];
+    final wishlistItems =
+      wishlistByItemId[titleItemId] ?? const <WishlistItem>[];
     final drilldownItems = buildVideoShelfReleaseItems(
       titleItem: titleItem,
       ownedCopies: ownedCopies,
@@ -2325,32 +2382,32 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _videoShelfDrilldownTitleItemId = null;
         _videoShelfDrilldownReleaseId = null;
       }),
-      onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem!),
+      onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem),
       onSelectRelease: (releaseId) =>
           setState(() => _videoShelfDrilldownReleaseId = releaseId),
       onOpenTitleDetails: () => showLibraryDetailPage(
         context: context,
         request: LibraryDetailPageRequest(
           type: widget.type,
-          entry: titleItem!.entry,
+          entry: titleItem.entry,
           ownedItem: titleItem.source.ownedItem,
           accent: widget.accent,
           onAddOwned: () => runCollectionAction(
-            (actions) => actions.addOwned(titleItem!),
+            (actions) => actions.addOwned(titleItem),
           ),
           onRemoveOwned: titleItem.source.ownedItem == null
               ? null
-              : () => confirmAndRemoveOwned(titleItem!),
+              : () => confirmAndRemoveOwned(titleItem),
           onAddWishlist: () => runCollectionAction(
-            (actions) => actions.addWishlist(titleItem!),
+            (actions) => actions.addWishlist(titleItem),
           ),
           onRemoveWishlist: titleItem.source.isWishlisted
               ? () => runCollectionAction(
-                    (actions) => actions.removeWishlist(titleItem!),
+                    (actions) => actions.removeWishlist(titleItem),
                   )
               : null,
           onEdit: (ownedItem) =>
-              unawaited(showEditDialog(titleItem!, ownedItem)),
+              unawaited(showEditDialog(titleItem, ownedItem)),
           onFilterByValue: _toggleLinkedMetadataFilter,
         ),
       ),
