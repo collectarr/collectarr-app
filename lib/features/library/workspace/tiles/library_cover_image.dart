@@ -316,11 +316,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
         oldWidget.secondaryImageUrl != widget.secondaryImageUrl ||
         oldWidget.localBytes != widget.localBytes ||
         oldWidget.secondaryLocalBytes != widget.secondaryLocalBytes;
-    if (coverChanged && (_showSecondary || _hovered)) {
-      setState(() {
-        _showSecondary = false;
-        _hovered = false;
-      });
+    if (coverChanged) {
+      // Parent rebuild already redraws this widget; avoid an extra reset frame.
+      _showSecondary = false;
+      _hovered = false;
     }
   }
 

@@ -112,8 +112,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final auxiliaryBadges = _auxiliaryBadges(entry);
 
     return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: kAppAnimFast,
+      child: Container(
         clipBehavior: Clip.antiAlias,
         padding: flat ? EdgeInsets.zero : const EdgeInsets.all(2),
         decoration: BoxDecoration(

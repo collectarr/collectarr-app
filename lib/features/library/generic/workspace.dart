@@ -155,7 +155,7 @@ class LibraryWorkspace extends ConsumerWidget {
             mainAxisExtent: viewState.coverSize * 1.53,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCoverTile(
-              key: ValueKey(item.entry.id),
+              key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -183,7 +183,7 @@ class LibraryWorkspace extends ConsumerWidget {
             mainAxisExtent: cardTileHeight,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
-              key: ValueKey(item.entry.id),
+              key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -233,7 +233,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
-            key: ValueKey(item.entry.id),
+            key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -262,7 +262,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
-            key: ValueKey(item.entry.id),
+            key: ValueKey('${item.entry.mediaType}:${item.entry.id}'),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),

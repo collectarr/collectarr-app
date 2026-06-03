@@ -150,6 +150,7 @@ class ComicInspectorHero extends ConsumerWidget {
                       ownedItemId: ownedItemId,
                       accentColor: request.accent,
                       enableHoverCue: true,
+                        enableSecondaryControl: false,
                       onMissingSecondaryPressed: ownedItemId == null || db == null
                           ? null
                           : () async {

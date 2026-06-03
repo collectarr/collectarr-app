@@ -69,6 +69,7 @@ class InspectorHero extends StatelessWidget {
                 ownedItemId: ownedItemId,
                 accentColor: accent,
                 enableHoverCue: true,
+                enableSecondaryControl: false,
                 onMissingSecondaryPressed: ownedItemId == null
                     ? null
                     : () async {

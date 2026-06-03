@@ -179,6 +179,7 @@ class LibraryDetailHero extends StatelessWidget {
                       secondaryLocalBytes: localBack,
                       ownedItemId: ownedItemId,
                       accentColor: accent,
+                        enableSecondaryControl: false,
                       onMissingSecondaryPressed: ownedItemId == null
                           ? null
                           : () async {
