@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AdminUsersPanel extends ConsumerStatefulWidget {
@@ -473,7 +474,7 @@ class _AdminUserEditorDialogState extends State<_AdminUserEditorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Edit user'),
       content: SizedBox(
         width: 420,

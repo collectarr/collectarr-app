@@ -1,7 +1,6 @@
-import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_view_table_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_control_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -71,11 +70,8 @@ void main() {
       find.byKey(const ValueKey('legacy-library-column-split-button')),
       findsOneWidget,
     );
-    expect(find.byType(LibraryDenseSplitButton<Object>), findsOneWidget);
     expect(find.byKey(viewModeDropdownKey), findsOneWidget);
     expect(find.byKey(detailsLayoutDropdownKey), findsOneWidget);
-    expect(find.byTooltip('List view'), findsOneWidget);
-    expect(find.byTooltip('Details right'), findsOneWidget);
 
     await tester.tap(find.text('Essential').first);
     await tester.pump();
@@ -91,8 +87,8 @@ void main() {
     detailsDropdown.onSelected?.call(LibraryDetailsLayout.hidden);
     await tester.pump();
 
-    expect(find.byType(LibraryDenseSplitButton<Object>), findsNothing);
-    expect(find.byTooltip('Details hidden'), findsOneWidget);
+    expect(find.byKey(const ValueKey('legacy-library-column-split-button')), findsNothing);
+    expect(detailsLayout, LibraryDetailsLayout.hidden);
 
     dropdown.onSelected?.call(LibraryViewMode.list);
     await tester.pump();

@@ -244,13 +244,16 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                 const SizedBox(height: 10),
                 _field(controller: _signedByController, label: 'Signed by'),
                 const SizedBox(height: 10),
-                SwitchListTile(
-                  value: _keyComic,
-                  onChanged: (value) =>
-                      _mutateDialogState(() => _keyComic = value),
-                  title: Text(editPresentation.keyToggleLabel),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
+                Material(
+                  color: Colors.transparent,
+                  child: SwitchListTile(
+                    value: _keyComic,
+                    onChanged: (value) =>
+                        _mutateDialogState(() => _keyComic = value),
+                    title: Text(editPresentation.keyToggleLabel),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
                 ),
                 if (_keyComic) ...[
                   const SizedBox(height: 6),
@@ -343,21 +346,24 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
           accent: widget.accent,
           child: Column(
             children: [
-              SwitchListTile(
-                value: _soldAt != null,
-                onChanged: (value) {
-                  _mutateDialogState(() {
-                    _soldAt = value ? DateTime.now() : null;
-                  });
-                },
-                title: const Text('Mark as sold'),
-                subtitle: _soldAt != null
-                    ? Text(
-                        'Sold on ${formatDate(_soldAt!)}',
-                        style: TextStyle(color: appPalette(context).textMuted),
-                      )
-                    : null,
-                contentPadding: EdgeInsets.zero,
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  value: _soldAt != null,
+                  onChanged: (value) {
+                    _mutateDialogState(() {
+                      _soldAt = value ? DateTime.now() : null;
+                    });
+                  },
+                  title: const Text('Mark as sold'),
+                  subtitle: _soldAt != null
+                      ? Text(
+                          'Sold on ${formatDate(_soldAt!)}',
+                          style: TextStyle(color: appPalette(context).textMuted),
+                        )
+                      : null,
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
               if (_soldAt != null) ...[
                 const SizedBox(height: 12),

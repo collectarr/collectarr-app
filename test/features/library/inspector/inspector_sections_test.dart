@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -240,6 +240,38 @@ void main() {
                         marketValueCents: 1899,
                         updatedAt: DateTime.utc(2026, 5, 22),
                       ),
+                      ownedCopies: [
+                        OwnedItem(
+                          id: 'owned-1',
+                          itemId: 'comic-1',
+                          isDigital: false,
+                          currency: 'USD',
+                          coverPriceCents: 299,
+                          rawOrSlabbed: 'Slabbed',
+                          gradingCompany: 'CGC',
+                          certificationNumber: '1234567001',
+                          labelType: 'Universal',
+                          customLabel: 'Newsstand',
+                          pageQuality: 'White',
+                          graderNotes: 'Small spine stress',
+                          signedBy: 'Brian K. Vaughan',
+                          keyComic: true,
+                          keyReason: 'First appearance',
+                          keyCategory: 'First appearances',
+                          keySeverity: 'Major',
+                          pricePaidCents: 1299,
+                          marketValueCents: 1899,
+                          updatedAt: DateTime.utc(2026, 5, 22),
+                        ),
+                        OwnedItem(
+                          id: 'owned-2',
+                          itemId: 'comic-1',
+                          currency: 'USD',
+                          pricePaidCents: 999,
+                          marketValueCents: 2499,
+                          updatedAt: DateTime.utc(2026, 5, 21),
+                        ),
+                      ],
                       trackingEntry: null,
                       accent: Colors.red,
                     ),
@@ -255,8 +287,8 @@ void main() {
       );
 
       expect(find.text('Creators'), findsOneWidget);
-      expect(find.text('Details'), findsOneWidget);
       expect(find.text('Personal'), findsOneWidget);
+      expect(find.text('Collector'), findsOneWidget);
       expect(find.text('Value'), findsOneWidget);
       expect(find.textContaining('Brian K. Vaughan'), findsWidgets);
       expect(find.text('Raw / Slabbed'), findsOneWidget);
@@ -265,25 +297,13 @@ void main() {
       expect(find.text('CGC'), findsOneWidget);
       expect(find.text('Certification'), findsOneWidget);
       expect(find.text('1234567001'), findsOneWidget);
-      expect(find.text('Label Type'), findsOneWidget);
-      expect(find.text('Universal'), findsOneWidget);
-      expect(find.text('Custom Label'), findsOneWidget);
-      expect(find.text('Newsstand'), findsOneWidget);
-      expect(find.text('Page Quality'), findsOneWidget);
-      expect(find.text('White'), findsOneWidget);
-      expect(find.text('Signed By'), findsOneWidget);
-      expect(find.text('Brian K. Vaughan'), findsWidgets);
-      expect(find.text('Key'), findsOneWidget);
-      expect(find.text('First appearance'), findsOneWidget);
-      expect(find.text('Key Category'), findsOneWidget);
-      expect(find.text('First appearances'), findsOneWidget);
-      expect(find.text('Key Severity'), findsOneWidget);
-      expect(find.text('Major'), findsOneWidget);
-      expect(find.text('Grader Notes'), findsOneWidget);
-      expect(find.text('Small spine stress'), findsOneWidget);
       expect(find.text('Cover Price'), findsOneWidget);
       expect(find.text('Current Value'), findsOneWidget);
       expect(find.text('USD 18.99'), findsOneWidget);
+      expect(find.text('Total Value'), findsOneWidget);
+      expect(find.text('USD 43.98'), findsOneWidget);
+      expect(find.text('Total Paid'), findsOneWidget);
+      expect(find.text('USD 22.98'), findsOneWidget);
     });
   });
 

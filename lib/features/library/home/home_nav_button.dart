@@ -35,100 +35,87 @@ class MediaLibraryNavButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final borderColor = selected
-      ? (palette.isDark
-        ? Colors.white.withValues(alpha: 0.72)
-        : Color.alphaBlend(color.withValues(alpha: 0.18), palette.divider))
-      : (palette.isDark
-        ? color
-        : Color.alphaBlend(color.withValues(alpha: 0.28), palette.divider));
-    final selectedStart = palette.isDark
-      ? color.withValues(alpha: 0.38)
-      : Color.alphaBlend(color.withValues(alpha: 0.16), palette.surfaceSubtle);
-    final selectedEnd = palette.isDark
-      ? color.withValues(alpha: 0.14)
-      : Color.alphaBlend(color.withValues(alpha: 0.06), palette.panel);
-    final unselectedFill = palette.isDark
-      ? Colors.black.withValues(alpha: 0.28)
-      : Color.alphaBlend(color.withValues(alpha: 0.04), palette.surfaceSubtle);
-    final selectedSurface = Color.lerp(selectedStart, selectedEnd, 0.5)!;
-    final selectedTextColor =
-        ThemeData.estimateBrightnessForColor(selectedSurface) == Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    final selectedCountColor = selectedTextColor.withValues(alpha: 0.84);
-    final unselectedTextColor =
-        ThemeData.estimateBrightnessForColor(unselectedFill) == Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    final unselectedCountColor = palette.isDark
-        ? unselectedTextColor.withValues(alpha: 0.84)
-        : palette.textMuted;
+      ? Color.alphaBlend(color.withValues(alpha: 0.24), palette.divider)
+      : palette.divider;
+    final fillColor = selected
+      ? Color.alphaBlend(color.withValues(alpha: 0.06), palette.surface)
+      : Colors.transparent;
+    final selectedTextColor = palette.textPrimary;
+    final selectedCountColor = palette.textMuted;
+    final unselectedTextColor = palette.textMuted;
+    final unselectedCountColor = palette.textMuted;
     final resolvedLabel = label ?? libraryNavLabel(type);
     return Tooltip(
       message: tooltip ?? type.pluralLabel,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          borderRadius: BorderRadius.circular(3),
+          borderRadius: BorderRadius.circular(2),
           onTap: selected && !enableWhenSelected ? null : onPressed,
           child: AnimatedContainer(
             duration: animationDuration,
             curve: Curves.easeOutCubic,
-            height: 30,
+            height: 28,
             decoration: BoxDecoration(
-              gradient: selected
-                  ? LinearGradient(
-                      colors: [
-                        selectedStart,
-                        selectedEnd,
-                      ],
-                    )
-                  : LinearGradient(
-                      colors: [
-                        unselectedFill,
-                        unselectedFill,
-                      ],
-                    ),
-              borderRadius: BorderRadius.circular(3),
+              color: fillColor,
+              borderRadius: BorderRadius.circular(2),
               border: Border.all(color: borderColor),
             ),
-            child: Row(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(width: 4, height: double.infinity, color: color),
-                const SizedBox(width: 8),
-                Icon(
-                  icon,
-                  size: 17,
-                  color: selected ? selectedTextColor : color,
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  resolvedLabel,
-                  style: TextStyle(
-                    color: selected ? selectedTextColor : unselectedTextColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    color: selected ? color : Colors.transparent,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(1),
+                      topRight: Radius.circular(1),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 7),
-                Text(
-                  count.toString(),
-                  style: TextStyle(
-                    color: selected ? selectedCountColor : unselectedCountColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(width: 5),
+                      Icon(
+                        icon,
+                        size: 14,
+                        color: selected ? color : palette.textMuted,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        resolvedLabel,
+                        style: TextStyle(
+                          color: selected ? selectedTextColor : unselectedTextColor,
+                          fontSize: 11,
+                          fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        count.toString(),
+                        style: TextStyle(
+                          color: selected ? selectedCountColor : unselectedCountColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          height: 1,
+                        ),
+                      ),
+                      if (showsDisclosure) ...[
+                        const SizedBox(width: 3),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          size: 16,
+                          color: selected ? selectedCountColor : unselectedCountColor,
+                        ),
+                      ],
+                      const SizedBox(width: 5),
+                    ],
                   ),
                 ),
-                if (showsDisclosure) ...[
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    size: 18,
-                    color: selected ? selectedCountColor : unselectedCountColor,
-                  ),
-                ],
-                const SizedBox(width: 8),
               ],
             ),
           ),

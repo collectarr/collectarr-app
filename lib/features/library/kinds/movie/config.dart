@@ -3,21 +3,23 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.movie,
   title: 'Movies',
   icon: Icons.movie_outlined,
-  accent: Color(0xFFE05252),
+  accent: Color(0xFF42AA55),
   preferencePrefix: 'movies',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
@@ -39,7 +41,6 @@ const moviesLibraryConfig = LibraryTypeConfig(
   defaultMetadataProvider: 'tmdb',
   metadataProviders: [
     tmdbMetadataProvider,
-    anilistMetadataProvider,
   ],
   addDialogLauncher: showMovieLibraryAddDialog,
   trackingProfile: videoTrackingProfile,
@@ -74,6 +75,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
+    supportsMediaReleaseSplit: true,
     wideDialog: true,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},

@@ -43,6 +43,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -425,6 +426,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onVisibilityChanged: (kind, visible) => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .setKindVisible(kind, visible),
+                        onAccentChanged: (kind, color) => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .setKindAccent(kind, color),
                       onReset: () => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .reset(),
@@ -788,7 +792,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ? auth.isAdmin
                                   ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
                                   : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
-                              : 'You can browse the app and send metadata proposals without signing in. Sign in is only needed for server features.',
+                            : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -812,7 +816,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               FilledButton.icon(
                                 onPressed: () => context.go(AppRoutes.auth),
                                 icon: const Icon(Icons.login),
-                                label: const Text('Sign in'),
+                                label: const Text('Admin sign in'),
                               ),
                           ],
                         ),
@@ -1298,7 +1302,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (!mounted) return;
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
+        builder: (ctx) => AccentAlertDialog(
           title: const Text('Restore database'),
           content: const Text(
             'This will replace ALL local data with the backup contents. '
@@ -1339,7 +1343,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _clearDatabase() async {
     final firstConfirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         title: const Text('Clear database'),
         content: const Text(
           'This will permanently delete ALL local data. '
@@ -1365,7 +1369,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     final secondConfirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         title: const Text('Are you absolutely sure?'),
         content: const Text(
           'All collection data, tracking history, custom fields, '

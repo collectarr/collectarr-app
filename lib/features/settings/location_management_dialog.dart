@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<void> showLocationManagementDialog({
   required BuildContext context,
@@ -190,7 +191,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
     }
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         backgroundColor: appPalette(context).panel,
         title: const Text('Delete location'),
         content: Text(
@@ -236,7 +237,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
           location,
     ];
 
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
       title: const Text('Manage locations'),
       content: SizedBox(

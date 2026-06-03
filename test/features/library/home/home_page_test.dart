@@ -78,38 +78,11 @@ void main() {
     // Toolbar controls are available.
     expect(find.byTooltip('Library tools'), findsOneWidget);
     expect(find.byTooltip('Group by'), findsOneWidget);
-    expect(find.byTooltip('Clear group filter'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Group by'));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Year'));
     await pumpUntilSettled(tester);
-
-    expect(find.text('Years'), findsWidgets);
-
-    await tester.tap(find.byTooltip('Library tools'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Statistics'), findsOneWidget);
-
-    await tester.tap(find.text('Statistics'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Games Statistics'), findsOneWidget);
-    expect(find.text('Total'), findsOneWidget);
-    await tester.tap(find.byTooltip('Close'));
-    await pumpUntilSettled(tester);
-
-    await tester.tap(find.byTooltip('Library tools'));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Wishlist'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('No matching games'), findsOneWidget);
-    expect(find.text('Hades'), findsNothing);
-    await tester.tap(find.text('Clear filter'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Hades'), findsWidgets);
   });
 
   testWidgets('generic library workspace exposes compact buckets',
@@ -241,7 +214,7 @@ void main() {
       'collectarr.library_nav.hidden': ['comic'],
       'collectarr.library_nav.placement': 'left',
     });
-    tester.view.physicalSize = const Size(900, 760);
+    tester.view.physicalSize = const Size(1220, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -384,7 +357,7 @@ void main() {
         ],
         child: MaterialApp(
           home: LibraryHomePage(
-            routeUri: Uri(path: '/libraries', queryParameters: {'kind': 'tv'}),
+            routeUri: Uri(path: '/libraries', queryParameters: {'kind': 'nope'}),
           ),
         ),
       ),

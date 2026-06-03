@@ -4,19 +4,22 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.book,
   title: 'Books',
   icon: Icons.menu_book_outlined,
-  accent: Color(0xFF48A868),
+  accent: Color(0xFFBB72B6),
   preferencePrefix: 'books',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
@@ -43,7 +46,9 @@ const booksLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: readingTrackingProfile,
   presentation: booksLibraryMediaPresentation,
-  editPresentation: booksLibraryEditPresentation,
+  editPresentation: LibraryEditPresentation(
+    builder: BookLibraryEditPresentationBuilder(),
+  ),
   editDialogBuilder: buildBookLibraryEditDialog,
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
@@ -57,6 +62,7 @@ const booksLibraryConfig = LibraryTypeConfig(
     showsCreatorSpotlight: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
     supportsOwnedItemImages: false,
+    supportsMediaReleaseSplit: true,
   ),
   conditions: kBookConditions,
 );

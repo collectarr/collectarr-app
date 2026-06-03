@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +64,7 @@ void main() {
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
-    expect(defaults.detailsHeight, 220);
+    expect(defaults.detailsHeight, 300);
     expect(defaults.visibleColumns, {
       LibraryTableColumn.title,
       LibraryTableColumn.issue,
@@ -224,7 +224,7 @@ void main() {
     expect(restored.detailsHeight, 280);
   });
 
-  test('workspace view defaults reuse cached global chrome', () async {
+  test('workspace view defaults reuse cached library chrome', () async {
     await LibraryWorkspacePreferences(config).write(
       profile
           .defaults()

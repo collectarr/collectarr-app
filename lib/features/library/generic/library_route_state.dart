@@ -1,19 +1,22 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 class LibraryRouteState {
   const LibraryRouteState({
     this.kind,
     this.searchQuery,
     this.groupMode,
+    this.folderPreset,
     this.selectedBucket,
     this.linkedMetadataValue,
     this.selectedLetter,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
     this.quickView,
     this.filterSelection = LibraryFilterSelection.none,
     this.sortRules,
@@ -27,6 +30,7 @@ class LibraryRouteState {
   static const linkedValueKey = 'linkedValue';
   static const letterKey = 'letter';
   static const scopeKey = 'scope';
+  static const seriesScopeKey = 'seriesScope';
   static const quickKey = 'quick';
   static const filtersKey = 'filters';
   static const sortKey = 'sort';
@@ -35,10 +39,12 @@ class LibraryRouteState {
   final String? kind;
   final String? searchQuery;
   final LibraryGroupMode? groupMode;
+  final LibraryFolderPreset? folderPreset;
   final String? selectedBucket;
   final String? linkedMetadataValue;
   final String? selectedLetter;
   final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
   final LibraryQuickView? quickView;
   final LibraryFilterSelection filterSelection;
   final List<LibrarySortRule>? sortRules;
@@ -46,11 +52,13 @@ class LibraryRouteState {
 
   bool get hasExplicitViewState {
     return searchQuery != null ||
+      folderPreset != null ||
         groupMode != null ||
         selectedBucket != null ||
         linkedMetadataValue != null ||
         selectedLetter != null ||
         collectionStatusScope != LibraryCollectionStatusScope.all ||
+        seriesCompletionScope != LibrarySeriesCompletionScope.all ||
         quickView != null ||
         filterSelection.hasActiveFilters ||
         (sortRules?.isNotEmpty ?? false) ||
@@ -59,16 +67,24 @@ class LibraryRouteState {
 
   factory LibraryRouteState.fromUri(Uri uri) {
     final params = uri.queryParameters;
+    final folderPreset = _decodeFolderPreset(params[folderKey]);
     return LibraryRouteState(
       kind: _trimmed(params[kindKey])?.toLowerCase(),
       searchQuery: _trimmed(params[searchKey]),
-      groupMode: _enumByName(LibraryGroupMode.values, params[folderKey]),
+      groupMode: folderPreset?.primaryMode,
+      folderPreset: folderPreset,
       selectedBucket: _trimmed(params[filterValueKey]),
       linkedMetadataValue: _trimmed(params[linkedValueKey]),
       selectedLetter: _trimmed(params[letterKey]),
       collectionStatusScope:
           _enumByName(LibraryCollectionStatusScope.values, params[scopeKey]) ??
               LibraryCollectionStatusScope.all,
+      seriesCompletionScope:
+          _enumByName(
+            LibrarySeriesCompletionScope.values,
+            params[seriesScopeKey],
+          ) ??
+          LibrarySeriesCompletionScope.all,
       quickView: _enumByName(LibraryQuickView.values, params[quickKey]),
       filterSelection: _decodeFilterSelection(params[filtersKey]) ??
           LibraryFilterSelection.none,
@@ -83,8 +99,9 @@ class LibraryRouteState {
     if (trimmedQuery != null) {
       params[searchKey] = trimmedQuery;
     }
-    if (groupMode != null) {
-      params[folderKey] = groupMode!.name;
+    final encodedFolderPreset = folderPreset?.storageValue ?? groupMode?.name;
+    if (encodedFolderPreset != null) {
+      params[folderKey] = encodedFolderPreset;
     }
     final trimmedBucket = _trimmed(selectedBucket);
     if (trimmedBucket != null) {
@@ -101,6 +118,9 @@ class LibraryRouteState {
     if (collectionStatusScope != LibraryCollectionStatusScope.all) {
       params[scopeKey] = collectionStatusScope.name;
     }
+    if (seriesCompletionScope != LibrarySeriesCompletionScope.all) {
+      params[seriesScopeKey] = seriesCompletionScope.name;
+    }
     if (quickView != null) {
       params[quickKey] = quickView!.name;
     }
@@ -116,6 +136,41 @@ class LibraryRouteState {
       params[foldersKey] = isSidebarVisible! ? '1' : '0';
     }
     return baseUri.replace(queryParameters: params);
+  }
+
+  LibraryRouteState filteredForType(LibraryTypeConfig type) {
+    final allowedGroupModes = type.availableGroupModes.toSet();
+    final filteredFolderPreset = sanitizeLibraryFolderPreset(
+      folderPreset,
+      allowedModes: allowedGroupModes,
+    );
+    final allowedSortColumns = type.availableSortColumns.toSet();
+    final filteredSortRules = sortRules == null
+        ? null
+        : [
+            for (final rule in sortRules!)
+              if (allowedSortColumns.contains(rule.column)) rule,
+          ];
+    return LibraryRouteState(
+      kind: kind,
+      searchQuery: searchQuery,
+        groupMode: filteredFolderPreset?.primaryMode ??
+          (groupMode != null && allowedGroupModes.contains(groupMode)
+            ? groupMode
+            : null),
+        folderPreset: filteredFolderPreset,
+      selectedBucket: selectedBucket,
+      linkedMetadataValue: linkedMetadataValue,
+      selectedLetter: selectedLetter,
+      collectionStatusScope: collectionStatusScope,
+      seriesCompletionScope: seriesCompletionScope,
+      quickView: quickView,
+      filterSelection: filterSelection,
+      sortRules: filteredSortRules == null || filteredSortRules.isEmpty
+          ? null
+          : filteredSortRules,
+      isSidebarVisible: isSidebarVisible,
+    );
   }
 
   static String? _encodeSortRules(List<LibrarySortRule>? rules) {
@@ -148,6 +203,18 @@ class LibraryRouteState {
       );
     }
     return decoded.isEmpty ? null : decoded;
+  }
+
+  static LibraryFolderPreset? _decodeFolderPreset(String? rawValue) {
+    final trimmedValue = _trimmed(rawValue);
+    if (trimmedValue == null) {
+      return null;
+    }
+    try {
+      return LibraryFolderPreset.parse(trimmedValue);
+    } catch (_) {
+      return null;
+    }
   }
 
   static String? _encodeFilterSelection(LibraryFilterSelection selection) {

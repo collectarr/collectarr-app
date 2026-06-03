@@ -1,5 +1,7 @@
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Shows a small popup to pick a 1–10 rating for a specific episode.
 /// Returns the selected rating, or null if dismissed / cleared.
@@ -33,16 +35,12 @@ class _EpisodeRatingPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
-      title: Text(
-        'S$season E$episode',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w900,
-          color: onSurface,
-        ),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'S$season E$episode',
+        icon: Icons.star_outline,
       ),
       contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
       content: Wrap(

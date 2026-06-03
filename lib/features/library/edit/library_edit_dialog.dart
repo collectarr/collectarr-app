@@ -21,8 +21,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -150,6 +150,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _crossoverController => _draft.crossoverController;
   TextEditingController get _storyArcsController =>
     _draft.storyArcsController;
+  TextEditingController get _seriesTitleController =>
+    _draft.seriesTitleController;
+  TextEditingController get _developersController =>
+    _draft.developersController;
   TextEditingController get _ownerLabelController =>
     _draft.ownerLabelController;
   TextEditingController get _imprintController => _draft.imprintController;
@@ -279,6 +283,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   set _collectionStatus(String? value) => _draft.collectionStatus = value;
   DateTime? get _lastBagBoardDate => _draft.lastBagBoardDate;
   set _lastBagBoardDate(DateTime? value) => _draft.lastBagBoardDate = value;
+  String? get _gameCompleteness => _draft.gameCompleteness;
+  set _gameCompleteness(String? value) => _draft.gameCompleteness = value;
+  bool get _gameHasBox => _draft.gameHasBox;
+  set _gameHasBox(bool value) => _draft.gameHasBox = value;
+  bool get _gameHasManual => _draft.gameHasManual;
+  set _gameHasManual(bool value) => _draft.gameHasManual = value;
+  String? get _gamePriceChartingId => _draft.gamePriceChartingId;
+  set _gamePriceChartingId(String? value) => _draft.gamePriceChartingId = value;
+  String? get _gameCoreRegion => _draft.gameCoreRegion;
+  set _gameCoreRegion(String? value) => _draft.gameCoreRegion = value;
+  bool get _gameValueIsLocked => _draft.gameValueIsLocked;
+  set _gameValueIsLocked(bool value) => _draft.gameValueIsLocked = value;
     TextEditingController get _marketValueController =>
       _draft.marketValueController;
     TextEditingController get _audioTracksController =>
@@ -309,6 +325,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isVideoKind {
     return widget.item.mediaKind.isVideoLibraryKind;
+  }
+
+  bool get _isGameKind {
+    return widget.type.workspace.kind.apiValue == 'game';
   }
 
   bool get _hasReleaseAnchor {
@@ -562,6 +582,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               _responsiveFields([
                 _publisherField(label: mediaFields.publisherLabel),
               ]),
+              if (_isGameKind) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(controller: _seriesTitleController, label: 'Series'),
+                  _field(
+                    controller: _developersController,
+                    label: 'Developer',
+                    hint: 'Comma-separated',
+                  ),
+                ]),
+              ],
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
@@ -576,6 +607,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   validator: optionalIntValidator,
                 ),
               ]),
+              if (_isGameKind) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _audienceRatingController,
+                    label: 'Audience rating',
+                  ),
+                  _field(
+                    controller: _genresEditController,
+                    label: 'Genre',
+                    hint: 'Comma-separated',
+                  ),
+                ]),
+              ],
               if (mediaFields.showPageCount ||
                   mediaFields.showImprint ||
                   mediaFields.showSeriesGroup) ...[
@@ -675,6 +720,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 _responsiveFields([
                   _publisherField(label: mediaFields.publisherLabel),
                 ]),
+                if (_isGameKind) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _field(controller: _seriesTitleController, label: 'Series'),
+                    _field(
+                      controller: _developersController,
+                      label: 'Developer',
+                      hint: 'Comma-separated',
+                    ),
+                  ]),
+                ],
                 const SizedBox(height: 10),
                 _responsiveFields([
                   _field(
@@ -689,6 +745,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     validator: optionalIntValidator,
                   ),
                 ]),
+                if (_isGameKind) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _field(
+                      controller: _audienceRatingController,
+                      label: 'Audience rating',
+                    ),
+                    _field(
+                      controller: _genresEditController,
+                      label: 'Genre',
+                      hint: 'Comma-separated',
+                    ),
+                  ]),
+                ],
                 if (mediaFields.showPageCount ||
                     mediaFields.showImprint ||
                     mediaFields.showSeriesGroup) ...[
@@ -919,6 +989,23 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       lastBagBoardDate: _lastBagBoardDate,
       onLastBagBoardDateChanged: (value) =>
           setState(() => _lastBagBoardDate = value),
+        isGameKind: widget.type.workspace.kind.apiValue == 'game',
+        gameCompleteness: _gameCompleteness,
+        onGameCompletenessChanged: (value) =>
+          setState(() => _gameCompleteness = value),
+        gameHasBox: _gameHasBox,
+        onGameHasBoxChanged: (value) => setState(() => _gameHasBox = value),
+        gameHasManual: _gameHasManual,
+        onGameHasManualChanged: (value) => setState(() => _gameHasManual = value),
+        gamePriceChartingId: _gamePriceChartingId,
+        onGamePriceChartingIdChanged: (value) =>
+          setState(() => _gamePriceChartingId = value),
+        gameCoreRegion: _gameCoreRegion,
+        onGameCoreRegionChanged: (value) =>
+          setState(() => _gameCoreRegion = value),
+        gameValueIsLocked: _gameValueIsLocked,
+        onGameValueIsLockedChanged: (value) =>
+          setState(() => _gameValueIsLocked = value),
     );
   }
 

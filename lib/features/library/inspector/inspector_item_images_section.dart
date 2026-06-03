@@ -3,9 +3,10 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorItemImagesRequest = ({
@@ -38,7 +39,10 @@ class InspectorItemImagesSection extends ConsumerWidget {
     final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
     final images = imagesAsync.value ?? const <ItemImage>[];
     final visibleImages = images
-        .where((image) => image.imageType != 'front_cover')
+      .where(
+        (image) =>
+          image.imageType != 'front_cover' && image.imageType != 'back_cover',
+      )
         .toList(growable: false);
 
     final groups = <String, List<ItemImage>>{};
@@ -58,7 +62,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
       children: [
         if (groups.isEmpty)
           Text(
-            'No extra owned-item images yet. Add back covers, signatures, labels, or other supporting photos here.',
+            'No extra owned-item images yet. Add signatures, labels, or other supporting photos here.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),
@@ -121,7 +125,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: const Text('Delete image?'),
         content: const Text('This image will be removed from your collection.'),
         actions: [
@@ -245,8 +249,10 @@ class _InspectorThumbnail extends StatelessWidget {
   }
 
   void _showFullImage(BuildContext context) {
+    final palette = appPalette(context);
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         child: Column(
@@ -259,7 +265,25 @@ class _InspectorThumbnail extends StatelessWidget {
                   maxWidth: 600,
                   maxHeight: 500,
                 ),
-                child: Image.memory(image.imageData, fit: BoxFit.contain),
+                child: Image.memory(
+                  image.imageData,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 360,
+                    height: 320,
+                    color: palette.surface,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      'Invalid image data for this file.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             if (image.caption != null && image.caption!.trim().isNotEmpty)

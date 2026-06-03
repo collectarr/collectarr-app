@@ -3,24 +3,34 @@ import 'dart:convert';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Ownership filter options used in the generic filter dialog.
 enum LibraryOwnershipFilter { all, owned, wishlist, missingGrade, forSale, onOrder }
 
-String libraryOwnershipFilterLabel(LibraryOwnershipFilter filter) {
+String libraryOwnershipFilterLabel(
+  LibraryOwnershipFilter filter, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (filter) {
-    LibraryOwnershipFilter.all => 'All items',
-    LibraryOwnershipFilter.owned => 'Owned only',
-    LibraryOwnershipFilter.wishlist => 'Wishlist only',
-    LibraryOwnershipFilter.missingGrade => 'Missing grade',
-    LibraryOwnershipFilter.forSale => 'For sale',
-    LibraryOwnershipFilter.onOrder => 'On order',
+    LibraryOwnershipFilter.all => labels.ownershipAll,
+    LibraryOwnershipFilter.owned => labels.ownershipOwned,
+    LibraryOwnershipFilter.wishlist => labels.ownershipWishlist,
+    LibraryOwnershipFilter.missingGrade => labels.ownershipMissingGrade,
+    LibraryOwnershipFilter.forSale => labels.ownershipForSale,
+    LibraryOwnershipFilter.onOrder => labels.ownershipOnOrder,
   };
 }
 
@@ -35,10 +45,15 @@ enum LibraryTrackingStatusFilter {
   repeating,
 }
 
-String libraryTrackingStatusFilterLabel(LibraryTrackingStatusFilter filter) {
+String libraryTrackingStatusFilterLabel(
+  LibraryTrackingStatusFilter filter, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (filter) {
-    LibraryTrackingStatusFilter.all => 'Any tracking status',
-    LibraryTrackingStatusFilter.notTracked => 'Not tracked',
+    LibraryTrackingStatusFilter.all => labels.trackingAny,
+    LibraryTrackingStatusFilter.notTracked => labels.trackingNotTracked,
     LibraryTrackingStatusFilter.planned => MediaTrackingStatus.planned.label,
     LibraryTrackingStatusFilter.inProgress =>
       MediaTrackingStatus.inProgress.label,
@@ -76,23 +91,42 @@ bool libraryTrackingStatusMatchesFilter(
 
 enum LibraryLoanStatusFilter { all, onLoan, available }
 
-String libraryLoanStatusFilterLabel(LibraryLoanStatusFilter filter) {
+String libraryLoanStatusFilterLabel(
+  LibraryLoanStatusFilter filter, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (filter) {
-    LibraryLoanStatusFilter.all => 'Any loan status',
-    LibraryLoanStatusFilter.onLoan => 'Currently on loan',
-    LibraryLoanStatusFilter.available => 'Available locally',
+    LibraryLoanStatusFilter.all => labels.loanAny,
+    LibraryLoanStatusFilter.onLoan => labels.loanOnLoan,
+    LibraryLoanStatusFilter.available => labels.loanAvailable,
   };
 }
 
 enum LibraryDateRangeField { updated, purchased, started, finished }
 
-String libraryDateRangeFieldLabel(LibraryDateRangeField field) {
+String libraryDateRangeFieldLabel(
+  LibraryDateRangeField field, {
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
   return switch (field) {
-    LibraryDateRangeField.updated => 'Updated',
-    LibraryDateRangeField.purchased => 'Purchased',
-    LibraryDateRangeField.started => 'Started',
-    LibraryDateRangeField.finished => 'Finished',
+    LibraryDateRangeField.updated => labels.dateUpdated,
+    LibraryDateRangeField.purchased => labels.datePurchased,
+    LibraryDateRangeField.started => labels.dateStarted,
+    LibraryDateRangeField.finished => labels.dateFinished,
   };
+}
+
+LibraryFilterOptionLabels _libraryFilterOptionLabels({
+  LibraryTypeConfig? type,
+  Object? mediaType,
+}) {
+  return type?.presentation.filterOptionLabels ??
+      collectarrLibraryTypes.byKind(mediaType)?.presentation.filterOptionLabels ??
+      const LibraryFilterOptionLabels();
 }
 
 class LibraryCustomFieldFilterOption {
@@ -277,6 +311,7 @@ class LibraryFilterOptions {
   factory LibraryFilterOptions.fromEntries(
     List<LibraryWorkspaceEntry> entries,
     {
+      required LibraryMediaAdapter adapter,
       List<CustomFieldDefinition> customFieldDefinitions = const [],
       Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
           const {},
@@ -298,7 +333,8 @@ class LibraryFilterOptions {
     };
 
     for (final entry in entries) {
-      final seriesTitle = entry.series?.seriesTitle?.trim();
+      final filterValues = adapter.filterValuesForEntry(entry);
+      final seriesTitle = filterValues.series;
       if (seriesTitle != null && seriesTitle.isNotEmpty) {
         series.add(seriesTitle);
       }
@@ -324,11 +360,11 @@ class LibraryFilterOptions {
       final year =
           entry.releaseYear?.toString() ?? entry.releaseDate?.year.toString();
       if (year != null) years.add(year);
-      if (entry.country?.trim().isNotEmpty == true) {
-        countries.add(entry.country!.trim());
+      if (filterValues.country?.isNotEmpty == true) {
+        countries.add(filterValues.country!);
       }
-      if (entry.language?.trim().isNotEmpty == true) {
-        languages.add(entry.language!.trim());
+      if (filterValues.language?.isNotEmpty == true) {
+        languages.add(filterValues.language!);
       }
       final ownedItemId = entry.ownedItemId;
       if (ownedItemId != null) {
@@ -398,7 +434,9 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
 bool libraryFilterMatches(
   LibraryWorkspaceEntry entry,
   LibraryFilterSelection filters,
+  LibraryMediaAdapter adapter,
 ) {
+  final filterValues = adapter.filterValuesForEntry(entry);
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
       !entry.isOwned) {
     return false;
@@ -420,8 +458,7 @@ bool libraryFilterMatches(
       !(entry.isOwned && entry.collectionStatus == 'on_order')) {
     return false;
   }
-  if (filters.series != null &&
-      entry.series?.seriesTitle?.trim() != filters.series) {
+  if (filters.series != null && filterValues.series != filters.series) {
     return false;
   }
   if (filters.location != null && entry.locationPath?.trim() != filters.location) {
@@ -447,11 +484,10 @@ bool libraryFilterMatches(
         entry.releaseYear?.toString() ?? entry.releaseDate?.year.toString();
     if (year != filters.releaseYear) return false;
   }
-  if (filters.country != null && entry.country?.trim() != filters.country) {
+  if (filters.country != null && filterValues.country != filters.country) {
     return false;
   }
-  if (filters.language != null &&
-      entry.language?.trim() != filters.language) {
+  if (filters.language != null && filterValues.language != filters.language) {
     return false;
   }
   if (filters.missingCover && !entry.hasMissingCover) return false;
@@ -541,10 +577,12 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = widget.type.workspace.accent;
     final hasGrades = widget.type.grades.isNotEmpty;
     final hasConditions = widget.type.conditions.isNotEmpty;
     final labels = libraryMediaFilterLabels(widget.type);
     final selectedCustomField = _selectedCustomFieldOption();
+    final viewport = MediaQuery.sizeOf(context);
     final ownershipValues = [
       LibraryOwnershipFilter.all,
       LibraryOwnershipFilter.owned,
@@ -552,321 +590,424 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
       if (hasGrades) LibraryOwnershipFilter.missingGrade,
     ];
 
-    return AlertDialog(
-      title: Text('Filter ${widget.type.pluralLabel.toLowerCase()}'),
-      content: SizedBox(
-        width: 420,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<LibraryOwnershipFilter>(
-                initialValue: _ownership,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Shelf',
-                  border: OutlineInputBorder(),
+    final generalFilters = <Widget>[
+      DropdownButtonFormField<LibraryOwnershipFilter>(
+        initialValue: _ownership,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Shelf'),
+        items: [
+          for (final f in ownershipValues)
+            DropdownMenuItem(
+              value: f,
+              child: Text(libraryOwnershipFilterLabel(f, type: widget.type)),
+            ),
+        ],
+        onChanged: (v) {
+          if (v != null) setState(() => _ownership = v);
+        },
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<LibraryTrackingStatusFilter>(
+        initialValue: _trackingStatus,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Tracking status'),
+        items: [
+          for (final filter in LibraryTrackingStatusFilter.values)
+            DropdownMenuItem(
+              value: filter,
+              child: Text(
+                libraryTrackingStatusFilterLabel(filter, type: widget.type),
+              ),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _trackingStatus = value);
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<LibraryLoanStatusFilter>(
+        initialValue: _loanStatus,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Loan status'),
+        items: [
+          for (final filter in LibraryLoanStatusFilter.values)
+            DropdownMenuItem(
+              value: filter,
+              child: Text(libraryLoanStatusFilterLabel(filter, type: widget.type)),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _loanStatus = value);
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<LibraryDateRangeField>(
+        initialValue: _dateRangeField,
+        dropdownColor: palette.panelRaised,
+        borderRadius: kAppMenuBorderRadius,
+        decoration: _filterFieldDecoration(context, label: 'Date field'),
+        items: [
+          for (final field in LibraryDateRangeField.values)
+            DropdownMenuItem(
+              value: field,
+              child: Text(libraryDateRangeFieldLabel(field, type: widget.type)),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _dateRangeField = value);
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          Expanded(
+            child: _DateFilterButton(
+              label: 'From',
+              value: _dateFrom,
+              onPick: () => _pickDate(isStart: true),
+              onClear: _dateFrom == null
+                  ? null
+                  : () => setState(() => _dateFrom = null),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _DateFilterButton(
+              label: 'To',
+              value: _dateTo,
+              onPick: () => _pickDate(isStart: false),
+              onClear: _dateTo == null
+                  ? null
+                  : () => setState(() => _dateTo = null),
+            ),
+          ),
+        ],
+      ),
+    ];
+
+    final detailFilters = _buildDetailFilters(
+      context: context,
+      labels: labels,
+      palette: palette,
+      hasGrades: hasGrades,
+      hasConditions: hasConditions,
+      selectedCustomField: selectedCustomField,
+    );
+    if (detailFilters.isNotEmpty) {
+      detailFilters.add(const SizedBox(height: 10));
+    }
+    detailFilters.addAll([
+      _FilterCheckboxTile(
+        title: 'Missing covers',
+        value: _missingCover,
+        onChanged: (value) => setState(() => _missingCover = value),
+      ),
+      const SizedBox(height: 8),
+      _FilterCheckboxTile(
+        title: 'Missing metadata',
+        value: _missingMetadata,
+        onChanged: (value) => setState(() => _missingMetadata = value),
+      ),
+    ]);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 820,
+          maxHeight: viewport.height - 36,
+        ),
+        child: SizedBox(
+          width: viewport.width - 48,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.panelRaised,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: palette.divider),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 28,
+                  offset: Offset(0, 14),
                 ),
-                items: [
-                  for (final f in ownershipValues)
-                    DropdownMenuItem(
-                      value: f,
-                      child: Text(libraryOwnershipFilterLabel(f)),
-                    ),
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _ownership = v);
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<LibraryTrackingStatusFilter>(
-                initialValue: _trackingStatus,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking status',
-                  border: OutlineInputBorder(),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AccentDialogHeader(
+                  title: 'Select Filters',
+                  accent: accent,
+                  icon: Icons.filter_alt_outlined,
+                  onClose: () => Navigator.of(context).pop(),
                 ),
-                items: [
-                  for (final filter in LibraryTrackingStatusFilter.values)
-                    DropdownMenuItem(
-                      value: filter,
-                      child: Text(libraryTrackingStatusFilterLabel(filter)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _trackingStatus = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<LibraryLoanStatusFilter>(
-                initialValue: _loanStatus,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Loan status',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final filter in LibraryLoanStatusFilter.values)
-                    DropdownMenuItem(
-                      value: filter,
-                      child: Text(libraryLoanStatusFilterLabel(filter)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _loanStatus = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<LibraryDateRangeField>(
-                initialValue: _dateRangeField,
-                dropdownColor: palette.panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Date field',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final field in LibraryDateRangeField.values)
-                    DropdownMenuItem(
-                      value: field,
-                      child: Text(libraryDateRangeFieldLabel(field)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _dateRangeField = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _DateFilterButton(
-                      label: 'From',
-                      value: _dateFrom,
-                      onPick: () => _pickDate(isStart: true),
-                      onClear: _dateFrom == null
-                          ? null
-                          : () => setState(() => _dateFrom = null),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _DateFilterButton(
-                      label: 'To',
-                      value: _dateTo,
-                      onPick: () => _pickDate(isStart: false),
-                      onClear: _dateTo == null
-                          ? null
-                          : () => setState(() => _dateTo = null),
-                    ),
-                  ),
-                ],
-              ),
-              if (widget.options.customFields.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: widget.options.customFields.any(
-                    (field) => field.definitionId == _customFieldDefinitionId,
-                  )
-                      ? _customFieldDefinitionId
-                      : null,
-                  isExpanded: true,
-                  dropdownColor: palette.panelRaised,
-                  borderRadius: kAppMenuBorderRadius,
-                  decoration: const InputDecoration(
-                    labelText: 'Custom field',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: '',
-                      child: Text('Any custom field'),
-                    ),
-                    for (final field in widget.options.customFields)
-                      DropdownMenuItem<String>(
-                        value: field.definitionId,
-                        child: Text(field.label),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _FilterDialogPane(
+                            title: 'General Filters',
+                            accent: accent,
+                            child: Column(children: generalFilters),
+                          ),
+                          const SizedBox(height: 12),
+                          _FilterDialogPane(
+                            title: 'Field Filters',
+                            accent: accent,
+                            child: Column(children: detailFilters),
+                          ),
+                        ],
                       ),
-                  ],
-                  onChanged: (value) {
-                    final nextDefinitionId =
-                        value == null || value.isEmpty ? null : value;
-                    setState(() {
-                      _customFieldDefinitionId = nextDefinitionId;
-                      final nextField = _selectedCustomFieldOption();
-                      if (_customFieldValue != null &&
-                          (nextField == null ||
-                              !nextField.values.contains(_customFieldValue))) {
-                        _customFieldValue = null;
-                      }
-                    });
-                  },
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: palette.divider)),
+                  ),
+                  child: Row(
+                    children: [
+                      LibraryDenseButton(
+                        label: 'Clear',
+                        onPressed: () => Navigator.of(context).pop(
+                          LibraryFilterSelection.none,
+                        ),
+                        tone: LibraryDenseButtonTone.subtle,
+                      ),
+                      const Spacer(),
+                      LibraryDenseButton(
+                        label: 'Apply',
+                        onPressed: () =>
+                            Navigator.of(context).pop(_buildSelection()),
+                        tone: LibraryDenseButtonTone.accent,
+                      ),
+                    ],
+                  ),
                 ),
               ],
-              if (selectedCustomField != null &&
-                  selectedCustomField.values.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: '${selectedCustomField.label} value',
-                  empty: 'Any value',
-                  value: _customFieldValue,
-                  options: _customFieldValueOptions(selectedCustomField),
-                  onChanged: (value) => setState(() => _customFieldValue = value),
-                ),
-              ],
-              if (widget.options.series.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: labels.series,
-                  empty: labels.anySeries,
-                  value: _series,
-                  options: widget.options.series,
-                  onChanged: (v) => setState(() => _series = v),
-                ),
-              ],
-              if (widget.options.locations.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Location',
-                  empty: 'Any location',
-                  value: _location,
-                  options: widget.options.locations,
-                  onChanged: (v) => setState(() => _location = v),
-                ),
-              ],
-              if (widget.options.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _AutocompleteFilterField(
-                  label: 'Tag',
-                  hint: 'Any tag',
-                  value: _tag,
-                  options: widget.options.tags,
-                  onChanged: (value) => setState(() => _tag = value),
-                ),
-              ],
-              if (widget.options.publishers.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: labels.publisher,
-                  empty: labels.anyPublisher,
-                  value: _publisher,
-                  options: widget.options.publishers,
-                  onChanged: (v) => setState(() => _publisher = v),
-                ),
-              ],
-              if (widget.options.releaseYears.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: labels.year,
-                  empty: labels.anyYear,
-                  value: _releaseYear,
-                  options: widget.options.releaseYears,
-                  onChanged: (v) => setState(() => _releaseYear = v),
-                ),
-              ],
-              if (hasGrades && widget.options.grades.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Grade',
-                  empty: 'Any grade',
-                  value: _grade,
-                  options: widget.options.grades,
-                  onChanged: (v) => setState(() => _grade = v),
-                ),
-              ],
-              if (hasConditions && widget.options.conditions.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Condition',
-                  empty: 'Any condition',
-                  value: _condition,
-                  options: widget.options.conditions,
-                  onChanged: (v) => setState(() => _condition = v),
-                ),
-              ],
-              if (widget.options.countries.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Country',
-                  empty: 'Any country',
-                  value: _country,
-                  options: widget.options.countries,
-                  onChanged: (v) => setState(() => _country = v),
-                ),
-              ],
-              if (widget.options.languages.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _FilterDropdown(
-                  label: 'Language',
-                  empty: 'Any language',
-                  value: _language,
-                  options: widget.options.languages,
-                  onChanged: (v) => setState(() => _language = v),
-                ),
-              ],
-              const SizedBox(height: 8),
-              CheckboxListTile(
-                value: _missingCover,
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Missing covers'),
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (v) =>
-                    setState(() => _missingCover = v ?? false),
-              ),
-              CheckboxListTile(
-                value: _missingMetadata,
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Missing metadata'),
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (v) =>
-                    setState(() => _missingMetadata = v ?? false),
-              ),
-            ],
+            ),
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () =>
-              Navigator.of(context).pop(LibraryFilterSelection.none),
-          child: const Text('Clear'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(
-            LibraryFilterSelection(
-              ownershipFilter: _ownership,
-              trackingStatusFilter: _trackingStatus,
-              loanStatusFilter: _loanStatus,
-              dateRangeField: _dateRangeField,
-              dateFrom: _dateFrom,
-              dateTo: _dateTo,
-              customFieldDefinitionId: _customFieldDefinitionId,
-              customFieldValue: _customFieldValue,
-              series: _series,
-              location: _location,
-              tag: _tag,
-              grade: _grade,
-              condition: _condition,
-              publisher: _publisher,
-              releaseYear: _releaseYear,
-              country: _country,
-              language: _language,
-              missingCover: _missingCover,
-              missingMetadata: _missingMetadata,
+    );
+  }
+
+  List<Widget> _buildDetailFilters({
+    required BuildContext context,
+    required LibraryMediaFilterLabels labels,
+    required AppThemePalette palette,
+    required bool hasGrades,
+    required bool hasConditions,
+    required LibraryCustomFieldFilterOption? selectedCustomField,
+  }) {
+    final detailFilters = <Widget>[];
+    if (widget.options.customFields.isNotEmpty) {
+      _appendFilterField(
+        detailFilters,
+        DropdownButtonFormField<String>(
+          initialValue: widget.options.customFields.any(
+            (field) => field.definitionId == _customFieldDefinitionId,
+          )
+              ? _customFieldDefinitionId
+              : null,
+          isExpanded: true,
+          dropdownColor: palette.panelRaised,
+          borderRadius: kAppMenuBorderRadius,
+          decoration: _filterFieldDecoration(context, label: 'Custom field'),
+          items: [
+            const DropdownMenuItem<String>(
+              value: '',
+              child: Text('Any custom field'),
             ),
-          ),
-          child: const Text('Apply'),
+            for (final field in widget.options.customFields)
+              DropdownMenuItem<String>(
+                value: field.definitionId,
+                child: Text(field.label),
+              ),
+          ],
+          onChanged: (value) {
+            final nextDefinitionId = value == null || value.isEmpty ? null : value;
+            setState(() {
+              _customFieldDefinitionId = nextDefinitionId;
+              final nextField = _selectedCustomFieldOption();
+              if (_customFieldValue != null &&
+                  (nextField == null ||
+                      !nextField.values.contains(_customFieldValue))) {
+                _customFieldValue = null;
+              }
+            });
+          },
         ),
-      ],
+      );
+    }
+    if (selectedCustomField != null && selectedCustomField.values.isNotEmpty) {
+      _appendFilterField(
+        detailFilters,
+        _FilterDropdown(
+          label: '${selectedCustomField.label} value',
+          empty: 'Any value',
+          value: _customFieldValue,
+          options: _customFieldValueOptions(selectedCustomField),
+          onChanged: (value) => setState(() => _customFieldValue = value),
+        ),
+      );
+    }
+
+    final fieldSpecs = [
+      for (final definition in widget.type.presentation.filterFieldDefinitions)
+        _buildDetailFilterFieldSpec(
+          definition: definition,
+          labels: labels,
+          hasGrades: hasGrades,
+          hasConditions: hasConditions,
+        ),
+    ];
+
+    for (final spec in fieldSpecs) {
+      if (!spec.isVisible) {
+        continue;
+      }
+      _appendFilterField(detailFilters, spec.builder());
+    }
+
+    return detailFilters;
+  }
+
+  _DetailFilterFieldSpec _buildDetailFilterFieldSpec({
+    required LibraryFilterFieldDefinition definition,
+    required LibraryMediaFilterLabels labels,
+    required bool hasGrades,
+    required bool hasConditions,
+  }) {
+    return switch (definition.field) {
+      LibraryFilterField.series => _DetailFilterFieldSpec(
+        isVisible: widget.options.series.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.series,
+          empty: labels.anySeries,
+          value: _series,
+          options: widget.options.series,
+          onChanged: (value) => setState(() => _series = value),
+        ),
+      ),
+      LibraryFilterField.location => _DetailFilterFieldSpec(
+        isVisible: widget.options.locations.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Location',
+          empty: 'Any location',
+          value: _location,
+          options: widget.options.locations,
+          onChanged: (value) => setState(() => _location = value),
+        ),
+      ),
+      LibraryFilterField.tag => _DetailFilterFieldSpec(
+        isVisible: widget.options.tags.isNotEmpty,
+        builder: () => _AutocompleteFilterField(
+          label: 'Tag',
+          hint: 'Any tag',
+          value: _tag,
+          options: widget.options.tags,
+          onChanged: (value) => setState(() => _tag = value),
+        ),
+      ),
+      LibraryFilterField.publisher => _DetailFilterFieldSpec(
+        isVisible: widget.options.publishers.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.publisher,
+          empty: labels.anyPublisher,
+          value: _publisher,
+          options: widget.options.publishers,
+          onChanged: (value) => setState(() => _publisher = value),
+        ),
+      ),
+      LibraryFilterField.year => _DetailFilterFieldSpec(
+        isVisible: widget.options.releaseYears.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: labels.year,
+          empty: labels.anyYear,
+          value: _releaseYear,
+          options: widget.options.releaseYears,
+          onChanged: (value) => setState(() => _releaseYear = value),
+        ),
+      ),
+      LibraryFilterField.grade => _DetailFilterFieldSpec(
+        isVisible: hasGrades && widget.options.grades.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Grade',
+          empty: 'Any grade',
+          value: _grade,
+          options: widget.options.grades,
+          onChanged: (value) => setState(() => _grade = value),
+        ),
+      ),
+      LibraryFilterField.condition => _DetailFilterFieldSpec(
+        isVisible: hasConditions && widget.options.conditions.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Condition',
+          empty: 'Any condition',
+          value: _condition,
+          options: widget.options.conditions,
+          onChanged: (value) => setState(() => _condition = value),
+        ),
+      ),
+      LibraryFilterField.country => _DetailFilterFieldSpec(
+        isVisible: widget.options.countries.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Country',
+          empty: 'Any country',
+          value: _country,
+          options: widget.options.countries,
+          onChanged: (value) => setState(() => _country = value),
+        ),
+      ),
+      LibraryFilterField.language => _DetailFilterFieldSpec(
+        isVisible: widget.options.languages.isNotEmpty,
+        builder: () => _FilterDropdown(
+          label: 'Language',
+          empty: 'Any language',
+          value: _language,
+          options: widget.options.languages,
+          onChanged: (value) => setState(() => _language = value),
+        ),
+      ),
+    };
+  }
+
+  LibraryFilterSelection _buildSelection() {
+    return LibraryFilterSelection(
+      ownershipFilter: _ownership,
+      trackingStatusFilter: _trackingStatus,
+      loanStatusFilter: _loanStatus,
+      dateRangeField: _dateRangeField,
+      dateFrom: _dateFrom,
+      dateTo: _dateTo,
+      customFieldDefinitionId: _customFieldDefinitionId,
+      customFieldValue: _customFieldValue,
+      series: _series,
+      location: _location,
+      tag: _tag,
+      grade: _grade,
+      condition: _condition,
+      publisher: _publisher,
+      releaseYear: _releaseYear,
+      country: _country,
+      language: _language,
+      missingCover: _missingCover,
+      missingMetadata: _missingMetadata,
     );
   }
 
@@ -951,10 +1092,7 @@ class _FilterDropdown extends StatelessWidget {
       isExpanded: true,
       dropdownColor: palette.panelRaised,
       borderRadius: kAppMenuBorderRadius,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: _filterFieldDecoration(context, label: label),
       items: [
         DropdownMenuItem(value: '', child: Text(empty)),
         for (final option in options)
@@ -998,10 +1136,10 @@ class _AutocompleteFilterField extends StatelessWidget {
         return TextFormField(
           controller: controller,
           focusNode: focusNode,
-          decoration: InputDecoration(
-            labelText: label,
+          decoration: _filterFieldDecoration(
+            context,
+            label: label,
             hintText: hint,
-            border: const OutlineInputBorder(),
             suffixIcon: controller.text.trim().isEmpty
                 ? null
                 : IconButton(
@@ -1065,10 +1203,17 @@ class _DateFilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final formatted = value == null
         ? label
         : MaterialLocalizations.of(context).formatMediumDate(value!);
     return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        backgroundColor: palette.surfaceSubtle,
+        side: BorderSide(color: palette.divider),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      ),
       onPressed: onPick,
       icon: const Icon(Icons.calendar_today_outlined, size: 18),
       label: Row(
@@ -1093,4 +1238,114 @@ class _DateFilterButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void _appendFilterField(List<Widget> fields, Widget field) {
+  if (fields.isNotEmpty) {
+    fields.add(const SizedBox(height: 10));
+  }
+  fields.add(field);
+}
+
+class _DetailFilterFieldSpec {
+  const _DetailFilterFieldSpec({
+    required this.isVisible,
+    required this.builder,
+  });
+
+  final bool isVisible;
+  final Widget Function() builder;
+}
+
+class _FilterDialogPane extends StatelessWidget {
+  const _FilterDialogPane({
+    required this.title,
+    required this.child,
+    required this.accent,
+  });
+
+  final String title;
+  final Widget child;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: accent,
+              ),
+        ),
+        const SizedBox(height: 10),
+        child,
+      ],
+    );
+  }
+}
+
+class _FilterCheckboxTile extends StatelessWidget {
+  const _FilterCheckboxTile({
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Material(
+      color: palette.surfaceSubtle,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(color: palette.divider),
+      ),
+      child: CheckboxListTile(
+        value: value,
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        title: Text(title),
+        controlAffinity: ListTileControlAffinity.leading,
+        visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+        onChanged: (next) => onChanged(next ?? false),
+      ),
+    );
+  }
+}
+
+InputDecoration _filterFieldDecoration(
+  BuildContext context, {
+  required String label,
+  String? hintText,
+  Widget? suffixIcon,
+}) {
+  final palette = appPalette(context);
+  return InputDecoration(
+    labelText: label,
+    hintText: hintText,
+    suffixIcon: suffixIcon,
+    isDense: true,
+    filled: true,
+    fillColor: palette.surfaceSubtle,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: palette.divider),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: palette.divider),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: palette.accent, width: 1.2),
+    ),
+  );
 }

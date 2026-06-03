@@ -36,11 +36,21 @@ class CatalogCacheRepository {
                 id: item.id,
                 kind: item.kind,
                 title: item.title,
+                displayTitle: Value(item.displayTitle),
+                localizedTitle: Value(item.localizedTitle),
+                originalTitle: Value(item.originalTitle),
+                titleExtension: Value(item.titleExtension),
+                searchAliasesJson: Value(
+                  item.searchAliases != null && item.searchAliases!.isNotEmpty
+                      ? jsonEncode(item.searchAliases)
+                      : null,
+                ),
                 sortKey: Value(item.sortKey),
                 itemNumber: Value(item.itemNumber),
                 synopsis: Value(item.synopsis),
                 coverImageUrl: Value(item.coverImageUrl),
                 thumbnailImageUrl: Value(item.thumbnailImageUrl),
+                coverImageData: Value(item.coverImageData),
                 editionTitle: Value(item.editionTitle),
                 physicalFormat: Value(item.physicalFormat),
                 physicalFormatLabel: Value(item.physicalFormatLabel),
@@ -50,6 +60,9 @@ class CatalogCacheRepository {
                 releaseYear: Value(item.releaseYear),
                 barcode: Value(item.barcode),
                 variant: Value(item.variant),
+                crossover: Value(item.crossover),
+                plotSummary: Value(item.plotSummary),
+                plotDescription: Value(item.plotDescription),
                 seriesId: Value(series?.seriesId),
                 seriesTitle: Value(series?.seriesTitle),
                 volumeName: Value(series?.volumeName),
@@ -85,6 +98,12 @@ class CatalogCacheRepository {
                 charactersJson: Value(
                   item.characters != null && item.characters!.isNotEmpty
                       ? jsonEncode(item.characters)
+                      : null,
+                ),
+                characterDetailsJson: Value(
+                  item.characterDetails != null &&
+                          item.characterDetails!.isNotEmpty
+                      ? jsonEncode(item.characterDetails)
                       : null,
                 ),
                 storyArcsJson: Value(
@@ -306,11 +325,17 @@ class CatalogCacheRepository {
       id: row.id,
       kind: row.kind,
       title: row.title,
+      displayTitle: row.displayTitle,
+      localizedTitle: row.localizedTitle,
+      originalTitle: row.originalTitle,
+      titleExtension: row.titleExtension,
+      searchAliases: _decodeStringList(row.searchAliasesJson),
       sortKey: row.sortKey,
       itemNumber: row.itemNumber,
       synopsis: row.synopsis,
       coverImageUrl: row.coverImageUrl,
       thumbnailImageUrl: row.thumbnailImageUrl,
+      coverImageData: row.coverImageData,
       editionTitle: row.editionTitle,
       physicalFormat: row.physicalFormat,
       physicalFormatLabel: row.physicalFormatLabel,
@@ -320,6 +345,9 @@ class CatalogCacheRepository {
       releaseYear: row.releaseYear,
       barcode: row.barcode,
       variant: row.variant,
+      crossover: row.crossover,
+      plotSummary: row.plotSummary,
+      plotDescription: row.plotDescription,
       series: series.hasData ? series : null,
       video: video.hasData ? video : null,
       music: music.hasData ? music : null,
@@ -328,6 +356,7 @@ class CatalogCacheRepository {
       editions: editions ?? const <CatalogEdition>[],
       creators: _decodeListOfMaps(row.creatorsJson),
       characters: _decodeStringList(row.charactersJson),
+      characterDetails: _decodeListOfMaps(row.characterDetailsJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
       rawPlatforms: rawPlatforms,
       genres: _decodeStringList(row.genresJson),

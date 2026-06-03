@@ -3,19 +3,22 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.music,
   title: 'Music',
   icon: Icons.music_note,
-  accent: Color(0xFFE07A2D),
+  accent: Color(0xFFFDAD49),
   preferencePrefix: 'music',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
@@ -42,7 +45,9 @@ const musicLibraryConfig = LibraryTypeConfig(
   trackingProfile: listeningTrackingProfile,
   editDialogBuilder: buildMusicLibraryEditDialog,
   presentation: musicLibraryMediaPresentation,
-  editPresentation: musicLibraryEditPresentation,
+  editPresentation: LibraryEditPresentation(
+    builder: MusicLibraryEditPresentationBuilder(),
+  ),
   addChrome: LibraryAddChromeConfig(
     mediaReferenceLabel: 'Album',
     trackScopeSummary:
@@ -62,5 +67,6 @@ const musicLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,
+    supportsMediaReleaseSplit: true,
   ),
 );

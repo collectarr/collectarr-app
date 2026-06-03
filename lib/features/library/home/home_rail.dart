@@ -76,7 +76,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
         libraryIconForKind(selected.kind);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
-      duration: kAppAnimNormal,
+      duration: Duration.zero,
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final animatedAccent = color ?? accent;
@@ -196,7 +196,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                         color: selectedType
                                             ? selectedTileForeground
                                             : unselectedTileForeground,
-                                        fontSize: 10,
+                                        fontSize: 11,
                                         fontWeight: FontWeight.w900,
                                       ),
                                     ),
@@ -392,7 +392,7 @@ class _RailSyncButton extends ConsumerWidget {
                             ? '99+'
                             : sync.pendingCount.toString(),
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 11,
                           color: pendingBadgeForeground,
                           fontWeight: FontWeight.w800,
                         ),

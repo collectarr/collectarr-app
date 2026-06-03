@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
 
 Future<void> showCustomFieldsManagementDialog({
@@ -16,7 +17,7 @@ Future<void> showCustomFieldsManagementDialog({
 }) {
   return showDialog<void>(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
       title: const Text('Manage custom fields'),
       content: SizedBox(
@@ -158,7 +159,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   Future<void> _confirmDelete(CustomFieldDefinition def) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: const Text('Delete custom field?'),
         content: Text(
           'This will permanently remove "${def.name}" and all its values from every item.',
@@ -295,7 +296,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
   @override
   Widget build(BuildContext context) {
     final isNew = widget.existing == null;
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text(isNew ? 'New custom field' : 'Edit custom field'),
       content: Form(
         key: _formKey,

@@ -38,4 +38,87 @@ void main() {
     expect(movieStore.cachedQuickView, isNull);
     expect(movieStore.cachedGroupMode, isNull);
   });
+
+  test('pinned group modes preserve persisted order', () async {
+    await movieStore.writePinnedGroupModes({
+      LibraryGroupMode.director,
+      LibraryGroupMode.releaseYear,
+      LibraryGroupMode.title,
+    });
+
+    final restored = await movieStore.readPinnedGroupModes();
+
+    expect(restored.toList(), [
+      LibraryGroupMode.director,
+      LibraryGroupMode.releaseYear,
+      LibraryGroupMode.title,
+    ]);
+  });
+
+  test('folder preset caches and restores composite modes', () async {
+    final preset = LibraryFolderPreset(
+      modes: [
+        LibraryGroupMode.ageRating,
+        LibraryGroupMode.country,
+        LibraryGroupMode.releaseYear,
+      ],
+    );
+
+    await movieStore.writeFolderPreset(preset);
+
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    expect(reloadedStore.cachedFolderPreset, preset);
+    expect(await reloadedStore.readFolderPreset(), preset);
+  });
+
+  test('pinned folder presets preserve persisted order', () async {
+    final presets = [
+      LibraryFolderPreset.single(LibraryGroupMode.director),
+      LibraryFolderPreset(
+        modes: [LibraryGroupMode.ageRating, LibraryGroupMode.country],
+      ),
+      LibraryFolderPreset(
+        modes: [
+          LibraryGroupMode.ageRating,
+          LibraryGroupMode.releaseYear,
+          LibraryGroupMode.series,
+        ],
+      ),
+    ];
+
+    await movieStore.writePinnedFolderPresets(presets);
+
+    final restored = await movieStore.readPinnedFolderPresets();
+
+    expect(restored, presets);
+  });
+
+  test('pinned folder presets migrate legacy single-mode favorites', () async {
+    SharedPreferences.setMockInitialValues({
+      'library.movie.pinnedGroupModes': [
+        LibraryGroupMode.director.name,
+        LibraryGroupMode.releaseYear.name,
+      ],
+    });
+
+    final restored = await movieStore.readPinnedFolderPresets();
+
+    expect(
+      restored,
+      [
+        LibraryFolderPreset.single(LibraryGroupMode.director),
+        LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
+      ],
+    );
+  });
+
+  test('pinned sort favorite ids preserve persisted order', () async {
+    await movieStore.writePinnedSortFavoriteIds(
+      <String>{'price_desc', 'title_asc', 'updated_desc'},
+    );
+
+    final restored = await movieStore.readPinnedSortFavoriteIds();
+
+    expect(restored.toList(), ['price_desc', 'title_asc', 'updated_desc']);
+  });
 }

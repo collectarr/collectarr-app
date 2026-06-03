@@ -9,6 +9,34 @@
 > Treat the sections below as background design notes. Re-validate them against
 > current shared library surfaces before using them as implementation guidance.
 
+## Current Architecture Direction
+
+The active library cleanup is not following the original "make generic smarter"
+direction. The current rule is simpler:
+
+- keep shared code for interfaces, adapters, and a narrow set of genuinely
+	common helpers
+- move concrete builders, bucket logic, page entrypoints, and shell behavior
+	into `lib/features/library/kinds/*`
+- prefer obvious local ownership over another indirection layer, even when that
+	means controlled copy-paste between kinds
+
+What that means in practice today:
+
+- `home_page.dart` dispatches through concrete kind pages instead of
+	instantiating the old generic page directly
+- the old shared page surface is now explicitly named `GenericLibraryPage`
+- workspace/release entry normalization lives in per-kind
+	`workspace_entry_builder.dart` files
+- simple bucket-label builders now live in the kind or generic presentation
+	files that use them
+- `BookLibraryPageState` is the first concrete kind state hook and already owns
+	the drilldown decision locally
+
+Remaining work is implementation-detail cleanup, not a fresh architecture
+proposal: keep moving behavior out of `generic/page.dart` into kind-local page
+states until the fallback shell is only a thin shared baseline.
+
 ## Why This Needs A Restructure
 
 The generic library stack currently mixes three different scopes in the same surfaces:

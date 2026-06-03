@@ -26,6 +26,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.onSave,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
+    this.tabReorderLongPressDelay = const Duration(milliseconds: 220),
     this.tabOrderKey,
     this.ebaySearchQuery,
   }) : assert(
@@ -49,6 +50,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final VoidCallback onSave;
   final LibraryEditChromeVariant chromeVariant;
   final bool allowTabReorder;
+  final Duration tabReorderLongPressDelay;
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
   /// If non-null, an eBay search button appears in the title bar.
@@ -130,14 +132,17 @@ class _LibraryEditDialogScaffoldState
     final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
     final viewport = MediaQuery.sizeOf(context);
     final maxWidth = isMovieDesktop
-        ? (viewport.width > 1440 ? 1180.0 : 1100.0)
-        : (viewport.width > 1440 ? 1120.0 : 1040.0);
-    final maxHeight = viewport.height > 900 ? 820.0 : viewport.height - 40;
+        ? (viewport.width > 1440 ? 1220.0 : 1140.0)
+        : (viewport.width > 1440 ? 1180.0 : 1100.0);
+    final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
     return Dialog(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(isMovieDesktop ? 2 : 8),
+        borderRadius: BorderRadius.circular(6),
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       clipBehavior: Clip.antiAlias,
       child: Theme(
         data: editDialogTheme(
@@ -150,12 +155,12 @@ class _LibraryEditDialogScaffoldState
           return DecoratedBox(
             decoration: BoxDecoration(
               color: p.panel,
-              border: Border.all(color: p.divider),
+              borderRadius: BorderRadius.circular(6),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0xCC000000),
-                  blurRadius: 22,
-                  offset: Offset(0, 8),
+                  color: Color(0x80000000),
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
@@ -182,6 +187,7 @@ class _LibraryEditDialogScaffoldState
                           tabs: orderedTabs,
                           accent: widget.accent,
                           allowReorder: widget.allowTabReorder,
+                          longPressDelay: widget.tabReorderLongPressDelay,
                           onReorderItem: _onReorderItem,
                         ),
                       ),
@@ -223,6 +229,7 @@ class _ReorderableTabStrip extends StatelessWidget {
     required this.tabs,
     required this.accent,
     required this.allowReorder,
+    required this.longPressDelay,
     required this.onReorderItem,
   });
 
@@ -231,6 +238,7 @@ class _ReorderableTabStrip extends StatelessWidget {
   final List<Widget> tabs;
   final Color accent;
   final bool allowReorder;
+  final Duration longPressDelay;
   final void Function(int oldIndex, int newIndex) onReorderItem;
 
   @override
@@ -238,11 +246,8 @@ class _ReorderableTabStrip extends StatelessWidget {
     return AnimatedBuilder(
       animation: tabController,
       builder: (context, _) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: kLibraryEditTabStripHeight,
+        return SizedBox(
+          height: kLibraryEditTabStripHeight,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -260,8 +265,9 @@ class _ReorderableTabStrip extends StatelessWidget {
                             return LongPressDraggable<int>(
                               data: i,
                               axis: Axis.horizontal,
+                              delay: longPressDelay,
                               feedback: Material(
-                                elevation: 4,
+                                elevation: 2,
                                 color: Colors.transparent,
                                 child: LibraryEditDraggedTabLabel(
                                   tab: tabs[i],
@@ -269,7 +275,7 @@ class _ReorderableTabStrip extends StatelessWidget {
                                 ),
                               ),
                               childWhenDragging: Opacity(
-                                opacity: 0.3,
+                                opacity: 0.4,
                                 child: LibraryEditDraggedTabLabel(
                                   tab: tabs[i],
                                   accent: accent,
@@ -300,8 +306,6 @@ class _ReorderableTabStrip extends StatelessWidget {
               ],
             ),
           ),
-        ),
-          ],
         );
       },
     );
@@ -335,21 +339,19 @@ class _LibraryEditTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final headerHeight =
-        (isMovieDesktop ? 54.0 : 58.0) + (badges.isNotEmpty ? 6.0 : 0.0);
+    final headerMinHeight = isMovieDesktop ? 46.0 : 48.0;
     return Container(
-      height: headerHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      constraints: BoxConstraints(minHeight: headerMinHeight),
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       decoration: BoxDecoration(
-        color: isMovieDesktop ? palette.toolbar : palette.surface,
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        color: accent,
+        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
-          Icon(icon, color: accent, size: isMovieDesktop ? 18 : 22),
-          const SizedBox(width: 10),
+          Icon(icon, color: Colors.white, size: 16),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -359,19 +361,17 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontSize: isMovieDesktop ? 14 : 15,
-                      ),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: isMovieDesktop ? 13 : 13.5,
+                    color: Colors.white,
+                  ),
                 ),
                 if (badges.isNotEmpty) ...[
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Wrap(
-                    spacing: 6,
-                    runSpacing: 3,
+                    spacing: 4,
+                    runSpacing: 2,
                     children: badges,
                   ),
                 ],
@@ -383,16 +383,17 @@ class _LibraryEditTitleBar extends StatelessWidget {
               tooltip: 'Search on eBay',
               onPressed: _searchOnEbay,
               visualDensity: VisualDensity.compact,
-              icon: Icon(
+              icon: const Icon(
                 Icons.shopping_cart_outlined,
-                size: isMovieDesktop ? 18 : 20,
+                size: 17,
+                color: Colors.white,
               ),
             ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,
             visualDensity: VisualDensity.compact,
-            icon: Icon(Icons.close, size: isMovieDesktop ? 20 : 24),
+            icon: const Icon(Icons.close, size: 18, color: Colors.white),
           ),
         ],
       ),
@@ -414,28 +415,25 @@ class _LibraryEditFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final saveBackground = isMovieDesktop
-        ? Color.lerp(accent, Colors.white, 0.58) ?? accent
-        : null;
-    final saveForeground = isMovieDesktop ? Colors.black87 : null;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: isMovieDesktop ? appPalette(context).toolbar : appPalette(context).surface,
+        color: appPalette(context).toolbar,
         border: Border(top: BorderSide(color: appPalette(context).divider)),
       ),
       child: Align(
         alignment: Alignment.centerRight,
         child: FilledButton.icon(
-          style: isMovieDesktop
-              ? FilledButton.styleFrom(
-                  backgroundColor: saveBackground,
-                  foregroundColor: saveForeground,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: const StadiumBorder(),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w700),
-                )
-              : null,
+          style: FilledButton.styleFrom(
+            backgroundColor: isMovieDesktop
+                ? Color.alphaBlend(accent.withValues(alpha: 0.18), Colors.white)
+                : accent,
+            foregroundColor: isMovieDesktop ? Colors.black87 : null,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            visualDensity: VisualDensity.compact,
+          ),
           onPressed: onSave,
           icon: const Icon(Icons.save_outlined),
           label: const Text('Save'),

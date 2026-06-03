@@ -222,7 +222,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                 ownerLabel: emptyToNull(map['owner'] ?? ''),
                 lastBagBoardDate: parseDate(map['bagBoardDate'] ?? ''),
                 collectionStatus: emptyToNull(map['collectionStatus'] ?? ''),
-                storageDevice: emptyToNull(map['storageBox'] ?? ''),
+                storageDevice: emptyToNull(map['location'] ?? map['storageBox'] ?? ''),
               ),
         tracking: normalizedStatus == null && widget.request.trackingEntry == null
             ? null

@@ -1,11 +1,13 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -87,6 +89,181 @@ class LibraryMediaStatsLabels {
   final String topPublisher;
 }
 
+enum LibrarySortFieldGroup { main, value, edition, personal }
+
+class LibraryGroupModeDefinition {
+  const LibraryGroupModeDefinition({
+    required this.mode,
+    required this.label,
+    required this.sidebarTitle,
+    required this.icon,
+    this.supportsBucketManagement = false,
+    this.bucketManagerListLabel,
+    this.drilldownChildMode,
+    this.folderSetLabel,
+  });
+
+  final LibraryGroupMode mode;
+  final String label;
+  final String sidebarTitle;
+  final IconData icon;
+  final bool supportsBucketManagement;
+  final String? bucketManagerListLabel;
+  final LibraryGroupMode? drilldownChildMode;
+  final String? folderSetLabel;
+
+  String get resolvedBucketManagerListLabel =>
+      bucketManagerListLabel ?? '$label list';
+}
+
+class LibrarySortColumnDefinition {
+  const LibrarySortColumnDefinition({
+    required this.column,
+    required this.label,
+    this.group = LibrarySortFieldGroup.main,
+    this.defaultAscending = true,
+  });
+
+  final LibrarySortColumn column;
+  final String label;
+  final LibrarySortFieldGroup group;
+  final bool defaultAscending;
+}
+
+class LibraryFilterOptionLabels {
+  const LibraryFilterOptionLabels({
+    this.ownershipAll = 'All items',
+    this.ownershipOwned = 'Owned only',
+    this.ownershipWishlist = 'Wishlist only',
+    this.ownershipMissingGrade = 'Missing grade',
+    this.ownershipForSale = 'For sale',
+    this.ownershipOnOrder = 'On order',
+    this.trackingAny = 'Any tracking status',
+    this.trackingNotTracked = 'Not tracked',
+    this.loanAny = 'Any loan status',
+    this.loanOnLoan = 'Currently on loan',
+    this.loanAvailable = 'Available locally',
+    this.dateUpdated = 'Updated',
+    this.datePurchased = 'Purchased',
+    this.dateStarted = 'Started',
+    this.dateFinished = 'Finished',
+  });
+
+  final String ownershipAll;
+  final String ownershipOwned;
+  final String ownershipWishlist;
+  final String ownershipMissingGrade;
+  final String ownershipForSale;
+  final String ownershipOnOrder;
+  final String trackingAny;
+  final String trackingNotTracked;
+  final String loanAny;
+  final String loanOnLoan;
+  final String loanAvailable;
+  final String dateUpdated;
+  final String datePurchased;
+  final String dateStarted;
+  final String dateFinished;
+}
+
+enum LibraryFilterField {
+  series,
+  location,
+  tag,
+  publisher,
+  year,
+  grade,
+  condition,
+  country,
+  language,
+}
+
+class LibraryFilterFieldDefinition {
+  const LibraryFilterFieldDefinition(this.field);
+
+  final LibraryFilterField field;
+}
+
+const defaultLibraryFilterFieldDefinitions = [
+  LibraryFilterFieldDefinition(LibraryFilterField.series),
+  LibraryFilterFieldDefinition(LibraryFilterField.location),
+  LibraryFilterFieldDefinition(LibraryFilterField.tag),
+  LibraryFilterFieldDefinition(LibraryFilterField.publisher),
+  LibraryFilterFieldDefinition(LibraryFilterField.year),
+  LibraryFilterFieldDefinition(LibraryFilterField.grade),
+  LibraryFilterFieldDefinition(LibraryFilterField.condition),
+  LibraryFilterFieldDefinition(LibraryFilterField.country),
+  LibraryFilterFieldDefinition(LibraryFilterField.language),
+];
+
+class LibraryBucketLabelOverrides {
+  const LibraryBucketLabelOverrides({
+    this.storyArc = 'Story arc',
+    this.character = 'Character',
+    this.noGenre = 'No genre',
+    this.unknownCountry = 'Unknown country',
+    this.unknownLanguage = 'Unknown language',
+    this.owned = 'Owned',
+    this.wishlist = 'Wishlist',
+    this.catalogOnly = 'Catalog only',
+  });
+
+  final String storyArc;
+  final String character;
+  final String noGenre;
+  final String unknownCountry;
+  final String unknownLanguage;
+  final String owned;
+  final String wishlist;
+  final String catalogOnly;
+}
+
+class LibraryReferenceLabels {
+  const LibraryReferenceLabels({
+    this.itemScope = 'Media',
+    this.editionScope = 'Edition',
+    this.variantScope = 'Physical release',
+    this.bundleScope = 'Bundle',
+    this.bundleHierarchy = 'Bundle release',
+    this.editionHierarchy = 'Edition',
+    this.variantHierarchy = 'Physical',
+  });
+
+  final String itemScope;
+  final String editionScope;
+  final String variantScope;
+  final String bundleScope;
+  final String bundleHierarchy;
+  final String editionHierarchy;
+  final String variantHierarchy;
+
+  String get ownedAsItem => 'Owned as ${itemScope.toLowerCase()}';
+  String get ownedAsEdition => 'Owned as ${editionScope.toLowerCase()}';
+  String get ownedAsVariant => 'Owned as ${variantScope.toLowerCase()}';
+  String get ownedAsBundle => 'Owned as ${bundleScope.toLowerCase()}';
+  String get wishlistedAsItem => 'Wishlisted as ${itemScope.toLowerCase()}';
+  String get wishlistedAsEdition =>
+      'Wishlisted as ${editionScope.toLowerCase()}';
+  String get wishlistedAsVariant =>
+      'Wishlisted as ${variantScope.toLowerCase()}';
+  String get wishlistedAsBundle =>
+      'Wishlisted as ${bundleScope.toLowerCase()}';
+}
+
+class LibraryStatusLabels {
+  const LibraryStatusLabels({
+    this.owned = 'Owned',
+    this.tracked = 'Tracked',
+    this.wishlist = 'Wishlist',
+    this.localCatalog = 'Local catalog',
+  });
+
+  final String owned;
+  final String tracked;
+  final String wishlist;
+  final String localCatalog;
+}
+
 class LibraryAddSearchResultDisplay {
   const LibraryAddSearchResultDisplay({
     required this.title,
@@ -98,6 +275,56 @@ class LibraryAddSearchResultDisplay {
   final String? secondaryLine;
   final String? detailLine;
 }
+
+class LibraryBucketingContext {
+  const LibraryBucketingContext({
+    required this.source,
+    required this.entry,
+    required this.groupMode,
+  });
+
+  final ShelfEntry source;
+  final LibraryWorkspaceEntry entry;
+  final LibraryGroupMode groupMode;
+}
+
+class LibraryReleaseEntryRequest {
+  const LibraryReleaseEntryRequest({
+    required this.titleEntry,
+    required this.edition,
+    this.isOwned = false,
+    this.isWishlisted = false,
+    this.isTracked = false,
+    this.referenceEditionId,
+    this.referenceVariantId,
+    this.referenceBundleReleaseId,
+    this.editions = const <CatalogEdition>[],
+    required this.updatedAt,
+  });
+
+  final LibraryWorkspaceEntry titleEntry;
+  final CatalogEdition edition;
+  final bool isOwned;
+  final bool isWishlisted;
+  final bool isTracked;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
+  final List<CatalogEdition> editions;
+  final DateTime updatedAt;
+}
+
+typedef LibraryWorkspaceEntryBuilder = LibraryWorkspaceEntry Function(
+  ShelfEntry source,
+);
+
+typedef LibraryReleaseEntryBuilder = LibraryWorkspaceEntry Function(
+  LibraryReleaseEntryRequest request,
+);
+
+typedef LibraryBucketLabelBuilder = String Function(
+  LibraryBucketingContext context,
+);
 
 class LibrarySortFavorite {
   const LibrarySortFavorite({
@@ -196,6 +423,7 @@ class LibraryMetadataPresentation {
     required this.characters,
     required this.storyArcs,
     required this.genres,
+    this.labels = const LibraryMetadataLabels(),
   });
 
   final List<LibraryInspectorFactData> identityFacts;
@@ -204,6 +432,7 @@ class LibraryMetadataPresentation {
   final List<String> characters;
   final List<String> storyArcs;
   final List<String> genres;
+  final LibraryMetadataLabels labels;
 
   List<LibraryInspectorFactData> get allFacts => [
         ...identityFacts,
@@ -212,6 +441,28 @@ class LibraryMetadataPresentation {
 
   bool get hasCredits =>
       creators.isNotEmpty || characters.isNotEmpty || storyArcs.isNotEmpty;
+}
+
+class LibraryMetadataLabels {
+  const LibraryMetadataLabels({
+    this.identitySectionTitle = 'Catalog identity',
+    this.contextSectionTitle = 'Catalog context',
+    this.creditsSectionTitle = 'Credits & Discovery',
+    this.creators = 'Creators',
+    this.characters = 'Characters',
+    this.storyArcs = 'Story Arcs',
+    this.storyArcsInline = 'Story arcs',
+    this.genres = 'Genres',
+  });
+
+  final String identitySectionTitle;
+  final String contextSectionTitle;
+  final String creditsSectionTitle;
+  final String creators;
+  final String characters;
+  final String storyArcs;
+  final String storyArcsInline;
+  final String genres;
 }
 
 typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
@@ -258,6 +509,46 @@ abstract class LibraryMediaPresentationBuilder {
     return const [];
   }
 
+  List<Widget> buildDetailCatalogSections({
+    required BuildContext context,
+    required String singularLabel,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
+    required LibraryWorkspaceEntry entry,
+    required Color accent,
+    ValueChanged<String>? onFilterByValue,
+  }) {
+    return [
+      buildDetailIdentitySection(
+        context: context,
+        singularLabel: singularLabel,
+        mediaFields: mediaFields,
+        releaseFields: releaseFields,
+        entry: entry,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      ),
+      buildDetailContextSection(
+        context: context,
+        singularLabel: singularLabel,
+        mediaFields: mediaFields,
+        releaseFields: releaseFields,
+        entry: entry,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      ),
+      buildDetailCreditsSection(
+        context: context,
+        singularLabel: singularLabel,
+        mediaFields: mediaFields,
+        releaseFields: releaseFields,
+        entry: entry,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      ),
+    ];
+  }
+
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
@@ -293,7 +584,7 @@ abstract class LibraryMediaPresentationBuilder {
       return fact;
     }).toList(growable: false);
     return LibraryInspectorSection(
-      title: 'Catalog identity',
+      title: presentation.labels.identitySectionTitle,
       accentColor: accent,
       children: [
         LibraryInspectorFactGrid(facts: identityFacts),
@@ -319,14 +610,14 @@ abstract class LibraryMediaPresentationBuilder {
       tapFor: _tapResolver(onFilterByValue),
     );
     return LibraryInspectorSection(
-      title: 'Catalog context',
+      title: presentation.labels.contextSectionTitle,
       accentColor: accent,
       children: [
         LibraryInspectorFactGrid(facts: presentation.contextFacts),
         if (presentation.genres.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(
-            label: 'Genres',
+            label: presentation.labels.genres,
             values: presentation.genres,
             onValueTap: onFilterByValue,
           ),
@@ -356,12 +647,12 @@ abstract class LibraryMediaPresentationBuilder {
       return const SizedBox.shrink();
     }
     return LibraryInspectorSection(
-      title: 'Credits & Discovery',
+      title: presentation.labels.creditsSectionTitle,
       accentColor: accent,
       children: [
         if (presentation.creators.isNotEmpty)
           LibraryMetadataCreditsList(
-            title: 'Creators',
+            title: presentation.labels.creators,
             credits: presentation.creators,
             onValueTap: (value) => context.push(
               '/creator/${Uri.encodeComponent(value)}',
@@ -370,7 +661,7 @@ abstract class LibraryMediaPresentationBuilder {
         if (presentation.characters.isNotEmpty) ...[
           if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
           LibraryInspectorChipWrap(
-            label: 'Characters',
+            label: presentation.labels.characters,
             values: presentation.characters,
             onValueTap: (value) => context.push(
               '/character/${Uri.encodeComponent(value)}',
@@ -382,7 +673,7 @@ abstract class LibraryMediaPresentationBuilder {
               presentation.characters.isNotEmpty)
             const SizedBox(height: 8),
           LibraryInspectorChipWrap(
-            label: 'Story Arcs',
+            label: presentation.labels.storyArcs,
             values: presentation.storyArcs,
             onValueTap: (value) => context.push(
               '/story-arc/${Uri.encodeComponent(value)}',
@@ -411,6 +702,9 @@ class LibraryMediaPresentation {
     required this.filterLabels,
     required this.groupLabels,
     required this.builder,
+    required this.workspaceEntryBuilder,
+    required this.releaseEntryBuilder,
+    required this.bucketLabelBuilder,
     this.defaultVisibleColumns = const {
       LibraryTableColumn.status,
       LibraryTableColumn.cover,
@@ -432,33 +726,71 @@ class LibraryMediaPresentation {
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketModes = const [],
     this.supportsSeriesIssueJump = false,
+    this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
     this.sortFavorites = defaultLibrarySortFavorites,
     this.columnFavorites = defaultLibraryColumnFavorites,
-    this.groupModes = const [
-      LibraryGroupMode.series,
-      LibraryGroupMode.title,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.year,
-      LibraryGroupMode.location,
-      LibraryGroupMode.ownership,
-    ],
+    this.filterOptionLabels = const LibraryFilterOptionLabels(),
+    this.filterFieldDefinitions = defaultLibraryFilterFieldDefinitions,
+    this.referenceLabels = const LibraryReferenceLabels(),
+    this.statusLabels = const LibraryStatusLabels(),
+    this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
+    required this.sortColumnDefinitions,
+    required this.groupModeDefinitions,
+    required this.groupModes,
   });
 
   final LibraryMediaSearchFieldLabels searchFieldLabels;
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
+  final LibraryWorkspaceEntryBuilder workspaceEntryBuilder;
+  final LibraryReleaseEntryBuilder releaseEntryBuilder;
+  final LibraryBucketLabelBuilder bucketLabelBuilder;
   final Set<LibraryTableColumn> defaultVisibleColumns;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
   final List<LibraryGroupMode> externalFacetBucketModes;
   final bool supportsSeriesIssueJump;
+  final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
+  final LibraryFilterOptionLabels filterOptionLabels;
+  final List<LibraryFilterFieldDefinition> filterFieldDefinitions;
+  final LibraryReferenceLabels referenceLabels;
+  final LibraryStatusLabels statusLabels;
+  final LibraryBucketLabelOverrides bucketLabelOverrides;
+  final List<LibraryGroupModeDefinition> groupModeDefinitions;
+  final List<LibrarySortColumnDefinition> sortColumnDefinitions;
   final List<LibraryGroupMode> groupModes;
+
+  LibraryGroupModeDefinition groupModeDefinitionFor(LibraryGroupMode mode) {
+    for (final definition in groupModeDefinitions) {
+      if (definition.mode == mode) {
+        return definition;
+      }
+    }
+    throw StateError(
+      'Missing group mode definition for $mode. '
+      'Ensure groupModeDefinitions declares every mode from groupModes.',
+    );
+  }
+
+  LibrarySortColumnDefinition sortColumnDefinitionFor(
+    LibrarySortColumn column,
+  ) {
+    for (final definition in sortColumnDefinitions) {
+      if (definition.column == column) {
+        return definition;
+      }
+    }
+    throw StateError(
+      'Missing sort column definition for $column. '
+      'Ensure sortColumnDefinitions declares every available sort column.',
+    );
+  }
 }

@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -191,6 +191,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _quantityController = _draft.quantityController;
     _ratingController = _draft.ratingController;
     _trackingController = _draft.trackingController;
+    _trackingController.text =
+        widget.request.type.trackingProfile.normalizeStorageValue(
+              _trackingController.text,
+            ) ??
+            '';
     _tagsController = _draft.tagsController;
     _sellPriceController = _draft.sellPriceController;
     _soldToController = _draft.soldToController;
@@ -300,6 +305,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return EditTabShell(
       cover: _coverPreview(),
       children: [
+        _musicMainOverviewCard(trackCount: trackCount),
+        const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -335,6 +342,85 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         const SizedBox(height: 12),
         for (final sectionId in sections) _sectionFor(sectionId),
       ],
+    );
+  }
+
+  Widget _musicMainOverviewCard({required int trackCount}) {
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: kEditTextMuted,
+          fontWeight: FontWeight.w700,
+        );
+    final valueStyle = Theme.of(context).textTheme.bodyMedium;
+
+    Widget line(String label, String? value) {
+      final normalized = (value ?? '').trim();
+      return Row(
+        children: [
+          SizedBox(width: 108, child: Text(label, style: style)),
+          Expanded(
+            child: Text(
+              normalized.isEmpty ? '—' : normalized,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: valueStyle,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Material(
+      color: kEditPanelRaised,
+      shape: Border(
+        left: BorderSide(color: _accent, width: 2),
+        top: BorderSide(color: kEditDivider),
+        right: BorderSide(color: kEditDivider),
+        bottom: BorderSide(color: kEditDivider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final stacked = constraints.maxWidth < 820;
+            final left = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                line('Artist', _artistController.text),
+                const SizedBox(height: 8),
+                line('Format', _physicalFormatForId(_physicalFormatId)?.label),
+                const SizedBox(height: 8),
+                line('Tracks', '$trackCount'),
+              ],
+            );
+            final right = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                line('Release date', _releaseDateController.text),
+                const SizedBox(height: 8),
+                line('Release year', _releaseYearController.text),
+                const SizedBox(height: 8),
+                line('Language', _languageController.text),
+              ],
+            );
+            if (stacked) {
+              return Column(
+                children: [
+                  left,
+                  const SizedBox(height: 10),
+                  right,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: left),
+                const SizedBox(width: 12),
+                Expanded(child: right),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -850,13 +936,37 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 ),
               ]),
               const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: _pickPurchaseDate,
-                icon: const Icon(Icons.event),
-                label: Text(
-                  _purchaseDateController.text.isEmpty
-                      ? 'Set purchase date'
-                      : 'Purchase date: ${_purchaseDateController.text}',
+              _denseFields([
+                _datePickerField(
+                  label: 'Purchase date',
+                  value: parseDate(_purchaseDateController.text),
+                  onChanged: (value) {
+                    setState(() {
+                      _purchaseDateController.text =
+                          value == null ? '' : formatDate(value);
+                    });
+                  },
+                ),
+                _field(controller: _soldToController, label: 'Sold to'),
+                _datePickerField(
+                  label: 'Sold date',
+                  value: _soldAt,
+                  onChanged: (value) => setState(() => _soldAt = value),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  value: _soldAt != null,
+                  onChanged: (value) {
+                    setState(() {
+                      _soldAt = value ? DateTime.now() : null;
+                    });
+                  },
+                  title: const Text('Mark as sold'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
                 ),
               ),
             ],
@@ -1147,21 +1257,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  Future<void> _pickPurchaseDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: parseDate(_purchaseDateController.text) ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 10),
-    );
-    if (picked != null && mounted) {
-      setState(() {
-        _purchaseDateController.text = formatDate(picked);
-      });
-    }
   }
 
   Widget _datePickerField({

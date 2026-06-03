@@ -1,5 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 class LibraryMetaChip extends StatelessWidget {
@@ -130,16 +132,21 @@ class LibraryStatPill extends StatelessWidget {
 }
 
 String genericLibraryStatusLabel(LibraryWorkspaceEntry entry) {
+  final labels = collectarrLibraryTypes
+          .byKind(entry.mediaType)
+          ?.presentation
+          .statusLabels ??
+      const LibraryStatusLabels();
   if (entry.isOwned) {
-    return 'Owned';
+    return labels.owned;
   }
   if (entry.isTracked) {
-    return 'Tracked';
+    return labels.tracked;
   }
   if (entry.isWishlisted) {
-    return 'Wishlist';
+    return labels.wishlist;
   }
-  return 'Local catalog';
+  return labels.localCatalog;
 }
 
 String genericLibraryDash(String? value) {

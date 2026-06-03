@@ -3,11 +3,12 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
@@ -15,7 +16,9 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final knownType = collectarrLibraryTypes.byKind(normalizedType.kind);
   final presentation = knownType?.presentation ?? genericLibraryMediaPresentation;
   final editPresentation =
-      knownType?.editPresentation ?? genericLibraryEditPresentation;
+      knownType?.editPresentation ?? const LibraryEditPresentation(
+        builder: DefaultLibraryEditPresentationBuilder(),
+      );
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: mediaKind,

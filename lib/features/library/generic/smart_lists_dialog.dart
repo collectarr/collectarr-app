@@ -4,9 +4,10 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Result returned when the user selects a smart list to load.
 class SmartListLoadResult {
@@ -132,7 +133,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
     return showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
@@ -202,7 +203,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Future<void> _overwriteFromCurrentView(SmartList list) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Overwrite Smart List'),
         content: Text(
@@ -232,7 +233,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Future<void> _delete(SmartList list) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Smart List'),
         content: Text('Delete "${list.name}"?'),
@@ -288,7 +289,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedList = _selectedList;
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: Row(
         children: [
@@ -564,11 +565,11 @@ class _SmartListDetailsPane extends StatelessWidget {
     final filter = list.filterSelection;
     return [
       if (filter.ownershipFilter != LibraryOwnershipFilter.all)
-        'Ownership: ${libraryOwnershipFilterLabel(filter.ownershipFilter)}',
+        'Ownership: ${libraryOwnershipFilterLabel(filter.ownershipFilter, mediaType: list.mediaKind)}',
       if (filter.trackingStatusFilter != LibraryTrackingStatusFilter.all)
-        'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter)}',
+        'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter, mediaType: list.mediaKind)}',
       if (filter.loanStatusFilter != LibraryLoanStatusFilter.all)
-        'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter)}',
+        'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter, mediaType: list.mediaKind)}',
       if (filter.hasActiveDateRange)
         'Date: ${_dateRangeLabel(filter)}',
       if (filter.customFieldDefinitionId != null)
@@ -597,7 +598,10 @@ class _SmartListDetailsPane extends StatelessWidget {
   }
 
   String _dateRangeLabel(LibraryFilterSelection filter) {
-    final field = libraryDateRangeFieldLabel(filter.dateRangeField);
+    final field = libraryDateRangeFieldLabel(
+      filter.dateRangeField,
+      mediaType: list.mediaKind,
+    );
     final from = filter.dateFrom == null
         ? null
         : _formatDateChip(filter.dateFrom!);

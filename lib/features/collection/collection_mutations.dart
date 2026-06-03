@@ -236,6 +236,12 @@ class CollectionMutations {
     DateTime? lastBagBoardDate,
     int? marketValueCents,
     String? ownerLabel,
+    String? gameCompleteness,
+    bool? gameHasBox,
+    bool? gameHasManual,
+    String? gamePriceChartingId,
+    String? gameCoreRegion,
+    bool? gameValueIsLocked,
     bool syncTracking = true,
     bool notify = true,
   }) async {
@@ -311,6 +317,12 @@ class CollectionMutations {
       collectionStatus: collectionStatus ?? item.collectionStatus,
       lastBagBoardDate: lastBagBoardDate ?? item.lastBagBoardDate,
       marketValueCents: marketValueCents ?? item.marketValueCents,
+      gameCompleteness: gameCompleteness ?? item.gameCompleteness,
+      gameHasBox: gameHasBox ?? item.gameHasBox,
+      gameHasManual: gameHasManual ?? item.gameHasManual,
+      gamePriceChartingId: gamePriceChartingId ?? item.gamePriceChartingId,
+      gameCoreRegion: gameCoreRegion ?? item.gameCoreRegion,
+      gameValueIsLocked: gameValueIsLocked ?? item.gameValueIsLocked,
     );
     await _ownedCache().upsert(updated);
     await _enqueueOwnedItem(updated, 'upsert', now);

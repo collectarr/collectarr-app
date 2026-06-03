@@ -8,6 +8,8 @@
 /// Safe to call multiple times – uses deterministic IDs (idempotent via upsert).
 library;
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -19,6 +21,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -35,18 +38,22 @@ Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
 /// Seeds the local database with rich dev data if it is empty.
 ///
 /// Call from app startup or a debug menu. Skips seeding if data already exists.
-Future<void> seedLocalDatabase(LocalDatabase db) async {
-  if (!await _isDatabaseEmpty(db)) return;
+Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
+  if (!force && !await _isDatabaseEmpty(db)) return;
 
   final catalogRepo = CatalogCacheRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(db);
+  final imagesRepo = ItemImagesCacheRepository(db);
   final pickListRepo = PickListRepository(db);
   final customFieldRepo = CustomFieldRepository(db);
 
   // --- Catalog Items ---
   final allItems = <CatalogItem>[
     ..._movieItems(),
+    ..._tvItems(),
+    ..._animeItems(),
+    ..._mangaItems(),
     ..._bookItems(),
     ..._musicItems(),
     ..._gameItems(),
@@ -60,6 +67,9 @@ Future<void> seedLocalDatabase(LocalDatabase db) async {
   // --- Owned Items ---
   final ownedItems = _ownedItems();
   await ownedRepo.upsertAll(ownedItems);
+
+  // --- Item Images (front/back + extras) ---
+  await _seedItemImages(imagesRepo, ownedItems);
 
   // --- Tracking Entries ---
   final trackingEntries = _trackingEntries();
@@ -1674,9 +1684,224 @@ List<CatalogItem> _comicItems() => [
       ),
     ];
 
+String _seedOrdinal2(int value) => value.toString().padLeft(2, '0');
+
+// ===========================================================================
+//  TV (10)
+// ===========================================================================
+List<CatalogItem> _tvItems() {
+  const titles = [
+    'Breaking Bad',
+    'Better Call Saul',
+    'The Wire',
+    'Chernobyl',
+    'True Detective',
+    'Mindhunter',
+    'Severance',
+    'The Last of Us',
+    'Fargo',
+    'Dark',
+  ];
+  return [
+    for (var i = 0; i < titles.length; i++)
+      CatalogItem(
+        id: 'seed-tv-${_seedOrdinal2(i + 1)}',
+        kind: 'tv',
+        title: titles[i],
+        displayTitle: '${titles[i]} Season ${i + 1}',
+        synopsis:
+            'Seed TV entry for ${titles[i]} with complete metadata, creators, series grouping and collectible details.',
+        publisher: i.isEven ? 'HBO' : 'AMC',
+        releaseYear: 2008 + i,
+        releaseDate: DateTime.utc(2008 + i, ((i % 12) + 1), 1 + (i % 20)),
+        coverImageUrl:
+            'https://placehold.co/300x450?text=${Uri.encodeComponent(titles[i])}+TV',
+        thumbnailImageUrl:
+            'https://placehold.co/100x150?text=TV${i + 1}',
+        editionTitle: 'Complete Season ${i + 1}',
+        physicalFormat: 'Blu-ray',
+        variant: 'Collector',
+        barcode: 'TV-${(100000000000 + i).toString()}',
+        country: i.isEven ? 'US' : 'DE',
+        language: 'en',
+        ageRating: 'TV-MA',
+        sortKey: 'seed-tv-${_seedOrdinal2(i + 1)}',
+        itemNumber: '${i + 1}',
+        series: CatalogSeriesDetails(
+          seriesId: 'seed-series-tv-${_seedOrdinal2(i + 1)}',
+          seriesTitle: titles[i],
+          volumeName: titles[i],
+          volumeNumber: 1,
+          volumeStartYear: 2008 + i,
+          tags: const ['tv', 'drama', 'seed'],
+        ),
+        video: VideoCatalogDetails(
+          runtimeMinutes: 46 + (i % 12),
+          nrDiscs: 2 + (i % 3),
+          subtitles: 'English, Spanish',
+          audioTracks: 'English 5.1',
+        ),
+        publishing: CatalogPublishingDetails(
+          coverPriceCents: 3999 + (i * 100),
+          currency: 'USD',
+          imprint: 'Collector Seed',
+        ),
+        creators: [
+          {'name': 'Seed Showrunner ${i + 1}', 'role': 'creator'},
+          {'name': 'Seed Director ${i + 1}', 'role': 'director'},
+        ],
+        characters: ['Lead ${i + 1}', 'Support ${i + 1}', 'Antagonist ${i + 1}'],
+        storyArcs: ['Season ${i + 1} Arc'],
+        genres: const ['drama', 'thriller'],
+      ),
+  ];
+}
+
+// ===========================================================================
+//  ANIME (10)
+// ===========================================================================
+List<CatalogItem> _animeItems() {
+  const titles = [
+    'Cowboy Bebop',
+    'Fullmetal Alchemist: Brotherhood',
+    'Steins;Gate',
+    'Attack on Titan',
+    'Mob Psycho 100',
+    'Vinland Saga',
+    'Jujutsu Kaisen',
+    'Frieren',
+    'Psycho-Pass',
+    'Neon Genesis Evangelion',
+  ];
+  return [
+    for (var i = 0; i < titles.length; i++)
+      CatalogItem(
+        id: 'seed-anime-${_seedOrdinal2(i + 1)}',
+        kind: 'anime',
+        title: titles[i],
+        displayTitle: '${titles[i]} Cour ${i + 1}',
+        synopsis:
+            'Seed anime entry for ${titles[i]} including detailed metadata and collectible release information.',
+        publisher: i.isEven ? 'Aniplex' : 'Toho',
+        releaseYear: 1998 + i,
+        releaseDate: DateTime.utc(1998 + i, ((i % 12) + 1), 3 + (i % 20)),
+        coverImageUrl:
+            'https://placehold.co/300x450?text=${Uri.encodeComponent(titles[i])}+Anime',
+        thumbnailImageUrl:
+            'https://placehold.co/100x150?text=AN${i + 1}',
+        editionTitle: 'Blu-ray Box ${i + 1}',
+        physicalFormat: 'Blu-ray',
+        variant: 'Limited',
+        barcode: 'AN-${(200000000000 + i).toString()}',
+        country: 'JP',
+        language: 'ja',
+        ageRating: '16+',
+        sortKey: 'seed-anime-${_seedOrdinal2(i + 1)}',
+        itemNumber: '${i + 1}',
+        series: CatalogSeriesDetails(
+          seriesId: 'seed-series-anime-${_seedOrdinal2(i + 1)}',
+          seriesTitle: titles[i],
+          volumeName: titles[i],
+          volumeNumber: 1,
+          volumeStartYear: 1998 + i,
+          tags: const ['anime', 'seed'],
+        ),
+        video: VideoCatalogDetails(
+          runtimeMinutes: 24,
+          nrDiscs: 2 + (i % 2),
+          subtitles: 'Japanese, English',
+          audioTracks: 'Japanese 2.0, English 2.0',
+        ),
+        publishing: CatalogPublishingDetails(
+          coverPriceCents: 4599 + (i * 120),
+          currency: 'USD',
+          imprint: 'Seed Anime Label',
+        ),
+        creators: [
+          {'name': 'Seed Mangaka ${i + 1}', 'role': 'creator'},
+          {'name': 'Seed Director ${i + 1}', 'role': 'director'},
+        ],
+        characters: ['Protagonist ${i + 1}', 'Deuteragonist ${i + 1}'],
+        storyArcs: ['Arc ${i + 1}'],
+        genres: const ['anime', 'action', 'drama'],
+      ),
+  ];
+}
+
+// ===========================================================================
+//  MANGA (10)
+// ===========================================================================
+List<CatalogItem> _mangaItems() {
+  const titles = [
+    'Berserk',
+    'Monster',
+    'Vagabond',
+    '20th Century Boys',
+    'Pluto',
+    'Dorohedoro',
+    'Blue Lock',
+    'Chainsaw Man',
+    'Kaiju No. 8',
+    'Sakamoto Days',
+  ];
+  return [
+    for (var i = 0; i < titles.length; i++)
+      CatalogItem(
+        id: 'seed-manga-${_seedOrdinal2(i + 1)}',
+        kind: 'manga',
+        title: titles[i],
+        displayTitle: '${titles[i]} Vol. ${i + 1}',
+        synopsis:
+            'Seed manga entry for ${titles[i]} with volume-level metadata, variants, personal-ready fields and cover assets.',
+        publisher: i.isEven ? 'Shueisha' : 'Kodansha',
+        releaseYear: 1999 + i,
+        releaseDate: DateTime.utc(1999 + i, ((i % 12) + 1), 5 + (i % 20)),
+        coverImageUrl:
+            'https://placehold.co/300x450?text=${Uri.encodeComponent(titles[i])}+Manga',
+        thumbnailImageUrl:
+            'https://placehold.co/100x150?text=MG${i + 1}',
+        editionTitle: 'Tankobon ${i + 1}',
+        physicalFormat: 'Tankobon',
+        variant: 'Standard',
+        barcode: 'MG-${(300000000000 + i).toString()}',
+        country: 'JP',
+        language: 'ja',
+        ageRating: 'Teen',
+        sortKey: 'seed-manga-${_seedOrdinal2(i + 1)}',
+        itemNumber: '${i + 1}',
+        series: CatalogSeriesDetails(
+          seriesId: 'seed-series-manga-${_seedOrdinal2(i + 1)}',
+          seriesTitle: titles[i],
+          volumeName: titles[i],
+          volumeNumber: i + 1,
+          volumeStartYear: 1999 + i,
+          tags: const ['manga', 'seed'],
+        ),
+        publishing: CatalogPublishingDetails(
+          coverPriceCents: 1299 + (i * 70),
+          currency: 'USD',
+          imprint: 'Seed Manga Label',
+        ),
+        creators: [
+          {'name': 'Seed Mangaka ${i + 1}', 'role': 'writer'},
+          {'name': 'Seed Artist ${i + 1}', 'role': 'artist'},
+        ],
+        characters: ['Lead ${i + 1}', 'Rival ${i + 1}'],
+        storyArcs: ['Volume ${i + 1} Arc'],
+        genres: const ['manga', 'action'],
+      ),
+  ];
+}
+
 // ==========================================================================
 //  OWNED ITEMS
 // ==========================================================================
+Iterable<String> _seedIds(String kind, int count) sync* {
+  for (var i = 1; i <= count; i++) {
+    yield 'seed-$kind-${_seedOrdinal2(i)}';
+  }
+}
+
 List<OwnedItem> _ownedItems() {
   final now = DateTime.now().toUtc();
   return [
@@ -1867,6 +2092,65 @@ List<OwnedItem> _ownedItems() {
       marketValueCents: 35000,
       coverPriceCents: 150,
     ),
+    for (final itemId in _seedIds('tv', 10))
+      OwnedItem(
+        id: 'seed-owned-$itemId',
+        itemId: itemId,
+        createdAt: now.subtract(const Duration(days: 240)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Near Mint',
+        purchaseDate: DateTime.utc(2023, 1, 10),
+        pricePaidCents: 3299,
+        currency: 'USD',
+        personalNotes: 'Seed TV collectible copy',
+        quantity: 1,
+        rating: 8,
+        readStatus: 'completed',
+        startedAt: DateTime.utc(2023, 1, 11),
+        finishedAt: DateTime.utc(2023, 1, 11),
+        purchaseStore: 'Seed Store',
+        collectionStatus: 'collected',
+      ),
+    for (final itemId in _seedIds('anime', 10))
+      OwnedItem(
+        id: 'seed-owned-$itemId',
+        itemId: itemId,
+        createdAt: now.subtract(const Duration(days: 180)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Mint',
+        purchaseDate: DateTime.utc(2023, 2, 12),
+        pricePaidCents: 4199,
+        currency: 'USD',
+        personalNotes: 'Seed anime box set',
+        quantity: 1,
+        rating: 9,
+        readStatus: 'completed',
+        startedAt: DateTime.utc(2023, 2, 13),
+        finishedAt: DateTime.utc(2023, 2, 13),
+        purchaseStore: 'AmiAmi',
+        collectionStatus: 'collected',
+      ),
+    for (final itemId in _seedIds('manga', 10))
+      OwnedItem(
+        id: 'seed-owned-$itemId',
+        itemId: itemId,
+        createdAt: now.subtract(const Duration(days: 120)),
+        updatedAt: now,
+        isDigital: false,
+        condition: 'Very Fine',
+        purchaseDate: DateTime.utc(2023, 3, 14),
+        pricePaidCents: 1499,
+        currency: 'USD',
+        personalNotes: 'Seed manga volume copy',
+        quantity: 1,
+        rating: 8,
+        readStatus: 'inProgress',
+        startedAt: DateTime.utc(2023, 3, 15),
+        purchaseStore: 'Kinokuniya',
+        collectionStatus: 'collected',
+      ),
   ];
 }
 
@@ -1971,7 +2255,85 @@ List<TrackingEntry> _trackingEntries() {
       notes: 'Couldn\'t get into it',
       updatedAt: now,
     ),
+    for (var i = 1; i <= 10; i++)
+      TrackingEntry(
+        id: 'seed-track-tv-${_seedOrdinal2(i)}',
+        itemId: 'seed-tv-${_seedOrdinal2(i)}',
+        ownedItemId: 'seed-owned-seed-tv-${_seedOrdinal2(i)}',
+        sourceType: TrackingSourceType.physical,
+        status: MediaTrackingStatus.completed,
+        rating: 8,
+        timesCompleted: 1,
+        updatedAt: now,
+      ),
+    for (var i = 1; i <= 10; i++)
+      TrackingEntry(
+        id: 'seed-track-anime-${_seedOrdinal2(i)}',
+        itemId: 'seed-anime-${_seedOrdinal2(i)}',
+        ownedItemId: 'seed-owned-seed-anime-${_seedOrdinal2(i)}',
+        sourceType: TrackingSourceType.physical,
+        status: i.isEven
+            ? MediaTrackingStatus.completed
+            : MediaTrackingStatus.inProgress,
+        progressCurrent: i.isEven ? null : 8,
+        progressTotal: i.isEven ? null : 12,
+        rating: 9,
+        updatedAt: now,
+      ),
+    for (var i = 1; i <= 10; i++)
+      TrackingEntry(
+        id: 'seed-track-manga-${_seedOrdinal2(i)}',
+        itemId: 'seed-manga-${_seedOrdinal2(i)}',
+        ownedItemId: 'seed-owned-seed-manga-${_seedOrdinal2(i)}',
+        sourceType: TrackingSourceType.physical,
+        status: MediaTrackingStatus.inProgress,
+        progressCurrent: i,
+        progressTotal: 12,
+        rating: 8,
+        updatedAt: now,
+      ),
   ];
+}
+
+final Uint8List _seedTinyPngBytes = base64Decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Zx1EAAAAASUVORK5CYII=',
+);
+
+Future<void> _seedItemImages(
+  ItemImagesCacheRepository repo,
+  List<OwnedItem> ownedItems,
+) async {
+  for (var i = 0; i < ownedItems.length; i++) {
+    final owned = ownedItems[i];
+    await repo.upsert(
+      id: 'seed-img-front-${owned.id}',
+      ownedItemId: owned.id,
+      imageType: 'front_cover',
+      imageData: _seedTinyPngBytes,
+      caption: 'Seed front cover',
+      sortOrder: 0,
+    );
+    if (i.isEven) {
+      await repo.upsert(
+        id: 'seed-img-back-${owned.id}',
+        ownedItemId: owned.id,
+        imageType: 'back_cover',
+        imageData: _seedTinyPngBytes,
+        caption: 'Seed back cover',
+        sortOrder: 1,
+      );
+    }
+    if (i % 3 == 0) {
+      await repo.upsert(
+        id: 'seed-img-extra-${owned.id}',
+        ownedItemId: owned.id,
+        imageType: 'detail_photo',
+        imageData: _seedTinyPngBytes,
+        caption: 'Seed extra image',
+        sortOrder: 2,
+      );
+    }
+  }
 }
 
 // ==========================================================================

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_ctrl_scroll_zoom.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

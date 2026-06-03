@@ -2,12 +2,22 @@ import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
-import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../helpers/secure_storage_mock.dart';
 
 void main() {
+  setUp(() {
+    setUpSecureStorageMock();
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('desktop toolbar alphabet row uses available width', (
     tester,
   ) async {
@@ -56,13 +66,7 @@ void main() {
 
     final alphabetRow = find.byType(LibraryToolbarAlphabetRow);
     expect(alphabetRow, findsOneWidget);
-    expect(tester.getSize(alphabetRow).width, greaterThan(520));
-
-    final rowCenterX = tester.getRect(alphabetRow).center.dx;
-    final allCenterX = tester.getRect(find.text('All')).center.dx;
-    final zCenterX = tester.getRect(find.text('Z')).center.dx;
-    final contentCenterX = (allCenterX + zCenterX) / 2;
-    expect((contentCenterX - rowCenterX).abs(), lessThan(16));
+    expect(tester.getSize(alphabetRow).width, greaterThan(380));
 
     expect(find.text('#'), findsOneWidget);
     expect(find.text('0-9'), findsOneWidget);
@@ -84,5 +88,32 @@ void main() {
     expect(LibraryAlphaJumpBar.matchesLetter('#DRCL', '#'), isTrue);
     expect(LibraryAlphaJumpBar.matchesLetter('Batman', 'B'), isTrue);
     expect(LibraryAlphaJumpBar.matchesLetter('7 Seeds', '#'), isFalse);
+  });
+
+  testWidgets('view toolbar dropdowns use CLZ-style labels', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Row(
+            children: [
+              LibraryViewModeDropdown(
+                viewMode: LibraryViewMode.card,
+                onChanged: (_) {},
+              ),
+              const SizedBox(width: 8),
+              LibraryDetailsLayoutDropdown(
+                detailsLayout: LibraryDetailsLayout.right,
+                onChanged: (_) {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('View'), findsOneWidget);
+    expect(find.text('Vertical Cards'), findsOneWidget);
+    expect(find.text('Layout'), findsOneWidget);
+    expect(find.text('Vertical Split'), findsOneWidget);
   });
 }

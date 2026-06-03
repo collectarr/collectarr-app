@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
@@ -206,6 +206,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _notesController = _draft.notesController;
     _ratingController = _draft.ratingController;
     _trackingController = _draft.trackingController;
+    _trackingController.text =
+      _type.trackingProfile.normalizeStorageValue(_trackingController.text) ?? '';
     _tagsController = _draft.tagsController;
     _tagOptions = List<String>.from(_draft.tagOptions);
     _sellPriceController = _draft.sellPriceController;
@@ -304,18 +306,24 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _tabViewFor(String id) {
     switch (id) {
+      case 'main':
+        return _mainTab();
       case 'details':
         return _detailsTab();
       case 'credits':
         return _creditsTab();
-      case 'contents':
-        return _contentsTab();
-      case 'plot_notes':
-        return _plotNotesTab();
+      case 'plot':
+        return _plotTab();
       case 'covers':
         return _coversTab();
       case 'links':
         return _linksTab();
+      case 'custom':
+        return _customTab();
+      case 'read_history':
+        return _readHistoryTab();
+      case 'value':
+        return _valueTab();
       case 'personal':
         return _personalTab();
       case 'photos':
@@ -325,10 +333,131 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     }
   }
 
+  Widget _mainTab() {
+    final sections = _tabSectionIds('main');
+    return EditTabShell(
+      cover: _coverPreview(),
+      children: [
+        _bookMainOverviewCard(),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            EditSummaryPill(
+              label: 'Series',
+              value: _seriesTitleController.text,
+              icon: Icons.collections_bookmark_outlined,
+              width: 190,
+            ),
+            EditSummaryPill(
+              label: 'Volume',
+              value: _volumeNumberController.text,
+              icon: Icons.filter_1_outlined,
+              width: 96,
+            ),
+            EditSummaryPill(
+              label: 'Pages',
+              value: _pageCountController.text,
+              icon: Icons.auto_stories_outlined,
+              width: 96,
+            ),
+            EditSummaryPill(
+              label: 'Language',
+              value: _languageController.text,
+              icon: Icons.language_outlined,
+              width: 120,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _bookMainOverviewCard() {
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: kEditTextMuted,
+          fontWeight: FontWeight.w700,
+        );
+    final valueStyle = Theme.of(context).textTheme.bodyMedium;
+
+    Widget line(String label, String? value) {
+      final normalized = (value ?? '').trim();
+      return Row(
+        children: [
+          SizedBox(width: 108, child: Text(label, style: style)),
+          Expanded(
+            child: Text(
+              normalized.isEmpty ? '—' : normalized,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: valueStyle,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Material(
+      color: kEditPanelRaised,
+      shape: Border(
+        left: BorderSide(color: _accent, width: 2),
+        top: BorderSide(color: kEditDivider),
+        right: BorderSide(color: kEditDivider),
+        bottom: BorderSide(color: kEditDivider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final stacked = constraints.maxWidth < 820;
+            final left = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                line('Series', _seriesTitleController.text),
+                const SizedBox(height: 8),
+                line('Volume', _volumeNumberController.text),
+                const SizedBox(height: 8),
+                line('Publisher', _publisherController.text),
+              ],
+            );
+            final right = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                line('Release date', _releaseDateController.text),
+                const SizedBox(height: 8),
+                line('Page count', _pageCountController.text),
+                const SizedBox(height: 8),
+                line('Language', _languageController.text),
+              ],
+            );
+            if (stacked) {
+              return Column(
+                children: [
+                  left,
+                  const SizedBox(height: 10),
+                  right,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: left),
+                const SizedBox(width: 12),
+                Expanded(child: right),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _detailsTab() {
     final sections = _tabSectionIds('details');
     return EditTabShell(
-      cover: _coverPreview(),
       children: [
         Wrap(
           spacing: 8,
@@ -375,44 +504,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  Widget _contentsTab() {
-    final sections = _tabSectionIds('contents');
-    return EditTabShell(
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            EditSummaryPill(
-              label: 'Book no.',
-              value: _numberController.text,
-              icon: Icons.bookmark_outline,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Release',
-              value: _releaseDateController.text.isEmpty
-                  ? _releaseYearController.text
-                  : _releaseDateController.text,
-              icon: Icons.event_note_outlined,
-              width: 132,
-            ),
-            EditSummaryPill(
-              label: 'Series tags',
-              value: _seriesTagsController.text,
-              icon: Icons.sell_outlined,
-              width: 220,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
-    );
-  }
-
-  Widget _plotNotesTab() {
-    final sections = _tabSectionIds('plot_notes');
+  Widget _plotTab() {
+    final sections = _tabSectionIds('plot');
     return EditTabShell(
       children: [
         for (final sectionId in sections) _sectionFor(sectionId),
@@ -432,6 +525,33 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _linksTab() {
     final sections = _tabSectionIds('links');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _customTab() {
+    final sections = _tabSectionIds('custom');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _readHistoryTab() {
+    final sections = _tabSectionIds('read_history');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _valueTab() {
+    final sections = _tabSectionIds('value');
     return EditTabShell(
       children: [
         for (final sectionId in sections) _sectionFor(sectionId),
@@ -622,6 +742,99 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
             ],
           ),
         );
+      case 'book_read_history':
+        return EditSection(
+          title: 'Read history',
+          accent: _accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Track your progress with reading status, rating and timeline.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: kEditTextMuted,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                SizedBox(
+                  width: 180,
+                  child: MediaTrackingStatusField(
+                    profile: _type.trackingProfile,
+                    value: _trackingController.text,
+                    label: 'Reading status',
+                    onChanged: (value) {
+                      _trackingController.text = value ?? '';
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  child: MediaRatingField(controller: _ratingController),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _datePickerField(
+                  label: 'Start date',
+                  value: _startedAt,
+                  onChanged: (value) => setState(() => _startedAt = value),
+                ),
+                _datePickerField(
+                  label: 'End date',
+                  value: _finishedAt,
+                  onChanged: (value) => setState(() => _finishedAt = value),
+                ),
+              ]),
+            ],
+          ),
+        );
+      case 'book_value':
+        return EditSection(
+          title: 'Value',
+          accent: _accent,
+          child: Column(
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _priceController,
+                  label: 'Purchase price',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(controller: _currencyController, label: 'Currency'),
+                _field(
+                  controller: _sellPriceController,
+                  label: 'Sold price',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _soldToController, label: 'Sold to'),
+                _datePickerField(
+                  label: 'Sold date',
+                  value: _soldAt,
+                  onChanged: (value) => setState(() => _soldAt = value),
+                ),
+                if (_isOwned)
+                  _field(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+              ]),
+              if (parseMoneyCents(_priceController.text) != null ||
+                  parseMoneyCents(_sellPriceController.text) != null) ...[
+                const SizedBox(height: 12),
+                SoldSummaryPanel(
+                  pricePaidCents: parseMoneyCents(_priceController.text),
+                  sellPriceCents: parseMoneyCents(_sellPriceController.text),
+                  currency: _currencyController.text,
+                ),
+              ],
+            ],
+          ),
+        );
       case 'book_custom_fields':
         return CustomFieldsEditSection(
           definitions: widget.request.customFieldDefinitions,
@@ -727,16 +940,19 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 ),
               ),
               const SizedBox(height: 10),
-              SwitchListTile(
-                value: _soldAt != null,
-                onChanged: (value) {
-                  setState(() {
-                    _soldAt = value ? DateTime.now() : null;
-                  });
-                },
-                title: const Text('Mark as sold'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
+              Material(
+                type: MaterialType.transparency,
+                child: SwitchListTile(
+                  value: _soldAt != null,
+                  onChanged: (value) {
+                    setState(() {
+                      _soldAt = value ? DateTime.now() : null;
+                    });
+                  },
+                  title: const Text('Mark as sold'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
               ),
               if (_soldAt != null) ...[
                 const SizedBox(height: 10),

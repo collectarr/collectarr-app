@@ -427,6 +427,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
         final item = entry.item;
         final candidate = entry.candidate;
         final isCore = item != null;
+        final isOwned = isCore && ownedCatalogItemIds.contains(item.id);
         final selected = isCore
             ? item.id == selectedResultId
             : candidate!.localCatalogId == selectedProviderCandidateId;
@@ -474,10 +475,19 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                 color: selected
                     ? Color.alphaBlend(
                         accent.withValues(alpha: 0.22), palette.selection)
+                    : isOwned
+                        ? Color.alphaBlend(
+                            const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                            palette.tableEvenRow,
+                          )
                     : palette.tableEvenRow,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: selected ? accent : palette.divider,
+                  color: selected
+                      ? accent
+                      : isOwned
+                          ? const Color(0xFF2E7D32).withValues(alpha: 0.5)
+                          : palette.divider,
                   width: selected ? 1.6 : 1,
                 ),
               ),
@@ -498,6 +508,19 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                               ),
                             ),
                           ),
+                          if (isOwned)
+                            Positioned(
+                              left: 6,
+                              top: 6,
+                              child: LibraryAddResultBadge(
+                                'In collection',
+                                key: ValueKey('library-add-owned-badge-${item.id}'),
+                                icon: Icons.playlist_add_check_rounded,
+                                backgroundColor: const Color(0xFF163A1D),
+                                borderColor: const Color(0xFF3FA34D),
+                                foregroundColor: const Color(0xFFC7FFD0),
+                              ),
+                            ),
                           Positioned(
                             left: 6,
                             bottom: 6,
@@ -583,9 +606,15 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                         ),
                       ),
                     ],
-                    if (isCore && ownedCatalogItemIds.contains(item.id)) ...[
+                    if (isOwned) ...[
                       const SizedBox(height: 5),
-                      const LibraryAddResultBadge('In collection'),
+                      const LibraryAddResultBadge(
+                        'Already in collection',
+                        icon: Icons.playlist_add_check_rounded,
+                        backgroundColor: Color(0xFF163A1D),
+                        borderColor: Color(0xFF3FA34D),
+                        foregroundColor: Color(0xFFC7FFD0),
+                      ),
                     ],
                   ],
                 ),
@@ -805,10 +834,19 @@ class _SearchResultTile extends StatelessWidget {
           color: selected
               ? Color.alphaBlend(
                   accent.withValues(alpha: 0.46), palette.selection)
+              : isOwned
+                  ? Color.alphaBlend(
+                      const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                      palette.tableEvenRow,
+                    )
               : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
-              color: selected ? accent : Colors.transparent,
+              color: selected
+                  ? accent
+                  : isOwned
+                      ? const Color(0xFF3FA34D)
+                      : Colors.transparent,
               width: 4,
             ),
           ),
@@ -849,6 +887,16 @@ class _SearchResultTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (isOwned) ...[
+                          const LibraryAddResultBadge(
+                            'Already in collection',
+                            icon: Icons.playlist_add_check_rounded,
+                            backgroundColor: Color(0xFF163A1D),
+                            borderColor: Color(0xFF3FA34D),
+                            foregroundColor: Color(0xFFC7FFD0),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
                         Text(
                           resultDisplay?.title ??
                               (item.itemNumber == null
@@ -905,31 +953,6 @@ class _SearchResultTile extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              if (isOwned) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.25),
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(
-                                      color:
-                                          Colors.green.withValues(alpha: 0.6),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'In collection',
-                                    style: TextStyle(
-                                      color: Colors.greenAccent,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                              ],
                               const LibraryAddResultBadge('core'),
                               const SizedBox(width: 4),
                               LibraryAddResultBadge(item.kind),

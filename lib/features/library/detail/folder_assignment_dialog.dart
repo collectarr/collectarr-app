@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Shows a dialog to add/remove an owned item from user folders.
 Future<void> showFolderAssignmentDialog({
@@ -68,14 +70,12 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
-      title: const Row(
-        children: [
-          Icon(Icons.folder_outlined, size: 20),
-          SizedBox(width: 8),
-          Text('Assign to Folders'),
-        ],
+      titlePadding: EdgeInsets.zero,
+      title: const AccentDialogHeader(
+        title: 'Assign to Folders',
+        icon: Icons.folder_outlined,
       ),
       content: SizedBox(
         width: 320,

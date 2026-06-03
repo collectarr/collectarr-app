@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<SeriesRegistryEntry?> showSeriesPickerDialog({
   required BuildContext context,
@@ -123,17 +125,21 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      title: _SeriesDialogHeader(
+      title: AccentDialogHeader(
         title: 'Select Series',
-        subtitle: 'Choose the series entry this comic should use.',
         icon: Icons.collections_bookmark_outlined,
         accent: Theme.of(context).colorScheme.primary,
-        badgeLabel: '${_entries.length} series',
+        trailing: _SeriesCountChip(
+          label: '${_entries.length} series',
+          emphasized: true,
+          backgroundColor: Colors.white.withValues(alpha: 0.18),
+          textColor: Colors.white,
+        ),
       ),
       content: SizedBox(
         width: 720,
@@ -310,7 +316,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
         String? selectedId;
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
+            return AccentAlertDialog(
               backgroundColor: kAppPanel,
               title: Text('Merge ${source.title} Into'),
               content: DropdownButtonFormField<String>(
@@ -355,17 +361,21 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      title: _SeriesDialogHeader(
+      title: AccentDialogHeader(
         title: 'Manage Series',
-        subtitle: 'Rename, merge, and normalize the local series registry.',
         icon: Icons.library_books_outlined,
         accent: Theme.of(context).colorScheme.primary,
-        badgeLabel: '${_entries.length} entries',
+        trailing: _SeriesCountChip(
+          label: '${_entries.length} entries',
+          emphasized: true,
+          backgroundColor: Colors.white.withValues(alpha: 0.18),
+          textColor: Colors.white,
+        ),
       ),
       content: SizedBox(
         width: 760,
@@ -490,16 +500,13 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      title: _SeriesDialogHeader(
+      title: AccentDialogHeader(
         title: widget.initialTitle == null ? 'New Series' : 'Edit Series',
-        subtitle: widget.initialTitle == null
-            ? 'Create a reusable series entry for manual edits and catalog merges.'
-            : 'Update the display name and optional sort name used across the registry.',
         icon: widget.initialTitle == null
             ? Icons.add_circle_outline
             : Icons.edit_outlined,
@@ -556,81 +563,6 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
           child: const Text('Save'),
         ),
       ],
-    );
-  }
-}
-
-class _SeriesDialogHeader extends StatelessWidget {
-  const _SeriesDialogHeader({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.accent,
-    this.badgeLabel,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color accent;
-  final String? badgeLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Icon(icon, color: accent),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: palette.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: palette.textMuted,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (badgeLabel != null)
-              _SeriesCountChip(
-                label: badgeLabel!,
-                emphasized: true,
-              ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -860,10 +792,14 @@ class _SeriesCountChip extends StatelessWidget {
   const _SeriesCountChip({
     required this.label,
     this.emphasized = false,
+    this.backgroundColor,
+    this.textColor,
   });
 
   final String label;
   final bool emphasized;
+  final Color? backgroundColor;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -873,7 +809,7 @@ class _SeriesCountChip extends StatelessWidget {
         : palette.textMuted;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color.withValues(alpha: emphasized ? 0.14 : 0.10),
+        color: backgroundColor ?? color.withValues(alpha: emphasized ? 0.14 : 0.10),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Padding(
@@ -881,7 +817,7 @@ class _SeriesCountChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: color,
+            color: textColor ?? color,
             fontSize: 11,
             fontWeight: FontWeight.w800,
           ),

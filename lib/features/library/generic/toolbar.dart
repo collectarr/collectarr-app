@@ -7,9 +7,9 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
 export 'toolbar/toolbar_auxiliary_controls.dart';
@@ -31,6 +31,12 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
+    this.browserMode = LibraryWorkspaceBrowserMode.media,
+    this.supportsMediaReleaseSplit = false,
+    this.onBrowserModeChanged,
+    this.showReleaseFolderBack = false,
+    this.releaseFolderLabel,
+    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
@@ -52,6 +58,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onSortFavoriteSelected,
     this.pinnedSortFavoriteIds = const {},
     this.onTogglePinnedSortFavorite,
+    this.onManageSortFavorites,
     this.columnFavoritePresets = const [],
     this.activeColumnFavoriteLabel,
     this.onColumnFavoriteSelected,
@@ -68,6 +75,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onDownloadAllCovers,
     this.selectionEnabled = false,
     this.selectedCount = 0,
+    this.totalSelectableCount = 0,
     this.selectionCallbacks,
     this.shelfState,
     this.onSmartLists,
@@ -96,6 +104,12 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final LibraryWorkspaceBrowserMode browserMode;
+  final bool supportsMediaReleaseSplit;
+  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
+  final bool showReleaseFolderBack;
+  final String? releaseFolderLabel;
+  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
@@ -118,6 +132,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
   final Set<String> pinnedSortFavoriteIds;
   final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
+  final VoidCallback? onManageSortFavorites;
   final List<LibraryTableColumnPreset> columnFavoritePresets;
   final String? activeColumnFavoriteLabel;
   final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
@@ -135,6 +150,7 @@ class LibraryToolbar extends StatelessWidget {
   final ShelfState? shelfState;
   final bool selectionEnabled;
   final int selectedCount;
+  final int totalSelectableCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
@@ -219,6 +235,7 @@ class LibraryToolbar extends StatelessWidget {
                   onLetterSelected: onLetterSelected,
                   selectionCallbacks: selectionCallbacks,
                   selectedCount: selectedCount,
+                  totalSelectableCount: totalSelectableCount,
                 );
               }
 
@@ -260,6 +277,12 @@ class LibraryToolbar extends StatelessWidget {
                       onEditSort: onEditSort,
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
+                      browserMode: browserMode,
+                      supportsMediaReleaseSplit: supportsMediaReleaseSplit,
+                      onBrowserModeChanged: onBrowserModeChanged,
+                      showReleaseFolderBack: showReleaseFolderBack,
+                      releaseFolderLabel: releaseFolderLabel,
+                      onReleaseFolderBack: onReleaseFolderBack,
                       onDetailsLayoutChanged: onDetailsLayoutChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
@@ -267,6 +290,10 @@ class LibraryToolbar extends StatelessWidget {
                       quickView: quickView,
                       activeSortFavoriteId: activeSortFavoriteId,
                       sortFavorites: sortFavorites,
+                      onSortFavoriteSelected: onSortFavoriteSelected,
+                      pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                      onTogglePinnedSortFavorite: onTogglePinnedSortFavorite,
+                      onManageSortFavorites: onManageSortFavorites,
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
@@ -290,6 +317,7 @@ class LibraryToolbar extends StatelessWidget {
                     const LibraryToolbarDividerLine(),
                     LibrarySelectionToolbarBand(
                       selectedCount: selectedCount,
+                      totalSelectableCount: totalSelectableCount,
                       callbacks: selectionCallbacks!,
                     ),
                   ],

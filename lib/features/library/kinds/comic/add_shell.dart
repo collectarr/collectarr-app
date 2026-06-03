@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/shared/add_bottom_bar.dart';
+import 'package:collectarr_app/features/library/kinds/add/add_bottom_bar.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -13,51 +13,32 @@ Widget buildComicAddHeader(
   BuildContext context,
   LibraryAddHeaderRequest request,
 ) {
-  final palette = appPalette(context);
   return SizedBox(
     height: 46,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [palette.panelRaised, palette.panel],
-        ),
-        border: Border(bottom: BorderSide(color: request.accent)),
+        color: request.accent,
+        border: Border(bottom: BorderSide(color: request.accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
           const SizedBox(width: 10),
-          Icon(request.type.workspace.icon, size: 19, color: request.accent),
+          const Icon(Icons.library_books, size: 19, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add Comics',
-                  style: TextStyle(
-                    color: palette.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  'Find issues fast, compare editions, then add directly to your collection.',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: palette.textMuted,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+            child: Text(
+              'Add Comics',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
           IconButton(
             tooltip: 'Close',
             onPressed: request.onClose,
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close, size: 18, color: Colors.white),
             visualDensity: VisualDensity.compact,
           ),
         ],
@@ -416,6 +397,11 @@ class _ComicSearchRow extends StatelessWidget {
     final owned = entry.item != null && request.ownedCatalogItemIds.contains(entry.item!.id);
     final background = selected
         ? Color.alphaBlend(request.accent.withValues(alpha: 0.2), palette.selection)
+        : owned
+            ? Color.alphaBlend(
+                const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                odd ? palette.tableOddRow : palette.tableEvenRow,
+              )
         : (odd ? palette.tableOddRow : palette.tableEvenRow);
     return Material(
       color: Colors.transparent,
@@ -432,7 +418,11 @@ class _ComicSearchRow extends StatelessWidget {
             color: background,
             border: Border(
               left: BorderSide(
-                color: selected ? request.accent : Colors.transparent,
+                color: selected
+                    ? request.accent
+                    : owned
+                        ? const Color(0xFF3FA34D)
+                        : Colors.transparent,
                 width: 3,
               ),
               bottom: BorderSide(color: palette.tableBottomBorder),
@@ -503,7 +493,14 @@ class _ComicSearchRow extends StatelessWidget {
                     : request.type.metadataProviderLabel(entry.candidate!.provider),
                 accent: request.accent,
               ),
-              if (owned) const LibraryAddResultBadge('In collection'),
+              if (owned)
+                const LibraryAddResultBadge(
+                  'Already in collection',
+                  icon: Icons.playlist_add_check_rounded,
+                  backgroundColor: Color(0xFF163A1D),
+                  borderColor: Color(0xFF3FA34D),
+                  foregroundColor: Color(0xFFC7FFD0),
+                ),
             ],
           ),
         ],

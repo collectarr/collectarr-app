@@ -105,6 +105,7 @@ void registerComicAddBuilders() {
       'graderNotesController': TextEditingController(),
       'signedByController': TextEditingController(),
       'labelTypeController': TextEditingController(),
+      'pageQualityController': TextEditingController(),
       'certificationNumberController': TextEditingController(),
       'coverPriceController': TextEditingController(),
       'purchasePriceController': TextEditingController(),
@@ -132,6 +133,23 @@ class _ComicManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    TextEditingController? kindSpecificController(String key) {
+      final value = request.kindSpecific[key];
+      return value is TextEditingController ? value : null;
+    }
+
+    final rawOrSlabbedController =
+        kindSpecificController('rawOrSlabbedController');
+    final gradingCompanyController =
+        kindSpecificController('gradingCompanyController');
+    final signedByController = kindSpecificController('signedByController');
+    final labelTypeController = kindSpecificController('labelTypeController');
+    final pageQualityController =
+        kindSpecificController('pageQualityController');
+    final certificationNumberController =
+        kindSpecificController('certificationNumberController');
+    final graderNotesController =
+        kindSpecificController('graderNotesController');
     final copyTypeLabel = ownedCopyTypeLabel(
       digitalPhysicalMediaFormatFlag(
         request.physicalFormatId,
@@ -162,8 +180,6 @@ class _ComicManualPane extends StatelessWidget {
                       icon: request.type.workspace.icon,
                       accent: request.accent,
                       title: 'Manual comic issue',
-                      subtitle:
-                          'Use the core comic fields first, then apply your collection defaults when saving.',
                     ),
                     const SizedBox(height: 10),
                     Wrap(
@@ -307,6 +323,97 @@ class _ComicManualPane extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  _ComicManualSection(
+                    title: 'Collector',
+                    accent: request.accent,
+                    child: Column(
+                      children: [
+                        _ComicManualResponsiveRow(
+                          children: [
+                            if (rawOrSlabbedController != null)
+                              _ComicManualResponsiveItem(
+                                child: TextField(
+                                  controller: rawOrSlabbedController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Raw / Slabbed',
+                                    prefixIcon: Icon(Icons.layers_outlined),
+                                  ),
+                                ),
+                              ),
+                            if (gradingCompanyController != null)
+                              _ComicManualResponsiveItem(
+                                child: TextField(
+                                  controller: gradingCompanyController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Grading Co.',
+                                    prefixIcon: Icon(Icons.verified_outlined),
+                                  ),
+                                ),
+                              ),
+                            if (certificationNumberController != null)
+                              _ComicManualResponsiveItem(
+                                child: TextField(
+                                  controller: certificationNumberController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Certification No.',
+                                    prefixIcon: Icon(Icons.pin_outlined),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _ComicManualResponsiveRow(
+                          children: [
+                            if (labelTypeController != null)
+                              _ComicManualResponsiveItem(
+                                child: TextField(
+                                  controller: labelTypeController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Label Type',
+                                    prefixIcon: Icon(Icons.label_outline),
+                                  ),
+                                ),
+                              ),
+                            if (pageQualityController != null)
+                              _ComicManualResponsiveItem(
+                                child: TextField(
+                                  controller: pageQualityController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Page Quality',
+                                    prefixIcon: Icon(Icons.auto_stories_outlined),
+                                  ),
+                                ),
+                              ),
+                            if (signedByController != null)
+                              _ComicManualResponsiveItem(
+                                child: TextField(
+                                  controller: signedByController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Signed by',
+                                    prefixIcon: Icon(Icons.draw_outlined),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (graderNotesController != null) ...[
+                          const SizedBox(height: 10),
+                          TextField(
+                            controller: graderNotesController,
+                            minLines: 2,
+                            maxLines: 4,
+                            decoration: const InputDecoration(
+                              labelText: 'Grader Notes',
+                              alignLabelWithHint: true,
+                              prefixIcon: Icon(Icons.sticky_note_2_outlined),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   _ManualDefaultsCard(
                     accent: request.accent,
                     title: 'Collection defaults',
@@ -341,13 +448,11 @@ class _ManualKindHeader extends StatelessWidget {
     required this.icon,
     required this.accent,
     required this.title,
-    required this.subtitle,
   });
 
   final IconData icon;
   final Color accent;
   final String title;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -367,15 +472,6 @@ class _ManualKindHeader extends StatelessWidget {
                   color: palette.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: palette.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

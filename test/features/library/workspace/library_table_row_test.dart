@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,7 +33,7 @@ void main() {
     final paddingFinder = find.byWidgetPredicate(
       (widget) =>
           widget is Padding &&
-          widget.padding == const EdgeInsets.fromLTRB(8, 2, 5, 2),
+          widget.padding == const EdgeInsets.fromLTRB(8, 1, 5, 1),
     );
     final decoration = tester
         .widget<DecoratedBox>(find.byType(DecoratedBox))

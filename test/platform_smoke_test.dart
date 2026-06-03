@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/main.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';

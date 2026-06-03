@@ -22,7 +22,11 @@ class LibraryMetadataCreditsList extends StatelessWidget {
       children: [
         Text(
           title,
-          style: textTheme.labelSmall?.copyWith(color: palette.textMuted),
+          style: textTheme.labelSmall?.copyWith(
+            color: palette.textMuted,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.35,
+          ),
         ),
         const SizedBox(height: 4),
         for (final credit in credits)
@@ -51,29 +55,36 @@ class _LibraryMetadataCreditRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final palette = appPalette(context);
-    final content = Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: credit['name']?.toString() ?? '?',
+    final role = credit['role']?.toString().trim();
+    final name = credit['name']?.toString() ?? '?';
+    final content = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 92,
+          child: Text(
+            (role == null || role.isEmpty) ? 'Creator' : role,
+            style: textTheme.labelSmall?.copyWith(
+              color: palette.textMuted,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            name,
             style: textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
               decoration: onTap == null ? null : TextDecoration.underline,
               decorationColor: palette.textMuted.withValues(alpha: 0.5),
             ),
           ),
-          if (credit['role'] != null)
-            TextSpan(
-              text: '  ${credit['role']}',
-              style: textTheme.bodySmall?.copyWith(
-                color: palette.textMuted,
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 4),
       child: onTap == null
           ? content
           : InkWell(

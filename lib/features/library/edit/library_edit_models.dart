@@ -74,6 +74,12 @@ class LibraryPersonalEditSelection {
     this.lastBagBoardDate,
     this.marketValueCents,
     this.ownerLabel,
+    this.gameCompleteness,
+    this.gameHasBox,
+    this.gameHasManual,
+    this.gamePriceChartingId,
+    this.gameCoreRegion,
+    this.gameValueIsLocked,
   });
 
   final String? anchorType;
@@ -125,6 +131,12 @@ class LibraryPersonalEditSelection {
   final DateTime? lastBagBoardDate;
   final int? marketValueCents;
   final String? ownerLabel;
+  final String? gameCompleteness;
+  final bool? gameHasBox;
+  final bool? gameHasManual;
+  final String? gamePriceChartingId;
+  final String? gameCoreRegion;
+  final bool? gameValueIsLocked;
 }
 
 class LibraryWishlistEditSelection {

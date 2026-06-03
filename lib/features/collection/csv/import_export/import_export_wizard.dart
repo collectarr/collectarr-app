@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/xml/collection_xml.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -46,7 +47,7 @@ class _ImportExportWizardDialogState
     return DefaultTabController(
       initialIndex: widget.initialIndex,
       length: 2,
-      child: AlertDialog(
+      child: AccentAlertDialog(
         title: const Text('Import or export collection'),
         content: SizedBox(
           width: 860,

@@ -49,13 +49,12 @@ void main() {
     }
   });
 
-  test('top-level library registry does not expose split manga/anime/tv kinds',
+  test('top-level library registry exposes split manga/anime/tv kinds',
       () {
-    expect(collectarrLibraryTypes.supportedKinds, isNot(contains('manga')));
-    expect(collectarrLibraryTypes.supportedKinds, isNot(contains('anime')));
-    expect(collectarrLibraryTypes.supportedKinds, isNot(contains('tv')));
     expect(
-        collectarrLibraryTypes.supportedKinds, containsAll(['comic', 'movie']));
+      collectarrLibraryTypes.supportedKinds,
+      containsAll(['comic', 'manga', 'movie', 'tv', 'anime']),
+    );
   });
 
   test('merged movie and comic configs expose the kept labels', () {

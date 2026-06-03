@@ -1,12 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Shows a dialog to propose metadata corrections for any media type.
@@ -116,8 +118,12 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Correct metadata'),
+    return AccentAlertDialog(
+      titlePadding: EdgeInsets.zero,
+      title: const AccentDialogHeader(
+        title: 'Correct metadata',
+        icon: Icons.edit_note,
+      ),
       content: SizedBox(
         width: 560,
         child: SingleChildScrollView(

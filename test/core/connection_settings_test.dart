@@ -66,6 +66,28 @@ void main() {
     expect(controller.state.isLoaded, isTrue);
   });
 
+  test('connection settings can be reset from a recovery hash route URL',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.settings.metadata_base_url': 'http://metadata.local',
+      'collectarr.settings.sync_base_url': 'http://sync.local',
+      'collectarr.settings.sync_key': 'secret',
+    });
+    final controller = ConnectionSettingsController(
+      launchUri: Uri.parse('http://localhost:8083/#/auth?resetConnection=1'),
+    );
+
+    await controller.load();
+
+    expect(
+      controller.state.metadataBaseUrl,
+      ConnectionSettings.defaultMetadataBaseUrl,
+    );
+    expect(controller.state.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
+    expect(controller.state.syncKey, ConnectionSettings.defaultSyncKey);
+    expect(controller.state.isLoaded, isTrue);
+  });
+
   test('connection pairing code round trips endpoint settings', () {
     const pairing = ConnectionPairing();
     final code = pairing.encode(

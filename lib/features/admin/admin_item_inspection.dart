@@ -31,7 +31,7 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final dialogWidth =
         (MediaQuery.sizeOf(context).width - 96).clamp(280.0, 820.0).toDouble();
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Row(
         children: [
           Icon(Icons.fact_check_outlined, color: colorScheme.primary),
@@ -406,7 +406,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
     final variants = [
       for (final edition in item.editions) ...edition.variants,
     ];
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Covers: ${item.displayTitle}'),
       content: SizedBox(
         width: 640,

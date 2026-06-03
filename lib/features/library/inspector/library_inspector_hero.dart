@@ -4,11 +4,12 @@ import 'package:collectarr_app/features/library/inspector/item_image_picker.dart
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,16 +21,17 @@ class InspectorHero extends StatelessWidget {
     required this.entry,
     required this.ownedItem,
     required this.accent,
+    this.contextLabel,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final Color accent;
+  final String? contextLabel;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -59,7 +61,7 @@ class InspectorHero extends StatelessWidget {
                     )
                     .value;
             return SizedBox(
-              width: wide ? 146 : 174,
+              width: wide ? 92 : 108,
               child: LibraryInteractiveCover(
                 title: entry.resolvedTitle,
                 itemNumber: entry.itemNumber,
@@ -69,6 +71,7 @@ class InspectorHero extends StatelessWidget {
                 ownedItemId: ownedItemId,
                 accentColor: accent,
                 enableHoverCue: true,
+                enableSecondaryControl: false,
                 onMissingSecondaryPressed: ownedItemId == null
                     ? null
                     : () async {
@@ -96,59 +99,38 @@ class InspectorHero extends StatelessWidget {
           entry: entry,
           ownedItem: ownedItem,
           accent: accent,
+          contextLabel: contextLabel,
         );
         return DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: accent.withValues(alpha: 0.52)),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.alphaBlend(
-                  accent.withValues(alpha: 0.08),
-                  palette.surface.withValues(alpha: 0.94),
-                ),
-                Color.alphaBlend(
-                  accent.withValues(alpha: 0.18),
-                  palette.cardBackground.withValues(alpha: 0.96),
-                ),
-                Color.alphaBlend(
-                  accent.withValues(alpha: 0.1),
-                  palette.surfaceSubtle.withValues(alpha: 0.98),
-                ),
-              ],
+            border: Border(
+              left: BorderSide(color: accent, width: 3),
+              bottom: BorderSide(color: appPalette(context).divider),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.10),
-                blurRadius: 18,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            color: Color.alphaBlend(
+              accent.withValues(alpha: 0.04),
+              appPalette(context).surface,
+            ),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             child: wide
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       cover,
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 10),
                       Expanded(child: info),
                     ],
                   )
                 : Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       cover,
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       info,
                     ],
                   ),
-            ),
           ),
         );
       },
@@ -162,15 +144,18 @@ class _InspectorHeroInfo extends StatelessWidget {
     required this.entry,
     required this.ownedItem,
     required this.accent,
+    required this.contextLabel,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final Color accent;
+  final String? contextLabel;
 
   @override
   Widget build(BuildContext context) {
+    final metadataPresentation = _buildInspectorMetadataPresentation(type, entry);
     final referenceLabel =
         libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
             entry.primaryReferenceLabel;
@@ -196,12 +181,13 @@ class _InspectorHeroInfo extends StatelessWidget {
         ));
       }
     }
-    final genreText = entry.genres?.join('  |  ');
+    final genreText = metadataPresentation.genres.isEmpty
+        ? null
+        : metadataPresentation.genres.join('  |  ');
     final countryLangRow = [
-      if (entry.country != null) entry.country!,
-      if (entry.language != null) entry.language!,
-      if (entry.video?.runtimeMinutes != null)
-        '${entry.video!.runtimeMinutes} min',
+      if (_metadataFactValue(metadataPresentation, 'Country') case final country?) country,
+      if (_metadataFactValue(metadataPresentation, 'Language') case final language?) language,
+      if (_metadataFactValue(metadataPresentation, 'Runtime') case final runtime?) runtime,
     ].join('  |  ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,25 +199,32 @@ class _InspectorHeroInfo extends StatelessWidget {
             Expanded(
               child: Text(
                 entry.resolvedTitle,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: accent,
-                      fontWeight: FontWeight.w900,
-                      height: 1,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
                     ),
               ),
             ),
             if (entry.itemNumber != null && entry.itemNumber!.isNotEmpty) ...[
-              const SizedBox(width: 7),
+              const SizedBox(width: 6),
               LibraryItemPill(
                 label: entry.itemNumber!,
                 color: kAppHighlight,
               ),
             ],
+            if (contextLabel != null && contextLabel!.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              LibraryItemPill(
+                label: contextLabel!,
+                color: accent,
+              ),
+            ],
           ],
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 3),
         // ── Publisher (Year) ──
         Text(
           [
@@ -239,21 +232,21 @@ class _InspectorHeroInfo extends StatelessWidget {
               entry.publisher,
             if (releaseLabel != null) '($releaseLabel)',
           ].whereType<String>().join(' '),
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: appPalette(context).textMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
         // ── Format badges (prominent, CLZ-style) ──
         if (formatBadges.isNotEmpty) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Wrap(spacing: 5, runSpacing: 5, children: formatBadges),
         ],
         // ── Barcode ──
         if (entry.barcode != null && entry.barcode!.isNotEmpty) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           _InspectorHeroInfoBlock(
             label: 'Barcode',
             child: Row(
@@ -279,10 +272,10 @@ class _InspectorHeroInfo extends StatelessWidget {
         ],
         // ── Genres (pipe-separated like CLZ) ──
         if (genreText != null && genreText.isNotEmpty) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Text(
             genreText,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: kAppTextSecondary,
@@ -292,7 +285,7 @@ class _InspectorHeroInfo extends StatelessWidget {
         ],
         // ── Country | Language | Runtime ──
         if (countryLangRow.isNotEmpty) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             countryLangRow,
             maxLines: 1,
@@ -305,42 +298,42 @@ class _InspectorHeroInfo extends StatelessWidget {
         ],
         // ── Synopsis ──
         if (entry.synopsis != null && entry.synopsis!.isNotEmpty) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _InspectorHeroInfoBlock(
-            label: 'Overview',
+            label: 'Summary',
             child: Text(
               entry.synopsis!,
-              maxLines: 6,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: kAppTextSecondary,
-                    height: 1.45,
+                    height: 1.3,
                   ),
             ),
           ),
         ],
         if (type.capabilities.showsCreatorSpotlight &&
-            (entry.creators?.isNotEmpty ?? false)) ...[
-          const SizedBox(height: 12),
+            metadataPresentation.creators.isNotEmpty) ...[
+          const SizedBox(height: 8),
           BookAuthorSpotlight(
-            creators: entry.creators!,
+            creators: metadataPresentation.creators,
             accent: accent,
           ),
         ],
         if (referenceHierarchy.length > 1) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           const _InspectorHeroCaption(label: 'Reference'),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           _ReferenceHierarchyLine(
             segments: referenceHierarchy,
             accent: accent,
           ),
         ],
         // ── Status chips ──
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Wrap(
-          spacing: 7,
-          runSpacing: 7,
+          spacing: 4,
+          runSpacing: 4,
           children: [
             LibraryMetaChip(
               icon: Icons.category_outlined,
@@ -391,6 +384,35 @@ class _InspectorHeroInfo extends StatelessWidget {
   }
 }
 
+LibraryMetadataPresentation _buildInspectorMetadataPresentation(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
+  return type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+}
+
+String? _metadataFactValue(
+  LibraryMetadataPresentation presentation,
+  String label,
+) {
+  for (final fact in presentation.allFacts) {
+    if (fact.label == label) {
+      final trimmed = fact.value.trim();
+      if (trimmed.isNotEmpty && trimmed != '-') {
+        return trimmed;
+      }
+    }
+  }
+  return null;
+}
+
 class _InspectorHeroInfoBlock extends StatelessWidget {
   const _InspectorHeroInfoBlock({required this.label, required this.child});
 
@@ -403,7 +425,7 @@ class _InspectorHeroInfoBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _InspectorHeroCaption(label: label),
-        const SizedBox(height: 5),
+        const SizedBox(height: 3),
         child,
       ],
     );
@@ -442,15 +464,14 @@ class _ReferenceHierarchyLine extends StatelessWidget {
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.surfaceSubtle.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: accent.withValues(alpha: 0.18)),
+        color: palette.surface,
+        border: Border.all(color: palette.divider),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 4,
+          runSpacing: 4,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             for (var i = 0; i < segments.length; i++) ...[

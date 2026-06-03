@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 class InspectorLocationSection extends StatefulWidget {
   const InspectorLocationSection({
@@ -186,7 +187,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
     final nameCtrl = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('New Location'),
         content: TextField(
@@ -226,7 +227,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
     final roots =
         _locations.where((l) => l.parentId == null).toList();
 
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(

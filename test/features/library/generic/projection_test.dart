@@ -9,12 +9,16 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 LibraryProjectionItem _projectionItem({
@@ -33,7 +37,167 @@ LibraryProjectionItem _projectionItem({
   );
 }
 
+final _defaultViewState = LibraryWorkspaceViewState(
+  viewMode: LibraryViewMode.grid,
+  detailsLayout: LibraryDetailsLayout.hidden,
+  isSidebarVisible: true,
+  sortColumn: LibrarySortColumn.title,
+  sortAscending: true,
+  coverSize: 128,
+  sidebarWidth: 200,
+  detailsWidth: 300,
+  detailsHeight: 220,
+  visibleColumns: const {},
+  columnWidths: const {},
+);
+
 void main() {
+  test('projection sorts filtered items through adapter rules', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'comic-1',
+          catalogItem: CatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Owned later issue',
+            itemNumber: '10',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-1',
+            itemId: 'comic-1',
+            quantity: 1,
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'comic-2',
+          catalogItem: CatalogItem(
+            id: 'comic-2',
+            kind: 'comic',
+            title: 'Missing issue',
+            itemNumber: '1',
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'comic-3',
+          catalogItem: CatalogItem(
+            id: 'comic-3',
+            kind: 'comic',
+            title: 'Owned earlier issue',
+            itemNumber: '2',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-3',
+            itemId: 'comic-3',
+            quantity: 1,
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+      ],
+      ownedCount: 2,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = LibraryProjection.fromShelf(
+      shelf: shelf,
+      type: comicsLibraryConfig,
+      adapter: comicsMediaAdapter,
+      viewState: _defaultViewState.copyWith(
+        sortRules: const [
+          LibrarySortRule(column: LibrarySortColumn.status, ascending: true),
+          LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+        ],
+      ),
+      query: '',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.series,
+    );
+
+    expect(
+      projection.filteredItems.map((item) => item.entry.title),
+      ['Owned earlier issue', 'Owned later issue', 'Missing issue'],
+    );
+  });
+
+  test('projection applies ancestor bucket scopes to current group buckets', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'movie-1',
+          catalogItem: CatalogItem(
+            id: 'movie-1',
+            kind: 'movie',
+            title: 'Alpha 2020',
+            series: const CatalogSeriesDetails(seriesTitle: 'Alpha'),
+            releaseDate: DateTime.utc(2020, 1, 1),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'movie-2',
+          catalogItem: CatalogItem(
+            id: 'movie-2',
+            kind: 'movie',
+            title: 'Alpha 2021',
+            series: const CatalogSeriesDetails(seriesTitle: 'Alpha'),
+            releaseDate: DateTime.utc(2021, 1, 1),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'movie-3',
+          catalogItem: CatalogItem(
+            id: 'movie-3',
+            kind: 'movie',
+            title: 'Beta 2021',
+            series: const CatalogSeriesDetails(seriesTitle: 'Beta'),
+            releaseDate: DateTime.utc(2021, 1, 1),
+          ),
+        ),
+      ],
+      ownedCount: 0,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = LibraryProjection.fromShelf(
+      shelf: shelf,
+      type: moviesLibraryConfig,
+      adapter: moviesMediaAdapter,
+      viewState: _defaultViewState,
+      query: '',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.year,
+      bucketScopeFilters: const [
+        LibraryBucketScopeFilter(
+          groupMode: LibraryGroupMode.series,
+          bucket: 'Alpha',
+        ),
+      ],
+    );
+
+    expect(
+      projection.filteredItems.map((item) => item.entry.title),
+      ['Alpha 2020', 'Alpha 2021'],
+    );
+    expect(
+      projection.buckets.map((bucket) => bucket.title),
+      ['[All Movies]', '2020', '2021'],
+    );
+  });
+
   test('music grouping labels use artist and label terminology', () {
     expect(
       genericGroupModeLabel(LibraryGroupMode.series, musicLibraryConfig),
@@ -180,6 +344,85 @@ void main() {
     expect(
       genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
       '1992',
+    );
+  });
+
+  test('comic CLZ grouping uses crossover, imprint, series group, and cover date', () {
+    final item = _projectionItem(
+      source: const ShelfEntry(itemId: 'comic-main-1'),
+      entry: LibraryWorkspaceEntry(
+        id: 'comic-main-1',
+        mediaType: 'comic',
+        title: 'Batman #608',
+        coverDate: DateTime.utc(2002, 10, 1),
+        crossover: 'Hush',
+        publishing: const CatalogPublishingDetails(
+          imprint: 'DC Black Label',
+          seriesGroup: 'Batman Events',
+        ),
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.crossover),
+      'Hush',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.imprint),
+      'DC Black Label',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.seriesGroup),
+      'Batman Events',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverDate),
+      '2002-10-01',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverMonth),
+      'October 2002',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverYear),
+      '2002',
+    );
+  });
+
+  test('comic creator grouping resolves extended CLZ roles', () {
+    final item = _projectionItem(
+      source: const ShelfEntry(itemId: 'comic-credits-1'),
+      entry: LibraryWorkspaceEntry(
+        id: 'comic-credits-1',
+        mediaType: 'comic',
+        title: 'Spawn #1',
+        creators: const [
+          {'name': 'Scott Williams', 'role': 'Inker'},
+          {'name': 'Brian Haberlin', 'role': 'Cover Colorist'},
+          {'name': 'Tom Orzechowski', 'role': 'Letterer'},
+          {'name': 'Neil Gaiman', 'role': 'Plotter'},
+          {'name': 'Tom DeFalco', 'role': 'Editor in Chief'},
+        ],
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
+
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.inker),
+      'Scott Williams',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverColorist),
+      'Brian Haberlin',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.plotter),
+      'Neil Gaiman',
+    );
+    expect(
+      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.editorInChief),
+      'Tom DeFalco',
     );
   });
 
@@ -511,12 +754,26 @@ void main() {
       updatedAt: DateTime(2026, 1, 1),
     );
 
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Image'), isTrue);
     expect(
-      libraryEntryMatchesLinkedMetadataFilter(entry, 'Brian K. Vaughan'),
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Image', comicsMediaAdapter),
       isTrue,
     );
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Sci-Fi'), isTrue);
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(
+        entry,
+        'Brian K. Vaughan',
+        comicsMediaAdapter,
+      ),
+      isTrue,
+    );
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(
+        entry,
+        'Sci-Fi',
+        comicsMediaAdapter,
+      ),
+      isTrue,
+    );
   });
 
   test('linked metadata filter does not fall back to fuzzy matches', () {
@@ -528,8 +785,14 @@ void main() {
       updatedAt: DateTime(2026, 1, 1),
     );
 
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade'), isFalse);
-    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner'), isFalse);
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade', comicsMediaAdapter),
+      isFalse,
+    );
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner', comicsMediaAdapter),
+      isFalse,
+    );
   });
 
   test('series buckets include owned completion percentages', () {

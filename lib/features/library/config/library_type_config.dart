@@ -12,12 +12,12 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const kDefaultTransferableFieldKeys = [
@@ -151,6 +151,7 @@ class LibraryInspectorRequest {
     required this.type,
     required this.entry,
     required this.ownedItem,
+    this.ownedCopies = const [],
     required this.trackingEntry,
     required this.accent,
     this.onFilterByValue,
@@ -159,6 +160,7 @@ class LibraryInspectorRequest {
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -185,6 +187,7 @@ class LibraryInspectorPanelRequest {
     required this.extraActions,
     required this.onAddCopy,
     required this.onOpenDetails,
+    this.onDetailsLayoutChanged,
     this.ownedCopiesSection,
     this.bundleSection,
     this.conditionGradeSection,
@@ -193,6 +196,9 @@ class LibraryInspectorPanelRequest {
     this.onToggleWishlist,
     this.onEdit,
     this.onCorrectMetadata,
+    this.onDuplicate,
+    this.onLoan,
+    this.onRefreshMetadata,
   });
 
   final LibraryInspectorRequest inspector;
@@ -204,6 +210,7 @@ class LibraryInspectorPanelRequest {
   final List<Widget> extraActions;
   final VoidCallback onAddCopy;
   final VoidCallback onOpenDetails;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final Widget? ownedCopiesSection;
   final Widget? bundleSection;
   final Widget? conditionGradeSection;
@@ -212,6 +219,9 @@ class LibraryInspectorPanelRequest {
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback? onCorrectMetadata;
+  final VoidCallback? onDuplicate;
+  final VoidCallback? onLoan;
+  final VoidCallback? onRefreshMetadata;
 }
 
 typedef LibraryInspectorPanelBuilder = Widget Function(
@@ -273,6 +283,7 @@ class LibraryTypeCapabilities {
     this.canScanCover = false,
     this.supportsOwnedItemImages = true,
     this.supportsVideoKindFilters = false,
+    this.supportsMediaReleaseSplit = false,
     this.wideDialog = false,
     this.videoSeriesEntryTypes = const {},
     this.videoShelfDrilldownEntryTypes = const {},
@@ -285,6 +296,7 @@ class LibraryTypeCapabilities {
   final bool canScanCover;
   final bool supportsOwnedItemImages;
   final bool supportsVideoKindFilters;
+  final bool supportsMediaReleaseSplit;
   final bool wideDialog;
   final Set<String> videoSeriesEntryTypes;
   final Set<String> videoShelfDrilldownEntryTypes;
@@ -423,6 +435,14 @@ class LibraryTypeConfig {
 
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
+
+    List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
+
+    List<LibrarySortColumn> get availableSortColumns =>
+      workspace.availableSortColumns;
+
+    List<LibraryTableColumn> get availableTableColumns =>
+      workspace.availableTableColumns;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {

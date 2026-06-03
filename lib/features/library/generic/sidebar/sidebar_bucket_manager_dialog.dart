@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/foundation.dart';
 
 const _bucketManagerUnset = Object();
@@ -18,39 +20,22 @@ class LibraryBucketManagerEntry {
   final int count;
 }
 
-bool libraryGroupModeSupportsBucketManagement(LibraryGroupMode mode) {
-  return switch (mode) {
-    LibraryGroupMode.genre ||
-    LibraryGroupMode.character ||
-    LibraryGroupMode.storyArc ||
-    LibraryGroupMode.creator ||
-    LibraryGroupMode.actor ||
-    LibraryGroupMode.director ||
-    LibraryGroupMode.musician ||
-    LibraryGroupMode.photography ||
-    LibraryGroupMode.producer ||
-    LibraryGroupMode.writer ||
-    LibraryGroupMode.artist ||
-    LibraryGroupMode.penciller ||
-    LibraryGroupMode.colorist ||
-    LibraryGroupMode.letterer ||
-    LibraryGroupMode.coverArtist ||
-    LibraryGroupMode.editor ||
-    LibraryGroupMode.publisher ||
-    LibraryGroupMode.country ||
-    LibraryGroupMode.language ||
-    LibraryGroupMode.ageRating ||
-    LibraryGroupMode.audienceRating =>
-      true,
-    _ => false,
-  };
+bool libraryGroupModeSupportsBucketManagement(
+  LibraryTypeConfig type,
+  LibraryGroupMode mode,
+) {
+  return libraryGroupModeDefinitionOrNull(mode, type)
+          ?.supportsBucketManagement ??
+      false;
 }
 
 String libraryBucketManagerListLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  return '${genericGroupModeLabel(mode, type)} list';
+  return libraryGroupModeDefinitionOrNull(mode, type)
+          ?.resolvedBucketManagerListLabel ??
+      genericGroupModeSidebarTitle(mode, type);
 }
 
 CatalogItem? renameLibraryGroupBucketValue(
@@ -181,31 +166,10 @@ class _LibraryBucketManagerDialogState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              color: widget.accent,
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: _foregroundForAccent(widget.accent),
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Close',
-                    onPressed:
-                        _submitting ? null : () => Navigator.of(context).pop(),
-                    icon: Icon(
-                      Icons.close,
-                      color: _foregroundForAccent(widget.accent),
-                    ),
-                  ),
-                ],
-              ),
+            AccentDialogHeader(
+              title: title,
+              accent: widget.accent,
+              onClose: _submitting ? null : () => Navigator.of(context).pop(),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
@@ -411,7 +375,7 @@ class _LibraryBucketManagerDialogState
     final controller = TextEditingController(text: entry.label);
     final nextLabel = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: Text(
             'Rename ${genericGroupModeLabel(widget.groupMode, widget.type)}'),
         content: TextField(
@@ -459,7 +423,7 @@ class _LibraryBucketManagerDialogState
   Future<void> _deleteEntry(LibraryBucketManagerEntry entry) async {
     final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => AccentAlertDialog(
             title: Text('Delete ${entry.label}?'),
             content: Text(
               'Remove this ${genericGroupModeLabel(widget.groupMode, widget.type).toLowerCase()} value from all items currently bucketed under it?',
@@ -514,7 +478,7 @@ class _LibraryBucketManagerDialogState
     final confirmedTarget = await showDialog<String>(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+        builder: (context, setState) => AccentAlertDialog(
           title: Text('Merge ${entry.label} into...'),
           content: DropdownButtonFormField<String>(
             initialValue: targetLabel,
@@ -569,12 +533,6 @@ class _LibraryBucketManagerDialogState
       ),
     );
   }
-
-  Color _foregroundForAccent(Color accent) {
-    return ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-        ? Colors.white
-        : Colors.black87;
-  }
 }
 
 CatalogItem? _updatedCatalogItemForBucket(
@@ -610,10 +568,23 @@ CatalogItem? _updatedCatalogItemForBucket(
     case LibraryGroupMode.writer:
     case LibraryGroupMode.artist:
     case LibraryGroupMode.penciller:
+    case LibraryGroupMode.inker:
     case LibraryGroupMode.colorist:
+    case LibraryGroupMode.painter:
     case LibraryGroupMode.letterer:
+    case LibraryGroupMode.separator:
+    case LibraryGroupMode.layouts:
+    case LibraryGroupMode.translator:
+    case LibraryGroupMode.plotter:
+    case LibraryGroupMode.scripter:
     case LibraryGroupMode.coverArtist:
+    case LibraryGroupMode.coverPenciller:
+    case LibraryGroupMode.coverPainter:
+    case LibraryGroupMode.coverInker:
+    case LibraryGroupMode.coverColorist:
+    case LibraryGroupMode.coverSeparator:
     case LibraryGroupMode.editor:
+    case LibraryGroupMode.editorInChief:
       final creators =
           _updatedCreators(item.creators, mode, currentLabel, replacement);
       return identical(creators, _bucketManagerNoChange)
@@ -643,6 +614,30 @@ CatalogItem? _updatedCatalogItemForBucket(
       return identical(ageRating, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, ageRating: ageRating);
+    case LibraryGroupMode.crossover:
+      final crossover =
+          _updatedStringValue(item.crossover, currentLabel, replacement);
+      return identical(crossover, _bucketManagerNoChange)
+          ? null
+          : _rebuildCatalogItem(item, crossover: crossover);
+    case LibraryGroupMode.imprint:
+      final imprint = _updatedStringValue(
+        item.publishing?.imprint,
+        currentLabel,
+        replacement,
+      );
+      return identical(imprint, _bucketManagerNoChange)
+          ? null
+          : _rebuildCatalogItem(item, imprint: imprint);
+    case LibraryGroupMode.seriesGroup:
+      final seriesGroup = _updatedStringValue(
+        item.publishing?.seriesGroup,
+        currentLabel,
+        replacement,
+      );
+      return identical(seriesGroup, _bucketManagerNoChange)
+          ? null
+          : _rebuildCatalogItem(item, seriesGroup: seriesGroup);
     case LibraryGroupMode.audienceRating:
       final audienceRating = _updatedStringValue(
         item.audienceRating,
@@ -667,6 +662,9 @@ CatalogItem? _rebuildCatalogItem(
   Object? country = _bucketManagerUnset,
   Object? language = _bucketManagerUnset,
   Object? ageRating = _bucketManagerUnset,
+  Object? crossover = _bucketManagerUnset,
+  Object? imprint = _bucketManagerUnset,
+  Object? seriesGroup = _bucketManagerUnset,
   Object? audienceRating = _bucketManagerUnset,
 }) {
   if (identical(creators, _bucketManagerUnset) &&
@@ -677,9 +675,17 @@ CatalogItem? _rebuildCatalogItem(
       identical(country, _bucketManagerUnset) &&
       identical(language, _bucketManagerUnset) &&
       identical(ageRating, _bucketManagerUnset) &&
+      identical(crossover, _bucketManagerUnset) &&
+      identical(imprint, _bucketManagerUnset) &&
+      identical(seriesGroup, _bucketManagerUnset) &&
       identical(audienceRating, _bucketManagerUnset)) {
     return null;
   }
+  final updatedPublishing = _rebuildPublishingDetails(
+    item.publishing,
+    imprint: imprint,
+    seriesGroup: seriesGroup,
+  );
   return CatalogItem(
     id: item.id,
     mediaKind: item.mediaKind,
@@ -701,15 +707,19 @@ CatalogItem? _rebuildCatalogItem(
     publisher: identical(publisher, _bucketManagerUnset)
         ? item.publisher
         : publisher as String?,
+    coverDate: item.coverDate,
     releaseDate: item.releaseDate,
     releaseYear: item.releaseYear,
     barcode: item.barcode,
     variant: item.variant,
+    crossover: identical(crossover, _bucketManagerUnset)
+      ? item.crossover
+      : crossover as String?,
     series: item.series,
     video: item.video,
     music: item.music,
     game: item.game,
-    publishing: item.publishing,
+    publishing: updatedPublishing,
     creators: identical(creators, _bucketManagerUnset)
         ? item.creators
         : creators as List<Map<String, dynamic>>?,
@@ -738,6 +748,32 @@ CatalogItem? _rebuildCatalogItem(
         ? item.audienceRating
         : audienceRating as String?,
   );
+}
+
+CatalogPublishingDetails? _rebuildPublishingDetails(
+  CatalogPublishingDetails? details, {
+  Object? imprint = _bucketManagerUnset,
+  Object? seriesGroup = _bucketManagerUnset,
+}) {
+  if (identical(imprint, _bucketManagerUnset) &&
+      identical(seriesGroup, _bucketManagerUnset)) {
+    return details;
+  }
+  final nextImprint = identical(imprint, _bucketManagerUnset)
+      ? details?.imprint
+      : imprint as String?;
+  final nextSeriesGroup = identical(seriesGroup, _bucketManagerUnset)
+      ? details?.seriesGroup
+      : seriesGroup as String?;
+  final nextDetails = CatalogPublishingDetails(
+    pageCount: details?.pageCount,
+    coverPriceCents: details?.coverPriceCents,
+    currency: details?.currency,
+    imprint: nextImprint,
+    subtitle: details?.subtitle,
+    seriesGroup: nextSeriesGroup,
+  );
+  return nextDetails.hasData ? nextDetails : null;
 }
 
 Object? _updatedStringList(
@@ -860,10 +896,29 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, LibraryGroupMode mode) {
     LibraryGroupMode.artist =>
       role.contains('artist') && !role.contains('cover'),
     LibraryGroupMode.penciller => role.contains('pencil'),
+    LibraryGroupMode.inker => role.contains('ink') && !role.contains('cover'),
     LibraryGroupMode.colorist => role.contains('color'),
+    LibraryGroupMode.painter => role.contains('paint') && !role.contains('cover'),
     LibraryGroupMode.letterer => role.contains('letter'),
+    LibraryGroupMode.separator => role.contains('separator'),
+    LibraryGroupMode.layouts => role.contains('layout'),
+    LibraryGroupMode.translator => role.contains('translat'),
+    LibraryGroupMode.plotter => role.contains('plotter'),
+    LibraryGroupMode.scripter => role.contains('script'),
     LibraryGroupMode.coverArtist => role.contains('cover'),
+    LibraryGroupMode.coverPenciller =>
+      role.contains('cover') && (role.contains('pencil') || role.contains('penciller')),
+    LibraryGroupMode.coverPainter =>
+      role.contains('cover') && role.contains('paint'),
+    LibraryGroupMode.coverInker =>
+      role.contains('cover') && role.contains('ink'),
+    LibraryGroupMode.coverColorist =>
+      role.contains('cover') && role.contains('color'),
+    LibraryGroupMode.coverSeparator =>
+      role.contains('cover') && role.contains('separator'),
     LibraryGroupMode.editor => role.contains('editor'),
+    LibraryGroupMode.editorInChief =>
+      role.contains('editor in chief') || role.contains('editor-in-chief'),
     _ => false,
   };
 }

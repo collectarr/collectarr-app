@@ -22,7 +22,6 @@ class AuthPage extends ConsumerStatefulWidget {
 class _AuthPageState extends ConsumerState<AuthPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool isRegister = false;
   bool obscurePassword = true;
   bool _syncedStoredEmail = false;
 
@@ -85,10 +84,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           auth: auth,
                           emailController: emailController,
                           passwordController: passwordController,
-                          isRegister: isRegister,
                           obscurePassword: obscurePassword,
-                          onToggleMode: () =>
-                              setState(() => isRegister = !isRegister),
                           onTogglePassword: () => setState(
                             () => obscurePassword = !obscurePassword,
                           ),
@@ -142,11 +138,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
     final email = emailController.text.trim();
     final password = passwordController.text;
-    if (isRegister) {
-      ref.read(authControllerProvider.notifier).register(email, password);
-    } else {
-      ref.read(authControllerProvider.notifier).login(email, password);
-    }
+    ref.read(authControllerProvider.notifier).login(email, password);
   }
 
   void _fillDevCredentials() {
@@ -213,7 +205,7 @@ class _AuthBrandPanel extends StatelessWidget {
                     height: 1,
                   ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Your self-hosted media collection manager',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -221,13 +213,13 @@ class _AuthBrandPanel extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             const Text(
               'Comics, manga, movies, games, music, books — all in one place. '  
               'Your data stays on your server.',
               style: TextStyle(color: _authMuted, height: 1.35),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
             const Wrap(
               spacing: 10,
               runSpacing: 8,
@@ -249,9 +241,7 @@ class _AuthFormPanel extends StatelessWidget {
     required this.auth,
     required this.emailController,
     required this.passwordController,
-    required this.isRegister,
     required this.obscurePassword,
-    required this.onToggleMode,
     required this.onTogglePassword,
     required this.onFillDevCredentials,
     required this.onSubmit,
@@ -260,9 +250,7 @@ class _AuthFormPanel extends StatelessWidget {
   final AuthState auth;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final bool isRegister;
   final bool obscurePassword;
-  final VoidCallback onToggleMode;
   final VoidCallback onTogglePassword;
   final VoidCallback onFillDevCredentials;
   final VoidCallback onSubmit;
@@ -293,18 +281,14 @@ class _AuthFormPanel extends StatelessWidget {
                 Icon(
                   auth.isRestoring
                       ? Icons.hourglass_top
-                      : isRegister
-                          ? Icons.person_add
-                          : Icons.login,
+                      : Icons.login,
                   color: _authYellow,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   auth.isRestoring
                       ? 'Restoring session'
-                      : isRegister
-                          ? 'Create account'
-                          : 'Login',
+                      : 'Login',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -362,22 +346,15 @@ class _AuthFormPanel extends StatelessWidget {
                         dimension: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Icon(isRegister ? Icons.person_add : Icons.login),
+                    : const Icon(Icons.login),
                 label: Text(
                   auth.isRestoring
                       ? 'Restoring...'
-                      : isRegister
-                          ? 'Register'
-                          : 'Login',
+                      : 'Login',
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            TextButton(
-              onPressed: isBusy ? null : onToggleMode,
-              child:
-                  Text(isRegister ? 'Use existing account' : 'Create account'),
-            ),
             OutlinedButton.icon(
               onPressed: isBusy ? null : onFillDevCredentials,
               icon: const Icon(Icons.science_outlined, size: 18),
@@ -407,7 +384,7 @@ class _AuthModeStrip extends StatelessWidget {
         border: Border.all(color: _authDivider),
       ),
       child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
             Icon(Icons.lock_person_outlined, color: _authAccent, size: 18),
@@ -440,7 +417,7 @@ class _MiniWorkspacePreview extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: 26,
+              height: 28,
               color: const Color(0xFF2C2C2C),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -457,15 +434,15 @@ class _MiniWorkspacePreview extends StatelessWidget {
                     ])
                       _AlphaTab(label: label, selected: label == 'All'),
                     Container(
-                      width: 112,
-                      height: 18,
+                      width: 116,
+                      height: 20,
                       margin: const EdgeInsets.only(right: 8),
                       color: const Color(0xFF0F0F0F),
                       alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: const Text(
                         'Search comics...',
-                        style: TextStyle(color: _authMuted, fontSize: 10),
+                        style: TextStyle(color: _authMuted, fontSize: 11),
                       ),
                     ),
                   ],
@@ -500,14 +477,14 @@ class _AlphaTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: label.length > 1 ? 36 : 28,
-      height: 18,
+      height: 20,
       margin: const EdgeInsets.only(right: 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: selected ? _authAccent : kAppFieldDark,
         border: Border.all(color: _authDivider),
       ),
-      child: Text(label, style: const TextStyle(fontSize: 10)),
+      child: Text(label, style: const TextStyle(fontSize: 11)),
     );
   }
 }
@@ -531,43 +508,51 @@ class _PreviewSeriesList extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 18,
+            height: 20,
             alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             color: const Color(0xFF0E0E0E),
             child: const Text(
               'Search series...',
-              style: TextStyle(color: _authMuted, fontSize: 10),
+              style: TextStyle(color: _authMuted, fontSize: 11),
             ),
           ),
           const SizedBox(height: 6),
-          for (final row in rows)
-            Container(
-              height: 20,
-              margin: const EdgeInsets.only(bottom: 3),
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              color: row.$1 == 'Superman, Vol. 4'
-                  ? const Color(0xFF0B7893)
-                  : Colors.transparent,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      row.$1,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10),
-                    ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: rows.length,
+              padding: EdgeInsets.zero,
+              itemBuilder: (context, index) {
+                final row = rows[index];
+                return Container(
+                  height: 22,
+                  margin: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  color: row.$1 == 'Superman, Vol. 4'
+                      ? const Color(0xFF0B7893)
+                      : Colors.transparent,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          row.$1,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        alignment: Alignment.center,
+                        color: kAppSurface,
+                        child: Text(row.$2, style: const TextStyle(fontSize: 11)),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: 22,
-                    alignment: Alignment.center,
-                    color: kAppSurface,
-                    child: Text(row.$2, style: const TextStyle(fontSize: 10)),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
+          ),
         ],
       ),
     );
@@ -608,7 +593,7 @@ class _PreviewInspector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF171717),
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.all(10),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,7 +604,7 @@ class _PreviewInspector extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: _authAccent, fontWeight: FontWeight.w900),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 4),
             const Text('#8A', style: TextStyle(color: _authYellow)),
             const SizedBox(height: 8),
             const SizedBox(
@@ -651,7 +636,7 @@ class _RememberedAccount extends StatelessWidget {
         border: Border.all(color: _authDivider),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
             const Icon(Icons.history, color: _authAccent, size: 18),
@@ -743,7 +728,7 @@ class _PreviewComic extends StatelessWidget {
             const Positioned(
               right: 3,
               bottom: 3,
-              child: Icon(Icons.check_circle, color: _authAccent, size: 14),
+              child: Icon(Icons.check_circle, color: _authAccent, size: 15),
             ),
         ],
       ),
@@ -760,14 +745,14 @@ class _TinyMeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
           SizedBox(
-            width: 42,
+            width: 44,
             child: Text(
               label,
-              style: const TextStyle(color: _authMuted, fontSize: 10),
+              style: const TextStyle(color: _authMuted, fontSize: 11),
             ),
           ),
           Expanded(
@@ -775,7 +760,7 @@ class _TinyMeta extends StatelessWidget {
               value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -790,15 +775,15 @@ class _AuthStatusBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 24,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: 26,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: const BoxDecoration(
         color: Color(0xFF242424),
         border: Border(top: BorderSide(color: _authDivider)),
       ),
       child: const Row(
         children: [
-          Icon(Icons.storage, color: _authAccent, size: 14),
+          Icon(Icons.storage, color: _authAccent, size: 16),
           SizedBox(width: 6),
           Text('Local personal database', style: TextStyle(fontSize: 11)),
           VerticalDivider(width: 18, color: _authDivider),
@@ -856,7 +841,7 @@ class CollectarrRestoreScreen extends StatelessWidget {
                               color: _authAccent,
                               size: 34,
                             ),
-                            SizedBox(height: 14),
+                            SizedBox(height: 16),
                             Text(
                               'Restoring session',
                               style: TextStyle(
@@ -864,9 +849,9 @@ class CollectarrRestoreScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            LinearProgressIndicator(),
                             SizedBox(height: 12),
+                            LinearProgressIndicator(),
+                            SizedBox(height: 14),
                             Text(
                               'Checking the stored JWT and reconnecting metadata search.',
                               textAlign: TextAlign.center,
@@ -897,7 +882,7 @@ class _AuthFeatureChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: _authAccent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(16),
@@ -906,8 +891,8 @@ class _AuthFeatureChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: _authAccent),
-          const SizedBox(width: 5),
+          Icon(icon, size: 16, color: _authAccent),
+          const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(

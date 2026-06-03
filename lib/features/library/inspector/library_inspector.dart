@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_launcher.d
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
@@ -18,18 +19,20 @@ import 'package:collectarr_app/features/library/inspector/inspector_location_sec
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const double _kInspectorOuterGap = 12;
+const double _kInspectorOuterGap = 8;
 
 @immutable
 class _InspectorConditionGradeOptionsRequest {
@@ -97,8 +100,10 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEdit,
+    this.onDetailsLayoutChanged,
     this.onFilterByValue,
     this.db,
+    this.contextLabel,
   });
 
   final LibraryTypeConfig type;
@@ -110,8 +115,10 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
   final void Function(OwnedItem? ownedItem)? onEdit;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
   final LocalDatabase? db;
+  final String? contextLabel;
 
   @override
   ConsumerState<LibraryInspector> createState() => _LibraryInspectorState();
@@ -148,6 +155,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
+    final usesCustomInspectorPanel = widget.type.inspectorPanelBuilder != null;
     final ownedCopies = ref.watch(collectionProvider).maybeWhen(
           data: (items) {
             final matches = items
@@ -187,6 +195,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       type: widget.type,
       entry: selected,
       ownedItem: activeOwnedItem,
+      ownedCopies: ownedCopies,
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,
       onFilterByValue: widget.onFilterByValue,
@@ -278,6 +287,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               type: widget.type,
             )
         : null;
+    final onDuplicate = activeOwnedItem == null
+        ? null
+        : () => _duplicateOwnedCopy(selected, activeOwnedItem);
+    final onLoan = activeOwnedItem == null || widget.db == null
+        ? null
+        : () => _showOwnedSectionDialog(
+              context,
+              title: 'Loans',
+              child: InspectorLoanSection(
+                ownedItemId: activeOwnedItem.id,
+                db: widget.db!,
+                accent: widget.accent,
+              ),
+            );
+    final onRefreshMetadata = widget.type.supportedMetadataProviders.isEmpty
+        ? null
+        : () => _refreshSelectedEntryMetadata(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
         context: context,
@@ -311,6 +337,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           entry: selected,
           ownedItem: activeOwnedItem,
           accent: widget.accent,
+          contextLabel: widget.contextLabel,
         );
     final primarySections = widget.type.inspectorSectionsBuilder?.call(
           context,
@@ -347,7 +374,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             accent: widget.accent,
           );
     Widget? conditionGradeSection;
-    if (activeOwnedItem != null &&
+    if (!usesCustomInspectorPanel &&
+      activeOwnedItem != null &&
         (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
         resolveOwnedDigitalFlag(
               activeOwnedItem,
@@ -410,19 +438,15 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           trackingEntry: activeTrackingEntry,
           accent: widget.accent,
         ),
-      if (activeOwnedItem != null)
-        InspectorPersonalDetailsEditor(
-          ownedItem: activeOwnedItem,
-          accent: widget.accent,
-        ),
-      if (activeTrackingEntry != null)
-        InspectorTrackingDetailsEditor(
-          itemId: selected.id,
-          trackingEntry: activeTrackingEntry,
-          profile: widget.type.trackingProfile,
-          editions: selected.editions,
-          accent: widget.accent,
-        ),
+      ...?(!usesCustomInspectorPanel
+          ? buildLibraryInspectorEditorSections(
+              type: widget.type,
+              entry: selected,
+              accent: widget.accent,
+              ownedItem: activeOwnedItem,
+              trackingEntry: activeTrackingEntry,
+            )
+          : null),
       if (activeOwnedItem != null && widget.db != null)
         InspectorCustomFieldsSection(
           ownedItemId: activeOwnedItem.id,
@@ -438,8 +462,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           db: widget.db!,
           accent: widget.accent,
         ),
-      ...widget.type.presentation.builder.buildInspectorSections(
+      ...buildLibraryInspectorKindSections(
         context: context,
+        type: widget.type,
         entry: selected,
         accent: widget.accent,
       ),
@@ -460,6 +485,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ownedItem: activeOwnedItem,
           ),
           onOpenDetails: onOpenDetails,
+          onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
           ownedCopiesSection: ownedCopiesSection,
           bundleSection: bundleSection,
           conditionGradeSection: conditionGradeSection,
@@ -470,37 +496,48 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           onToggleWishlist: onToggleWishlist,
           onEdit: onEdit,
           onCorrectMetadata: onCorrectMetadata,
+          onDuplicate: onDuplicate,
+          onLoan: onLoan,
+          onRefreshMetadata: onRefreshMetadata,
         ),
       );
     }
     final palette = appPalette(context);
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: InspectorBackdrop(
-            entry: selected,
-            ownedItem: activeOwnedItem,
-          ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(
+          left: BorderSide(color: palette.divider),
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.panel.withValues(alpha: 0.84),
-          ),
-          child: ListView(
-            padding: const EdgeInsets.all(12),
-            children: [
-              InspectorActionBar(
-                type: widget.type,
-                entry: selected,
-                onToggleOwned: onToggleOwned,
-                onToggleWishlist: onToggleWishlist,
-                onEdit: onEdit,
-                onCorrectMetadata: onCorrectMetadata,
-                extraActions: extraActions,
-                onOpenDetails: onOpenDetails,
+      ),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.surface,
+              border: Border.all(color: palette.divider),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  hero,
+                  const SizedBox(height: 6),
+                  InspectorActionBar(
+                    type: widget.type,
+                    entry: selected,
+                    onToggleOwned: onToggleOwned,
+                    onToggleWishlist: onToggleWishlist,
+                    onEdit: onEdit,
+                    onCorrectMetadata: onCorrectMetadata,
+                    extraActions: extraActions,
+                    onOpenDetails: onOpenDetails,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              hero,
+            ),
+          ),
               if (ownedCopies.isNotEmpty) ...[
                 const SizedBox(height: _kInspectorOuterGap),
                 ownedCopiesSection!,
@@ -523,10 +560,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               const SizedBox(height: _kInspectorOuterGap),
               ...primarySections,
               ...trailingSections,
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -658,6 +693,74 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       }
       _selectNewestOwnedItem = false;
     });
+  }
+
+  Future<void> _duplicateOwnedCopy(
+    LibraryWorkspaceEntry entry,
+    OwnedItem item,
+  ) async {
+    await ref.read(collectionMutationsProvider).addItem(
+          item.itemId,
+          isDigital: item.isDigital,
+          anchorType: item.anchorType,
+          editionId: item.editionId,
+          variantId: item.variantId,
+          bundleReleaseId: item.bundleReleaseId,
+          condition: item.condition,
+          grade: item.grade,
+          purchaseDate: item.purchaseDate,
+          pricePaidCents: item.pricePaidCents,
+          currency: item.currency,
+          personalNotes: item.personalNotes,
+          quantity: item.quantity,
+          locationId: item.locationId,
+          indexNumber: item.indexNumber,
+          coverPriceCents: item.coverPriceCents,
+          rawOrSlabbed: item.rawOrSlabbed,
+          gradingCompany: item.gradingCompany,
+          graderNotes: item.graderNotes,
+          signedBy: item.signedBy,
+          labelType: item.labelType,
+          certificationNumber: item.certificationNumber,
+          keyComic: item.keyComic,
+          keyReason: item.keyReason,
+          rating: item.rating,
+          readStatus: item.readStatus,
+          startedAt: item.startedAt,
+          finishedAt: item.finishedAt,
+          tags: item.tags,
+        );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _selectedOwnedItemId = null;
+      _selectNewestOwnedItem = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Duplicated "${entry.title}"')),
+    );
+  }
+
+  Future<void> _refreshSelectedEntryMetadata(LibraryWorkspaceEntry entry) async {
+    final result = await showLibraryMetadataRefreshDialog(
+      context: context,
+      type: widget.type,
+      accent: widget.accent,
+      allEntries: [entry],
+      shownEntries: [entry],
+      selectedEntry: entry,
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
+        ),
+      ),
+    );
   }
 }
 

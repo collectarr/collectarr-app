@@ -1,7 +1,9 @@
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -38,7 +40,8 @@ enum ReportColumn {
       ReportColumn.barcodeImage => item.barcode ?? '',
       ReportColumn.year => item.releaseYear?.toString() ?? '',
       ReportColumn.format => item.editions.firstOrNull?.physicalFormatLabel ?? '',
-      ReportColumn.creator => (item.creators?.firstOrNull?['name']?.toString()) ?? '',
+      ReportColumn.creator =>
+        (item.creators?.firstOrNull?['name']?.toString()) ?? '',
       ReportColumn.tags => item.tags ?? '',
       ReportColumn.location => item.locationPath ?? '',
     };
@@ -154,7 +157,7 @@ pw.Document _buildDocument(
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text(
                   'Page ${pageIdx + 1} of ${pages.length}',
-                  style: const pw.TextStyle(fontSize: 9),
+                  style: const pw.TextStyle(fontSize: 10),
                 ),
               ),
             ],
@@ -171,7 +174,7 @@ pw.Widget _headerCell(String text) {
   return pw.Padding(
     padding: const pw.EdgeInsets.all(4),
     child: pw.Text(text,
-        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold)),
+        style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
   );
 }
 
@@ -179,7 +182,7 @@ pw.Widget _cell(String text) {
   return pw.Padding(
     padding: const pw.EdgeInsets.all(4),
     child: pw.Text(text,
-        style: const pw.TextStyle(fontSize: 8),
+        style: const pw.TextStyle(fontSize: 9),
         maxLines: 2,
         overflow: pw.TextOverflow.clip),
   );
@@ -199,7 +202,7 @@ pw.Widget _barcodeCell(String data) {
         data: data,
         height: 18,
         drawText: true,
-        textStyle: const pw.TextStyle(fontSize: 6),
+        textStyle: const pw.TextStyle(fontSize: 8),
       ),
     );
   } catch (_) {
@@ -225,8 +228,13 @@ class _ReportColumnPickerDialogState extends State<_ReportColumnPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Report columns'),
+    return AccentAlertDialog(
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Report columns',
+        accent: widget.accent,
+        icon: Icons.view_column_outlined,
+      ),
       content: SizedBox(
         width: 320,
         child: SingleChildScrollView(

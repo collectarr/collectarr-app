@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Data class for insurance value summary.
 class InsuranceValueSummary {
@@ -91,7 +92,7 @@ class _InsuranceValueDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: const Row(
         children: [

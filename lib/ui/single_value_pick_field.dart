@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 class SingleValuePickField extends StatefulWidget {
   const SingleValuePickField({
@@ -71,7 +72,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       builder: (context) {
         final palette = appPalette(context);
         final currentValue = _emptyToNull(widget.controller.text);
-        return AlertDialog(
+        return AccentAlertDialog(
           backgroundColor: palette.panel,
           title: Text('Pick ${widget.label}'),
           contentPadding: EdgeInsets.zero,

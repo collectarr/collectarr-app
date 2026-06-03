@@ -51,11 +51,23 @@ class ConnectionSettingsController extends StateNotifier<ConnectionSettings> {
   }
 
   bool _shouldResetFromLaunchUri() {
+    final fragmentQueryParameters = _fragmentQueryParameters();
     final value = _launchUri.queryParameters['resetConnection'] ??
-        _launchUri.queryParameters['resetLocalSettings'];
+        _launchUri.queryParameters['resetLocalSettings'] ??
+        fragmentQueryParameters['resetConnection'] ??
+        fragmentQueryParameters['resetLocalSettings'];
     return switch (value?.toLowerCase()) {
       '1' || 'true' || 'yes' => true,
       _ => false,
     };
+  }
+
+  Map<String, String> _fragmentQueryParameters() {
+    final fragment = _launchUri.fragment;
+    final queryIndex = fragment.indexOf('?');
+    if (queryIndex == -1 || queryIndex == fragment.length - 1) {
+      return const <String, String>{};
+    }
+    return Uri.splitQueryString(fragment.substring(queryIndex + 1));
   }
 }

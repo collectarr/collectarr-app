@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -7,14 +8,19 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
+import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   const LibraryDesktopSecondaryToolbar({
@@ -30,6 +36,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
+    this.browserMode = LibraryWorkspaceBrowserMode.media,
+    this.supportsMediaReleaseSplit = false,
+    this.onBrowserModeChanged,
+    this.showReleaseFolderBack = false,
+    this.releaseFolderLabel,
+    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
@@ -43,6 +55,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onEditSort,
     this.activeSortFavoriteId,
     this.sortFavorites = const [],
+    this.onSortFavoriteSelected,
+    this.pinnedSortFavoriteIds = const {},
+    this.onTogglePinnedSortFavorite,
+    this.onManageSortFavorites,
     this.onRandomPick,
     this.onDownloadAllCovers,
     this.shelfState,
@@ -57,8 +73,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onPrintReport,
     this.onShareCollection,
     this.groupMode,
-    this.pinnedGroupModes = const {},
-    this.onTogglePinGroupMode,
+    this.folderPreset,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
   });
 
@@ -73,6 +90,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final LibraryWorkspaceBrowserMode browserMode;
+  final bool supportsMediaReleaseSplit;
+  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
+  final bool showReleaseFolderBack;
+  final String? releaseFolderLabel;
+  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
@@ -86,6 +109,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final int activeFilterCount;
   final String? activeSortFavoriteId;
   final List<LibrarySortFavorite> sortFavorites;
+  final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
+  final Set<String> pinnedSortFavoriteIds;
+  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
+  final VoidCallback? onManageSortFavorites;
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
@@ -99,14 +126,17 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final LibraryFolderPreset? folderPreset;
   final LibraryGroupMode? groupMode;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
-  final ValueChanged<LibraryGroupMode>? onGroupModeChanged;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
+  final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final mediaScopeLabel =
+        type.workspace.kind.apiValue == 'comic' ? 'Series' : 'Media';
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
@@ -121,7 +151,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
         child: Row(
           children: [
             Expanded(
@@ -129,65 +159,117 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    if (!viewState.isSidebarVisible &&
-                        onGroupModeChanged != null) ...[
+                    if (!viewState.isSidebarVisible && onGroupModeChanged != null) ...[
                       LibraryGroupModeMenuButton(
                         type: type,
-                        groupMode: groupMode,
+                        folderPreset: folderPreset,
                         accent: libraryAccentForKind(type.workspace.kind),
-                        icon: groupMode == null
+                        icon: folderPreset == null
                             ? Icons.account_tree_outlined
-                            : genericGroupModeIcon(groupMode!),
+                            : genericFolderPresetIcon(folderPreset!, type),
                         onChanged: onGroupModeChanged!,
                         sidebarVisible: false,
                         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                        pinnedGroupModes: pinnedGroupModes,
-                        onTogglePin: onTogglePinGroupMode,
+                        pinnedFolderPresets: pinnedFolderPresets,
+                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
                         iconOnly: true,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
                     ],
-                    if (onEditSort != null) const SizedBox(width: 6),
+                    if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
                     if (onEditSort != null)
                       LibraryToolbarSortButton(
                         onPressed: onEditSort!,
                         sortFavorites: sortFavorites,
                         activeSortFavoriteId: activeSortFavoriteId,
+                        pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                        onSortFavoriteSelected: onSortFavoriteSelected,
+                        onManageFavoritesPressed: onManageSortFavorites,
                       ),
-                    if (onEditSort != null) const SizedBox(width: 6),
+                    const _LibraryDesktopToolbarSeparator(),
                     LibraryViewModeDropdown(
                       viewMode: viewState.viewMode,
                       onChanged: onViewModeChanged,
                     ),
-                    const SizedBox(width: 6),
+                    if (supportsMediaReleaseSplit) ...[
+                      const _LibraryDesktopToolbarSeparator(),
+                      _LibraryDesktopToolbarSection(
+                        label: 'Scope',
+                        child: PopupMenuButton<LibraryWorkspaceBrowserMode>(
+                          tooltip: 'Browser scope',
+                          initialValue: browserMode,
+                          onSelected: onBrowserModeChanged,
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: LibraryWorkspaceBrowserMode.media,
+                              child: Text(mediaScopeLabel),
+                            ),
+                            const PopupMenuItem(
+                              value: LibraryWorkspaceBrowserMode.releases,
+                              child: Text('Releases'),
+                            ),
+                          ],
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: appPalette(context).divider),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  browserMode == LibraryWorkspaceBrowserMode.media
+                                      ? mediaScopeLabel
+                                      : 'Releases',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.arrow_drop_down, size: 16),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    const _LibraryDesktopToolbarSeparator(),
                     LibraryDetailsLayoutDropdown(
                       detailsLayout: viewState.detailsLayout,
                       onChanged: onDetailsLayoutChanged,
                     ),
                     if (viewState.viewMode == LibraryViewMode.list) ...[
-                      const SizedBox(width: 6),
-                      _LibraryColumnLauncher(
-                        activeLabel: activeColumnFavoriteLabel,
-                        onManageColumns: onEditColumns,
-                        pinnedPresets: pinnedColumnPresets,
-                        overflowPresets: overflowColumnPresets,
-                        onPresetSelected: onColumnFavoriteSelected,
+                      const _LibraryDesktopToolbarSeparator(),
+                      _LibraryDesktopToolbarSection(
+                        label: 'Columns',
+                        child: _LibraryColumnLauncher(
+                          activeLabel: activeColumnFavoriteLabel,
+                          onManageColumns: onEditColumns,
+                          pinnedPresets: pinnedColumnPresets,
+                          overflowPresets: overflowColumnPresets,
+                          onPresetSelected: onColumnFavoriteSelected,
+                        ),
                       ),
                     ] else if (viewState.viewMode.supportsCoverSize) ...[
-                      const SizedBox(width: 6),
-                      LibraryCoverSizeSlider(
-                        viewMode: viewState.viewMode,
-                        coverSize: viewState.coverSize,
-                        minCoverSize: adapter.viewProfile.minCoverSize,
-                        maxCoverSize: adapter.viewProfile.maxCoverSize,
-                        onChanged: onCoverSizeChanged,
+                      const _LibraryDesktopToolbarSeparator(),
+                      _LibraryDesktopToolbarSection(
+                        label: 'Covers',
+                        child: LibraryCoverSizeSlider(
+                          viewMode: viewState.viewMode,
+                          coverSize: viewState.coverSize,
+                          minCoverSize: adapter.viewProfile.minCoverSize,
+                          maxCoverSize: adapter.viewProfile.maxCoverSize,
+                          onChanged: onCoverSizeChanged,
+                        ),
                       ),
                     ],
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 6),
             LibraryWorkspaceControlStrip(
               children: [
                 LibraryItemCountLabel(
@@ -195,19 +277,20 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   total: counts.total,
                   pluralLabel: type.pluralLabel,
                 ),
+                if (showReleaseFolderBack && onReleaseFolderBack != null)
+                  TextButton.icon(
+                    onPressed: onReleaseFolderBack,
+                    icon: const Icon(Icons.arrow_back, size: 16),
+                    label: Text(
+                      releaseFolderLabel == null
+                          ? 'Back'
+                          : 'Back: ${releaseFolderLabel!}',
+                    ),
+                  ),
                 if (selectedBucket != null)
                   LibraryToolbarScopeChip(
                     label: selectedBucket!,
                     onClear: onClearBucket,
-                  ),
-                if (counts.totalPricePaidCents > 0 ||
-                    counts.totalCoverPriceCents > 0 ||
-                    counts.totalSellPriceCents > 0)
-                  LibraryCollectionValueChip(
-                    totalPaidCents: counts.totalPricePaidCents,
-                    totalCoverCents: counts.totalCoverPriceCents,
-                    totalSellCents: counts.totalSellPriceCents,
-                    currency: counts.priceCurrency,
                   ),
                 if (onEditFilters != null)
                   LibraryFilterButton(
@@ -239,6 +322,56 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryDesktopToolbarSection extends StatelessWidget {
+  const _LibraryDesktopToolbarSection({
+    required this.label,
+    required this.child,
+  });
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: palette.textMuted,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.22,
+                fontSize: 10,
+              ),
+        ),
+        const SizedBox(width: 3),
+        child,
+      ],
+    );
+  }
+}
+
+class _LibraryDesktopToolbarSeparator extends StatelessWidget {
+  const _LibraryDesktopToolbarSeparator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: SizedBox(
+        height: 18,
+        child: VerticalDivider(
+          width: 1,
+          thickness: 1,
+          color: appPalette(context).divider,
         ),
       ),
     );
@@ -344,13 +477,14 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final showChromeRow = onCollectionStatusScopeChanged != null;
     final showAlphabetRow = onLetterSelected != null;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      child: Row(
-        children: [
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
           LibraryToolbarPrimaryActions(
             addLabel: 'Add ${type.pluralLabel}',
             onAdd: onAdd,
@@ -362,51 +496,339 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
             addForegroundColor: Colors.white,
           ),
           if (showChromeRow) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             LibraryCollectionStatusScopeDropdown(
               collectionStatusScope: collectionStatusScope,
               onCollectionStatusScopeChanged:
                   onCollectionStatusScopeChanged!,
             ),
           ],
-          const SizedBox(width: 12),
-          Expanded(
-            child: Row(
-              children: [
-                if (showAlphabetRow)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: LibraryToolbarAlphabetRow(
-                        letters: availableLetters,
-                        selectedLetter: selectedLetter,
-                        onLetterSelected: onLetterSelected!,
-                      ),
-                    ),
-                  )
-                else
-                  const Spacer(),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
-                    child: LibraryToolbarSearch(
-                      controller: searchController,
-                      hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-                      onScanBarcode: onScan,
-                      onScanCover: onScanCover,
-                      selectedFilterLabel: selectedBucket,
-                      onSearch: onSearchChanged,
-                      onClearFilter: onClearBucket,
-                      onChanged: onSearchChanged,
-                      selectionColor: palette.selection,
+            const SizedBox(width: 8),
+            SizedBox(
+              width: 380,
+              child: LibraryToolbarSearch(
+                controller: searchController,
+                hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                onScanBarcode: onScan,
+                onScanCover: onScanCover,
+                selectedFilterLabel: selectedBucket,
+                onSearch: onSearchChanged,
+                onClearFilter: onClearBucket,
+                onChanged: onSearchChanged,
+                selectionColor: appPalette(context).selection,
+              ),
+            ),
+            if (showAlphabetRow) ...[
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 420,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: LibraryToolbarAlphabetRow(
+                      letters: availableLetters,
+                      selectedLetter: selectedLetter,
+                      onLetterSelected: onLetterSelected!,
                     ),
                   ),
                 ),
+              ),
+            ],
+            const SizedBox(width: 6),
+            const _LibraryDesktopUtilityCluster(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+enum _LibraryWorkspaceDestination {
+  shelf,
+  calendar,
+  admin,
+  settings,
+  shortcuts,
+}
+
+extension on _LibraryWorkspaceDestination {
+  String get label {
+    switch (this) {
+      case _LibraryWorkspaceDestination.shelf:
+        return 'Shelf';
+      case _LibraryWorkspaceDestination.calendar:
+        return 'Calendar';
+      case _LibraryWorkspaceDestination.admin:
+        return 'Admin';
+      case _LibraryWorkspaceDestination.settings:
+        return 'Settings';
+      case _LibraryWorkspaceDestination.shortcuts:
+        return 'Keyboard shortcuts';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case _LibraryWorkspaceDestination.shelf:
+        return Icons.inventory_2_outlined;
+      case _LibraryWorkspaceDestination.calendar:
+        return Icons.calendar_month_outlined;
+      case _LibraryWorkspaceDestination.admin:
+        return Icons.admin_panel_settings_outlined;
+      case _LibraryWorkspaceDestination.settings:
+        return Icons.settings_outlined;
+      case _LibraryWorkspaceDestination.shortcuts:
+        return Icons.keyboard_command_key;
+    }
+  }
+
+  String? get route {
+    switch (this) {
+      case _LibraryWorkspaceDestination.shelf:
+        return AppRoutes.shelf;
+      case _LibraryWorkspaceDestination.calendar:
+        return AppRoutes.calendar;
+      case _LibraryWorkspaceDestination.admin:
+        return AppRoutes.admin;
+      case _LibraryWorkspaceDestination.settings:
+        return AppRoutes.settings;
+      case _LibraryWorkspaceDestination.shortcuts:
+        return null;
+    }
+  }
+
+  String get section {
+    switch (this) {
+      case _LibraryWorkspaceDestination.shelf:
+      case _LibraryWorkspaceDestination.calendar:
+        return 'Workspace';
+      case _LibraryWorkspaceDestination.admin:
+        return 'Administration';
+      case _LibraryWorkspaceDestination.settings:
+      case _LibraryWorkspaceDestination.shortcuts:
+        return 'Help';
+    }
+  }
+}
+
+class _LibraryDesktopUtilityCluster extends ConsumerWidget {
+  const _LibraryDesktopUtilityCluster();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authControllerProvider);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const _LibraryDesktopSyncButton(),
+        const SizedBox(width: 4),
+        _LibraryWorkspaceMenuButton(isAdmin: auth.isAdmin),
+      ],
+    );
+  }
+}
+
+class _LibraryWorkspaceMenuButton extends StatelessWidget {
+  const _LibraryWorkspaceMenuButton({required this.isAdmin});
+
+  final bool isAdmin;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final background = Color.alphaBlend(
+      palette.surface.withValues(alpha: 0.88),
+      palette.toolbar,
+    );
+    final border = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.08),
+      palette.divider,
+    );
+    final destinations = [
+      _LibraryWorkspaceDestination.shelf,
+      _LibraryWorkspaceDestination.calendar,
+      if (isAdmin) _LibraryWorkspaceDestination.admin,
+      _LibraryWorkspaceDestination.settings,
+      _LibraryWorkspaceDestination.shortcuts,
+    ];
+    return PopupMenuButton<_LibraryWorkspaceDestination>(
+      tooltip: 'Workspace menu',
+      onSelected: (destination) {
+        final route = destination.route;
+        if (route != null) {
+          context.go(route);
+          return;
+        }
+        showKeyboardShortcutsDialog(context);
+      },
+      color: palette.surface,
+      surfaceTintColor: Colors.transparent,
+      position: PopupMenuPosition.under,
+      itemBuilder: (context) {
+        final items = <PopupMenuEntry<_LibraryWorkspaceDestination>>[];
+        String? currentSection;
+        for (final destination in destinations) {
+          if (destination.section != currentSection) {
+            if (items.isNotEmpty) {
+              items.add(const PopupMenuDivider(height: 8));
+            }
+            items.add(
+              PopupMenuItem<_LibraryWorkspaceDestination>(
+                enabled: false,
+                height: 24,
+                child: Text(
+                  destination.section.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.24,
+                  ),
+                ),
+              ),
+            );
+            currentSection = destination.section;
+          }
+          items.add(
+            PopupMenuItem<_LibraryWorkspaceDestination>(
+              value: destination,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(destination.icon, size: 16, color: palette.textPrimary),
+                  const SizedBox(width: 8),
+                  Text(destination.label),
+                ],
+              ),
+            ),
+          );
+        }
+        return items;
+      },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: background,
+          border: Border.all(color: border),
+          borderRadius: BorderRadius.circular(2),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.menu, size: 15, color: palette.textPrimary),
+              const SizedBox(width: 5),
+              Text(
+                'Menu',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(width: 1),
+              Icon(Icons.expand_more, size: 15, color: palette.textMuted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryDesktopSyncButton extends ConsumerWidget {
+  const _LibraryDesktopSyncButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sync = ref.watch(syncControllerProvider);
+    final palette = appPalette(context);
+    final background = Color.alphaBlend(
+      palette.surface.withValues(alpha: 0.88),
+      palette.toolbar,
+    );
+    final border = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.08),
+      palette.divider,
+    );
+    final foreground = sync.isOffline
+        ? (palette.isDark ? Colors.orange.shade200 : Colors.orange.shade700)
+        : palette.textPrimary;
+    final mutedForeground = foreground.withValues(alpha: 0.72);
+    final badgeBackground = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.12),
+      palette.selection,
+    );
+    return Tooltip(
+      message: sync.isSyncing
+          ? 'Personal sync is running'
+          : sync.pendingCount > 0
+              ? 'Run personal sync now (${sync.pendingCount} pending)'
+              : 'Run personal sync now',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(2),
+          onTap: sync.isSyncing
+              ? null
+              : () => ref.read(syncControllerProvider.notifier).syncNow(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+            decoration: BoxDecoration(
+              color: background,
+              border: Border.all(color: border),
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      sync.isOffline
+                          ? Icons.cloud_off_outlined
+                          : Icons.sync_outlined,
+                      size: 15,
+                      color: sync.isSyncing ? mutedForeground : foreground,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Sync',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: sync.isSyncing ? mutedForeground : foreground,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ],
+                ),
+                if (!sync.isSyncing && sync.pendingCount > 0)
+                  Positioned(
+                    right: -7,
+                    top: -7,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: badgeBackground,
+                        border: Border.all(color: border),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        sync.pendingCount > 99
+                            ? '99+'
+                            : sync.pendingCount.toString(),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -429,10 +851,12 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
   const LibrarySelectionToolbarBand({
     super.key,
     required this.selectedCount,
+    required this.totalSelectableCount,
     required this.callbacks,
   });
 
   final int selectedCount;
+  final int totalSelectableCount;
   final LibrarySelectionCallbacks callbacks;
 
   @override
@@ -440,53 +864,61 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: palette.highlight.withValues(alpha: 0.78),
+        color: palette.panel,
         border: Border(
           top: BorderSide(color: palette.divider),
           bottom: BorderSide(color: palette.divider),
         ),
       ),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 8,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        alignment: WrapAlignment.spaceBetween,
+      child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: palette.surface.withValues(alpha: 0.38),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: palette.divider),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.checklist, size: 16, color: palette.textMuted),
-                const SizedBox(width: 6),
-                Text(
-                  '$selectedCount selected',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          TextButton.icon(
+          TextButton(
             onPressed: callbacks.onClearSelection,
-            icon: const Icon(Icons.close, size: 16),
-            label: const Text('Clear selection'),
             style: TextButton.styleFrom(
               visualDensity: VisualDensity.compact,
               foregroundColor: palette.textMuted,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: callbacks.onSelectAll,
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              foregroundColor: palette.textPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            child: const Text('All'),
+          ),
+          Container(
+            width: 1,
+            height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            color: palette.divider,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: LibrarySelectionControls(
+                callbacks: callbacks,
+              ),
             ),
           ),
-          LibrarySelectionControls(
-            selectedCount: selectedCount,
-            callbacks: callbacks,
+          const SizedBox(width: 12),
+          Text(
+            '$selectedCount of $totalSelectableCount selected',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: palette.textMuted,
+                ),
           ),
         ],
       ),
@@ -550,6 +982,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.onLetterSelected,
     this.selectionCallbacks,
     this.selectedCount = 0,
+    this.totalSelectableCount = 0,
   });
 
   final LibraryTypeConfig type;
@@ -606,6 +1039,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final ValueChanged<String?>? onLetterSelected;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
+  final int totalSelectableCount;
 
   @override
   Widget build(BuildContext context) {
@@ -718,6 +1152,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
           const LibraryToolbarDividerLine(),
           LibrarySelectionToolbarBand(
             selectedCount: selectedCount,
+            totalSelectableCount: totalSelectableCount,
             callbacks: selectionCallbacks!,
           ),
         ],
@@ -878,7 +1313,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
   }
 }
 
-class _ScopeDropdownTrigger extends StatefulWidget {
+class _ScopeDropdownTrigger extends StatelessWidget {
   const _ScopeDropdownTrigger({
     required this.scope,
     required this.accent,
@@ -892,62 +1327,46 @@ class _ScopeDropdownTrigger extends StatefulWidget {
   final TextStyle? textStyle;
 
   @override
-  State<_ScopeDropdownTrigger> createState() => _ScopeDropdownTriggerState();
-}
-
-class _ScopeDropdownTriggerState extends State<_ScopeDropdownTrigger> {
-  bool _hovered = false;
-
-  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final borderColor = libraryCollectionStatusScopeColor(
-      widget.scope,
-      widget.accent,
+      scope,
+      accent,
       palette.textMuted,
-    ).withValues(alpha: 0.45);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: _hovered
-              ? Color.alphaBlend(
-                  palette.surfaceSubtle.withValues(alpha: 0.45),
-                  palette.panelRaised,
-                )
-              : palette.panelRaised,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: borderColor),
-        ),
-        child: SizedBox(
-          height: widget.height,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              children: [
-                LibraryCollectionStatusScopeBadge(
-                  scope: widget.scope,
-                  accent: widget.accent,
-                  muted: palette.textMuted,
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: borderColor),
+      ),
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              LibraryCollectionStatusScopeBadge(
+                scope: scope,
+                accent: accent,
+                muted: palette.textMuted,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  scope.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textStyle,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.scope.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: widget.textStyle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_drop_down,
-                  size: 18,
-                  color: palette.textPrimary,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 18,
+                color: borderColor,
+              ),
+            ],
           ),
         ),
       ),

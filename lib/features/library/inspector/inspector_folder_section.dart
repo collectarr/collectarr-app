@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 class InspectorFolderSection extends StatefulWidget {
   const InspectorFolderSection({
@@ -221,7 +222,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
     final ctrl = TextEditingController();
     final name = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
         title: const Text('New Folder'),
         content: TextField(
@@ -248,7 +249,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(

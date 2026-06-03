@@ -54,16 +54,19 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -936,10 +939,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     LibraryAddRegistry.headerBuilderFor(
                             widget.type.workspace.kind)
                         ?.call(context, headerRequest) ??
-                    _DialogHeader(
-                      type: headerRequest.type,
+                    AccentDialogHeader(
+                      title: headerRequest.isMovieDesktopChrome
+                          ? 'Add ${headerRequest.type.pluralLabel}'
+                          : 'Add ${headerRequest.type.pluralLabel} from Collectarr Core',
                       accent: headerRequest.accent,
-                      isMovieDesktopChrome: headerRequest.isMovieDesktopChrome,
+                      icon: headerRequest.type.workspace.icon,
+                      onClose: () => Navigator.of(context).pop(),
                     ),
                 widget.modeBarBuilder?.call(context, modeBarRequest) ??
                     LibraryAddRegistry.modeBarBuilderFor(
@@ -1886,6 +1892,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (e is TextEditingController) return e;
       return fallback;
     }
+    String? ctlTextOrNull(String key, [TextEditingController? fallback]) {
+      final e = _manualKindSpecific[key];
+      final controller = e is TextEditingController ? e : fallback;
+      final value = controller?.text.trim() ?? '';
+      return value.isEmpty ? null : value;
+    }
 
     final purchaseDate = parseDate(
             ctl('purchaseDateController', _purchaseDateController).text) ??
@@ -1915,43 +1927,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               .trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
-      rawOrSlabbed: ctl('rawOrSlabbedController', _rawOrSlabbedController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('rawOrSlabbedController', _rawOrSlabbedController).text.trim(),
-      gradingCompany: ctl('gradingCompanyController', _gradingCompanyController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('gradingCompanyController', _gradingCompanyController)
-              .text
-              .trim(),
-      graderNotes: ctl('graderNotesController', _graderNotesController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('graderNotesController', _graderNotesController).text.trim(),
-      signedBy:
-          ctl('signedByController', _signedByController).text.trim().isEmpty
-              ? null
-              : ctl('signedByController', _signedByController).text.trim(),
-      labelType:
-          ctl('labelTypeController', _labelTypeController).text.trim().isEmpty
-              ? null
-              : ctl('labelTypeController', _labelTypeController).text.trim(),
-      certificationNumber: ctl('certificationNumberController',
-                  _certificationNumberController)
-              .text
-              .trim()
-              .isEmpty
-          ? null
-          : ctl('certificationNumberController', _certificationNumberController)
-              .text
-              .trim(),
+        rawOrSlabbed:
+          ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
+        gradingCompany:
+          ctlTextOrNull('gradingCompanyController', _gradingCompanyController),
+        graderNotes:
+          ctlTextOrNull('graderNotesController', _graderNotesController),
+        signedBy: ctlTextOrNull('signedByController', _signedByController),
+        labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
+        pageQuality: ctlTextOrNull('pageQualityController'),
+        certificationNumber: ctlTextOrNull(
+        'certificationNumberController',
+        _certificationNumberController,
+        ),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
@@ -2772,7 +2760,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     try {
       final result = await showDialog<String>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => AccentAlertDialog(
           title: const Text('Owned default tags'),
           content: SizedBox(
             width: 440,

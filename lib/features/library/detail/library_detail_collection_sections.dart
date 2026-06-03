@@ -4,8 +4,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPersonalSection extends StatelessWidget {
@@ -13,24 +13,50 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     super.key,
     required this.entry,
     required this.ownedItem,
+    this.ownedCopies = const [],
     this.trackingEntry,
     required this.accent,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveOwnedCopies = ownedCopies.isNotEmpty
+        ? ownedCopies
+        : ownedItem == null
+            ? const <OwnedItem>[]
+            : <OwnedItem>[ownedItem!];
     final paid = formatMoney(
       ownedItem?.pricePaidCents ?? entry.pricePaidCents,
       ownedItem?.currency ?? entry.currency,
     );
+    final currentValue = formatMoney(
+      ownedItem?.marketValueCents,
+      ownedItem?.currency,
+    );
     final coverPrice = formatMoney(ownedItem?.coverPriceCents, ownedItem?.currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);
+    final totalPaidCents = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.pricePaidCents,
+    );
+    final totalMarketValueCents = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.marketValueCents,
+    );
+    final totalsCurrency = _detailValueCurrency(effectiveOwnedCopies, ownedItem, entry);
+    final totalPaid = totalPaidCents == null
+        ? ''
+        : formatMoney(totalPaidCents, totalsCurrency);
+    final totalCurrentValue = totalMarketValueCents == null
+        ? ''
+        : formatMoney(totalMarketValueCents, totalsCurrency);
     final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
       ? ownedItem?.readStatus
       : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
@@ -68,6 +94,20 @@ class LibraryDetailPersonalSection extends StatelessWidget {
               genericLibraryDash(entry.locationPath),
             ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
+            LibraryInspectorFactData(
+              'Current value',
+              currentValue.isEmpty ? '-' : currentValue,
+            ),
+            if (effectiveOwnedCopies.length > 1)
+              LibraryInspectorFactData(
+                'Total paid',
+                totalPaid.isEmpty ? '-' : totalPaid,
+              ),
+            if (effectiveOwnedCopies.length > 1)
+              LibraryInspectorFactData(
+                'Total current value',
+                totalCurrentValue.isEmpty ? '-' : totalCurrentValue,
+              ),
             LibraryInspectorFactData(
               'Cover price',
               coverPrice.isEmpty ? '-' : coverPrice,
@@ -171,6 +211,45 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ],
     );
   }
+}
+
+int? _sumOwnedValueCents(
+  List<OwnedItem> items,
+  int? Function(OwnedItem item) selector,
+) {
+  var hasValue = false;
+  var total = 0;
+  for (final item in items) {
+    final value = selector(item);
+    if (value == null) {
+      continue;
+    }
+    hasValue = true;
+    total += value;
+  }
+  return hasValue ? total : null;
+}
+
+String? _detailValueCurrency(
+  List<OwnedItem> ownedCopies,
+  OwnedItem? ownedItem,
+  LibraryWorkspaceEntry entry,
+) {
+  for (final copy in ownedCopies) {
+    final currency = copy.currency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      return currency;
+    }
+  }
+  final ownedCurrency = ownedItem?.currency?.trim();
+  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
+    return ownedCurrency;
+  }
+  final entryCurrency = entry.currency?.trim();
+  if (entryCurrency != null && entryCurrency.isNotEmpty) {
+    return entryCurrency;
+  }
+  return null;
 }
 
 String? _detailProfitLossLabel(OwnedItem? ownedItem) {

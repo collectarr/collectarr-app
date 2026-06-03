@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,7 +38,7 @@ void main() {
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Open cover'), findsNothing);
+    expect(find.text('Fullscreen'), findsNothing);
     expect(find.byIcon(Icons.open_in_full), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -70,7 +70,7 @@ void main() {
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Open cover'), findsOneWidget);
+    expect(find.text('Fullscreen'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -154,6 +154,80 @@ void main() {
     expect(find.byType(InteractiveViewer), findsNothing);
   });
 
+  testWidgets('preview shows Front/Back badges when dual covers do not fit side-by-side', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(500, 220);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 180,
+              height: 270,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBytes: base64Decode(_tinyPngBase64),
+                secondaryLocalBytes: base64Decode(_tinyPngBase64),
+                enableSecondaryControl: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(LibraryInteractiveCover));
+    await pumpUntilSettled(tester);
+
+    expect(find.widgetWithText(FilledButton, 'Front'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Back'), findsOneWidget);
+
+    await tester.tapAt(const Offset(8, 8));
+    await pumpUntilSettled(tester);
+  });
+
+  testWidgets('preview hides Front/Back badges when dual covers fit side-by-side', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2200, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 220,
+              height: 330,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBytes: base64Decode(_tinyPngBase64),
+                secondaryLocalBytes: base64Decode(_tinyPngBase64),
+                enableSecondaryControl: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(LibraryInteractiveCover));
+    await pumpUntilSettled(tester);
+
+    expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
+
+    await tester.tapAt(const Offset(8, 8));
+    await pumpUntilSettled(tester);
+  });
+
   testWidgets('secondary cover control can be disabled for shelf covers', (
     tester,
   ) async {
@@ -208,8 +282,7 @@ void main() {
     await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
-    final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
-    expect(opacity.opacity, 0);
+    expect(find.byType(AnimatedOpacity), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

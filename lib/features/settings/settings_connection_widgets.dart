@@ -22,7 +22,7 @@ class _PairingCodeDialogState extends State<_PairingCodeDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Apply pairing code'),
       content: SizedBox(
         width: 520,
@@ -59,7 +59,7 @@ class _PairingQrDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Pairing QR'),
       content: SizedBox(
         width: 360,
@@ -425,7 +425,7 @@ class _SyncConflictDiffDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final localPayload = change.localPayload ?? const <String, dynamic>{};
     final servicePayload = change.servicePayload ?? const <String, dynamic>{};
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Sync conflict diff'),
       content: SizedBox(
         width: 860,

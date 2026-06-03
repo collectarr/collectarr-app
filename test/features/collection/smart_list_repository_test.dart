@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
-import 'package:collectarr_app/features/library/generic/sidebar/sidebar_panels.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +12,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     super.key,
     required this.type,
     required this.groupMode,
+    this.folderPreset,
     required this.accent,
     required this.icon,
     required this.onChanged,
@@ -39,15 +38,16 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
     this.onManageBuckets,
-    this.pinnedGroupModes = const {},
-    this.onTogglePin,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
   });
 
   final LibraryTypeConfig type;
   final LibraryGroupMode groupMode;
+  final LibraryFolderPreset? folderPreset;
   final Color accent;
   final IconData icon;
-  final ValueChanged<LibraryGroupMode> onChanged;
+  final ValueChanged<LibraryFolderPreset> onChanged;
   final List<String> breadcrumbs;
   final VoidCallback? onNavigateBack;
   final ValueChanged<int>? onNavigateToBreadcrumb;
@@ -71,193 +71,136 @@ class LibrarySidebarHeader extends StatelessWidget {
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
   final VoidCallback? onManageBuckets;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePin;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final isRootScope = onClearFilter == null;
-    final scopeAccent = libraryCollectionStatusScopeColor(
-      collectionStatusScope,
-      accent,
-      palette.textMuted,
-    );
-    final scopeLabel = breadcrumbs.isNotEmpty
-        ? breadcrumbs.last
-        : (isRootScope ? 'All ${type.pluralLabel}' : selectedBucket);
+    final manageBuckets = onManageBuckets;
+    final editFilters = onEditFilters;
+    final clearFilters = onClearFilters;
+    final navigateBack = onNavigateBack;
+    final clearFilter = onClearFilter;
+    final hideSidebar = onHideSidebar;
+    final manageFavorites = onPinnedFolderPresetsChanged;
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 3),
       decoration: BoxDecoration(
         color: palette.surface,
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: constraints.maxWidth),
-                        child: LibraryGroupModeMenuButton(
-                          type: type,
-                          groupMode: groupMode,
-                          accent: accent,
-                          icon: icon,
-                          onChanged: onChanged,
-                          sidebarVisible: true,
-                          onSidebarVisibilityChanged:
-                              onSidebarVisibilityChanged,
-                          pinnedGroupModes: pinnedGroupModes,
-                          onTogglePin: onTogglePin,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+          Expanded(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.surface,
+                border: Border.all(color: palette.divider),
+                borderRadius: BorderRadius.circular(2),
               ),
-              if (groupLoading) ...[
-                const SizedBox(width: 4),
-                const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: LibraryGroupModeMenuButton(
+                  type: type,
+                  folderPreset:
+                      folderPreset ?? LibraryFolderPreset.single(groupMode),
+                  accent: accent,
+                  icon: icon,
+                  onChanged: onChanged,
+                  sidebarVisible: true,
+                  onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                  pinnedFolderPresets: pinnedFolderPresets,
+                  onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
                 ),
-              ],
-              if (onManageBuckets != null &&
-                  libraryGroupModeSupportsBucketManagement(groupMode))
-                IconButton(
-                  tooltip:
-                      'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
-                  onPressed: onManageBuckets,
-                  icon: const Icon(Icons.edit_outlined, size: 16),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                ),
-              if (onHideSidebar != null)
-                IconButton(
-                  tooltip: 'Hide folders panel',
-                  onPressed: onHideSidebar,
-                  icon: const Icon(Icons.menu_open, size: 16),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                ),
-              if (onNavigateBack != null)
-                IconButton(
-                  tooltip: 'Back to previous scope',
-                  onPressed: onNavigateBack,
-                  icon: const Icon(Icons.arrow_back, size: 16),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                )
-              else if (!isRootScope)
-                IconButton(
-                  tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
-                  onPressed: onClearFilter,
-                  icon: const Icon(Icons.arrow_back, size: 16),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                )
-              else
-                IconButton(
-                  tooltip: 'Clear group filter',
-                  onPressed: onClearFilter,
-                  icon: const Icon(Icons.filter_alt_off, size: 16),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                ),
-            ],
-          ),
-          if (breadcrumbs.length > 1) ...[
-            const SizedBox(height: 4),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (var index = 0; index < breadcrumbs.length; index++) ...[
-                    if (index > 0)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Icon(
-                          Icons.chevron_right,
-                          size: 14,
-                          color: palette.textMuted,
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 2),
-                      child: index == breadcrumbs.length - 1
-                          ? Text(
-                              breadcrumbs[index],
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
-                            )
-                          : ActionChip(
-                              label: Text(
-                                breadcrumbs[index],
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              onPressed: onNavigateToBreadcrumb == null
-                                  ? null
-                                  : () => onNavigateToBreadcrumb!(index),
-                              visualDensity: VisualDensity.compact,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                            ),
-                    ),
-                  ],
-                ],
               ),
             ),
+          ),
+          if (groupLoading) ...[
+            const SizedBox(width: 6),
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           ],
-          const SizedBox(height: 8),
-          _LibrarySidebarScopeBanner(
-            icon: icon,
-            title: genericGroupModeSidebarTitle(groupMode, type),
-            scopeLabel: scopeLabel,
-            accent: scopeAccent,
-          ),
-          const SizedBox(height: 6),
-          LibrarySidebarFilteringPanel(
-            type: type,
-            activeSmartListName: activeSmartListName,
-            quickView: quickView,
-            collectionStatusScope: collectionStatusScope,
-            collectionStatusScopeLabel: collectionStatusScopeLabel,
-            searchQuery: searchQuery,
-            linkedMetadataFilterLabel: linkedMetadataFilterLabel,
-            selectedLetter: selectedLetter,
-            filterSelection: filterSelection,
-            hasActiveFilters: hasActiveFilters,
-            onEditFilters: onEditFilters,
-            onClearFilters: onClearFilters,
-            onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
-          ),
-          if (seriesStatusSummary != null) ...[
-            const SizedBox(height: 6),
-            LibrarySidebarSeriesStatusPanel(
-              summary: seriesStatusSummary!,
-              selectedScope: collectionStatusScope,
-              onScopeSelected: onCollectionStatusScopeChanged,
+          if (manageFavorites != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: 'Manage favorites',
+              icon: Icons.list_alt_outlined,
+              onPressed: () async {
+                final updated = await showLibraryFolderFavoritesDialog(
+                  context: context,
+                  type: type,
+                  availableModes: libraryGroupModesForType(type),
+                  initialFavorites: pinnedFolderPresets,
+                );
+                if (updated != null && context.mounted) {
+                  manageFavorites(updated);
+                }
+              },
+              active: pinnedFolderPresets.isNotEmpty,
+              activeColor: accent,
+            ),
+          ],
+          if (manageBuckets != null &&
+              libraryGroupModeSupportsBucketManagement(type, groupMode)) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip:
+                  'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+              icon: Icons.edit_outlined,
+              onPressed: manageBuckets,
+              active: false,
+            ),
+          ],
+          if (editFilters != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: hasActiveFilters ? 'Edit filters (${filterSelection.activeFilterCount} active)' : 'Edit filters',
+              icon: hasActiveFilters ? Icons.filter_alt : Icons.filter_alt_outlined,
+              onPressed: editFilters,
+              active: hasActiveFilters || searchQuery?.trim().isNotEmpty == true || activeSmartListName?.trim().isNotEmpty == true || linkedMetadataFilterLabel != null || selectedLetter != null,
+              activeColor: accent,
+            ),
+          ],
+          if (hasActiveFilters && clearFilters != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: 'Clear filters',
+              icon: Icons.filter_alt_off,
+              onPressed: clearFilters,
+              active: false,
+            ),
+          ],
+          if (navigateBack != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: 'Back to previous scope',
+              icon: Icons.arrow_back,
+              onPressed: navigateBack,
+              active: true,
+              activeColor: accent,
+            ),
+          ] else if (!isRootScope && clearFilter != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
+              icon: Icons.arrow_back,
+              onPressed: clearFilter,
+              active: true,
+              activeColor: accent,
+            ),
+          ],
+          if (hideSidebar != null) ...[
+            const SizedBox(width: 4),
+            _LibrarySidebarToolbarButton(
+              tooltip: 'Hide folders panel',
+              icon: Icons.menu_open,
+              onPressed: hideSidebar,
+              active: false,
             ),
           ],
         ],
@@ -266,70 +209,51 @@ class LibrarySidebarHeader extends StatelessWidget {
   }
 }
 
-class _LibrarySidebarScopeBanner extends StatelessWidget {
-  const _LibrarySidebarScopeBanner({
+class _LibrarySidebarToolbarButton extends StatelessWidget {
+  const _LibrarySidebarToolbarButton({
+    required this.tooltip,
     required this.icon,
-    required this.title,
-    required this.scopeLabel,
-    required this.accent,
+    required this.onPressed,
+    this.active = false,
+    this.activeColor,
   });
 
+  final String tooltip;
   final IconData icon;
-  final String title;
-  final String scopeLabel;
-  final Color accent;
+  final VoidCallback onPressed;
+  final bool active;
+  final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        color: palette.panel,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(7),
-            ),
-            child: Icon(icon, size: 16, color: accent),
+    final resolvedActiveColor = activeColor ?? palette.textPrimary;
+    return Tooltip(
+      message: tooltip,
+      child: IconButton(
+        onPressed: onPressed,
+        visualDensity: VisualDensity.compact,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+        style: IconButton.styleFrom(
+          backgroundColor: active
+              ? Color.alphaBlend(
+                  resolvedActiveColor.withValues(alpha: 0.16),
+                  palette.surface,
+                )
+              : palette.surface,
+          side: BorderSide(
+            color: active
+                ? resolvedActiveColor.withValues(alpha: 0.6)
+                : palette.divider,
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: palette.textMuted,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  scopeLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          shape: const RoundedRectangleBorder(),
+        ),
+        icon: Icon(
+          icon,
+          size: 15,
+          color: active ? resolvedActiveColor : palette.textMuted,
+        ),
       ),
     );
   }

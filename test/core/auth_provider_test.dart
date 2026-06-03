@@ -190,6 +190,36 @@ void main() {
     expect(prefs.getBool('collectarr.auth.is_admin'), isTrue);
   });
 
+  test('restore falls back to shared preferences when secure storage read hangs',
+      () async {
+    final token = _jwtExpiringAt(DateTime.now().toUtc().add(
+          const Duration(hours: 1),
+        ));
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': token,
+      'collectarr.auth.email': 'user@example.com',
+      'collectarr.auth.is_admin': true,
+    });
+    hangSecureStorageReads();
+    final container = ProviderContainer();
+    addTearDown(() {
+      clearSecureStorageFailures();
+      container.dispose();
+    });
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(
+      container,
+      timeout: const Duration(seconds: 3),
+    );
+
+    final auth = container.read(authControllerProvider);
+    expect(auth.isRestoring, isFalse);
+    expect(auth.isAuthenticated, isTrue);
+    expect(auth.email, 'user@example.com');
+    expect(container.read(apiAuthTokenProvider), token);
+  });
+
   test('login maps rejected credentials to a friendly error', () async {
     SharedPreferences.setMockInitialValues({});
     final container = ProviderContainer(
@@ -210,13 +240,18 @@ void main() {
   });
 }
 
-Future<void> _waitForAuthRestore(ProviderContainer container) async {
-  for (var attempt = 0; attempt < 10; attempt++) {
+Future<void> _waitForAuthRestore(
+  ProviderContainer container, {
+  Duration timeout = const Duration(milliseconds: 250),
+}) async {
+  final deadline = DateTime.now().add(timeout);
+  while (DateTime.now().isBefore(deadline)) {
     if (!container.read(authControllerProvider).isRestoring) {
       return;
     }
-    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(const Duration(milliseconds: 10));
   }
+  fail('Auth restore did not finish within $timeout.');
 }
 
 String _jwtExpiringAt(DateTime expiresAt) {

@@ -11,6 +11,7 @@ class _LibraryNavSettings extends StatelessWidget {
     required this.onPlacementChanged,
     required this.onOrderChanged,
     required this.onVisibilityChanged,
+    required this.onAccentChanged,
     required this.onReset,
   });
 
@@ -19,6 +20,7 @@ class _LibraryNavSettings extends StatelessWidget {
   final ValueChanged<LibraryNavPlacement> onPlacementChanged;
   final ValueChanged<List<String>> onOrderChanged;
   final void Function(String kind, bool visible) onVisibilityChanged;
+  final Future<void> Function(String kind, Color? color) onAccentChanged;
   final VoidCallback onReset;
 
   @override
@@ -127,6 +129,11 @@ class _LibraryNavSettings extends StatelessWidget {
             ];
             final allVisible = hiddenKinds.isEmpty;
             final reordered = [...groups];
+            final kind = group.primaryType.kind;
+            final defaultAccent = libraryDefaultAccentForKind(kind);
+            final effectiveAccent = libraryAccentForKind(kind);
+            final hasAccentOverride =
+                preferences.accentHexForKind(kind) != null;
             return ListTile(
               key: ValueKey('library-nav-${group.id}'),
               dense: true,
@@ -180,6 +187,32 @@ class _LibraryNavSettings extends StatelessWidget {
                             onOrderChanged(_expandSettingsGroupKinds(reordered));
                           },
                     icon: const Icon(Icons.keyboard_arrow_down),
+                  ),
+                  IconButton(
+                    tooltip: 'Pick accent color',
+                    onPressed: () async {
+                      final picked = await _showLibraryAccentPickerDialog(
+                        context,
+                        initialColor: effectiveAccent,
+                        defaultColor: defaultAccent,
+                        title: group.label,
+                      );
+                      if (picked == null) {
+                        return;
+                      }
+                      await onAccentChanged(kind, picked);
+                    },
+                    icon: Icon(
+                      Icons.palette_outlined,
+                      color: effectiveAccent,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Reset accent color',
+                    onPressed: hasAccentOverride
+                        ? () => onAccentChanged(kind, null)
+                        : null,
+                    icon: const Icon(Icons.restart_alt),
                   ),
                   Switch(
                     value: allVisible,
@@ -458,14 +491,38 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   List<CatalogMediaType> catalog,
   LibraryNavPreferences preferences,
 ) {
+  final byKind = {
+    for (final type in catalog) type.kind: type,
+  };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel) type.kind: type,
+      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.kind) != null)
+        type.kind: type,
   };
   final defaultKinds = [
     for (final config in collectarrLibraryTypes.types)
       config.workspace.kind.apiValue,
   ];
+  for (final kind in defaultKinds) {
+    topLevelByKind.putIfAbsent(kind, () {
+      final fromCatalog = byKind[kind];
+      if (fromCatalog != null) {
+        return fromCatalog;
+      }
+      for (final type in fallbackMediaCatalog) {
+        if (type.kind == kind) {
+          return type;
+        }
+      }
+      return CatalogMediaType(
+        kind: kind,
+        singularLabel: _settingsKindLabel(kind),
+        pluralLabel: _settingsKindLabel(kind),
+        routeSegments: [kind],
+        isTopLevel: true,
+      );
+    });
+  }
   final orderedKinds = preferences.orderedKinds([
     ...defaultKinds,
     ...topLevelByKind.keys,
@@ -507,4 +564,137 @@ List<String> _groupProviders(LibraryNavGroup group) {
   }
   final ordered = providers.toList()..sort();
   return ordered;
+}
+
+String _settingsKindLabel(String kind) {
+  final normalized = kind.trim();
+  if (normalized.isEmpty) {
+    return 'Library';
+  }
+  final parts = normalized
+      .split(RegExp(r'[_-]+'))
+      .where((part) => part.isNotEmpty)
+      .toList(growable: false);
+  if (parts.isEmpty) {
+    return 'Library';
+  }
+  return parts
+      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
+}
+
+Future<Color?> _showLibraryAccentPickerDialog(
+  BuildContext context, {
+  required Color initialColor,
+  required Color defaultColor,
+  required String title,
+}) async {
+  var color = initialColor;
+  final hsv = HSVColor.fromColor(initialColor);
+  var hue = hsv.hue;
+  var saturation = hsv.saturation;
+  var value = hsv.value;
+
+  Color current() => HSVColor.fromAHSV(1, hue, saturation, value).toColor();
+
+  return showDialog<Color>(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          color = current();
+          return AlertDialog(
+            title: Text('Accent: $title'),
+            content: SizedBox(
+              width: 420,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _colorSlider(
+                    context,
+                    label: 'Hue',
+                    value: hue,
+                    min: 0,
+                    max: 360,
+                    onChanged: (next) => setState(() => hue = next),
+                  ),
+                  _colorSlider(
+                    context,
+                    label: 'Saturation',
+                    value: saturation,
+                    min: 0,
+                    max: 1,
+                    onChanged: (next) => setState(() => saturation = next),
+                  ),
+                  _colorSlider(
+                    context,
+                    label: 'Value',
+                    value: value,
+                    min: 0,
+                    max: 1,
+                    onChanged: (next) => setState(() => value = next),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(defaultColor),
+                child: const Text('Use default'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(color),
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget _colorSlider(
+  BuildContext context, {
+  required String label,
+  required double value,
+  required double min,
+  required double max,
+  required ValueChanged<double> onChanged,
+}) {
+  return Row(
+    children: [
+      SizedBox(
+        width: 84,
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+      Expanded(
+        child: Slider(
+          value: value.clamp(min, max),
+          min: min,
+          max: max,
+          onChanged: onChanged,
+        ),
+      ),
+    ],
+  );
 }

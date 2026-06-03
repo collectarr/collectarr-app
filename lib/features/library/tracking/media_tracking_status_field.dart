@@ -19,11 +19,17 @@ class MediaTrackingStatusField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final normalizedValue = profile.normalizeStorageValue(value);
+    final selectedValue = profile.options.any(
+      (option) => option.storageValue == normalizedValue,
+    )
+        ? normalizedValue
+        : null;
     return DropdownButtonFormField<String>(
       isExpanded: true,
       dropdownColor: palette.panelRaised,
       borderRadius: kAppMenuBorderRadius,
-      initialValue: profile.normalizeStorageValue(value),
+      initialValue: selectedValue,
       decoration: InputDecoration(
         labelText: label ?? '${profile.name} status',
         border: const OutlineInputBorder(),

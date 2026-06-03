@@ -15,16 +15,18 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
-// manga/anime kinds merged into comic/movie; tests adapt accordingly
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,17 +74,43 @@ void main() {
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
   });
-
-  // 'manga' kind has been merged into comics; no separate config test required.
+  test('manga library config is a first-class comic-family kind', () {
+    expect(mangaLibraryConfig.workspace.kind, CatalogMediaKind.manga);
+    expect(mangaLibraryConfig.singularLabel, 'Manga');
+    expect(mangaLibraryConfig.pluralLabel, 'Manga');
+    expect(mangaLibraryConfig.defaultMetadataProvider, 'hardcover');
+    expect(mangaLibraryConfig.defaultSupportedMetadataProvider, 'hardcover');
+    expect(mangaLibraryConfig.supportsMetadataProvider('mangadex'), isTrue);
+    expect(mangaLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
+    expect(mangaLibraryConfig.trackingProfile, comicTrackingProfile);
+    expect(mangaLibraryConfig.presentation, comicsLibraryMediaPresentation);
+    expect(mangaLibraryConfig.editDialogBuilder, isNotNull);
+    expect(mangaLibraryConfig.countLabel(1), 'Manga');
+    expect(mangaLibraryConfig.countLabel(2), 'Manga');
+  });
 
   test('movies library config uses the dedicated add dialog launcher', () {
     expect(
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
-    expect(moviesWorkspaceConfig.accent, const Color(0xFFE05252));
-    expect(libraryAccentForKind('anime'), const Color(0xFFE05252));
-    expect(libraryIconForKind('tv'), Icons.movie_outlined);
+    expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
+    expect(libraryAccentForKind('anime'), const Color(0xFFC94DFF));
+    expect(libraryIconForKind('tv'), Icons.tv_outlined);
     expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
+  });
+
+  test('anime and tv library configs are first-class video kinds', () {
+    expect(animeLibraryConfig.workspace.kind, CatalogMediaKind.anime);
+    expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
+    expect(animeLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
+    expect(animeLibraryConfig.capabilities.videoSeriesEntryTypes, {'anime'});
+    expect(animeLibraryConfig.editDialogBuilder, isNotNull);
+
+    expect(tvLibraryConfig.workspace.kind, CatalogMediaKind.tv);
+    expect(tvLibraryConfig.defaultMetadataProvider, 'tmdb');
+    expect(tvLibraryConfig.supportsMetadataProvider('tmdb'), isTrue);
+    expect(tvLibraryConfig.capabilities.videoSeriesEntryTypes, {'tv'});
+    expect(tvLibraryConfig.editDialogBuilder, isNotNull);
   });
 
   test('collection export title labels are kind-owned', () {
@@ -162,23 +190,30 @@ void main() {
       () {
     expect(collectarrLibraryTypes.supportedKinds, [
       'comic',
+      'manga',
       'book',
       'game',
       'boardgame',
       'movie',
+      'tv',
+      'anime',
       'music',
     ]);
     expect(collectarrLibraryTypes.byKind('comic'), comicsLibraryConfig);
     expect(collectarrLibraryTypes.byKind(' Comic '), comicsLibraryConfig);
+    expect(collectarrLibraryTypes.byKind('manga'), mangaLibraryConfig);
     expect(
         collectarrLibraryTypes.byKind('game')?.defaultMetadataProvider, 'igdb');
     expect(collectarrLibraryTypes.byKind('boardgame')?.defaultMetadataProvider,
         'bgg');
-    // 'manga' and 'anime' are canonicalized into existing kinds; ensure core kinds resolve.
     expect(collectarrLibraryTypes.byKind('book')?.defaultMetadataProvider,
         'openlibrary');
     expect(collectarrLibraryTypes.byKind('movie')?.defaultMetadataProvider,
         'tmdb');
+    expect(collectarrLibraryTypes.byKind('tv')?.defaultMetadataProvider,
+      'tmdb');
+    expect(collectarrLibraryTypes.byKind('anime')?.defaultMetadataProvider,
+      'anilist');
     expect(collectarrLibraryTypes.byKind('music')?.defaultMetadataProvider,
         'musicbrainz');
     expect(collectarrLibraryTypes.byKind('bluray'), isNull);
@@ -186,7 +221,10 @@ void main() {
       collectarrLibraryTypes.providersForKind('comic').map((row) => row.id),
       containsAll(['gcd', 'comicvine']),
     );
-    // Providers formerly associated with 'manga'/'anime' are merged into comics/movies configs.
+    expect(
+      collectarrLibraryTypes.providersForKind('manga').map((row) => row.id),
+      ['hardcover', 'comicvine', 'anilist', 'mangadex'],
+    );
     expect(
       collectarrLibraryTypes.providersForKind('book').map((row) => row.id),
       ['openlibrary', 'hardcover'],
@@ -202,6 +240,14 @@ void main() {
     expect(
       collectarrLibraryTypes.providersForKind('movie').map((row) => row.id),
       ['tmdb'],
+    );
+    expect(
+      collectarrLibraryTypes.providersForKind('tv').map((row) => row.id),
+      ['tmdb'],
+    );
+    expect(
+      collectarrLibraryTypes.providersForKind('anime').map((row) => row.id),
+      ['anilist'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('music').map((row) => row.id),
@@ -432,6 +478,7 @@ void main() {
       LibraryGroupMode.country,
       LibraryGroupMode.genre,
       LibraryGroupMode.language,
+      LibraryGroupMode.ageRating,
       LibraryGroupMode.movieOrTvSeries,
       LibraryGroupMode.releaseDate,
       LibraryGroupMode.releaseMonth,

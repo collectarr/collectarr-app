@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
@@ -17,7 +18,9 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ComicEditPanel extends ConsumerStatefulWidget {
@@ -29,7 +32,23 @@ class ComicEditPanel extends ConsumerStatefulWidget {
   ComicEditPanelState createState() => ComicEditPanelState();
 }
 
-class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
+class ComicEditPanelState extends ConsumerState<ComicEditPanel>
+    with SingleTickerProviderStateMixin {
+  static const String _tabOrderPreferenceKey = 'edit_tab_order_comic';
+  static const List<Tab> _tabs = [
+    Tab(child: EditTab(icon: Icons.search, label: 'Details')),
+    Tab(child: EditTab(icon: Icons.book, label: 'Main')),
+    Tab(child: EditTab(icon: Icons.attach_money, label: 'Value')),
+    Tab(child: EditTab(icon: Icons.person, label: 'Personal')),
+    Tab(child: EditTab(icon: Icons.edit, label: 'Custom Fields')),
+    Tab(child: EditTab(icon: Icons.camera_alt, label: 'Covers')),
+    Tab(child: EditTab(icon: Icons.image, label: 'My Images')),
+    Tab(child: EditTab(icon: Icons.group, label: 'Creators')),
+    Tab(child: EditTab(icon: Icons.face, label: 'Characters')),
+    Tab(child: EditTab(icon: Icons.article, label: 'Plot')),
+    Tab(child: EditTab(icon: Icons.link, label: 'Links')),
+  ];
+
   static const List<String> _commonCreatorRoles = <String>[
     'Writer',
     'Artist',
@@ -208,7 +227,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   late final TextEditingController collectionStatusCtl;
   late final TextEditingController indexNumberCtl;
   late final TextEditingController quantityCtl;
-  late final TextEditingController storageBoxCtl;
+  late final TextEditingController locationCtl;
   late final TextEditingController characterDraftCtl;
   final List<_EditableComicCreator> _creators = [];
   final List<_EditableComicCharacter> _characters = [];
@@ -218,6 +237,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   late final TextEditingController summaryCtl;
   late final TextEditingController descriptionCtl;
   final List<Map<String, TextEditingController>> links = [];
+  late final TabController _tabController;
+  late List<int> _tabOrder;
 
   late Map<String, String?> _customFieldValues;
   List<ItemImageEdit> _itemImageEdits = const [];
@@ -253,6 +274,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabOrder = List<int>.generate(_tabs.length, (index) => index);
     final item = widget.request.item;
     final owned = widget.request.ownedItem;
     final tracking = widget.request.trackingEntry;
@@ -353,7 +376,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     quantityCtl = _createController(
       (owned?.quantity ?? 1).toString(),
     );
-    storageBoxCtl = _createController(owned?.storageDevice ?? '');
+    locationCtl = _createController(owned?.storageDevice ?? '');
     characterDraftCtl = _createController();
     final decodedPlot = _decodePlotFields(
       item.plotSummary,
@@ -406,10 +429,65 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
 
     _loadSeriesOptions();
     _loadDetailPickListOptions();
+    _loadSavedTabOrder();
+  }
+
+  Future<void> _loadSavedTabOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList(_tabOrderPreferenceKey);
+    if (saved == null || saved.length != _tabs.length) {
+      return;
+    }
+    final parsed = saved.map(int.tryParse).toList();
+    if (parsed.contains(null)) {
+      return;
+    }
+    final order = parsed.cast<int>();
+    final sorted = List<int>.from(order)..sort();
+    final isPermutation =
+        sorted.length == _tabs.length &&
+        sorted.indexed.every((entry) => entry.$1 == entry.$2);
+    if (!isPermutation || !mounted) {
+      return;
+    }
+    setState(() {
+      _tabOrder = order;
+    });
+  }
+
+  Future<void> _saveTabOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _tabOrderPreferenceKey,
+      _tabOrder.map((index) => index.toString()).toList(),
+    );
+  }
+
+  void _onReorderTab(int oldIndex, int newIndex) {
+    final currentTab = _tabController.index < _tabOrder.length
+        ? _tabOrder[_tabController.index]
+        : null;
+    setState(() {
+      final moved = _tabOrder.removeAt(oldIndex);
+      _tabOrder.insert(newIndex, moved);
+    });
+    unawaited(_saveTabOrder());
+    if (currentTab == null) {
+      return;
+    }
+    final nextIndex = _tabOrder.indexOf(currentTab);
+    if (nextIndex >= 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _tabController.animateTo(nextIndex);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _textControllers.dispose();
     for (final creator in _creators) {
       creator.dispose();
@@ -480,9 +558,17 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       },
     );
     if (result == null || !mounted) return;
+    final role =
+        result['role']?.toString().trim().isNotEmpty == true
+            ? result['role']!.toString().trim()
+            : result['job']?.toString().trim().isNotEmpty == true
+                ? result['job']!.toString().trim()
+                : '';
     setState(() {
-      _creators[idx].nameController.text =
-          result['name']?.toString() ?? '';
+      _creators[idx].nameController.text = result['name']?.toString() ?? '';
+      if (role.isNotEmpty) {
+        _creators[idx].roleController.text = role;
+      }
       _creators[idx].metadata
         ..addAll(result)
         ..['source_type'] = 'core';
@@ -622,7 +708,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
     final selection = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
+        builder: (dialogContext, setDialogState) => AccentAlertDialog(
           title: Text(title),
           content: SizedBox(
             width: 540,
@@ -2210,30 +2296,39 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
                       const SizedBox(width: 8),
                       SizedBox(
                         width: 140,
-                        child: DropdownButtonFormField<String>(
-                          initialValue: _commonCreatorRoles.contains(
-                                  _creators[i].roleController.text.trim())
-                              ? _creators[i].roleController.text.trim()
-                              : null,
-                          isDense: true,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            hintText: 'Job',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                          style: const TextStyle(fontSize: 12),
-                          items: [
-                            for (final role in _commonCreatorRoles)
-                              DropdownMenuItem(
-                                  value: role, child: Text(role)),
-                          ],
-                          onChanged: (v) {
-                            if (v != null) {
-                              _creators[i].roleController.text = v;
-                            }
+                        child: Builder(
+                          builder: (context) {
+                            final currentRole =
+                                _creators[i].roleController.text.trim();
+                            final roles = <String>[
+                              if (currentRole.isNotEmpty &&
+                                  !_commonCreatorRoles.contains(currentRole))
+                                currentRole,
+                              ..._commonCreatorRoles,
+                            ];
+                            return DropdownButtonFormField<String>(
+                              initialValue: currentRole.isEmpty ? null : currentRole,
+                              isDense: true,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                hintText: 'Job',
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 8),
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                              style: const TextStyle(fontSize: 12),
+                              items: [
+                                for (final role in roles)
+                                  DropdownMenuItem(
+                                      value: role, child: Text(role)),
+                              ],
+                              onChanged: (v) {
+                                if (v != null) {
+                                  _creators[i].roleController.text = v;
+                                }
+                              },
+                            );
                           },
                         ),
                       ),
@@ -2640,46 +2735,36 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 11,
-      child: Column(
-        children: [
-          LibraryEditMaterialTabBar(
-            accent: widget.request.accent,
-            tabs: const [
-              Tab(child: EditTab(icon: Icons.search, label: 'Details')),
-              Tab(child: EditTab(icon: Icons.book, label: 'Main')),
-              Tab(child: EditTab(icon: Icons.attach_money, label: 'Value')),
-              Tab(child: EditTab(icon: Icons.person, label: 'Personal')),
-              Tab(child: EditTab(icon: Icons.edit, label: 'Custom Fields')),
-              Tab(child: EditTab(icon: Icons.camera_alt, label: 'Covers')),
-              Tab(child: EditTab(icon: Icons.image, label: 'My Images')),
-              Tab(child: EditTab(icon: Icons.group, label: 'Creators')),
-              Tab(child: EditTab(icon: Icons.face, label: 'Characters')),
-              Tab(child: EditTab(icon: Icons.article, label: 'Plot')),
-              Tab(child: EditTab(icon: Icons.link, label: 'Links')),
-            ],
+    final views = <Widget>[
+      _buildDetailsTab(),
+      _buildMainTab(context),
+      _buildValueTab(),
+      _buildPersonalTab(),
+      _buildCustomFieldsTab(),
+      _buildCoversTab(),
+      _buildMyImagesTab(),
+      _buildCreatorsTab(),
+      _buildCharactersTab(),
+      _buildPlotTab(),
+      _buildLinksTab(),
+    ];
+    return Column(
+      children: [
+        LibraryEditMaterialTabBar(
+          accent: widget.request.accent,
+          tabController: _tabController,
+          allowReorder: true,
+          onReorderItem: _onReorderTab,
+          tabs: [for (final index in _tabOrder) _tabs[index]],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [for (final index in _tabOrder) views[index]],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildDetailsTab(),
-                _buildMainTab(context),
-                _buildValueTab(),
-                _buildPersonalTab(),
-                _buildCustomFieldsTab(),
-                _buildCoversTab(),
-                _buildMyImagesTab(),
-                _buildCreatorsTab(),
-                _buildCharactersTab(),
-                _buildPlotTab(),
-                _buildLinksTab(),
-              ],
-            ),
-          ),
-          _buildPreFooter(context),
-        ],
-      ),
+        ),
+        _buildPreFooter(context),
+      ],
     );
   }
 
@@ -2732,8 +2817,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
           Expanded(
             flex: 4,
             child: _preFooterField(
-              label: 'Storage Box',
-              controller: storageBoxCtl,
+              label: 'Location',
+              controller: locationCtl,
               key: const ValueKey('edit-storage-box'),
             ),
           ),
@@ -2864,7 +2949,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel> {
       'collectionStatus': collectionStatusCtl.text,
       'indexNumber': indexNumberCtl.text,
       'quantity': quantityCtl.text,
-      'storageBox': storageBoxCtl.text,
+      'location': locationCtl.text,
       'creators': _creators.map((creator) => creator.toMap()).toList(),
       'characters': _characters
           .map((character) => character.nameController.text)
@@ -2911,10 +2996,16 @@ class _EditableComicCreator {
   }
 
   factory _EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
+    final role =
+        result['role']?.toString().trim().isNotEmpty == true
+            ? result['role']!.toString().trim()
+            : result['job']?.toString().trim().isNotEmpty == true
+                ? result['job']!.toString().trim()
+                : '';
     return _EditableComicCreator(
       nameController:
           TextEditingController(text: result['name']?.toString() ?? ''),
-      roleController: TextEditingController(),
+      roleController: TextEditingController(text: role),
       metadata: {
         ...result,
         'source_type': 'core',

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/library_workspace_search.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

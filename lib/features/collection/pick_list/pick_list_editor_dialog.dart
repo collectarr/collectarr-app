@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 /// Shows a dialog to manage pick list values for a given list.
 Future<void> showPickListEditorDialog({
@@ -94,9 +96,13 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
   Widget build(BuildContext context) {
     final allValues = [...widget.builtInValues, ..._customValues];
 
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: kAppPanel,
-      title: Text('Edit ${widget.label} Values'),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Edit ${widget.label} Values',
+        icon: Icons.list,
+      ),
       content: SizedBox(
         width: 320,
         height: 360,

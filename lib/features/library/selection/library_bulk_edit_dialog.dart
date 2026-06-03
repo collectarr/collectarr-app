@@ -7,6 +7,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryBulkEditSelection {
@@ -78,7 +79,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
     final trackingOptions = widget.type.trackingProfile.options;
     final conditions = _conditionOptions;
     final grades = _gradeOptions;
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Bulk edit (${widget.selectedCount} items)'),
       content: SizedBox(
         width: 460,

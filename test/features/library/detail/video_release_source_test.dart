@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 
 /// Supported export formats for collection integration.
@@ -46,7 +47,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: const Row(
         children: [

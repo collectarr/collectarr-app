@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMovieAddPreviewPane(

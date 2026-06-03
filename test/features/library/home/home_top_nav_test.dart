@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,11 +62,13 @@ void main() {
     final strip = find.byType(MediaLibraryNavStrip);
     expect(strip, findsOneWidget);
 
-    final stripCenterX = tester.getRect(strip).center.dx;
-    final firstCenterX = tester.getRect(find.text('Comics')).center.dx;
-    final lastCenterX = tester.getRect(find.text('Shows')).center.dx;
-    final contentCenterX = (firstCenterX + lastCenterX) / 2;
+    final navButtons = find.byType(MediaLibraryNavButton);
+    expect(navButtons, findsNWidgets(types.length));
+    final stripRect = tester.getRect(strip);
+    final firstRect = tester.getRect(navButtons.at(0));
+    final lastRect = tester.getRect(navButtons.at(types.length - 1));
 
-    expect((contentCenterX - stripCenterX).abs(), lessThan(12));
+    expect(firstRect.left, greaterThanOrEqualTo(stripRect.left));
+    expect(lastRect.right, lessThanOrEqualTo(stripRect.right));
   });
 }

@@ -844,7 +844,7 @@ class _ProviderIngestJobDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Ingest job: ${job.displayTitle}'),
       content: SizedBox(
         width: 620,

@@ -90,6 +90,29 @@
 
 ## 🎯 Current Priorities
 
+### 🧱 Library De-Generalization / Kind Ownership
+- [x] Route library home through concrete kind page entrypoints in `kinds/*/page.dart`
+- [x] Rename the old shared shell surface to `GenericLibraryPage` so known kinds no longer expose `LibraryPage` directly
+- [x] Move presentation builders into kind-local files
+- [x] Move workspace/release entry builders into kind-local files
+- [x] Reduce `kinds/shared/workspace_presentation_support.dart` so it no longer owns workspace/release factory wiring
+- [x] Move simple bucket-label builders into `book`, `game`, `boardgame`, `music`, and generic presentation files
+- [x] Make `BookLibraryPageState` the first concrete kind state and move the drilldown decision into that local state
+- [x] Fork concrete page-state ownership for `game`, `boardgame`, `music`, `movie`, and `comic`
+- [x] Continue exposing small overridable hooks from `GenericLibraryPageState` and move the corresponding behavior into kind-local states one decision at a time
+- [x] Decide whether `movie` keeps the shared video drilldown behavior as a reusable base hook or gets its own explicit local implementation
+- [x] Move any remaining kind-specific toolbar/sidebar/detail-shell decisions out of `generic/page.dart` into `kinds/*/page.dart`
+  - Last hardcoded `CatalogMediaKind.comic` check in `workspace.dart` replaced with `presentation.usesCompactTableLayout` config flag
+  - Remaining `widget.type.*` reads in shell are legitimate config lookups, not kind branches
+- [x] Shrink `GenericLibraryPage` to a thin fallback shell plus shared utilities instead of the primary behavior owner for known kinds
+  - Shell defaults are now inert (false/null); all behavioral hooks are explicitly opted-in by kind-local states
+  - Video drilldown logic is shared via `VideoDrilldownLibraryPageState` base, not shell decisions
+- [x] Re-evaluate `kinds/shared/workspace_presentation_support.dart` after movie/comic migration; keep only helpers that are still truly shared after the shell split
+  - File has 2 consumers (movie, comic presentations) — correctly scoped as a shared bucket-label utility
+- [x] Add focused page-state coverage for kind-local hook overrides so further shell extraction stays safe
+
+Architecture rule for this track: prefer kind-local ownership and explicit code over additional generic helper layers, even when that introduces controlled duplication.
+
 ### ⚙️ Provider Workflow / Core API Efficiency
 - [x] Stop automatic provider search after every successful core search; only fall back to provider search on Core misses
 - [x] Replace add-dialog preview fan-out with selection-only preview loading
@@ -114,7 +137,7 @@
 	- Validate the iOS path on macOS/Xcode hardware; current Windows-side validation only covers Android build success plus app/widget tests.
 	- Only introduce server-side candidate ranking or image hosting if local OCR + reranking proves insufficient.
 
-Current app-side parity work is largely complete; the remaining work here is hardening the local scan-to-identify flow on real mobile devices and deciding whether Core needs any photo-ranking role at all.
+Current app-side parity work is largely complete; the main remaining app architecture work is the library de-generalization track above, plus hardening the local scan-to-identify flow on real mobile devices and deciding whether Core needs any photo-ranking role at all.
 
 ### 🎨 CLZ-Style UI Overhaul (v0.1.0-alpha.1)
 - [x] Add dialog: live autocomplete from catalog, browse tab merged into search
@@ -189,3 +212,17 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [ ] Packaged release installers + app store preparation
 	- Produce signed desktop installers first (Windows at minimum), then document update/distribution strategy before spending time on store-specific packaging.
 	- Keep release work aligned with settings/bootstrap polish so first-run connection, sync pairing, and local DB migration behavior are installer-safe.
+
+## Library Refactor Next Slice Checklist
+
+This is the concrete backlog for the current `lib/features/library/**`
+ownership pass.
+
+1. [x] Move one more behavior hook from `GenericLibraryPageState` into `BookLibraryPageState`.
+2. [x] Create matching concrete state classes for `game`, `boardgame`, `music`, `movie`, and `comic` pages.
+3. Split the remaining shell decisions into explicit hooks: workspace override, detail/drilldown routing, sidebar scope behavior, and any kind-specific toolbar actions.
+4. [x] Decide whether movie/video drilldown stays as a shared reusable behavior or moves fully into `movie/page.dart`.
+5. Remove any generic shell branches that become dead once a kind owns the behavior locally.
+6. Re-check `kinds/shared/workspace_presentation_support.dart` and keep only helpers still used by multiple concrete kinds after the page-state split.
+7. [x] Add or extend focused widget tests around kind-page dispatch and state-hook behavior each time a new hook moves.
+8. When enough hooks have moved, split `generic/page.dart` further so the fallback shell is assembled from smaller shared utilities instead of one monolithic state class.

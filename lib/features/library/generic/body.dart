@@ -9,14 +9,29 @@ import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
-import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
-import 'package:collectarr_app/features/library/workspace/library_resizable_pane.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_ctrl_scroll_zoom.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
+
+LibraryDetailsLayout resolveEffectiveLibraryDetailsLayout({
+  required LibraryDetailsLayout preferredLayout,
+  required bool compact,
+  required bool hasSelection,
+  required bool hideWhenSelectionEmpty,
+}) {
+  if (hideWhenSelectionEmpty && !hasSelection) {
+    return LibraryDetailsLayout.hidden;
+  }
+  if (compact && preferredLayout == LibraryDetailsLayout.right) {
+    return LibraryDetailsLayout.bottom;
+  }
+  return preferredLayout;
+}
 
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
@@ -45,12 +60,15 @@ class LibraryBody extends StatelessWidget {
     required this.onBucketChanged,
     required this.onGroupModeChanged,
     required this.sidebarBreadcrumbs,
+    this.sidebarAncestorScopeLabels = const [],
     this.onSidebarNavigateBack,
     this.onSidebarNavigateToBreadcrumb,
+    this.onSidebarNavigateToAncestorScope,
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.sidebarSelectedLetter,
@@ -58,12 +76,14 @@ class LibraryBody extends StatelessWidget {
     this.filterSelection = LibraryFilterSelection.none,
     this.preferToolbarAlphabet = false,
     this.onCollectionStatusScopeChanged,
+    this.onSeriesCompletionScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
+    required this.onDetailsLayoutChanged,
     required this.onDetailsWidthChanged,
     required this.onDetailsHeightChanged,
     required this.onAddOwned,
@@ -78,9 +98,11 @@ class LibraryBody extends StatelessWidget {
     this.availableLetters = const {},
     this.onLetterSelected,
     this.db,
-    this.pinnedGroupModes = const {},
-    this.onTogglePinGroupMode,
+    this.folderPreset,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
     this.onManageBuckets,
+    this.inspectorContextLabel,
     this.desktopToolbarBand,
   });
 
@@ -108,12 +130,15 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<String?> onBucketChanged;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
   final List<String> sidebarBreadcrumbs;
+  final List<String> sidebarAncestorScopeLabels;
   final VoidCallback? onSidebarNavigateBack;
   final ValueChanged<int>? onSidebarNavigateToBreadcrumb;
+  final ValueChanged<int>? onSidebarNavigateToAncestorScope;
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? sidebarSelectedLetter;
@@ -122,6 +147,8 @@ class LibraryBody extends StatelessWidget {
   final bool preferToolbarAlphabet;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
+    final ValueChanged<LibrarySeriesCompletionScope>?
+      onSeriesCompletionScopeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -131,6 +158,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
+  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
@@ -146,9 +174,11 @@ class LibraryBody extends StatelessWidget {
   final Set<String> availableLetters;
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
-  final Set<LibraryGroupMode> pinnedGroupModes;
-  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
+  final LibraryFolderPreset? folderPreset;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;
+  final String? inspectorContextLabel;
   final Widget? desktopToolbarBand;
 
   @override
@@ -160,10 +190,12 @@ class LibraryBody extends StatelessWidget {
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
         final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
         final showSidebar = canShowSidebar && viewState.isSidebarVisible;
-        final detailsLayout =
-            compact && viewState.detailsLayout == LibraryDetailsLayout.right
-                ? LibraryDetailsLayout.bottom
-                : viewState.detailsLayout;
+        final detailsLayout = resolveEffectiveLibraryDetailsLayout(
+          preferredLayout: viewState.detailsLayout,
+          compact: compact,
+          hasSelection: selected != null,
+          hideWhenSelectionEmpty: adapter.viewProfile.hideDetailsWhenSelectionEmpty,
+        );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
           minWidth: kLibraryDetailsMinWidth,
@@ -238,6 +270,7 @@ class LibraryBody extends StatelessWidget {
           entry: selected?.entry,
           ownedItem: selected?.source.ownedItem,
           accent: accent,
+          contextLabel: inspectorContextLabel,
           onAddOwned: selected == null ? null : () => onAddOwned(selected),
           onRemoveOwned: selected?.source.ownedItem == null
               ? null
@@ -250,6 +283,7 @@ class LibraryBody extends StatelessWidget {
           onEdit: selected == null
               ? null
               : (ownedItem) => onEditItem(selected, ownedItem),
+          onDetailsLayoutChanged: onDetailsLayoutChanged,
           onFilterByValue: onFilterByValue,
           db: db,
         );
@@ -279,7 +313,17 @@ class LibraryBody extends StatelessWidget {
                 accent: accent,
                 onLetterSelected: onLetterSelected!,
               ),
-            Expanded(child: workspace),
+            Expanded(
+              child: workspaceOverride == null
+                  ? workspace
+                  : IndexedStack(
+                      index: 1,
+                      children: [
+                        workspace,
+                        workspaceOverride!,
+                      ],
+                    ),
+            ),
           ],
         );
 
@@ -303,12 +347,16 @@ class LibraryBody extends StatelessWidget {
                     ),
                     onGroupModeChanged: onGroupModeChanged,
                     breadcrumbs: sidebarBreadcrumbs,
+                    ancestorScopeLabels: sidebarAncestorScopeLabels,
                     onNavigateBack: onSidebarNavigateBack,
                     onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
+                    onNavigateToAncestorScope:
+                      onSidebarNavigateToAncestorScope,
                     searchQuery: searchQuery,
                     activeSmartListName: activeSmartListName,
                     quickView: quickView,
                     collectionStatusScope: collectionStatusScope,
+                    seriesCompletionScope: seriesCompletionScope,
                     collectionStatusScopeLabel: collectionStatusScopeLabel,
                     linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                     selectedLetter: sidebarSelectedLetter,
@@ -319,16 +367,19 @@ class LibraryBody extends StatelessWidget {
                     onClearFilters: onClearFilters,
                     onCollectionStatusScopeChanged:
                         onCollectionStatusScopeChanged,
+                    onSeriesCompletionScopeChanged:
+                      onSeriesCompletionScopeChanged,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
                     onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                     onManageBuckets: onManageBuckets,
-                    pinnedGroupModes: pinnedGroupModes,
-                    onTogglePinGroupMode: onTogglePinGroupMode,
+                    pinnedFolderPresets: pinnedFolderPresets,
+                    onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
                   ),
                 ),
                 LibraryResizableDivider(
+                  color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
                   onDragDelta: (delta) => onSidebarWidthChanged(
                     clampLibraryPaneWidth(
                       sidebarWidth + delta,
@@ -343,6 +394,7 @@ class LibraryBody extends StatelessWidget {
                   content: workspaceContent,
                   detailsLayout: detailsLayout,
                   inspector: details,
+                  frameInspector: type.inspectorPanelBuilder == null,
                   rightWidth: viewState.detailsWidth,
                   bottomHeight: viewState.detailsHeight,
                   maxRightWidth: maxDetailsWidth,

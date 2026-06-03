@@ -167,7 +167,7 @@ class _ComingSoonImportCard extends StatelessWidget {
                     'Coming soon',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.hintColor,
-                      fontSize: 10,
+                      fontSize: 11,
                     ),
                   ),
                 ),
@@ -444,8 +444,8 @@ class _TmdbImportInlineCardState
             Row(
               children: [
                 SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 24,
+                  height: 24,
                   child: Checkbox.adaptive(
                     value: _keepUnmatchedLocally,
                     visualDensity: VisualDensity.compact,
@@ -720,7 +720,7 @@ class _ImportJobTile extends ConsumerWidget {
                 '${job.matched} matched · ${job.unmatched} unmatched',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.hintColor,
-                  fontSize: 10,
+                  fontSize: 11,
                 ),
               ),
             ],

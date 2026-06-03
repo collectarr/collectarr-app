@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/mobile_ux.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,6 +58,9 @@ class _AppShellState extends ConsumerState<AppShell> {
 
     // Map GoRouter branch index to visible nav destinations.
     final currentBranch = widget.navigationShell.currentIndex;
+    final showBottomNavigationBar =
+      !ResponsiveLayout.isDesktop(context) ||
+      currentBranch != _branchLibraries;
     final visibleBranches = [
       _branchLibraries,
       _branchShelf,
@@ -92,19 +96,22 @@ class _AppShellState extends ConsumerState<AppShell> {
           child: widget.navigationShell,
         ),
       ),
-      bottomNavigationBar: _LibraryAwareNavigationBar(
-        pages: pages,
-        selectedIndex: selectedVisualIndex,
-        accent: accent,
-        animationsEnabled: uiPreferences.animationsEnabled,
-        onDestinationSelected: (visualIndex) {
-          final branchIndex = visibleBranches[visualIndex];
-          widget.navigationShell.goBranch(
-            branchIndex,
-            initialLocation: branchIndex == widget.navigationShell.currentIndex,
-          );
-        },
-      ),
+      bottomNavigationBar: showBottomNavigationBar
+          ? _LibraryAwareNavigationBar(
+              pages: pages,
+              selectedIndex: selectedVisualIndex,
+              accent: accent,
+              animationsEnabled: uiPreferences.animationsEnabled,
+              onDestinationSelected: (visualIndex) {
+                final branchIndex = visibleBranches[visualIndex];
+                widget.navigationShell.goBranch(
+                  branchIndex,
+                  initialLocation:
+                      branchIndex == widget.navigationShell.currentIndex,
+                );
+              },
+            )
+          : null,
     );
     if (mediaQuery == null) {
       return shell;
@@ -226,7 +233,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                             label: const Text(
                               'ADMIN',
                               style: TextStyle(
-                                fontSize: 7,
+                                fontSize: 9,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: 0.5,

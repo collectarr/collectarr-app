@@ -10,10 +10,19 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../helpers/test_constants.dart';
+import '../../../helpers/secure_storage_mock.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    setUpSecureStorageMock();
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('personal details editor saves structured locations',
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());

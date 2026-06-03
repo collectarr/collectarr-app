@@ -1,9 +1,27 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
+
+List<Widget> buildLibraryDetailCatalogSections({
+  required BuildContext context,
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+  ValueChanged<String>? onFilterByValue,
+}) {
+  return type.presentation.builder.buildDetailCatalogSections(
+    context: context,
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    accent: accent,
+    onFilterByValue: onFilterByValue,
+  );
+}
 
 class LibraryDetailMetadataSection extends StatelessWidget {
   const LibraryDetailMetadataSection({
@@ -155,16 +173,18 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
 class LibraryDetailMetadataHealthSection extends StatelessWidget {
   const LibraryDetailMetadataHealthSection({
     super.key,
+    required this.type,
     required this.entry,
     required this.accent,
   });
 
+  final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    final health = _buildMetadataHealth(entry);
+    final health = _buildMetadataHealth(type, entry);
     return LibraryInspectorSection(
       title: 'Metadata health',
       accentColor: accent,
@@ -373,9 +393,21 @@ class _MetadataHealth {
   final List<String> missingSignals;
 }
 
-_MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
+_MetadataHealth _buildMetadataHealth(
+  LibraryTypeConfig type,
+  LibraryWorkspaceEntry entry,
+) {
   var score = 0;
   final missingSignals = <String>[];
+  final metadata = type.presentation.builder.buildMetadataPresentation(
+    singularLabel: type.singularLabel,
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
+    entry: entry,
+    includeIdentityFacts: true,
+    tapFor: (_) => null,
+  );
+  final seriesLabel = type.presentation.filterLabels.series;
 
   void addSignal({
     required bool present,
@@ -410,7 +442,9 @@ _MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
     missingLabel: 'Release date',
   );
   addSignal(
-    present: entry.series?.seriesTitle?.trim().isNotEmpty ?? false,
+    present: metadata.identityFacts.any(
+      (fact) => fact.label == seriesLabel && fact.value.trim().isNotEmpty,
+    ),
     weight: 10,
     missingLabel: 'Series',
   );
@@ -420,24 +454,24 @@ _MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
     missingLabel: 'Item number',
   );
   addSignal(
-    present: (entry.creators?.isNotEmpty ?? false),
+    present: metadata.creators.isNotEmpty,
     weight: 12,
-    missingLabel: 'Creators',
+    missingLabel: metadata.labels.creators,
   );
   addSignal(
-    present: (entry.characters?.isNotEmpty ?? false),
+    present: metadata.characters.isNotEmpty,
     weight: 6,
-    missingLabel: 'Characters',
+    missingLabel: metadata.labels.characters,
   );
   addSignal(
-    present: (entry.storyArcs?.isNotEmpty ?? false),
+    present: metadata.storyArcs.isNotEmpty,
     weight: 4,
-    missingLabel: 'Story arcs',
+    missingLabel: metadata.labels.storyArcsInline,
   );
   addSignal(
-    present: (entry.genres?.isNotEmpty ?? false),
+    present: metadata.genres.isNotEmpty,
     weight: 4,
-    missingLabel: 'Genres',
+    missingLabel: metadata.labels.genres,
   );
   addSignal(
     present: !(entry.hasMissingMetadata || entry.hasMissingCover),

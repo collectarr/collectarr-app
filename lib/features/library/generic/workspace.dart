@@ -7,18 +7,14 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/workspace/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/library_shelf_view.dart';
-import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -148,6 +144,7 @@ class LibraryWorkspace extends ConsumerWidget {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
             items: items,
+          adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
@@ -175,6 +172,7 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         LibraryViewMode.card => _GroupedGrid(
             items: items,
+          adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
@@ -203,6 +201,7 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
             items: items,
+          adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
@@ -328,18 +327,19 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
+        final compact = type.presentation.usesCompactTableLayout;
         final tableWidth = adapter.tableWidthForColumns(
           viewState.visibleColumns,
           viewState.columnWidths,
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
-          color: palette.canvas,
+          color: palette.panel,
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,
               child: Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: LibraryWorkspaceTable<LibraryProjectionItem>(
                   entries: items,
                   columns:
@@ -366,6 +366,11 @@ class LibraryWorkspace extends ConsumerWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onColumnReordered: onColumnReordered,
+                  headerHeight: compact ? 24 : 26,
+                  rowHeight: compact ? 30 : 32,
+                  columnSpacing: compact ? 6 : 8,
+                  horizontalMargin: compact ? 4 : 6,
+                  selectionRailWidth: compact ? 1 : 2,
                   headerColor: palette.surface,
                   dividerColor: palette.divider,
                   selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
@@ -385,69 +390,7 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, LibraryTableColumn column) {
-    final entry = item.entry;
-    return switch (column) {
-      LibraryTableColumn.status => LibraryItemStatusIcons(
-          isOwned: entry.isOwned,
-          isTracked: entry.isTracked,
-          isWishlisted: entry.isWishlisted,
-          hasMissingCover: entry.hasMissingCover,
-          hasMissingMetadata: entry.hasMissingMetadata,
-          hasKeyMarker: entry.keyComic,
-          hasSlabMarker:
-              entry.rawOrSlabbed != null || entry.gradingCompany != null,
-            hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
-        ),
-      LibraryTableColumn.cover => SizedBox(
-          width: 28,
-          height: 36,
-          child: LibraryCoverImage(
-            title: entry.resolvedTitle,
-            itemNumber: entry.itemNumber,
-            imageUrl: entry.displayCoverUrl,
-            ownedItemId: entry.ownedItemId,
-          ),
-        ),
-      LibraryTableColumn.title => Text(
-          entry.resolvedTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-        ),
-      LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
-      LibraryTableColumn.variant => LibraryTableCellText(
-          [
-            if (entry.variant != null && entry.variant!.trim().isNotEmpty)
-              entry.variant,
-            if (entry.referenceScopeLabel != null)
-              'Scope: ${entry.referenceScopeLabel!}',
-            if (entry.referenceFormatLabel != null)
-              'Format: ${entry.referenceFormatLabel!}',
-          ].join('  ·  '),
-        ),
-      LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
-      LibraryTableColumn.releaseDate =>
-        LibraryTableCellText(formatNullableDate(entry.releaseDate)),
-      LibraryTableColumn.barcode => LibraryTableCellText(entry.barcode),
-      LibraryTableColumn.grade => LibraryTableCellText(entry.grade),
-      LibraryTableColumn.condition => LibraryTableCellText(entry.condition),
-      LibraryTableColumn.price =>
-        Text(formatMoney(entry.pricePaidCents, entry.currency)),
-      LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
-      LibraryTableColumn.wishlist =>
-        entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
-      LibraryTableColumn.updated => Text(
-          formatDate(entry.updatedAt),
-          style: const TextStyle(fontSize: 12),
-        ),
-      LibraryTableColumn.country => LibraryTableCellText(entry.country),
-      LibraryTableColumn.language => LibraryTableCellText(entry.language),
-      LibraryTableColumn.pageCount =>
-        LibraryTableCellText(entry.publishing?.pageCount?.toString()),
-      LibraryTableColumn.ageRating => LibraryTableCellText(entry.ageRating),
-      LibraryTableColumn.imprint =>
-        LibraryTableCellText(entry.publishing?.imprint),
-    };
+    return adapter.buildTableCell(item.entry, column);
   }
 }
 
@@ -488,6 +431,7 @@ class _LibraryHorizontalScrollbarState
 class _GroupedGrid extends StatefulWidget {
   const _GroupedGrid({
     required this.items,
+    required this.adapter,
     required this.type,
     required this.groupMode,
     required this.selectedId,
@@ -501,6 +445,7 @@ class _GroupedGrid extends StatefulWidget {
   });
 
   final List<LibraryProjectionItem> items;
+  final LibraryMediaAdapter adapter;
   final LibraryTypeConfig type;
   final LibraryGroupMode groupMode;
   final String? selectedId;
@@ -573,12 +518,9 @@ class _GroupedGridState extends State<_GroupedGrid> {
 
     // Check if any item has volume/season data worth sub-grouping.
     final hasSubGroups = items.any(
-      (item) {
-        final series = item.entry.series;
-        return series?.volumeName != null ||
-            series?.volumeNumber != null ||
-            series?.seasonNumber != null;
-      },
+      (item) =>
+          widget.adapter.subgroupKeyForEntry(item.entry, widget.groupMode) !=
+          null,
     );
     if (!hasSubGroups) {
       return [_buildGrid(items)];
@@ -587,10 +529,16 @@ class _GroupedGridState extends State<_GroupedGrid> {
     // Build sub-groups by volume/season.
     final subGroups = <String, List<LibraryProjectionItem>>{};
     for (final item in items) {
-      final subKey = _subGroupKey(item.entry);
+      final subKey =
+          widget.adapter.subgroupKeyForEntry(item.entry, widget.groupMode) ??
+              '—';
       (subGroups[subKey] ??= []).add(item);
     }
-    final sortedSubKeys = subGroups.keys.toList()..sort(_compareSubGroupKeys);
+    final sortedSubKeys = subGroups.keys.toList()
+      ..sort(
+        (left, right) =>
+            widget.adapter.compareSubgroupKeys(left, right, widget.groupMode),
+      );
 
     return [
       for (final subKey in sortedSubKeys) ...[
@@ -615,71 +563,26 @@ class _GroupedGridState extends State<_GroupedGrid> {
   }
 
   Widget _buildGrid(List<LibraryProjectionItem> items) {
-    if (widget.onSelectionChanged != null) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: LibraryWorkspaceGrid<LibraryProjectionItem>(
-            items: items,
-            itemBuilder: widget.itemBuilder,
-            emptyBuilder: (_) => const SizedBox.shrink(),
-            maxCrossAxisExtent: widget.maxCrossAxisExtent,
-            mainAxisExtent: widget.mainAxisExtent,
-            selectionEnabled: widget.selectionEnabled,
-            selectedIds: widget.selectedIds,
-            itemIdOf: (item) => item.entry.id,
-            onSelectionChanged: widget.onSelectionChanged,
-            shrinkWrap: true,
-            scrollable: false,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            backgroundColor: Colors.transparent,
-          ),
-        ),
-      );
-    }
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => widget.itemBuilder(context, items[index]),
-          childCount: items.length,
-        ),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: LibraryWorkspaceGrid<LibraryProjectionItem>(
+          items: items,
+          itemBuilder: widget.itemBuilder,
+          emptyBuilder: (_) => const SizedBox.shrink(),
           maxCrossAxisExtent: widget.maxCrossAxisExtent,
           mainAxisExtent: widget.mainAxisExtent,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
+          selectionEnabled: widget.selectionEnabled,
+          selectedIds: widget.selectedIds,
+          itemIdOf: (item) => item.entry.id,
+          onSelectionChanged: widget.onSelectionChanged,
+          shrinkWrap: true,
+          scrollable: false,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          backgroundColor: Colors.transparent,
         ),
       ),
     );
-  }
-
-  static String _subGroupKey(LibraryWorkspaceEntry entry) {
-    final series = entry.series;
-    if (series?.seasonNumber != null) {
-      return 'Season ${series!.seasonNumber}';
-    }
-    if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
-      return series.volumeName!.trim();
-    }
-    if (series?.volumeNumber != null) {
-      return 'Vol. ${series!.volumeNumber}';
-    }
-    return '—';
-  }
-
-  static int _compareSubGroupKeys(String a, String b) {
-    final numA = _extractNumber(a);
-    final numB = _extractNumber(b);
-    if (numA != null && numB != null) {
-      return numA.compareTo(numB);
-    }
-    return a.compareTo(b);
-  }
-
-  static int? _extractNumber(String key) {
-    final match = RegExp(r'(\d+)').firstMatch(key);
-    return match == null ? null : int.tryParse(match.group(1)!);
   }
 }
 

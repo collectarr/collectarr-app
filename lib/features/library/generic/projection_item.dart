@@ -1,13 +1,11 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
-import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class LibraryProjectionItem {
   const LibraryProjectionItem({
@@ -16,101 +14,12 @@ class LibraryProjectionItem {
     required this.node,
   });
 
-  factory LibraryProjectionItem.fromShelf(ShelfEntry source) {
+  factory LibraryProjectionItem.fromShelf(
+    ShelfEntry source,
+    LibraryTypeConfig type,
+  ) {
     final item = source.catalogItem!;
-    final series = item.series;
-    final video = item.video;
-    final music = item.music;
-    final game = item.game;
-    final publishing = item.publishing;
-    final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
-      item,
-      ownedItems: source.ownedItem == null
-        ? const <OwnedItem>[]
-          : [source.ownedItem!],
-      wishlistItems: source.wishlistItem == null
-        ? const <WishlistItem>[]
-          : [source.wishlistItem!],
-    );
-    final entry = LibraryWorkspaceEntry(
-      id: item.id,
-      browseScope: LibraryBrowserScope.title,
-      titleItemId: item.id,
-      ownedItemId: source.ownedItem?.id,
-      mediaType: item.kind,
-      title: item.title,
-      displayTitle: item.displayTitle,
-      localizedTitle: item.localizedTitle,
-      originalTitle: item.originalTitle,
-      searchAliases: item.searchAliases,
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      publisher: item.publisher,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      barcode: item.barcode,
-      variant: item.displayEditionLabel,
-      isOwned: source.isOwned,
-      isTracked: source.isTracked,
-      isWishlisted: source.isWishlisted,
-      hasMissingCover: item.displayCoverUrl == null,
-      hasMissingMetadata: genericHasMissingCoreMetadata(item),
-      condition: source.ownedItem?.condition,
-      grade: source.ownedItem?.grade,
-      rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
-      gradingCompany: source.ownedItem?.gradingCompany,
-      labelType: source.ownedItem?.labelType,
-      certificationNumber: source.ownedItem?.certificationNumber,
-      keyComic: source.ownedItem?.keyComic ?? false,
-      keyReason: source.ownedItem?.keyReason,
-      notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
-      tags: source.ownedItem?.tags,
-      collectionStatus: source.ownedItem?.collectionStatus,
-      lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
-      primaryReferenceLabel: libraryPrimaryReferenceLabel(
-        ownedItem: source.ownedItem,
-        wishlistItem: source.wishlistItem,
-        mediaType: item.kind,
-      ),
-      referenceScopeLabel: libraryReferenceScopeLabel(
-        ownedItem: source.ownedItem,
-        wishlistItem: source.wishlistItem,
-        mediaType: item.kind,
-      ),
-      referenceFormatLabel: libraryReferenceFormatLabel(
-        ownedItem: source.ownedItem,
-        wishlistItem: source.wishlistItem,
-        editions: resolvedEditions,
-        fallbackFormatLabel: item.physicalFormatLabel,
-      ),
-      referenceEditionId:
-          source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
-      referenceVariantId:
-          source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
-      referenceBundleReleaseId:
-          source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
-      pricePaidCents: source.ownedItem?.pricePaidCents,
-      currency: source.ownedItem?.currency,
-        locationPath: source.locationPath,
-      series: series,
-      video: video,
-      music: music,
-      game: game,
-      publishing: publishing,
-      creators: item.creators,
-      characters: item.characters,
-      storyArcs: item.storyArcs,
-      genres: item.genres,
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-      audienceRating: item.audienceRating,
-      editions: resolvedEditions,
-      updatedAt: source.updatedAt,
-      trailerUrls: item.trailerUrls,
-    );
+    final entry = type.presentation.workspaceEntryBuilder(source);
     return LibraryProjectionItem(
       source: source,
       entry: entry,
@@ -133,19 +42,104 @@ class LibraryProjectionItem {
 List<LibraryProjectionItem> libraryItemsForShelf(
   ShelfState shelf,
   LibraryTypeConfig type,
-) {
+{  LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
+  String? releaseFolderTitleItemId,
+}) {
   final kind = type.workspace.kind;
+  if (browserMode == LibraryWorkspaceBrowserMode.releases) {
+    return _libraryReleaseItemsForShelf(
+      shelf,
+      type,
+      releaseFolderTitleItemId: releaseFolderTitleItemId,
+    );
+  }
   return [
     for (final source in shelf.entries)
       if (source.catalogItem != null && source.catalogItem!.kind == kind.apiValue)
-        LibraryProjectionItem.fromShelf(source),
+        LibraryProjectionItem.fromShelf(source, type),
   ];
 }
 
-bool genericHasMissingCoreMetadata(CatalogItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-  item.displayCoverUrl == null &&
-      item.displayEditionLabel == null;
+List<LibraryProjectionItem> _libraryReleaseItemsForShelf(
+  ShelfState shelf,
+  LibraryTypeConfig type, {
+  String? releaseFolderTitleItemId,
+}) {
+  final kind = type.workspace.kind;
+  final requestedTitleId = releaseFolderTitleItemId?.trim();
+  final items = <LibraryProjectionItem>[];
+
+  for (final source in shelf.entries) {
+    final catalogItem = source.catalogItem;
+    if (catalogItem == null || catalogItem.kind != kind.apiValue) {
+      continue;
+    }
+    if (requestedTitleId != null && catalogItem.id != requestedTitleId) {
+      continue;
+    }
+
+    final titleEntry = type.presentation.workspaceEntryBuilder(source);
+    final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
+      catalogItem,
+      ownedItems: source.ownedItem == null
+          ? const []
+          : [source.ownedItem!],
+      wishlistItems: source.wishlistItem == null
+          ? const []
+          : [source.wishlistItem!],
+    );
+    if (resolvedEditions.isEmpty) {
+      // Hide media that have no release-level data in release mode.
+      continue;
+    }
+
+    for (final edition in resolvedEditions) {
+      final ownedMatches = source.ownedItem == null
+          ? false
+          : matchesVideoReleaseAnchor(
+              edition,
+              editionId: source.ownedItem!.editionId,
+              variantId: source.ownedItem!.variantId,
+              bundleReleaseId: source.ownedItem!.bundleReleaseId,
+            );
+      final wishlistMatches = source.wishlistItem == null
+          ? false
+          : matchesVideoReleaseAnchor(
+              edition,
+              editionId: source.wishlistItem!.editionId,
+              variantId: source.wishlistItem!.variantId,
+              bundleReleaseId: source.wishlistItem!.bundleReleaseId,
+            );
+
+      final entry = type.presentation.releaseEntryBuilder(
+        LibraryReleaseEntryRequest(
+          titleEntry: titleEntry,
+          edition: edition,
+          isOwned: ownedMatches,
+          isWishlisted: wishlistMatches,
+          isTracked: source.isTracked,
+          referenceEditionId: edition.id,
+          referenceVariantId: preferredVideoEditionVariantId(edition),
+          editions: resolvedEditions,
+          updatedAt: source.updatedAt,
+        ),
+      );
+      items.add(
+        LibraryProjectionItem(
+          source: source,
+          entry: entry,
+          node: LibraryBrowserNode(
+            id: entry.id,
+            scope: entry.browseScope,
+            entry: entry,
+            titleItemId: titleEntry.id,
+            releaseId: edition.id,
+            edition: edition,
+            source: source,
+          ),
+        ),
+      );
+    }
+  }
+  return items;
 }

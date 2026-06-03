@@ -65,6 +65,8 @@ class LibraryEditDraft {
     required this.titleExtensionController,
     required this.crossoverController,
     required this.storyArcsController,
+    required this.seriesTitleController,
+    required this.developersController,
     required this.ownerLabelController,
     required this.imprintController,
     required this.seriesGroupController,
@@ -134,6 +136,12 @@ class LibraryEditDraft {
     required this.hdrFormats,
     required this.collectionStatus,
     required this.lastBagBoardDate,
+    required this.gameCompleteness,
+    required this.gameHasBox,
+    required this.gameHasManual,
+    required this.gamePriceChartingId,
+    required this.gameCoreRegion,
+    required this.gameValueIsLocked,
     required this.physicalFormatId,
     required this.seriesId,
     required this.customFieldEdits,
@@ -249,6 +257,10 @@ class LibraryEditDraft {
     final crossoverController = create(item.crossover?.trim() ?? '');
     final storyArcsController = create(
       (item.storyArcs ?? const <String>[]).join(', '),
+    );
+    final seriesTitleController = create(item.series?.seriesTitle ?? '');
+    final developersController = create(
+      _creatorNamesForRoles(item.creators, const ['developer']).join(', '),
     );
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
     final imprintController = create(item.publishing?.imprint ?? '');
@@ -398,6 +410,8 @@ class LibraryEditDraft {
       titleExtensionController: titleExtensionController,
       crossoverController: crossoverController,
       storyArcsController: storyArcsController,
+      seriesTitleController: seriesTitleController,
+      developersController: developersController,
       ownerLabelController: ownerLabelController,
       imprintController: imprintController,
       seriesGroupController: seriesGroupController,
@@ -474,6 +488,12 @@ class LibraryEditDraft {
       hdrFormats: List<String>.from(ownedItem?.hdrFormats ?? const <String>[]),
       collectionStatus: ownedItem?.collectionStatus,
       lastBagBoardDate: ownedItem?.lastBagBoardDate,
+      gameCompleteness: ownedItem?.gameCompleteness,
+      gameHasBox: ownedItem?.gameHasBox ?? true,
+      gameHasManual: ownedItem?.gameHasManual ?? true,
+      gamePriceChartingId: ownedItem?.gamePriceChartingId,
+      gameCoreRegion: ownedItem?.gameCoreRegion,
+      gameValueIsLocked: ownedItem?.gameValueIsLocked ?? false,
       physicalFormatId: initialPhysicalFormatId,
       seriesId: item.series?.seriesId,
       customFieldEdits: {
@@ -525,6 +545,8 @@ class LibraryEditDraft {
   final TextEditingController titleExtensionController;
   final TextEditingController crossoverController;
   final TextEditingController storyArcsController;
+  final TextEditingController seriesTitleController;
+  final TextEditingController developersController;
   final TextEditingController ownerLabelController;
   final TextEditingController imprintController;
   final TextEditingController seriesGroupController;
@@ -594,6 +616,12 @@ class LibraryEditDraft {
   List<String> hdrFormats;
   String? collectionStatus;
   DateTime? lastBagBoardDate;
+  String? gameCompleteness;
+  bool gameHasBox;
+  bool gameHasManual;
+  String? gamePriceChartingId;
+  String? gameCoreRegion;
+  bool gameValueIsLocked;
   String? physicalFormatId;
   String? seriesId;
   Map<String, String?> customFieldEdits;
@@ -723,6 +751,7 @@ class LibraryEditDraft {
         variant: emptyToNull(variantController.text),
         crossover: emptyToNull(crossoverController.text),
         series: _buildUpdatedSeries(),
+        creators: _buildUpdatedCreators(),
         country: emptyToNull(countryController.text),
         language: emptyToNull(languageController.text),
         ageRating: emptyToNull(ageRatingController.text),
@@ -805,6 +834,12 @@ class LibraryEditDraft {
               lastBagBoardDate: lastBagBoardDate,
               marketValueCents: parseMoneyCents(marketValueController.text),
               ownerLabel: emptyToNull(ownerLabelController.text),
+              gameCompleteness: gameCompleteness,
+              gameHasBox: gameHasBox,
+              gameHasManual: gameHasManual,
+              gamePriceChartingId: emptyToNull(gamePriceChartingId ?? ''),
+              gameCoreRegion: emptyToNull(gameCoreRegion ?? ''),
+              gameValueIsLocked: gameValueIsLocked,
             ),
       wishlist: wishlistItem == null
           ? null
@@ -855,10 +890,10 @@ class LibraryEditDraft {
   }
 
   CatalogSeriesDetails? _buildUpdatedSeries() {
-    if (!type.editUsesTitleAsSeries) {
-      return item.series;
-    }
-    final seriesTitle = emptyToNull(titleController.text);
+    final typedSeriesTitle = emptyToNull(seriesTitleController.text);
+    final seriesTitle = type.editUsesTitleAsSeries
+        ? emptyToNull(titleController.text)
+        : typedSeriesTitle;
     final currentSeries = item.series;
     if (seriesTitle == null && currentSeries == null) {
       return null;
@@ -873,6 +908,58 @@ class LibraryEditDraft {
       episodeNumber: currentSeries?.episodeNumber,
       tags: currentSeries?.tags ?? const <String>[],
     );
+  }
+
+  List<Map<String, dynamic>>? _buildUpdatedCreators() {
+    if (type.workspace.kind.apiValue != 'game') {
+      return item.creators;
+    }
+
+    final existing = item.creators ?? const <Map<String, dynamic>>[];
+    final preserved = <Map<String, dynamic>>[];
+    for (final entry in existing) {
+      final role = entry['role']?.toString().toLowerCase() ?? '';
+      if (role.contains('developer')) {
+        continue;
+      }
+      preserved.add(Map<String, dynamic>.from(entry));
+    }
+
+    final developerNames = developersController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+
+    final merged = <Map<String, dynamic>>[
+      ...preserved,
+      for (final name in developerNames)
+        <String, dynamic>{'name': name, 'role': 'Developer'},
+    ];
+    return merged.isEmpty ? null : List<Map<String, dynamic>>.unmodifiable(merged);
+  }
+
+  static List<String> _creatorNamesForRoles(
+    List<Map<String, dynamic>>? creators,
+    List<String> roles,
+  ) {
+    if (creators == null || creators.isEmpty) {
+      return const <String>[];
+    }
+
+    final names = <String>[];
+    for (final entry in creators) {
+      final role = entry['role']?.toString().toLowerCase() ?? '';
+      if (!roles.any(role.contains)) {
+        continue;
+      }
+      final name = entry['name']?.toString().trim();
+      if (name == null || name.isEmpty || names.contains(name)) {
+        continue;
+      }
+      names.add(name);
+    }
+    return List<String>.unmodifiable(names);
   }
 
   static String? _initialPhysicalFormatId(

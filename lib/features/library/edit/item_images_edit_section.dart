@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:image/image.dart' as img;
 
 class ItemImagesEditSection extends StatefulWidget {
@@ -208,7 +209,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     var draftBase64 = '';
     final base64Data = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: const Text('Add image'),
         content: SizedBox(
           width: 400,
@@ -287,7 +288,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     var selectedType = image.imageType;
     final result = await showDialog<({String caption, String imageType})>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AccentAlertDialog(
         title: const Text('Edit image details'),
         content: SizedBox(
           width: 360,
@@ -850,7 +851,7 @@ class _ImageCropDialogState extends State<_ImageCropDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Crop image'),
       content: SizedBox(
         width: 420,

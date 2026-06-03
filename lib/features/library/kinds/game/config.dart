@@ -2,19 +2,22 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.game,
   title: 'Games',
   icon: Icons.sports_esports,
-  accent: Color(0xFF7C68D8),
+  accent: Color(0xFFF64458),
   preferencePrefix: 'games',
   defaultSortColumn: LibrarySortColumn.title,
+  availableSortColumns: kPlannedLibrarySortColumns,
+  availableTableColumns: kAllLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
@@ -40,6 +43,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildGameLibraryEditDialog,
+  editPresentation: gameLibraryEditPresentation,
   presentation: gamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Version',
@@ -48,5 +52,8 @@ const gamesLibraryConfig = LibraryTypeConfig(
   releaseFields: ReleaseEditFields(
     variantLabel: 'Platform / Edition',
     barcodeLabel: 'UPC / Barcode',
+  ),
+  capabilities: LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
   ),
 );

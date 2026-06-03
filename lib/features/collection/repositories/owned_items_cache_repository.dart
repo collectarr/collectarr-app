@@ -144,6 +144,12 @@ class OwnedItemsCacheRepository {
       collectionStatus: row.collectionStatus,
       lastBagBoardDate: row.lastBagBoardDate,
       marketValueCents: row.marketValueCents,
+      gameCompleteness: row.gameCompleteness,
+      gameHasBox: row.gameHasBox,
+      gameHasManual: row.gameHasManual,
+      gamePriceChartingId: row.gamePriceChartingId,
+      gameCoreRegion: row.gameCoreRegion,
+      gameValueIsLocked: row.gameValueIsLocked,
     );
   }
 
@@ -206,6 +212,12 @@ class OwnedItemsCacheRepository {
       collectionStatus: Value(item.collectionStatus),
       lastBagBoardDate: Value(item.lastBagBoardDate),
       marketValueCents: Value(item.marketValueCents),
+      gameCompleteness: Value(item.gameCompleteness),
+      gameHasBox: Value(item.gameHasBox),
+      gameHasManual: Value(item.gameHasManual),
+      gamePriceChartingId: Value(item.gamePriceChartingId),
+      gameCoreRegion: Value(item.gameCoreRegion),
+      gameValueIsLocked: Value(item.gameValueIsLocked),
     );
   }
 

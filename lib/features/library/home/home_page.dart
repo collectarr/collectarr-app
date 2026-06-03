@@ -1,12 +1,14 @@
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -25,12 +27,19 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 }
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
+  final Map<String, Widget> _cachedKindPages = <String, Widget>{};
+  final List<String> _cachedKindOrder = <String>[];
+
   String? _routeKind() {
     return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
   }
 
   void _replaceLibraryKind(String kind) {
     final normalized = canonicalLibraryNavKind(kind) ?? 'comic';
+    final previousKind = ref.read(selectedLibraryKindProvider);
+    if (previousKind != normalized) {
+      _recordSwitchMetrics(previousKind: previousKind, nextKind: normalized);
+    }
     ref.read(selectedLibraryKindProvider.notifier).select(normalized);
     final nextUri = widget.routeUri.replace(
       queryParameters: {'kind': normalized},
@@ -39,6 +48,88 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         GoRouter.maybeOf(context) != null) {
       context.replace(nextUri.toString());
     }
+  }
+
+  void _recordSwitchMetrics({
+    required String previousKind,
+    required String nextKind,
+  }) {}
+
+  Widget _buildCachedKindBody({
+    required CatalogMediaType selected,
+    required LibraryTypeConfig selectedConfig,
+    required Widget resolvedTopBar,
+    required Color accent,
+    required Uri routeUri,
+    required List<CatalogMediaType> visibleTypes,
+    required Duration animationDuration,
+  }) {
+    _cachedKindPages[selected.kind] = KeyedSubtree(
+      key: ValueKey('library-kind-${selected.kind}'),
+      child: buildLibraryKindPage(
+        type: selectedConfig,
+        topBar: resolvedTopBar,
+        accent: accent,
+        routeUri: routeUri,
+      ),
+    );
+
+    _cachedKindOrder.remove(selected.kind);
+    _cachedKindOrder.add(selected.kind);
+
+    final visibleKindOrder = <String>{
+      for (final type in visibleTypes) type.kind,
+    };
+    _cachedKindPages.removeWhere((kind, _) => !visibleKindOrder.contains(kind));
+
+    _cachedKindOrder.removeWhere((kind) => !visibleKindOrder.contains(kind));
+
+    const maxCachedKinds = 2;
+    while (_cachedKindOrder.length > maxCachedKinds) {
+      final removeIndex = _cachedKindOrder.indexWhere(
+        (kind) => kind != selected.kind,
+      );
+      if (removeIndex < 0) {
+        break;
+      }
+      final evictedKind = _cachedKindOrder.removeAt(removeIndex);
+      _cachedKindPages.remove(evictedKind);
+    }
+
+    final cachedKinds = [
+      for (final kind in _cachedKindOrder)
+        if (_cachedKindPages.containsKey(kind)) kind,
+    ];
+    final selectedIndex = cachedKinds.indexOf(selected.kind);
+    if (selectedIndex < 0) {
+      return const SizedBox.shrink();
+    }
+
+    final stack = IndexedStack(
+      index: selectedIndex,
+      children: [
+        for (final kind in cachedKinds)
+          TickerMode(
+            enabled: kind == selected.kind,
+            child: RepaintBoundary(child: _cachedKindPages[kind]!),
+          ),
+      ],
+    );
+
+    if (animationDuration == Duration.zero) {
+      return stack;
+    }
+
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('library-kind-fade-${selected.kind}'),
+      tween: Tween<double>(begin: 0.96, end: 1),
+      duration: animationDuration,
+      curve: Curves.easeOut,
+      child: stack,
+      builder: (context, value, child) {
+        return Opacity(opacity: value, child: child);
+      },
+    );
   }
 
   @override
@@ -56,7 +147,10 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         ? kAppAnimNormal
         : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
-    final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
+    final visibleTypes = _ensureCoreKindsVisible(
+      visibleLibraryHomeTypes(allTypes, navPreferences),
+      allTypes,
+    );
     final rawRouteKind = widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
     final routeKind = _routeKind();
     final routeSelected = routeKind == null
@@ -65,11 +159,12 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final selected = routeSelected ??
         selectedLibraryHomeType(visibleTypes, selectedKind);
     if (routeKind != null && rawRouteKind != routeKind) {
+      final normalizedRouteKind = routeKind;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
           return;
         }
-        _replaceLibraryKind(routeKind);
+        _replaceLibraryKind(normalizedRouteKind);
       });
     }
     if (selected.kind != selectedKind) {
@@ -143,11 +238,14 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       children: [
         if (offlineBanner != null) offlineBanner,
         Expanded(
-          child: LibraryPage(
-            type: selectedConfig,
-            topBar: resolvedTopBar,
+          child: _buildCachedKindBody(
+            selected: selected,
+            selectedConfig: selectedConfig,
+            resolvedTopBar: resolvedTopBar,
             accent: accent,
             routeUri: widget.routeUri,
+            visibleTypes: visibleTypes,
+            animationDuration: animationDuration,
           ),
         ),
       ],
@@ -176,4 +274,26 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
     return content;
   }
+}
+
+List<CatalogMediaType> _ensureCoreKindsVisible(
+  List<CatalogMediaType> visible,
+  List<CatalogMediaType> available,
+) {
+  const requiredKinds = {'anime', 'manga', 'tv'};
+  final result = visible.toList(growable: true);
+  final visibleKinds = {for (final type in result) type.kind};
+  for (final kind in requiredKinds) {
+    if (visibleKinds.contains(kind)) {
+      continue;
+    }
+    for (final type in available) {
+      if (type.kind == kind) {
+        result.add(type);
+        visibleKinds.add(kind);
+        break;
+      }
+    }
+  }
+  return result;
 }

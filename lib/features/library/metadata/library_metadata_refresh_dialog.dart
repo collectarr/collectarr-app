@@ -1,12 +1,14 @@
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _maxRefreshTargets = 100;
@@ -89,9 +91,14 @@ class _LibraryMetadataRefreshDialogState
     final visibleTargets = targets.take(_maxRefreshTargets).toList();
     final overLimit = targets.length > visibleTargets.length;
     final summary = _summary();
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
-      title: Text('Refresh ${widget.type.pluralLabel.toLowerCase()} metadata'),
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Refresh ${widget.type.pluralLabel.toLowerCase()} metadata',
+        accent: widget.accent,
+        icon: Icons.sync,
+      ),
       content: SizedBox(
         width: 680,
         child: SingleChildScrollView(

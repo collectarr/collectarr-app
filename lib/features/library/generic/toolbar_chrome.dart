@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
@@ -39,6 +39,31 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
       LibraryCollectionStatusScope.sold => Icons.paid_outlined,
       LibraryCollectionStatusScope.notInCollection =>
         Icons.hide_source_outlined,
+    };
+  }
+}
+
+enum LibrarySeriesCompletionScope {
+  all,
+  completed,
+  notCompleted,
+}
+
+extension LibrarySeriesCompletionScopeUi on LibrarySeriesCompletionScope {
+  String get label {
+    return switch (this) {
+      LibrarySeriesCompletionScope.all => 'Show all series',
+      LibrarySeriesCompletionScope.completed => 'Show completed',
+      LibrarySeriesCompletionScope.notCompleted => 'Show not completed',
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      LibrarySeriesCompletionScope.all => Icons.select_all,
+      LibrarySeriesCompletionScope.completed => Icons.check_circle_outline,
+      LibrarySeriesCompletionScope.notCompleted =>
+        Icons.radio_button_unchecked,
     };
   }
 }

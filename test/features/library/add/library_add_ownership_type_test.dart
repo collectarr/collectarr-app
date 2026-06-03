@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/library_add_test_harness.dart';
 
@@ -13,6 +14,7 @@ import '../../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('manual add flow surfaces digital ownership type', (tester) async {
+    SharedPreferences.setMockInitialValues({});
     configureLibraryAddDesktopViewport(tester);
 
     await tester.pumpWidget(
@@ -53,5 +55,8 @@ void main() {
       ),
       findsOneWidget,
     );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

@@ -13,9 +13,8 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -115,8 +114,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('IDW'), findsWidgets);
-    expect(find.text('Director Cut'), findsOneWidget);
+    expect(find.textContaining('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
+    expect(find.text('PLOT'), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsNothing);
   });
 
   testWidgets('comic inspector hero lays out in a narrow scrollable inspector', (
@@ -178,7 +179,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Director Cut'), findsOneWidget);
+    expect(find.textContaining('Director Cut'), findsOneWidget);
   });
 
   testWidgets('library inspector uses the comic-specific full panel hook', (
@@ -242,6 +243,7 @@ void main() {
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
+              onDetailsLayoutChanged: (_) {},
               db: db,
             ),
           ),
@@ -253,43 +255,79 @@ void main() {
 
     expect(find.byType(ComicInspectorPanel), findsOneWidget);
     expect(find.byType(ComicInspectorHero), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsOneWidget);
     expect(find.text('Quick actions'), findsNothing);
-    expect(find.text('Edit'), findsWidgets);
     expect(find.text('Collect'), findsNothing);
-    expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Share'), findsOneWidget);
-    expect(find.text('More'), findsOneWidget);
-    expect(find.text('Layout'), findsOneWidget);
+    expect(find.text('Remove'), findsNothing);
     expect(find.byIcon(Icons.check_circle), findsWidgets);
     expect(find.text('Overview'), findsNothing);
-    expect(find.byType(LibraryDenseButton), findsWidgets);
     expect(find.text('Collection tools'), findsNothing);
 
-    final layoutMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
-      find.byKey(const ValueKey('comic-toolbar-layout-menu')),
-    );
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Sidebar details'));
-    expect(layoutMenu.entries.map((entry) => entry.label), contains('Bottom details'));
+    expect(find.byType(ComicInspectorPanel), findsOneWidget);
+  });
 
-    final moreMenu = tester.widget<LibraryDenseMenuButton<dynamic>>(
-      find.byKey(const ValueKey('comic-toolbar-more-menu')),
-    );
-    expect(moreMenu.entries.map((entry) => entry.label), contains('Update value'));
-    expect(moreMenu.entries.map((entry) => entry.label), contains('Update Key Info'));
-    expect(moreMenu.entries.map((entry) => entry.label), contains('Submit to Core'));
+  testWidgets('comic inspector keeps copy selection in the toolbar menu', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-comic-1',
+            itemId: 'comic-multi-1',
+            condition: const Value('Near Mint'),
+            updatedAt: DateTime.utc(2026, 5, 23, 10),
+          ),
+        );
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-comic-2',
+            itemId: 'comic-multi-1',
+            condition: const Value('Very Fine'),
+            updatedAt: DateTime.utc(2026, 5, 23, 11),
+          ),
+        );
+    OwnedItem? editedOwnedItem;
 
-    await tester.tapAt(const Offset(8, 8));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Details'),
-      300,
-      scrollable: find.byType(Scrollable).first,
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryInspector(
+              type: comicsLibraryConfig,
+              entry: LibraryWorkspaceEntry(
+                id: 'comic-multi-1',
+                mediaType: 'comic',
+                title: 'The Last Ronin',
+                ownedItemId: 'owned-comic-1',
+                isOwned: true,
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-comic-1',
+                itemId: 'comic-multi-1',
+                condition: 'Near Mint',
+                updatedAt: DateTime.utc(2026, 5, 23, 10),
+              ),
+              accent: Colors.red,
+              onAddOwned: () {},
+              onRemoveOwned: () {},
+              onAddWishlist: () {},
+              onRemoveWishlist: () {},
+              onEdit: (ownedItem) => editedOwnedItem = ownedItem,
+              db: db,
+            ),
+          ),
+        ),
+      ),
     );
 
-    expect(find.text('Details'), findsOneWidget);
-    expect(find.text('Value'), findsOneWidget);
-    expect(find.text('Collector'), findsNothing);
-    expect(find.text('Discovery'), findsNothing);
+    await pumpUntilSettled(tester);
+
+    expect(editedOwnedItem, isNull);
+    expect(find.text('Active copy'), findsOneWidget);
+    expect(find.textContaining('copies in collection'), findsOneWidget);
   });
 
   testWidgets('inspector section renders title and children', (tester) async {
@@ -540,7 +578,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.textContaining('Back Cover'), findsOneWidget);
+    expect(find.byType(InspectorItemImagesSection), findsOneWidget);
     expect(find.text('Front Cover'), findsNothing);
   });
 
@@ -747,14 +785,15 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.widgetWithText(FilledButton, 'Back cover'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'View back'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Very Fine').last);
     await pumpUntilSettled(tester);
 
-    expect(find.widgetWithText(FilledButton, 'View back'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
   });
 }

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists the quick-view filter, group mode, and pinned group modes
@@ -10,7 +10,10 @@ class LibraryViewPreferenceStore {
 
   static final _cachedQuickViews = <String, LibraryQuickView>{};
   static final _cachedGroupModes = <String, LibraryGroupMode>{};
+  static final _cachedFolderPresets = <String, LibraryFolderPreset>{};
   static final _cachedPinnedGroupModes = <String, Set<LibraryGroupMode>>{};
+  static final _cachedPinnedFolderPresets =
+    <String, List<LibraryFolderPreset>>{};
   static final _cachedPinnedViewPresets =
       <String, Set<LibraryWorkspacePreset>>{};
   static final _cachedPinnedSortFavoriteIds = <String, Set<String>>{};
@@ -27,10 +30,14 @@ class LibraryViewPreferenceStore {
 
   LibraryGroupMode? get cachedGroupMode => _cachedGroupModes[_cacheKey];
 
+  LibraryFolderPreset? get cachedFolderPreset => _cachedFolderPresets[_cacheKey];
+
   static void resetCachedPreferencesForTesting() {
     _cachedQuickViews.clear();
     _cachedGroupModes.clear();
+    _cachedFolderPresets.clear();
     _cachedPinnedGroupModes.clear();
+    _cachedPinnedFolderPresets.clear();
     _cachedPinnedViewPresets.clear();
     _cachedPinnedSortFavoriteIds.clear();
     _cachedPinnedColumnFavoriteKeys.clear();
@@ -67,15 +74,24 @@ class LibraryViewPreferenceStore {
     }
   }
 
-  Future<LibraryGroupMode?> readGroupMode() async {
+  Future<LibraryGroupMode?> readGroupMode({
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString(_key('groupMode'));
     if (name == null) {
       _cachedGroupModes.remove(_cacheKey);
       return null;
     }
+    final allowed = allowedModes == null
+        ? null
+        : Set<LibraryGroupMode>.from(allowedModes);
     for (final mode in LibraryGroupMode.values) {
       if (mode.name == name) {
+        if (allowed != null && !allowed.contains(mode)) {
+          _cachedGroupModes.remove(_cacheKey);
+          return null;
+        }
         _cachedGroupModes[_cacheKey] = mode;
         return mode;
       }
@@ -98,6 +114,47 @@ class LibraryViewPreferenceStore {
     }
   }
 
+  List<LibraryFolderPreset> get cachedPinnedFolderPresets =>
+      _cachedPinnedFolderPresets[_cacheKey] ?? const [];
+
+  Future<LibraryFolderPreset?> readFolderPreset({
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_key('folderPreset'));
+    if (raw == null || raw.trim().isEmpty) {
+      final fallbackMode = await readGroupMode(allowedModes: allowedModes);
+      if (fallbackMode == null) {
+        _cachedFolderPresets.remove(_cacheKey);
+        return null;
+      }
+      final preset = LibraryFolderPreset.single(fallbackMode);
+      _cachedFolderPresets[_cacheKey] = preset;
+      return preset;
+    }
+    final preset = _tryParsePreset(raw, allowedModes: allowedModes);
+    if (preset == null) {
+      _cachedFolderPresets.remove(_cacheKey);
+      return null;
+    }
+    _cachedFolderPresets[_cacheKey] = preset;
+    return preset;
+  }
+
+  Future<void> writeFolderPreset(LibraryFolderPreset? preset) async {
+    if (preset == null) {
+      _cachedFolderPresets.remove(_cacheKey);
+    } else {
+      _cachedFolderPresets[_cacheKey] = preset;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (preset == null) {
+      await prefs.remove(_key('folderPreset'));
+    } else {
+      await prefs.setString(_key('folderPreset'), preset.storageValue);
+    }
+  }
+
   Set<LibraryGroupMode> get cachedPinnedGroupModes =>
       _cachedPinnedGroupModes[_cacheKey] ?? const {};
 
@@ -110,17 +167,22 @@ class LibraryViewPreferenceStore {
   Set<String> get cachedPinnedColumnFavoriteKeys =>
       _cachedPinnedColumnFavoriteKeys[_cacheKey] ?? const {};
 
-  Future<Set<LibraryGroupMode>> readPinnedGroupModes() async {
+  Future<Set<LibraryGroupMode>> readPinnedGroupModes({
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final names = prefs.getStringList(_key('pinnedGroupModes'));
     if (names == null) {
       _cachedPinnedGroupModes.remove(_cacheKey);
       return const {};
     }
+    final allowed = allowedModes == null
+        ? null
+        : Set<LibraryGroupMode>.from(allowedModes);
     final modes = <LibraryGroupMode>{};
     for (final name in names) {
       for (final mode in LibraryGroupMode.values) {
-        if (mode.name == name) {
+        if (mode.name == name && (allowed == null || allowed.contains(mode))) {
           modes.add(mode);
           break;
         }
@@ -139,6 +201,49 @@ class LibraryViewPreferenceStore {
       await prefs.setStringList(
         _key('pinnedGroupModes'),
         modes.map((m) => m.name).toList(),
+      );
+    }
+  }
+
+  Future<List<LibraryFolderPreset>> readPinnedFolderPresets({
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final values = prefs.getStringList(_key('pinnedFolderPresets'));
+    if (values == null) {
+      final fallbackModes = await readPinnedGroupModes(allowedModes: allowedModes);
+      final fallback = [
+        for (final mode in fallbackModes) LibraryFolderPreset.single(mode),
+      ];
+      _cachedPinnedFolderPresets[_cacheKey] = fallback;
+      return fallback;
+    }
+    final presets = <LibraryFolderPreset>[];
+    for (final value in values) {
+      final preset = _tryParsePreset(value, allowedModes: allowedModes);
+      if (preset != null && !presets.contains(preset)) {
+        presets.add(preset);
+      }
+    }
+    _cachedPinnedFolderPresets[_cacheKey] = presets;
+    return presets;
+  }
+
+  Future<void> writePinnedFolderPresets(List<LibraryFolderPreset> presets) async {
+    final normalized = <LibraryFolderPreset>[];
+    for (final preset in presets) {
+      if (!normalized.contains(preset)) {
+        normalized.add(preset);
+      }
+    }
+    _cachedPinnedFolderPresets[_cacheKey] = normalized;
+    final prefs = await SharedPreferences.getInstance();
+    if (normalized.isEmpty) {
+      await prefs.remove(_key('pinnedFolderPresets'));
+    } else {
+      await prefs.setStringList(
+        _key('pinnedFolderPresets'),
+        normalized.map((preset) => preset.storageValue).toList(growable: false),
       );
     }
   }
@@ -182,23 +287,22 @@ class LibraryViewPreferenceStore {
     final prefs = await SharedPreferences.getInstance();
     final values = prefs.getStringList(_key('pinnedSortFavoriteIds'));
     if (values == null) {
-      _cachedPinnedSortFavoriteIds[_cacheKey] = fallback;
-      return fallback;
+      final normalizedFallback = _orderedUniqueStrings(fallback);
+      _cachedPinnedSortFavoriteIds[_cacheKey] = normalizedFallback;
+      return normalizedFallback;
     }
-    final ids = values
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toSet();
+    final ids = _orderedUniqueStrings(values);
     _cachedPinnedSortFavoriteIds[_cacheKey] = ids;
     return ids;
   }
 
   Future<void> writePinnedSortFavoriteIds(Set<String> ids) async {
-    _cachedPinnedSortFavoriteIds[_cacheKey] = ids;
+    final normalizedIds = _orderedUniqueStrings(ids);
+    _cachedPinnedSortFavoriteIds[_cacheKey] = normalizedIds;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       _key('pinnedSortFavoriteIds'),
-      ids.toList(growable: false),
+      normalizedIds.toList(growable: false),
     );
   }
 
@@ -226,5 +330,30 @@ class LibraryViewPreferenceStore {
       _key('pinnedColumnFavoriteKeys'),
       keys.toList(growable: false),
     );
+  }
+
+  Set<String> _orderedUniqueStrings(Iterable<String> values) {
+    final normalized = <String>{};
+    for (final value in values) {
+      final trimmed = value.trim();
+      if (trimmed.isNotEmpty) {
+        normalized.add(trimmed);
+      }
+    }
+    return normalized;
+  }
+
+  LibraryFolderPreset? _tryParsePreset(
+    String value, {
+    Iterable<LibraryGroupMode>? allowedModes,
+  }) {
+    try {
+      return sanitizeLibraryFolderPreset(
+        LibraryFolderPreset.parse(value),
+        allowedModes: allowedModes,
+      );
+    } on ArgumentError {
+      return null;
+    }
   }
 }

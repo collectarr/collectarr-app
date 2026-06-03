@@ -1,10 +1,18 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const Color kLibraryFallbackAccent = kAppAccent;
 
 Color libraryAccentForKind(Object? kind) {
+  if (cachedLibraryAccentHexForKind(kind) case final accentHex?) {
+    return Color(accentHex);
+  }
+  return libraryDefaultAccentForKind(kind);
+}
+
+Color libraryDefaultAccentForKind(Object? kind) {
   return collectarrLibraryTypes.byKind(kind)?.workspace.accent ??
       kLibraryFallbackAccent;
 }

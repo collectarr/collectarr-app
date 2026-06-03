@@ -2,431 +2,336 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 List<Widget> buildComicInspectorSections(
   BuildContext _,
   LibraryInspectorRequest request,
 ) {
-  return [
-    _ComicInspectorDashboard(request: request),
-  ];
-}
+  final entry = request.entry;
+  final ownedItem = request.ownedItem;
+  final trackingEntry = request.trackingEntry;
 
-class _ComicInspectorDashboard extends StatelessWidget {
-  const _ComicInspectorDashboard({required this.request});
+  final sections = <Widget>[];
 
-  final LibraryInspectorRequest request;
-
-  @override
-  Widget build(BuildContext context) {
-    final entry = request.entry;
-    final ownedItem = request.ownedItem;
-    final trackingEntry = request.trackingEntry;
-    final detailRows = _detailRows(entry, ownedItem);
-    final valueRows = _valueRows(ownedItem);
-
-    final panels = <_ComicPanelData>[
-      if (_creatorRows(entry.creators).isNotEmpty)
-        _ComicPanelData(title: 'Creators', rows: _creatorRows(entry.creators)),
-      if (detailRows.isNotEmpty)
-        _ComicPanelData(title: 'Details', rows: detailRows),
-      if (_personalRows(entry, ownedItem, trackingEntry).isNotEmpty)
-        _ComicPanelData(
-          title: 'Personal',
-          rows: _personalRows(entry, ownedItem, trackingEntry),
-        ),
-      if (valueRows.isNotEmpty)
-        _ComicPanelData(title: 'Value', rows: valueRows),
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 760 ? 2 : 1;
-        const spacing = 14.0;
-        final panelWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - spacing) / 2;
-
-        return Wrap(
-          spacing: spacing,
-          runSpacing: 16,
-          children: [
-            for (final panel in panels)
-              SizedBox(
-                width: panelWidth,
-                child: _ComicPanel(
-                  title: panel.title,
-                  rows: panel.rows,
-                  accent: request.accent,
-                  initialVisibleRows:
-                      panel.title == 'Creators' ? 5 : null,
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ComicPanelData {
-  const _ComicPanelData({required this.title, required this.rows});
-
-  final String title;
-  final List<_ComicRowData> rows;
-}
-
-class _ComicRowData {
-  const _ComicRowData({required this.label, this.value, this.valueWidget});
-
-  final String label;
-  final String? value;
-  final Widget? valueWidget;
-}
-
-class _ComicPanel extends StatefulWidget {
-  const _ComicPanel({
-    required this.title,
-    required this.rows,
-    required this.accent,
-    this.initialVisibleRows,
-  });
-
-  final String title;
-  final List<_ComicRowData> rows;
-  final Color accent;
-  final int? initialVisibleRows;
-
-  @override
-  State<_ComicPanel> createState() => _ComicPanelState();
-}
-
-class _ComicPanelState extends State<_ComicPanel> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final surface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.04 : 0.02),
-      palette.isDark ? palette.panelRaised : Colors.white,
-    );
-    final altSurface = palette.isDark
-        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.03), palette.surface)
-        : const Color(0xFFF2F4F6);
-    final border = palette.divider.withValues(alpha: palette.isDark ? 1 : 0.55);
-
-    final canCollapse = widget.initialVisibleRows != null &&
-        widget.rows.length > widget.initialVisibleRows!;
-    final visibleRows = canCollapse && !_expanded
-        ? widget.rows.take(widget.initialVisibleRows!).toList()
-        : widget.rows;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-            child: Row(
-              children: [
-                Text(
-                  widget.title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: widget.accent,
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-                if (canCollapse) ...[
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => setState(() => _expanded = !_expanded),
-                    child: Text(
-                      _expanded ? 'Collapse' : 'View all',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    _expanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    size: 16,
-                    color: palette.textMuted,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          for (var index = 0; index < visibleRows.length; index++)
-            _ComicTableRow(
-              row: visibleRows[index],
-              shaded: index.isEven,
-              surface: surface,
-              altSurface: altSurface,
-              border: border,
-            ),
-        ],
+  final creatorNames = _creatorNames(entry.creators);
+  if (creatorNames.isNotEmpty) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Creators',
+        values: creatorNames,
+        onValueTap: request.onFilterByValue,
       ),
     );
   }
-}
 
-class _ComicTableRow extends StatelessWidget {
-  const _ComicTableRow({
-    required this.row,
-    required this.shaded,
-    required this.surface,
-    required this.altSurface,
-    required this.border,
-  });
-
-  final _ComicRowData row;
-  final bool shaded;
-  final Color surface;
-  final Color altSurface;
-  final Color border;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final valueWidget = row.valueWidget ??
-        Text(
-          row.value ?? '-',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w500,
-                height: 1.25,
-              ),
-        );
-
-    return Container(
-      decoration: BoxDecoration(
-        color: shaded ? altSurface : surface,
-        border: Border(top: BorderSide(color: border)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 98,
-            child: Text(
-              row.label,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(child: valueWidget),
-        ],
+  if (entry.characters?.isNotEmpty == true) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Characters',
+        values: entry.characters!,
+        onValueTap: request.onFilterByValue,
       ),
     );
   }
+
+  if (entry.storyArcs?.isNotEmpty == true) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Story Arcs',
+        values: entry.storyArcs!,
+        onValueTap: request.onFilterByValue,
+      ),
+    );
+  }
+
+  if (entry.genres?.isNotEmpty == true) {
+    sections.add(
+      LibraryInspectorChipSection(
+        title: 'Genres',
+        values: entry.genres!,
+        onValueTap: request.onFilterByValue,
+      ),
+    );
+  }
+
+  final details = _detailFacts(entry);
+  if (details.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Details',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: details)],
+      ),
+    );
+  }
+
+  final collector = _collectorFacts(ownedItem);
+  if (collector.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Collector',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: collector)],
+      ),
+    );
+  }
+
+  final personal = _personalFacts(entry, ownedItem, trackingEntry);
+  if (personal.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Personal',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: personal)],
+      ),
+    );
+  }
+
+  final value = _valueFacts(ownedItem, request.ownedCopies);
+  if (value.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Value',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: value)],
+      ),
+    );
+  }
+
+  final notes = _noteFacts(entry, ownedItem);
+  if (notes.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Notes',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: notes)],
+      ),
+    );
+  }
+
+  final links = _linkFacts(entry);
+  if (links.isNotEmpty) {
+    sections.add(
+      LibraryInspectorSection(
+        title: 'Links',
+        accentColor: request.accent,
+        children: [LibraryInspectorFactGrid(facts: links)],
+      ),
+    );
+  }
+
+  return sections;
 }
 
-List<_ComicRowData> _creatorRows(List<Map<String, dynamic>>? creators) {
+List<String> _creatorNames(List<Map<String, dynamic>>? creators) {
   if (creators == null || creators.isEmpty) {
-    return const <_ComicRowData>[];
+    return const [];
   }
-
-  final grouped = <String, List<String>>{};
-  for (final credit in creators) {
-    final name = credit['name']?.toString().trim();
+  final seen = <String>{};
+  final values = <String>[];
+  for (final creator in creators) {
+    final name = creator['name']?.toString().trim();
     if (name == null || name.isEmpty) {
       continue;
     }
-    final role = credit['role']?.toString().trim();
-    final key = role == null || role.isEmpty ? 'Creator' : role;
-    grouped.putIfAbsent(key, () => <String>[]).add(name);
+    final key = name.toLowerCase();
+    if (seen.add(key)) {
+      values.add(name);
+    }
   }
-
-  return [
-    for (final entry in grouped.entries)
-      _ComicRowData(
-        label: entry.key,
-        valueWidget: entry.value.length <= 2
-            ? null
-            : _ExpandableCreatorNames(names: entry.value),
-        value: entry.value.join(' | '),
-      ),
-  ];
+  return values;
 }
 
-List<_ComicRowData> _detailRows(
-  LibraryWorkspaceEntry entry,
-  OwnedItem? ownedItem,
-) {
-  final rows = <_ComicRowData>[];
-  if (entry.ageRating?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Age', value: entry.ageRating!.trim()));
-  }
+List<LibraryInspectorFactData> _detailFacts(LibraryWorkspaceEntry entry) {
+  final rows = <LibraryInspectorFactData>[];
   if (entry.referenceFormatLabel?.trim().isNotEmpty == true) {
-    rows.add(
-      _ComicRowData(label: 'Format', value: entry.referenceFormatLabel!.trim()),
-    );
-  }
-  if (entry.genres?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Genre', value: entry.genres!.join(', ')));
-  }
-  if (entry.publishing?.pageCount != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'No. of Pages',
-        value: entry.publishing!.pageCount.toString(),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()));
   }
   if (entry.country?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Country', value: entry.country!.trim()));
+    rows.add(LibraryInspectorFactData('Country', entry.country!.trim()));
   }
   if (entry.language?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Language', value: entry.language!.trim()));
+    rows.add(LibraryInspectorFactData('Language', entry.language!.trim()));
   }
-  if (entry.characters?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Characters', value: entry.characters!.join(', ')));
+  if (entry.ageRating?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Age', entry.ageRating!.trim()));
   }
-  if (entry.storyArcs?.isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Story Arc', value: entry.storyArcs!.join(', ')));
-  }
-  if (ownedItem?.graderNotes?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Grader Notes', value: ownedItem!.graderNotes!.trim()));
+  if (entry.publishing?.pageCount != null) {
+    rows.add(LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()));
   }
   return rows;
 }
 
-List<_ComicRowData> _personalRows(
+List<LibraryInspectorFactData> _collectorFacts(OwnedItem? ownedItem) {
+  if (ownedItem == null) {
+    return const [];
+  }
+  final rows = <LibraryInspectorFactData>[];
+  if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Raw / Slabbed', ownedItem.rawOrSlabbed!.trim()));
+  }
+  if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Grading Co.', ownedItem.gradingCompany!.trim()));
+  }
+  if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
+    rows.add(LibraryInspectorFactData('Certification', ownedItem.certificationNumber!.trim()));
+  }
+  if (ownedItem.keyComic == true) {
+    rows.add(LibraryInspectorFactData('Key', ownedItem.keyReason?.trim().isNotEmpty == true ? ownedItem.keyReason!.trim() : 'Yes'));
+  }
+  return rows;
+}
+
+List<LibraryInspectorFactData> _personalFacts(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
 ) {
   if (ownedItem == null && trackingEntry == null) {
-    return const <_ComicRowData>[];
+    return const [];
   }
-
+  final rows = <LibraryInspectorFactData>[];
   final rating = trackingEntry?.rating ?? ownedItem?.rating;
-    final trackingStatusLabel = trackingEntry?.status?.label;
-    final readStatus = trackingStatusLabel == null || trackingStatusLabel == 'Not tracked'
+  if (rating != null && rating > 0) {
+    rows.add(LibraryInspectorFactData('My Rating', '$rating / 10'));
+  }
+  final trackingStatusLabel = trackingEntry?.status?.label;
+  final readStatus =
+      trackingStatusLabel == null || trackingStatusLabel == 'Not tracked'
       ? ownedItem?.readStatus
       : trackingStatusLabel;
-
-  return [
-    if (rating != null && rating > 0)
-      _ComicRowData(label: 'My Rating', valueWidget: _ComicStars(rating: rating)),
-    _ComicRowData(label: 'Read', value: _readLabel(readStatus)),
-    if (ownedItem?.indexNumber != null)
-      _ComicRowData(label: 'Index', value: ownedItem!.indexNumber.toString()),
-    _ComicRowData(
-      label: 'Added Date',
-      value: _formatTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
+  rows.add(LibraryInspectorFactData('Read', _readLabel(readStatus)));
+  if (ownedItem?.indexNumber != null) {
+    rows.add(LibraryInspectorFactData('Index', ownedItem!.indexNumber.toString()));
+  }
+  rows.add(
+    LibraryInspectorFactData(
+      'Added',
+      _formatTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
     ),
-    _ComicRowData(
-      label: 'Modified Date',
-      value: _formatTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
+  );
+  rows.add(
+    LibraryInspectorFactData(
+      'Modified',
+      _formatTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
     ),
-  ];
+  );
+  return rows;
 }
 
-List<_ComicRowData> _valueRows(OwnedItem? ownedItem) {
+List<LibraryInspectorFactData> _valueFacts(
+  OwnedItem? ownedItem,
+  List<OwnedItem> ownedCopies,
+) {
   if (ownedItem == null) {
-    return const <_ComicRowData>[];
+    return const [];
   }
+  final effectiveOwnedCopies = ownedCopies.isNotEmpty
+      ? ownedCopies
+      : <OwnedItem>[ownedItem];
 
-  final rows = <_ComicRowData>[];
+  final rows = <LibraryInspectorFactData>[];
   if (ownedItem.coverPriceCents != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Cover Price',
-        value: formatMoney(ownedItem.coverPriceCents, ownedItem.currency),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Cover Price', formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
   }
   if (ownedItem.marketValueCents != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Current Value',
-        value: formatMoney(ownedItem.marketValueCents, ownedItem.currency),
-      ),
-    );
+    rows.add(LibraryInspectorFactData('Current Value', formatMoney(ownedItem.marketValueCents, ownedItem.currency)));
   }
   if (ownedItem.pricePaidCents != null) {
-    rows.add(
-      _ComicRowData(
-        label: 'Paid',
-        value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency),
-      ),
+    rows.add(LibraryInspectorFactData('Paid', formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
+  }
+
+  if (effectiveOwnedCopies.length > 1) {
+    final totalsCurrency = _inspectorValueCurrency(effectiveOwnedCopies, ownedItem);
+    final totalMarketValue = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.marketValueCents,
     );
-  }
-  if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
-  }
-  if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Grading Co.', value: ownedItem.gradingCompany!.trim()));
-  }
-  if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(
-      _ComicRowData(
-        label: 'Certification',
-        value: ownedItem.certificationNumber!.trim(),
-      ),
+    final totalPaid = _sumOwnedValueCents(
+      effectiveOwnedCopies,
+      (item) => item.pricePaidCents,
     );
-  }
-  if (ownedItem.labelType?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Label Type', value: ownedItem.labelType!.trim()));
-  }
-  if (ownedItem.customLabel?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Custom Label', value: ownedItem.customLabel!.trim()));
-  }
-  if (ownedItem.pageQuality?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Page Quality', value: ownedItem.pageQuality!.trim()));
-  }
-  if (ownedItem.signedBy?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Signed By', value: ownedItem.signedBy!.trim()));
-  }
-  if (ownedItem.keyComic == true) {
-    rows.add(_ComicRowData(label: 'Key', value: ownedItem.keyReason ?? 'Yes'));
-  }
-  if (ownedItem.keyCategory?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Key Category', value: ownedItem.keyCategory!.trim()));
-  }
-  if (ownedItem.keySeverity?.trim().isNotEmpty == true) {
-    rows.add(_ComicRowData(label: 'Key Severity', value: ownedItem.keySeverity!.trim()));
+    if (totalMarketValue != null) {
+      rows.add(LibraryInspectorFactData('Total Value', formatMoney(totalMarketValue, totalsCurrency)));
+    }
+    if (totalPaid != null) {
+      rows.add(LibraryInspectorFactData('Total Paid', formatMoney(totalPaid, totalsCurrency)));
+    }
   }
   return rows;
 }
 
-class _ComicStars extends StatelessWidget {
-  const _ComicStars({required this.rating});
-
-  final int rating;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 1,
-      children: [
-        for (var index = 0; index < 10; index++)
-          Icon(
-            index < rating ? Icons.star : Icons.star_border,
-            size: 14,
-            color: const Color(0xFF86909A),
-          ),
-      ],
-    );
+int? _sumOwnedValueCents(
+  List<OwnedItem> items,
+  int? Function(OwnedItem item) selector,
+) {
+  var hasValue = false;
+  var total = 0;
+  for (final item in items) {
+    final value = selector(item);
+    if (value == null) {
+      continue;
+    }
+    hasValue = true;
+    total += value;
   }
+  return hasValue ? total : null;
+}
+
+String? _inspectorValueCurrency(
+  List<OwnedItem> ownedCopies,
+  OwnedItem? ownedItem,
+) {
+  for (final copy in ownedCopies) {
+    final currency = copy.currency?.trim();
+    if (currency != null && currency.isNotEmpty) {
+      return currency;
+    }
+  }
+  final ownedCurrency = ownedItem?.currency?.trim();
+  if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
+    return ownedCurrency;
+  }
+  return null;
+}
+
+List<LibraryInspectorFactData> _noteFacts(
+  LibraryWorkspaceEntry entry,
+  OwnedItem? ownedItem,
+) {
+  final rows = <LibraryInspectorFactData>[];
+  final personalNotes = ownedItem?.personalNotes?.trim();
+  final catalogNotes = entry.notes?.trim();
+  if (personalNotes != null && personalNotes.isNotEmpty) {
+    rows.add(LibraryInspectorFactData('Personal', personalNotes));
+  }
+  if (catalogNotes != null && catalogNotes.isNotEmpty) {
+    rows.add(LibraryInspectorFactData('Catalog', catalogNotes));
+  }
+  return rows;
+}
+
+List<LibraryInspectorFactData> _linkFacts(LibraryWorkspaceEntry entry) {
+  if (entry.trailerUrls.isEmpty) {
+    return const [];
+  }
+
+  return [
+    for (final trailer in entry.trailerUrls)
+      LibraryInspectorFactData(
+        trailer.source?.trim().isNotEmpty == true
+            ? trailer.source!.trim()
+            : 'Link',
+        trailer.title?.trim().isNotEmpty == true
+            ? trailer.title!.trim()
+            : trailer.url,
+        onTap: () => _launchUrl(trailer.url),
+      ),
+  ];
 }
 
 String _readLabel(String? status) {
@@ -465,49 +370,10 @@ String _formatTimestamp(DateTime? value) {
   return '$month ${local.day}, ${local.year} ${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}';
 }
 
-class _ExpandableCreatorNames extends StatefulWidget {
-  const _ExpandableCreatorNames({required this.names});
-
-  final List<String> names;
-
-  @override
-  State<_ExpandableCreatorNames> createState() =>
-      _ExpandableCreatorNamesState();
-}
-
-class _ExpandableCreatorNamesState extends State<_ExpandableCreatorNames> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final visible = _expanded ? widget.names : widget.names.take(2).toList();
-    final remaining = widget.names.length - 2;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          visible.join(' | '),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w500,
-                height: 1.25,
-              ),
-        ),
-        if (!_expanded && remaining > 0) ...[
-          const SizedBox(height: 4),
-          GestureDetector(
-            onTap: () => setState(() => _expanded = true),
-            child: Text(
-              'View all ($remaining more)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-        ],
-      ],
-    );
+Future<void> _launchUrl(String value) async {
+  final uri = Uri.tryParse(value);
+  if (uri == null) {
+    return;
   }
+  await launchUrl(uri, mode: LaunchMode.externalApplication);
 }

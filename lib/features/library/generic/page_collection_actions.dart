@@ -4,7 +4,7 @@ final _random = math.Random();
 
 /// Collection actions, context menu handling, bulk operations, and barcode
 /// scanning for the library page.
-extension _LibraryPageCollectionActions on _LibraryPageState {
+extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   Future<void> runCollectionAction(
     Future<void> Function(LibraryCollectionActions actions) action,
   ) async {
@@ -266,7 +266,7 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
     );
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
         title: const Text('Duplicate items'),
         content: Text(
           'Create a copy of ${entries.length} '
@@ -375,7 +375,7 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
   }) async {
     await showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         backgroundColor: appPalette(dialogContext).panel,
         title: const Text('Cover Matches'),
         content: ConstrainedBox(

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
 import 'package:file_selector/file_selector.dart';
@@ -33,14 +35,12 @@ class _CollectionShareDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return AlertDialog(
+    return AccentAlertDialog(
       backgroundColor: palette.panel,
-      title: Row(
-        children: [
-          const Icon(Icons.share, size: 20),
-          const SizedBox(width: 8),
-          Expanded(child: Text('Share "$title"')),
-        ],
+      titlePadding: EdgeInsets.zero,
+      title: AccentDialogHeader(
+        title: 'Share "$title"',
+        icon: Icons.share,
       ),
       content: SizedBox(
         width: 340,
@@ -55,42 +55,36 @@ class _CollectionShareDialog extends StatelessWidget {
             _ShareOption(
               icon: Icons.list_alt,
               label: 'Copy as text list',
-              subtitle: 'Plain text with titles and issue numbers',
               onTap: () => _copyAsText(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
               icon: Icons.table_chart_outlined,
               label: 'Copy as CSV',
-              subtitle: 'Spreadsheet-compatible format',
               onTap: () => _copyAsCsv(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
               icon: Icons.save_alt,
               label: 'Save CSV to file',
-              subtitle: 'Save spreadsheet file to documents',
               onTap: () => _saveCsvToFile(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
               icon: Icons.data_object,
               label: 'Copy as JSON',
-              subtitle: 'Structured data for import/export',
               onTap: () => _copyAsJson(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
               icon: Icons.save_alt,
               label: 'Save JSON to file',
-              subtitle: 'Save structured data file to documents',
               onTap: () => _saveJsonToFile(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
               icon: Icons.language,
               label: 'Export as HTML page',
-              subtitle: 'Self-contained web page you can host or share',
               onTap: () => _exportAsHtml(context),
             ),
           ],
@@ -307,13 +301,11 @@ class _ShareOption extends StatelessWidget {
   const _ShareOption({
     required this.icon,
     required this.label,
-    required this.subtitle,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
-  final String subtitle;
   final VoidCallback onTap;
 
   @override
@@ -332,16 +324,12 @@ class _ShareOption extends StatelessWidget {
               Icon(icon, size: 20, color: kAppAccent),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
-                    Text(subtitle,
-                        style:
-                            TextStyle(fontSize: 11, color: palette.textMuted)),
-                  ],
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               Icon(Icons.copy, size: 16, color: palette.textMuted),

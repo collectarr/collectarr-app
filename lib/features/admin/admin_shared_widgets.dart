@@ -393,7 +393,7 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
     final actionLabel = _mode == _ProviderAddMode.search
         ? 'Search provider'
         : 'Add to catalog';
-    return AlertDialog(
+    return AccentAlertDialog(
       shape: _kAdminDialogShape,
       title: const Text('Add metadata from provider'),
       content: SizedBox(
