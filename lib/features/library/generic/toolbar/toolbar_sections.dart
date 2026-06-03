@@ -140,49 +140,53 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
         child: Row(
           children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!viewState.isSidebarVisible && onGroupModeChanged != null) ...[
+                  LibraryGroupModeMenuButton(
+                    type: type,
+                    folderPreset: folderPreset,
+                    accent: libraryAccentForKind(type.workspace.kind),
+                    icon: folderPreset == null
+                        ? Icons.account_tree_outlined
+                      : genericFolderPresetIcon(folderPreset!, type),
+                    onChanged: onGroupModeChanged!,
+                    sidebarVisible: false,
+                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                    pinnedFolderPresets: pinnedFolderPresets,
+                    onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+                    iconOnly: true,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
+                if (onEditSort != null)
+                  LibraryToolbarSortButton(
+                    onPressed: onEditSort!,
+                    sortFavorites: sortFavorites,
+                    activeSortFavoriteId: activeSortFavoriteId,
+                    pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                    onSortFavoriteSelected: onSortFavoriteSelected,
+                    onManageFavoritesPressed: onManageSortFavorites,
+                  ),
+                const _LibraryDesktopToolbarSeparator(),
+                LibraryViewModeDropdown(
+                  viewMode: viewState.viewMode,
+                  onChanged: onViewModeChanged,
+                ),
+                const _LibraryDesktopToolbarSeparator(),
+                LibraryDetailsLayoutDropdown(
+                  detailsLayout: viewState.detailsLayout,
+                  onChanged: onDetailsLayoutChanged,
+                ),
+              ],
+            ),
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    if (!viewState.isSidebarVisible &&
-                        onGroupModeChanged != null) ...[
-                      LibraryGroupModeMenuButton(
-                        type: type,
-                        folderPreset: folderPreset,
-                        accent: libraryAccentForKind(type.workspace.kind),
-                        icon: folderPreset == null
-                            ? Icons.account_tree_outlined
-                          : genericFolderPresetIcon(folderPreset!, type),
-                        onChanged: onGroupModeChanged!,
-                        sidebarVisible: false,
-                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                        pinnedFolderPresets: pinnedFolderPresets,
-                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-                        iconOnly: true,
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
-                    if (onEditSort != null)
-                      LibraryToolbarSortButton(
-                        onPressed: onEditSort!,
-                        sortFavorites: sortFavorites,
-                        activeSortFavoriteId: activeSortFavoriteId,
-                        pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                        onSortFavoriteSelected: onSortFavoriteSelected,
-                        onManageFavoritesPressed: onManageSortFavorites,
-                      ),
-                    const _LibraryDesktopToolbarSeparator(),
-                    LibraryViewModeDropdown(
-                      viewMode: viewState.viewMode,
-                      onChanged: onViewModeChanged,
-                    ),
-                    const _LibraryDesktopToolbarSeparator(),
-                    LibraryDetailsLayoutDropdown(
-                      detailsLayout: viewState.detailsLayout,
-                      onChanged: onDetailsLayoutChanged,
-                    ),
                     if (viewState.viewMode == LibraryViewMode.list) ...[
                       const _LibraryDesktopToolbarSeparator(),
                       _LibraryDesktopToolbarSection(
@@ -454,13 +458,17 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                 ),
                 if (showAlphabetRow) ...[
                   const SizedBox(width: 10),
-                  Expanded(
+                  SizedBox(
+                    width: 420,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: LibraryToolbarAlphabetRow(
-                        letters: availableLetters,
-                        selectedLetter: selectedLetter,
-                        onLetterSelected: onLetterSelected!,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: LibraryToolbarAlphabetRow(
+                          letters: availableLetters,
+                          selectedLetter: selectedLetter,
+                          onLetterSelected: onLetterSelected!,
+                        ),
                       ),
                     ),
                   ),

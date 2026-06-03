@@ -365,7 +365,7 @@ class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
                         Brightness.dark
                     ? Colors.white
                     : Colors.black)
-                .withValues(alpha: 0.08),
+          .withValues(alpha: 0.18),
             baseChipColor,
           )
         : baseChipColor;
@@ -381,9 +381,19 @@ class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: _hovered
-              ? kAppAccent.withValues(alpha: 0.62)
+              ? kAppAccent.withValues(alpha: 0.9)
               : kAppAccent.withValues(alpha: 0.35),
         ),
+        boxShadow: _hovered
+            ? [
+                BoxShadow(
+                  color: kAppAccent.withValues(alpha: 0.22),
+                  blurRadius: 9,
+                  spreadRadius: 0.6,
+                  offset: const Offset(0, 1),
+                ),
+              ]
+            : null,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),

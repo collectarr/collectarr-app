@@ -121,31 +121,26 @@ class _LibraryAddModeBar extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _LibraryAddModeTextField(
-                      fieldKey: ValueKey(
-                        mode == LibraryAddDialogMode.barcode
-                            ? 'library-add-barcode-field'
-                            : 'library-add-query-field',
-                      ),
-                      controller: mode == LibraryAddDialogMode.barcode
-                          ? barcodeController
-                          : queryController,
-                      label: mode == LibraryAddDialogMode.barcode
-                          ? 'Barcode / UPC / ISBN'
-                          : 'Find ${type.pluralLabel.toLowerCase()}',
-                      hintText: mode == LibraryAddDialogMode.barcode
-                          ? 'Scan or enter barcode / UPC / ISBN...'
-                          : searchLabels.queryHint,
-                      keyboardType: mode == LibraryAddDialogMode.barcode
-                          ? TextInputType.number
-                          : TextInputType.text,
-                      onSubmitted: mode == LibraryAddDialogMode.barcode
-                          ? onLookupBarcode
-                          : onSearch,
-                      onChanged: mode == LibraryAddDialogMode.search
-                          ? onQueryChanged
-                          : null,
-                    ),
+                    child: mode == LibraryAddDialogMode.search
+                        ? LibraryToolbarSearch(
+                            controller: queryController,
+                            hintText: searchLabels.queryHint,
+                            onSearch: (_) => onSearch(),
+                            onChanged: onQueryChanged,
+                            onScanBarcode: () =>
+                                onModeChanged(LibraryAddDialogMode.barcode),
+                            onScanCover: canScanCover ? onScanCover : null,
+                            selectionColor: accent,
+                            maxWidth: 620,
+                          )
+                        : _LibraryAddModeTextField(
+                            fieldKey: const ValueKey('library-add-barcode-field'),
+                            controller: barcodeController,
+                            label: 'Barcode / UPC / ISBN',
+                            hintText: 'Scan or enter barcode / UPC / ISBN...',
+                            keyboardType: TextInputType.number,
+                            onSubmitted: onLookupBarcode,
+                          ),
                   ),
                   const SizedBox(width: 8),
                   if (mode == LibraryAddDialogMode.search) ...[
@@ -154,26 +149,6 @@ class _LibraryAddModeBar extends StatelessWidget {
                       accent: accent,
                       onPressed: onToggleAdvanced,
                     ),
-                    if (canScanCover) ...[
-                      const SizedBox(width: 6),
-                      _LibraryAddModeButton(
-                        label: 'Scan',
-                        icon: Icons.photo_camera_outlined,
-                        accent: accent,
-                        isBusy: isScanningCover,
-                        outlined: true,
-                        onPressed: isBusy || isScanningCover ? null : onScanCover,
-                      ),
-                    ],
-                    const SizedBox(width: 6),
-                    _LibraryAddModeButton(
-                      label: _searchButtonLabel,
-                      icon: Icons.search,
-                      accent: accent,
-                      isBusy: isSearching,
-                      onPressed: isBusy ? null : onSearch,
-                    ),
-                    const SizedBox(width: 6),
                     _LibraryAddModeActionButton(
                       icon: Icons.qr_code_2,
                       label: 'Barcode',
@@ -291,14 +266,16 @@ class _LibraryAddModeBar extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: _LibraryAddModeTextField(
-                            fieldKey:
-                                const ValueKey('library-add-query-field'),
+                          child: LibraryToolbarSearch(
                             controller: queryController,
-                            label: 'Search Collectarr Core',
                             hintText: searchLabels.queryHint,
-                            onSubmitted: onSearch,
+                            onSearch: (_) => onSearch(),
                             onChanged: onQueryChanged,
+                            onScanBarcode: () =>
+                                onModeChanged(LibraryAddDialogMode.barcode),
+                            onScanCover: canScanCover ? onScanCover : null,
+                            selectionColor: accent,
+                            maxWidth: 620,
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -306,27 +283,6 @@ class _LibraryAddModeBar extends StatelessWidget {
                           expanded: showAdvanced,
                           accent: accent,
                           onPressed: onToggleAdvanced,
-                        ),
-                        if (canScanCover) ...[
-                          const SizedBox(width: 6),
-                          _LibraryAddModeButton(
-                            label: 'Scan cover',
-                            icon: Icons.photo_camera_outlined,
-                            accent: accent,
-                            isBusy: isScanningCover,
-                            outlined: true,
-                            onPressed: isBusy || isScanningCover
-                                ? null
-                                : onScanCover,
-                          ),
-                        ],
-                        const SizedBox(width: 6),
-                        _LibraryAddModeButton(
-                          label: _searchButtonLabel,
-                          icon: Icons.search,
-                          accent: accent,
-                          isBusy: isSearching,
-                          onPressed: isBusy ? null : onSearch,
                         ),
                       ],
                     ),
@@ -413,9 +369,6 @@ class _LibraryAddModeBar extends StatelessWidget {
     );
   }
 
-  String get _searchButtonLabel {
-    return 'Search ${type.pluralLabel}';
-  }
 }
 
 class _LibraryAddModeTabStrip extends StatelessWidget {
@@ -545,7 +498,6 @@ class _LibraryAddModeTextField extends StatelessWidget {
     required this.label,
     required this.hintText,
     required this.onSubmitted,
-    this.onChanged,
     this.keyboardType,
   });
 
@@ -554,7 +506,6 @@ class _LibraryAddModeTextField extends StatelessWidget {
   final String label;
   final String hintText;
   final VoidCallback onSubmitted;
-  final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
 
   @override
@@ -574,7 +525,6 @@ class _LibraryAddModeTextField extends StatelessWidget {
           maxLines: null,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
-          onChanged: onChanged,
           onSubmitted: (_) => onSubmitted(),
           style: TextStyle(
             color: colorScheme.onSurface,

@@ -436,12 +436,17 @@ class _LibraryCompactMetaPill extends StatelessWidget {
           children: [
             Icon(icon, size: 13, color: accentColor),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: TextStyle(
+                  color: palette.textPrimary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
