@@ -472,8 +472,8 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                       ),
                     ),
                   ),
-                ] else
-                  const Spacer(),
+                ],
+                const Spacer(),
                 const SizedBox(width: 6),
                 const _LibraryDesktopUtilityCluster(),
               ],
