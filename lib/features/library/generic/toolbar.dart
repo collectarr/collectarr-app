@@ -31,6 +31,12 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
+    this.browserMode = LibraryWorkspaceBrowserMode.media,
+    this.supportsMediaReleaseSplit = false,
+    this.onBrowserModeChanged,
+    this.showReleaseFolderBack = false,
+    this.releaseFolderLabel,
+    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
@@ -98,6 +104,12 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final LibraryWorkspaceBrowserMode browserMode;
+  final bool supportsMediaReleaseSplit;
+  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
+  final bool showReleaseFolderBack;
+  final String? releaseFolderLabel;
+  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
@@ -265,6 +277,12 @@ class LibraryToolbar extends StatelessWidget {
                       onEditSort: onEditSort,
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
+                      browserMode: browserMode,
+                      supportsMediaReleaseSplit: supportsMediaReleaseSplit,
+                      onBrowserModeChanged: onBrowserModeChanged,
+                      showReleaseFolderBack: showReleaseFolderBack,
+                      releaseFolderLabel: releaseFolderLabel,
+                      onReleaseFolderBack: onReleaseFolderBack,
                       onDetailsLayoutChanged: onDetailsLayoutChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,

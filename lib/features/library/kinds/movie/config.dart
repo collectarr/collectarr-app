@@ -75,6 +75,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
+    supportsMediaReleaseSplit: true,
     wideDialog: true,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},

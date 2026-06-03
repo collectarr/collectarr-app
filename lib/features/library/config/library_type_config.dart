@@ -283,6 +283,7 @@ class LibraryTypeCapabilities {
     this.canScanCover = false,
     this.supportsOwnedItemImages = true,
     this.supportsVideoKindFilters = false,
+    this.supportsMediaReleaseSplit = false,
     this.wideDialog = false,
     this.videoSeriesEntryTypes = const {},
     this.videoShelfDrilldownEntryTypes = const {},
@@ -295,6 +296,7 @@ class LibraryTypeCapabilities {
   final bool canScanCover;
   final bool supportsOwnedItemImages;
   final bool supportsVideoKindFilters;
+  final bool supportsMediaReleaseSplit;
   final bool wideDialog;
   final Set<String> videoSeriesEntryTypes;
   final Set<String> videoShelfDrilldownEntryTypes;

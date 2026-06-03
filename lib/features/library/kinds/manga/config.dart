@@ -69,5 +69,6 @@ const mangaLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,
+    supportsMediaReleaseSplit: true,
   ),
 );

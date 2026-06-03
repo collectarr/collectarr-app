@@ -70,6 +70,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_column_
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -138,6 +139,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   List<LibraryFolderPreset> _pinnedFolderPresets = const [];
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
+  String? _releaseFolderTitleItemId;
   String? _activeSmartListId;
   String? _activeSmartListName;
   Set<LibraryWorkspacePreset> _pinnedViewPresets = const {};
@@ -342,6 +344,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _selectionAnchorId = null;
       _videoShelfDrilldownTitleItemId = null;
       _videoShelfDrilldownReleaseId = null;
+      _releaseFolderTitleItemId = null;
       ref
           .read(
             libraryFacetControllerProvider(
@@ -520,6 +523,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onViewModeChanged: (mode) => _updateViewState(
                       (state) => state.copyWith(viewMode: mode),
                     ),
+                    browserMode: _activeBrowserMode,
+                    supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
+                    onBrowserModeChanged: _setBrowserMode,
+                    showReleaseFolderBack: _releaseFolderTitleItemId != null,
+                    releaseFolderLabel:
+                      _releaseFolderLabelForProjection(projection),
+                    onReleaseFolderBack: _releaseFolderTitleItemId == null
+                        ? null
+                        : _closeReleaseFolder,
                     onDetailsLayoutChanged: (layout) => _updateViewState(
                       (state) => state.copyWith(detailsLayout: layout),
                     ),
@@ -728,7 +740,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onApplySelection: _applySelection,
       onActivateItem: _activateItem,
       onToggleSelectionItem: _toggleSelectionItem,
-      onOpenItem: showDetailPage,
+      onOpenItem: (item) {
+        final isMediaTitle = item.entry.browseScope == LibraryBrowserScope.title;
+        if (_supportsMediaReleaseSplit &&
+            _activeBrowserMode == LibraryWorkspaceBrowserMode.media &&
+            isMediaTitle) {
+          _openReleaseFolder(item);
+          return;
+        }
+        showDetailPage(item);
+      },
       onBoxSelectionChanged: (ids) => setState(() {
         _selection = _selection.replace(ids);
         if (ids.isEmpty) {
@@ -833,6 +854,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onViewModeChanged: (mode) => _updateViewState(
           (state) => state.copyWith(viewMode: mode),
         ),
+        browserMode: _activeBrowserMode,
+        supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
+        onBrowserModeChanged: _setBrowserMode,
+        showReleaseFolderBack: _releaseFolderTitleItemId != null,
+        releaseFolderLabel: _releaseFolderLabelForProjection(projection),
+        onReleaseFolderBack:
+            _releaseFolderTitleItemId == null ? null : _closeReleaseFolder,
         onDetailsLayoutChanged: (layout) => _updateViewState(
           (state) => state.copyWith(detailsLayout: layout),
         ),
@@ -1026,9 +1054,63 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   LibraryGroupMode get _projectionGroupMode =>
-      _activeSidebarGroupMode ?? LibraryGroupMode.title;
+      _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+        ? LibraryGroupMode.title
+        : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
 
   LibraryGroupMode get _activeGroupMode => _projectionGroupMode;
+
+  bool get _supportsMediaReleaseSplit {
+    return widget.type.capabilities.supportsMediaReleaseSplit;
+  }
+
+  LibraryWorkspaceBrowserMode get _activeBrowserMode {
+    if (!_supportsMediaReleaseSplit) {
+      return LibraryWorkspaceBrowserMode.media;
+    }
+    if (_releaseFolderTitleItemId != null) {
+      return LibraryWorkspaceBrowserMode.releases;
+    }
+    return (_viewState ?? _adapter.viewProfile.defaults()).browserMode;
+  }
+
+  void _setBrowserMode(LibraryWorkspaceBrowserMode mode) {
+    _updateViewState((state) => state.copyWith(browserMode: mode));
+    setState(() {
+      _selectedBucket = null;
+      _selectedLetter = null;
+      if (mode != LibraryWorkspaceBrowserMode.releases) {
+        _releaseFolderTitleItemId = null;
+      }
+    });
+  }
+
+  void _openReleaseFolder(LibraryProjectionItem item) {
+    final titleId = item.entry.titleItemId ?? item.entry.id;
+    setState(() {
+      _releaseFolderTitleItemId = titleId;
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _selectedId = item.entry.id;
+    });
+  }
+
+  void _closeReleaseFolder() {
+    setState(() => _releaseFolderTitleItemId = null);
+  }
+
+  String? _releaseFolderLabelForProjection(LibraryProjection? projection) {
+    final titleId = _releaseFolderTitleItemId;
+    if (titleId == null || projection == null) {
+      return null;
+    }
+    for (final item in projection.allItems) {
+      if ((item.entry.titleItemId ?? item.entry.id) == titleId) {
+        return item.entry.resolvedTitle;
+      }
+    }
+    return null;
+  }
 
   LibraryFolderPreset get _activeFolderPreset =>
       sanitizeLibraryFolderPreset(
@@ -1045,6 +1127,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _collectionStatusScope != LibraryCollectionStatusScope.all ||
       _quickView != null ||
       _activeSmartListId != null ||
+      _releaseFolderTitleItemId != null ||
       _filterSelection.hasActiveFilters;
 
   Future<void> _loadColumnFavoritePresets() async {

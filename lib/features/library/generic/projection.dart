@@ -229,6 +229,9 @@ class LibraryProjection {
     required LibraryTypeConfig type,
     required LibraryMediaAdapter adapter,
     required LibraryWorkspaceViewState viewState,
+    LibraryWorkspaceBrowserMode browserMode =
+        LibraryWorkspaceBrowserMode.media,
+    String? releaseFolderTitleItemId,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -246,7 +249,12 @@ class LibraryProjection {
         const {},
     Set<String> activeLoanOwnedItemIds = const {},
   }) {
-    final allItems = libraryItemsForShelf(shelf, type);
+    final allItems = libraryItemsForShelf(
+      shelf,
+      type,
+      browserMode: browserMode,
+      releaseFolderTitleItemId: releaseFolderTitleItemId,
+    );
     final scopedBucketItems = [
       for (final item in allItems)
         if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&

@@ -53,4 +53,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
     variantLabel: 'Platform / Edition',
     barcodeLabel: 'UPC / Barcode',
   ),
+  capabilities: LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
+  ),
 );

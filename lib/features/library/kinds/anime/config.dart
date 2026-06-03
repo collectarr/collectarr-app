@@ -63,6 +63,7 @@ const animeLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
+    supportsMediaReleaseSplit: true,
     wideDialog: true,
     videoSeriesEntryTypes: {'anime'},
     videoShelfDrilldownEntryTypes: {'anime'},

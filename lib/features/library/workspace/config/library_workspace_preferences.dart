@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryWorkspacePreferenceSnapshot {
   const LibraryWorkspacePreferenceSnapshot({
+    this.browserMode = LibraryWorkspaceBrowserMode.media,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
@@ -18,6 +19,7 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.columnWidths,
   });
 
+  final LibraryWorkspaceBrowserMode browserMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
@@ -116,6 +118,11 @@ class LibraryWorkspacePreferences {
       prefs.getStringList(_key('column_widths')),
     );
     final snapshot = LibraryWorkspacePreferenceSnapshot(
+      browserMode: _enumByName(
+        LibraryWorkspaceBrowserMode.values,
+        prefs.getString(_key('browser_mode')),
+          ) ??
+          LibraryWorkspaceBrowserMode.media,
       viewMode: _enumByName(
             LibraryViewMode.values,
             prefs.getString(_key('view_mode')),
@@ -168,6 +175,7 @@ class LibraryWorkspacePreferences {
         ? snapshot.sortColumn
         : config.defaultSortColumn;
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
+      browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,
       detailsLayout: snapshot.detailsLayout,
       isSidebarVisible: snapshot.isSidebarVisible,
@@ -184,6 +192,10 @@ class LibraryWorkspacePreferences {
     _cachedChromeByConfig[config.preferenceKey('')] = normalizedSnapshot.chrome;
     _cachedSnapshots[config.preferenceKey('')] = normalizedSnapshot;
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _key('browser_mode'),
+      normalizedSnapshot.browserMode.name,
+    );
     await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
     await prefs.setString(_key('details_layout'), normalizedSnapshot.detailsLayout.name);
     await prefs.setBool(_key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);

@@ -67,5 +67,6 @@ const musicLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,
+    supportsMediaReleaseSplit: true,
   ),
 );

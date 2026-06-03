@@ -74,6 +74,7 @@ class LibraryWorkspaceViewProfile {
           .withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
     }
     final defaults = LibraryWorkspaceViewState(
+      browserMode: LibraryWorkspaceBrowserMode.media,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
@@ -93,6 +94,7 @@ class LibraryWorkspaceViewProfile {
     LibraryWorkspacePreferenceSnapshot preferences,
   ) {
     return LibraryWorkspaceViewState(
+      browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
@@ -139,6 +141,7 @@ class LibraryWorkspaceViewProfile {
 
 class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState({
+    this.browserMode = LibraryWorkspaceBrowserMode.media,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
@@ -161,6 +164,7 @@ class LibraryWorkspaceViewState {
         visibleColumns = Set.unmodifiable(visibleColumns),
         columnWidths = Map.unmodifiable(columnWidths);
 
+  final LibraryWorkspaceBrowserMode browserMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
@@ -180,6 +184,7 @@ class LibraryWorkspaceViewState {
 
   LibraryWorkspacePreferenceSnapshot toPreferenceSnapshot() {
     return LibraryWorkspacePreferenceSnapshot(
+      browserMode: browserMode,
       viewMode: viewMode,
       detailsLayout: detailsLayout,
       isSidebarVisible: isSidebarVisible,
@@ -196,6 +201,7 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState copyWith({
+    LibraryWorkspaceBrowserMode? browserMode,
     LibraryViewMode? viewMode,
     LibraryDetailsLayout? detailsLayout,
     bool? isSidebarVisible,
@@ -221,6 +227,7 @@ class LibraryWorkspaceViewState {
               ]
             : this.sortRules);
     return LibraryWorkspaceViewState(
+      browserMode: browserMode ?? this.browserMode,
       viewMode: viewMode ?? this.viewMode,
       detailsLayout: detailsLayout ?? this.detailsLayout,
       isSidebarVisible: isSidebarVisible ?? this.isSidebarVisible,

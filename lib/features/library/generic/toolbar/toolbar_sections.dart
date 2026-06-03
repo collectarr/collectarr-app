@@ -36,6 +36,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
+    this.browserMode = LibraryWorkspaceBrowserMode.media,
+    this.supportsMediaReleaseSplit = false,
+    this.onBrowserModeChanged,
+    this.showReleaseFolderBack = false,
+    this.releaseFolderLabel,
+    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
@@ -84,6 +90,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final LibraryWorkspaceBrowserMode browserMode;
+  final bool supportsMediaReleaseSplit;
+  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
+  final bool showReleaseFolderBack;
+  final String? releaseFolderLabel;
+  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
@@ -123,6 +135,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final mediaScopeLabel =
+        type.workspace.kind.apiValue == 'comic' ? 'Series' : 'Media';
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
@@ -175,6 +189,50 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   viewMode: viewState.viewMode,
                   onChanged: onViewModeChanged,
                 ),
+                if (supportsMediaReleaseSplit) ...[
+                  const _LibraryDesktopToolbarSeparator(),
+                  _LibraryDesktopToolbarSection(
+                    label: 'Scope',
+                    child: PopupMenuButton<LibraryWorkspaceBrowserMode>(
+                      tooltip: 'Browser scope',
+                      initialValue: browserMode,
+                      onSelected: onBrowserModeChanged,
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: LibraryWorkspaceBrowserMode.media,
+                          child: Text(mediaScopeLabel),
+                        ),
+                        const PopupMenuItem(
+                          value: LibraryWorkspaceBrowserMode.releases,
+                          child: Text('Releases'),
+                        ),
+                      ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: appPalette(context).divider),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              browserMode == LibraryWorkspaceBrowserMode.media
+                                  ? mediaScopeLabel
+                                  : 'Releases',
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_drop_down, size: 16),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 const _LibraryDesktopToolbarSeparator(),
                 LibraryDetailsLayoutDropdown(
                   detailsLayout: viewState.detailsLayout,
@@ -224,6 +282,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   total: counts.total,
                   pluralLabel: type.pluralLabel,
                 ),
+                if (showReleaseFolderBack && onReleaseFolderBack != null)
+                  TextButton.icon(
+                    onPressed: onReleaseFolderBack,
+                    icon: const Icon(Icons.arrow_back, size: 16),
+                    label: Text(
+                      releaseFolderLabel == null
+                          ? 'Back'
+                          : 'Back: ${releaseFolderLabel!}',
+                    ),
+                  ),
                 if (selectedBucket != null)
                   LibraryToolbarScopeChip(
                     label: selectedBucket!,

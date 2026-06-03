@@ -310,7 +310,17 @@ class LibraryBody extends StatelessWidget {
                 accent: accent,
                 onLetterSelected: onLetterSelected!,
               ),
-            Expanded(child: workspace),
+            Expanded(
+              child: workspaceOverride == null
+                  ? workspace
+                  : IndexedStack(
+                      index: 1,
+                      children: [
+                        workspace,
+                        workspaceOverride!,
+                      ],
+                    ),
+            ),
           ],
         );
 

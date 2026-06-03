@@ -25,11 +25,15 @@ abstract final class _LibraryProjectionControllerOps {
     final customFieldValuesByDefinition = state.customFieldValuesByDefinitionByItem;
     final activeLoanOwnedItemIds = state._activeLoanOwnedItemIds;
     final query = state._searchController.text;
+    final browserMode = state._activeBrowserMode;
+    final releaseFolderTitleItemId = state._releaseFolderTitleItemId;
     final signature = projectionSignature(
       state: state,
       shelf: shelf,
       viewState: viewState,
       query: query,
+      browserMode: browserMode,
+      releaseFolderTitleItemId: releaseFolderTitleItemId,
       mode: mode,
       selectedBucket: selectedBucket,
       selectedItemId: selectedItemId,
@@ -55,6 +59,8 @@ abstract final class _LibraryProjectionControllerOps {
       type: state.widget.type,
       adapter: state._adapter,
       viewState: viewState,
+      browserMode: browserMode,
+      releaseFolderTitleItemId: releaseFolderTitleItemId,
       query: query,
       linkedMetadataFilter: linkedMetadataFilter,
       selectedBucket: selectedBucket,
@@ -81,6 +87,8 @@ abstract final class _LibraryProjectionControllerOps {
     required ShelfState shelf,
     required LibraryWorkspaceViewState viewState,
     required String query,
+    required LibraryWorkspaceBrowserMode browserMode,
+    required String? releaseFolderTitleItemId,
     required LibraryGroupMode mode,
     required String? selectedBucket,
     required String? selectedItemId,
@@ -99,6 +107,8 @@ abstract final class _LibraryProjectionControllerOps {
       shelfSignature,
       viewState.hashCode,
       normalizedQuery,
+      browserMode,
+      releaseFolderTitleItemId,
       mode,
       selectedBucket,
       selectedItemId,

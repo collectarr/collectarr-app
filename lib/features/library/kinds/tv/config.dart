@@ -63,6 +63,7 @@ const tvLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
+    supportsMediaReleaseSplit: true,
     wideDialog: true,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'tv'},

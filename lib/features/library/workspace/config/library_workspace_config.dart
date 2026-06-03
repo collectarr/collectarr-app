@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, cardFlow, list, shelves }
 
+enum LibraryWorkspaceBrowserMode { media, releases }
+
 extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
   bool get supportsCoverSize {
     return switch (this) {
