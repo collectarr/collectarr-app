@@ -149,6 +149,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
+  int _columnFavoritesLoadToken = 0;
+  int _activeLoanIdsLoadToken = 0;
   Timer? _viewStateSaveDebounce;
   Timer? _searchDebounce;
   Timer? _selectionHydrationDebounce;
@@ -376,13 +378,17 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   Future<void> _loadActiveLoanIds() async {
     try {
+      final loadToken = ++_activeLoanIdsLoadToken;
+      final expectedKind = widget.type.workspace.kind;
       final db = ref.read(localDatabaseProvider);
       final repo = LoanRepository(db);
       final activeLoans = await repo.getActiveLoans();
       final next = <String>{
         for (final loan in activeLoans) loan.ownedItemId,
       };
-      if (!mounted) {
+      if (!mounted ||
+          loadToken != _activeLoanIdsLoadToken ||
+          widget.type.workspace.kind != expectedKind) {
         return;
       }
       setState(() => _activeLoanOwnedItemIds = next);
@@ -1046,9 +1052,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   Future<void> _loadColumnFavoritePresets() async {
     try {
+      final loadToken = ++_columnFavoritesLoadToken;
+      final expectedKind = widget.type.workspace.kind;
       final presets =
           await LibraryColumnPresetStore(widget.type.workspace).read();
-      if (!mounted) {
+      if (!mounted ||
+          loadToken != _columnFavoritesLoadToken ||
+          widget.type.workspace.kind != expectedKind) {
         return;
       }
       setState(() => _savedColumnFavoritePresets = presets);
