@@ -1,20 +1,17 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:flutter/material.dart';
 
-class VideoLibraryMediaPresentationBuilder
-  extends LibraryMediaPresentationBuilder {
-  const VideoLibraryMediaPresentationBuilder({
-    this.showSummary = false,
+class BoardGameLibraryMediaPresentationBuilder
+    extends LibraryMediaPresentationBuilder {
+  const BoardGameLibraryMediaPresentationBuilder({
     this.metadataLabels = const LibraryMetadataLabels(),
   });
 
-  final bool showSummary;
   final LibraryMetadataLabels metadataLabels;
 
   @override
@@ -28,7 +25,10 @@ class VideoLibraryMediaPresentationBuilder
   }) {
     final series = entry.series;
     final publishing = entry.publishing;
-    final video = entry.video;
+    final music = entry.music;
+    final referenceRelease = resolveLibraryEntryReferenceRelease(entry);
+    final referenceVariant = referenceRelease.variant;
+    final referencePlatforms = libraryReferencePlatforms(entry);
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -46,6 +46,11 @@ class VideoLibraryMediaPresentationBuilder
             series!.seriesTitle!,
             onTap: tapFor(series.seriesTitle),
           ),
+        if (hasVolume && !hasSeason)
+          LibraryInspectorFactData(
+            'Volume',
+            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
+          ),
         if (hasSeason && hasEpisode)
           LibraryInspectorFactData(
             'Season / Episode',
@@ -53,31 +58,29 @@ class VideoLibraryMediaPresentationBuilder
           ),
         if (hasSeason && !hasEpisode)
           LibraryInspectorFactData('Season', 'Season ${series!.seasonNumber}'),
-        if (!hasSeason && hasEpisode)
+        if (hasEpisode && !hasSeason)
           LibraryInspectorFactData('Episode', 'Ep. ${series!.episodeNumber}'),
-        if (hasVolume && !hasSeason)
-          LibraryInspectorFactData(
-            'Volume',
-            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
-          ),
-        if (entry.browseScope != LibraryBrowserScope.title &&
-            entry.variant != null)
-          LibraryInspectorFactData(
-            releaseFields.variantLabel,
-            entry.variant!,
-            onTap: tapFor(entry.variant),
-          ),
-        if (entry.browseScope != LibraryBrowserScope.title &&
-            entry.barcode != null)
-          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
+        LibraryInspectorFactData(
+          mediaFields.numberLabel,
+          genericLibraryDash(entry.itemNumber),
+          onTap: tapFor(entry.itemNumber),
+        ),
+        LibraryInspectorFactData(
+          releaseFields.variantLabel,
+          genericLibraryDash(entry.variant),
+          onTap: tapFor(entry.variant),
+        ),
+        LibraryInspectorFactData(
+          releaseFields.barcodeLabel,
+          genericLibraryDash(entry.barcode),
+        ),
       ],
       contextFacts: [
-        if (entry.publisher != null)
-          LibraryInspectorFactData(
-            mediaFields.publisherLabel,
-            entry.publisher!,
-            onTap: tapFor(entry.publisher),
-          ),
+        LibraryInspectorFactData(
+          mediaFields.publisherLabel,
+          genericLibraryDash(entry.publisher),
+          onTap: tapFor(entry.publisher),
+        ),
         LibraryInspectorFactData(
           'Released',
           genericLibraryDash(
@@ -85,19 +88,56 @@ class VideoLibraryMediaPresentationBuilder
                 entry.releaseYear?.toString(),
           ),
         ),
-        if (video?.runtimeMinutes != null)
-          LibraryInspectorFactData('Runtime', '${video!.runtimeMinutes} min'),
+        if (publishing?.pageCount != null)
+          LibraryInspectorFactData('Pages', publishing!.pageCount.toString()),
+        if (music?.catalogNumber != null)
+          LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
+        if (publishing?.coverPriceCents != null)
+          LibraryInspectorFactData(
+            'Cover Price',
+            formatPresentationMoney(
+              publishing!.coverPriceCents,
+              publishing.currency,
+            ),
+          ),
+        if (publishing?.imprint != null)
+          LibraryInspectorFactData(
+            'Imprint',
+            publishing!.imprint!,
+            onTap: tapFor(publishing.imprint),
+          ),
+        if (publishing?.seriesGroup != null)
+          LibraryInspectorFactData(
+            'Series Group',
+            publishing!.seriesGroup!,
+            onTap: tapFor(publishing.seriesGroup),
+          ),
+        if (publishing?.subtitle != null)
+          LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
         if (entry.country != null)
           LibraryInspectorFactData('Country', entry.country!),
+        if (music?.releaseStatus != null)
+          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
         if (entry.language != null)
           LibraryInspectorFactData('Language', entry.language!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
         if (entry.audienceRating != null)
           LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
-        if (publishing?.subtitle != null)
-          LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
-        LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+        if (referenceVariant?.variantType case final variantType?
+            when variantType.trim().isNotEmpty)
+          LibraryInspectorFactData('Variant Type', variantType.trim()),
+        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
+          LibraryInspectorFactData('SKU', sku.trim()),
+        if (referencePlatforms.isNotEmpty)
+          LibraryInspectorFactData(
+            referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
+            referencePlatforms.join(', '),
+          ),
+        LibraryInspectorFactData(
+          'Cover',
+          entry.hasMissingCover ? 'Missing' : 'Ready',
+        ),
         LibraryInspectorFactData(
           'Metadata',
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
@@ -108,28 +148,5 @@ class VideoLibraryMediaPresentationBuilder
       storyArcs: entry.storyArcs ?? const <String>[],
       genres: entry.genres ?? const <String>[],
     );
-  }
-
-  @override
-  List<Widget> buildInspectorSections({
-    required BuildContext context,
-    required LibraryWorkspaceEntry entry,
-    required Color accent,
-  }) {
-    if (!showSummary || entry.synopsis == null || entry.synopsis!.trim().isEmpty) {
-      return const [];
-    }
-    return [
-      LibraryInspectorSection(
-        title: 'Summary',
-        accentColor: accent,
-        children: [
-          Text(
-            entry.synopsis!,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
-    ];
   }
 }

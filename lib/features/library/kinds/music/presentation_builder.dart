@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
-import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -16,8 +15,12 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
-  extends SharedLibraryMediaPresentationBuilder {
-  const MusicLibraryMediaPresentationBuilder({super.metadataLabels});
+  extends LibraryMediaPresentationBuilder {
+  const MusicLibraryMediaPresentationBuilder({
+    this.metadataLabels = const LibraryMetadataLabels(),
+  });
+
+  final LibraryMetadataLabels metadataLabels;
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({

@@ -3,24 +3,15 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/seasons_section.dart';
-import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:flutter/material.dart';
 
-class SharedLibraryMediaPresentationBuilder
+class GenericLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const SharedLibraryMediaPresentationBuilder({
-    this.showSummary = false,
-    this.showSeasonHierarchy = false,
-    this.showVolumeHierarchy = false,
+  const GenericLibraryMediaPresentationBuilder({
     this.metadataLabels = const LibraryMetadataLabels(),
   });
 
-  final bool showSummary;
-  final bool showSeasonHierarchy;
-  final bool showVolumeHierarchy;
   final LibraryMetadataLabels metadataLabels;
 
   @override
@@ -157,35 +148,5 @@ class SharedLibraryMediaPresentationBuilder
       storyArcs: entry.storyArcs ?? const <String>[],
       genres: entry.genres ?? const <String>[],
     );
-  }
-
-  @override
-  List<Widget> buildInspectorSections({
-    required BuildContext context,
-    required LibraryWorkspaceEntry entry,
-    required Color accent,
-  }) {
-    final sections = <Widget>[];
-    final resolvedItemId = entry.titleItemId ?? entry.id;
-    if (showSeasonHierarchy) {
-      sections.add(SeasonsSection(itemId: resolvedItemId));
-    } else if (showVolumeHierarchy) {
-      sections.add(VolumesSection(itemId: resolvedItemId));
-    }
-    if (showSummary && entry.synopsis != null && entry.synopsis!.trim().isNotEmpty) {
-      sections.add(
-        LibraryInspectorSection(
-          title: 'Summary',
-          accentColor: accent,
-          children: [
-            Text(
-              entry.synopsis!,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-        ),
-      );
-    }
-    return sections;
   }
 }

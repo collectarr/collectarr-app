@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/shared/library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
-const genericLibraryMediaBuilder = SharedLibraryMediaPresentationBuilder();
+const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
 const genericPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
