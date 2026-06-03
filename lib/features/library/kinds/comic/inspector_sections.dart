@@ -64,8 +64,12 @@ class _ComicInspectorDashboard extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 640 ? 2 : 1;
-        const spacing = 8.0;
+        final columns = constraints.maxWidth >= 1024
+            ? 3
+            : constraints.maxWidth >= 700
+                ? 2
+                : 1;
+        const spacing = 12.0;
 
         Widget buildPanel(_ComicPanelData panel) => _ComicPanel(
           title: panel.title,
@@ -87,25 +91,10 @@ class _ComicInspectorDashboard extends StatelessWidget {
           );
         }
 
-        final leftPanels = panels
-            .where(
-              (panel) =>
-                  panel.title == 'Creators' ||
-              panel.title == 'Characters' ||
-                  panel.title == 'Personal' ||
-              panel.title == 'Value' ||
-              panel.title == 'Tags',
-            )
-            .toList();
-        final rightPanels = panels
-            .where(
-              (panel) =>
-              panel.title == 'Details' ||
-              panel.title == 'Collector' ||
-              panel.title == 'Notes' ||
-              panel.title == 'Links',
-            )
-            .toList();
+        final columnsData = List.generate(columns, (_) => <_ComicPanelData>[]);
+        for (var index = 0; index < panels.length; index += 1) {
+          columnsData[index % columns].add(panels[index]);
+        }
 
         Widget buildColumn(List<_ComicPanelData> columnPanels) {
           return Column(
@@ -123,9 +112,10 @@ class _ComicInspectorDashboard extends StatelessWidget {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: buildColumn(leftPanels)),
-            const SizedBox(width: spacing),
-            Expanded(child: buildColumn(rightPanels)),
+            for (var index = 0; index < columnsData.length; index += 1) ...[
+              if (index > 0) const SizedBox(width: spacing),
+              Expanded(child: buildColumn(columnsData[index])),
+            ],
           ],
         );
       },
@@ -181,12 +171,8 @@ class _ComicPanelState extends State<_ComicPanel> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final surface = palette.surface;
-    final headerSurface = Color.alphaBlend(
-      widget.accent.withValues(alpha: palette.isDark ? 0.016 : 0.008),
-      palette.surface,
-    );
     final altSurface = palette.surfaceSubtle.withValues(
-      alpha: palette.isDark ? 0.46 : 0.82,
+      alpha: palette.isDark ? 0.22 : 0.38,
     );
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.7 : 0.45);
@@ -200,52 +186,38 @@ class _ComicPanelState extends State<_ComicPanel> {
     return Container(
       decoration: BoxDecoration(
         color: surface,
-        border: Border.all(color: border),
-        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: border.withValues(alpha: 0.8)),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 24,
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            decoration: BoxDecoration(
-              color: headerSurface,
-              border: Border(
-                bottom: BorderSide(color: border.withValues(alpha: 0.9)),
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(4),
-                topRight: Radius.circular(4),
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 9, 10, 7),
             child: Row(
               children: [
-                Text(
-                  widget.title,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: palette.textMuted,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.24,
-                        fontSize: 10,
-                        height: 1,
-                      ),
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: widget.accent,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.1,
+                        ),
+                  ),
                 ),
-                if (canCollapse) ...[
-                  const Spacer(),
+                if (canCollapse)
                   InkWell(
                     onTap: () => setState(() => _expanded = !_expanded),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                       child: Row(
                         children: [
                           Text(
                             _expanded ? 'Collapse' : 'View all',
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: palette.textMuted,
+                                  color: palette.textSecondary,
                                   fontWeight: FontWeight.w700,
-                                  height: 1,
-                                  fontSize: 10,
                                 ),
                           ),
                           const SizedBox(width: 2),
@@ -253,15 +225,22 @@ class _ComicPanelState extends State<_ComicPanel> {
                             _expanded
                                 ? Icons.keyboard_arrow_up
                                 : Icons.keyboard_arrow_down,
-                            size: 10,
-                            color: palette.textMuted,
+                            size: 12,
+                            color: palette.textSecondary,
                           ),
                         ],
                       ),
                     ),
                   ),
-                ],
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Divider(
+              height: 1,
+              thickness: 1,
+              color: border.withValues(alpha: 0.8),
             ),
           ),
           for (var index = 0; index < visibleRows.length; index++)
@@ -306,21 +285,21 @@ class _ComicTableRow extends StatelessWidget {
       return Container(
         decoration: BoxDecoration(
           color: shaded ? altSurface : surface,
-          border: Border(top: BorderSide(color: border.withValues(alpha: 0.72))),
+          border: Border(top: BorderSide(color: border.withValues(alpha: 0.62))),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
-              width: 58,
+              width: 92,
               child: Text(
                 row.label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: palette.textMuted,
                       fontWeight: FontWeight.w800,
-                      height: 1,
-                      fontSize: 10,
+                      height: 1.05,
+                      fontSize: 11,
                     ),
               ),
             ),
@@ -335,9 +314,9 @@ class _ComicTableRow extends StatelessWidget {
                         color: row.label == 'Current Value'
                             ? accent
                             : palette.textPrimary,
-                        fontWeight: FontWeight.w900,
-                        height: 1.02,
-                        fontSize: row.label == 'Current Value' ? 13.5 : 12,
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                    fontSize: row.label == 'Current Value' ? 13 : 12,
                       ),
                 ),
               ),
@@ -360,21 +339,21 @@ class _ComicTableRow extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: shaded ? altSurface : surface,
-          border: Border(top: BorderSide(color: border.withValues(alpha: 0.72))),
+        border: Border(top: BorderSide(color: border.withValues(alpha: 0.62))),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 52,
+            width: 92,
             child: Text(
               row.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
-                    height: 1,
-                    fontSize: 10,
+                    height: 1.05,
+                    fontSize: 11,
                   ),
             ),
           ),

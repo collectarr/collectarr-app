@@ -43,7 +43,10 @@ class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
     final palette = appPalette(context);
     final request = widget.request;
     final accent = request.inspector.accent;
-    final panelSurface = palette.surface;
+    final panelSurface = Color.alphaBlend(
+      accent.withValues(alpha: palette.isDark ? 0.012 : 0.004),
+      palette.surface,
+    );
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -57,6 +60,7 @@ class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
       ),
       child: Column(
         children: [
+          _ComicInspectorHeader(request: request),
           _ComicInspectorToolbar(request: request),
           Expanded(
             child: Scrollbar(
@@ -64,39 +68,156 @@ class _ComicInspectorPanelState extends State<ComicInspectorPanel> {
               child: SingleChildScrollView(
                 controller: _scrollController,
                 primary: false,
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    request.hero,
-                    if (request.primarySections.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      _ComicSectionDivider(accent: accent),
-                      const SizedBox(height: 8),
-                    ],
-                    for (final section in request.primarySections) ...[
-                      section,
-                      const SizedBox(height: 8),
-                    ],
-                    if (request.bundleSection != null) ...[
-                      request.bundleSection!,
-                      const SizedBox(height: 8),
-                    ],
-                    if (request.conditionGradeSection != null) ...[
-                      request.conditionGradeSection!,
-                      const SizedBox(height: 8),
-                    ],
-                    for (final section in request.trailingSections) ...[
-                      section,
-                      const SizedBox(height: 8),
-                    ],
-                  ],
-                ),
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 18),
+                child: _ComicInspectorContent(request: request),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ComicInspectorHeader extends StatelessWidget {
+  const _ComicInspectorHeader({required this.request});
+
+  final LibraryInspectorPanelRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final accent = request.inspector.accent;
+    final entry = request.inspector.entry;
+    final subtitle = [
+      if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
+        entry.series!.seriesTitle!.trim(),
+      if (entry.publisher?.trim().isNotEmpty == true) entry.publisher!.trim(),
+    ].join(' • ');
+    final badgeParts = <String>[
+      if (entry.itemNumber?.trim().isNotEmpty == true)
+        '#${entry.itemNumber!.trim()}',
+      if (entry.variant?.trim().isNotEmpty == true) entry.variant!.trim(),
+      entry.isOwned
+          ? 'Owned'
+          : entry.isWishlisted
+              ? 'Wishlist'
+              : 'Catalog',
+    ];
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.5),
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entry.resolvedTitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: accent,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                        ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: palette.textSecondary,
+                            fontWeight: FontWeight.w600,
+                            height: 1.15,
+                          ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            _ComicHeaderBadge(label: badgeParts.join('  ')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicHeaderBadge extends StatelessWidget {
+  const _ComicHeaderBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: palette.divider.withValues(alpha: palette.isDark ? 0.84 : 0.7),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: palette.textPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: 11,
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicInspectorContent extends StatelessWidget {
+  const _ComicInspectorContent({required this.request});
+
+  final LibraryInspectorPanelRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        request.hero,
+        const SizedBox(height: 12),
+        for (final section in request.primarySections) ...[
+          section,
+          const SizedBox(height: 12),
+        ],
+        if (request.bundleSection != null) ...[
+          request.bundleSection!,
+          const SizedBox(height: 12),
+        ],
+        if (request.conditionGradeSection != null) ...[
+          request.conditionGradeSection!,
+          const SizedBox(height: 12),
+        ],
+        for (final section in request.trailingSections) ...[
+          section,
+          const SizedBox(height: 12),
+        ],
+      ],
     );
   }
 }
@@ -110,7 +231,6 @@ class _ComicInspectorToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final entry = request.inspector.entry;
-    final accent = request.inspector.accent;
     final hasBarcode = entry.barcode?.trim().isNotEmpty == true;
     final ebayQuery = [
       if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
@@ -142,16 +262,11 @@ class _ComicInspectorToolbar extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.surface,
         border: Border(
-          bottom: BorderSide(
-            color: Color.alphaBlend(
-              accent.withValues(alpha: palette.isDark ? 0.08 : 0.04),
-              palette.divider,
-            ),
-          ),
+          bottom: BorderSide(color: palette.divider.withValues(alpha: 0.45)),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+        padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return _ComicToolbarGroup(
@@ -160,72 +275,43 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   label: 'Edit',
                   icon: Icons.edit_outlined,
                   onPressed: request.onEdit,
-                  tone: LibraryDenseButtonTone.accent,
+                  tone: LibraryDenseButtonTone.subtle,
                 ),
-                _ComicToolbarMenuButton(
-                  buttonKey: const ValueKey('comic-toolbar-share-menu'),
-                  label: 'Share',
-                  icon: Icons.share_outlined,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  entries: [
-                    _ComicToolbarMenuEntry(
-                      label: 'Share comic',
-                      icon: Icons.share_outlined,
-                      onSelected: () => showCollectionShareDialog(
-                        context: context,
-                        title: entry.resolvedTitle,
-                        items: [entry],
-                      ),
-                    ),
-                    _ComicToolbarMenuEntry(
-                      label: 'Share comic via e-mail',
-                      icon: Icons.email_outlined,
-                      onSelected: () => showCollectionShareDialog(
-                        context: context,
-                        title: entry.resolvedTitle,
-                        items: [entry],
-                      ),
-                    ),
-                    _ComicToolbarMenuEntry(
-                      label: 'Copy title',
-                      icon: Icons.content_copy_outlined,
-                      onSelected: () => _copyToolbarText(
-                        context,
-                        entry.resolvedTitle,
-                        'Copied title',
-                      ),
-                    ),
-                    if (hasBarcode)
-                      _ComicToolbarMenuEntry(
-                        label: 'Copy barcode',
-                        icon: Icons.qr_code_2_outlined,
-                        onSelected: () => _copyToolbarText(
-                          context,
-                          entry.barcode!.trim(),
-                          'Copied barcode',
-                        ),
-                      ),
-                    const _ComicToolbarMenuEntry(
-                      label: 'CloudShare link',
-                      icon: Icons.cloud_outlined,
-                      enabled: false,
-                    ),
-                  ],
-                ),
-                if (ebayQuery.trim().isNotEmpty)
-                  _ComicToolbarButton(
-                    label: 'eBay',
-                    icon: Icons.storefront_outlined,
-                    onPressed: () => launchEbaySearch(ebayQuery),
-                  ),
                 if (hasMoreEntries) ...[
-                  const _ComicToolbarSeparator(),
                   _ComicToolbarMenuButton(
                     buttonKey: const ValueKey('comic-toolbar-more-menu'),
                     label: 'More',
                     icon: Icons.more_horiz,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     entries: [
+                      _ComicToolbarMenuEntry(
+                        label: 'Share comic',
+                        icon: Icons.share_outlined,
+                        onSelected: () => showCollectionShareDialog(
+                          context: context,
+                          title: entry.resolvedTitle,
+                          items: [entry],
+                        ),
+                      ),
+                      _ComicToolbarMenuEntry(
+                        label: 'Copy title',
+                        icon: Icons.content_copy_outlined,
+                        onSelected: () => _copyToolbarText(
+                          context,
+                          entry.resolvedTitle,
+                          'Copied title',
+                        ),
+                      ),
+                      if (hasBarcode)
+                        _ComicToolbarMenuEntry(
+                          label: 'Copy barcode',
+                          icon: Icons.qr_code_2_outlined,
+                          onSelected: () => _copyToolbarText(
+                            context,
+                            entry.barcode!.trim(),
+                            'Copied barcode',
+                          ),
+                        ),
                       if (request.onToggleOwned != null)
                         _ComicToolbarMenuEntry(
                           label: entry.isOwned
@@ -341,7 +427,7 @@ class _ComicInspectorToolbar extends StatelessWidget {
                   ),
                 ],
                 if (request.extraActions.isNotEmpty) ...[
-                  const _ComicToolbarSeparator(),
+                  const SizedBox(width: 4),
                   for (final action in request.extraActions)
                     action,
                 ],
@@ -396,23 +482,7 @@ class _ComicToolbarButton extends StatelessWidget {
       icon: icon,
       onPressed: onPressed,
       tone: tone,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    );
-  }
-}
-
-class _ComicToolbarSeparator extends StatelessWidget {
-  const _ComicToolbarSeparator();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 12,
-      child: VerticalDivider(
-        width: 6,
-        thickness: 1,
-        color: appPalette(context).divider.withValues(alpha: 0.5),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     );
   }
 }
@@ -476,20 +546,3 @@ void _copyToolbarText(BuildContext context, String value, String message) {
   );
 }
 
-class _ComicSectionDivider extends StatelessWidget {
-  const _ComicSectionDivider({required this.accent});
-
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      height: 1,
-      color: Color.alphaBlend(
-        accent.withValues(alpha: 0.1),
-        palette.divider,
-      ),
-    );
-  }
-}
