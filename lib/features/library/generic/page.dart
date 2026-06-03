@@ -143,6 +143,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
+  Timer? _viewChromeSaveDebounce;
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -314,6 +315,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   void dispose() {
+    _viewChromeSaveDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -1696,7 +1698,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ) {
     final next = update(_viewState ?? _adapter.viewProfile.defaults());
     setState(() => _viewState = next);
-    unawaited(_adapter.viewProfile.save(next));
+    _viewChromeSaveDebounce?.cancel();
+    _viewChromeSaveDebounce = Timer(const Duration(milliseconds: 150), () {
+      unawaited(_adapter.viewProfile.save(next));
+    });
   }
 
   void _setGroupingPanelVisibility(bool isVisible) {

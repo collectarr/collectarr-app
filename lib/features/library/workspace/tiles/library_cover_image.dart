@@ -92,12 +92,7 @@ class LibraryCoverImage extends ConsumerWidget {
         fit: fit,
         gaplessPlayback: true,
         filterQuality: FilterQuality.medium,
-        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-          if (wasSynchronouslyLoaded || frame != null) {
-            return child;
-          }
-          return placeholder;
-        },
+        frameBuilder: (context, child, _, __) => child,
         errorBuilder: (_, __, ___) => placeholder,
       ),
     );

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 typedef LocalItemImageRequest = ({String ownedItemId, String imageType});
 
 final localItemImageProvider =
-    FutureProvider.autoDispose.family<Uint8List?, LocalItemImageRequest>((ref, request) async {
+    FutureProvider.family<Uint8List?, LocalItemImageRequest>((ref, request) async {
   final db = ref.watch(localDatabaseProvider);
   final image = await ItemImagesCacheRepository(db).primaryImageForItem(
     request.ownedItemId,
@@ -17,7 +17,7 @@ final localItemImageProvider =
 });
 
 /// Provides front cover bytes for an owned item, looked up from local DB.
-final localCoverImageProvider = FutureProvider.autoDispose.family<Uint8List?, String>(
+final localCoverImageProvider = FutureProvider.family<Uint8List?, String>(
   (ref, ownedItemId) async {
     return ref.watch(
       localItemImageProvider((

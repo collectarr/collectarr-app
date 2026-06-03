@@ -38,8 +38,8 @@ Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
 /// Seeds the local database with rich dev data if it is empty.
 ///
 /// Call from app startup or a debug menu. Skips seeding if data already exists.
-Future<void> seedLocalDatabase(LocalDatabase db) async {
-  if (!await _isDatabaseEmpty(db)) return;
+Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
+  if (!force && !await _isDatabaseEmpty(db)) return;
 
   final catalogRepo = CatalogCacheRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
