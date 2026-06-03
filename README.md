@@ -172,6 +172,16 @@ bundle-release-level anchors without dropping back to media-specific dialogs.
 Release publishing is manual-only. The `Release` GitHub Actions workflow uses
 `workflow_dispatch`; pushing to `main` runs CI only — no auto-publish.
 
+The release workflow now publishes:
+
+- GitHub Release notes and tag via semantic-release
+- Web container image to GHCR: `ghcr.io/collectarr/collectarr-app-web`
+- Installable release assets for Android (`.apk`, `.aab`), Windows (`.zip`), and macOS (`.zip`)
+
+For web builds, `COLLECTARR_API_BASE_URL` is injected at release time from the
+`COLLECTARR_METADATA_BASE_URL` GitHub secret (repo or org level). You can still
+override it per-run via the optional `metadata_base_url` workflow input.
+
 The first packaged rollout keeps installation manual. The in-app updater stays
 hidden until the release workflow also publishes installer assets that the
 desktop client can install directly.

@@ -18,6 +18,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_published: ${{ steps.semantic_preview.outputs.new_release_published }}
+      release_version: ${{ steps.semantic_preview.outputs.new_release_version }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -113,6 +116,134 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/collectarr-app-web:v${{ steps.semantic_preview.outputs.new_release_version }}
             ghcr.io/${{ github.repository_owner }}/collectarr-app-web:latest
 
+      - name: Upload web bundle asset
+        if: steps.semantic_preview.outputs.new_release_published == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.semantic_preview.outputs.new_release_version }}
+        shell: bash
+        run: |
+          mkdir -p dist
+          (cd build/web && zip -r ../../dist/collectarr-web-v${RELEASE_VERSION}.zip .)
+          gh release upload "v${RELEASE_VERSION}" "dist/collectarr-web-v${RELEASE_VERSION}.zip" --clobber
+
       - name: No release needed
         if: steps.semantic_preview.outputs.new_release_published != 'true'
         run: echo "No releasable changes detected."
+
+  release-android:
+    needs: release
+    if: needs.release.outputs.release_published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Android artifacts
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - name: Upload Android assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/collectarr-android-v${RELEASE_VERSION}.apk
+          cp build/app/outputs/bundle/release/app-release.aab dist/collectarr-android-v${RELEASE_VERSION}.aab
+          gh release upload "v${RELEASE_VERSION}" dist/collectarr-android-v${RELEASE_VERSION}.apk dist/collectarr-android-v${RELEASE_VERSION}.aab --clobber
+
+  release-windows:
+    needs: release
+    if: needs.release.outputs.release_published == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Windows app
+        run: flutter build windows --release
+
+      - name: Package Windows artifact
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "dist/collectarr-windows-v$env:RELEASE_VERSION.zip" -Force
+
+      - name: Upload Windows asset
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        run: gh release upload "v$env:RELEASE_VERSION" "dist/collectarr-windows-v$env:RELEASE_VERSION.zip" --clobber
+
+  release-macos:
+    needs: release
+    if: needs.release.outputs.release_published == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build macOS app
+        run: flutter build macos --release
+
+      - name: Package macOS artifact
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: |
+          mkdir -p dist
+          app_path="$(find build/macos/Build/Products/Release -maxdepth 1 -name "*.app" | head -n 1)"
+          if [ -z "$app_path" ]; then
+            echo "::error title=Missing macOS app bundle::Could not find built .app in build/macos/Build/Products/Release"
+            exit 1
+          fi
+          ditto -c -k --keepParent "$app_path" "dist/collectarr-macos-v${RELEASE_VERSION}.zip"
+
+      - name: Upload macOS asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: gh release upload "v${RELEASE_VERSION}" "dist/collectarr-macos-v${RELEASE_VERSION}.zip" --clobber
