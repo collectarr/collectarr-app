@@ -743,7 +743,7 @@ class _PreviewComic extends StatelessWidget {
             const Positioned(
               right: 3,
               bottom: 3,
-              child: Icon(Icons.check_circle, color: _authAccent, size: 14),
+              child: Icon(Icons.check_circle, color: _authAccent, size: 15),
             ),
         ],
       ),
@@ -764,7 +764,7 @@ class _TinyMeta extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 42,
+            width: 44,
             child: Text(
               label,
               style: const TextStyle(color: _authMuted, fontSize: 11),
@@ -798,7 +798,7 @@ class _AuthStatusBar extends StatelessWidget {
       ),
       child: const Row(
         children: [
-          Icon(Icons.storage, color: _authAccent, size: 14),
+          Icon(Icons.storage, color: _authAccent, size: 16),
           SizedBox(width: 6),
           Text('Local personal database', style: TextStyle(fontSize: 11)),
           VerticalDivider(width: 18, color: _authDivider),
@@ -906,7 +906,7 @@ class _AuthFeatureChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: _authAccent),
+          Icon(icon, size: 16, color: _authAccent),
           const SizedBox(width: 6),
           Text(
             label,
