@@ -81,8 +81,8 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final crossAxisCount = math.max(
           1,
           ((gridWidth + widget.crossAxisSpacing) /
-                  (widget.maxCrossAxisExtent + widget.crossAxisSpacing))
-              .floor(),
+              (widget.maxCrossAxisExtent + widget.crossAxisSpacing))
+            .ceil(),
         );
         final tileWidth =
             (gridWidth - ((crossAxisCount - 1) * widget.crossAxisSpacing)) /
