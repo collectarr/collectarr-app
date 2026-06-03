@@ -4,7 +4,7 @@ part of 'page.dart';
 // Edit dialog launch + result persistence
 // ---------------------------------------------------------------------------
 
-extension _LibraryPageEditHandlerExt on _LibraryPageState {
+extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
   void showDetailPage(LibraryProjectionItem item) {
     if (_canOpenVideoShelfDrilldown(item)) {
       _openVideoShelfDrilldown(item);

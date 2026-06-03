@@ -2,7 +2,7 @@ part of 'page.dart';
 
 /// Dialog launchers for the library page: filters, smart lists, sort, reading
 /// queue, pick-list editors, column chooser, metadata refresh, share, print.
-extension _LibraryPageDialogs on _LibraryPageState {
+extension _GenericLibraryPageDialogs on GenericLibraryPageState {
   Future<void> showFilterDialogFlow(
     LibraryProjection? projection,
   ) async {

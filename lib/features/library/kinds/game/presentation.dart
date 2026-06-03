@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -78,11 +78,58 @@ const gamesLibraryGroupLabels = LibraryMediaGroupLabels(
 const gamesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
 
 String gamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return defaultLibraryBucketLabel(
+  return _simpleLibraryBucketLabel(
     context,
     gamesLibraryGroupLabels,
     gamesLibraryBucketLabelOverrides,
   );
+}
+
+String _simpleLibraryBucketLabel(
+  LibraryBucketingContext context,
+  LibraryMediaGroupLabels labels,
+  LibraryBucketLabelOverrides overrides,
+) {
+  final entry = context.entry;
+  final publisher = entry.publisher?.trim();
+  return switch (context.groupMode) {
+    LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
+    LibraryGroupMode.year =>
+      entry.releaseYear?.toString() ??
+          (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    LibraryGroupMode.publisher =>
+      publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
+    LibraryGroupMode.location => _locationBucket(entry.locationPath),
+    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
+    LibraryGroupMode.ownership => entry.isOwned
+        ? overrides.owned
+        : entry.isWishlisted
+        ? overrides.wishlist
+        : overrides.catalogOnly,
+    _ => context.groupMode.name,
+  };
+}
+
+String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
+  final seriesTitle = entry.series?.seriesTitle?.trim();
+  if (seriesTitle != null && seriesTitle.isNotEmpty) {
+    return seriesTitle;
+  }
+  final title = entry.resolvedTitle.trim();
+  return title.isEmpty ? unknownLabel : title;
+}
+
+String _locationBucket(String? location) {
+  final normalized = location?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return 'No location';
+  }
+  return normalized;
+}
+
+String _titleBucket(String title) {
+  final trimmed = title.trim();
+  return trimmed.isEmpty ? 'Unknown' : trimmed.substring(0, 1).toUpperCase();
 }
 
 const gamesLibrarySortColumnDefinitions = [

@@ -4,7 +4,7 @@ final _random = math.Random();
 
 /// Collection actions, context menu handling, bulk operations, and barcode
 /// scanning for the library page.
-extension _LibraryPageCollectionActions on _LibraryPageState {
+extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   Future<void> runCollectionAction(
     Future<void> Function(LibraryCollectionActions actions) action,
   ) async {

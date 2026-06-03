@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BookLibraryPage extends GenericLibraryPage {
   const BookLibraryPage({
@@ -9,4 +10,9 @@ class BookLibraryPage extends GenericLibraryPage {
     required super.routeUri,
   }) : super(
         );
+
+  @override
+  ConsumerState<GenericLibraryPage> createState() => BookLibraryPageState();
 }
+
+class BookLibraryPageState extends GenericLibraryPageState {}

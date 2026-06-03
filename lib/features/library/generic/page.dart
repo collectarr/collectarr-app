@@ -105,10 +105,10 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
   final Uri routeUri;
 
   @override
-  ConsumerState<GenericLibraryPage> createState() => _LibraryPageState();
+  ConsumerState<GenericLibraryPage> createState() => GenericLibraryPageState();
 }
 
-class _LibraryPageState extends ConsumerState<GenericLibraryPage>
+class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
