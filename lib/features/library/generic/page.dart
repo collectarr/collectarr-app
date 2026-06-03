@@ -146,6 +146,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
   Timer? _viewChromeSaveDebounce;
+  Timer? _searchDebounce;
+  ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
+  String? _lastFacetEnsureSignature;
+  LibraryGroupMode? _lastFacetEnsureMode;
 
   ShelfState? _cachedProjectionShelf;
   LibraryWorkspaceViewState? _cachedProjectionViewState;
@@ -176,6 +180,18 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
+    _shelfSubscription = ref.listenManual<AsyncValue<ShelfState>>(
+      shelfProvider,
+      (_, next) {
+        unawaited(
+          loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
+        );
+        final shelfState = next.asData?.value;
+        if (shelfState != null) {
+          _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
+        }
+      },
+    );
     unawaited(_warmViewStateCachesOnce());
     _viewState = _adapter.viewProfile.defaults();
     _primeCachedViewPreferences();
@@ -296,6 +312,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _videoShelfDrilldownReleaseId = null;
       _facetBucketsByMode.clear();
       _facetLoadsInFlight.clear();
+      _lastFacetEnsureSignature = null;
+      _lastFacetEnsureMode = null;
       _searchController.clear();
       _primeCachedViewPreferences();
       // Start from the next kind's own cached defaults/chrome to avoid
@@ -338,8 +356,36 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void dispose() {
     _viewChromeSaveDebounce?.cancel();
+    _searchDebounce?.cancel();
+    _shelfSubscription?.close();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String _) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 180), () {
+      if (!mounted) {
+        return;
+      }
+      _mutateSidebarScope(() {
+        _activeSmartListId = null;
+        _activeSmartListName = null;
+      });
+    });
+  }
+
+  void _maybeEnsureFacetBucketsLoaded(
+    ShelfState shelf,
+    LibraryGroupMode mode,
+  ) {
+    final signature = _genericShelfSignature(shelf);
+    if (_lastFacetEnsureSignature == signature && _lastFacetEnsureMode == mode) {
+      return;
+    }
+    _lastFacetEnsureSignature = signature;
+    _lastFacetEnsureMode = mode;
+    _ensureFacetBucketsLoaded(shelf, mode);
   }
 
   /// Wrapper for [setState] accessible from part-file extensions.
@@ -352,15 +398,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final shelf = ref.watch(shelfProvider);
     final ownedCopiesValue = ref.watch(collectionProvider);
     final wishlistValue = ref.watch(wishlistProvider);
-    ref.listen<AsyncValue<ShelfState>>(shelfProvider, (_, next) {
-      unawaited(
-        loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
-      );
-      final shelfState = next.asData?.value;
-      if (shelfState != null) {
-        _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
-      }
-    });
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
     final allOwnedCopies = ownedCopiesValue.maybeWhen(
@@ -374,9 +411,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       orElse: () => const <WishlistItem>[],
     );
     if (shelfState != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
-      });
+      _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
     }
     final projection = shelfState == null
         ? null
@@ -414,10 +449,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     adapter: _adapter,
                     onAdd: () => showAddDialogFlow(),
                     onScan: scanBarcodeFlow,
-                    onSearchChanged: (value) => _mutateSidebarScope(() {
-                      _activeSmartListId = null;
-                      _activeSmartListName = null;
-                    }),
+                    onSearchChanged: _onSearchChanged,
                     onEditColumns: showColumnChooserFlow,
                     onSortChanged: (column) => _updateViewState(
                       (state) =>
