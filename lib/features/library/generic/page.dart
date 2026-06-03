@@ -151,6 +151,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   int _viewPreferenceLoadToken = 0;
   int _columnFavoritesLoadToken = 0;
   int _activeLoanIdsLoadToken = 0;
+  int _customFieldLoadToken = 0;
   Timer? _viewStateSaveDebounce;
   Timer? _searchDebounce;
   Timer? _selectionHydrationDebounce;
@@ -186,9 +187,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _shelfSubscription = ref.listenManual<AsyncValue<ShelfState>>(
       shelfProvider,
       (_, next) {
-        unawaited(
-          loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
-        );
+        unawaited(_loadCustomFieldValuesForCurrentKind());
         final shelfState = next.asData?.value;
         if (shelfState != null) {
           _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
@@ -367,9 +366,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       unawaited(_loadViewState());
       unawaited(_loadViewPreferences());
       unawaited(_loadColumnFavoritePresets());
-      unawaited(
-        loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
-      );
+      unawaited(_loadCustomFieldValuesForCurrentKind());
       unawaited(_loadActiveLoanIds());
     } else if (oldWidget.routeUri.toString() != widget.routeUri.toString()) {
       _applyRouteStateFromUri(widget.routeUri);
@@ -1445,6 +1442,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   Future<void> _loadViewState() {
     return _LibraryViewStateControllerOps.loadViewState(this);
+  }
+
+  Future<void> _loadCustomFieldValuesForCurrentKind() {
+    final loadToken = ++_customFieldLoadToken;
+    final expectedKind = widget.type.workspace.kind.apiValue;
+    return loadCustomFieldValues(
+      mediaKind: expectedKind,
+      canApply: () {
+        return mounted &&
+            loadToken == _customFieldLoadToken &&
+            widget.type.workspace.kind.apiValue == expectedKind;
+      },
+    );
   }
 
   Future<void> _warmViewStateCachesOnce() {

@@ -32,7 +32,10 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
       const {};
   List<CustomFieldDefinition> customFieldDefinitions = const [];
 
-  Future<void> loadCustomFieldValues({String? mediaKind}) async {
+  Future<void> loadCustomFieldValues({
+    String? mediaKind,
+    bool Function()? canApply,
+  }) async {
     final db = ref.read(localDatabaseProvider);
     final repo = CustomFieldRepository(db);
     final allValues = await repo.listAllValues();
@@ -56,7 +59,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
         structured[entry.key] = valuesByDefinition;
       }
     }
-    if (mounted) {
+    if (mounted && (canApply?.call() ?? true)) {
       setState(() {
         customFieldValuesByItem = flat;
         customFieldValuesByDefinitionByItem = structured;

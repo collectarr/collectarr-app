@@ -297,7 +297,7 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     );
     if (result != null && mounted) {
       ref.invalidate(shelfProvider);
-      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue);
+      unawaited(_loadCustomFieldValuesForCurrentKind());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -337,7 +337,7 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     );
     if (result != null && mounted) {
       ref.invalidate(shelfProvider);
-      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue);
+      unawaited(_loadCustomFieldValuesForCurrentKind());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
