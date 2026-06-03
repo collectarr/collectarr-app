@@ -38,7 +38,6 @@ const animeLibraryConfig = LibraryTypeConfig(
   defaultMetadataProvider: 'anilist',
   metadataProviders: [
     anilistMetadataProvider,
-    tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
   presentation: moviesLibraryMediaPresentation,

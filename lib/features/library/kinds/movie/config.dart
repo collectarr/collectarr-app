@@ -41,7 +41,6 @@ const moviesLibraryConfig = LibraryTypeConfig(
   defaultMetadataProvider: 'tmdb',
   metadataProviders: [
     tmdbMetadataProvider,
-    anilistMetadataProvider,
   ],
   addDialogLauncher: showMovieLibraryAddDialog,
   trackingProfile: videoTrackingProfile,

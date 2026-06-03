@@ -115,8 +115,8 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     singularLabel: 'Manga',
     pluralLabel: 'Manga',
     routeSegments: ['manga'],
-    defaultProvider: 'mangadex',
-    providers: ['mangadex', 'anilist', 'comicvine', 'hardcover'],
+    defaultProvider: 'hardcover',
+    providers: ['hardcover', 'comicvine', 'anilist', 'mangadex'],
   ),
   CatalogMediaType(
     kind: 'movie',
@@ -124,7 +124,7 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     pluralLabel: 'Movies',
     routeSegments: ['movies', 'movie'],
     defaultProvider: 'tmdb',
-    providers: ['tmdb', 'anilist'],
+    providers: ['tmdb'],
     physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(
@@ -142,7 +142,7 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     pluralLabel: 'Anime',
     routeSegments: ['anime'],
     defaultProvider: 'anilist',
-    providers: ['anilist', 'tmdb'],
+    providers: ['anilist'],
     physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(
