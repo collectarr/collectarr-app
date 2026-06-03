@@ -114,6 +114,23 @@ It does not try to duplicate the Core backend's responsibilities. Canonical
 metadata, provider integrations, ingest/admin logic, and image delivery policy
 live in `collectarr-core`.
 
+## Library Architecture Direction
+
+The current library refactor is intentionally moving away from deep generic
+implementation stacks.
+
+- Shared library code should mostly stop at contracts, adapters, and a small
+  number of truly cross-kind helpers.
+- Public entrypoints should be kind-owned under `lib/features/library/kinds/*`,
+  even when they currently delegate to a shared fallback.
+- Kind-specific behavior is allowed to duplicate local code when that keeps the
+  ownership boundary obvious and easier to follow.
+- `GenericLibraryPage` is now an explicit fallback shell, not the public page
+  surface for known kinds.
+- `BookLibraryPageState` is the first concrete kind state that already owns a
+  real shell decision, and the remaining kinds are expected to follow the same
+  pattern incrementally.
+
 ## Extending Library Metadata
 
 When you add a new library kind or want richer metadata for an existing one,
