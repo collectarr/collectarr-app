@@ -53,13 +53,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (auth.isRestoring) {
         return location == AppRoutes.restoring ? null : AppRoutes.restoring;
       }
-      if (!auth.isAuthenticated) {
-        return location == AppRoutes.auth ? null : AppRoutes.auth;
-      }
       if (location == AppRoutes.restoring) {
         return AppRoutes.libraries;
       }
-      if (location == AppRoutes.auth) {
+      if (location == AppRoutes.auth && auth.isAuthenticated) {
         return AppRoutes.libraries;
       }
       // Non-admin trying to reach admin-only system pages.

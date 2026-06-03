@@ -22,7 +22,6 @@ class AuthPage extends ConsumerStatefulWidget {
 class _AuthPageState extends ConsumerState<AuthPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool isRegister = false;
   bool obscurePassword = true;
   bool _syncedStoredEmail = false;
 
@@ -85,10 +84,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           auth: auth,
                           emailController: emailController,
                           passwordController: passwordController,
-                          isRegister: isRegister,
                           obscurePassword: obscurePassword,
-                          onToggleMode: () =>
-                              setState(() => isRegister = !isRegister),
                           onTogglePassword: () => setState(
                             () => obscurePassword = !obscurePassword,
                           ),
@@ -142,11 +138,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
     final email = emailController.text.trim();
     final password = passwordController.text;
-    if (isRegister) {
-      ref.read(authControllerProvider.notifier).register(email, password);
-    } else {
-      ref.read(authControllerProvider.notifier).login(email, password);
-    }
+    ref.read(authControllerProvider.notifier).login(email, password);
   }
 
   void _fillDevCredentials() {
@@ -249,9 +241,7 @@ class _AuthFormPanel extends StatelessWidget {
     required this.auth,
     required this.emailController,
     required this.passwordController,
-    required this.isRegister,
     required this.obscurePassword,
-    required this.onToggleMode,
     required this.onTogglePassword,
     required this.onFillDevCredentials,
     required this.onSubmit,
@@ -260,9 +250,7 @@ class _AuthFormPanel extends StatelessWidget {
   final AuthState auth;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final bool isRegister;
   final bool obscurePassword;
-  final VoidCallback onToggleMode;
   final VoidCallback onTogglePassword;
   final VoidCallback onFillDevCredentials;
   final VoidCallback onSubmit;
@@ -293,18 +281,14 @@ class _AuthFormPanel extends StatelessWidget {
                 Icon(
                   auth.isRestoring
                       ? Icons.hourglass_top
-                      : isRegister
-                          ? Icons.person_add
-                          : Icons.login,
+                      : Icons.login,
                   color: _authYellow,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   auth.isRestoring
                       ? 'Restoring session'
-                      : isRegister
-                          ? 'Create account'
-                          : 'Login',
+                      : 'Login',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -362,22 +346,15 @@ class _AuthFormPanel extends StatelessWidget {
                         dimension: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Icon(isRegister ? Icons.person_add : Icons.login),
+                    : const Icon(Icons.login),
                 label: Text(
                   auth.isRestoring
                       ? 'Restoring...'
-                      : isRegister
-                          ? 'Register'
-                          : 'Login',
+                      : 'Login',
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            TextButton(
-              onPressed: isBusy ? null : onToggleMode,
-              child:
-                  Text(isRegister ? 'Use existing account' : 'Create account'),
-            ),
             OutlinedButton.icon(
               onPressed: isBusy ? null : onFillDevCredentials,
               icon: const Icon(Icons.science_outlined, size: 18),
