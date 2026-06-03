@@ -93,6 +93,7 @@ part 'page_collection_actions.dart';
 part 'page_facet_controller.dart';
 part 'page_scope_controller.dart';
 part 'page_view_state_controller.dart';
+part 'page_projection_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -987,167 +988,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
-    final mode = _activeGroupMode;
-    final facetBuckets = _facetBucketsForMode(mode, shelf);
-    final constrainedItemIds =
-        (_usesExternalFacetBuckets(mode) && _selectedBucket != null)
-            ? facetBuckets?.itemIdsByBucket[_selectedBucket!]
-            : null;
-    final bucketScopeFilters = _sidebarBucketScopeFilters;
-    final overrideBuckets = facetBuckets?.buckets;
-    final linkedMetadataFilter = _linkedMetadataFilter;
-    final selectedBucket =
-        _usesExternalFacetBuckets(mode) ? null : _selectedBucket;
-    final selectedItemId = _selectedId;
-    final quickView = _quickView;
-    final collectionStatusScope = _collectionStatusScope;
-    final filterSelection = _filterSelection;
-    final customFieldValues = customFieldValuesByItem;
-    final customFieldValuesByDefinition =
-        customFieldValuesByDefinitionByItem;
-    final activeLoanOwnedItemIds = _activeLoanOwnedItemIds;
-    final query = _searchController.text;
-    final projectionSignature = _projectionSignature(
-      shelf: shelf,
-      viewState: viewState,
-      query: query,
-      mode: mode,
-      selectedBucket: selectedBucket,
-      selectedItemId: selectedItemId,
-      quickView: quickView,
-      collectionStatusScope: collectionStatusScope,
-      filterSelection: filterSelection,
-      constrainedItemIds: constrainedItemIds,
-      customFieldValuesByItem: customFieldValues,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+    return _LibraryProjectionControllerOps.projectionForShelf(
+      this,
+      shelf,
+      viewState,
     );
-
-    final canReuseProjection =
-        _cachedProjection != null && _cachedProjectionSignature == projectionSignature;
-
-    if (canReuseProjection) {
-      return _cachedProjection!;
-    }
-
-    final projection = LibraryProjection.fromShelf(
-      shelf: shelf,
-      type: widget.type,
-      adapter: _adapter,
-      viewState: viewState,
-      query: query,
-      linkedMetadataFilter: linkedMetadataFilter,
-      selectedBucket: selectedBucket,
-      selectedItemId: selectedItemId,
-      quickView: quickView,
-      collectionStatusScope: collectionStatusScope,
-      groupMode: mode,
-      bucketScopeFilters: bucketScopeFilters,
-      overrideBuckets: overrideBuckets,
-      constrainedItemIds: constrainedItemIds,
-      filterSelection: filterSelection,
-      customFieldValuesByItem: customFieldValues,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
-    );
-
-    _cachedProjectionSignature = projectionSignature;
-    _cachedProjection = projection;
-    return projection;
-  }
-
-  String _projectionSignature({
-    required ShelfState shelf,
-    required LibraryWorkspaceViewState viewState,
-    required String query,
-    required LibraryGroupMode mode,
-    required String? selectedBucket,
-    required String? selectedItemId,
-    required LibraryQuickView? quickView,
-    required LibraryCollectionStatusScope collectionStatusScope,
-    required LibraryFilterSelection filterSelection,
-    required Set<String>? constrainedItemIds,
-    required Map<String, List<String>> customFieldValuesByItem,
-    required Map<String, Map<String, String>>
-        customFieldValuesByDefinitionByItem,
-    required Set<String> activeLoanOwnedItemIds,
-  }) {
-    final shelfSignature = _genericShelfSignature(shelf);
-    final normalizedQuery = query.trim().toLowerCase();
-    return Object.hashAll([
-      shelfSignature,
-      viewState.hashCode,
-      normalizedQuery,
-      mode,
-      selectedBucket,
-      selectedItemId,
-      quickView,
-      collectionStatusScope,
-      _seriesCompletionScope,
-      filterSelection.hashCode,
-      _linkedMetadataFilter?.value,
-      _stableSetSignature(constrainedItemIds),
-      _stableSetSignature(activeLoanOwnedItemIds),
-      _customFieldValuesSignatureForProjection(customFieldValuesByItem),
-      _customFieldValuesByDefinitionSignatureForProjection(
-        customFieldValuesByDefinitionByItem,
-      ),
-    ]).toString();
-  }
-
-  int _customFieldValuesSignatureForProjection(
-    Map<String, List<String>> values,
-  ) {
-    if (identical(_cachedCustomFieldValuesForSignature, values) &&
-        _cachedCustomFieldValuesSignature != null) {
-      return _cachedCustomFieldValuesSignature!;
-    }
-    final sortedKeys = values.keys.toList(growable: false)..sort();
-    var signature = values.length;
-    for (final key in sortedKeys) {
-      final entries = List<String>.from(values[key] ?? const <String>[])
-        ..sort();
-      signature = Object.hash(
-        signature,
-        key,
-        entries.length,
-        Object.hashAll(entries),
-      );
-    }
-    _cachedCustomFieldValuesForSignature = values;
-    _cachedCustomFieldValuesSignature = signature;
-    return signature;
-  }
-
-  int _customFieldValuesByDefinitionSignatureForProjection(
-    Map<String, Map<String, String>> values,
-  ) {
-    if (identical(_cachedCustomFieldValuesByDefinitionForSignature, values) &&
-        _cachedCustomFieldValuesByDefinitionSignature != null) {
-      return _cachedCustomFieldValuesByDefinitionSignature!;
-    }
-    final sortedOuterKeys = values.keys.toList(growable: false)..sort();
-    var signature = values.length;
-    for (final outerKey in sortedOuterKeys) {
-      final inner = values[outerKey] ?? const <String, String>{};
-      final sortedInnerKeys = inner.keys.toList(growable: false)..sort();
-      var innerSignature = inner.length;
-      for (final innerKey in sortedInnerKeys) {
-        innerSignature = Object.hash(innerSignature, innerKey, inner[innerKey]);
-      }
-      signature = Object.hash(signature, outerKey, innerSignature);
-    }
-    _cachedCustomFieldValuesByDefinitionForSignature = values;
-    _cachedCustomFieldValuesByDefinitionSignature = signature;
-    return signature;
-  }
-
-  int _stableSetSignature(Set<String>? values) {
-    if (values == null || values.isEmpty) {
-      return 0;
-    }
-    final sorted = values.toList(growable: false)..sort();
-    return Object.hash(values.length, Object.hashAll(sorted));
   }
 
   LibraryGroupMode? get _activeSidebarGroupMode {
