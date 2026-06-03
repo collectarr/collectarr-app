@@ -62,6 +62,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
       bundleReleaseId: entry.referenceBundleReleaseId,
     );
     final comic = entry.comic;
+    final strongSelection =
+        selected && entry.browseScope != LibraryBrowserScope.title;
     return RepaintBoundary(
       child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -70,9 +72,20 @@ class LibraryWorkspaceCard extends StatelessWidget {
         color: selected ? resolvedSelectedColor : palette.cardBackground,
         border: Border.all(
           color: selected ? accentColor : palette.cardBorder,
-          width: selected ? 2 : 1,
+          width: selected ? (strongSelection ? 3 : 2) : 1,
         ),
         borderRadius: kAppRadiusSmall,
+        boxShadow: strongSelection
+            ? [
+                BoxShadow(
+                  color: accentColor.withValues(
+                    alpha: palette.isDark ? 0.34 : 0.26,
+                  ),
+                  blurRadius: 16,
+                  spreadRadius: 1,
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,

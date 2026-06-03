@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_librar
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -110,6 +111,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final scoreLabel = _audienceScoreLabel(metadataPresentation);
     final comic = entry.comic;
     final auxiliaryBadges = _auxiliaryBadges(entry);
+    final strongSelection =
+      selected && entry.browseScope != LibraryBrowserScope.title;
 
     return RepaintBoundary(
       child: Container(
@@ -122,11 +125,14 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           borderRadius: flat ? BorderRadius.zero : kAppRadiusSmall,
           border: flat
               ? (selected
-                  ? Border.all(color: widget.accentColor, width: 2)
+                  ? Border.all(
+                      color: widget.accentColor,
+                      width: strongSelection ? 3 : 2,
+                    )
                   : null)
               : Border.all(
                   color: selected ? widget.accentColor : palette.cardBorder,
-                  width: selected ? 2 : 1,
+                  width: selected ? (strongSelection ? 3 : 2) : 1,
                 ),
           boxShadow: flat
               ? null
@@ -138,6 +144,14 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
+                  if (strongSelection)
+                    BoxShadow(
+                      color: widget.accentColor.withValues(
+                        alpha: palette.isDark ? 0.38 : 0.28,
+                      ),
+                      blurRadius: 14,
+                      spreadRadius: 1,
+                    ),
                 ],
         ),
         child: Material(
