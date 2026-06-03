@@ -90,6 +90,9 @@ import 'package:uuid/uuid.dart';
 part 'page_edit_handler.dart';
 part 'page_dialogs.dart';
 part 'page_collection_actions.dart';
+part 'page_facet_controller.dart';
+part 'page_scope_controller.dart';
+part 'page_view_state_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -110,7 +113,7 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
 }
 
 class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
-    with LibraryPageUtilities {
+  with LibraryPageUtilities {
   static bool _viewStateCacheWarmupStarted = false;
 
   final _searchController = TextEditingController();
@@ -403,17 +406,37 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     });
   }
 
+  void _mutateState(VoidCallback mutate) {
+    if (!mounted) {
+      return;
+    }
+    setState(mutate);
+  }
+
   void _maybeEnsureFacetBucketsLoaded(
     ShelfState shelf,
     LibraryGroupMode mode,
   ) {
-    final signature = _genericShelfSignature(shelf);
-    if (_lastFacetEnsureSignature == signature && _lastFacetEnsureMode == mode) {
-      return;
-    }
-    _lastFacetEnsureSignature = signature;
-    _lastFacetEnsureMode = mode;
-    _ensureFacetBucketsLoaded(shelf, mode);
+    _LibraryFacetControllerOps.maybeEnsureFacetBucketsLoaded(this, shelf, mode);
+  }
+
+  bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
+    return _LibraryFacetControllerOps.usesExternalFacetBuckets(this, mode);
+  }
+
+  FacetBuckets? _facetBucketsForMode(
+    LibraryGroupMode mode,
+    ShelfState shelf,
+  ) {
+    return _LibraryFacetControllerOps.facetBucketsForMode(this, mode, shelf);
+  }
+
+  String _facetLoadKey(LibraryGroupMode mode, String signature) {
+    return _LibraryFacetControllerOps.facetLoadKey(this, mode, signature);
+  }
+
+  String _genericShelfSignature(ShelfState shelf) {
+    return _LibraryFacetControllerOps.genericShelfSignature(this, shelf);
   }
 
   /// Wrapper for [setState] accessible from part-file extensions.
@@ -1116,146 +1139,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _activeSmartListId != null ||
       _filterSelection.hasActiveFilters;
 
-  bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
-    return widget.type.presentation.externalFacetBucketModes.contains(mode);
-  }
-
-  FacetBuckets? _facetBucketsForMode(
-    LibraryGroupMode mode,
-    ShelfState shelf,
-  ) {
-    if (!_usesExternalFacetBuckets(mode)) {
-      return null;
-    }
-    final signature = _genericShelfSignature(shelf);
-    final cached = _facetBucketsByMode[mode];
-    if (cached != null && cached.shelfSignature == signature) {
-      return cached;
-    }
-    return FacetBuckets(
-      shelfSignature: signature,
-      buckets: [
-        LibrarySeriesBucket(
-          title: genericAllBucketLabel(widget.type),
-          count: libraryItemsForShelf(shelf, widget.type).length,
-        ),
-      ],
-      itemIdsByBucket: const {},
-    );
-  }
-
-  void _ensureFacetBucketsLoaded(
-    ShelfState shelf,
-    LibraryGroupMode mode,
-  ) {
-    if (!_usesExternalFacetBuckets(mode)) {
-      return;
-    }
-    final signature = _genericShelfSignature(shelf);
-    final cached = _facetBucketsByMode[mode];
-    if (cached != null && cached.shelfSignature == signature) {
-      return;
-    }
-    final loadKey = _facetLoadKey(mode, signature);
-    if (_facetLoadsInFlight.contains(loadKey)) {
-      return;
-    }
-    _facetLoadsInFlight.add(loadKey);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-    unawaited(_loadFacetBuckets(mode, shelf, signature));
-  }
-
-  Future<void> _loadFacetBuckets(
-    LibraryGroupMode mode,
-    ShelfState shelf,
-    String signature,
-  ) async {
-    final loadKey = _facetLoadKey(mode, signature);
-    final shelfItemIds = {
-      for (final item in libraryItemsForShelf(shelf, widget.type))
-        item.entry.id,
-    };
-    try {
-      final buckets = await fetchFacetBuckets(
-        itemIds: shelfItemIds,
-        signature: signature,
-        isStoryArc: mode == LibraryGroupMode.storyArc,
-        allBucketLabel: genericAllBucketLabel(widget.type),
-      ).timeout(const Duration(seconds: 8));
-      if (!mounted) return;
-      final latestShelf = ref.read(shelfProvider).asData?.value;
-      if (latestShelf == null ||
-          _genericShelfSignature(latestShelf) != signature) {
-        return;
-      }
-      setState(() {
-        _facetBucketsByMode[mode] = buckets;
-        if (_selectedBucket != null &&
-            !buckets.buckets.any((b) => b.title == _selectedBucket)) {
-          _selectedBucket = null;
-        }
-      });
-    } catch (e, st) {
-      logRecoverableError(
-        source: 'GenericLibraryPage',
-        message: 'Facet load failed for $mode',
-        error: e,
-        stackTrace: st,
-      );
-      if (!mounted) {
-        return;
-      }
-      final latestShelf = ref.read(shelfProvider).asData?.value;
-      if (latestShelf == null ||
-          _genericShelfSignature(latestShelf) != signature) {
-        return;
-      }
-      setState(() {
-        _facetBucketsByMode[mode] = FacetBuckets(
-          shelfSignature: signature,
-          buckets: [
-            LibrarySeriesBucket(
-              title: genericAllBucketLabel(widget.type),
-              count: shelfItemIds.length,
-            ),
-          ],
-          itemIdsByBucket: const {},
-        );
-        _selectedBucket = null;
-      });
-    } finally {
-      _facetLoadsInFlight.remove(loadKey);
-      if (mounted) {
-        setState(() {});
-      }
-    }
-  }
-
-  String _facetLoadKey(LibraryGroupMode mode, String signature) {
-    return '${widget.type.workspace.kind.apiValue}|$mode|$signature';
-  }
-
-  String _genericShelfSignature(ShelfState shelf) {
-    final kind = widget.type.workspace.kind.apiValue;
-    if (identical(_cachedSignatureShelf, shelf) &&
-        _cachedSignatureKind == kind &&
-        _cachedShelfSignature != null) {
-      return _cachedShelfSignature!;
-    }
-    final signature = LibraryPageUtilities.shelfSignature([
-      for (final item in libraryItemsForShelf(shelf, widget.type))
-        item.entry.id,
-    ]);
-    _cachedSignatureShelf = shelf;
-    _cachedSignatureKind = kind;
-    _cachedShelfSignature = signature;
-    return signature;
-  }
-
   Future<void> _loadColumnFavoritePresets() async {
     try {
       final presets =
@@ -1584,227 +1467,41 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return labels.take(8).join(', ');
   }
 
-  List<String> get _sidebarBreadcrumbs {
-    return buildLibrarySidebarBreadcrumbs(
-      rootLabel: 'All ${widget.type.pluralLabel}',
-      history: _scopeHistory,
-      current: _captureSidebarScope(),
-      labelForScope: _sidebarScopeLabel,
-    );
-  }
+  List<String> get _sidebarBreadcrumbs =>
+      _LibraryScopeControllerOps.sidebarBreadcrumbs(this);
 
-  List<LibraryBucketScopeFilter> get _sidebarBucketScopeFilters {
-    return [
-      for (final snapshot in _scopeHistory)
-        if (snapshot.selectedBucket != null)
-          LibraryBucketScopeFilter(
-            groupMode: snapshot.groupMode,
-            bucket: snapshot.selectedBucket!,
-          ),
-    ];
-  }
+  List<LibraryBucketScopeFilter> get _sidebarBucketScopeFilters =>
+      _LibraryScopeControllerOps.sidebarBucketScopeFilters(this);
 
-  List<String> get _sidebarAncestorScopeLabels {
-    return [
-      for (final snapshot in _scopeHistory)
-        if (snapshot.selectedBucket != null) _sidebarScopeLabel(snapshot),
-    ];
-  }
+  List<String> get _sidebarAncestorScopeLabels =>
+      _LibraryScopeControllerOps.sidebarAncestorScopeLabels(this);
 
   void _navigateSidebarToAncestorScope(int index) {
-    final bucketIndexes = <int>[
-      for (var historyIndex = 0;
-          historyIndex < _scopeHistory.length;
-          historyIndex += 1)
-        if (_scopeHistory[historyIndex].selectedBucket != null) historyIndex,
-    ];
-    if (index < 0 || index >= bucketIndexes.length) {
-      return;
-    }
-    _navigateSidebarToBreadcrumb(bucketIndexes[index] + 1);
+    _LibraryScopeControllerOps.navigateSidebarToAncestorScope(this, index);
   }
 
   void _setSelectedBucket(String? bucket) {
-    final childMode = bucket == null
-        ? null
-        : _activeFolderPreset.nextModeAfter(_activeGroupMode);
-    if (childMode != null) {
-      final previous = _captureSidebarScope();
-      final drilldownSource = LibrarySidebarScopeSnapshot(
-        groupMode: previous.groupMode,
-        selectedBucket: bucket,
-        selectedLetter: null,
-        linkedMetadataFilter: null,
-        collectionStatusScope: previous.collectionStatusScope,
-        quickView: previous.quickView,
-        filterSelection: previous.filterSelection,
-        activeSmartListId: null,
-        activeSmartListName: null,
-        searchQuery: previous.searchQuery,
-      );
-      final next = LibrarySidebarScopeSnapshot(
-        groupMode: childMode,
-        collectionStatusScope: previous.collectionStatusScope,
-        quickView: previous.quickView,
-        filterSelection: previous.filterSelection,
-        searchQuery: previous.searchQuery,
-      );
-      setState(() {
-        _scopeHistory = updateLibrarySidebarScopeHistory(
-          history: _scopeHistory,
-          previous: drilldownSource,
-          next: next,
-        );
-        _groupMode = childMode;
-        _selectedBucket = null;
-        _selectedLetter = null;
-        _linkedMetadataFilter = null;
-        _activeSmartListId = null;
-        _activeSmartListName = null;
-      });
-      _syncRouteState();
-      return;
-    }
-    _mutateSidebarScope(() {
-      _selectedBucket = bucket;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
+    _LibraryScopeControllerOps.setSelectedBucket(this, bucket);
   }
 
   void _setSelectedLetter(String? letter) {
-    _mutateSidebarScope(() {
-      _selectedLetter = letter;
-      _selectedBucket = null;
-      _linkedMetadataFilter = null;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
+    _LibraryScopeControllerOps.setSelectedLetter(this, letter);
   }
 
   void _toggleLinkedMetadataFilter(String value) {
-    _mutateSidebarScope(() {
-      _linkedMetadataFilter = _linkedMetadataFilter?.value == value
-          ? null
-          : LibraryLinkedMetadataFilter(value: value);
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
+    _LibraryScopeControllerOps.toggleLinkedMetadataFilter(this, value);
   }
 
   void _mutateSidebarScope(VoidCallback mutate) {
-    final previous = _captureSidebarScope();
-    mutate();
-    final next = _captureSidebarScope();
-    if (next == previous) {
-      return;
-    }
-    setState(() {
-      _scopeHistory = updateLibrarySidebarScopeHistory(
-        history: _scopeHistory,
-        previous: previous,
-        next: next,
-      );
-    });
-    _syncRouteState();
-  }
-
-  LibrarySidebarScopeSnapshot _captureSidebarScope() {
-    return LibrarySidebarScopeSnapshot(
-      groupMode: _activeGroupMode,
-      selectedBucket: _selectedBucket,
-      selectedLetter: _selectedLetter,
-      linkedMetadataFilter: _linkedMetadataFilter,
-      collectionStatusScope: _collectionStatusScope,
-      seriesCompletionScope: _seriesCompletionScope,
-      quickView: _quickView,
-      filterSelection: _filterSelection,
-      activeSmartListId: _activeSmartListId,
-      activeSmartListName: _activeSmartListName,
-      searchQuery: _searchController.text.trim(),
-    );
-  }
-
-  void _applySidebarScopeSnapshot(LibrarySidebarScopeSnapshot snapshot) {
-    _groupMode = snapshot.groupMode;
-    _selectedBucket = snapshot.selectedBucket;
-    _selectedLetter = snapshot.selectedLetter;
-    _linkedMetadataFilter = snapshot.linkedMetadataFilter;
-    _collectionStatusScope = snapshot.collectionStatusScope;
-    _seriesCompletionScope = snapshot.seriesCompletionScope;
-    _quickView = snapshot.quickView;
-    _filterSelection = snapshot.filterSelection;
-    _activeSmartListId = snapshot.activeSmartListId;
-    _activeSmartListName = snapshot.activeSmartListName;
-    _searchController.value = _searchController.value.copyWith(
-      text: snapshot.searchQuery,
-      selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
-      composing: TextRange.empty,
-    );
+    _LibraryScopeControllerOps.mutateSidebarScope(this, mutate);
   }
 
   void _navigateSidebarBack() {
-    final navigation = popLibrarySidebarScopeHistory(_scopeHistory);
-    if (navigation == null) {
-      return;
-    }
-    setState(() {
-      _scopeHistory = navigation.history;
-      _applySidebarScopeSnapshot(navigation.target);
-    });
-    _syncRouteState();
+    _LibraryScopeControllerOps.navigateSidebarBack(this);
   }
 
   void _navigateSidebarToBreadcrumb(int index) {
-    final navigation = navigateLibrarySidebarScopeHistoryToBreadcrumb(
-      history: _scopeHistory,
-      index: index,
-      rootScope: LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
-    );
-    if (navigation == null) {
-      return;
-    }
-    setState(() {
-      _scopeHistory = navigation.history;
-      _applySidebarScopeSnapshot(navigation.target);
-    });
-    _syncRouteState();
-  }
-
-  String _sidebarScopeLabel(LibrarySidebarScopeSnapshot snapshot) {
-    if (snapshot.selectedBucket != null) {
-      return '${genericGroupModeLabel(snapshot.groupMode, widget.type)}: ${snapshot.selectedBucket}';
-    }
-    if (snapshot.linkedMetadataFilter != null) {
-      return snapshot.linkedMetadataFilter!.chipLabel;
-    }
-    if (snapshot.collectionStatusScope != LibraryCollectionStatusScope.all) {
-      return snapshot.collectionStatusScope.label;
-    }
-    if (snapshot.seriesCompletionScope != LibrarySeriesCompletionScope.all) {
-      return snapshot.seriesCompletionScope.label;
-    }
-    if (snapshot.selectedLetter != null) {
-      return 'Letter ${snapshot.selectedLetter}';
-    }
-    if (snapshot.activeSmartListName != null &&
-        snapshot.activeSmartListName!.trim().isNotEmpty) {
-      return snapshot.activeSmartListName!;
-    }
-    if (snapshot.quickView != null) {
-      return snapshot.quickView!.label;
-    }
-    if (snapshot.filterSelection.hasActiveFilters) {
-      return '${snapshot.filterSelection.activeFilterCount} filters';
-    }
-    if (snapshot.searchQuery.trim().isNotEmpty) {
-      return 'Search';
-    }
-    return 'All ${widget.type.pluralLabel}';
+    _LibraryScopeControllerOps.navigateSidebarToBreadcrumb(this, index);
   }
 
   void _clearFilters() {
@@ -1888,114 +1585,28 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     });
   }
 
-  Future<void> _loadViewState() async {
-    try {
-      final token = ++_viewStateLoadToken;
-      final expectedKind = widget.type.workspace.kind;
-      final state = await _adapter.viewProfile.load();
-      if (mounted &&
-          token == _viewStateLoadToken &&
-          widget.type.workspace.kind == expectedKind) {
-        if (_viewStateEquals(_viewState, state)) {
-          return;
-        }
-        setState(() {
-          _viewState = state;
-          _applyRouteStateFromUri(widget.routeUri);
-        });
-      }
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_page',
-        message: 'Failed to load view state.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+  Future<void> _loadViewState() {
+    return _LibraryViewStateControllerOps.loadViewState(this);
   }
 
-  Future<void> _warmViewStateCachesOnce() async {
-    if (_viewStateCacheWarmupStarted) {
-      return;
-    }
-    _viewStateCacheWarmupStarted = true;
-    for (final adapter in collectarrMediaAdapters.adapters) {
-      try {
-        await adapter.viewProfile.load();
-      } catch (error, stackTrace) {
-        logRecoverableError(
-          source: 'library_page',
-          message: 'Failed to warm library view-state cache.',
-          error: error,
-          stackTrace: stackTrace,
-        );
-      }
-    }
-  }
-
-  bool _viewStateEquals(
-    LibraryWorkspaceViewState? left,
-    LibraryWorkspaceViewState right,
-  ) {
-    if (left == null) {
-      return false;
-    }
-    if (left.viewMode != right.viewMode ||
-        left.detailsLayout != right.detailsLayout ||
-        left.isSidebarVisible != right.isSidebarVisible ||
-        left.sortColumn != right.sortColumn ||
-        left.sortAscending != right.sortAscending ||
-        left.coverSize != right.coverSize ||
-        left.sidebarWidth != right.sidebarWidth ||
-        left.detailsWidth != right.detailsWidth ||
-        left.detailsHeight != right.detailsHeight) {
-      return false;
-    }
-    return setEquals(left.visibleColumns, right.visibleColumns) &&
-        mapEquals(left.columnWidths, right.columnWidths) &&
-        listEquals(left.sortRules, right.sortRules);
+  Future<void> _warmViewStateCachesOnce() {
+    return _LibraryViewStateControllerOps.warmViewStateCachesOnce(this);
   }
 
   void _updateViewState(
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState state) update,
   ) {
-    final next = update(_viewState ?? _adapter.viewProfile.defaults());
-    setState(() => _viewState = next);
-    _syncRouteState();
-    _scheduleViewStateSave(next);
-  }
-
-  void _scheduleViewStateSave(LibraryWorkspaceViewState state) {
-    _viewStateSaveDebounce?.cancel();
-    _viewStateSaveDebounce = Timer(const Duration(milliseconds: 250), () {
-      unawaited(_adapter.viewProfile.save(state));
-    });
+    _LibraryViewStateControllerOps.updateViewState(this, update);
   }
 
   void _updateViewChrome(
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState state) update,
   ) {
-    final next = update(_viewState ?? _adapter.viewProfile.defaults());
-    setState(() => _viewState = next);
-    _scheduleViewStateSave(next);
+    _LibraryViewStateControllerOps.updateViewChrome(this, update);
   }
 
   void _setGroupingPanelVisibility(bool isVisible) {
-    final current = _viewState ?? _adapter.viewProfile.defaults();
-    final next = current.copyWith(isSidebarVisible: isVisible);
-    setState(() {
-      _viewState = next;
-      if (!isVisible) {
-        _groupMode = null;
-        _selectedBucket = null;
-        _scopeHistory = const [];
-      }
-    });
-    if (!isVisible) {
-      unawaited(_viewPrefs.writeGroupMode(null));
-    }
-    _syncRouteState();
-    _scheduleViewStateSave(next);
+    _LibraryViewStateControllerOps.setGroupingPanelVisibility(this, isVisible);
   }
 
   void _setQuickView(LibraryQuickView? view) {
