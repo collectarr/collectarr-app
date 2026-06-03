@@ -99,11 +99,16 @@
 - [x] Move simple bucket-label builders into `book`, `game`, `boardgame`, `music`, and generic presentation files
 - [x] Make `BookLibraryPageState` the first concrete kind state and move the drilldown decision into that local state
 - [x] Fork concrete page-state ownership for `game`, `boardgame`, `music`, `movie`, and `comic`
-- [ ] Continue exposing small overridable hooks from `GenericLibraryPageState` and move the corresponding behavior into kind-local states one decision at a time
+- [x] Continue exposing small overridable hooks from `GenericLibraryPageState` and move the corresponding behavior into kind-local states one decision at a time
 - [x] Decide whether `movie` keeps the shared video drilldown behavior as a reusable base hook or gets its own explicit local implementation
-- [ ] Move any remaining kind-specific toolbar/sidebar/detail-shell decisions out of `generic/page.dart` into `kinds/*/page.dart`
-- [ ] Shrink `GenericLibraryPage` to a thin fallback shell plus shared utilities instead of the primary behavior owner for known kinds
-- [ ] Re-evaluate `kinds/shared/workspace_presentation_support.dart` after movie/comic migration; keep only helpers that are still truly shared after the shell split
+- [x] Move any remaining kind-specific toolbar/sidebar/detail-shell decisions out of `generic/page.dart` into `kinds/*/page.dart`
+  - Last hardcoded `CatalogMediaKind.comic` check in `workspace.dart` replaced with `presentation.usesCompactTableLayout` config flag
+  - Remaining `widget.type.*` reads in shell are legitimate config lookups, not kind branches
+- [x] Shrink `GenericLibraryPage` to a thin fallback shell plus shared utilities instead of the primary behavior owner for known kinds
+  - Shell defaults are now inert (false/null); all behavioral hooks are explicitly opted-in by kind-local states
+  - Video drilldown logic is shared via `VideoDrilldownLibraryPageState` base, not shell decisions
+- [x] Re-evaluate `kinds/shared/workspace_presentation_support.dart` after movie/comic migration; keep only helpers that are still truly shared after the shell split
+  - File has 2 consumers (movie, comic presentations) — correctly scoped as a shared bucket-label utility
 - [x] Add focused page-state coverage for kind-local hook overrides so further shell extraction stays safe
 
 Architecture rule for this track: prefer kind-local ownership and explicit code over additional generic helper layers, even when that introduces controlled duplication.

@@ -732,6 +732,7 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.character,
   ],
   supportsSeriesIssueJump: true,
+  usesCompactTableLayout: true,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
   sortColumnDefinitions: comicsLibrarySortColumnDefinitions,
