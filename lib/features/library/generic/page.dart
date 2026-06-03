@@ -489,6 +489,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           projection == null ? null : () => _selectAllVisible(projection),
       onDelete:
           projection == null ? null : () => _removeVisibleSelection(projection),
+      onNextItem:
+        projection == null ? null : () => _navigateKeyboardSelection(projection, 1),
+      onPreviousItem:
+        projection == null ? null : () => _navigateKeyboardSelection(projection, -1),
+      onEscape: _handleKeyboardEscape,
       child: Scaffold(
         backgroundColor: appPalette(context).canvas,
         floatingActionButton: useFab
@@ -700,6 +705,20 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
+    if (_releaseFolderTitleItemId != null && projection.filteredItems.isNotEmpty) {
+      final hasSelection = projection.filteredItems.any(
+        (item) => item.entry.id == _selectedId,
+      );
+      if (!hasSelection) {
+        final firstReleaseId = projection.filteredItems.first.entry.id;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || _selectedId == firstReleaseId) {
+            return;
+          }
+          _activateItem(firstReleaseId);
+        });
+      }
+    }
     final trimmedSearchQuery = _searchController.text.trim();
     final seriesStatusSummary = _seriesStatusSummaryForProjection(projection);
     if (kDebugMode &&
@@ -1756,6 +1775,39 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _removeVisibleSelection(LibraryProjection projection) {
     _LibrarySelectionControllerOps.removeVisibleSelection(this, projection);
+  }
+
+  void _navigateKeyboardSelection(LibraryProjection projection, int delta) {
+    final items = projection.filteredItems;
+    if (items.isEmpty) {
+      return;
+    }
+    final currentIndex = items.indexWhere((item) => item.entry.id == _selectedId);
+    final nextIndex = currentIndex < 0
+        ? (delta < 0 ? items.length - 1 : 0)
+        : (currentIndex + delta).clamp(0, items.length - 1);
+    _activateItem(items[nextIndex].entry.id);
+  }
+
+  void _handleKeyboardEscape() {
+    if (_releaseFolderTitleItemId != null) {
+      _closeReleaseFolder();
+      return;
+    }
+    if (_videoShelfDrilldownTitleItemId != null) {
+      setState(() {
+        _videoShelfDrilldownTitleItemId = null;
+        _videoShelfDrilldownReleaseId = null;
+      });
+      return;
+    }
+    if (_selection.itemIds.isNotEmpty || _selectedId != null) {
+      setState(() {
+        _selection = _selection.clear();
+        _selectionAnchorId = null;
+        _selectedId = null;
+      });
+    }
   }
 
   bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
