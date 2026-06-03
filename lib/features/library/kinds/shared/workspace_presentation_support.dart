@@ -12,189 +12,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
-LibraryWorkspaceEntry buildGenericLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source);
-  return GenericWorkspaceEntry(
-    common: input.common,
-    series: input.item.series,
-    publishing: input.item.publishing,
-    video: input.item.video,
-    music: input.item.music,
-    game: input.item.game,
-  );
-}
-
-LibraryWorkspaceEntry buildBooksLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'book');
-  return BookWorkspaceEntry(
-    common: input.common,
-    series: input.item.series,
-    publishing: input.item.publishing,
-  );
-}
-
-LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'boardgame');
-  return BoardGameWorkspaceEntry(
-    common: input.common,
-    series: input.item.series,
-    publishing: input.item.publishing,
-    game: input.item.game,
-  );
-}
-
-LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'game');
-  return GameWorkspaceEntry(
-    common: input.common,
-    series: input.item.series,
-    publishing: input.item.publishing,
-    game: input.item.game,
-  );
-}
-
-LibraryWorkspaceEntry buildMusicLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'music');
-  return MusicWorkspaceEntry(
-    common: input.common,
-    series: input.item.series,
-    publishing: input.item.publishing,
-    music: input.item.music,
-  );
-}
-
-LibraryWorkspaceEntry buildMoviesLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source);
-  return _buildVideoWorkspaceEntry(
-    common: input.common,
-    series: input.item.series,
-    publishing: input.item.publishing,
-    video: input.item.video,
-  );
-}
-
-LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  final input = _buildShelfWorkspaceEntryInput(source, mediaType: 'comic');
-  return ComicWorkspaceEntry(
-    common: input.common,
-    comic: input.comic,
-    series: input.item.series,
-    publishing: input.item.publishing,
-  );
-}
-
-LibraryWorkspaceEntry buildGenericLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return GenericWorkspaceEntry(
-    common: _buildReleaseEntryData(request),
-    series: entry.series,
-    publishing: entry.publishing,
-    video: entry.video,
-    music: entry.music,
-    game: entry.game,
-  );
-}
-
-LibraryWorkspaceEntry buildBooksLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return BookWorkspaceEntry(
-    common: _buildReleaseEntryData(request, mediaType: 'book'),
-    series: entry.series,
-    publishing: entry.publishing,
-  );
-}
-
-LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return BoardGameWorkspaceEntry(
-    common: _buildReleaseEntryData(request, mediaType: 'boardgame'),
-    series: entry.series,
-    publishing: entry.publishing,
-    game: entry.game,
-  );
-}
-
-LibraryWorkspaceEntry buildGamesLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return GameWorkspaceEntry(
-    common: _buildReleaseEntryData(request, mediaType: 'game'),
-    series: entry.series,
-    publishing: entry.publishing,
-    game: entry.game,
-  );
-}
-
-LibraryWorkspaceEntry buildMusicLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return MusicWorkspaceEntry(
-    common: _buildReleaseEntryData(request, mediaType: 'music'),
-    series: entry.series,
-    publishing: entry.publishing,
-    music: entry.music,
-  );
-}
-
-LibraryWorkspaceEntry buildMoviesLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return _buildVideoWorkspaceEntry(
-    common: _buildReleaseEntryData(request),
-    series: entry.series,
-    publishing: entry.publishing,
-    video: entry.video,
-  );
-}
-
-LibraryWorkspaceEntry buildComicsLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry;
-  return ComicWorkspaceEntry(
-    common: _buildReleaseEntryData(request, mediaType: 'comic'),
-    comic: entry.comic,
-    series: entry.series,
-    publishing: entry.publishing,
-  );
-}
-
-class _ShelfWorkspaceEntryInput {
-  const _ShelfWorkspaceEntryInput({
-    required this.item,
-    required this.common,
-    required this.comic,
-  });
-
-  final CatalogItem item;
-  final LibraryWorkspaceEntryData common;
-  final ComicWorkspaceDetails? comic;
-}
-
-_ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
+LibraryWorkspaceEntryData buildShelfWorkspaceEntryData(
   ShelfEntry source, {
   String? mediaType,
 }) {
@@ -209,98 +27,104 @@ _ShelfWorkspaceEntryInput _buildShelfWorkspaceEntryInput(
         ? const <WishlistItem>[]
         : [source.wishlistItem!],
   );
-  return _ShelfWorkspaceEntryInput(
-    item: item,
-    common: LibraryWorkspaceEntryData(
-      id: item.id,
-      browseScope: LibraryBrowserScope.title,
-      titleItemId: item.id,
-      releaseId: null,
-      copyId: null,
-      ownedItemId: source.ownedItem?.id,
+  return LibraryWorkspaceEntryData(
+    id: item.id,
+    browseScope: LibraryBrowserScope.title,
+    titleItemId: item.id,
+    releaseId: null,
+    copyId: null,
+    ownedItemId: source.ownedItem?.id,
+    mediaType: normalizedMediaType,
+    title: item.title,
+    displayTitle: item.displayTitle,
+    localizedTitle: item.localizedTitle,
+    originalTitle: item.originalTitle,
+    searchAliases: _copyStringList(item.searchAliases),
+    itemNumber: item.itemNumber,
+    synopsis: item.synopsis,
+    coverImageUrl: item.coverImageUrl,
+    thumbnailImageUrl: item.thumbnailImageUrl,
+    publisher: item.publisher,
+    coverDate: item.coverDate,
+    releaseDate: item.releaseDate,
+    releaseYear: item.releaseYear,
+    barcode: item.barcode,
+    variant: item.displayEditionLabel,
+    crossover: item.crossover,
+    isOwned: source.isOwned,
+    isTracked: source.isTracked,
+    isWishlisted: source.isWishlisted,
+    hasMissingCover: item.displayCoverUrl == null,
+    hasMissingMetadata: genericHasMissingCoreMetadata(item),
+    condition: source.ownedItem?.condition,
+    grade: source.ownedItem?.grade,
+    primaryReferenceLabel: libraryPrimaryReferenceLabel(
+      ownedItem: source.ownedItem,
+      wishlistItem: source.wishlistItem,
       mediaType: normalizedMediaType,
-      title: item.title,
-      displayTitle: item.displayTitle,
-      localizedTitle: item.localizedTitle,
-      originalTitle: item.originalTitle,
-      searchAliases: _copyStringList(item.searchAliases),
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      publisher: item.publisher,
-      coverDate: item.coverDate,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      barcode: item.barcode,
-      variant: item.displayEditionLabel,
-      crossover: item.crossover,
-      isOwned: source.isOwned,
-      isTracked: source.isTracked,
-      isWishlisted: source.isWishlisted,
-      hasMissingCover: item.displayCoverUrl == null,
-      hasMissingMetadata: genericHasMissingCoreMetadata(item),
-      condition: source.ownedItem?.condition,
-      grade: source.ownedItem?.grade,
-      primaryReferenceLabel: libraryPrimaryReferenceLabel(
-        ownedItem: source.ownedItem,
-        wishlistItem: source.wishlistItem,
-        mediaType: normalizedMediaType,
-      ),
-      referenceScopeLabel: libraryReferenceScopeLabel(
-        ownedItem: source.ownedItem,
-        wishlistItem: source.wishlistItem,
-        mediaType: normalizedMediaType,
-      ),
-      referenceFormatLabel: libraryReferenceFormatLabel(
-        ownedItem: source.ownedItem,
-        wishlistItem: source.wishlistItem,
-        editions: resolvedEditions,
-        fallbackFormatLabel: item.physicalFormatLabel,
-      ),
-      referenceEditionId:
-          source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
-      referenceVariantId:
-          source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
-      referenceBundleReleaseId:
-          source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
-      notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
-      tags: source.ownedItem?.tags,
-      collectionStatus: source.ownedItem?.collectionStatus,
-      lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
-      pricePaidCents: source.ownedItem?.pricePaidCents,
-      currency: source.ownedItem?.currency,
-      locationPath: source.locationPath,
-      addedAt: source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
-      editions: _copyEditionList(resolvedEditions),
-      updatedAt: source.updatedAt,
-      trailerUrls: _copyTrailerList(item.trailerUrls),
-      plotSummary: item.plotSummary,
-      plotDescription: item.plotDescription,
-      creators: _copyCreatorList(item.creators),
-      characters: _copyStringList(item.characters),
-      storyArcs: _copyStringList(item.storyArcs),
-      genres: _copyStringList(item.genres),
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-      audienceRating: item.audienceRating,
-      rawPlatforms: _copyStringList(item.game?.platforms),
     ),
-    comic: normalizedMediaType == 'comic'
-        ? ComicWorkspaceDetails(
-            rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
-            gradingCompany: source.ownedItem?.gradingCompany,
-            labelType: source.ownedItem?.labelType,
-            certificationNumber: source.ownedItem?.certificationNumber,
-            keyComic: source.ownedItem?.keyComic ?? false,
-            keyReason: source.ownedItem?.keyReason,
-          )
-        : null,
+    referenceScopeLabel: libraryReferenceScopeLabel(
+      ownedItem: source.ownedItem,
+      wishlistItem: source.wishlistItem,
+      mediaType: normalizedMediaType,
+    ),
+    referenceFormatLabel: libraryReferenceFormatLabel(
+      ownedItem: source.ownedItem,
+      wishlistItem: source.wishlistItem,
+      editions: resolvedEditions,
+      fallbackFormatLabel: item.physicalFormatLabel,
+    ),
+    referenceEditionId:
+        source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
+    referenceVariantId:
+        source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
+    referenceBundleReleaseId:
+        source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
+    notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
+    tags: source.ownedItem?.tags,
+    collectionStatus: source.ownedItem?.collectionStatus,
+    lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
+    pricePaidCents: source.ownedItem?.pricePaidCents,
+    currency: source.ownedItem?.currency,
+    locationPath: source.locationPath,
+    addedAt: source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
+    editions: _copyEditionList(resolvedEditions),
+    updatedAt: source.updatedAt,
+    trailerUrls: _copyTrailerList(item.trailerUrls),
+    plotSummary: item.plotSummary,
+    plotDescription: item.plotDescription,
+    creators: _copyCreatorList(item.creators),
+    characters: _copyStringList(item.characters),
+    storyArcs: _copyStringList(item.storyArcs),
+    genres: _copyStringList(item.genres),
+    country: item.country,
+    language: item.language,
+    ageRating: item.ageRating,
+    audienceRating: item.audienceRating,
+    rawPlatforms: _copyStringList(item.game?.platforms),
   );
 }
 
-LibraryWorkspaceEntryData _buildReleaseEntryData(
+ComicWorkspaceDetails? buildComicWorkspaceDetailsFromShelf(
+  ShelfEntry source, {
+  String? mediaType,
+}) {
+  final normalizedMediaType =
+      (mediaType ?? source.catalogItem!.kind).trim().toLowerCase();
+  if (normalizedMediaType != 'comic') {
+    return null;
+  }
+  return ComicWorkspaceDetails(
+    rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
+    gradingCompany: source.ownedItem?.gradingCompany,
+    labelType: source.ownedItem?.labelType,
+    certificationNumber: source.ownedItem?.certificationNumber,
+    keyComic: source.ownedItem?.keyComic ?? false,
+    keyReason: source.ownedItem?.keyReason,
+  );
+}
+
+LibraryWorkspaceEntryData buildReleaseEntryData(
   LibraryReleaseEntryRequest request, {
   String? mediaType,
 }) {
@@ -381,7 +205,7 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
   );
 }
 
-LibraryWorkspaceEntry _buildVideoWorkspaceEntry({
+LibraryWorkspaceEntry buildVideoWorkspaceEntry({
   required LibraryWorkspaceEntryData common,
   CatalogSeriesDetails? series,
   CatalogPublishingDetails? publishing,
