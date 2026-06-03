@@ -210,35 +210,70 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       final loadToken = ++_viewPreferenceLoadToken;
       final expectedKind = widget.type.workspace.kind;
       final allowedGroupModes = widget.type.availableGroupModes;
-      final quickView = await _viewPrefs.readQuickView();
-      final groupMode = await _viewPrefs.readGroupMode(
+      final quickViewFuture = _viewPrefs.readQuickView();
+      final groupModeFuture = _viewPrefs.readGroupMode(
         allowedModes: allowedGroupModes,
       );
-      final folderPreset = await _viewPrefs.readFolderPreset(
+      final folderPresetFuture = _viewPrefs.readFolderPreset(
         allowedModes: allowedGroupModes,
       );
-      final pinnedPresets = await _viewPrefs.readPinnedFolderPresets(
+      final pinnedPresetsFuture = _viewPrefs.readPinnedFolderPresets(
         allowedModes: allowedGroupModes,
       );
-      final pinnedViewPresets = await _viewPrefs.readPinnedViewPresets(
+      final pinnedViewPresetsFuture = _viewPrefs.readPinnedViewPresets(
         fallback: libraryDefaultPinnedViewPresetsForType(widget.type),
       );
-      final pinnedSortFavoriteIds = await _viewPrefs.readPinnedSortFavoriteIds(
+      final pinnedSortFavoriteIdsFuture = _viewPrefs.readPinnedSortFavoriteIds(
         fallback: libraryDefaultPinnedSortFavoriteIdsForType(widget.type),
       );
-      final pinnedColumnFavoriteKeys =
-          await _viewPrefs.readPinnedColumnFavoriteKeys(
+      final pinnedColumnFavoriteKeysFuture =
+          _viewPrefs.readPinnedColumnFavoriteKeys(
         fallback: libraryDefaultPinnedColumnFavoriteKeysForType(widget.type),
       );
+
+      final results = await Future.wait<Object?>([
+        quickViewFuture,
+        groupModeFuture,
+        folderPresetFuture,
+        pinnedPresetsFuture,
+        pinnedViewPresetsFuture,
+        pinnedSortFavoriteIdsFuture,
+        pinnedColumnFavoriteKeysFuture,
+      ]);
+
+      final quickView = results[0] as LibraryQuickView?;
+      final groupMode = results[1] as LibraryGroupMode?;
+      final folderPreset = results[2] as LibraryFolderPreset?;
+      final pinnedPresets =
+          results[3] as List<LibraryFolderPreset>;
+      final pinnedViewPresets =
+          results[4] as Set<LibraryWorkspacePreset>;
+      final pinnedSortFavoriteIds = results[5] as Set<String>;
+      final pinnedColumnFavoriteKeys = results[6] as Set<String>;
       if (!mounted ||
           loadToken != _viewPreferenceLoadToken ||
           widget.type.workspace.kind != expectedKind) {
         return;
       }
+
+      final nextGroupMode = folderPreset?.primaryMode ?? groupMode;
+      final preferencesChanged =
+          _quickView != quickView ||
+          _folderPreset != folderPreset ||
+          _groupMode != nextGroupMode ||
+          !listEquals(_pinnedFolderPresets, pinnedPresets) ||
+          !setEquals(_pinnedViewPresets, pinnedViewPresets) ||
+          !setEquals(_pinnedSortFavoriteIds, pinnedSortFavoriteIds) ||
+          !setEquals(_pinnedColumnFavoriteKeys, pinnedColumnFavoriteKeys);
+
+      if (!preferencesChanged) {
+        return;
+      }
+
       setState(() {
         _quickView = quickView;
         _folderPreset = folderPreset;
-        _groupMode = folderPreset?.primaryMode ?? groupMode;
+        _groupMode = nextGroupMode;
         _pinnedFolderPresets = pinnedPresets;
         _pinnedViewPresets = pinnedViewPresets;
         _pinnedSortFavoriteIds = pinnedSortFavoriteIds;
