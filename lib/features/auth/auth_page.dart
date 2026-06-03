@@ -407,7 +407,7 @@ class _AuthModeStrip extends StatelessWidget {
         border: Border.all(color: _authDivider),
       ),
       child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
             Icon(Icons.lock_person_outlined, color: _authAccent, size: 18),
@@ -457,12 +457,12 @@ class _MiniWorkspacePreview extends StatelessWidget {
                     ])
                       _AlphaTab(label: label, selected: label == 'All'),
                     Container(
-                      width: 112,
+                      width: 116,
                       height: 20,
                       margin: const EdgeInsets.only(right: 8),
                       color: const Color(0xFF0F0F0F),
                       alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: const Text(
                         'Search comics...',
                         style: TextStyle(color: _authMuted, fontSize: 11),
@@ -533,7 +533,7 @@ class _PreviewSeriesList extends StatelessWidget {
           Container(
             height: 20,
             alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             color: const Color(0xFF0E0E0E),
             child: const Text(
               'Search series...',
@@ -545,7 +545,7 @@ class _PreviewSeriesList extends StatelessWidget {
             Container(
               height: 22,
               margin: const EdgeInsets.only(bottom: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 6),
               color: row.$1 == 'Superman, Vol. 4'
                   ? const Color(0xFF0B7893)
                   : Colors.transparent,
@@ -560,7 +560,7 @@ class _PreviewSeriesList extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    width: 22,
+                    width: 24,
                     alignment: Alignment.center,
                     color: kAppSurface,
                     child: Text(row.$2, style: const TextStyle(fontSize: 11)),
@@ -651,7 +651,7 @@ class _RememberedAccount extends StatelessWidget {
         border: Border.all(color: _authDivider),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
             const Icon(Icons.history, color: _authAccent, size: 18),
@@ -791,7 +791,7 @@ class _AuthStatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 26,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: const BoxDecoration(
         color: Color(0xFF242424),
         border: Border(top: BorderSide(color: _authDivider)),
@@ -897,7 +897,7 @@ class _AuthFeatureChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: _authAccent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(16),
@@ -907,7 +907,7 @@ class _AuthFeatureChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: _authAccent),
-          const SizedBox(width: 5),
+          const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(
