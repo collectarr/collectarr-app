@@ -197,7 +197,7 @@ const musicLibrarySortColumnDefinitions = [
   ),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.location,
-    label: 'Storage box',
+    label: 'Location',
     group: LibrarySortFieldGroup.personal,
   ),
   LibrarySortColumnDefinition(

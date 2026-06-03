@@ -17,13 +17,22 @@ Widget buildComicInspectorHero(
   return ComicInspectorHero(request: request);
 }
 
-class ComicInspectorHero extends ConsumerWidget {
+class ComicInspectorHero extends ConsumerStatefulWidget {
   const ComicInspectorHero({super.key, required this.request});
 
   final LibraryInspectorRequest request;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ComicInspectorHero> createState() =>
+      _ComicInspectorHeroState();
+}
+
+class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
+  bool _showBackCover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final request = widget.request;
     final palette = appPalette(context);
     final entry = request.entry;
     final ownedItem = request.ownedItem;
@@ -129,60 +138,116 @@ class ComicInspectorHero extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final stacked = constraints.maxWidth < 680;
-        final cover = Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: stacked ? 112 : 122,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(color: border, width: 0.8),
-                ),
-                child: Stack(
-                  children: [
-                    LibraryInteractiveCover(
-                      title: entry.resolvedTitle,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: entry.displayCoverUrl,
-                      localBytes: localFront,
-                      secondaryLocalBytes: localBack,
-                      ownedItemId: ownedItemId,
-                      accentColor: request.accent,
-                      enableHoverCue: true,
-                        enableSecondaryControl: false,
-                      onMissingSecondaryPressed: ownedItemId == null || db == null
-                          ? null
-                          : () async {
-                              final savedType = await pickAndStoreOwnedItemImage(
-                                context: context,
-                                db: db,
-                                ownedItemId: ownedItemId,
-                                imageType: 'back_cover',
+        final hasBackCover = localBack?.isNotEmpty == true;
+        final showBothCovers =
+            hasBackCover && !stacked && constraints.maxWidth >= 860;
+
+        Widget buildCoverFrame({
+          required bool back,
+          required double width,
+        }) {
+          return SizedBox(
+            width: width,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: border, width: 0.8),
+              ),
+              child: Stack(
+                children: [
+                  LibraryInteractiveCover(
+                    title: entry.resolvedTitle,
+                    itemNumber: entry.itemNumber,
+                    imageUrl: back ? null : entry.displayCoverUrl,
+                    localBytes: back ? localBack : localFront,
+                    ownedItemId: back ? null : ownedItemId,
+                    accentColor: request.accent,
+                    enableHoverCue: true,
+                    enableSecondaryControl: false,
+                    onMissingSecondaryPressed: back || ownedItemId == null || db == null
+                        ? null
+                        : () async {
+                            final savedType = await pickAndStoreOwnedItemImage(
+                              context: context,
+                              db: db,
+                              ownedItemId: ownedItemId,
+                              imageType: 'back_cover',
+                            );
+                            if (savedType == 'back_cover') {
+                              ref.invalidate(
+                                localItemImageProvider((
+                                  ownedItemId: ownedItemId,
+                                  imageType: 'back_cover',
+                                )),
                               );
-                              if (savedType == 'back_cover') {
-                                ref.invalidate(
-                                  localItemImageProvider((
-                                    ownedItemId: ownedItemId,
-                                    imageType: 'back_cover',
-                                  )),
-                                );
-                              }
-                            },
-                    ),
-                    if (showSlabOverlay)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        child: _ComicSlabCoverOverlay(
-                          label: slabLabel,
-                          grade: slabGrade,
-                        ),
+                            }
+                          },
+                  ),
+                  if (!back && showSlabOverlay)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      child: _ComicSlabCoverOverlay(
+                        label: slabLabel,
+                        grade: slabGrade,
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
+          );
+        }
+
+        final coverWidth = stacked ? 112.0 : 122.0;
+        final splitCoverWidth = stacked ? 112.0 : 106.0;
+        final showBackInSingle = hasBackCover && _showBackCover;
+
+        final cover = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showBothCovers)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildCoverFrame(back: false, width: splitCoverWidth),
+                  const SizedBox(width: 6),
+                  buildCoverFrame(back: true, width: splitCoverWidth),
+                ],
+              )
+            else
+              buildCoverFrame(
+                back: showBackInSingle,
+                width: coverWidth,
+              ),
+            if (!showBothCovers && hasBackCover) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  _ComicCoverToggleCheckbox(
+                    label: 'Front',
+                    value: !showBackInSingle,
+                    onChanged: (value) {
+                      if (!value || !mounted) {
+                        return;
+                      }
+                      setState(() => _showBackCover = false);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  _ComicCoverToggleCheckbox(
+                    label: 'Back',
+                    value: showBackInSingle,
+                    onChanged: (value) {
+                      if (!value || !mounted) {
+                        return;
+                      }
+                      setState(() => _showBackCover = true);
+                    },
+                  ),
+                ],
+              ),
+            ],
           ],
         );
 
@@ -516,6 +581,53 @@ class _ComicMetaBadge extends StatelessWidget {
             style: valueStyle,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ComicCoverToggleCheckbox extends StatelessWidget {
+  const _ComicCoverToggleCheckbox({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: Checkbox(
+                value: value,
+                onChanged: (next) => onChanged(next == true),
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: palette.textMuted,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 10,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }

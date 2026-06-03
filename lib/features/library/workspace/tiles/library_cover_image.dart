@@ -397,7 +397,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                 Positioned.fill(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.of(context).pop(),
+                    onTapDown: (_) => Navigator.of(context).pop(),
                   ),
                 ),
                 Center(
@@ -667,52 +667,58 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                   ),
                   if (interactive && hoverCue)
                     Positioned(
+                      left: 8,
                       right: 8,
                       bottom: 8,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 140),
-                        opacity: _hovered ? 1 : 0.92,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: controlBackground.withValues(alpha: 0.96),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: widget.accentColor.withValues(alpha: 0.7),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: compactHoverCue ? 8 : 10,
-                              vertical: compactHoverCue ? 4 : 5,
-                            ),
-                            child: compactHoverCue
-                                ? Icon(
-                                    Icons.open_in_full,
-                                    size: 14,
-                                    color: widget.accentColor,
-                                  )
-                                : FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.open_in_full,
-                                          size: 14,
-                                          color: widget.accentColor,
+                      child: IgnorePointer(
+                        ignoring: true,
+                        child: Center(
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 140),
+                            opacity: _hovered ? 1 : 0,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: controlBackground.withValues(alpha: 0.96),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: widget.accentColor.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: compactHoverCue ? 8 : 10,
+                                  vertical: compactHoverCue ? 4 : 5,
+                                ),
+                                child: compactHoverCue
+                                    ? Icon(
+                                        Icons.open_in_full,
+                                        size: 14,
+                                        color: widget.accentColor,
+                                      )
+                                    : FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.open_in_full,
+                                              size: 14,
+                                              color: widget.accentColor,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'Fullscreen',
+                                              style: TextStyle(
+                                                color: controlForeground,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          'Fullscreen',
-                                          style: TextStyle(
-                                            color: controlForeground,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                      ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
