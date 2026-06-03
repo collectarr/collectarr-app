@@ -246,7 +246,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                             color: selected
                                 ? selectedSecondaryTextColor
                                 : resolvedMutedTextColor.withValues(alpha: 0.7),
-                            fontSize: 9,
+                            fontSize: 10,
                             height: 1.2,
                           ),
                     ),

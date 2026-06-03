@@ -246,7 +246,7 @@ class SlabFrameOverlay extends StatelessWidget {
                               Brightness.dark
                           ? Colors.white
                           : Colors.black87,
-                      fontSize: 7,
+                      fontSize: 9,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.3,
                     ),

@@ -233,7 +233,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                             label: const Text(
                               'ADMIN',
                               style: TextStyle(
-                                fontSize: 7,
+                                fontSize: 9,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: 0.5,

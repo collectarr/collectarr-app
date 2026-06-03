@@ -268,7 +268,7 @@ ThemeData applySharedSurfaceTheme(
             letterSpacing: 0.08,
           ),
           labelSmall: base.textTheme.labelSmall?.copyWith(
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.08,
           ),

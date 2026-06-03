@@ -392,7 +392,7 @@ class _RailSyncButton extends ConsumerWidget {
                             ? '99+'
                             : sync.pendingCount.toString(),
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 10,
                           color: pendingBadgeForeground,
                           fontWeight: FontWeight.w800,
                         ),

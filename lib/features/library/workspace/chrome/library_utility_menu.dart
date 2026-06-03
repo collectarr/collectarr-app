@@ -99,16 +99,16 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       label: Text(
         badgeCount.toString(),
-        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
       ),
       child: PopupMenuButton<Object>(
         tooltip: tooltip,
         padding: EdgeInsets.zero,
         surfaceTintColor: Colors.transparent,
         position: PopupMenuPosition.under,
-        child: trigger,
         onSelected: _handleSelected,
         itemBuilder: (context) => _buildMenuItems(context),
+        child: trigger,
       ),
     );
   }
@@ -190,7 +190,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
       child: Text(
         label.toUpperCase(),
         style: const TextStyle(
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.24,
         ),

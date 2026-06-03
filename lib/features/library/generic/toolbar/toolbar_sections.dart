@@ -282,7 +282,7 @@ class _LibraryDesktopToolbarSection extends StatelessWidget {
                 color: palette.textMuted,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.22,
-                fontSize: 9,
+                fontSize: 10,
               ),
         ),
         const SizedBox(width: 3),
@@ -752,7 +752,7 @@ class _LibraryDesktopSyncButton extends ConsumerWidget {
                             ? '99+'
                             : sync.pendingCount.toString(),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 9,
+                          fontSize: 10,
                               fontWeight: FontWeight.w800,
                             ),
                       ),

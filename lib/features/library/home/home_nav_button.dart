@@ -99,7 +99,7 @@ class MediaLibraryNavButton extends StatelessWidget {
                         count.toString(),
                         style: TextStyle(
                           color: selected ? selectedCountColor : unselectedCountColor,
-                          fontSize: 9,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
                           height: 1,
                         ),

@@ -86,7 +86,7 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             curve: Curves.easeOut,
-            padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: _hovered ? hoveredBackground : background,
               borderRadius: BorderRadius.circular(4),
@@ -176,8 +176,8 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOut,
-              width: 30,
-              height: 30,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: _hovered
                     ? Color.alphaBlend(
@@ -249,7 +249,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
           PopupMenuItem<T>(
             value: entry.value,
             enabled: entry.enabled,
-            height: 32,
+            height: 34,
             child: _LibraryDenseMenuItemRow(entry: entry),
           ),
       ],
@@ -314,7 +314,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
               onTap: onPressed,
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(4)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -333,7 +333,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
               ),
             ),
           ),
-          Container(width: 1, height: 18, color: foreground.withValues(alpha: 0.18)),
+          Container(width: 1, height: 20, color: foreground.withValues(alpha: 0.18)),
           PopupMenuButton<T>(
             tooltip: tooltip ?? label,
             padding: EdgeInsets.zero,
@@ -354,12 +354,12 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                 PopupMenuItem<T>(
                   value: entry.value,
                   enabled: entry.enabled,
-                  height: 32,
+                  height: 34,
                   child: _LibraryDenseMenuItemRow(entry: entry),
                 ),
             ],
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Icon(Icons.keyboard_arrow_down, size: 16, color: foreground),
             ),
           ),
@@ -405,7 +405,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
-                  fontSize: 10.5,
+                  fontSize: 11,
                 ),
           ),
         ],
