@@ -650,9 +650,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                       onExportCsvTxt: () =>
                           shareSelectedCollectionFlow(projection),
                       onBulkDuplicate: () => bulkDuplicateFlow(projection),
-                      onBulkLoan: () => showLoanSelectionFlow(projection),
-                      onTransferFieldData: () =>
-                          showTransferFieldDataForSelectionFlow(projection),
+                      onBulkLoan: _hasLoanableOwnedItemsInSelection(projection)
+                          ? () => showLoanSelectionFlow(projection)
+                          : null,
+                      onTransferFieldData: _hasOwnedItemsInSelection(projection)
+                          ? () => showTransferFieldDataForSelectionFlow(
+                                projection,
+                              )
+                          : null,
                       onBulkUpdateValues: null,
                       onBulkUpdateKeyInfo: null,
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
@@ -1417,6 +1422,29 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems
         .any((item) => item.entry.ownedItemId != null);
+  }
+
+  bool _hasOwnedItemsInSelection(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) {
+      return false;
+    }
+    return projection.filteredItems.any(
+      (item) =>
+          _selection.itemIds.contains(item.entry.id) &&
+          item.entry.ownedItemId != null,
+    );
+  }
+
+  bool _hasLoanableOwnedItemsInSelection(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) {
+      return false;
+    }
+    return projection.filteredItems.any(
+      (item) =>
+          _selection.itemIds.contains(item.entry.id) &&
+          item.entry.ownedItemId != null &&
+          !_activeLoanOwnedItemIds.contains(item.entry.ownedItemId),
+    );
   }
 
   LibrarySeriesStatusSummary? _seriesStatusSummaryForProjection(

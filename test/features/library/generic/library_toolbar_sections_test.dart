@@ -17,7 +17,8 @@ void main() {
     expect(find.byType(Divider), findsOneWidget);
   });
 
-  testWidgets('selection toolbar band shows selection controls', (tester) async {
+  testWidgets('selection toolbar band shows selection controls',
+      (tester) async {
     final callbacks = (
       onClearSelection: () {},
       onSelectAll: () {},
@@ -95,6 +96,61 @@ void main() {
     expect(find.text('Transfer Field Data'), findsOneWidget);
     expect(find.text('Update Key Info'), findsOneWidget);
     expect(find.text('Update from Core'), findsOneWidget);
+  });
+
+  testWidgets(
+      'selection toolbar overflow disables owned-only actions when unavailable',
+      (
+    tester,
+  ) async {
+    final callbacks = (
+      onClearSelection: () {},
+      onSelectAll: () {},
+      onBulkEdit: () {},
+      onPrintToPdf: () {},
+      onExportCsvTxt: () {},
+      onBulkDuplicate: () {},
+      onBulkLoan: null,
+      onTransferFieldData: null,
+      onBulkUpdateValues: null,
+      onBulkUpdateKeyInfo: null,
+      onBulkMoveToOwned: () {},
+      onBulkMoveToWishlist: () {},
+      onBulkRemove: () {},
+      onBulkRefreshMetadata: () {},
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibrarySelectionControls(callbacks: callbacks),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.pumpAndSettle();
+
+    final loanItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.enabled == false &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Loan',
+    );
+    final transferItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.enabled == false &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data ==
+              'Transfer Field Data',
+    );
+
+    expect(loanItem, findsOneWidget);
+    expect(transferItem, findsOneWidget);
   });
 
   testWidgets('utility menu uses a labeled trigger and section headers', (
