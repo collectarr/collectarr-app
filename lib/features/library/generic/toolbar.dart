@@ -334,6 +334,7 @@ class LibraryToolbar extends StatelessWidget {
                       onPinnedFolderPresetsChanged:
                           onPinnedFolderPresetsChanged,
                       onGroupModeChanged: onGroupModeChanged,
+                      showBottomBorder: false,
                     ),
                   if (selectionCallbacks != null && selectedCount > 0) ...[
                     const LibraryToolbarDividerLine(),

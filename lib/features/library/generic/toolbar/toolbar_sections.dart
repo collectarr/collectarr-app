@@ -77,6 +77,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
+    this.showBottomBorder = true,
   });
 
   final LibraryTypeConfig type;
@@ -131,6 +132,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
+  final bool showBottomBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -138,16 +140,21 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     final mediaScopeLabel = type.mediaReleaseScopeLabel;
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
-        if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
+        if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
+          preset,
     ];
     final overflowColumnPresets = [
       for (final preset in columnFavoritePresets)
-        if (!pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset))) preset,
+        if (!pinnedColumnFavoriteKeys
+            .contains(libraryColumnFavoriteKey(preset)))
+          preset,
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.toolbar,
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        border: showBottomBorder
+            ? Border(bottom: BorderSide(color: palette.divider))
+            : null,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
@@ -158,7 +165,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    if (!viewState.isSidebarVisible && onGroupModeChanged != null) ...[
+                    if (!viewState.isSidebarVisible &&
+                        onGroupModeChanged != null) ...[
                       LibraryGroupModeMenuButton(
                         type: type,
                         folderPreset: folderPreset,
@@ -175,7 +183,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                     ],
-                    if (onEditSort != null) const _LibraryDesktopToolbarSeparator(),
+                    if (onEditSort != null)
+                      const _LibraryDesktopToolbarSeparator(),
                     if (onEditSort != null)
                       LibraryToolbarSortButton(
                         onPressed: onEditSort!,
@@ -215,16 +224,19 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: appPalette(context).divider),
+                              border: Border.all(
+                                  color: appPalette(context).divider),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  browserMode == LibraryWorkspaceBrowserMode.media
+                                  browserMode ==
+                                          LibraryWorkspaceBrowserMode.media
                                       ? mediaScopeLabel
                                       : 'Releases',
-                                  style: Theme.of(context).textTheme.labelMedium,
+                                  style:
+                                      Theme.of(context).textTheme.labelMedium,
                                 ),
                                 const SizedBox(width: 6),
                                 const Icon(Icons.arrow_drop_down, size: 16),
@@ -484,24 +496,23 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-          LibraryToolbarPrimaryActions(
-            addLabel: 'Add ${type.pluralLabel}',
-            onAdd: onAdd,
-            onScanBarcode: onScan,
-            onRefreshMetadata: onRefreshMetadata,
-            onRandomPick: onRandomPick,
-            onScanCover: onScanCover,
-            addBackgroundColor: accent,
-            addForegroundColor: Colors.white,
-          ),
-          if (showChromeRow) ...[
-            const SizedBox(width: 6),
-            LibraryCollectionStatusScopeDropdown(
-              collectionStatusScope: collectionStatusScope,
-              onCollectionStatusScopeChanged:
-                  onCollectionStatusScopeChanged!,
+            LibraryToolbarPrimaryActions(
+              addLabel: 'Add ${type.pluralLabel}',
+              onAdd: onAdd,
+              onScanBarcode: onScan,
+              onRefreshMetadata: onRefreshMetadata,
+              onRandomPick: onRandomPick,
+              onScanCover: onScanCover,
+              addBackgroundColor: accent,
+              addForegroundColor: Colors.white,
             ),
-          ],
+            if (showChromeRow) ...[
+              const SizedBox(width: 6),
+              LibraryCollectionStatusScopeDropdown(
+                collectionStatusScope: collectionStatusScope,
+                onCollectionStatusScopeChanged: onCollectionStatusScopeChanged!,
+              ),
+            ],
             const SizedBox(width: 8),
             SizedBox(
               width: 380,
@@ -793,7 +804,8 @@ class _LibraryDesktopSyncButton extends ConsumerWidget {
                     Text(
                       'Sync',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: sync.isSyncing ? mutedForeground : foreground,
+                            color:
+                                sync.isSyncing ? mutedForeground : foreground,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
@@ -818,7 +830,7 @@ class _LibraryDesktopSyncButton extends ConsumerWidget {
                             ? '99+'
                             : sync.pendingCount.toString(),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontSize: 10,
+                              fontSize: 10,
                               fontWeight: FontWeight.w800,
                             ),
                       ),

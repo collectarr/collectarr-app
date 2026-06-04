@@ -258,6 +258,7 @@ void main() {
       find.byType(LibraryDesktopSecondaryToolbar),
     );
     expect(movieSecondary.onReadingQueue, isNull);
+    expect(movieSecondary.showBottomBorder, isFalse);
 
     await tester.pumpWidget(
       ProviderScope(
