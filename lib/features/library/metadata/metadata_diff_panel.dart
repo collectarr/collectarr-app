@@ -25,16 +25,20 @@ class MetadataDiffPanel extends StatelessWidget {
     required this.entries,
     this.onAcceptAll,
     this.emptyText = 'No differences found.',
+    this.showOnlyDifferences = true,
   });
 
   final String title;
   final List<MetadataDiffEntry> entries;
   final VoidCallback? onAcceptAll;
   final String emptyText;
+  final bool showOnlyDifferences;
 
   @override
   Widget build(BuildContext context) {
-    final differing = entries.where((entry) => entry.isDifferent).toList();
+    final visible = showOnlyDifferences
+        ? entries.where((entry) => entry.isDifferent).toList()
+        : entries;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(10),
@@ -53,7 +57,8 @@ class MetadataDiffPanel extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
               ),
-              if (onAcceptAll != null && differing.isNotEmpty)
+              if (onAcceptAll != null &&
+                  visible.any((entry) => entry.isDifferent))
                 TextButton.icon(
                   onPressed: onAcceptAll,
                   icon: const Icon(Icons.done_all, size: 16),
@@ -61,7 +66,7 @@ class MetadataDiffPanel extends StatelessWidget {
                 ),
             ],
           ),
-          if (differing.isEmpty)
+          if (visible.isEmpty)
             Text(
               emptyText,
               style: Theme.of(context)
@@ -72,7 +77,7 @@ class MetadataDiffPanel extends StatelessWidget {
           else
             Column(
               children: [
-                for (final entry in differing) ...[
+                for (final entry in visible) ...[
                   const SizedBox(height: 6),
                   _MetadataDiffRow(entry: entry),
                 ],

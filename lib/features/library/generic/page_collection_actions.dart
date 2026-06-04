@@ -96,10 +96,20 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
       );
       return;
     }
-    await showEditDialog(
-      targetItem,
-      targetItem.source.ownedItem,
-      openMetadataCompareOnOpen: true,
+    final localItem = targetItem.source.catalogItem;
+    if (localItem == null) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Missing local metadata for this item.')),
+      );
+      return;
+    }
+    await showLibraryMetadataCompareDialog(
+      context: context,
+      localItem: localItem,
+      accent: widget.accent,
     );
   }
 

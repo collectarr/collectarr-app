@@ -2546,18 +2546,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        OutlinedButton.icon(
-          onPressed:
-              _isFetchingServerSnapshot ? null : _compareWithServerSnapshot,
-          icon: _isFetchingServerSnapshot
-              ? const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.compare_arrows, size: 16),
-          label: const Text('Compare full item with server'),
-        ),
         if (_serverSnapshotError != null) ...[
           const SizedBox(height: 6),
           Text(
