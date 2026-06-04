@@ -879,7 +879,6 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.panel,
         border: Border(
-          top: BorderSide(color: palette.divider),
           bottom: BorderSide(color: palette.divider),
         ),
       ),

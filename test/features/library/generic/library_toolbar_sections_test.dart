@@ -55,6 +55,18 @@ void main() {
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Update values'), findsOneWidget);
+
+    final bandContainer = tester.widget<Container>(
+      find
+          .descendant(
+            of: find.byType(LibrarySelectionToolbarBand),
+            matching: find.byType(Container),
+          )
+          .first,
+    );
+    final decoration = bandContainer.decoration as BoxDecoration;
+    final border = decoration.border as Border;
+    expect(border.top, BorderSide.none);
   });
 
   testWidgets('selection toolbar overflow exposes CLZ-like action labels', (
