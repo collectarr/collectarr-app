@@ -285,6 +285,7 @@ class LibraryTypeCapabilities {
     this.supportsVideoKindFilters = false,
     this.supportsMediaReleaseSplit = false,
     this.supportsReadingQueue = false,
+    this.supportsIndexReassignment = false,
     this.wideDialog = false,
     this.videoSeriesEntryTypes = const {},
     this.videoShelfDrilldownEntryTypes = const {},
@@ -299,6 +300,7 @@ class LibraryTypeCapabilities {
   final bool supportsVideoKindFilters;
   final bool supportsMediaReleaseSplit;
   final bool supportsReadingQueue;
+  final bool supportsIndexReassignment;
   final bool wideDialog;
   final Set<String> videoSeriesEntryTypes;
   final Set<String> videoShelfDrilldownEntryTypes;

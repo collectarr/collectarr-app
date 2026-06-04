@@ -171,6 +171,8 @@ class LibraryToolbar extends StatelessWidget {
         type.capabilities.canScanCover ? onScanCover : null;
     final effectiveReadingQueue =
         type.capabilities.supportsReadingQueue ? onReadingQueue : null;
+    final effectiveReassignIndex =
+        type.capabilities.supportsIndexReassignment ? onReassignIndex : null;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
       duration: kAppAnimNormal,
@@ -313,7 +315,7 @@ class LibraryToolbar extends StatelessWidget {
                       onEditGradePickList: onEditGradePickList,
                       onEditTagPickList: onEditTagPickList,
                       onTransferFieldData: onTransferFieldData,
-                      onReassignIndex: onReassignIndex,
+                      onReassignIndex: effectiveReassignIndex,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),

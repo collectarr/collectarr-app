@@ -618,6 +618,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                         ? () => showTransferFieldDataFlow(projection)
                         : null,
                     onReassignIndex: projection != null &&
+                            widget
+                                .type.capabilities.supportsIndexReassignment &&
                             projection.filteredItems.isNotEmpty
                         ? () => reassignIndexFlow(projection)
                         : null,
@@ -935,7 +937,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onTransferFieldData: projection.filteredItems.isNotEmpty
             ? () => showTransferFieldDataFlow(projection)
             : null,
-        onReassignIndex: projection.filteredItems.isNotEmpty
+        onReassignIndex: projection.filteredItems.isNotEmpty &&
+                widget.type.capabilities.supportsIndexReassignment
             ? () => reassignIndexFlow(projection)
             : null,
         onPrintReport: projection.filteredItems.isNotEmpty

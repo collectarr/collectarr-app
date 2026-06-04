@@ -89,6 +89,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     canScanCover: true,
     supportsMediaReleaseSplit: true,
+    supportsIndexReassignment: true,
   ),
   conditions: kComicConditions,
   grades: kComicGrades,

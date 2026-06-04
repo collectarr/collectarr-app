@@ -296,4 +296,94 @@ void main() {
     );
     expect(booksSecondary.onReadingQueue, isNotNull);
   });
+
+  testWidgets('toolbar gates reassign-index action by type capability', (
+    tester,
+  ) async {
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+    tester.view.physicalSize = const Size(1800, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryToolbar(
+              type: moviesLibraryConfig,
+              searchController: searchController,
+              viewState: moviesMediaAdapter.viewProfile.defaults(),
+              adapter: moviesMediaAdapter,
+              counts: const LibraryToolbarCounts(),
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onEditColumns: () {},
+              onSortChanged: (_) {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              onRefreshMetadata: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              onReassignIndex: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final movieSecondary = tester.widget<LibraryDesktopSecondaryToolbar>(
+      find.byType(LibraryDesktopSecondaryToolbar),
+    );
+    expect(movieSecondary.onReassignIndex, isNull);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryToolbar(
+              type: comicsLibraryConfig,
+              searchController: searchController,
+              viewState: collectarrMediaAdapters
+                  .byKind('comic')!
+                  .viewProfile
+                  .defaults(),
+              adapter: collectarrMediaAdapters.byKind('comic')!,
+              counts: const LibraryToolbarCounts(),
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onEditColumns: () {},
+              onSortChanged: (_) {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              onRefreshMetadata: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              onReassignIndex: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final comicsSecondary = tester.widget<LibraryDesktopSecondaryToolbar>(
+      find.byType(LibraryDesktopSecondaryToolbar),
+    );
+    expect(comicsSecondary.onReassignIndex, isNotNull);
+  });
 }

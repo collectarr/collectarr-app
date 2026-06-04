@@ -120,6 +120,13 @@ void main() {
     expect(tvLibraryConfig.editDialogBuilder, isNotNull);
   });
 
+  test('index reassignment capability is kind-owned', () {
+    expect(comicsLibraryConfig.capabilities.supportsIndexReassignment, isTrue);
+    expect(mangaLibraryConfig.capabilities.supportsIndexReassignment, isTrue);
+    expect(moviesLibraryConfig.capabilities.supportsIndexReassignment, isFalse);
+    expect(booksLibraryConfig.capabilities.supportsIndexReassignment, isFalse);
+  });
+
   test('collection export title labels are kind-owned', () {
     expect(comicsLibraryConfig.collectionExportTitleLabel, 'Series');
     expect(musicLibraryConfig.collectionExportTitleLabel, 'Release');
