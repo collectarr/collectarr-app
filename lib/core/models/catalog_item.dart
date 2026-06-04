@@ -273,18 +273,51 @@ class MusicCatalogDetails {
     this.tracks = const <CatalogTrack>[],
     this.catalogNumber,
     this.releaseStatus,
+    this.originalReleaseDate,
+    this.recordingDate,
+    this.studio,
+    this.rpm,
+    this.spars,
+    this.soundType,
+    this.vinylColor,
+    this.mediaCondition,
+    this.instrument,
+    this.isLive,
+    this.composition,
   });
 
   final int? trackCount;
   final List<CatalogTrack> tracks;
   final String? catalogNumber;
   final String? releaseStatus;
+  final DateTime? originalReleaseDate;
+  final DateTime? recordingDate;
+  final String? studio;
+  final String? rpm;
+  final String? spars;
+  final String? soundType;
+  final String? vinylColor;
+  final String? mediaCondition;
+  final String? instrument;
+  final bool? isLive;
+  final String? composition;
 
   bool get hasData =>
       trackCount != null ||
       tracks.isNotEmpty ||
       catalogNumber != null ||
-      releaseStatus != null;
+      releaseStatus != null ||
+      originalReleaseDate != null ||
+      recordingDate != null ||
+      studio != null ||
+      rpm != null ||
+      spars != null ||
+      soundType != null ||
+      vinylColor != null ||
+      mediaCondition != null ||
+      instrument != null ||
+      isLive != null ||
+      composition != null;
 }
 
 class CatalogSeriesDetails {
@@ -331,6 +364,19 @@ class CatalogPublishingDetails {
     this.imprint,
     this.subtitle,
     this.seriesGroup,
+    this.publicationPlace,
+    this.originalCountry,
+    this.originalLanguage,
+    this.originalPublicationDate,
+    this.originalPublicationPlace,
+    this.originalPublisher,
+    this.paperType,
+    this.printedBy,
+    this.subjects = const <String>[],
+    this.dustJacketCondition,
+    this.dustJacket,
+    this.audiobookAbridged,
+    this.firstEdition,
   });
 
   final int? pageCount;
@@ -339,6 +385,19 @@ class CatalogPublishingDetails {
   final String? imprint;
   final String? subtitle;
   final String? seriesGroup;
+  final String? publicationPlace;
+  final String? originalCountry;
+  final String? originalLanguage;
+  final DateTime? originalPublicationDate;
+  final String? originalPublicationPlace;
+  final String? originalPublisher;
+  final String? paperType;
+  final String? printedBy;
+  final List<String> subjects;
+  final String? dustJacketCondition;
+  final bool? dustJacket;
+  final bool? audiobookAbridged;
+  final bool? firstEdition;
 
   bool get hasData =>
       pageCount != null ||
@@ -346,7 +405,20 @@ class CatalogPublishingDetails {
       currency != null ||
       imprint != null ||
       subtitle != null ||
-      seriesGroup != null;
+      seriesGroup != null ||
+      publicationPlace != null ||
+      originalCountry != null ||
+      originalLanguage != null ||
+      originalPublicationDate != null ||
+      originalPublicationPlace != null ||
+      originalPublisher != null ||
+      paperType != null ||
+      printedBy != null ||
+      subjects.isNotEmpty ||
+      dustJacketCondition != null ||
+      dustJacket != null ||
+      audiobookAbridged != null ||
+      firstEdition != null;
 }
 
 class VideoCatalogDetails {
@@ -379,11 +451,18 @@ class VideoCatalogDetails {
 }
 
 class GameCatalogDetails {
-  const GameCatalogDetails({this.platforms = const <String>[]});
+  const GameCatalogDetails({
+    this.platforms = const <String>[],
+    this.toySubtype,
+    this.toyType,
+  });
 
   final List<String> platforms;
+  final String? toySubtype;
+  final String? toyType;
 
-  bool get hasData => platforms.isNotEmpty;
+  bool get hasData =>
+      platforms.isNotEmpty || toySubtype != null || toyType != null;
 }
 
 enum CatalogMediaKind {
@@ -408,7 +487,9 @@ extension CatalogMediaKindLibrarySemantics on CatalogMediaKind {
 
   bool get isVideoLibraryKind {
     return switch (this) {
-      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime =>
+      CatalogMediaKind.movie ||
+      CatalogMediaKind.tv ||
+      CatalogMediaKind.anime =>
         true,
       _ => false,
     };
@@ -665,12 +746,26 @@ sealed class CatalogItem {
       tracks: tracks ?? const <CatalogTrack>[],
       catalogNumber: json['catalog_number'] as String?,
       releaseStatus: json['release_status'] as String?,
+      originalReleaseDate: _parseDate(json['original_release_date'] as String?),
+      recordingDate: _parseDate(json['recording_date'] as String?),
+      studio: json['studio'] as String?,
+      rpm: json['rpm'] as String?,
+      spars: json['spars'] as String?,
+      soundType: json['sound_type'] as String?,
+      vinylColor: json['vinyl_color'] as String?,
+      mediaCondition: json['media_condition'] as String?,
+      instrument: json['instrument'] as String?,
+      isLive: json['is_live'] as bool?,
+      composition: json['composition'] as String?,
     );
     final rawPlatforms = (json['platforms'] as List<dynamic>?)
         ?.whereType<String>()
         .toList(growable: false);
-    final game =
-        GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
+    final game = GameCatalogDetails(
+      platforms: rawPlatforms ?? const <String>[],
+      toySubtype: json['toy_subtype'] as String?,
+      toyType: json['toy_type'] as String?,
+    );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
@@ -678,6 +773,28 @@ sealed class CatalogItem {
       imprint: json['imprint'] as String?,
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
+      publicationPlace: json['publication_place'] as String?,
+      originalCountry: json['original_country'] as String?,
+      originalLanguage: json['original_language'] as String?,
+      originalPublicationDate:
+          _parseDate(json['original_publication_date'] as String?),
+      originalPublicationPlace: json['original_publication_place'] as String?,
+      originalPublisher: json['original_publisher'] as String?,
+      paperType: json['paper_type'] as String?,
+      printedBy: json['printed_by'] as String?,
+      subjects: (json['subjects'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          (json['subject'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          ((json['subject'] as String?)?.trim().isNotEmpty == true
+              ? <String>[(json['subject'] as String).trim()]
+              : const <String>[]),
+      dustJacketCondition: json['dust_jacket_condition'] as String?,
+      dustJacket: json['dust_jacket'] as bool?,
+      audiobookAbridged: json['audiobook_abridged'] as bool?,
+      firstEdition: json['first_edition'] as bool?,
     );
     final editions = (json['editions'] as List<dynamic>?)
         ?.whereType<Map<String, dynamic>>()
@@ -868,9 +985,23 @@ sealed class CatalogItem {
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
       'catalog_number': music?.catalogNumber,
+      'original_release_date':
+          music?.originalReleaseDate?.toUtc().toIso8601String(),
+      'recording_date': music?.recordingDate?.toUtc().toIso8601String(),
+      'studio': music?.studio,
+      'rpm': music?.rpm,
+      'spars': music?.spars,
+      'sound_type': music?.soundType,
+      'vinyl_color': music?.vinylColor,
+      'media_condition': music?.mediaCondition,
+      'instrument': music?.instrument,
+      'is_live': music?.isLive,
+      'composition': music?.composition,
       'editions':
           editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
+      'toy_subtype': game?.toySubtype,
+      'toy_type': game?.toyType,
       'creators': creators,
       'characters': characters,
       'character_details': characterDetails,
@@ -890,6 +1021,20 @@ sealed class CatalogItem {
       'imprint': publishing?.imprint,
       'subtitle': publishing?.subtitle,
       'series_group': publishing?.seriesGroup,
+      'publication_place': publishing?.publicationPlace,
+      'original_country': publishing?.originalCountry,
+      'original_language': publishing?.originalLanguage,
+      'original_publication_date':
+          publishing?.originalPublicationDate?.toUtc().toIso8601String(),
+      'original_publication_place': publishing?.originalPublicationPlace,
+      'original_publisher': publishing?.originalPublisher,
+      'paper_type': publishing?.paperType,
+      'printed_by': publishing?.printedBy,
+      'subjects': publishing?.subjects,
+      'dust_jacket_condition': publishing?.dustJacketCondition,
+      'dust_jacket': publishing?.dustJacket,
+      'audiobook_abridged': publishing?.audiobookAbridged,
+      'first_edition': publishing?.firstEdition,
     };
   }
 
