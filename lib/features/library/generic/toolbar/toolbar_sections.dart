@@ -864,11 +864,13 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     required this.selectedCount,
     required this.totalSelectableCount,
     required this.callbacks,
+    this.showBottomBorder = true,
   });
 
   final int selectedCount;
   final int totalSelectableCount;
   final LibrarySelectionCallbacks callbacks;
+  final bool showBottomBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -879,7 +881,9 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.panel,
         border: Border(
-          bottom: BorderSide(color: palette.divider),
+          bottom: showBottomBorder
+              ? BorderSide(color: palette.divider)
+              : BorderSide.none,
         ),
       ),
       child: Row(
@@ -1164,6 +1168,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             selectedCount: selectedCount,
             totalSelectableCount: totalSelectableCount,
             callbacks: selectionCallbacks!,
+            showBottomBorder: !showChromeRow,
           ),
         ],
         if (showChromeRow) ...[

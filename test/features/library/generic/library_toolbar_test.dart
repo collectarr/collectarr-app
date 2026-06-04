@@ -502,4 +502,75 @@ void main() {
     expect(secondary.onGroupModeChanged, isNotNull);
     expect(secondary.onPinnedFolderPresetsChanged, isNotNull);
   });
+
+  testWidgets(
+      'compact selection band drops bottom border when chrome row follows',
+      (tester) async {
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+    tester.view.physicalSize = const Size(700, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryToolbar(
+              type: comicsLibraryConfig,
+              searchController: searchController,
+              viewState: collectarrMediaAdapters
+                  .byKind('comic')!
+                  .viewProfile
+                  .defaults(),
+              adapter: collectarrMediaAdapters.byKind('comic')!,
+              counts: const LibraryToolbarCounts(),
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onEditColumns: () {},
+              onSortChanged: (_) {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              onRefreshMetadata: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              onCollectionStatusScopeChanged: (_) {},
+              selectionCallbacks: (
+                onClearSelection: () {},
+                onSelectAll: () {},
+                onBulkEdit: () {},
+                onPrintToPdf: () {},
+                onExportCsvTxt: () {},
+                onBulkDuplicate: () {},
+                onBulkLoan: () {},
+                onTransferFieldData: () {},
+                onBulkUpdateValues: null,
+                onBulkUpdateKeyInfo: null,
+                onBulkMoveToOwned: null,
+                onBulkMoveToWishlist: null,
+                onBulkRemove: () {},
+                onBulkRefreshMetadata: () {},
+              ),
+              selectedCount: 2,
+              totalSelectableCount: 5,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(LibraryToolbarChromeRow), findsOneWidget);
+    final selectionBand = tester.widget<LibrarySelectionToolbarBand>(
+      find.byType(LibrarySelectionToolbarBand),
+    );
+    expect(selectionBand.showBottomBorder, isFalse);
+  });
 }
