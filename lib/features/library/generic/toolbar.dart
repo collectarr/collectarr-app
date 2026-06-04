@@ -195,7 +195,7 @@ class LibraryToolbar extends StatelessWidget {
           dividerColor: palette.divider,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              if (constraints.maxWidth < 760) {
+              if (constraints.maxWidth < kLibraryToolbarCompactBreakpoint) {
                 return LibraryCompactToolbarContent(
                   type: type,
                   searchController: searchController,

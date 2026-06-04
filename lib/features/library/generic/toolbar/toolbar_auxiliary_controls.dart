@@ -321,7 +321,8 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     final palette = appPalette(context);
     return Row(
       children: [
-        Icon(icon, size: 16, color: active ? palette.accent : palette.textMuted),
+        Icon(icon,
+            size: 16, color: active ? palette.accent : palette.textMuted),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
@@ -341,8 +342,7 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
         ],
-        if (active)
-          Icon(Icons.check, size: 16, color: palette.textPrimary),
+        if (active) Icon(Icons.check, size: 16, color: palette.textPrimary),
       ],
     );
   }
@@ -480,8 +480,8 @@ class _SortFavoritesManagerDialogState
                                         itemCount: _pinnedFavorites.length,
                                         onReorderItem: (oldIndex, newIndex) {
                                           setState(() {
-                                            final favorite =
-                                                _pinnedFavorites.removeAt(oldIndex);
+                                            final favorite = _pinnedFavorites
+                                                .removeAt(oldIndex);
                                             _pinnedFavorites.insert(
                                               newIndex,
                                               favorite,
@@ -505,8 +505,10 @@ class _SortFavoritesManagerDialogState
                                               _availableFavorites.add(favorite);
                                               _availableFavorites.sort(
                                                 (left, right) =>
-                                                    _allFavorites.indexOf(left) -
-                                                    _allFavorites.indexOf(right),
+                                                    _allFavorites
+                                                        .indexOf(left) -
+                                                    _allFavorites
+                                                        .indexOf(right),
                                               );
                                             }),
                                           );
@@ -538,7 +540,8 @@ class _SortFavoritesManagerDialogState
                                             active: favorite.id ==
                                                 widget.activeSortFavoriteId,
                                             onAdd: () => setState(() {
-                                              _availableFavorites.removeAt(index);
+                                              _availableFavorites
+                                                  .removeAt(index);
                                               _pinnedFavorites.add(favorite);
                                             }),
                                           );
@@ -548,7 +551,8 @@ class _SortFavoritesManagerDialogState
                             ),
                           ];
 
-                          if (constraints.maxWidth < 760) {
+                          if (constraints.maxWidth <
+                              kLibraryToolbarCompactBreakpoint) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -870,7 +874,8 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
   }
 }
 
-String _sortFavoriteSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
+String _sortFavoriteSummary(
+    LibraryTypeConfig type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -963,7 +968,8 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
           accent: accent,
           muted: muted,
         ),
-        trailing: isSelected ? Icon(Icons.check, size: 16, color: textColor) : null,
+        trailing:
+            isSelected ? Icon(Icons.check, size: 16, color: textColor) : null,
         textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               height: 1,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -1041,8 +1047,8 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
           (letter) =>
               letter == '#' ||
               letter == '0-9' ||
-          (letter.length == 1 &&
-            _libraryToolbarLetterPattern.hasMatch(letter)),
+              (letter.length == 1 &&
+                  _libraryToolbarLetterPattern.hasMatch(letter)),
         )
         .toSet();
     const alphabet = [
@@ -1244,84 +1250,84 @@ void showLibraryCompactCoverSizeSheet(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-            leading: const Icon(Icons.grid_view),
-            title: const Text('Grid view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.grid);
-            },
+              leading: const Icon(Icons.grid_view),
+              title: const Text('Grid view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.grid);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.view_module),
-            title: const Text('Cards view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.card);
-            },
+              leading: const Icon(Icons.view_module),
+              title: const Text('Cards view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.card);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.view_agenda),
-            title: const Text('Flow view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.cardFlow);
-            },
+              leading: const Icon(Icons.view_agenda),
+              title: const Text('Flow view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.cardFlow);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.view_list),
-            title: const Text('List view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.list);
-            },
-            ),
-            const Divider(height: 1),
-            ListTile(
-            leading: const Icon(Icons.view_sidebar_outlined),
-            title: const Text('Details on right'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onDetailsLayoutChanged(LibraryDetailsLayout.right);
-            },
-            ),
-            ListTile(
-            leading: const Icon(Icons.splitscreen_outlined),
-            title: const Text('Details on bottom'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onDetailsLayoutChanged(LibraryDetailsLayout.bottom);
-            },
-            ),
-            ListTile(
-            leading: const Icon(Icons.close_fullscreen_outlined),
-            title: const Text('Hide details'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onDetailsLayoutChanged(LibraryDetailsLayout.hidden);
-            },
+              leading: const Icon(Icons.view_list),
+              title: const Text('List view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.list);
+              },
             ),
             const Divider(height: 1),
             ListTile(
-            leading: const Icon(Icons.photo_size_select_small),
-            title: const Text('Small covers'),
-            enabled: coverSizeEnabled,
-            onTap: coverSizeEnabled
-                ? () {
-                    Navigator.of(context).pop();
-                    onCoverSizeChanged(96);
-                  }
-                : null,
+              leading: const Icon(Icons.view_sidebar_outlined),
+              title: const Text('Details on right'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onDetailsLayoutChanged(LibraryDetailsLayout.right);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.photo_size_select_large),
-            title: const Text('Large covers'),
-            enabled: coverSizeEnabled,
-            onTap: coverSizeEnabled
-                ? () {
-                    Navigator.of(context).pop();
-                    onCoverSizeChanged(188);
-                  }
-                : null,
+              leading: const Icon(Icons.splitscreen_outlined),
+              title: const Text('Details on bottom'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onDetailsLayoutChanged(LibraryDetailsLayout.bottom);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.close_fullscreen_outlined),
+              title: const Text('Hide details'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onDetailsLayoutChanged(LibraryDetailsLayout.hidden);
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.photo_size_select_small),
+              title: const Text('Small covers'),
+              enabled: coverSizeEnabled,
+              onTap: coverSizeEnabled
+                  ? () {
+                      Navigator.of(context).pop();
+                      onCoverSizeChanged(96);
+                    }
+                  : null,
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_size_select_large),
+              title: const Text('Large covers'),
+              enabled: coverSizeEnabled,
+              onTap: coverSizeEnabled
+                  ? () {
+                      Navigator.of(context).pop();
+                      onCoverSizeChanged(188);
+                    }
+                  : null,
             ),
           ],
         ),

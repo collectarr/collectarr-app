@@ -4,7 +4,9 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
-  show LibrarySortFavorite;
+    show LibrarySortFavorite;
+
+const double kLibraryToolbarCompactBreakpoint = 760;
 
 enum LibraryCollectionStatusScope {
   all,
@@ -62,8 +64,7 @@ extension LibrarySeriesCompletionScopeUi on LibrarySeriesCompletionScope {
     return switch (this) {
       LibrarySeriesCompletionScope.all => Icons.select_all,
       LibrarySeriesCompletionScope.completed => Icons.check_circle_outline,
-      LibrarySeriesCompletionScope.notCompleted =>
-        Icons.radio_button_unchecked,
+      LibrarySeriesCompletionScope.notCompleted => Icons.radio_button_unchecked,
     };
   }
 }
