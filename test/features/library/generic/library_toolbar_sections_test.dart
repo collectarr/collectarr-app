@@ -30,8 +30,8 @@ void main() {
       onTransferFieldData: () {},
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
-      onBulkMoveToOwned: () {},
-      onBulkMoveToWishlist: () {},
+      onBulkMoveToOwned: null,
+      onBulkMoveToWishlist: null,
       onBulkRemove: () {},
       onBulkRefreshMetadata: () {},
     );

@@ -25,8 +25,8 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onTransferFieldData,
   VoidCallback? onBulkUpdateValues,
   VoidCallback? onBulkUpdateKeyInfo,
-  VoidCallback onBulkMoveToOwned,
-  VoidCallback onBulkMoveToWishlist,
+  VoidCallback? onBulkMoveToOwned,
+  VoidCallback? onBulkMoveToWishlist,
   VoidCallback onBulkRemove,
   VoidCallback onBulkRefreshMetadata,
 });
@@ -190,16 +190,18 @@ class LibrarySelectionControls extends StatelessWidget {
                 dense: true,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BulkAction.moveToOwned,
+              enabled: callbacks.onBulkMoveToOwned != null,
               child: ListTile(
                 leading: Icon(Icons.inventory_2_outlined),
                 title: Text('Move to owned'),
                 dense: true,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BulkAction.moveToWishlist,
+              enabled: callbacks.onBulkMoveToWishlist != null,
               child: ListTile(
                 leading: Icon(Icons.star_border),
                 title: Text('Move to wishlist'),

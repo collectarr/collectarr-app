@@ -660,9 +660,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                           : null,
                       onBulkUpdateValues: null,
                       onBulkUpdateKeyInfo: null,
-                      onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
-                      onBulkMoveToWishlist: () =>
-                          bulkMoveToWishlistFlow(projection),
+                      onBulkMoveToOwned:
+                          _hasMoveToOwnedEligibleItemsInSelection(projection)
+                              ? () => bulkMoveToOwnedFlow(projection)
+                              : null,
+                      onBulkMoveToWishlist:
+                          _hasMoveToWishlistEligibleItemsInSelection(projection)
+                              ? () => bulkMoveToWishlistFlow(projection)
+                              : null,
                       onBulkRemove: () => bulkRemoveFlow(projection),
                       onBulkRefreshMetadata: () =>
                           bulkRefreshMetadataFlow(projection),
@@ -1444,6 +1449,29 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           _selection.itemIds.contains(item.entry.id) &&
           item.entry.ownedItemId != null &&
           !_activeLoanOwnedItemIds.contains(item.entry.ownedItemId),
+    );
+  }
+
+  bool _hasMoveToOwnedEligibleItemsInSelection(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) {
+      return false;
+    }
+    return projection.filteredItems.any(
+      (item) =>
+          _selection.itemIds.contains(item.entry.id) && !item.entry.isOwned,
+    );
+  }
+
+  bool _hasMoveToWishlistEligibleItemsInSelection(
+    LibraryProjection? projection,
+  ) {
+    if (projection == null || _selection.itemIds.isEmpty) {
+      return false;
+    }
+    return projection.filteredItems.any(
+      (item) =>
+          _selection.itemIds.contains(item.entry.id) &&
+          !item.entry.isWishlisted,
     );
   }
 
