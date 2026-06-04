@@ -236,9 +236,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
         run: |
-          gh release upload "v$env:RELEASE_VERSION" \
-            "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" \
-            "dist/collectarr-windows-installer-v$env:RELEASE_VERSION.exe" \
+          gh release upload "v$env:RELEASE_VERSION" `
+            "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" `
+            "dist/collectarr-windows-installer-v$env:RELEASE_VERSION.exe" `
             --clobber
 
   release-macos:
