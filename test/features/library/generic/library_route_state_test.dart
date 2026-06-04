@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -137,5 +138,27 @@ void main() {
     expect(comicsFiltered.quickView, isNull);
     expect(comicsFiltered.filterSelection.ownershipFilter,
         LibraryOwnershipFilter.all);
+  });
+
+  test('filtered route state resets series scope outside series grouping', () {
+    final state = LibraryRouteState(
+      kind: 'book',
+      groupMode: LibraryGroupMode.publisher,
+      seriesCompletionScope: LibrarySeriesCompletionScope.completed,
+    );
+
+    final filtered = state.filteredForType(booksLibraryConfig);
+    expect(filtered.groupMode, LibraryGroupMode.publisher);
+    expect(filtered.seriesCompletionScope, LibrarySeriesCompletionScope.all);
+
+    final seriesFiltered = LibraryRouteState(
+      kind: 'book',
+      groupMode: LibraryGroupMode.series,
+      seriesCompletionScope: LibrarySeriesCompletionScope.completed,
+    ).filteredForType(booksLibraryConfig);
+    expect(
+      seriesFiltered.seriesCompletionScope,
+      LibrarySeriesCompletionScope.completed,
+    );
   });
 }

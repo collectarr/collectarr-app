@@ -749,6 +749,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       activeProjectionGroupMode,
       _genericShelfSignature(shelfState),
     );
+    final canUseSeriesCompletionScope =
+        _activeGroupMode == LibraryGroupMode.series;
+    final effectiveSeriesCompletionScope = canUseSeriesCompletionScope
+        ? _seriesCompletionScope
+        : LibrarySeriesCompletionScope.all;
     return LibraryBody(
       type: widget.type,
       adapter: _adapter,
@@ -848,7 +853,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       activeSmartListName: _activeSmartListName,
       quickView: _quickView,
       collectionStatusScope: _collectionStatusScope,
-      seriesCompletionScope: _seriesCompletionScope,
+      seriesCompletionScope: effectiveSeriesCompletionScope,
       collectionStatusScopeLabel:
           _collectionStatusScope == LibraryCollectionStatusScope.all
               ? null
@@ -859,7 +864,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       filterSelection: _filterSelection,
       preferToolbarAlphabet: true,
       onCollectionStatusScopeChanged: _toggleCollectionStatusScope,
-      onSeriesCompletionScopeChanged: _setSeriesCompletionScope,
+      onSeriesCompletionScopeChanged:
+          canUseSeriesCompletionScope ? _setSeriesCompletionScope : null,
       onFilterByValue: _toggleLinkedMetadataFilter,
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -1323,6 +1329,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _setSeriesCompletionScope(LibrarySeriesCompletionScope scope) {
+    if (_activeGroupMode != LibraryGroupMode.series) {
+      return;
+    }
     _mutateSidebarScope(() {
       _seriesCompletionScope = scope;
     });
@@ -1629,6 +1638,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     setState(() {
       _folderPreset = sanitized;
       _groupMode = sanitized.primaryMode;
+      if (_groupMode != LibraryGroupMode.series) {
+        _seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      }
       _selectedBucket = null;
       _selectedLetter = null;
       _linkedMetadataFilter = null;
@@ -1656,7 +1668,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       linkedMetadataValue: _linkedMetadataFilter?.value,
       selectedLetter: _selectedLetter,
       collectionStatusScope: _collectionStatusScope,
-      seriesCompletionScope: _seriesCompletionScope,
+      seriesCompletionScope: _activeGroupMode == LibraryGroupMode.series
+          ? _seriesCompletionScope
+          : LibrarySeriesCompletionScope.all,
       quickView: _quickView,
       filterSelection: _filterSelection,
       sortRules: viewState.sortRules,

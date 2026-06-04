@@ -155,19 +155,24 @@ class LibraryRouteState {
             for (final rule in sortRules!)
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
+    final filteredGroupMode = filteredFolderPreset?.primaryMode ??
+        (groupMode != null && allowedGroupModes.contains(groupMode)
+            ? groupMode
+            : null);
+    final filteredSeriesCompletionScope =
+        filteredGroupMode == LibraryGroupMode.series
+            ? seriesCompletionScope
+            : LibrarySeriesCompletionScope.all;
     return LibraryRouteState(
       kind: expectedKind,
       searchQuery: searchQuery,
-      groupMode: filteredFolderPreset?.primaryMode ??
-          (groupMode != null && allowedGroupModes.contains(groupMode)
-              ? groupMode
-              : null),
+      groupMode: filteredGroupMode,
       folderPreset: filteredFolderPreset,
       selectedBucket: selectedBucket,
       linkedMetadataValue: linkedMetadataValue,
       selectedLetter: selectedLetter,
       collectionStatusScope: collectionStatusScope,
-      seriesCompletionScope: seriesCompletionScope,
+      seriesCompletionScope: filteredSeriesCompletionScope,
       quickView: sanitizeLibraryQuickViewForType(quickView, type),
       filterSelection: sanitizeLibraryFilterSelectionForType(
         filterSelection,
