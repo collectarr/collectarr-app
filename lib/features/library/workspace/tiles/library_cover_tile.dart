@@ -9,6 +9,20 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
+  LibraryWorkspaceEntry entry,
+) {
+  final status = entry.collectionStatus?.trim().toLowerCase();
+  return switch (status) {
+    'sold' => LibraryCollectionStatusScope.sold,
+    'for_sale' => LibraryCollectionStatusScope.forSale,
+    'on_order' => LibraryCollectionStatusScope.onOrder,
+    _ when entry.isOwned => LibraryCollectionStatusScope.inCollection,
+    _ when entry.isWishlisted => LibraryCollectionStatusScope.wishList,
+    _ => LibraryCollectionStatusScope.notInCollection,
+  };
+}
+
 class LibraryCoverTile extends ConsumerStatefulWidget {
   const LibraryCoverTile({
     required this.entry,
@@ -192,9 +206,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                         Positioned(
                           left: 5,
                           bottom: 5,
-                          child: _LibraryTileSelectionToggleButton(
+                          child: LibraryTileSelectionToggleButton(
                             onTap: widget.onSelectionToggleTap,
-                            child: _LibraryTileSelectionToggle(
+                            child: LibraryTileSelectionToggle(
                               selected: selected,
                               accentColor: resolvedSelectionColor,
                               coverSize: widget.coverSize,
@@ -252,23 +266,14 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   }
 
   Widget? _scopeBadge(BuildContext context, LibraryWorkspaceEntry entry) {
-    final status = entry.collectionStatus?.trim().toLowerCase();
     final palette = appPalette(context);
-    final scope = switch (status) {
-      'sold' => LibraryCollectionStatusScope.sold,
-      'for_sale' => LibraryCollectionStatusScope.forSale,
-      'on_order' => LibraryCollectionStatusScope.onOrder,
-      _ when entry.isOwned => LibraryCollectionStatusScope.inCollection,
-      _ when entry.isWishlisted => LibraryCollectionStatusScope.wishList,
-      _ when entry.isTracked => LibraryCollectionStatusScope.notInCollection,
-      _ => LibraryCollectionStatusScope.notInCollection,
-    };
+    final scope = resolveLibraryCollectionStatusScope(entry);
     final iconColor = libraryCollectionStatusScopeColor(
       scope,
       widget.accentColor,
       palette.textMuted,
     );
-    return _LibraryTileScopePill(
+    return LibraryTileScopePill(
       icon: scope.icon,
       label: scope.label,
       color: iconColor,
@@ -276,8 +281,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   }
 }
 
-class _LibraryTileSelectionToggle extends StatelessWidget {
-  const _LibraryTileSelectionToggle({
+class LibraryTileSelectionToggle extends StatelessWidget {
+  const LibraryTileSelectionToggle({
     required this.selected,
     required this.accentColor,
     required this.coverSize,
@@ -318,8 +323,8 @@ class _LibraryTileSelectionToggle extends StatelessWidget {
   }
 }
 
-class _LibraryTileSelectionToggleButton extends StatelessWidget {
-  const _LibraryTileSelectionToggleButton({
+class LibraryTileSelectionToggleButton extends StatelessWidget {
+  const LibraryTileSelectionToggleButton({
     required this.child,
     this.onTap,
   });
@@ -397,8 +402,8 @@ class _LibraryTileHoverActionButtonState
   }
 }
 
-class _LibraryTileScopePill extends StatelessWidget {
-  const _LibraryTileScopePill({
+class LibraryTileScopePill extends StatelessWidget {
+  const LibraryTileScopePill({
     required this.icon,
     required this.label,
     required this.color,

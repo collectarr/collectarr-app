@@ -2,10 +2,14 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -101,7 +105,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     return LayoutBuilder(
       builder: (context, constraints) {
         _syncViewportFraction(constraints.maxWidth);
-        final activeItem = widget.items[_currentIndex.clamp(0, widget.items.length - 1)];
+        final activeItem =
+            widget.items[_currentIndex.clamp(0, widget.items.length - 1)];
         final stageHeight = math.min(constraints.maxHeight * 0.72, 560.0);
         return Focus(
           autofocus: true,
@@ -139,7 +144,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                 onPageChanged: (index) {
                                   setState(() => _currentIndex = index);
                                   if (widget.selectedIds.isEmpty) {
-                                    widget.onActivateItem(widget.items[index].entry.id);
+                                    widget.onActivateItem(
+                                        widget.items[index].entry.id);
                                   }
                                 },
                                 itemBuilder: (context, index) {
@@ -148,9 +154,11 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                     animation: _controller,
                                     builder: (context, child) {
                                       final page = _controller.hasClients
-                                          ? (_controller.page ?? _currentIndex.toDouble())
+                                          ? (_controller.page ??
+                                              _currentIndex.toDouble())
                                           : _currentIndex.toDouble();
-                                      final distance = (page - index).abs().clamp(0.0, 1.0);
+                                      final distance =
+                                          (page - index).abs().clamp(0.0, 1.0);
                                       final focus = 1.0 - distance;
                                       final scale = 0.82 + (0.18 * focus);
                                       final verticalOffset = 34 * (1 - focus);
@@ -169,13 +177,24 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                       child: _FlowCarouselCard(
                                         item: item,
                                         accent: widget.accent,
-                                        selected: widget.selectedIds.contains(item.entry.id),
+                                        selected: widget.selectedIds
+                                            .contains(item.entry.id),
+                                        selectionMode:
+                                            widget.selectedIds.isNotEmpty,
                                         focused: index == _currentIndex,
                                         onTap: () => _handleTap(item, index),
-                                        onDoubleTap: () => widget.onOpenItem(item),
-                                        onSecondaryTapUp: widget.onItemContextMenu == null
-                                            ? null
-                                            : (details) => widget.onItemContextMenu!(item, details.globalPosition),
+                                        onSelectionToggleTap: () =>
+                                            widget.onToggleSelectionItem(
+                                                item.entry.id),
+                                        onDoubleTap: () =>
+                                            widget.onOpenItem(item),
+                                        onSecondaryTapUp:
+                                            widget.onItemContextMenu == null
+                                                ? null
+                                                : (details) =>
+                                                    widget.onItemContextMenu!(
+                                                        item,
+                                                        details.globalPosition),
                                       ),
                                     ),
                                   );
@@ -188,7 +207,9 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                 child: _FlowNavButton(
                                   key: const ValueKey('flow-carousel-prev'),
                                   icon: Icons.chevron_left,
-                                  onPressed: _currentIndex == 0 ? null : () => _animateToPage(_currentIndex - 1),
+                                  onPressed: _currentIndex == 0
+                                      ? null
+                                      : () => _animateToPage(_currentIndex - 1),
                                 ),
                               ),
                               Align(
@@ -196,7 +217,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                 child: _FlowNavButton(
                                   key: const ValueKey('flow-carousel-next'),
                                   icon: Icons.chevron_right,
-                                  onPressed: _currentIndex >= widget.items.length - 1
+                                  onPressed: _currentIndex >=
+                                          widget.items.length - 1
                                       ? null
                                       : () => _animateToPage(_currentIndex + 1),
                                 ),
@@ -213,7 +235,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                 child: ClipRRect(
                                   borderRadius: kAppRadiusLarge,
                                   child: _FlowBackdrop(
-                                    key: ValueKey('flow-carousel-backdrop-${activeItem.entry.id}'),
+                                    key: ValueKey(
+                                        'flow-carousel-backdrop-${activeItem.entry.id}'),
                                     item: activeItem,
                                     accent: widget.accent,
                                   ),
@@ -239,7 +262,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                     child: _FlowShelfToggle(
                       active: _showAccentShelf,
                       accent: widget.accent,
-                      onToggle: () => setState(() => _showAccentShelf = !_showAccentShelf),
+                      onToggle: () =>
+                          setState(() => _showAccentShelf = !_showAccentShelf),
                     ),
                   ),
                 ],
@@ -278,7 +302,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     if (selectedId == null) {
       return _currentIndex.clamp(0, widget.items.length - 1);
     }
-    final index = widget.items.indexWhere((item) => item.entry.id == selectedId);
+    final index =
+        widget.items.indexWhere((item) => item.entry.id == selectedId);
     return index >= 0 ? index : 0;
   }
 
@@ -305,7 +330,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
           (_viewportFraction - pendingFraction).abs() < 0.001) {
         return;
       }
-      if (_controller.hasClients && _controller.position.isScrollingNotifier.value) {
+      if (_controller.hasClients &&
+          _controller.position.isScrollingNotifier.value) {
         _syncViewportFractionForPendingFrame();
         return;
       }
@@ -322,7 +348,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
       if (pendingFraction == null) {
         return;
       }
-      if (_controller.hasClients && _controller.position.isScrollingNotifier.value) {
+      if (_controller.hasClients &&
+          _controller.position.isScrollingNotifier.value) {
         _syncViewportFractionForPendingFrame();
         return;
       }
@@ -358,8 +385,11 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     final isRangeSelection = _isRangeSelectionModifierPressed();
     final isToggleSelection = _isToggleSelectionModifierPressed();
     if (isRangeSelection) {
-      final anchorId = widget.selectedAnchorId ?? widget.selectedId ?? item.entry.id;
-      final orderedIds = [for (final candidate in widget.items) candidate.entry.id];
+      final anchorId =
+          widget.selectedAnchorId ?? widget.selectedId ?? item.entry.id;
+      final orderedIds = [
+        for (final candidate in widget.items) candidate.entry.id
+      ];
       final rangeIds = selectionRangeItemIds(
         orderedIds,
         anchorId: anchorId,
@@ -522,13 +552,15 @@ class _FlowShelfToggle extends StatelessWidget {
   }
 }
 
-class _FlowCarouselCard extends StatelessWidget {
+class _FlowCarouselCard extends StatefulWidget {
   const _FlowCarouselCard({
     required this.item,
     required this.accent,
     required this.selected,
+    required this.selectionMode,
     required this.focused,
     required this.onTap,
+    this.onSelectionToggleTap,
     this.onDoubleTap,
     this.onSecondaryTapUp,
   });
@@ -536,16 +568,26 @@ class _FlowCarouselCard extends StatelessWidget {
   final LibraryProjectionItem item;
   final Color accent;
   final bool selected;
+  final bool selectionMode;
   final bool focused;
   final VoidCallback onTap;
+  final VoidCallback? onSelectionToggleTap;
   final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
 
   @override
+  State<_FlowCarouselCard> createState() => _FlowCarouselCardState();
+}
+
+class _FlowCarouselCardState extends State<_FlowCarouselCard> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final entry = item.entry;
+    final entry = widget.item.entry;
     final palette = appPalette(context);
     final title = entry.resolvedTitle;
+    final comic = entry.comic;
     final subtitle = [
       if (entry.itemNumber != null && entry.itemNumber!.trim().isNotEmpty)
         '#${entry.itemNumber}',
@@ -553,22 +595,29 @@ class _FlowCarouselCard extends StatelessWidget {
         entry.publisher,
       if (entry.releaseYear != null) entry.releaseYear.toString(),
     ].join('  ·  ');
-      final cardColor = focused
-        ? Color.alphaBlend(accent.withValues(alpha: 0.12), palette.cardBackground)
+    final cardColor = widget.focused
+        ? Color.alphaBlend(
+            widget.accent.withValues(alpha: 0.12),
+            palette.cardBackground,
+          )
         : palette.panel;
-      final selectedCheckColor =
-        ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-          ? Colors.white
-          : Colors.black87;
+    final showSelectionToggle =
+        widget.selectionMode || widget.selected || _hovered;
     return SizedBox(
       width: 260,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: kAppRadiusLarge,
-          onTap: onTap,
-          onDoubleTap: onDoubleTap,
-          onSecondaryTapUp: onSecondaryTapUp,
+          onTap: widget.onTap,
+          onDoubleTap: widget.onDoubleTap,
+          onSecondaryTapUp: widget.onSecondaryTapUp,
+          onHover: (value) {
+            if (_hovered == value) {
+              return;
+            }
+            setState(() => _hovered = value);
+          },
           child: AnimatedContainer(
             duration: kAppAnimFast,
             curve: Curves.easeOutCubic,
@@ -577,18 +626,19 @@ class _FlowCarouselCard extends StatelessWidget {
               color: cardColor,
               borderRadius: kAppRadiusLarge,
               border: Border.all(
-                color: selected
-                    ? accent
-                    : focused
-                        ? accent.withValues(alpha: 0.55)
+                color: widget.selected
+                    ? widget.accent
+                    : widget.focused
+                        ? widget.accent.withValues(alpha: 0.55)
                         : palette.cardBorder,
-                width: selected ? 2.2 : 1.1,
+                width: widget.selected ? 2.2 : 1.1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: focused ? 0.34 : 0.18),
-                  blurRadius: focused ? 36 : 18,
-                  offset: Offset(0, focused ? 18 : 10),
+                  color: Colors.black
+                      .withValues(alpha: widget.focused ? 0.34 : 0.18),
+                  blurRadius: widget.focused ? 36 : 18,
+                  offset: Offset(0, widget.focused ? 18 : 10),
                 ),
               ],
             ),
@@ -605,7 +655,7 @@ class _FlowCarouselCard extends StatelessWidget {
                             itemNumber: entry.itemNumber,
                             imageUrl: entry.displayCoverUrl,
                             ownedItemId: entry.ownedItemId,
-                            accentColor: accent,
+                            accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
                           ),
@@ -620,33 +670,35 @@ class _FlowCarouselCard extends StatelessWidget {
                           isWishlisted: entry.isWishlisted,
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
+                          keyLabel: libraryKeyMarkerLabel(
+                            comic?.keyComic ?? false,
+                            comic?.keyReason,
+                          ),
+                          slabLabel: librarySlabMarkerLabel(
+                            comic?.rawOrSlabbed,
+                            comic?.gradingCompany,
+                          ),
+                          notesLabel: libraryNotesMarkerLabel(entry.notes),
                         ),
                       ),
-                      if (selected)
+                      if (showSelectionToggle)
                         Positioned(
-                          right: 8,
-                          top: 8,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: accent,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: accent.withValues(alpha: 0.45),
-                                  blurRadius: 14,
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(4),
-                              child: Icon(
-                                Icons.check,
-                                size: 14,
-                                color: selectedCheckColor,
-                              ),
+                          left: 8,
+                          bottom: 8,
+                          child: LibraryTileSelectionToggleButton(
+                            onTap: widget.onSelectionToggleTap,
+                            child: LibraryTileSelectionToggle(
+                              selected: widget.selected,
+                              accentColor: widget.accent,
+                              coverSize: 84,
                             ),
                           ),
                         ),
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: _cardScopeBadge(context, entry),
+                      ),
                     ],
                   ),
                 ),
@@ -679,6 +731,20 @@ class _FlowCarouselCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _cardScopeBadge(BuildContext context, LibraryWorkspaceEntry entry) {
+    final palette = appPalette(context);
+    final scope = resolveLibraryCollectionStatusScope(entry);
+    return LibraryTileScopePill(
+      icon: scope.icon,
+      label: scope.label,
+      color: libraryCollectionStatusScopeColor(
+        scope,
+        widget.accent,
+        palette.textMuted,
       ),
     );
   }
@@ -752,11 +818,12 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     children: [
                       Text(
                         '${widget.index + 1} / ${widget.total}',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: widget.accent,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.6,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: widget.accent,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.6,
+                                ),
                       ),
                       const SizedBox(height: 6),
                       Text(
@@ -764,10 +831,11 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                         key: const ValueKey('flow-carousel-footer-title'),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: palette.textPrimary,
-                              fontWeight: FontWeight.w900,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: palette.textPrimary,
+                                  fontWeight: FontWeight.w900,
+                                ),
                       ),
                       if (meta.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -775,21 +843,25 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                           meta,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: appPalette(context).textMuted,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: appPalette(context).textMuted,
+                                  ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                if (entry.itemNumber != null && entry.itemNumber!.trim().isNotEmpty)
+                if (entry.itemNumber != null &&
+                    entry.itemNumber!.trim().isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: widget.accent.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: widget.accent.withValues(alpha: 0.35)),
+                      border: Border.all(
+                          color: widget.accent.withValues(alpha: 0.35)),
                     ),
                     child: Text(
                       '#${entry.itemNumber}',
@@ -812,9 +884,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _showReleases
-                            ? Icons.expand_less
-                            : Icons.expand_more,
+                        _showReleases ? Icons.expand_less : Icons.expand_more,
                         size: 18,
                         color: widget.accent,
                       ),
@@ -903,7 +973,8 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
           if (isOwned)
             Icon(Icons.check_circle, size: 14, color: accent)
           else
-            Icon(Icons.circle_outlined, size: 14, color: appPalette(context).textMuted),
+            Icon(Icons.circle_outlined,
+                size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 8),
           if (edition.physicalFormat != null)
             Padding(

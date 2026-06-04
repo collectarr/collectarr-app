@@ -517,8 +517,20 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       ),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
         children: [
+          InspectorUnifiedToolbar(
+            entry: selected,
+            onEdit: onEdit,
+            onShare: onShare,
+            onDuplicate: onDuplicate,
+            onToggleOwned: onToggleOwned,
+            onLoan: onLoan,
+            onRefreshMetadata: onRefreshMetadata,
+            onUnlinkFromCore: onUnlinkFromCore,
+            onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
+          ),
+          const SizedBox(height: 6),
           DecoratedBox(
             decoration: BoxDecoration(
               color: palette.surface,

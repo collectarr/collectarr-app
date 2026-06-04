@@ -67,8 +67,20 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _barcodeController;
   late final TextEditingController _catalogNumberController;
   late final TextEditingController _releaseDateController;
+  late final TextEditingController _originalReleaseDateController;
+  late final TextEditingController _recordingDateController;
   late final TextEditingController _releaseYearController;
   late final TextEditingController _releaseStatusController;
+  late final TextEditingController _studioController;
+  late final TextEditingController _packagingController;
+  late final TextEditingController _mediaConditionController;
+  late final TextEditingController _soundTypeController;
+  late final TextEditingController _vinylColorController;
+  late final TextEditingController _rpmController;
+  late final TextEditingController _sparsController;
+  late final TextEditingController _instrumentController;
+  late final TextEditingController _compositionController;
+  late final TextEditingController _extrasController;
   late final TextEditingController _countryController;
   late final TextEditingController _languageController;
   late final TextEditingController _genresController;
@@ -96,6 +108,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _wishlistPriceController;
   late final TextEditingController _wishlistCurrencyController;
   late final TextEditingController _wishlistNotesController;
+  late final TextEditingController _purchaseStoreController;
+  late final TextEditingController _boxSetController;
+  late final TextEditingController _storageDeviceController;
+  late final TextEditingController _storageSlotController;
+  late final TextEditingController _signedByController;
+  late final TextEditingController _collectionStatusController;
 
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
@@ -105,9 +123,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   DateTime? _startedAt;
   DateTime? _finishedAt;
   DateTime? _soldAt;
+  bool _isLive = false;
   String? _physicalFormatId;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
+  int _selectedTrackDisc = 1;
+  int _nextTrackRowId = 1;
+  List<_EditableMusicTrackRow> _editableTrackRows = [];
+  final Map<int, _MusicDiscDraft> _discDrafts = <int, _MusicDiscDraft>{};
 
   bool get _isOwned => widget.request.ownedItem != null;
 
@@ -171,9 +194,39 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _catalogNumberController =
         TextEditingController(text: item.music?.catalogNumber ?? '');
     _releaseDateController = _draft.releaseDateController;
+    _originalReleaseDateController = TextEditingController(
+      text: item.music?.originalReleaseDate == null
+          ? ''
+          : formatDate(item.music!.originalReleaseDate!),
+    );
+    _recordingDateController = TextEditingController(
+      text: item.music?.recordingDate == null
+          ? ''
+          : formatDate(item.music!.recordingDate!),
+    );
     _releaseYearController = _draft.releaseYearController;
     _releaseStatusController =
         TextEditingController(text: item.music?.releaseStatus ?? '');
+    _studioController = TextEditingController(text: item.music?.studio ?? '');
+    _packagingController = _draft.packagingController;
+    _mediaConditionController = TextEditingController(
+      text: item.music?.mediaCondition ?? '',
+    );
+    _soundTypeController = TextEditingController(
+      text: item.music?.soundType ?? '',
+    );
+    _vinylColorController = TextEditingController(
+      text: item.music?.vinylColor ?? '',
+    );
+    _rpmController = TextEditingController(text: item.music?.rpm ?? '');
+    _sparsController = TextEditingController(text: item.music?.spars ?? '');
+    _instrumentController = TextEditingController(
+      text: item.music?.instrument ?? '',
+    );
+    _compositionController = TextEditingController(
+      text: item.music?.composition ?? '',
+    );
+    _extrasController = _draft.featuresController;
     _countryController = _draft.countryController;
     _languageController = _draft.languageController;
     _genresController = TextEditingController(
@@ -210,6 +263,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _wishlistPriceController = _draft.wishlistPriceController;
     _wishlistCurrencyController = _draft.wishlistCurrencyController;
     _wishlistNotesController = _draft.wishlistNotesController;
+    _purchaseStoreController = _draft.purchaseStoreController;
+    _boxSetController = _draft.boxSetNameController;
+    _storageDeviceController = _draft.storageDeviceController;
+    _storageSlotController = _draft.storageSlotController;
+    _signedByController = _draft.signedByController;
+    _collectionStatusController = TextEditingController(
+      text: widget.request.ownedItem?.collectionStatus ?? '',
+    );
 
     _physicalFormatId = _draft.physicalFormatId;
     final dialogState = _draft.cloneDialogState();
@@ -221,6 +282,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _selectedVariantId = dialogState.selectedVariantId;
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
+    _isLive = item.music?.isLive ?? false;
+    _initializeTrackEditingState();
 
     unawaited(_loadAvailableLocations());
   }
@@ -231,9 +294,21 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _artistController.dispose();
     _subtitleController.dispose();
     _catalogNumberController.dispose();
+    _originalReleaseDateController.dispose();
+    _recordingDateController.dispose();
     _releaseStatusController.dispose();
+    _studioController.dispose();
+    _mediaConditionController.dispose();
+    _soundTypeController.dispose();
+    _vinylColorController.dispose();
+    _rpmController.dispose();
+    _sparsController.dispose();
+    _instrumentController.dispose();
+    _compositionController.dispose();
+    _collectionStatusController.dispose();
     _genresController.dispose();
     _creditsController.dispose();
+    _disposeTrackEditingState();
     _draft.dispose();
     super.dispose();
   }
@@ -279,18 +354,22 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     switch (id) {
       case 'main':
         return _mainTab();
+      case 'details':
+        return _detailsTab();
       case 'classical':
         return _classicalTab();
-      case 'tracks':
-        return _tracksTab();
-      case 'details_personal':
-        return _detailsPersonalTab();
       case 'people':
         return _peopleTab();
+      case 'tracks':
+        return _tracksTab();
+      case 'personal':
+        return _personalTab();
+      case 'custom':
+        return _customTab();
       case 'covers':
         return _coversTab();
-      case 'notes':
-        return _notesTab();
+      case 'photos':
+        return _photosTab();
       case 'links':
         return _linksTab();
       default:
@@ -304,7 +383,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     final trackCount = music?.trackCount ?? tracks.length;
     final sections = _tabSectionIds('main');
     return EditTabShell(
-      cover: _coverPreview(),
       children: [
         _musicMainOverviewCard(trackCount: trackCount),
         const SizedBox(height: 10),
@@ -443,8 +521,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  Widget _detailsPersonalTab() {
-    final sections = _tabSectionIds('details_personal');
+  Widget _detailsTab() {
+    final sections = _tabSectionIds('details');
     return EditTabShell(
       children: [
         for (final sectionId in sections) _sectionFor(sectionId),
@@ -454,6 +532,24 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   Widget _peopleTab() {
     final sections = _tabSectionIds('people');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _personalTab() {
+    final sections = _tabSectionIds('personal');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _customTab() {
+    final sections = _tabSectionIds('custom');
     return EditTabShell(
       children: [
         for (final sectionId in sections) _sectionFor(sectionId),
@@ -471,8 +567,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  Widget _notesTab() {
-    final sections = _tabSectionIds('notes');
+  Widget _photosTab() {
+    final sections = _tabSectionIds('photos');
     return EditTabShell(
       children: [
         for (final sectionId in sections) _sectionFor(sectionId),
@@ -490,8 +586,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   Widget _sectionFor(String id) {
-    final tracks = _item.music?.tracks ?? const <CatalogTrack>[];
-    final totalDuration = _trackDurationLabel(tracks);
     switch (id) {
       case 'music_release_identity':
         return EditSection(
@@ -550,6 +644,23 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   validator: optionalIntValidator,
                 ),
               ]),
+              const SizedBox(height: 10),
+              _denseFields([
+                _field(
+                  controller: _originalReleaseDateController,
+                  label: 'Original release date',
+                  hint: 'YYYY-MM-DD',
+                  validator: optionalDateValidator,
+                ),
+                _field(
+                  controller: _recordingDateController,
+                  label: 'Recording date',
+                  hint: 'YYYY-MM-DD',
+                  validator: optionalDateValidator,
+                ),
+                _field(controller: _studioController, label: 'Studio / Label'),
+                _field(controller: _packagingController, label: 'Packaging'),
+              ]),
               if (widget.request.type.releaseFields.showPhysicalFormat &&
                   widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
@@ -586,6 +697,25 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 _field(controller: _countryController, label: 'Country'),
                 _field(controller: _languageController, label: 'Language'),
               ]),
+              const SizedBox(height: 10),
+              _denseFields([
+                _field(
+                  controller: _soundTypeController,
+                  label: 'Sound',
+                ),
+                _field(
+                  controller: _vinylColorController,
+                  label: 'Vinyl color',
+                ),
+                _field(
+                  controller: _mediaConditionController,
+                  label: 'Media condition',
+                ),
+                _field(
+                  controller: _collectionStatusController,
+                  label: 'Collection status',
+                ),
+              ]),
             ],
           ),
         );
@@ -608,9 +738,27 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         return EditSection(
           title: 'Classical metadata',
           accent: _accent,
-          child: const Text(
-            'This tab is reserved for composer, conductor, orchestra and chorus metadata. The current music model does not persist dedicated classical structures yet, but the edit flow now mirrors the CLZ tab layout so the specialized fields can be wired in without reshaping the dialog again.',
-            style: TextStyle(color: kEditTextMuted),
+          child: Column(
+            children: [
+              _denseFields([
+                _field(
+                    controller: _compositionController, label: 'Composition'),
+                _field(controller: _instrumentController, label: 'Instrument'),
+                _field(controller: _rpmController, label: 'RPM'),
+                _field(controller: _sparsController, label: 'SPARS'),
+              ]),
+              const SizedBox(height: 10),
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  value: _isLive,
+                  onChanged: (value) => setState(() => _isLive = value),
+                  title: const Text('Live recording'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
+            ],
           ),
         );
       case 'music_composer':
@@ -631,6 +779,130 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final disc in _discNumbersFromTracks)
+                          InputChip(
+                            label: Text('Disc #$disc'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            selected: disc == _selectedTrackDisc,
+                            onSelected: (_) {
+                              setState(() => _selectedTrackDisc = disc);
+                            },
+                            onDeleted: _discNumbersFromTracks.length > 1
+                                ? () => _removeDiscDraft(disc)
+                                : null,
+                            deleteIcon: const Icon(Icons.close, size: 14),
+                            visualDensity: VisualDensity.compact,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          ),
+                      ],
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _addDiscDraft,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Disc'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _tracksDiscMetaRow(_selectedTrackDisc),
+              const SizedBox(height: 10),
+              _trackSelectionToolbar(),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: kAppField,
+                  border: Border.all(color: kEditDivider),
+                ),
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      child: Row(
+                        children: [
+                          SizedBox(width: 28),
+                          SizedBox(width: 24),
+                          SizedBox(width: 28),
+                          Expanded(
+                            flex: 10,
+                            child: Text('Title',
+                                style: TextStyle(color: kEditTextMuted)),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            flex: 7,
+                            child: Text('Artist',
+                                style: TextStyle(color: kEditTextMuted)),
+                          ),
+                          SizedBox(width: 8),
+                          SizedBox(
+                            width: 82,
+                            child: Text('Length',
+                                style: TextStyle(color: kEditTextMuted)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1, color: kEditDivider),
+                    if (_visibleTrackRows.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          'No tracks for this disc yet.',
+                          style: TextStyle(color: kEditTextMuted),
+                        ),
+                      )
+                    else
+                      ReorderableListView.builder(
+                        buildDefaultDragHandles: false,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _visibleTrackRows.length,
+                        onReorderItem: _reorderVisibleTrackRows,
+                        itemBuilder: (context, index) {
+                          final row = _visibleTrackRows[index];
+                          return Column(
+                            key: ValueKey('track-row-${row.rowId}'),
+                            children: [
+                              _editableTrackRow(row, index),
+                              if (index != _visibleTrackRows.length - 1)
+                                const Divider(height: 1, color: kEditDivider),
+                            ],
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => _addTrackForSelectedDisc(header: true),
+                    icon: const Icon(Icons.folder_outlined),
+                    label: const Text('Add Header'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: _addTrackForSelectedDisc,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Track'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -638,102 +910,15 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   ValueContextChip(
                     icon: Icons.queue_music_outlined,
                     label: 'Tracks',
-                    value: '${tracks.length}',
+                    value: '${_editableTrackRows.length}',
                   ),
                   ValueContextChip(
                     icon: Icons.schedule_outlined,
                     label: 'Length',
-                    value: totalDuration ?? '—',
+                    value: _trackDurationLabel(_buildSubmittedTracks()) ?? '—',
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              if (tracks.isEmpty)
-                const Text(
-                  'No track list is available for this release yet.',
-                  style: TextStyle(color: kEditTextMuted),
-                )
-              else
-                Container(
-                  decoration: BoxDecoration(
-                    color: kAppField,
-                    border: Border.all(color: kEditDivider),
-                  ),
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 44,
-                              child: Text('#',
-                                  style: TextStyle(color: kEditTextMuted)),
-                            ),
-                            Expanded(
-                              child: Text('Title',
-                                  style: TextStyle(color: kEditTextMuted)),
-                            ),
-                            SizedBox(
-                              width: 90,
-                              child: Text('Length',
-                                  style: TextStyle(color: kEditTextMuted)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(height: 1, color: kEditDivider),
-                      for (var index = 0; index < tracks.length; index++) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 7),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 44,
-                                child: Text(
-                                  _trackPositionLabel(index, tracks[index]),
-                                  style: const TextStyle(color: kEditTextMuted),
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(tracks[index].title),
-                                    if ((tracks[index].artist ?? '')
-                                        .trim()
-                                        .isNotEmpty)
-                                      Text(
-                                        tracks[index].artist!.trim(),
-                                        style: const TextStyle(
-                                          color: kEditTextMuted,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: 90,
-                                child: Text(
-                                  _secondsLabel(
-                                          tracks[index].durationSeconds) ??
-                                      '—',
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(color: kEditTextMuted),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (index != tracks.length - 1)
-                          const Divider(height: 1, color: kEditDivider),
-                      ],
-                    ],
-                  ),
-                ),
             ],
           ),
         );
@@ -782,6 +967,19 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 ]),
                 const SizedBox(height: 10),
                 _denseFields([
+                  _field(
+                    controller: _purchaseStoreController,
+                    label: 'Purchase store',
+                  ),
+                  _field(controller: _boxSetController, label: 'Box set'),
+                  _field(
+                    controller: _storageDeviceController,
+                    label: 'Storage device',
+                  ),
+                  _field(controller: _storageSlotController, label: 'Slot'),
+                ]),
+                const SizedBox(height: 10),
+                _denseFields([
                   _datePickerField(
                     label: 'Started',
                     value: _startedAt,
@@ -810,6 +1008,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     label: 'Total tracks',
                     validator: optionalPositiveIntValidator,
                   ),
+                ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _field(controller: _signedByController, label: 'Signed by'),
+                  _field(controller: _extrasController, label: 'Extras'),
                 ]),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -1122,6 +1325,591 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     }
   }
 
+  List<int> get _discNumbersFromTracks {
+    final values = <int>{};
+    for (final row in _editableTrackRows) {
+      values.add(row.discNumber <= 0 ? 1 : row.discNumber);
+    }
+    if (values.isEmpty) {
+      values.add(1);
+    }
+    final sorted = values.toList()..sort();
+    return sorted;
+  }
+
+  List<_EditableMusicTrackRow> get _visibleTrackRows {
+    final rows = _editableTrackRows
+        .where((row) => row.discNumber == _selectedTrackDisc)
+        .toList(growable: false);
+    rows.sort(
+        (left, right) => (left.position ?? 0).compareTo(right.position ?? 0));
+    return rows;
+  }
+
+  List<_EditableMusicTrackRow> get _selectedVisibleTrackRows {
+    return _visibleTrackRows
+        .where((row) => row.selected)
+        .toList(growable: false);
+  }
+
+  Widget _trackSelectionToolbar() {
+    final selectedRows = _selectedVisibleTrackRows;
+    final hasSelection = selectedRows.isNotEmpty;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        OutlinedButton(
+          onPressed: hasSelection ? _clearTrackSelection : null,
+          child: const Text('Cancel'),
+        ),
+        OutlinedButton(
+          onPressed: _visibleTrackRows.isEmpty ? null : _selectAllTracksInDisc,
+          child: const Text('Select all'),
+        ),
+        OutlinedButton(
+          onPressed: hasSelection ? _autocapSelectedTracks : null,
+          child: const Text('Autocap'),
+        ),
+        PopupMenuButton<int>(
+          enabled: hasSelection && _discNumbersFromTracks.length > 1,
+          tooltip: 'Move selected to disc',
+          onSelected: _moveSelectedTracksToDisc,
+          itemBuilder: (context) => [
+            for (final disc in _discNumbersFromTracks)
+              if (disc != _selectedTrackDisc)
+                PopupMenuItem<int>(
+                  value: disc,
+                  child: Text('Move to Disc #$disc'),
+                ),
+          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            decoration: BoxDecoration(
+              border: Border.all(color: kEditDivider),
+              color: kAppField,
+            ),
+            child: const Text('Move to disc'),
+          ),
+        ),
+        FilledButton(
+          onPressed: hasSelection ? _removeSelectedTracks : null,
+          child: const Text('Remove selected'),
+        ),
+      ],
+    );
+  }
+
+  void _initializeTrackEditingState() {
+    final tracks = _item.music?.tracks ?? const <CatalogTrack>[];
+    _editableTrackRows = [
+      for (final track in tracks)
+        _createTrackRow(
+          discNumber: track.discNumber ?? 1,
+          position: track.position,
+          title: track.title,
+          artist: track.artist,
+          durationLabel: _secondsLabel(track.durationSeconds),
+        ),
+    ];
+    final existingDiscs = _item.music?.discs ?? const <CatalogDisc>[];
+    for (final disc in _discNumbersFromTracks) {
+      final source = existingDiscs.firstWhere(
+        (entry) => entry.discNumber == disc,
+        orElse: () => CatalogDisc(discNumber: disc),
+      );
+      _discDrafts[disc] = _MusicDiscDraft(
+        discTitle: source.discName ?? 'Disc #$disc',
+        storageDevice: source.storageDevice ?? '',
+        slot: source.slot ?? '',
+        matrixSideA: source.matrixSideA ?? '',
+        matrixSideB: source.matrixSideB ?? '',
+      );
+    }
+    _selectedTrackDisc = _discNumbersFromTracks.first;
+    for (final disc in _discNumbersFromTracks) {
+      _renumberDiscTracks(disc);
+    }
+  }
+
+  void _disposeTrackEditingState() {
+    for (final row in _editableTrackRows) {
+      row.dispose();
+    }
+    for (final draft in _discDrafts.values) {
+      draft.dispose();
+    }
+  }
+
+  _MusicDiscDraft _discDraftFor(int discNumber) {
+    return _discDrafts.putIfAbsent(
+      discNumber,
+      () => _MusicDiscDraft(
+        discTitle: 'Disc #$discNumber',
+        storageDevice: '',
+        slot: '',
+        matrixSideA: '',
+        matrixSideB: '',
+      ),
+    );
+  }
+
+  void _addDiscDraft() {
+    setState(() {
+      final nextDisc = _discNumbersFromTracks.isEmpty
+          ? 1
+          : (_discNumbersFromTracks.last + 1);
+      _discDraftFor(nextDisc);
+      _selectedTrackDisc = nextDisc;
+    });
+    _addTrackForSelectedDisc();
+  }
+
+  void _removeDiscDraft(int discNumber) {
+    setState(() {
+      final removedRows = _editableTrackRows
+          .where((row) => row.discNumber == discNumber)
+          .toList(growable: false);
+      for (final row in removedRows) {
+        row.dispose();
+      }
+      _editableTrackRows.removeWhere((row) => row.discNumber == discNumber);
+      _discDrafts.remove(discNumber)?.dispose();
+      final remaining = _discNumbersFromTracks;
+      _selectedTrackDisc = remaining.first;
+    });
+  }
+
+  void _addTrackForSelectedDisc({bool header = false}) {
+    setState(() {
+      final nextPosition = _visibleTrackRows.isEmpty
+          ? 1
+          : ((_visibleTrackRows.last.position ?? _visibleTrackRows.length) + 1);
+      final newRow = _createTrackRow(
+        discNumber: _selectedTrackDisc,
+        position: nextPosition,
+        title: header ? 'Header' : '',
+        artist: '',
+        durationLabel: '',
+        isHeader: header,
+        indentLevel: 0,
+      );
+      _editableTrackRows.add(newRow);
+      _renumberDiscTracks(_selectedTrackDisc);
+    });
+  }
+
+  void _addTrackUnderHeader(_EditableMusicTrackRow headerRow) {
+    setState(() {
+      final newRow = _createTrackRow(
+        discNumber: headerRow.discNumber,
+        position: headerRow.position == null ? null : headerRow.position! + 1,
+        title: '',
+        artist: '',
+        durationLabel: '',
+        indentLevel: headerRow.indentLevel + 1,
+        parentHeaderRowId: headerRow.rowId,
+      );
+      final startIndex = _editableTrackRows.indexOf(headerRow);
+      var insertIndex = startIndex + 1;
+      while (insertIndex < _editableTrackRows.length) {
+        final candidate = _editableTrackRows[insertIndex];
+        if (candidate.discNumber != headerRow.discNumber ||
+            candidate.indentLevel <= headerRow.indentLevel) {
+          break;
+        }
+        insertIndex += 1;
+      }
+      _editableTrackRows.insert(insertIndex, newRow);
+      _renumberDiscTracks(headerRow.discNumber);
+    });
+  }
+
+  void _removeTrackRow(_EditableMusicTrackRow row) {
+    setState(() {
+      final toRemove = <_EditableMusicTrackRow>[row];
+      if (row.isHeader) {
+        final startIndex = _editableTrackRows.indexOf(row);
+        for (var index = startIndex + 1;
+            index < _editableTrackRows.length;
+            index++) {
+          final candidate = _editableTrackRows[index];
+          if (candidate.discNumber != row.discNumber ||
+              candidate.indentLevel <= row.indentLevel) {
+            break;
+          }
+          toRemove.add(candidate);
+        }
+      }
+      for (final candidate in toRemove) {
+        _editableTrackRows.remove(candidate);
+        candidate.dispose();
+      }
+      _renumberDiscTracks(row.discNumber);
+    });
+  }
+
+  void _reorderVisibleTrackRows(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) {
+      return;
+    }
+    setState(() {
+      final rows = _visibleTrackRows;
+      if (oldIndex < 0 || oldIndex >= rows.length) {
+        return;
+      }
+      final targetIndex = newIndex;
+      final row = rows[oldIndex];
+      _editableTrackRows.remove(row);
+      final remainingRows = _visibleTrackRows;
+      if (targetIndex <= 0 || remainingRows.isEmpty) {
+        final insertAt = _editableTrackRows.indexWhere(
+          (candidate) => candidate.discNumber == _selectedTrackDisc,
+        );
+        _editableTrackRows.insert(insertAt < 0 ? 0 : insertAt, row);
+      } else if (targetIndex >= remainingRows.length) {
+        final lastIndex = _editableTrackRows.lastIndexWhere(
+          (candidate) => candidate.discNumber == _selectedTrackDisc,
+        );
+        _editableTrackRows.insert(lastIndex + 1, row);
+      } else {
+        final anchor = remainingRows[targetIndex];
+        final anchorIndex = _editableTrackRows.indexOf(anchor);
+        _editableTrackRows.insert(anchorIndex, row);
+      }
+      _renumberDiscTracks(_selectedTrackDisc);
+    });
+  }
+
+  void _selectAllTracksInDisc() {
+    setState(() {
+      for (final row in _visibleTrackRows) {
+        row.selected = true;
+      }
+    });
+  }
+
+  void _clearTrackSelection() {
+    setState(() {
+      for (final row in _visibleTrackRows) {
+        row.selected = false;
+      }
+    });
+  }
+
+  void _autocapSelectedTracks() {
+    setState(() {
+      for (final row in _selectedVisibleTrackRows) {
+        row.titleController.text = _toTitleCase(row.titleController.text);
+        if (!row.isHeader) {
+          row.artistController.text = _toTitleCase(row.artistController.text);
+        }
+      }
+    });
+  }
+
+  String _toTitleCase(String value) {
+    final words = value
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty)
+        .toList(growable: false);
+    if (words.isEmpty) {
+      return '';
+    }
+    return words
+        .map((word) => word.length <= 1
+            ? word.toUpperCase()
+            : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}')
+        .join(' ');
+  }
+
+  void _moveSelectedTracksToDisc(int discNumber) {
+    setState(() {
+      final sourceDisc = _selectedTrackDisc;
+      for (final row in _selectedVisibleTrackRows) {
+        row.discNumber = discNumber;
+        row.selected = false;
+      }
+      _discDraftFor(discNumber);
+      _selectedTrackDisc = discNumber;
+      _renumberDiscTracks(sourceDisc);
+      _renumberDiscTracks(discNumber);
+    });
+  }
+
+  void _removeSelectedTracks() {
+    setState(() {
+      final selected = _selectedVisibleTrackRows;
+      for (final row in selected) {
+        _editableTrackRows.remove(row);
+        row.dispose();
+      }
+      _renumberDiscTracks(_selectedTrackDisc);
+    });
+  }
+
+  void _renumberDiscTracks(int discNumber) {
+    var index = 1;
+    for (final row
+        in _editableTrackRows.where((row) => row.discNumber == discNumber)) {
+      row.position = index;
+      index += 1;
+    }
+  }
+
+  int? _parseTrackDurationSeconds(String value) {
+    final normalized = value.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    if (normalized.contains(':')) {
+      final parts = normalized.split(':');
+      if (parts.length == 2) {
+        final minutes = int.tryParse(parts[0].trim());
+        final seconds = int.tryParse(parts[1].trim());
+        if (minutes == null || seconds == null || seconds < 0 || seconds > 59) {
+          return null;
+        }
+        return minutes * 60 + seconds;
+      }
+      if (parts.length == 3) {
+        final hours = int.tryParse(parts[0].trim());
+        final minutes = int.tryParse(parts[1].trim());
+        final seconds = int.tryParse(parts[2].trim());
+        if (hours == null ||
+            minutes == null ||
+            seconds == null ||
+            minutes < 0 ||
+            minutes > 59 ||
+            seconds < 0 ||
+            seconds > 59) {
+          return null;
+        }
+        return hours * 3600 + minutes * 60 + seconds;
+      }
+      return null;
+    }
+    return int.tryParse(normalized);
+  }
+
+  List<CatalogTrack> _buildSubmittedTracks() {
+    final output = <CatalogTrack>[];
+    for (final row in _editableTrackRows) {
+      final title = row.titleController.text.trim();
+      final artist = emptyToNull(row.artistController.text);
+      final durationSeconds =
+          _parseTrackDurationSeconds(row.lengthController.text.trim());
+      if (title.isEmpty && artist == null && durationSeconds == null) {
+        continue;
+      }
+      output.add(
+        CatalogTrack(
+          title: title.isEmpty ? 'Untitled track' : title,
+          artist: artist,
+          durationSeconds: durationSeconds,
+          position: row.position,
+          discNumber: row.discNumber,
+        ),
+      );
+    }
+    output.sort((left, right) {
+      final byDisc = (left.discNumber ?? 1).compareTo(right.discNumber ?? 1);
+      if (byDisc != 0) {
+        return byDisc;
+      }
+      return (left.position ?? 0).compareTo(right.position ?? 0);
+    });
+    return output;
+  }
+
+  List<CatalogDisc> _buildSubmittedDiscMetadata() {
+    final output = <CatalogDisc>[];
+    for (final discNumber in _discNumbersFromTracks) {
+      final draft = _discDraftFor(discNumber);
+      final discTracks = _editableTrackRows
+          .where((row) => row.discNumber == discNumber)
+          .toList(growable: false);
+      if (discTracks.isEmpty) {
+        continue;
+      }
+      output.add(
+        CatalogDisc(
+          discNumber: discNumber,
+          discName: emptyToNull(draft.discTitleController.text),
+          storageDevice: emptyToNull(draft.storageDeviceController.text),
+          slot: emptyToNull(draft.slotController.text),
+          matrixSideA: emptyToNull(draft.matrixSideAController.text),
+          matrixSideB: emptyToNull(draft.matrixSideBController.text),
+        ),
+      );
+    }
+    output.sort((left, right) => left.discNumber.compareTo(right.discNumber));
+    return output;
+  }
+
+  Widget _tracksDiscMetaRow(int discNumber) {
+    final draft = _discDraftFor(discNumber);
+    return Row(
+      children: [
+        Expanded(
+          flex: 4,
+          child: TextFormField(
+            controller: draft.discTitleController,
+            decoration: const InputDecoration(labelText: 'Disc Title'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 3,
+          child: TextFormField(
+            controller: draft.storageDeviceController,
+            decoration: const InputDecoration(labelText: 'Storage Device'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 92,
+          child: TextFormField(
+            controller: draft.slotController,
+            decoration: const InputDecoration(labelText: 'Slot'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: TextFormField(
+            controller: draft.matrixSideAController,
+            decoration: const InputDecoration(labelText: 'Matrix No. Side A'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: TextFormField(
+            controller: draft.matrixSideBController,
+            decoration: const InputDecoration(labelText: 'Matrix No. Side B'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _editableTrackRow(_EditableMusicTrackRow row, int index) {
+    final indentWidth = row.indentLevel * 18.0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            child: Checkbox(
+              value: row.selected,
+              onChanged: (value) {
+                setState(() => row.selected = value ?? false);
+              },
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          SizedBox(
+            width: 24,
+            child: ReorderableDragStartListener(
+              index: index,
+              child: const Icon(
+                Icons.drag_handle,
+                size: 16,
+                color: kEditTextMuted,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 28,
+            child: Text(
+              '${row.position ?? (index + 1)}',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          if (indentWidth > 0) ...[
+            SizedBox(width: indentWidth),
+            const Icon(Icons.subdirectory_arrow_right,
+                size: 14, color: kEditTextMuted),
+            const SizedBox(width: 4),
+          ],
+          Expanded(
+            flex: 10,
+            child: TextFormField(
+              controller: row.titleController,
+              style: row.isHeader
+                  ? const TextStyle(fontWeight: FontWeight.w700)
+                  : null,
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 7,
+            child: TextFormField(
+              controller: row.artistController,
+              enabled: !row.isHeader,
+              decoration: const InputDecoration(labelText: 'Artist'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 82,
+            child: TextFormField(
+              controller: row.lengthController,
+              enabled: !row.isHeader,
+              textAlign: TextAlign.right,
+              decoration: const InputDecoration(
+                labelText: 'Length',
+                hintText: 'm:ss',
+              ),
+            ),
+          ),
+          if (row.isHeader)
+            IconButton(
+              tooltip: 'Add track under header',
+              onPressed: () => _addTrackUnderHeader(row),
+              icon: const Icon(Icons.add, size: 16),
+            ),
+          IconButton(
+            tooltip: 'Remove track',
+            onPressed: () => _removeTrackRow(row),
+            icon: const Icon(Icons.close, size: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _EditableMusicTrackRow _createTrackRow({
+    required int discNumber,
+    required int? position,
+    required String title,
+    required String? artist,
+    required String? durationLabel,
+    bool selected = false,
+    bool isHeader = false,
+    int indentLevel = 0,
+    int? parentHeaderRowId,
+  }) {
+    final row = _EditableMusicTrackRow(
+      rowId: _nextTrackRowId,
+      discNumber: discNumber,
+      position: position,
+      title: title,
+      artist: artist,
+      durationLabel: durationLabel,
+      selected: selected,
+      isHeader: isHeader,
+      indentLevel: indentLevel,
+      parentHeaderRowId: parentHeaderRowId,
+    );
+    _nextTrackRowId += 1;
+    return row;
+  }
+
   Widget _denseFields(List<Widget> children) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1390,15 +2178,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return normalized.isEmpty ? null : normalized;
   }
 
-  String _trackPositionLabel(int index, CatalogTrack track) {
-    final disc = track.discNumber;
-    final position = track.position ?? index + 1;
-    if (disc == null || disc <= 1) {
-      return '$position';
-    }
-    return '$disc.$position';
-  }
-
   String? _secondsLabel(int? value) {
     if (value == null || value <= 0) {
       return null;
@@ -1444,7 +2223,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
     );
-    final currentTracks = _item.music?.tracks ?? const <CatalogTrack>[];
+    final currentTracks = _buildSubmittedTracks();
+    final currentDiscs = _buildSubmittedDiscMetadata();
     final updatedSeries = CatalogSeriesDetails(
       seriesId: _item.series?.seriesId,
       seriesTitle: emptyToNull(_artistController.text),
@@ -1467,8 +2247,20 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       trackCount: _item.music?.trackCount ??
           (currentTracks.isEmpty ? null : currentTracks.length),
       tracks: currentTracks,
+      discs: currentDiscs,
       catalogNumber: emptyToNull(_catalogNumberController.text),
       releaseStatus: emptyToNull(_releaseStatusController.text),
+      originalReleaseDate: parseDate(_originalReleaseDateController.text),
+      recordingDate: parseDate(_recordingDateController.text),
+      studio: emptyToNull(_studioController.text),
+      rpm: emptyToNull(_rpmController.text),
+      spars: emptyToNull(_sparsController.text),
+      soundType: emptyToNull(_soundTypeController.text),
+      vinylColor: emptyToNull(_vinylColorController.text),
+      mediaCondition: emptyToNull(_mediaConditionController.text),
+      instrument: emptyToNull(_instrumentController.text),
+      isLive: _isLive,
+      composition: emptyToNull(_compositionController.text),
     );
 
     Navigator.of(context).pop(
@@ -1521,10 +2313,17 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 rawOrSlabbed: null,
                 gradingCompany: null,
                 graderNotes: null,
-                signedBy: null,
+                signedBy: emptyToNull(_signedByController.text),
                 keyComic: null,
                 keyReason: null,
                 coverPriceCents: null,
+                features: emptyToNull(_extrasController.text),
+                purchaseStore: emptyToNull(_purchaseStoreController.text),
+                boxSetName: emptyToNull(_boxSetController.text),
+                storageDevice: emptyToNull(_storageDeviceController.text),
+                storageSlot: emptyToNull(_storageSlotController.text),
+                packaging: emptyToNull(_packagingController.text),
+                collectionStatus: emptyToNull(_collectionStatusController.text),
               ),
         tracking: !_hasTrackingContext
             ? null
@@ -1647,5 +2446,67 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             normalized,
             formats: widget.request.physicalFormats,
           );
+  }
+}
+
+class _EditableMusicTrackRow {
+  _EditableMusicTrackRow({
+    required this.rowId,
+    required this.discNumber,
+    required this.position,
+    required String title,
+    required String? artist,
+    required String? durationLabel,
+    this.selected = false,
+    this.isHeader = false,
+    this.indentLevel = 0,
+    this.parentHeaderRowId,
+  })  : titleController = TextEditingController(text: title),
+        artistController = TextEditingController(text: artist ?? ''),
+        lengthController = TextEditingController(text: durationLabel ?? '');
+
+  final int rowId;
+  int discNumber;
+  int? position;
+  bool selected;
+  final bool isHeader;
+  final int indentLevel;
+  final int? parentHeaderRowId;
+  final TextEditingController titleController;
+  final TextEditingController artistController;
+  final TextEditingController lengthController;
+
+  void dispose() {
+    titleController.dispose();
+    artistController.dispose();
+    lengthController.dispose();
+  }
+}
+
+class _MusicDiscDraft {
+  _MusicDiscDraft({
+    required String discTitle,
+    required String storageDevice,
+    required String slot,
+    required String matrixSideA,
+    required String matrixSideB,
+  })  : discTitleController = TextEditingController(text: discTitle),
+        storageDeviceController = TextEditingController(text: storageDevice),
+        slotController = TextEditingController(text: slot),
+        matrixSideAController = TextEditingController(text: matrixSideA),
+        matrixSideBController = TextEditingController(text: matrixSideB);
+
+  final TextEditingController discTitleController;
+  final TextEditingController storageDeviceController;
+  final TextEditingController slotController;
+  final TextEditingController matrixSideAController;
+  final TextEditingController matrixSideBController;
+
+  void dispose() {
+    discTitleController.dispose();
+    storageDeviceController.dispose();
+    slotController.dispose();
+    matrixSideAController.dispose();
+    matrixSideBController.dispose();
   }
 }

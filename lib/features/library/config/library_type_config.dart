@@ -203,6 +203,8 @@ class LibraryInspectorPanelRequest {
     this.onDuplicate,
     this.onLoan,
     this.onRefreshMetadata,
+    this.onShare,
+    this.onUnlinkFromCore,
   });
 
   final LibraryInspectorRequest inspector;
@@ -226,6 +228,8 @@ class LibraryInspectorPanelRequest {
   final VoidCallback? onDuplicate;
   final VoidCallback? onLoan;
   final VoidCallback? onRefreshMetadata;
+  final VoidCallback? onShare;
+  final VoidCallback? onUnlinkFromCore;
 }
 
 typedef LibraryInspectorPanelBuilder = Widget Function(

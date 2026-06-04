@@ -100,13 +100,9 @@ void main() {
       ),
     );
 
-    expect(find.text('14 tracks'), findsOneWidget);
-    expect(find.text('Official'), findsOneWidget);
-    expect(find.text('Japanese pressing'), findsOneWidget);
-    expect(
-      find.text('Album  ->  Edition: Deluxe Edition  ->  Physical: Japan CD'),
-      findsOneWidget,
-    );
+    expect(find.text('Discovery'), findsWidgets);
+    expect(find.text('Virgin'), findsOneWidget);
+    expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
   });
 
   testWidgets('workspace card renders video runtime and game platforms',
@@ -143,7 +139,8 @@ void main() {
                   mediaType: 'game',
                   title: 'Mario Kart 8 Deluxe',
                   isOwned: true,
-                  game: const GameCatalogDetails(platforms: ['Switch', 'Wii U']),
+                  game:
+                      const GameCatalogDetails(platforms: ['Switch', 'Wii U']),
                   updatedAt: DateTime.utc(2026),
                 ),
                 selected: false,

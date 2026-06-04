@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -78,14 +77,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.selectionCallbacks,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
-    this.inspectorItem,
-    this.onInspectorEdit,
-    this.onInspectorShare,
-    this.onInspectorDuplicate,
-    this.onInspectorToggleOwned,
-    this.onInspectorLoan,
-    this.onInspectorRefreshMetadata,
-    this.onInspectorUnlinkFromCore,
     this.showBottomBorder = true,
   });
 
@@ -144,14 +135,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
   final int totalSelectableCount;
-  final LibraryProjectionItem? inspectorItem;
-  final VoidCallback? onInspectorEdit;
-  final VoidCallback? onInspectorShare;
-  final VoidCallback? onInspectorDuplicate;
-  final VoidCallback? onInspectorToggleOwned;
-  final VoidCallback? onInspectorLoan;
-  final VoidCallback? onInspectorRefreshMetadata;
-  final VoidCallback? onInspectorUnlinkFromCore;
   final bool showBottomBorder;
 
   @override
@@ -362,19 +345,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   onPrintReport: onPrintReport,
                   onShareCollection: onShareCollection,
                 ),
-                if (inspectorItem != null)
-                  InspectorUnifiedToolbar(
-                    entry: inspectorItem!.entry,
-                    onEdit: onInspectorEdit,
-                    onShare: onInspectorShare,
-                    onDuplicate: onInspectorDuplicate,
-                    onToggleOwned: onInspectorToggleOwned,
-                    onLoan: onInspectorLoan,
-                    onRefreshMetadata: onInspectorRefreshMetadata,
-                    onUnlinkFromCore: onInspectorUnlinkFromCore,
-                    framed: false,
-                    includeLayoutControl: false,
-                  ),
               ],
             ),
           ],

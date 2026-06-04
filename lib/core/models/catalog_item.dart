@@ -37,17 +37,29 @@ class CatalogDisc {
     required this.discNumber,
     this.discName,
     this.discFormat,
+    this.storageDevice,
+    this.slot,
+    this.matrixSideA,
+    this.matrixSideB,
   });
 
   final int discNumber;
   final String? discName;
   final String? discFormat;
+  final String? storageDevice;
+  final String? slot;
+  final String? matrixSideA;
+  final String? matrixSideB;
 
   factory CatalogDisc.fromJson(Map<String, dynamic> json) {
     return CatalogDisc(
       discNumber: json['disc_number'] as int? ?? 1,
       discName: json['disc_name'] as String?,
       discFormat: json['disc_format'] as String?,
+      storageDevice: json['storage_device'] as String?,
+      slot: json['slot'] as String?,
+      matrixSideA: json['matrix_side_a'] as String?,
+      matrixSideB: json['matrix_side_b'] as String?,
     );
   }
 
@@ -56,6 +68,10 @@ class CatalogDisc {
       'disc_number': discNumber,
       if (discName != null) 'disc_name': discName,
       if (discFormat != null) 'disc_format': discFormat,
+      if (storageDevice != null) 'storage_device': storageDevice,
+      if (slot != null) 'slot': slot,
+      if (matrixSideA != null) 'matrix_side_a': matrixSideA,
+      if (matrixSideB != null) 'matrix_side_b': matrixSideB,
     };
   }
 }
@@ -271,6 +287,7 @@ class MusicCatalogDetails {
   const MusicCatalogDetails({
     this.trackCount,
     this.tracks = const <CatalogTrack>[],
+    this.discs = const <CatalogDisc>[],
     this.catalogNumber,
     this.releaseStatus,
     this.originalReleaseDate,
@@ -288,6 +305,7 @@ class MusicCatalogDetails {
 
   final int? trackCount;
   final List<CatalogTrack> tracks;
+  final List<CatalogDisc> discs;
   final String? catalogNumber;
   final String? releaseStatus;
   final DateTime? originalReleaseDate;
@@ -305,6 +323,7 @@ class MusicCatalogDetails {
   bool get hasData =>
       trackCount != null ||
       tracks.isNotEmpty ||
+      discs.isNotEmpty ||
       catalogNumber != null ||
       releaseStatus != null ||
       originalReleaseDate != null ||
@@ -741,9 +760,14 @@ sealed class CatalogItem {
     final tracks = (json['tracks'] as List<dynamic>?)
         ?.map((track) => CatalogTrack.fromJson(track as Map<String, dynamic>))
         .toList(growable: false);
+    final musicDiscs = (json['music_discs'] as List<dynamic>?)
+        ?.whereType<Map<String, dynamic>>()
+        .map(CatalogDisc.fromJson)
+        .toList(growable: false);
     final music = MusicCatalogDetails(
       trackCount: json['track_count'] as int?,
       tracks: tracks ?? const <CatalogTrack>[],
+      discs: musicDiscs ?? const <CatalogDisc>[],
       catalogNumber: json['catalog_number'] as String?,
       releaseStatus: json['release_status'] as String?,
       originalReleaseDate: _parseDate(json['original_release_date'] as String?),
@@ -940,6 +964,7 @@ sealed class CatalogItem {
     final music = this.music;
     final game = this.game;
     final tracks = music?.tracks;
+    final musicDiscs = music?.discs;
     final platforms = game?.platforms ?? rawPlatforms;
     return {
       'snapshot_version': 1,
@@ -984,6 +1009,8 @@ sealed class CatalogItem {
       'layers': video?.layers,
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
+      'music_discs':
+          musicDiscs?.map((disc) => disc.toJson()).toList(growable: false),
       'catalog_number': music?.catalogNumber,
       'original_release_date':
           music?.originalReleaseDate?.toUtc().toIso8601String(),

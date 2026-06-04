@@ -35,6 +35,20 @@ LibraryDetailsLayout resolveEffectiveLibraryDetailsLayout({
   return preferredLayout;
 }
 
+double resolveLibraryWorkspaceMinWidth({
+  required LibraryWorkspaceViewState viewState,
+}) {
+  return switch (viewState.viewMode) {
+    LibraryViewMode.grid ||
+    LibraryViewMode.horizontalCards ||
+    LibraryViewMode.shelves =>
+      (viewState.coverSize + 36)
+          .clamp(160.0, kLibraryWorkspaceMinWidth)
+          .toDouble(),
+    _ => kLibraryWorkspaceMinWidth,
+  };
+}
+
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -105,6 +119,7 @@ class LibraryBody extends StatelessWidget {
     this.onPinnedFolderPresetsChanged,
     this.onManageBuckets,
     this.inspectorContextLabel,
+    this.desktopToolbarBand,
   });
 
   final LibraryTypeConfig type;
@@ -180,6 +195,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;
   final String? inspectorContextLabel;
+  final Widget? desktopToolbarBand;
 
   @override
   Widget build(BuildContext context) {
@@ -190,6 +206,9 @@ class LibraryBody extends StatelessWidget {
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
         final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
         final showSidebar = canShowSidebar && viewState.isSidebarVisible;
+        final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
+          viewState: viewState,
+        );
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,
@@ -204,7 +223,7 @@ class LibraryBody extends StatelessWidget {
         );
         final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
           viewportWidth: constraints.maxWidth,
-          workspaceMinWidth: kLibraryWorkspaceMinWidth,
+          workspaceMinWidth: workspaceMinWidth,
           hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
           rightDetailsWidth: requestedDetailsWidth,
         );
@@ -215,7 +234,7 @@ class LibraryBody extends StatelessWidget {
         );
         final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
           viewportWidth: constraints.maxWidth,
-          workspaceMinWidth: kLibraryWorkspaceMinWidth,
+          workspaceMinWidth: workspaceMinWidth,
           hasSidebar: showSidebar,
           sidebarWidth: sidebarWidth,
         );
@@ -291,6 +310,7 @@ class LibraryBody extends StatelessWidget {
 
         final workspaceContent = Column(
           children: [
+            if (!compact && desktopToolbarBand != null) desktopToolbarBand!,
             if (workspaceOverride == null &&
                 !showSidebar &&
                 !canShowSidebar &&

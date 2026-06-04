@@ -325,143 +325,147 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final ebayUri = _inspectorEbayUri(entry);
-    final content = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      child: Row(
-        children: [
-          OutlinedButton.icon(
-            onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined, size: 16),
-            label: const Text('Edit'),
-            style: OutlinedButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              minimumSize: const Size(0, 30),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            ),
-          ),
-          const SizedBox(width: 6),
-          OutlinedButton.icon(
-            onPressed: onShare,
-            icon: const Icon(Icons.share_outlined, size: 16),
-            label: const Text('Share'),
-            style: OutlinedButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              minimumSize: const Size(0, 30),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            ),
-          ),
-          const SizedBox(width: 6),
-          if (ebayUri != null)
-            InspectorToolIconButton(
-              tooltip: 'Find sold listings on eBay',
-              icon: Icons.shopping_bag_outlined,
-              onPressed: () =>
-                  launchUrl(ebayUri, mode: LaunchMode.externalApplication),
-            ),
-          const Spacer(),
-          PopupMenuButton<InspectorToolbarMenuAction>(
-            tooltip: 'More actions',
-            onSelected: (value) {
-              switch (value) {
-                case InspectorToolbarMenuAction.duplicate:
-                  onDuplicate?.call();
-                  return;
-                case InspectorToolbarMenuAction.removeOrCollect:
-                  onToggleOwned?.call();
-                  return;
-                case InspectorToolbarMenuAction.loan:
-                  onLoan?.call();
-                  return;
-                case InspectorToolbarMenuAction.refreshMetadata:
-                  onRefreshMetadata?.call();
-                  return;
-                case InspectorToolbarMenuAction.unlinkFromCore:
-                  onUnlinkFromCore?.call();
-                  return;
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem<InspectorToolbarMenuAction>(
-                value: InspectorToolbarMenuAction.duplicate,
-                enabled: onDuplicate != null,
-                child: const ListTile(
-                  dense: true,
-                  leading: Icon(Icons.copy_all_outlined),
-                  title: Text('Duplicate'),
-                ),
+    final content = LayoutBuilder(
+      builder: (context, constraints) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Row(
+          mainAxisSize:
+              constraints.hasBoundedWidth ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            OutlinedButton.icon(
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit_outlined, size: 16),
+              label: const Text('Edit'),
+              style: OutlinedButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                minimumSize: const Size(0, 30),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               ),
-              PopupMenuItem<InspectorToolbarMenuAction>(
-                value: InspectorToolbarMenuAction.removeOrCollect,
-                enabled: onToggleOwned != null,
-                child: ListTile(
-                  dense: true,
-                  leading: Icon(
-                    entry.isOwned
-                        ? Icons.delete_outline
-                        : Icons.add_circle_outline,
+            ),
+            const SizedBox(width: 6),
+            OutlinedButton.icon(
+              onPressed: onShare,
+              icon: const Icon(Icons.share_outlined, size: 16),
+              label: const Text('Share'),
+              style: OutlinedButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                minimumSize: const Size(0, 30),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              ),
+            ),
+            const SizedBox(width: 6),
+            if (ebayUri != null)
+              InspectorToolIconButton(
+                tooltip: 'Find sold listings on eBay',
+                icon: Icons.shopping_bag_outlined,
+                onPressed: () =>
+                    launchUrl(ebayUri, mode: LaunchMode.externalApplication),
+              ),
+            if (constraints.hasBoundedWidth) const Spacer(),
+            PopupMenuButton<InspectorToolbarMenuAction>(
+              tooltip: 'More actions',
+              onSelected: (value) {
+                switch (value) {
+                  case InspectorToolbarMenuAction.duplicate:
+                    onDuplicate?.call();
+                    return;
+                  case InspectorToolbarMenuAction.removeOrCollect:
+                    onToggleOwned?.call();
+                    return;
+                  case InspectorToolbarMenuAction.loan:
+                    onLoan?.call();
+                    return;
+                  case InspectorToolbarMenuAction.refreshMetadata:
+                    onRefreshMetadata?.call();
+                    return;
+                  case InspectorToolbarMenuAction.unlinkFromCore:
+                    onUnlinkFromCore?.call();
+                    return;
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.duplicate,
+                  enabled: onDuplicate != null,
+                  child: const ListTile(
+                    dense: true,
+                    leading: Icon(Icons.copy_all_outlined),
+                    title: Text('Duplicate'),
                   ),
-                  title: Text(entry.isOwned ? 'Remove' : 'Collect'),
                 ),
-              ),
-              PopupMenuItem<InspectorToolbarMenuAction>(
-                value: InspectorToolbarMenuAction.loan,
-                enabled: onLoan != null,
-                child: const ListTile(
-                  dense: true,
-                  leading: Icon(Icons.handshake_outlined),
-                  title: Text('Loan'),
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.removeOrCollect,
+                  enabled: onToggleOwned != null,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(
+                      entry.isOwned
+                          ? Icons.delete_outline
+                          : Icons.add_circle_outline,
+                    ),
+                    title: Text(entry.isOwned ? 'Remove' : 'Collect'),
+                  ),
                 ),
-              ),
-              PopupMenuItem<InspectorToolbarMenuAction>(
-                value: InspectorToolbarMenuAction.refreshMetadata,
-                enabled: onRefreshMetadata != null,
-                child: const ListTile(
-                  dense: true,
-                  leading: Icon(Icons.cloud_download_outlined),
-                  title: Text('Update from Core'),
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.loan,
+                  enabled: onLoan != null,
+                  child: const ListTile(
+                    dense: true,
+                    leading: Icon(Icons.handshake_outlined),
+                    title: Text('Loan'),
+                  ),
                 ),
-              ),
-              PopupMenuItem<InspectorToolbarMenuAction>(
-                value: InspectorToolbarMenuAction.unlinkFromCore,
-                enabled: onUnlinkFromCore != null,
-                child: const ListTile(
-                  dense: true,
-                  leading: Icon(Icons.link_off_outlined),
-                  title: Text('Unlink from Core'),
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.refreshMetadata,
+                  enabled: onRefreshMetadata != null,
+                  child: const ListTile(
+                    dense: true,
+                    leading: Icon(Icons.cloud_download_outlined),
+                    title: Text('Update from Core'),
+                  ),
                 ),
-              ),
-            ],
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.more_vert, size: 18),
-            ),
-          ),
-          if (includeLayoutControl && onDetailsLayoutChanged != null) ...[
-            const SizedBox(width: 4),
-            PopupMenuButton<LibraryDetailsLayout>(
-              tooltip: 'Layout',
-              onSelected: onDetailsLayoutChanged,
-              itemBuilder: (context) => const [
-                PopupMenuItem(
-                  value: LibraryDetailsLayout.bottom,
-                  child: Text('Horizontal Split'),
-                ),
-                PopupMenuItem(
-                  value: LibraryDetailsLayout.right,
-                  child: Text('Vertical Split'),
-                ),
-                PopupMenuItem(
-                  value: LibraryDetailsLayout.hidden,
-                  child: Text('No Details'),
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.unlinkFromCore,
+                  enabled: onUnlinkFromCore != null,
+                  child: const ListTile(
+                    dense: true,
+                    leading: Icon(Icons.link_off_outlined),
+                    title: Text('Unlink from Core'),
+                  ),
                 ),
               ],
               child: const Padding(
                 padding: EdgeInsets.all(4),
-                child: Icon(Icons.view_sidebar_outlined, size: 18),
+                child: Icon(Icons.more_vert, size: 18),
               ),
             ),
+            if (includeLayoutControl && onDetailsLayoutChanged != null) ...[
+              const SizedBox(width: 4),
+              PopupMenuButton<LibraryDetailsLayout>(
+                tooltip: 'Layout',
+                onSelected: onDetailsLayoutChanged,
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: LibraryDetailsLayout.bottom,
+                    child: Text('Horizontal Split'),
+                  ),
+                  PopupMenuItem(
+                    value: LibraryDetailsLayout.right,
+                    child: Text('Vertical Split'),
+                  ),
+                  PopupMenuItem(
+                    value: LibraryDetailsLayout.hidden,
+                    child: Text('No Details'),
+                  ),
+                ],
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(Icons.view_sidebar_outlined, size: 18),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
     if (!framed) {

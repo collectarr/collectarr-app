@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,20 @@ class ComicInspectorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = request.inspector.accent;
+    final entry = request.inspector.entry;
     final children = <Widget>[
+      InspectorUnifiedToolbar(
+        entry: entry,
+        onEdit: request.onEdit,
+        onShare: request.onShare,
+        onDuplicate: request.onDuplicate,
+        onToggleOwned: request.onToggleOwned,
+        onLoan: request.onLoan,
+        onRefreshMetadata: request.onRefreshMetadata,
+        onUnlinkFromCore: request.onUnlinkFromCore,
+        onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+      ),
+      const SizedBox(height: 8),
       request.hero,
       if (request.ownedCopiesSection != null) ...[
         const SizedBox(height: 8),
@@ -44,7 +58,7 @@ class ComicInspectorPanel extends StatelessWidget {
     return LibraryDetailsPaneFrame(
       accentColor: accent,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
         children: children,
       ),
     );

@@ -93,14 +93,6 @@ class LibraryToolbar extends StatelessWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
-    this.inspectorItem,
-    this.onInspectorEdit,
-    this.onInspectorShare,
-    this.onInspectorDuplicate,
-    this.onInspectorToggleOwned,
-    this.onInspectorLoan,
-    this.onInspectorRefreshMetadata,
-    this.onInspectorUnlinkFromCore,
     this.includeDesktopSecondaryBand = true,
   });
 
@@ -180,14 +172,6 @@ class LibraryToolbar extends StatelessWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
-  final LibraryProjectionItem? inspectorItem;
-  final VoidCallback? onInspectorEdit;
-  final VoidCallback? onInspectorShare;
-  final VoidCallback? onInspectorDuplicate;
-  final VoidCallback? onInspectorToggleOwned;
-  final VoidCallback? onInspectorLoan;
-  final VoidCallback? onInspectorRefreshMetadata;
-  final VoidCallback? onInspectorUnlinkFromCore;
   final bool includeDesktopSecondaryBand;
 
   @override
@@ -353,26 +337,8 @@ class LibraryToolbar extends StatelessWidget {
                       selectionCallbacks: selectionCallbacks,
                       selectedCount: selectedCount,
                       totalSelectableCount: totalSelectableCount,
-                      inspectorItem: inspectorItem,
-                      onInspectorEdit: onInspectorEdit,
-                      onInspectorShare: onInspectorShare,
-                      onInspectorDuplicate: onInspectorDuplicate,
-                      onInspectorToggleOwned: onInspectorToggleOwned,
-                      onInspectorLoan: onInspectorLoan,
-                      onInspectorRefreshMetadata: onInspectorRefreshMetadata,
-                      onInspectorUnlinkFromCore: onInspectorUnlinkFromCore,
                       showBottomBorder: false,
                     ),
-                  if (!includeDesktopSecondaryBand &&
-                      selectionCallbacks != null &&
-                      selectedCount > 0) ...[
-                    const LibraryToolbarDividerLine(),
-                    LibrarySelectionToolbarBand(
-                      selectedCount: selectedCount,
-                      totalSelectableCount: totalSelectableCount,
-                      callbacks: selectionCallbacks!,
-                    ),
-                  ],
                 ],
               );
             },

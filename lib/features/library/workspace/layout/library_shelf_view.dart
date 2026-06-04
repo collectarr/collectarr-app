@@ -1,5 +1,7 @@
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'dart:math' as math;
+
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -8,8 +10,11 @@ class LibraryShelfView<T> extends StatelessWidget {
     super.key,
     required this.items,
     required this.entryOf,
+    required this.isActive,
     required this.isSelected,
+    required this.selectionEnabled,
     required this.onTap,
+    required this.onToggleSelectionItem,
     required this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.accent,
@@ -20,8 +25,11 @@ class LibraryShelfView<T> extends StatelessWidget {
 
   final List<T> items;
   final LibraryWorkspaceEntry Function(T item) entryOf;
+  final bool Function(T item) isActive;
   final bool Function(T item) isSelected;
+  final bool selectionEnabled;
   final void Function(T item) onTap;
+  final void Function(T item) onToggleSelectionItem;
   final void Function(T item) onDoubleTap;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
@@ -36,8 +44,21 @@ class LibraryShelfView<T> extends StatelessWidget {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
-        final booksPerShelf =
-            (constraints.maxWidth / bookWidth).floor().clamp(1, 100);
+        const shelfOverhang = 8.0;
+        const bookHorizontalPadding = 1.0;
+        const bookInnerInset = 8.0;
+        final availableShelfWidth =
+            math.max(1.0, constraints.maxWidth - (shelfOverhang * 2));
+        final requestedBookVisualWidth = math.max(
+            1.0, bookWidth - bookInnerInset + (bookHorizontalPadding * 2));
+        final effectiveBookVisualWidth =
+            math.min(requestedBookVisualWidth, availableShelfWidth);
+        final effectiveBookWidth = effectiveBookVisualWidth +
+            bookInnerInset -
+            (bookHorizontalPadding * 2);
+        final booksPerShelf = (availableShelfWidth / effectiveBookVisualWidth)
+            .floor()
+            .clamp(1, 100);
         final shelves = <List<T>>[];
         for (var i = 0; i < items.length; i += booksPerShelf) {
           shelves.add(items.sublist(
@@ -52,13 +73,16 @@ class LibraryShelfView<T> extends StatelessWidget {
             return _ShelfRow(
               books: shelves[shelfIndex],
               entryOf: entryOf,
+              isActive: isActive,
               isSelected: isSelected,
+              selectionEnabled: selectionEnabled,
               onTap: onTap,
+              onToggleSelectionItem: onToggleSelectionItem,
               onDoubleTap: onDoubleTap,
               onSecondaryTapUp: onSecondaryTapUp,
               accent: accent,
               shelfHeight: shelfHeight,
-              bookWidth: bookWidth,
+              bookWidth: effectiveBookWidth,
             );
           },
         );
@@ -71,8 +95,11 @@ class _ShelfRow<T> extends StatelessWidget {
   const _ShelfRow({
     required this.books,
     required this.entryOf,
+    required this.isActive,
     required this.isSelected,
+    required this.selectionEnabled,
     required this.onTap,
+    required this.onToggleSelectionItem,
     required this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.accent,
@@ -82,8 +109,11 @@ class _ShelfRow<T> extends StatelessWidget {
 
   final List<T> books;
   final LibraryWorkspaceEntry Function(T item) entryOf;
+  final bool Function(T item) isActive;
   final bool Function(T item) isSelected;
+  final bool selectionEnabled;
   final void Function(T item) onTap;
+  final void Function(T item) onToggleSelectionItem;
   final void Function(T item) onDoubleTap;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
@@ -97,8 +127,10 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfOverhang = 8.0;
     final palette = appPalette(context);
     final panelColor = palette.panel;
-    final shelfColor = HSLColor.fromColor(panelColor).withLightness(0.18).toColor();
-    final shelfHighlight = HSLColor.fromColor(panelColor).withLightness(0.24).toColor();
+    final shelfColor =
+        HSLColor.fromColor(panelColor).withLightness(0.18).toColor();
+    final shelfHighlight =
+        HSLColor.fromColor(panelColor).withLightness(0.24).toColor();
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(
@@ -164,124 +196,35 @@ class _ShelfRow<T> extends StatelessWidget {
 
   Widget _buildBook(BuildContext context, T item) {
     final entry = entryOf(item);
+    final active = isActive(item);
     final selected = isSelected(item);
-    final coverUrl = entry.displayCoverUrl;
     final bookHeight = shelfHeight - 8;
     final bookW = bookWidth - 8;
     final palette = appPalette(context);
     return Semantics(
       button: true,
       label: entry.resolvedTitle,
-      child: GestureDetector(
-        onTap: () => onTap(item),
-        onDoubleTap: () => onDoubleTap(item),
-        onSecondaryTapUp: onSecondaryTapUp != null
-            ? (d) => onSecondaryTapUp!(item, d)
-            : null,
-        child: Tooltip(
-        message: entry.resolvedTitle,
-        waitDuration: const Duration(milliseconds: 400),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: bookW,
-                height: bookHeight,
-                transformAlignment: Alignment.bottomCenter,
-                transform: selected
-                    ? (Matrix4.identity()..setTranslationRaw(0.0, -6.0, 0.0))
-                    : Matrix4.identity(),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(3),
-                    topRight: Radius.circular(3),
-                  ),
-                  border: selected
-                      ? Border.all(color: accent, width: 2)
-                      : null,
-                  boxShadow: [
-                    // Main drop shadow
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: selected ? 0.7 : 0.45),
-                      blurRadius: selected ? 10 : 5,
-                      offset: Offset(selected ? 3 : 2, selected ? 4 : 2),
-                    ),
-                    // Subtle inner glow on left (spine highlight)
-                    BoxShadow(
-                      color: palette.surfaceSubtle.withValues(alpha: 0.46),
-                      blurRadius: 1,
-                      offset: const Offset(-1, 0),
-                    ),
-                  ],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Cover or fallback
-                    if (coverUrl != null)
-                      LibraryCoverImage(
-                        title: entry.resolvedTitle,
-                        imageUrl: coverUrl,
-                        fit: BoxFit.cover,
-                      )
-                    else
-                      Container(
-                        color: palette.panel,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(4),
-                        child: Text(
-                          entry.resolvedTitle,
-                          textAlign: TextAlign.center,
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    // Spine edge gradient (left side)
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: 6,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.black.withValues(alpha: 0.25),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Top edge highlight
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 0,
-                      height: 2,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              palette.surfaceSubtle.withValues(alpha: 0.82),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 1),
+        child: SizedBox(
+          width: bookW,
+          height: bookHeight,
+          child: LibraryCoverTile(
+            entry: entry,
+            active: active,
+            selected: selected,
+            selectionMode: selectionEnabled,
+            onTap: () => onTap(item),
+            onSelectionToggleTap: () => onToggleSelectionItem(item),
+            onDoubleTap: () => onDoubleTap(item),
+            onSecondaryTapUp: onSecondaryTapUp != null
+                ? (d) => onSecondaryTapUp!(item, d)
+                : null,
+            coverSize: bookW,
+            selectedColor: palette.selection,
+            accentColor: accent,
+            selectionColor: accent,
+            mutedTextColor: palette.textMuted,
           ),
         ),
       ),

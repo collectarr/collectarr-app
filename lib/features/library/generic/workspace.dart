@@ -83,6 +83,7 @@ class LibraryWorkspace extends ConsumerWidget {
   final LibraryItemContextMenuCallback? onItemContextMenu;
 
   bool get _showGrouped =>
+      viewState.viewMode != LibraryViewMode.horizontalCards &&
       viewState.viewMode != LibraryViewMode.cardFlow &&
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
@@ -133,6 +134,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
+    final isMusicLibrary = type.workspace.kind.apiValue == 'music';
     final cardScale = defaultCoverSize > 0
         ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
         : 1.0;
@@ -140,6 +142,10 @@ class LibraryWorkspace extends ConsumerWidget {
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
     final cardTileWidth = (430.0 * cardScale).clamp(336.0, 620.0).toDouble();
     final cardTileHeight = (156.0 * cardScale).clamp(132.0, 228.0).toDouble();
+    final musicVerticalTileWidth =
+        (viewState.coverSize + 56).clamp(172.0, 248.0).toDouble();
+    final musicVerticalTileHeight =
+        (viewState.coverSize * 1.5).clamp(236.0, 360.0).toDouble();
     final coverMainAxisExtent =
         viewState.coverSize * adapter.viewProfile.coverGridHeightFactor;
     if (_showGrouped && items.isNotEmpty) {
@@ -185,6 +191,40 @@ class LibraryWorkspace extends ConsumerWidget {
             selectionEnabled: selectionEnabled,
             selectedIds: selectedIds,
             accent: accent,
+            maxCrossAxisExtent:
+                isMusicLibrary ? musicVerticalTileWidth : cardTileWidth,
+            mainAxisExtent:
+                isMusicLibrary ? musicVerticalTileHeight : cardTileHeight,
+            onSelectionChanged: onBoxSelectionChanged,
+            itemBuilder: (context, item) => LibraryWorkspaceCard(
+              key: ValueKey(item.entry.id),
+              entry: item.entry,
+              selected: _isHighlighted(item),
+              onTap: _selectionTap(item),
+              onDoubleTap: () => onOpenItem(item),
+              onSecondaryTapUp: onItemContextMenu == null
+                  ? null
+                  : (d) => onItemContextMenu!(item, d.globalPosition),
+              dateFormatter: formatDate,
+              moneyFormatter: formatMoney,
+              selectedColor: palette.selection,
+              accentColor: accent,
+              mutedTextColor: palette.textMuted,
+              coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
+              musicLayout: LibraryMusicCardLayout.vertical,
+              selectionMode: selectionEnabled,
+              onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+            ),
+          ),
+        LibraryViewMode.horizontalCards => _GroupedGrid(
+            items: items,
+            adapter: adapter,
+            type: type,
+            groupMode: groupMode,
+            selectedId: selectedId,
+            selectionEnabled: selectionEnabled,
+            selectedIds: selectedIds,
+            accent: accent,
             maxCrossAxisExtent: cardTileWidth,
             mainAxisExtent: cardTileHeight,
             onSelectionChanged: onBoxSelectionChanged,
@@ -203,6 +243,9 @@ class LibraryWorkspace extends ConsumerWidget {
               accentColor: accent,
               mutedTextColor: palette.textMuted,
               coverWidth: cardCoverWidth,
+              musicLayout: LibraryMusicCardLayout.horizontal,
+              selectionMode: selectionEnabled,
+              onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
             ),
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
@@ -261,8 +304,10 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
           emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent: cardTileWidth,
-          mainAxisExtent: cardTileHeight,
+          maxCrossAxisExtent:
+              isMusicLibrary ? musicVerticalTileWidth : cardTileWidth,
+          mainAxisExtent:
+              isMusicLibrary ? musicVerticalTileHeight : cardTileHeight,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
           padding: gridPadding,
@@ -285,8 +330,18 @@ class LibraryWorkspace extends ConsumerWidget {
             selectedColor: palette.selection,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
-            coverWidth: cardCoverWidth,
+            coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
+            musicLayout: LibraryMusicCardLayout.vertical,
+            selectionMode: selectionEnabled,
+            onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
           ),
+        ),
+      LibraryViewMode.horizontalCards => _buildHorizontalCards(
+          cardTileWidth: cardTileWidth,
+          cardTileHeight: cardTileHeight,
+          cardCoverWidth: cardCoverWidth,
+          spacing: gridSpacing,
+          backgroundColor: palette.gridCanvas,
         ),
       LibraryViewMode.cardFlow => LibraryFlowCarousel(
           items: items,
@@ -305,8 +360,11 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.shelves => LibraryShelfView<LibraryProjectionItem>(
           items: items,
           entryOf: (item) => item.entry,
-          isSelected: _isHighlighted,
+          isActive: _isActive,
+          isSelected: _isSelectionSelected,
+          selectionEnabled: selectionEnabled,
           onTap: (item) => _selectionTap(item)(),
+          onToggleSelectionItem: (item) => onToggleSelectionItem(item.entry.id),
           onDoubleTap: onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
@@ -396,6 +454,58 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHorizontalCards({
+    required double cardTileWidth,
+    required double cardTileHeight,
+    required double cardCoverWidth,
+    required double spacing,
+    required Color backgroundColor,
+  }) {
+    if (items.isEmpty) {
+      return Builder(builder: _emptyBuilder);
+    }
+    return ColoredBox(
+      color: backgroundColor,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.all(spacing),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => SizedBox(width: spacing),
+        itemBuilder: (context, index) {
+          final item = items[index];
+          final palette = appPalette(context);
+          return Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: cardTileWidth,
+              height: cardTileHeight,
+              child: LibraryWorkspaceCard(
+                key: ValueKey(item.entry.id),
+                entry: item.entry,
+                selected: _isHighlighted(item),
+                onTap: _selectionTap(item),
+                onDoubleTap: () => onOpenItem(item),
+                onSecondaryTapUp: onItemContextMenu == null
+                    ? null
+                    : (d) => onItemContextMenu!(item, d.globalPosition),
+                dateFormatter: formatDate,
+                moneyFormatter: formatMoney,
+                selectedColor: palette.selection,
+                accentColor: accent,
+                mutedTextColor: palette.textMuted,
+                coverWidth: cardCoverWidth,
+                musicLayout: LibraryMusicCardLayout.horizontal,
+                selectionMode: selectionEnabled,
+                onSelectionToggleTap: () =>
+                    onToggleSelectionItem(item.entry.id),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

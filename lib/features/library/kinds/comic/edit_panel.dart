@@ -803,18 +803,14 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     int maxLines = 1,
     String? hintText,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          key: key,
-          maxLines: maxLines,
-          decoration: InputDecoration(hintText: hintText),
-        ),
-      ],
+    return TextField(
+      controller: controller,
+      key: key,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hintText,
+      ),
     );
   }
 
@@ -823,17 +819,10 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     required TextEditingController controller,
     Key? key,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 6),
-        _StructuredDateField(
-          controller: controller,
-          fieldKey: key,
-          label: label,
-        ),
-      ],
+    return _StructuredDateField(
+      controller: controller,
+      fieldKey: key,
+      label: label,
     );
   }
 
@@ -847,23 +836,16 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     String? manageTooltip,
     String? hintText,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 6),
-        SingleValuePickField(
-          fieldKey: key,
-          controller: controller,
-          options: options,
-          label: label,
-          hint: hintText,
-          onChanged: onChanged,
-          onManage: onManage,
-          manageTooltip: manageTooltip,
-          showInlineLabel: false,
-        ),
-      ],
+    return SingleValuePickField(
+      fieldKey: key,
+      controller: controller,
+      options: options,
+      label: label,
+      hint: hintText,
+      onChanged: onChanged,
+      onManage: onManage,
+      manageTooltip: manageTooltip,
+      showInlineLabel: true,
     );
   }
 
@@ -876,21 +858,14 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     String? manageTooltip,
     String? hintText,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 6),
-        _MultiValuePickField(
-          fieldKey: key,
-          controller: controller,
-          options: options,
-          label: label,
-          hint: hintText,
-          onManage: onManage,
-          manageTooltip: manageTooltip,
-        ),
-      ],
+    return _MultiValuePickField(
+      fieldKey: key,
+      controller: controller,
+      options: options,
+      label: label,
+      hint: hintText,
+      onManage: onManage,
+      manageTooltip: manageTooltip,
     );
   }
 
@@ -899,11 +874,14 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     required Widget child,
     String? description,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hint = Theme.of(context).hintColor;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.72),
+        border: Border.all(color: Theme.of(context).dividerColor),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -911,16 +889,20 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
         children: [
           Text(
             title,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: hint,
+              fontWeight: FontWeight.w800,
+              fontSize: 12,
+              letterSpacing: 0.2,
+            ),
           ),
           if (description != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               description,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: hint,
+                  ),
             ),
           ],
           const SizedBox(height: 10),

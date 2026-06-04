@@ -41,8 +41,20 @@ class MusicInspectorPanel extends StatelessWidget {
           Positioned.fill(
               child: InspectorBackdrop(entry: entry, ownedItem: ownedItem)),
           ListView(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
             children: [
+              InspectorUnifiedToolbar(
+                entry: entry,
+                onEdit: request.onEdit,
+                onShare: request.onShare,
+                onDuplicate: request.onDuplicate,
+                onToggleOwned: request.onToggleOwned,
+                onLoan: request.onLoan,
+                onRefreshMetadata: request.onRefreshMetadata,
+                onUnlinkFromCore: request.onUnlinkFromCore,
+                onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+              ),
+              const SizedBox(height: 8),
               _MusicInspectorHeader(inspector: request.inspector),
               const SizedBox(height: 10),
               _MusicInspectorMain(inspector: request.inspector),

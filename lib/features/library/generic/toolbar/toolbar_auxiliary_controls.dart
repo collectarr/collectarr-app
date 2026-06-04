@@ -1267,7 +1267,15 @@ void showLibraryCompactCoverSizeSheet(
             ),
             ListTile(
               leading: const Icon(Icons.view_agenda),
-              title: const Text('Flow view'),
+              title: const Text('Horizontal cards'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.horizontalCards);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.view_carousel),
+              title: const Text('Flow carousel'),
               onTap: () {
                 Navigator.of(context).pop();
                 onViewModeChanged(LibraryViewMode.cardFlow);

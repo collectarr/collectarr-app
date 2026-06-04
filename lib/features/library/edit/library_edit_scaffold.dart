@@ -29,7 +29,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
-    this.tabReorderLongPressDelay = const Duration(milliseconds: 220),
+    this.tabReorderLongPressDelay = kLibraryDialogTabReorderLongPressDelay,
     this.tabOrderKey,
   }) : assert(
           body != null ||

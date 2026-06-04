@@ -327,7 +327,8 @@ String _viewModeLabel(LibraryViewMode mode) {
   return switch (mode) {
     LibraryViewMode.grid => 'Covers',
     LibraryViewMode.card => 'Vertical Cards',
-    LibraryViewMode.cardFlow => 'Horizontal Cards',
+    LibraryViewMode.horizontalCards => 'Horizontal Cards',
+    LibraryViewMode.cardFlow => 'Flow Carousel',
     LibraryViewMode.list => 'List',
     LibraryViewMode.shelves => 'Shelves',
   };
@@ -341,7 +342,8 @@ IconData _viewModeIcon(LibraryViewMode mode) {
   return switch (mode) {
     LibraryViewMode.grid => Icons.grid_view,
     LibraryViewMode.card => Icons.view_module,
-    LibraryViewMode.cardFlow => Icons.view_agenda,
+    LibraryViewMode.horizontalCards => Icons.view_agenda,
+    LibraryViewMode.cardFlow => Icons.view_carousel,
     LibraryViewMode.list => Icons.view_list,
     LibraryViewMode.shelves => Icons.shelves,
   };

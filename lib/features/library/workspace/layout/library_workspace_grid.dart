@@ -49,7 +49,8 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
   final Color backgroundColor;
 
   @override
-  State<LibraryWorkspaceGrid<T>> createState() => _LibraryWorkspaceGridState<T>();
+  State<LibraryWorkspaceGrid<T>> createState() =>
+      _LibraryWorkspaceGridState<T>();
 }
 
 class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
@@ -91,27 +92,31 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final gridWidth =
             math.max(0.0, constraints.maxWidth - padding.left - padding.right);
         final crossAxisCount = _resolveStableCrossAxisCount(gridWidth);
-        final tileWidth =
-            (gridWidth - ((crossAxisCount - 1) * widget.crossAxisSpacing)) /
-                crossAxisCount;
+        final tileWidth = widget.maxCrossAxisExtent;
+        final crossAxisSpacing = widget.crossAxisSpacing;
+        final usedGridWidth = (crossAxisCount * tileWidth) +
+            ((crossAxisCount - 1) * crossAxisSpacing);
+        final extraRightPadding = math.max(0.0, gridWidth - usedGridWidth);
+        final effectivePadding = padding.copyWith(
+          right: padding.right + extraRightPadding,
+        );
         final rowCount = (widget.items.length / crossAxisCount).ceil();
         final nestedGridHeight = widget.shrinkWrap && !widget.scrollable
-          ? padding.top +
-            padding.bottom +
-            (rowCount * widget.mainAxisExtent) +
-            ((rowCount - 1) * widget.mainAxisSpacing)
-          : null;
+            ? effectivePadding.top +
+                effectivePadding.bottom +
+                (rowCount * widget.mainAxisExtent) +
+                ((rowCount - 1) * widget.mainAxisSpacing)
+            : null;
         final grid = GridView.builder(
           controller: widget.scrollable ? _scrollController : null,
           shrinkWrap: widget.shrinkWrap,
-          physics: widget.scrollable
-              ? null
-              : const NeverScrollableScrollPhysics(),
-          padding: widget.padding,
+          physics:
+              widget.scrollable ? null : const NeverScrollableScrollPhysics(),
+          padding: effectivePadding,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             mainAxisExtent: widget.mainAxisExtent,
-            crossAxisSpacing: widget.crossAxisSpacing,
+            crossAxisSpacing: crossAxisSpacing,
             mainAxisSpacing: widget.mainAxisSpacing,
           ),
           itemCount: widget.items.length,
@@ -151,9 +156,10 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
             final rect = Rect.fromPoints(start, event.localPosition);
             final rectSelection = _selectedIdsForRect(
               rect,
-              padding: padding,
+              padding: effectivePadding,
               crossAxisCount: crossAxisCount,
               tileWidth: tileWidth,
+              crossAxisSpacing: crossAxisSpacing,
             );
             _selectionRectNotifier.value = rect;
             widget.onSelectionChanged!(
@@ -203,7 +209,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
   int _resolveStableCrossAxisCount(double gridWidth) {
     final spacing = widget.crossAxisSpacing;
     final cellAndGap = widget.maxCrossAxisExtent + spacing;
-    final computed = math.max(1, ((gridWidth + spacing) / cellAndGap).ceil());
+    final computed = math.max(1, ((gridWidth + spacing) / cellAndGap).floor());
     final previous = _stableCrossAxisCount;
     if (previous == null) {
       _stableCrossAxisCount = computed;
@@ -211,11 +217,10 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     }
 
     // Keep a wider dead-zone for larger covers to avoid resize oscillation.
-    final hysteresis = (widget.maxCrossAxisExtent * 0.14)
-      .clamp(18.0, 54.0)
-      .toDouble();
-    final growThreshold = (previous * cellAndGap) - spacing + hysteresis;
-    final shrinkThreshold = ((previous - 1) * cellAndGap) - spacing - hysteresis;
+    final hysteresis =
+        (widget.maxCrossAxisExtent * 0.14).clamp(18.0, 54.0).toDouble();
+    final growThreshold = ((previous + 1) * cellAndGap) - spacing + hysteresis;
+    final shrinkThreshold = (previous * cellAndGap) - spacing;
 
     var next = previous;
     if (computed > previous && gridWidth >= growThreshold) {
@@ -240,16 +245,15 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     required EdgeInsets padding,
     required int crossAxisCount,
     required double tileWidth,
+    required double crossAxisSpacing,
   }) {
     final selected = <String>{};
-    final scrollOffset = _scrollController.hasClients
-        ? _scrollController.offset
-        : 0.0;
+    final scrollOffset =
+        _scrollController.hasClients ? _scrollController.offset : 0.0;
     for (var index = 0; index < widget.items.length; index++) {
       final row = index ~/ crossAxisCount;
       final column = index % crossAxisCount;
-      final left = padding.left +
-          (column * (tileWidth + widget.crossAxisSpacing));
+      final left = padding.left + (column * (tileWidth + crossAxisSpacing));
       final top = padding.top +
           (row * (widget.mainAxisExtent + widget.mainAxisSpacing)) -
           scrollOffset;

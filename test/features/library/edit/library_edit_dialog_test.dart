@@ -1132,13 +1132,18 @@ void main() {
 
     expect(find.text('Classical'), findsOneWidget);
     expect(find.text('Tracks'), findsWidgets);
-    expect(find.text('Details / Personal'), findsOneWidget);
+    expect(find.text('Details'), findsOneWidget);
     expect(find.text('People'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Custom Fields'), findsOneWidget);
+    expect(find.text('My Images'), findsOneWidget);
     expect(find.text('Links'), findsOneWidget);
     expect(find.text('Value'), findsNothing);
 
     await tester.enterText(
         find.widgetWithText(TextField, 'Artist').first, 'cAd');
+    await tester.tap(find.text('Details'));
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Catalog number').first,
       'KDCD 1022-R',

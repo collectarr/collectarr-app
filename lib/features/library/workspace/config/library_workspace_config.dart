@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:flutter/material.dart';
 
-enum LibraryViewMode { grid, card, cardFlow, list, shelves }
+enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
 
 enum LibraryWorkspaceBrowserMode { media, releases }
 
@@ -10,6 +10,7 @@ extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
     return switch (this) {
       LibraryViewMode.grid ||
       LibraryViewMode.card ||
+      LibraryViewMode.horizontalCards ||
       LibraryViewMode.shelves =>
         true,
       LibraryViewMode.cardFlow || LibraryViewMode.list => false,

@@ -43,6 +43,7 @@ import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snaps
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
@@ -488,11 +489,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             shelfState,
             viewState,
           );
-    final toolbarInspectorItem = projection?.selectedItem;
-    final toolbarLoanable = toolbarInspectorItem != null &&
-        toolbarInspectorItem.entry.ownedItemId != null &&
-        !_activeLoanOwnedItemIds
-            .contains(toolbarInspectorItem.entry.ownedItemId);
     final useFab =
         ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return LibraryKeyboardShortcuts(
@@ -644,113 +640,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     pinnedFolderPresets: _pinnedFolderPresets,
                     onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
                     onGroupModeChanged: _setFolderPreset,
-                    inspectorItem: toolbarInspectorItem,
-                    onInspectorEdit: toolbarInspectorItem == null
-                        ? null
-                        : () => unawaited(
-                              showEditDialog(
-                                toolbarInspectorItem,
-                                toolbarInspectorItem.source.ownedItem,
-                              ),
-                            ),
-                    onInspectorShare: toolbarInspectorItem == null
-                        ? null
-                        : () => showCollectionShareDialog(
-                              context: context,
-                              title: widget.type.workspace.title,
-                              items: [toolbarInspectorItem.entry],
-                            ),
-                    onInspectorDuplicate: toolbarInspectorItem == null ||
-                            toolbarInspectorItem.source.ownedItem == null
-                        ? null
-                        : () => unawaited(
-                              singleDuplicateFlow(toolbarInspectorItem),
-                            ),
-                    onInspectorToggleOwned: toolbarInspectorItem == null
-                        ? null
-                        : toolbarInspectorItem.entry.isOwned
-                            ? () => unawaited(
-                                  confirmAndRemoveOwned(toolbarInspectorItem),
-                                )
-                            : () => unawaited(
-                                  runCollectionAction(
-                                    (actions) =>
-                                        actions.addOwned(toolbarInspectorItem),
-                                  ),
-                                ),
-                    onInspectorLoan: toolbarLoanable && projection != null
-                        ? () {
-                            final selectedItem = toolbarInspectorItem;
-                            setState(() {
-                              _selection = _selection.replace({
-                                selectedItem.entry.id,
-                              });
-                              _selectionAnchorId = selectedItem.entry.id;
-                              _selectedId = selectedItem.entry.id;
-                            });
-                            unawaited(showLoanSelectionFlow(projection));
-                          }
-                        : null,
-                    onInspectorRefreshMetadata: toolbarInspectorItem == null
-                        ? null
-                        : () => unawaited(
-                              _refreshVideoTitleFromCore(toolbarInspectorItem),
-                            ),
-                    onInspectorUnlinkFromCore: toolbarInspectorItem == null
-                        ? null
-                        : () => showAppToast(
-                              context,
-                              'Unlink from Core is not implemented yet.',
-                              tone: AppToastTone.info,
-                            ),
-                    includeDesktopSecondaryBand: true,
-                    selectionCallbacks: (
-                      onClearSelection: () => setState(() {
-                            _selection = _selection.clear();
-                            _selectionAnchorId = null;
-                          }),
-                      onSelectAll: () {
-                        if (projection != null) {
-                          _selectAllVisible(projection);
-                        }
-                      },
-                      onBulkEdit: _hasOwnedItemsInSelection(projection)
-                          ? () => bulkEditFlow(projection)
-                          : null,
-                      onPrintToPdf: _hasSelectedItemsInSelection(projection)
-                          ? () => printSelectedReportFlow(projection)
-                          : null,
-                      onExportCsvTxt: _hasSelectedItemsInSelection(projection)
-                          ? () => shareSelectedCollectionFlow(projection)
-                          : null,
-                      onBulkDuplicate: _hasOwnedItemsInSelection(projection)
-                          ? () => bulkDuplicateFlow(projection)
-                          : null,
-                      onBulkLoan: _hasLoanableOwnedItemsInSelection(projection)
-                          ? () => showLoanSelectionFlow(projection)
-                          : null,
-                      onTransferFieldData: _hasOwnedItemsInSelection(projection)
-                          ? () => showTransferFieldDataForSelectionFlow(
-                                projection,
-                              )
-                          : null,
-                      onBulkUpdateValues: null,
-                      onBulkUpdateKeyInfo: null,
-                      onBulkMoveToOwned:
-                          _hasMoveToOwnedEligibleItemsInSelection(projection)
-                              ? () => bulkMoveToOwnedFlow(projection)
-                              : null,
-                      onBulkMoveToWishlist:
-                          _hasMoveToWishlistEligibleItemsInSelection(projection)
-                              ? () => bulkMoveToWishlistFlow(projection)
-                              : null,
-                      onBulkRemove: _hasRemovableItemsInSelection(projection)
-                          ? () => bulkRemoveFlow(projection)
-                          : null,
-                      onBulkRefreshMetadata:
-                          _hasSelectedItemsInSelection(projection)
-                              ? () => bulkRefreshMetadataFlow(projection)
-                              : null,
+                    includeDesktopSecondaryBand: false,
+                    selectionCallbacks: _selectionCallbacksForProjection(
+                      projection,
                     ),
                   ),
                   Expanded(
@@ -972,6 +864,134 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           : null,
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
       inspectorContextLabel: releasePositionLabel,
+      desktopToolbarBand: LibraryDesktopSecondaryToolbar(
+        type: widget.type,
+        viewState: viewState,
+        adapter: _adapter,
+        counts: projection.counts,
+        onEditColumns: showColumnChooserFlow,
+        columnFavoritePresets: _columnFavoritePresets,
+        activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
+        onColumnFavoriteSelected: _applyColumnFavorite,
+        pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
+        onEditSort: showSortDialogFlow,
+        onSidebarVisibilityChanged: _setGroupingPanelVisibility,
+        onViewModeChanged: (mode) => _updateViewState(
+          (state) => state.copyWith(viewMode: mode),
+        ),
+        browserMode: _activeBrowserMode,
+        supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
+        onBrowserModeChanged: _setBrowserMode,
+        showReleaseFolderBack: _releaseFolderTitleItemId != null,
+        releaseFolderLabel: _releaseFolderLabelForProjection(projection),
+        onReleaseFolderBack:
+            _releaseFolderTitleItemId == null ? null : _closeReleaseFolder,
+        onDetailsLayoutChanged: (layout) => _updateViewState(
+          (state) => state.copyWith(detailsLayout: layout),
+        ),
+        onCoverSizeChanged: (size) => _updateViewState(
+          (state) => state.copyWith(coverSize: size),
+        ),
+        selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+        onClearBucket: _clearToolbarSearchChip,
+        quickView: _quickView,
+        activeSortFavoriteId: _activeSortFavorite?.id,
+        sortFavorites: _sortFavorites,
+        onSortFavoriteSelected: _applySortFavorite,
+        pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
+        onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
+        onManageSortFavorites: showSortFavoritesManagerFlow,
+        hasActiveFilters: _hasActiveFilter,
+        onQuickViewSelected: (view) =>
+            _setQuickView(_quickView == view ? null : view),
+        onClearFilters: _clearFilters,
+        onEditFilters: () => showFilterDialogFlow(projection),
+        activeFilterCount: _filterSelection.activeFilterCount,
+        onRandomPick: projection.filteredItems.isNotEmpty
+            ? () => pickRandomItemFlow(projection)
+            : null,
+        onDownloadAllCovers: () => downloadAllCoversFlow(shelfState),
+        shelfState: shelfState,
+        onSmartLists: () => showSmartListsFlow(shelfState),
+        onFolders: showUserFoldersFlow,
+        onReadingQueue: showsReadingQueue() ? showReadingQueueFlow : null,
+        onEditConditionPickList: widget.type.conditions.isNotEmpty
+            ? showConditionPickListEditorFlow
+            : null,
+        onEditGradePickList:
+            widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
+        onEditTagPickList: showTagPickListEditorFlow,
+        onTransferFieldData: _hasOwnedItemsInProjection(projection)
+            ? () => showTransferFieldDataFlow(projection)
+            : null,
+        onReassignIndex: widget.type.capabilities.supportsIndexReassignment &&
+                _hasOwnedItemsInProjection(projection)
+            ? () => reassignIndexFlow(projection)
+            : null,
+        onPrintReport: projection.filteredItems.isNotEmpty
+            ? () => printReportFlow(projection)
+            : null,
+        onShareCollection: projection.filteredItems.isNotEmpty
+            ? () => shareCollectionFlow(projection)
+            : null,
+        groupMode: _activeSidebarGroupMode,
+        folderPreset: _activeFolderPreset,
+        pinnedFolderPresets: _pinnedFolderPresets,
+        onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
+        onGroupModeChanged: _setFolderPreset,
+        selectionCallbacks: _selectionCallbacksForProjection(projection),
+        selectedCount: _selection.selectedCount,
+        totalSelectableCount: projection.filteredItems.length,
+      ),
+    );
+  }
+
+  LibrarySelectionCallbacks _selectionCallbacksForProjection(
+    LibraryProjection? projection,
+  ) {
+    return (
+      onClearSelection: () => setState(() {
+            _selection = _selection.clear();
+            _selectionAnchorId = null;
+          }),
+      onSelectAll: () {
+        if (projection != null) {
+          _selectAllVisible(projection);
+        }
+      },
+      onBulkEdit: _hasOwnedItemsInSelection(projection)
+          ? () => bulkEditFlow(projection)
+          : null,
+      onPrintToPdf: _hasSelectedItemsInSelection(projection)
+          ? () => printSelectedReportFlow(projection)
+          : null,
+      onExportCsvTxt: _hasSelectedItemsInSelection(projection)
+          ? () => shareSelectedCollectionFlow(projection)
+          : null,
+      onBulkDuplicate: _hasOwnedItemsInSelection(projection)
+          ? () => bulkDuplicateFlow(projection)
+          : null,
+      onBulkLoan: _hasLoanableOwnedItemsInSelection(projection)
+          ? () => showLoanSelectionFlow(projection)
+          : null,
+      onTransferFieldData: _hasOwnedItemsInSelection(projection)
+          ? () => showTransferFieldDataForSelectionFlow(projection)
+          : null,
+      onBulkUpdateValues: null,
+      onBulkUpdateKeyInfo: null,
+      onBulkMoveToOwned: _hasMoveToOwnedEligibleItemsInSelection(projection)
+          ? () => bulkMoveToOwnedFlow(projection)
+          : null,
+      onBulkMoveToWishlist:
+          _hasMoveToWishlistEligibleItemsInSelection(projection)
+              ? () => bulkMoveToWishlistFlow(projection)
+              : null,
+      onBulkRemove: _hasRemovableItemsInSelection(projection)
+          ? () => bulkRemoveFlow(projection)
+          : null,
+      onBulkRefreshMetadata: _hasSelectedItemsInSelection(projection)
+          ? () => bulkRefreshMetadataFlow(projection)
+          : null,
     );
   }
 

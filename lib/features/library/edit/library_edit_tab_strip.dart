@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:flutter/material.dart';
 
 const double kLibraryEditTabStripHeight = 32;
@@ -167,6 +168,8 @@ class LibraryEditMaterialTabBar extends StatelessWidget {
                                     return LongPressDraggable<int>(
                                       data: i,
                                       axis: Axis.horizontal,
+                                      delay:
+                                          kLibraryDialogTabReorderLongPressDelay,
                                       feedback: Material(
                                         elevation: 4,
                                         color: Colors.transparent,

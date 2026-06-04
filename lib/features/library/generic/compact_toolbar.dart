@@ -61,62 +61,62 @@ class CompactLibraryToolbar extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: SearchBar(
-              controller: searchController,
-              constraints: const BoxConstraints.tightFor(height: 32),
-              hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-              leading: const Icon(Icons.search),
-              onChanged: onSearchChanged,
-              onSubmitted: onSearchChanged,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Tooltip(
-            message: 'Add ${type.pluralLabel}',
-            child: IconButton.filled(
-              style: IconButton.styleFrom(
-                backgroundColor: accent,
-                foregroundColor: Colors.white,
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: SearchBar(
+                  controller: searchController,
+                  constraints: const BoxConstraints.tightFor(height: 32),
+                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                  leading: const Icon(Icons.search),
+                  onChanged: onSearchChanged,
+                  onSubmitted: onSearchChanged,
+                ),
               ),
-              onPressed: onAdd,
-              icon: const Icon(Icons.add),
-            ),
-          ),
-          const SizedBox(width: 8),
-          LibraryToolsButton(
-            type: type,
-            counts: counts,
-            selectedBucket: selectedBucket,
-            quickView: quickView,
-            hasActiveFilters: hasActiveFilters,
-            onQuickViewSelected: onQuickViewSelected,
-            onClearFilters: onClearFilters,
-            onRandomPick: onRandomPick,
-            onDownloadAllCovers: onDownloadAllCovers,
-            onEditConditionPickList: onEditConditionPickList,
-            onEditGradePickList: onEditGradePickList,
-            onEditTagPickList: onEditTagPickList,
-            onEditSort: onEditSort,
-          ),
-          Tooltip(
-            message: 'Cover size',
-            child: IconButton.filledTonal(
-              onPressed: () => _showCompactCoverSizeSheet(
-                context,
-                onViewModeChanged,
-                onCoverSizeChanged,
+              const SizedBox(width: 8),
+              Tooltip(
+                message: 'Add ${type.pluralLabel}',
+                child: IconButton.filled(
+                  style: IconButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                ),
               ),
-              icon: const Icon(Icons.photo_size_select_large_outlined),
-            ),
+              const SizedBox(width: 8),
+              LibraryToolsButton(
+                type: type,
+                counts: counts,
+                selectedBucket: selectedBucket,
+                quickView: quickView,
+                hasActiveFilters: hasActiveFilters,
+                onQuickViewSelected: onQuickViewSelected,
+                onClearFilters: onClearFilters,
+                onRandomPick: onRandomPick,
+                onDownloadAllCovers: onDownloadAllCovers,
+                onEditConditionPickList: onEditConditionPickList,
+                onEditGradePickList: onEditGradePickList,
+                onEditTagPickList: onEditTagPickList,
+                onEditSort: onEditSort,
+              ),
+              Tooltip(
+                message: 'Cover size',
+                child: IconButton.filledTonal(
+                  onPressed: () => _showCompactCoverSizeSheet(
+                    context,
+                    onViewModeChanged,
+                    onCoverSizeChanged,
+                  ),
+                  icon: const Icon(Icons.photo_size_select_large_outlined),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -136,53 +136,61 @@ void _showCompactCoverSizeSheet(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-            leading: const Icon(Icons.grid_view),
-            title: const Text('Grid view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.grid);
-            },
+              leading: const Icon(Icons.grid_view),
+              title: const Text('Grid view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.grid);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.view_module),
-            title: const Text('Cards view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.card);
-            },
+              leading: const Icon(Icons.view_module),
+              title: const Text('Cards view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.card);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.view_agenda),
-            title: const Text('Flow view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.cardFlow);
-            },
+              leading: const Icon(Icons.view_agenda),
+              title: const Text('Horizontal cards'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.horizontalCards);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.view_list),
-            title: const Text('List view'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onViewModeChanged(LibraryViewMode.list);
-            },
+              leading: const Icon(Icons.view_carousel),
+              title: const Text('Flow carousel'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.cardFlow);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.view_list),
+              title: const Text('List view'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onViewModeChanged(LibraryViewMode.list);
+              },
             ),
             const Divider(height: 1),
             ListTile(
-            leading: const Icon(Icons.photo_size_select_small),
-            title: const Text('Small covers'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onCoverSizeChanged(96);
-            },
+              leading: const Icon(Icons.photo_size_select_small),
+              title: const Text('Small covers'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onCoverSizeChanged(96);
+              },
             ),
             ListTile(
-            leading: const Icon(Icons.photo_size_select_large),
-            title: const Text('Large covers'),
-            onTap: () {
-              Navigator.of(context).pop();
-              onCoverSizeChanged(188);
-            },
+              leading: const Icon(Icons.photo_size_select_large),
+              title: const Text('Large covers'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onCoverSizeChanged(188);
+              },
             ),
           ],
         ),
