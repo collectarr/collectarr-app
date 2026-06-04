@@ -614,13 +614,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onReadingQueue:
                         showsReadingQueue() ? showReadingQueueFlow : null,
                     onTransferFieldData: projection != null &&
-                            projection.filteredItems.isNotEmpty
+                            _hasOwnedItemsInProjection(projection)
                         ? () => showTransferFieldDataFlow(projection)
                         : null,
                     onReassignIndex: projection != null &&
                             widget
                                 .type.capabilities.supportsIndexReassignment &&
-                            projection.filteredItems.isNotEmpty
+                            _hasOwnedItemsInProjection(projection)
                         ? () => reassignIndexFlow(projection)
                         : null,
                     onPrintReport: projection != null &&
@@ -934,10 +934,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onEditGradePickList:
             widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
         onEditTagPickList: showTagPickListEditorFlow,
-        onTransferFieldData: projection.filteredItems.isNotEmpty
+        onTransferFieldData: _hasOwnedItemsInProjection(projection)
             ? () => showTransferFieldDataFlow(projection)
             : null,
-        onReassignIndex: projection.filteredItems.isNotEmpty &&
+        onReassignIndex: _hasOwnedItemsInProjection(projection) &&
                 widget.type.capabilities.supportsIndexReassignment
             ? () => reassignIndexFlow(projection)
             : null,
@@ -1409,6 +1409,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             selectedBucket)
           item,
     ];
+  }
+
+  bool _hasOwnedItemsInProjection(LibraryProjection? projection) {
+    if (projection == null) {
+      return false;
+    }
+    return projection.filteredItems
+        .any((item) => item.entry.ownedItemId != null);
   }
 
   LibrarySeriesStatusSummary? _seriesStatusSummaryForProjection(
