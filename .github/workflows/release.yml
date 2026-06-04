@@ -166,7 +166,7 @@ jobs:
 
   release-windows:
     needs: release
-    if: needs.release.outputs.release_published == 'true' && hashFiles('windows/CMakeLists.txt') != ''
+    if: needs.release.outputs.release_published == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
@@ -243,7 +243,7 @@ jobs:
 
   release-macos:
     needs: release
-    if: needs.release.outputs.release_published == 'true' && hashFiles('macos/Runner.xcodeproj/project.pbxproj') != ''
+    if: needs.release.outputs.release_published == 'true' && vars.COLLECTARR_ENABLE_MACOS_RELEASE == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
@@ -300,7 +300,7 @@ jobs:
 
   release-linux:
     needs: release
-    if: needs.release.outputs.release_published == 'true' && hashFiles('linux/CMakeLists.txt') != ''
+    if: needs.release.outputs.release_published == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
