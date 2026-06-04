@@ -16,6 +16,8 @@ typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
 
 enum LibraryMusicCardLayout { vertical, horizontal }
 
+enum LibraryCardLayout { vertical, horizontal }
+
 class LibraryWorkspaceCard extends StatelessWidget {
   const LibraryWorkspaceCard({
     required this.entry,
@@ -30,6 +32,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.mutedTextColor = kAppTextMuted,
     this.coverWidth = 72,
     this.musicLayout = LibraryMusicCardLayout.vertical,
+    this.cardLayout = LibraryCardLayout.horizontal,
     this.selectionMode = false,
     this.onSelectionToggleTap,
     super.key,
@@ -47,6 +50,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final Color mutedTextColor;
   final double coverWidth;
   final LibraryMusicCardLayout musicLayout;
+  final LibraryCardLayout cardLayout;
   final bool selectionMode;
   final VoidCallback? onSelectionToggleTap;
 
@@ -79,6 +83,14 @@ class LibraryWorkspaceCard extends StatelessWidget {
         context: context,
         selectedTitleColor: selectedTitleColor,
         mutedColor: resolvedMutedTextColor,
+      );
+    }
+    if (cardLayout == LibraryCardLayout.vertical) {
+      return _buildStandardVerticalCard(
+        context: context,
+        selectedTitleColor: selectedTitleColor,
+        mutedColor: resolvedMutedTextColor,
+        strongSelection: strongSelection,
       );
     }
     return RepaintBoundary(
@@ -378,12 +390,198 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (_scopeBadge(context, entry) case final badge?)
-                  Positioned(
-                    right: 6,
-                    bottom: 6,
-                    child: badge,
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: _scopeBadge(context, entry),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStandardVerticalCard({
+    required BuildContext context,
+    required Color selectedTitleColor,
+    required Color mutedColor,
+    required bool strongSelection,
+  }) {
+    final palette = appPalette(context);
+    final comic = entry.comic;
+    final background = selected ? palette.selection : palette.cardBackground;
+    final titleColor = selected
+        ? selectedTitleColor
+        : (palette.isDark ? kAppAccentLight : accentColor);
+    final subtitle = [
+      if (entry.browseScope != LibraryBrowserScope.title &&
+          entry.variant != null &&
+          entry.variant!.isNotEmpty)
+        entry.variant,
+      if (entry.releaseDate != null) dateFormatter(entry.releaseDate!),
+      if (entry.publisher != null && entry.publisher!.isNotEmpty)
+        entry.publisher,
+    ].whereType<String>().join('  |  ');
+    final support = [
+      if (entry.referenceFormatLabel != null) entry.referenceFormatLabel!,
+      if (entry.grade != null) entry.grade!,
+      if (_metadataFactValue(_metadataPresentationForEntry(entry), 'Runtime')
+          case final runtime?)
+        runtime,
+    ].whereType<String>().join('  ·  ');
+    return RepaintBoundary(
+      child: AnimatedContainer(
+        duration: kAppAnimFast,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: kAppRadiusSmall,
+          border: Border.all(
+            color: selected ? accentColor : palette.cardBorder,
+            width: selected ? (strongSelection ? 3 : 2) : 1,
+          ),
+          boxShadow: strongSelection
+              ? [
+                  BoxShadow(
+                    color: accentColor.withValues(
+                      alpha: palette.isDark ? 0.34 : 0.26,
+                    ),
+                    blurRadius: 16,
+                    spreadRadius: 1,
                   ),
+                ]
+              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            onDoubleTap: onDoubleTap,
+            onSecondaryTapUp: onSecondaryTapUp,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            SlabFrameOverlay.maybeWrap(
+                              rawOrSlabbed: comic?.rawOrSlabbed,
+                              gradingCompany: comic?.gradingCompany,
+                              grade: entry.grade,
+                              labelType: comic?.labelType,
+                              child: LibraryInteractiveCover(
+                                title: entry.resolvedTitle,
+                                itemNumber: entry.itemNumber,
+                                imageUrl: entry.displayCoverUrl,
+                                ownedItemId: entry.ownedItemId,
+                                accentColor: accentColor,
+                                fit: BoxFit.cover,
+                                borderRadius: 0,
+                                enableFullscreen: false,
+                                enableSecondaryControl: false,
+                              ),
+                            ),
+                            Positioned(
+                              left: 6,
+                              top: 6,
+                              child: LibraryCoverBadges(
+                                isOwned: entry.isOwned,
+                                isTracked: entry.isTracked,
+                                isWishlisted: entry.isWishlisted,
+                                hasMissingCover: entry.hasMissingCover,
+                                hasMissingMetadata: entry.hasMissingMetadata,
+                                keyLabel: libraryKeyMarkerLabel(
+                                  comic?.keyComic ?? false,
+                                  comic?.keyReason,
+                                ),
+                                slabLabel: librarySlabMarkerLabel(
+                                  comic?.rawOrSlabbed,
+                                  comic?.gradingCompany,
+                                ),
+                                notesLabel:
+                                    libraryNotesMarkerLabel(entry.notes),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.resolvedTitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    color: titleColor,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                            ),
+                            if (subtitle.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                subtitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: mutedColor,
+                                    ),
+                              ),
+                            ],
+                            if (support.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                support,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: mutedColor.withValues(alpha: 0.9),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (selectionMode || selected)
+                  Positioned(
+                    left: 6,
+                    bottom: 6,
+                    child: LibraryTileSelectionToggleButton(
+                      onTap: onSelectionToggleTap,
+                      child: LibraryTileSelectionToggle(
+                        selected: selected,
+                        accentColor: accentColor,
+                        coverSize: coverWidth,
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: _scopeBadge(context, entry),
+                ),
               ],
             ),
           ),
@@ -579,12 +777,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (_scopeBadge(context, entry) case final badge?)
-                  Positioned(
-                    right: 6,
-                    bottom: 6,
-                    child: badge,
-                  ),
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: _scopeBadge(context, entry),
+                ),
               ],
             ),
           ),
@@ -709,12 +906,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (_scopeBadge(context, entry) case final badge?)
-                  Positioned(
-                    right: 6,
-                    bottom: 6,
-                    child: badge,
-                  ),
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: _scopeBadge(context, entry),
+                ),
               ],
             ),
           ),

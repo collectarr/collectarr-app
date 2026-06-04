@@ -283,6 +283,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
 
 class LibraryTileSelectionToggle extends StatelessWidget {
   const LibraryTileSelectionToggle({
+    super.key,
     required this.selected,
     required this.accentColor,
     required this.coverSize,
@@ -325,6 +326,7 @@ class LibraryTileSelectionToggle extends StatelessWidget {
 
 class LibraryTileSelectionToggleButton extends StatelessWidget {
   const LibraryTileSelectionToggleButton({
+    super.key,
     required this.child,
     this.onTap,
   });
@@ -404,6 +406,7 @@ class _LibraryTileHoverActionButtonState
 
 class LibraryTileScopePill extends StatelessWidget {
   const LibraryTileScopePill({
+    super.key,
     required this.icon,
     required this.label,
     required this.color,

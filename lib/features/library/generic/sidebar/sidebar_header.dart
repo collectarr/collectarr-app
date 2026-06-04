@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/library_group_mode_menu.
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -86,124 +87,135 @@ class LibrarySidebarHeader extends StatelessWidget {
     final hideSidebar = onHideSidebar;
     final manageFavorites = onPinnedFolderPresetsChanged;
     return Container(
-      padding: const EdgeInsets.fromLTRB(4, 4, 4, 3),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: palette.surface,
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: palette.surface,
-                border: Border.all(color: palette.divider),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: LibraryGroupModeMenuButton(
-                  type: type,
-                  folderPreset:
-                      folderPreset ?? LibraryFolderPreset.single(groupMode),
-                  accent: accent,
-                  icon: icon,
-                  onChanged: onChanged,
-                  sidebarVisible: true,
-                  onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                  pinnedFolderPresets: pinnedFolderPresets,
-                  onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+      child: SizedBox(
+        height: kLibraryToolbarBandHeight,
+        child: Row(
+          children: [
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.surface,
+                  border: Border.all(color: palette.divider),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: LibraryGroupModeMenuButton(
+                    type: type,
+                    folderPreset:
+                        folderPreset ?? LibraryFolderPreset.single(groupMode),
+                    accent: accent,
+                    icon: icon,
+                    onChanged: onChanged,
+                    sidebarVisible: true,
+                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                    pinnedFolderPresets: pinnedFolderPresets,
+                    onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+                  ),
                 ),
               ),
             ),
-          ),
-          if (groupLoading) ...[
-            const SizedBox(width: 6),
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+            if (groupLoading) ...[
+              const SizedBox(width: 6),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ],
+            if (manageFavorites != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: 'Manage favorites',
+                icon: Icons.list_alt_outlined,
+                onPressed: () async {
+                  final updated = await showLibraryFolderFavoritesDialog(
+                    context: context,
+                    type: type,
+                    availableModes: libraryGroupModesForType(type),
+                    initialFavorites: pinnedFolderPresets,
+                  );
+                  if (updated != null && context.mounted) {
+                    manageFavorites(updated);
+                  }
+                },
+                active: pinnedFolderPresets.isNotEmpty,
+                activeColor: accent,
+              ),
+            ],
+            if (manageBuckets != null &&
+                libraryGroupModeSupportsBucketManagement(type, groupMode)) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip:
+                    'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+                icon: Icons.edit_outlined,
+                onPressed: manageBuckets,
+                active: false,
+              ),
+            ],
+            if (editFilters != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: hasActiveFilters
+                    ? 'Edit filters (${filterSelection.activeFilterCount} active)'
+                    : 'Edit filters',
+                icon: hasActiveFilters
+                    ? Icons.filter_alt
+                    : Icons.filter_alt_outlined,
+                onPressed: editFilters,
+                active: hasActiveFilters ||
+                    searchQuery?.trim().isNotEmpty == true ||
+                    activeSmartListName?.trim().isNotEmpty == true ||
+                    linkedMetadataFilterLabel != null ||
+                    selectedLetter != null,
+                activeColor: accent,
+              ),
+            ],
+            if (hasActiveFilters && clearFilters != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: 'Clear filters',
+                icon: Icons.filter_alt_off,
+                onPressed: clearFilters,
+                active: false,
+              ),
+            ],
+            if (navigateBack != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: 'Back to previous scope',
+                icon: Icons.arrow_back,
+                onPressed: navigateBack,
+                active: true,
+                activeColor: accent,
+              ),
+            ] else if (!isRootScope && clearFilter != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
+                icon: Icons.arrow_back,
+                onPressed: clearFilter,
+                active: true,
+                activeColor: accent,
+              ),
+            ],
+            if (hideSidebar != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: 'Hide folders panel',
+                icon: Icons.menu_open,
+                onPressed: hideSidebar,
+                active: false,
+              ),
+            ],
           ],
-          if (manageFavorites != null) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip: 'Manage favorites',
-              icon: Icons.list_alt_outlined,
-              onPressed: () async {
-                final updated = await showLibraryFolderFavoritesDialog(
-                  context: context,
-                  type: type,
-                  availableModes: libraryGroupModesForType(type),
-                  initialFavorites: pinnedFolderPresets,
-                );
-                if (updated != null && context.mounted) {
-                  manageFavorites(updated);
-                }
-              },
-              active: pinnedFolderPresets.isNotEmpty,
-              activeColor: accent,
-            ),
-          ],
-          if (manageBuckets != null &&
-              libraryGroupModeSupportsBucketManagement(type, groupMode)) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip:
-                  'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
-              icon: Icons.edit_outlined,
-              onPressed: manageBuckets,
-              active: false,
-            ),
-          ],
-          if (editFilters != null) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip: hasActiveFilters ? 'Edit filters (${filterSelection.activeFilterCount} active)' : 'Edit filters',
-              icon: hasActiveFilters ? Icons.filter_alt : Icons.filter_alt_outlined,
-              onPressed: editFilters,
-              active: hasActiveFilters || searchQuery?.trim().isNotEmpty == true || activeSmartListName?.trim().isNotEmpty == true || linkedMetadataFilterLabel != null || selectedLetter != null,
-              activeColor: accent,
-            ),
-          ],
-          if (hasActiveFilters && clearFilters != null) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip: 'Clear filters',
-              icon: Icons.filter_alt_off,
-              onPressed: clearFilters,
-              active: false,
-            ),
-          ],
-          if (navigateBack != null) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip: 'Back to previous scope',
-              icon: Icons.arrow_back,
-              onPressed: navigateBack,
-              active: true,
-              activeColor: accent,
-            ),
-          ] else if (!isRootScope && clearFilter != null) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
-              icon: Icons.arrow_back,
-              onPressed: clearFilter,
-              active: true,
-              activeColor: accent,
-            ),
-          ],
-          if (hideSidebar != null) ...[
-            const SizedBox(width: 4),
-            _LibrarySidebarToolbarButton(
-              tooltip: 'Hide folders panel',
-              icon: Icons.menu_open,
-              onPressed: hideSidebar,
-              active: false,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

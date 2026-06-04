@@ -32,7 +32,6 @@ class LibraryToolbarSearch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final colorScheme = Theme.of(context).colorScheme;
     const inputHeight = 34.0;
     final inlineActionCount =
         1 + (onScanBarcode != null ? 1 : 0) + (onScanCover != null ? 1 : 0);

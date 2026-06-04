@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_pane_wi
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  LibraryWorkspaceViewState _state({
+  LibraryWorkspaceViewState stateFor({
     required LibraryViewMode mode,
     required double coverSize,
   }) {
@@ -26,7 +26,7 @@ void main() {
 
   test('grid view allows narrower workspace minimum than global default', () {
     final minWidth = resolveLibraryWorkspaceMinWidth(
-      viewState: _state(mode: LibraryViewMode.grid, coverSize: 180),
+      viewState: stateFor(mode: LibraryViewMode.grid, coverSize: 180),
     );
 
     expect(minWidth, lessThan(kLibraryWorkspaceMinWidth));
@@ -35,7 +35,7 @@ void main() {
 
   test('list view keeps conservative workspace minimum', () {
     final minWidth = resolveLibraryWorkspaceMinWidth(
-      viewState: _state(mode: LibraryViewMode.list, coverSize: 180),
+      viewState: stateFor(mode: LibraryViewMode.list, coverSize: 180),
     );
 
     expect(minWidth, kLibraryWorkspaceMinWidth);

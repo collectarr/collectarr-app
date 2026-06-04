@@ -212,11 +212,11 @@ class EditSection extends StatelessWidget {
     final p = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: p.surfaceSubtle.withValues(alpha: p.isDark ? 0.66 : 0.9),
+      child: Material(
+        color: p.surfaceSubtle.withValues(alpha: p.isDark ? 0.66 : 0.9),
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: p.divider.withValues(alpha: 0.9)),
+          side: BorderSide(color: p.divider.withValues(alpha: 0.9)),
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),

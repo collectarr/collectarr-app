@@ -534,8 +534,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _mediaTab() {
-    if (_isVideoKind)
+    if (_isVideoKind) {
       return _LibraryEditRendererVideoTabs(this)._videoMediaTab();
+    }
     return _genericMediaTab();
   }
 

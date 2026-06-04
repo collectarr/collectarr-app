@@ -1,6 +1,4 @@
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';

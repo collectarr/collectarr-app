@@ -40,7 +40,7 @@ class LibrarySelectionControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextButton _actionButton({
+    TextButton actionButton({
       required VoidCallback? onPressed,
       required IconData icon,
       required String label,
@@ -67,43 +67,43 @@ class LibrarySelectionControls extends StatelessWidget {
       runSpacing: 6,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkEdit,
           icon: Icons.edit_outlined,
           label: 'Edit',
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkRemove,
           icon: Icons.delete_outline,
           label: 'Remove',
           foregroundColor: Theme.of(context).colorScheme.error,
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkDuplicate,
           icon: Icons.copy_all_outlined,
           label: 'Duplicate',
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkLoan,
           icon: Icons.handshake_outlined,
           label: 'Loan',
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkMoveToOwned,
           icon: Icons.inventory_2_outlined,
           label: 'Move to owned',
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkMoveToWishlist,
           icon: Icons.star_border,
           label: 'Move to wishlist',
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onPrintToPdf,
           icon: Icons.picture_as_pdf_outlined,
           label: 'Print to PDF',
         ),
-        _actionButton(
+        actionButton(
           onPressed: callbacks.onBulkUpdateValues,
           icon: Icons.price_change_outlined,
           label: 'Update values',

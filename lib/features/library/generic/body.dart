@@ -407,8 +407,7 @@ class LibraryBody extends StatelessWidget {
                   initialWidth: sidebarWidth,
                   minWidth: kLibrarySidebarMinWidth,
                   maxWidth: maxSidebarWidth,
-                  dividerColor:
-                      accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
+                  accentColor: accent,
                   onSidebarWidthChanged: onSidebarWidthChanged,
                 )
               : detailsLayoutWidget,
@@ -425,7 +424,7 @@ class _LibrarySidebarResizableLayout extends StatefulWidget {
     required this.initialWidth,
     required this.minWidth,
     required this.maxWidth,
-    required this.dividerColor,
+    required this.accentColor,
     required this.onSidebarWidthChanged,
   });
 
@@ -434,7 +433,7 @@ class _LibrarySidebarResizableLayout extends StatefulWidget {
   final double initialWidth;
   final double minWidth;
   final double maxWidth;
-  final Color dividerColor;
+  final Color accentColor;
   final ValueChanged<double> onSidebarWidthChanged;
 
   @override
@@ -503,7 +502,7 @@ class _LibrarySidebarResizableLayoutState
       children: [
         SizedBox(width: _width, child: widget.sidebar),
         LibraryResizableDivider(
-          color: widget.dividerColor,
+          accentColor: widget.accentColor,
           onDragStart: () => _dragging = true,
           onDragEnd: () {
             _dragging = false;

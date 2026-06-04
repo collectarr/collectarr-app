@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 const kLibraryToolbarCompactDropdownSize = 28.0;
 const kLibraryToolbarCompactDropdownWidth = 38.0;
+const kLibraryToolbarBandHeight = 38.0;
 const kLibraryToolbarControlHeight = 28.0;
 const kLibraryToolbarTextDropdownHeight = 30.0;
 const kLibraryToolbarPopupItemHeight = 32.0;

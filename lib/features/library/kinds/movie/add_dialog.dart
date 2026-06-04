@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
-import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';

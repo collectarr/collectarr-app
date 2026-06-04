@@ -130,7 +130,6 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final accentDivider = widget.accentColor.withValues(alpha: 0.3);
     final effectiveRightWidth = clampLibraryPaneWidth(
       _rightWidth,
       minWidth: kLibraryDetailsMinWidth,
@@ -155,7 +154,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
               const VerticalDivider(width: 1)
             else
               LibraryResizableDivider(
-                color: accentDivider,
+                accentColor: widget.accentColor,
                 onDragStart: () => _draggingRight = true,
                 onDragEnd: () {
                   _draggingRight = false;
@@ -177,7 +176,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
             else
               LibraryResizableDivider(
                 axis: Axis.vertical,
-                color: accentDivider,
+                accentColor: widget.accentColor,
                 onDragStart: () => _draggingBottom = true,
                 onDragEnd: () {
                   _draggingBottom = false;

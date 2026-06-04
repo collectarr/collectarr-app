@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';

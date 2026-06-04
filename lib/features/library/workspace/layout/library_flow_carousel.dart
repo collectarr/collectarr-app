@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';

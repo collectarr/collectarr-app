@@ -142,6 +142,10 @@ class LibraryWorkspace extends ConsumerWidget {
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
     final cardTileWidth = (430.0 * cardScale).clamp(336.0, 620.0).toDouble();
     final cardTileHeight = (156.0 * cardScale).clamp(132.0, 228.0).toDouble();
+    final standardVerticalTileWidth =
+        (viewState.coverSize + 54).clamp(168.0, 244.0).toDouble();
+    final standardVerticalTileHeight =
+        (standardVerticalTileWidth * 1.45).clamp(232.0, 352.0).toDouble();
     final musicVerticalTileWidth =
         (viewState.coverSize + 56).clamp(172.0, 248.0).toDouble();
     final musicVerticalTileHeight =
@@ -191,10 +195,12 @@ class LibraryWorkspace extends ConsumerWidget {
             selectionEnabled: selectionEnabled,
             selectedIds: selectedIds,
             accent: accent,
-            maxCrossAxisExtent:
-                isMusicLibrary ? musicVerticalTileWidth : cardTileWidth,
-            mainAxisExtent:
-                isMusicLibrary ? musicVerticalTileHeight : cardTileHeight,
+            maxCrossAxisExtent: isMusicLibrary
+                ? musicVerticalTileWidth
+                : standardVerticalTileWidth,
+            mainAxisExtent: isMusicLibrary
+                ? musicVerticalTileHeight
+                : standardVerticalTileHeight,
             onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               key: ValueKey(item.entry.id),
@@ -212,6 +218,7 @@ class LibraryWorkspace extends ConsumerWidget {
               mutedTextColor: palette.textMuted,
               coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
               musicLayout: LibraryMusicCardLayout.vertical,
+              cardLayout: LibraryCardLayout.vertical,
               selectionMode: selectionEnabled,
               onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
             ),
@@ -244,6 +251,7 @@ class LibraryWorkspace extends ConsumerWidget {
               mutedTextColor: palette.textMuted,
               coverWidth: cardCoverWidth,
               musicLayout: LibraryMusicCardLayout.horizontal,
+              cardLayout: LibraryCardLayout.horizontal,
               selectionMode: selectionEnabled,
               onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
             ),
@@ -304,10 +312,12 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
           emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent:
-              isMusicLibrary ? musicVerticalTileWidth : cardTileWidth,
-          mainAxisExtent:
-              isMusicLibrary ? musicVerticalTileHeight : cardTileHeight,
+          maxCrossAxisExtent: isMusicLibrary
+              ? musicVerticalTileWidth
+              : standardVerticalTileWidth,
+          mainAxisExtent: isMusicLibrary
+              ? musicVerticalTileHeight
+              : standardVerticalTileHeight,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
           padding: gridPadding,
@@ -332,6 +342,7 @@ class LibraryWorkspace extends ConsumerWidget {
             mutedTextColor: palette.textMuted,
             coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
             musicLayout: LibraryMusicCardLayout.vertical,
+            cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
           ),
@@ -498,6 +509,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 mutedTextColor: palette.textMuted,
                 coverWidth: cardCoverWidth,
                 musicLayout: LibraryMusicCardLayout.horizontal,
+                cardLayout: LibraryCardLayout.horizontal,
                 selectionMode: selectionEnabled,
                 onSelectionToggleTap: () =>
                     onToggleSelectionItem(item.entry.id),

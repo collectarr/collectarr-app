@@ -165,189 +165,197 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           horizontal: _kLibraryToolbarBandHorizontalPadding,
           vertical: _kLibraryToolbarBandVerticalPadding,
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: selectionMode
-                  ? _LibraryDesktopInlineSelectionToolbar(
-                      selectedCount: selectedCount,
-                      totalSelectableCount: totalSelectableCount,
-                      callbacks: selectionCallbacks!,
-                    )
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          if (!viewState.isSidebarVisible &&
-                              onGroupModeChanged != null) ...[
-                            LibraryGroupModeMenuButton(
-                              type: type,
-                              folderPreset: folderPreset,
-                              accent: libraryAccentForKind(type.workspace.kind),
-                              icon: folderPreset == null
-                                  ? Icons.account_tree_outlined
-                                  : genericFolderPresetIcon(
-                                      folderPreset!, type),
-                              onChanged: onGroupModeChanged!,
-                              sidebarVisible: viewState.isSidebarVisible,
-                              onSidebarVisibilityChanged:
-                                  onSidebarVisibilityChanged,
-                              pinnedFolderPresets: pinnedFolderPresets,
-                              onPinnedPresetsChanged:
-                                  onPinnedFolderPresetsChanged,
-                              iconOnly: true,
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                          if (onEditSort != null)
+        child: SizedBox(
+          height: kLibraryToolbarBandHeight,
+          child: Row(
+            children: [
+              Expanded(
+                child: selectionMode
+                    ? _LibraryDesktopInlineSelectionToolbar(
+                        selectedCount: selectedCount,
+                        totalSelectableCount: totalSelectableCount,
+                        callbacks: selectionCallbacks!,
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            if (!viewState.isSidebarVisible &&
+                                onGroupModeChanged != null) ...[
+                              LibraryGroupModeMenuButton(
+                                type: type,
+                                folderPreset: folderPreset,
+                                accent:
+                                    libraryAccentForKind(type.workspace.kind),
+                                icon: folderPreset == null
+                                    ? Icons.account_tree_outlined
+                                    : genericFolderPresetIcon(
+                                        folderPreset!, type),
+                                onChanged: onGroupModeChanged!,
+                                sidebarVisible: viewState.isSidebarVisible,
+                                onSidebarVisibilityChanged:
+                                    onSidebarVisibilityChanged,
+                                pinnedFolderPresets: pinnedFolderPresets,
+                                onPinnedPresetsChanged:
+                                    onPinnedFolderPresetsChanged,
+                                iconOnly: true,
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                            if (onEditSort != null)
+                              const _LibraryDesktopToolbarSeparator(),
+                            if (onEditSort != null)
+                              LibraryToolbarSortButton(
+                                onPressed: onEditSort!,
+                                sortFavorites: sortFavorites,
+                                activeSortFavoriteId: activeSortFavoriteId,
+                                pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                                onSortFavoriteSelected: onSortFavoriteSelected,
+                                onManageFavoritesPressed: onManageSortFavorites,
+                              ),
                             const _LibraryDesktopToolbarSeparator(),
-                          if (onEditSort != null)
-                            LibraryToolbarSortButton(
-                              onPressed: onEditSort!,
-                              sortFavorites: sortFavorites,
-                              activeSortFavoriteId: activeSortFavoriteId,
-                              pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                              onSortFavoriteSelected: onSortFavoriteSelected,
-                              onManageFavoritesPressed: onManageSortFavorites,
+                            LibraryViewModeDropdown(
+                              viewMode: viewState.viewMode,
+                              onChanged: onViewModeChanged,
                             ),
-                          const _LibraryDesktopToolbarSeparator(),
-                          LibraryViewModeDropdown(
-                            viewMode: viewState.viewMode,
-                            onChanged: onViewModeChanged,
-                          ),
-                          if (supportsMediaReleaseSplit) ...[
-                            const _LibraryDesktopToolbarSeparator(),
-                            _LibraryDesktopToolbarSection(
-                              label: 'Scope',
-                              child:
-                                  PopupMenuButton<LibraryWorkspaceBrowserMode>(
-                                tooltip: 'Browser scope',
-                                initialValue: browserMode,
-                                onSelected: onBrowserModeChanged,
-                                itemBuilder: (context) => [
-                                  PopupMenuItem(
-                                    value: LibraryWorkspaceBrowserMode.media,
-                                    height: kLibraryToolbarPopupItemHeight,
-                                    child: Text(mediaScopeLabel),
+                            if (supportsMediaReleaseSplit) ...[
+                              const _LibraryDesktopToolbarSeparator(),
+                              _LibraryDesktopToolbarSection(
+                                label: 'Scope',
+                                child: PopupMenuButton<
+                                    LibraryWorkspaceBrowserMode>(
+                                  tooltip: 'Browser scope',
+                                  initialValue: browserMode,
+                                  onSelected: onBrowserModeChanged,
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: LibraryWorkspaceBrowserMode.media,
+                                      height: kLibraryToolbarPopupItemHeight,
+                                      child: Text(mediaScopeLabel),
+                                    ),
+                                    const PopupMenuItem(
+                                      value:
+                                          LibraryWorkspaceBrowserMode.releases,
+                                      height: kLibraryToolbarPopupItemHeight,
+                                      child: Text('Releases'),
+                                    ),
+                                  ],
+                                  child: _LibraryToolbarSecondaryTrigger(
+                                    label: browserMode ==
+                                            LibraryWorkspaceBrowserMode.media
+                                        ? mediaScopeLabel
+                                        : 'Releases',
                                   ),
-                                  const PopupMenuItem(
-                                    value: LibraryWorkspaceBrowserMode.releases,
-                                    height: kLibraryToolbarPopupItemHeight,
-                                    child: Text('Releases'),
-                                  ),
-                                ],
-                                child: _LibraryToolbarSecondaryTrigger(
-                                  label: browserMode ==
-                                          LibraryWorkspaceBrowserMode.media
-                                      ? mediaScopeLabel
-                                      : 'Releases',
                                 ),
                               ),
-                            ),
-                          ],
-                          const _LibraryDesktopToolbarSeparator(),
-                          LibraryDetailsLayoutDropdown(
-                            detailsLayout: viewState.detailsLayout,
-                            onChanged: onDetailsLayoutChanged,
-                          ),
-                          if (viewState.viewMode == LibraryViewMode.list) ...[
+                            ],
                             const _LibraryDesktopToolbarSeparator(),
-                            _LibraryDesktopToolbarSection(
-                              label: 'Columns',
-                              child: _LibraryColumnLauncher(
-                                activeLabel: activeColumnFavoriteLabel,
-                                onManageColumns: onEditColumns,
-                                pinnedPresets: pinnedColumnPresets,
-                                overflowPresets: overflowColumnPresets,
-                                onPresetSelected: onColumnFavoriteSelected,
-                              ),
+                            LibraryDetailsLayoutDropdown(
+                              detailsLayout: viewState.detailsLayout,
+                              onChanged: onDetailsLayoutChanged,
                             ),
-                          ] else if (viewState.viewMode.supportsCoverSize) ...[
-                            const _LibraryDesktopToolbarSeparator(),
-                            _LibraryDesktopToolbarSection(
-                              label: 'Covers',
-                              child: LibraryCoverSizeSlider(
-                                viewMode: viewState.viewMode,
-                                coverSize: viewState.coverSize,
-                                minCoverSize: adapter.viewProfile.minCoverSize,
-                                maxCoverSize: adapter.viewProfile.maxCoverSize,
-                                onChanged: onCoverSizeChanged,
+                            if (viewState.viewMode == LibraryViewMode.list) ...[
+                              const _LibraryDesktopToolbarSeparator(),
+                              _LibraryDesktopToolbarSection(
+                                label: 'Columns',
+                                child: _LibraryColumnLauncher(
+                                  activeLabel: activeColumnFavoriteLabel,
+                                  onManageColumns: onEditColumns,
+                                  pinnedPresets: pinnedColumnPresets,
+                                  overflowPresets: overflowColumnPresets,
+                                  onPresetSelected: onColumnFavoriteSelected,
+                                ),
                               ),
-                            ),
+                            ] else if (viewState
+                                .viewMode.supportsCoverSize) ...[
+                              const _LibraryDesktopToolbarSeparator(),
+                              _LibraryDesktopToolbarSection(
+                                label: 'Covers',
+                                child: LibraryCoverSizeSlider(
+                                  viewMode: viewState.viewMode,
+                                  coverSize: viewState.coverSize,
+                                  minCoverSize:
+                                      adapter.viewProfile.minCoverSize,
+                                  maxCoverSize:
+                                      adapter.viewProfile.maxCoverSize,
+                                  onChanged: onCoverSizeChanged,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 6),
+              LibraryWorkspaceControlStrip(
+                children: [
+                  LibraryItemCountLabel(
+                    shown: counts.shown,
+                    total: counts.total,
+                    pluralLabel: type.pluralLabel,
+                  ),
+                  if (showReleaseFolderBack && onReleaseFolderBack != null)
+                    TextButton.icon(
+                      onPressed: onReleaseFolderBack,
+                      icon: const Icon(Icons.arrow_back, size: 16),
+                      label: Text(
+                        releaseFolderLabel == null
+                            ? 'Back'
+                            : 'Back: ${releaseFolderLabel!}',
                       ),
                     ),
-            ),
-            const SizedBox(width: 6),
-            LibraryWorkspaceControlStrip(
-              children: [
-                LibraryItemCountLabel(
-                  shown: counts.shown,
-                  total: counts.total,
-                  pluralLabel: type.pluralLabel,
-                ),
-                if (showReleaseFolderBack && onReleaseFolderBack != null)
-                  TextButton.icon(
-                    onPressed: onReleaseFolderBack,
-                    icon: const Icon(Icons.arrow_back, size: 16),
-                    label: Text(
-                      releaseFolderLabel == null
-                          ? 'Back'
-                          : 'Back: ${releaseFolderLabel!}',
+                  if (selectedBucket != null)
+                    LibraryToolbarScopeChip(
+                      label: selectedBucket!,
+                      onClear: onClearBucket,
                     ),
-                  ),
-                if (selectedBucket != null)
-                  LibraryToolbarScopeChip(
-                    label: selectedBucket!,
-                    onClear: onClearBucket,
-                  ),
-                if (onEditFilters != null)
-                  LibraryFilterButton(
-                    activeCount: activeFilterCount,
-                    onPressed: onEditFilters!,
-                  ),
-                if (folderPreset != null && onGroupModeChanged != null)
-                  _LibraryFolderPresetChip(
-                    label: genericFolderPresetLabel(folderPreset!, type),
-                    icon: genericFolderPresetIcon(folderPreset!, type),
-                    onPressed: onFolders,
-                    onReset: folderPreset! ==
-                            LibraryFolderPreset.single(
-                              libraryDefaultGroupMode(type),
-                            )
-                        ? null
-                        : () => onGroupModeChanged!(
+                  if (onEditFilters != null)
+                    LibraryFilterButton(
+                      activeCount: activeFilterCount,
+                      onPressed: onEditFilters!,
+                    ),
+                  if (folderPreset != null && onGroupModeChanged != null)
+                    _LibraryFolderPresetChip(
+                      label: genericFolderPresetLabel(folderPreset!, type),
+                      icon: genericFolderPresetIcon(folderPreset!, type),
+                      onPressed: onFolders,
+                      onReset: folderPreset! ==
                               LibraryFolderPreset.single(
                                 libraryDefaultGroupMode(type),
+                              )
+                          ? null
+                          : () => onGroupModeChanged!(
+                                LibraryFolderPreset.single(
+                                  libraryDefaultGroupMode(type),
+                                ),
                               ),
-                            ),
+                    ),
+                  LibraryToolsButton(
+                    type: type,
+                    counts: counts,
+                    selectedBucket: selectedBucket,
+                    quickView: quickView,
+                    hasActiveFilters: hasActiveFilters,
+                    onQuickViewSelected: onQuickViewSelected,
+                    onClearFilters: onClearFilters,
+                    onRandomPick: onRandomPick,
+                    onDownloadAllCovers: onDownloadAllCovers,
+                    shelfState: shelfState,
+                    onSmartLists: onSmartLists,
+                    onFolders: onFolders,
+                    onReadingQueue: onReadingQueue,
+                    onEditConditionPickList: onEditConditionPickList,
+                    onEditGradePickList: onEditGradePickList,
+                    onEditTagPickList: onEditTagPickList,
+                    onTransferFieldData: onTransferFieldData,
+                    onReassignIndex: onReassignIndex,
+                    onPrintReport: onPrintReport,
+                    onShareCollection: onShareCollection,
                   ),
-                LibraryToolsButton(
-                  type: type,
-                  counts: counts,
-                  selectedBucket: selectedBucket,
-                  quickView: quickView,
-                  hasActiveFilters: hasActiveFilters,
-                  onQuickViewSelected: onQuickViewSelected,
-                  onClearFilters: onClearFilters,
-                  onRandomPick: onRandomPick,
-                  onDownloadAllCovers: onDownloadAllCovers,
-                  shelfState: shelfState,
-                  onSmartLists: onSmartLists,
-                  onFolders: onFolders,
-                  onReadingQueue: onReadingQueue,
-                  onEditConditionPickList: onEditConditionPickList,
-                  onEditGradePickList: onEditGradePickList,
-                  onEditTagPickList: onEditTagPickList,
-                  onTransferFieldData: onTransferFieldData,
-                  onReassignIndex: onReassignIndex,
-                  onPrintReport: onPrintReport,
-                  onShareCollection: onShareCollection,
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

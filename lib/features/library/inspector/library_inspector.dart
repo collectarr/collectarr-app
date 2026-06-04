@@ -305,8 +305,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onRefreshMetadata = widget.type.supportedMetadataProviders.isEmpty
         ? null
         : () => _refreshSelectedEntryMetadata(selected);
-    final onShare = () => _shareInspectorEntry(selected);
-    final onUnlinkFromCore = () => _unlinkInspectorEntryFromCore(selected);
+    void onShare() => _shareInspectorEntry(selected);
+    void onUnlinkFromCore() => _unlinkInspectorEntryFromCore(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
         context: context,

@@ -81,7 +81,9 @@ void main() {
 
     await tester.tap(find.byTooltip('Group by'));
     await pumpUntilSettled(tester);
-    await tester.tap(find.text('Year'));
+    final yearOption = find.textContaining('Year').last;
+    await tester.ensureVisible(yearOption);
+    await tester.tap(yearOption);
     await pumpUntilSettled(tester);
   });
 
@@ -357,7 +359,8 @@ void main() {
         ],
         child: MaterialApp(
           home: LibraryHomePage(
-            routeUri: Uri(path: '/libraries', queryParameters: {'kind': 'nope'}),
+            routeUri:
+                Uri(path: '/libraries', queryParameters: {'kind': 'nope'}),
           ),
         ),
       ),
