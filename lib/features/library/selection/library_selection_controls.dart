@@ -4,12 +4,7 @@ enum _BulkAction {
   exportCsvTxt,
   exportXml,
   exportCovrPrice,
-  duplicate,
-  loan,
   transferFieldData,
-  moveToOwned,
-  moveToWishlist,
-  updateValues,
   updateKeyInfo,
   updateFromCore,
 }
@@ -45,66 +40,73 @@ class LibrarySelectionControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextButton _actionButton({
+      required VoidCallback? onPressed,
+      required IconData icon,
+      required String label,
+      Color? foregroundColor,
+    }) {
+      return TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 15),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          foregroundColor:
+              foregroundColor ?? Theme.of(context).colorScheme.onSurface,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      );
+    }
+
     return Wrap(
       spacing: 6,
       runSpacing: 6,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        TextButton.icon(
+        _actionButton(
           onPressed: callbacks.onBulkEdit,
-          icon: const Icon(Icons.edit_outlined, size: 15),
-          label: const Text('Edit'),
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
+          icon: Icons.edit_outlined,
+          label: 'Edit',
         ),
-        TextButton.icon(
+        _actionButton(
           onPressed: callbacks.onBulkRemove,
-          icon: Icon(
-            Icons.delete_outline,
-            size: 15,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          label: const Text('Remove'),
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            foregroundColor: Theme.of(context).colorScheme.error,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
+          icon: Icons.delete_outline,
+          label: 'Remove',
+          foregroundColor: Theme.of(context).colorScheme.error,
         ),
-        TextButton.icon(
+        _actionButton(
+          onPressed: callbacks.onBulkDuplicate,
+          icon: Icons.copy_all_outlined,
+          label: 'Duplicate',
+        ),
+        _actionButton(
+          onPressed: callbacks.onBulkLoan,
+          icon: Icons.handshake_outlined,
+          label: 'Loan',
+        ),
+        _actionButton(
+          onPressed: callbacks.onBulkMoveToOwned,
+          icon: Icons.inventory_2_outlined,
+          label: 'Move to owned',
+        ),
+        _actionButton(
+          onPressed: callbacks.onBulkMoveToWishlist,
+          icon: Icons.star_border,
+          label: 'Move to wishlist',
+        ),
+        _actionButton(
           onPressed: callbacks.onPrintToPdf,
-          icon: const Icon(Icons.picture_as_pdf_outlined, size: 15),
-          label: const Text('Print to PDF'),
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
+          icon: Icons.picture_as_pdf_outlined,
+          label: 'Print to PDF',
         ),
-        TextButton.icon(
+        _actionButton(
           onPressed: callbacks.onBulkUpdateValues,
-          icon: const Icon(Icons.price_change_outlined, size: 15),
-          label: const Text('Update values'),
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
+          icon: Icons.price_change_outlined,
+          label: 'Update values',
         ),
         PopupMenuButton<_BulkAction>(
           tooltip: 'More selection actions',
@@ -122,12 +124,7 @@ class LibrarySelectionControls extends StatelessWidget {
               _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
               _BulkAction.exportXml => null,
               _BulkAction.exportCovrPrice => null,
-              _BulkAction.duplicate => callbacks.onBulkDuplicate,
-              _BulkAction.loan => callbacks.onBulkLoan,
               _BulkAction.transferFieldData => callbacks.onTransferFieldData,
-              _BulkAction.moveToOwned => callbacks.onBulkMoveToOwned,
-              _BulkAction.moveToWishlist => callbacks.onBulkMoveToWishlist,
-              _BulkAction.updateValues => callbacks.onBulkUpdateValues,
               _BulkAction.updateKeyInfo => callbacks.onBulkUpdateKeyInfo,
               _BulkAction.updateFromCore => callbacks.onBulkRefreshMetadata,
             };
@@ -164,56 +161,11 @@ class LibrarySelectionControls extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
-              value: _BulkAction.duplicate,
-              enabled: callbacks.onBulkDuplicate != null,
-              child: ListTile(
-                leading: const Icon(Icons.copy_all_outlined),
-                title: const Text('Duplicate'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
-              value: _BulkAction.loan,
-              enabled: callbacks.onBulkLoan != null,
-              child: ListTile(
-                leading: Icon(Icons.handshake_outlined),
-                title: Text('Loan'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
               value: _BulkAction.transferFieldData,
               enabled: callbacks.onTransferFieldData != null,
               child: ListTile(
                 leading: const Icon(Icons.swap_horiz),
                 title: const Text('Transfer Field Data'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
-              value: _BulkAction.moveToOwned,
-              enabled: callbacks.onBulkMoveToOwned != null,
-              child: ListTile(
-                leading: Icon(Icons.inventory_2_outlined),
-                title: Text('Move to owned'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
-              value: _BulkAction.moveToWishlist,
-              enabled: callbacks.onBulkMoveToWishlist != null,
-              child: ListTile(
-                leading: Icon(Icons.star_border),
-                title: Text('Move to wishlist'),
-                dense: true,
-              ),
-            ),
-            PopupMenuItem(
-              value: _BulkAction.updateValues,
-              enabled: callbacks.onBulkUpdateValues != null,
-              child: ListTile(
-                leading: const Icon(Icons.price_change_outlined),
-                title: Text('Update values'),
                 dense: true,
               ),
             ),

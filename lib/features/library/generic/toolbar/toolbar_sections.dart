@@ -22,6 +22,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+const double _kLibraryToolbarBandVerticalPadding = 2;
+const double _kLibraryToolbarBandHorizontalPadding = 4;
+
 class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   const LibraryDesktopSecondaryToolbar({
     super.key,
@@ -157,7 +160,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             : null,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+        padding: const EdgeInsets.symmetric(
+          horizontal: _kLibraryToolbarBandHorizontalPadding,
+          vertical: _kLibraryToolbarBandVerticalPadding,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -175,7 +181,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             ? Icons.account_tree_outlined
                             : genericFolderPresetIcon(folderPreset!, type),
                         onChanged: onGroupModeChanged!,
-                        sidebarVisible: false,
+                        sidebarVisible: viewState.isSidebarVisible,
                         onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                         pinnedFolderPresets: pinnedFolderPresets,
                         onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
@@ -217,31 +223,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                               child: Text('Releases'),
                             ),
                           ],
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                  color: appPalette(context).divider),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  browserMode ==
-                                          LibraryWorkspaceBrowserMode.media
-                                      ? mediaScopeLabel
-                                      : 'Releases',
-                                  style:
-                                      Theme.of(context).textTheme.labelMedium,
-                                ),
-                                const SizedBox(width: 6),
-                                const Icon(Icons.arrow_drop_down, size: 16),
-                              ],
-                            ),
+                          child: _LibraryToolbarSecondaryTrigger(
+                            label:
+                                browserMode == LibraryWorkspaceBrowserMode.media
+                                    ? mediaScopeLabel
+                                    : 'Releases',
                           ),
                         ),
                       ),
@@ -307,6 +293,22 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   LibraryFilterButton(
                     activeCount: activeFilterCount,
                     onPressed: onEditFilters!,
+                  ),
+                if (folderPreset != null && onGroupModeChanged != null)
+                  _LibraryFolderPresetChip(
+                    label: genericFolderPresetLabel(folderPreset!, type),
+                    icon: genericFolderPresetIcon(folderPreset!, type),
+                    onPressed: onFolders,
+                    onReset: folderPreset! ==
+                            LibraryFolderPreset.single(
+                              libraryDefaultGroupMode(type),
+                            )
+                        ? null
+                        : () => onGroupModeChanged!(
+                              LibraryFolderPreset.single(
+                                libraryDefaultGroupMode(type),
+                              ),
+                            ),
                   ),
                 LibraryToolsButton(
                   type: type,
@@ -385,6 +387,76 @@ class _LibraryDesktopToolbarSeparator extends StatelessWidget {
           color: appPalette(context).divider,
         ),
       ),
+    );
+  }
+}
+
+class _LibraryToolbarSecondaryTrigger extends StatelessWidget {
+  const _LibraryToolbarSecondaryTrigger({
+    required this.label,
+  });
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(Icons.arrow_drop_down, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryFolderPresetChip extends StatelessWidget {
+  const _LibraryFolderPresetChip({
+    required this.label,
+    required this.icon,
+    this.onPressed,
+    this.onReset,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final VoidCallback? onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    return InputChip(
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      avatar: Icon(icon, size: 14),
+      label: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+      ),
+      onPressed: onPressed,
+      onDeleted: onReset,
+      deleteIcon: const Icon(Icons.restart_alt, size: 14),
+      deleteButtonTooltipMessage: 'Reset folders',
     );
   }
 }
@@ -1098,6 +1170,16 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 tooltip: 'Add ${type.pluralLabel}',
               ),
               const SizedBox(width: 4),
+              if (onFolders != null) ...[
+                Tooltip(
+                  message: 'Folders',
+                  child: IconButton.filledTonal(
+                    onPressed: onFolders,
+                    icon: const Icon(Icons.folder_outlined),
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
               LibraryToolsButton(
                 type: type,
                 counts: counts,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -36,9 +37,9 @@ void main() {
             child: LibraryDesktopSecondaryToolbar(
               type: type,
               viewState: adapter.viewProfile.defaults().copyWith(
-                viewMode: LibraryViewMode.list,
-                detailsLayout: LibraryDetailsLayout.right,
-              ),
+                    viewMode: LibraryViewMode.list,
+                    detailsLayout: LibraryDetailsLayout.right,
+                  ),
               adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
@@ -55,7 +56,8 @@ void main() {
               sortFavorites: const [sortFavorite],
               activeSortFavoriteId: 'series_issue',
               pinnedSortFavoriteIds: const {'series_issue'},
-              onSortFavoriteSelected: (favorite) => appliedSortFavorite = favorite.id,
+              onSortFavoriteSelected: (favorite) =>
+                  appliedSortFavorite = favorite.id,
               onManageSortFavorites: () => manageSortFavoritesCount++,
               onEditSort: () => sortColumnsCount++,
             ),
@@ -68,7 +70,8 @@ void main() {
 
     final sortButton = find.byType(LibraryToolbarSortButton);
     expect(sortButton, findsOneWidget);
-    expect(find.byKey(const ValueKey('library-sort-split-button-menu')), findsOneWidget);
+    expect(find.byKey(const ValueKey('library-sort-split-button-menu')),
+        findsOneWidget);
 
     await tester.tap(
       find.descendant(of: sortButton, matching: find.byIcon(Icons.sort)),
@@ -122,15 +125,16 @@ void main() {
             child: LibraryDesktopSecondaryToolbar(
               type: type,
               viewState: adapter.viewProfile.defaults().copyWith(
-                viewMode: LibraryViewMode.list,
-                detailsLayout: LibraryDetailsLayout.right,
-              ),
+                    viewMode: LibraryViewMode.list,
+                    detailsLayout: LibraryDetailsLayout.right,
+                  ),
               adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () => manageColumnsCount++,
               columnFavoritePresets: [essentialPreset, pricingPreset],
               activeColumnFavoriteLabel: 'Essential',
-              onColumnFavoriteSelected: (preset) => appliedPreset = preset.label,
+              onColumnFavoriteSelected: (preset) =>
+                  appliedPreset = preset.label,
               pinnedColumnFavoriteKeys: {
                 libraryColumnFavoriteKey(essentialPreset),
               },
@@ -153,7 +157,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('library-column-split-button')), findsOneWidget);
+    expect(find.byKey(const ValueKey('library-column-split-button')),
+        findsOneWidget);
     expect(find.byType(LibraryDenseSplitButton<Object>), findsOneWidget);
     expect(find.text('Essential'), findsOneWidget);
 
@@ -177,7 +182,8 @@ void main() {
     expect(appliedPreset, 'Pricing');
   });
 
-  testWidgets('sort favorites menu keeps pinned favorites first in saved order', (
+  testWidgets('sort favorites menu keeps pinned favorites first in saved order',
+      (
     tester,
   ) async {
     const pinnedFavorite = LibrarySortFavorite(
@@ -236,7 +242,113 @@ void main() {
     expect((items[5] as PopupMenuItem<Object>).value, overflowFavorite);
   });
 
-  testWidgets('sort favorites manager dialog renders pinned and available panes', (
+  testWidgets('desktop secondary toolbar shows folder preset chip with reset', (
+    tester,
+  ) async {
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    final adapter = collectarrMediaAdapters.byKind('comic')!;
+    LibraryFolderPreset? changedPreset;
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 1200,
+            child: LibraryDesktopSecondaryToolbar(
+              type: type,
+              viewState: adapter.viewProfile.defaults().copyWith(
+                    viewMode: LibraryViewMode.list,
+                    detailsLayout: LibraryDetailsLayout.right,
+                  ),
+              adapter: adapter,
+              counts: const LibraryToolbarCounts(shown: 10, total: 20),
+              onEditColumns: () {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              quickView: null,
+              hasActiveFilters: false,
+              onQuickViewSelected: (_) {},
+              onClearFilters: () {},
+              groupMode: LibraryGroupMode.series,
+              folderPreset: LibraryFolderPreset(
+                modes: const [
+                  LibraryGroupMode.series,
+                  LibraryGroupMode.publisher
+                ],
+              ),
+              onGroupModeChanged: (preset) => changedPreset = preset,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(InputChip), findsOneWidget);
+    expect(find.byTooltip('Reset folders'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Reset folders'));
+    await tester.pumpAndSettle();
+
+    expect(changedPreset,
+        LibraryFolderPreset.single(libraryDefaultGroupMode(type)));
+  });
+
+  testWidgets('compact toolbar exposes a visible folders shortcut',
+      (tester) async {
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    var foldersPressed = 0;
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 700,
+            child: LibraryCompactToolbarContent(
+              type: type,
+              searchController: searchController,
+              accent: Colors.teal,
+              counts: const LibraryToolbarCounts(),
+              viewMode: LibraryViewMode.grid,
+              selectedBucket: null,
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onRefreshMetadata: () {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              onManageColumns: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              collectionStatusScope: LibraryCollectionStatusScope.all,
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              onClearBucket: () {},
+              onFolders: () => foldersPressed++,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Folders'));
+    await tester.pumpAndSettle();
+
+    expect(foldersPressed, 1);
+  });
+
+  testWidgets(
+      'sort favorites manager dialog renders pinned and available panes', (
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind('comic')!;
@@ -285,7 +397,8 @@ void main() {
     expect(find.text('Manage Sorting Favorites'), findsOneWidget);
     expect(find.text('Pinned Favorites'), findsOneWidget);
     expect(find.text('Available Favorites'), findsOneWidget);
-    expect(find.byKey(const ValueKey('sortFavorite_series_issue')), findsOneWidget);
+    expect(find.byKey(const ValueKey('sortFavorite_series_issue')),
+        findsOneWidget);
     expect(
       find.byKey(const ValueKey('availableSortFavorite_updated_desc')),
       findsOneWidget,

@@ -53,6 +53,10 @@ void main() {
     expect(find.text('3 of 12 selected'), findsOneWidget);
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Duplicate'), findsOneWidget);
+    expect(find.text('Loan'), findsOneWidget);
+    expect(find.text('Move to owned'), findsOneWidget);
+    expect(find.text('Move to wishlist'), findsOneWidget);
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Update values'), findsOneWidget);
 
@@ -103,11 +107,41 @@ void main() {
     expect(find.text('Export to CSV / TXT'), findsOneWidget);
     expect(find.text('Export to XML'), findsOneWidget);
     expect(find.text('Export for CovrPrice'), findsOneWidget);
-    expect(find.text('Duplicate'), findsOneWidget);
-    expect(find.text('Loan'), findsOneWidget);
     expect(find.text('Transfer Field Data'), findsOneWidget);
     expect(find.text('Update Key Info'), findsOneWidget);
     expect(find.text('Update from Core'), findsOneWidget);
+    final duplicateOverflowItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Duplicate',
+    );
+    final loanOverflowItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Loan',
+    );
+    final moveToOwnedOverflowItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Move to owned',
+    );
+    final moveToWishlistOverflowItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Move to wishlist',
+    );
+    expect(duplicateOverflowItem, findsNothing);
+    expect(loanOverflowItem, findsNothing);
+    expect(moveToOwnedOverflowItem, findsNothing);
+    expect(moveToWishlistOverflowItem, findsNothing);
   });
 
   testWidgets(
@@ -143,14 +177,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
 
-    final loanItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is PopupMenuItem &&
-          widget.enabled == false &&
-          widget.child is ListTile &&
-          (widget.child as ListTile).title is Text &&
-          ((widget.child as ListTile).title as Text).data == 'Loan',
-    );
     final transferItem = find.byWidgetPredicate(
       (widget) =>
           widget is PopupMenuItem &&
@@ -159,14 +185,6 @@ void main() {
           (widget.child as ListTile).title is Text &&
           ((widget.child as ListTile).title as Text).data ==
               'Transfer Field Data',
-    );
-    final duplicateItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is PopupMenuItem &&
-          widget.enabled == false &&
-          widget.child is ListTile &&
-          (widget.child as ListTile).title is Text &&
-          ((widget.child as ListTile).title as Text).data == 'Duplicate',
     );
     final updateFromCoreItem = find.byWidgetPredicate(
       (widget) =>
@@ -183,10 +201,24 @@ void main() {
     final removeButton = tester.widget<TextButton>(
       find.widgetWithText(TextButton, 'Remove'),
     );
+    final duplicateButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Duplicate'),
+    );
+    final loanButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Loan'),
+    );
+    final moveToOwnedButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Move to owned'),
+    );
+    final moveToWishlistButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Move to wishlist'),
+    );
     expect(editButton.onPressed, isNull);
     expect(removeButton.onPressed, isNull);
-    expect(duplicateItem, findsOneWidget);
-    expect(loanItem, findsOneWidget);
+    expect(duplicateButton.onPressed, isNull);
+    expect(loanButton.onPressed, isNull);
+    expect(moveToOwnedButton.onPressed, isNotNull);
+    expect(moveToWishlistButton.onPressed, isNotNull);
     expect(transferItem, findsOneWidget);
     expect(updateFromCoreItem, findsOneWidget);
   });
