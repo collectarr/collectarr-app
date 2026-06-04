@@ -106,10 +106,10 @@ void main() {
     final callbacks = (
       onClearSelection: () {},
       onSelectAll: () {},
-      onBulkEdit: () {},
+      onBulkEdit: null,
       onPrintToPdf: () {},
       onExportCsvTxt: () {},
-      onBulkDuplicate: () {},
+      onBulkDuplicate: null,
       onBulkLoan: null,
       onTransferFieldData: null,
       onBulkUpdateValues: null,
@@ -148,7 +148,20 @@ void main() {
           ((widget.child as ListTile).title as Text).data ==
               'Transfer Field Data',
     );
+    final duplicateItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.enabled == false &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Duplicate',
+    );
 
+    final editButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Edit'),
+    );
+    expect(editButton.onPressed, isNull);
+    expect(duplicateItem, findsOneWidget);
     expect(loanItem, findsOneWidget);
     expect(transferItem, findsOneWidget);
   });

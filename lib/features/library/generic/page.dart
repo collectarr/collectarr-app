@@ -645,11 +645,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                           _selectAllVisible(projection);
                         }
                       },
-                      onBulkEdit: () => bulkEditFlow(projection),
+                      onBulkEdit: _hasOwnedItemsInSelection(projection)
+                          ? () => bulkEditFlow(projection)
+                          : null,
                       onPrintToPdf: () => printSelectedReportFlow(projection),
                       onExportCsvTxt: () =>
                           shareSelectedCollectionFlow(projection),
-                      onBulkDuplicate: () => bulkDuplicateFlow(projection),
+                      onBulkDuplicate: _hasOwnedItemsInSelection(projection)
+                          ? () => bulkDuplicateFlow(projection)
+                          : null,
                       onBulkLoan: _hasLoanableOwnedItemsInSelection(projection)
                           ? () => showLoanSelectionFlow(projection)
                           : null,

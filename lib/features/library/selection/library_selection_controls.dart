@@ -17,7 +17,7 @@ enum _BulkAction {
 typedef LibrarySelectionCallbacks = ({
   VoidCallback onClearSelection,
   VoidCallback onSelectAll,
-  VoidCallback onBulkEdit,
+  VoidCallback? onBulkEdit,
   VoidCallback? onPrintToPdf,
   VoidCallback? onExportCsvTxt,
   VoidCallback? onBulkDuplicate,
