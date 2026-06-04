@@ -33,6 +33,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onTransferFieldData,
     this.onPrintReport,
     this.onShareCollection,
+    this.onCompareMetadataWithServer,
   });
 
   final LibraryTypeConfig type;
@@ -56,6 +57,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final VoidCallback? onCompareMetadataWithServer;
 
   @override
   Widget build(BuildContext context) {
@@ -101,8 +103,7 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Find duplicates',
             section: 'Browse',
             onSelected: () {
-              final groups =
-                  findDuplicateShelfGroups(shelfState!.entries);
+              final groups = findDuplicateShelfGroups(shelfState!.entries);
               showDuplicateItemsDialog(context, duplicateGroups: groups);
             },
           ),
@@ -133,8 +134,7 @@ class LibraryToolsButton extends StatelessWidget {
           section: 'Collection',
           enabled: counts.missingCover > 0,
           trailing: Text(counts.missingCover.toString()),
-          onSelected: () =>
-              onQuickViewSelected(LibraryQuickView.missingCovers),
+          onSelected: () => onQuickViewSelected(LibraryQuickView.missingCovers),
         ),
         LibraryUtilityMenuAction(
           icon: Icons.manage_search,
@@ -145,6 +145,13 @@ class LibraryToolsButton extends StatelessWidget {
           onSelected: () =>
               onQuickViewSelected(LibraryQuickView.missingMetadata),
         ),
+        if (onCompareMetadataWithServer != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.compare_arrows,
+            label: 'Compare metadata with server...',
+            section: 'Collection',
+            onSelected: onCompareMetadataWithServer!,
+          ),
         LibraryUtilityMenuAction(
           icon: Icons.auto_fix_high,
           label: 'Pre-fill settings...',

@@ -16,10 +16,12 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +78,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _mediaConditionController;
   late final TextEditingController _soundTypeController;
   late final TextEditingController _vinylColorController;
+  late final TextEditingController _vinylWeightController;
   late final TextEditingController _rpmController;
   late final TextEditingController _sparsController;
   late final TextEditingController _instrumentController;
@@ -84,7 +87,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _countryController;
   late final TextEditingController _languageController;
   late final TextEditingController _genresController;
-  late final TextEditingController _creditsController;
   late final TextEditingController _coverController;
   late final TextEditingController _thumbnailController;
   late final TextEditingController _synopsisController;
@@ -131,6 +133,21 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   int _nextTrackRowId = 1;
   List<_EditableMusicTrackRow> _editableTrackRows = [];
   final Map<int, _MusicDiscDraft> _discDrafts = <int, _MusicDiscDraft>{};
+  late List<String> _composerCredits;
+  late List<String> _conductorCredits;
+  late List<String> _orchestraCredits;
+  late List<String> _chorusCredits;
+  late List<String> _songwriterCredits;
+  late List<String> _producerCredits;
+  late List<String> _engineerCredits;
+  late List<_MusicianCreditEntry> _musicianCredits;
+  late List<String> _genreValues;
+  late List<String> _soundValues;
+  String _rpmSelection = '';
+  bool _isFetchingServerSnapshot = false;
+  String? _serverSnapshotError;
+  CatalogItem? _serverSnapshotItem;
+  bool _didAutoOpenMetadataCompare = false;
 
   bool get _isOwned => widget.request.ownedItem != null;
 
@@ -218,6 +235,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _vinylColorController = TextEditingController(
       text: item.music?.vinylColor ?? '',
     );
+    _vinylWeightController = TextEditingController(
+      text: item.music?.vinylWeight ?? '',
+    );
     _rpmController = TextEditingController(text: item.music?.rpm ?? '');
     _sparsController = TextEditingController(text: item.music?.spars ?? '');
     _instrumentController = TextEditingController(
@@ -232,8 +252,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _genresController = TextEditingController(
       text: (item.genres ?? const <String>[]).join(', '),
     );
-    _creditsController =
-        TextEditingController(text: _creatorLines(item.creators));
+    _genreValues = _splitCommaList(_genresController.text) ?? const <String>[];
+    _soundValues =
+        _splitCommaList(_soundTypeController.text) ?? const <String>[];
     _coverController = _draft.coverController;
     _thumbnailController = _draft.thumbnailController;
     _synopsisController = _draft.synopsisController;
@@ -283,9 +304,40 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
     _isLive = item.music?.isLive ?? false;
+    _composerCredits = _creatorsForRole(const ['composer']);
+    _conductorCredits = _creatorsForRole(const ['conductor']);
+    _orchestraCredits = _creatorsForRole(const ['orchestra', 'ensemble']);
+    _chorusCredits = _creatorsForRole(const ['chorus', 'choir']);
+    _songwriterCredits = _creatorsForRole(const ['songwriter', 'lyricist']);
+    _producerCredits = _creatorsForRole(const ['producer']);
+    _engineerCredits = _creatorsForRole(const ['engineer']);
+    _musicianCredits = _musicianEntriesForRole();
+    final normalizedRpm = _rpmController.text.trim();
+    _rpmSelection = switch (normalizedRpm) {
+      '' => '',
+      '33' || '45' || '78' => normalizedRpm,
+      _ => 'custom',
+    };
     _initializeTrackEditingState();
 
     unawaited(_loadAvailableLocations());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoOpenMetadataCompareIfRequested();
+    });
+  }
+
+  void _autoOpenMetadataCompareIfRequested() {
+    if (_didAutoOpenMetadataCompare ||
+        !widget.request.openMetadataCompareOnOpen ||
+        !mounted) {
+      return;
+    }
+    _didAutoOpenMetadataCompare = true;
+    final peopleTabIndex = _tabSpecs.indexWhere((tab) => tab.id == 'people');
+    if (peopleTabIndex >= 0 && peopleTabIndex < _tabController.length) {
+      _tabController.animateTo(peopleTabIndex);
+    }
+    unawaited(_compareWithServerSnapshot());
   }
 
   @override
@@ -301,13 +353,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _mediaConditionController.dispose();
     _soundTypeController.dispose();
     _vinylColorController.dispose();
+    _vinylWeightController.dispose();
     _rpmController.dispose();
     _sparsController.dispose();
     _instrumentController.dispose();
     _compositionController.dispose();
     _collectionStatusController.dispose();
     _genresController.dispose();
-    _creditsController.dispose();
     _disposeTrackEditingState();
     _draft.dispose();
     super.dispose();
@@ -378,128 +430,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   Widget _mainTab() {
-    final music = _item.music;
-    final tracks = music?.tracks ?? const <CatalogTrack>[];
-    final trackCount = music?.trackCount ?? tracks.length;
     final sections = _tabSectionIds('main');
     return EditTabShell(
       children: [
-        _musicMainOverviewCard(trackCount: trackCount),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            EditSummaryPill(
-              label: 'Artist',
-              value: _artistController.text,
-              icon: Icons.mic_none_outlined,
-              width: 180,
-            ),
-            EditSummaryPill(
-              label: 'Format',
-              value: _physicalFormatForId(_physicalFormatId)?.label ?? '—',
-              icon: Icons.album_outlined,
-              width: 120,
-            ),
-            EditSummaryPill(
-              label: 'Tracks',
-              value: '$trackCount',
-              icon: Icons.queue_music_outlined,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Released',
-              value: _releaseYearController.text.trim().isEmpty
-                  ? '—'
-                  : _releaseYearController.text.trim(),
-              icon: Icons.event_outlined,
-              width: 100,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
         for (final sectionId in sections) _sectionFor(sectionId),
       ],
-    );
-  }
-
-  Widget _musicMainOverviewCard({required int trackCount}) {
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: kEditTextMuted,
-          fontWeight: FontWeight.w700,
-        );
-    final valueStyle = Theme.of(context).textTheme.bodyMedium;
-
-    Widget line(String label, String? value) {
-      final normalized = (value ?? '').trim();
-      return Row(
-        children: [
-          SizedBox(width: 108, child: Text(label, style: style)),
-          Expanded(
-            child: Text(
-              normalized.isEmpty ? '—' : normalized,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: valueStyle,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Material(
-      color: kEditPanelRaised,
-      shape: Border(
-        left: BorderSide(color: _accent, width: 2),
-        top: BorderSide(color: kEditDivider),
-        right: BorderSide(color: kEditDivider),
-        bottom: BorderSide(color: kEditDivider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final stacked = constraints.maxWidth < 820;
-            final left = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                line('Artist', _artistController.text),
-                const SizedBox(height: 8),
-                line('Format', _physicalFormatForId(_physicalFormatId)?.label),
-                const SizedBox(height: 8),
-                line('Tracks', '$trackCount'),
-              ],
-            );
-            final right = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                line('Release date', _releaseDateController.text),
-                const SizedBox(height: 8),
-                line('Release year', _releaseYearController.text),
-                const SizedBox(height: 8),
-                line('Language', _languageController.text),
-              ],
-            );
-            if (stacked) {
-              return Column(
-                children: [
-                  left,
-                  const SizedBox(height: 10),
-                  right,
-                ],
-              );
-            }
-            return Row(
-              children: [
-                Expanded(child: left),
-                const SizedBox(width: 12),
-                Expanded(child: right),
-              ],
-            );
-          },
-        ),
-      ),
     );
   }
 
@@ -601,6 +536,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                       emptyToNull(value ?? '') == null ? 'Enter a title' : null,
                 ),
                 _field(controller: _artistController, label: 'Artist'),
+                _field(controller: _sortKeyController, label: 'Sort title'),
               ]),
               const SizedBox(height: 10),
               _denseFields([
@@ -658,8 +594,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   hint: 'YYYY-MM-DD',
                   validator: optionalDateValidator,
                 ),
-                _field(controller: _studioController, label: 'Studio / Label'),
-                _field(controller: _packagingController, label: 'Packaging'),
+                _field(controller: _studioController, label: 'Studio'),
               ]),
               if (widget.request.type.releaseFields.showPhysicalFormat &&
                   widget.request.physicalFormats.isNotEmpty) ...[
@@ -697,25 +632,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 _field(controller: _countryController, label: 'Country'),
                 _field(controller: _languageController, label: 'Language'),
               ]),
-              const SizedBox(height: 10),
-              _denseFields([
-                _field(
-                  controller: _soundTypeController,
-                  label: 'Sound',
-                ),
-                _field(
-                  controller: _vinylColorController,
-                  label: 'Vinyl color',
-                ),
-                _field(
-                  controller: _mediaConditionController,
-                  label: 'Media condition',
-                ),
-                _field(
-                  controller: _collectionStatusController,
-                  label: 'Collection status',
-                ),
-              ]),
             ],
           ),
         );
@@ -723,15 +639,28 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         return EditSection(
           title: 'Genres',
           accent: _accent,
-          child: TextFormField(
-            controller: _genresController,
-            minLines: 3,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              labelText: 'Genres',
-              hintText: 'Comma separated',
-              alignLabelWithHint: true,
-            ),
+          child: _EditableChipField(
+            key: const ValueKey('music-genres-chip-field'),
+            label: 'Genres',
+            values: _genreValues,
+            suggestions: const [
+              'Rock',
+              'Metal',
+              'Pop',
+              'Jazz',
+              'Classical',
+              'Blues',
+              'Folk',
+              'Hip Hop',
+              'Electronic',
+              'Soundtrack',
+            ],
+            onChanged: (values) {
+              setState(() {
+                _genreValues = values;
+                _genresController.text = values.join(', ');
+              });
+            },
           ),
         );
       case 'music_classical_metadata':
@@ -744,9 +673,49 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 _field(
                     controller: _compositionController, label: 'Composition'),
                 _field(controller: _instrumentController, label: 'Instrument'),
-                _field(controller: _rpmController, label: 'RPM'),
-                _field(controller: _sparsController, label: 'SPARS'),
               ]),
+            ],
+          ),
+        );
+      case 'music_format_audio_details':
+        return EditSection(
+          title: 'Format & audio',
+          accent: _accent,
+          child: Column(
+            children: [
+              _denseFields([
+                _rpmField(),
+                _field(controller: _sparsController, label: 'SPARS'),
+                _field(controller: _vinylColorController, label: 'Vinyl color'),
+                _field(
+                    controller: _vinylWeightController, label: 'Vinyl weight'),
+                _field(
+                    controller: _mediaConditionController,
+                    label: 'Media condition'),
+                _field(controller: _packagingController, label: 'Packaging'),
+                _field(controller: _boxSetController, label: 'Box set'),
+                _field(controller: _extrasController, label: 'Extras'),
+              ]),
+              const SizedBox(height: 10),
+              _EditableChipField(
+                key: const ValueKey('music-sound-chip-field'),
+                label: 'Sound',
+                values: _soundValues,
+                suggestions: const [
+                  'Stereo',
+                  'Mono',
+                  'Dolby Digital',
+                  'Dolby Atmos',
+                  'DTS',
+                  'Analog',
+                ],
+                onChanged: (values) {
+                  setState(() {
+                    _soundValues = values;
+                    _soundTypeController.text = values.join(', ');
+                  });
+                },
+              ),
               const SizedBox(height: 10),
               Material(
                 color: Colors.transparent,
@@ -762,16 +731,48 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           ),
         );
       case 'music_composer':
-        return _readonlyListSection('Composer', _creatorsForRole(['composer']));
+        return EditSection(
+          title: 'Composer',
+          accent: _accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _serverSnapshotCompareSection(
+                showCreatorsDiff: true,
+                showDiscsDiff: true,
+              ),
+              const SizedBox(height: 10),
+              _EditableNameListField(
+                key: const ValueKey('music-composer-edit'),
+                values: _composerCredits,
+                onChanged: (values) =>
+                    setState(() => _composerCredits = values),
+                hintText: 'Add composer',
+              ),
+            ],
+          ),
+        );
       case 'music_conductor':
-        return _readonlyListSection(
-            'Conductor', _creatorsForRole(['conductor']));
+        return _editableRoleSection(
+          title: 'Conductor',
+          values: _conductorCredits,
+          onChanged: (values) => setState(() => _conductorCredits = values),
+          hintText: 'Add conductor',
+        );
       case 'music_orchestra':
-        return _readonlyListSection(
-            'Orchestra', _creatorsForRole(['orchestra', 'ensemble']));
+        return _editableRoleSection(
+          title: 'Orchestra',
+          values: _orchestraCredits,
+          onChanged: (values) => setState(() => _orchestraCredits = values),
+          hintText: 'Add orchestra',
+        );
       case 'music_chorus':
-        return _readonlyListSection(
-            'Chorus', _creatorsForRole(['chorus', 'choir']));
+        return _editableRoleSection(
+          title: 'Chorus',
+          values: _chorusCredits,
+          onChanged: (values) => setState(() => _chorusCredits = values),
+          hintText: 'Add chorus',
+        );
       case 'music_track_listing':
         return EditSection(
           title: 'Track listing',
@@ -779,6 +780,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _serverSnapshotCompareSection(
+                showCreatorsDiff: true,
+                showDiscsDiff: true,
+              ),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
@@ -960,6 +966,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   _field(
                       controller: _gradeController, label: 'Media condition'),
                   _field(
+                    controller: _collectionStatusController,
+                    label: 'Collection status',
+                  ),
+                  _field(
                     controller: _quantityController,
                     label: 'Quantity',
                     validator: positiveIntValidator,
@@ -971,7 +981,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     controller: _purchaseStoreController,
                     label: 'Purchase store',
                   ),
-                  _field(controller: _boxSetController, label: 'Box set'),
                   _field(
                     controller: _storageDeviceController,
                     label: 'Storage device',
@@ -1012,7 +1021,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 const SizedBox(height: 10),
                 _denseFields([
                   _field(controller: _signedByController, label: 'Signed by'),
-                  _field(controller: _extrasController, label: 'Extras'),
+                  _field(controller: _tagsController, label: 'Tags'),
                 ]),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -1230,20 +1239,34 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             label: 'Artist / display name',
           ),
         );
-      case 'music_credits':
-        return EditSection(
-          title: 'Credits',
-          accent: _accent,
-          child: TextFormField(
-            controller: _creditsController,
-            minLines: 8,
-            maxLines: 14,
-            decoration: const InputDecoration(
-              labelText: 'Credits',
-              hintText: 'One per line, optionally Role: Name',
-              alignLabelWithHint: true,
-            ),
-          ),
+      case 'music_songwriter':
+        return _editableRoleSection(
+          title: 'Songwriter',
+          values: _songwriterCredits,
+          onChanged: (values) => setState(() => _songwriterCredits = values),
+          hintText: 'Add songwriter',
+        );
+      case 'music_producer':
+        return _editableRoleSection(
+          title: 'Producer',
+          values: _producerCredits,
+          onChanged: (values) => setState(() => _producerCredits = values),
+          hintText: 'Add producer',
+        );
+      case 'music_engineer':
+        return _editableRoleSection(
+          title: 'Engineer',
+          values: _engineerCredits,
+          onChanged: (values) => setState(() => _engineerCredits = values),
+          hintText: 'Add engineer',
+        );
+      case 'music_musician':
+        return _editableMusicianRoleSection(
+          title: 'Musician',
+          values: _musicianCredits,
+          onChanged: (values) => setState(() => _musicianCredits = values),
+          hintName: 'Musician name',
+          hintInstrument: 'Instrument',
         );
       case 'music_remote_cover_assets':
         return EditSection(
@@ -1967,20 +1990,80 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  Widget _readonlyListSection(String title, List<String> values) {
+  Widget _editableRoleSection({
+    required String title,
+    required List<String> values,
+    required ValueChanged<List<String>> onChanged,
+    required String hintText,
+  }) {
     return EditSection(
       title: title,
       accent: _accent,
-      child: values.isEmpty
-          ? const Text('No entries', style: TextStyle(color: kEditTextMuted))
-          : Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final value in values)
-                  EditMiniBadge(value, color: kAppSurfaceBright),
-              ],
-            ),
+      child: _EditableNameListField(
+        key: ValueKey(title),
+        values: values,
+        onChanged: onChanged,
+        hintText: hintText,
+      ),
+    );
+  }
+
+  Widget _editableMusicianRoleSection({
+    required String title,
+    required List<_MusicianCreditEntry> values,
+    required ValueChanged<List<_MusicianCreditEntry>> onChanged,
+    required String hintName,
+    required String hintInstrument,
+  }) {
+    return EditSection(
+      title: title,
+      accent: _accent,
+      child: _EditableMusicianListField(
+        key: ValueKey(title),
+        values: values,
+        onChanged: onChanged,
+        hintName: hintName,
+        hintInstrument: hintInstrument,
+      ),
+    );
+  }
+
+  Widget _rpmField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'RPM',
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
+        const SizedBox(height: 6),
+        SegmentedButton<String>(
+          segments: const [
+            ButtonSegment(value: '', label: Text('N/A')),
+            ButtonSegment(value: '33', label: Text('33')),
+            ButtonSegment(value: '45', label: Text('45')),
+            ButtonSegment(value: '78', label: Text('78')),
+            ButtonSegment(value: 'custom', label: Text('Custom')),
+          ],
+          selected: {_rpmSelection},
+          onSelectionChanged: (selected) {
+            final choice = selected.first;
+            setState(() {
+              _rpmSelection = choice;
+              if (choice != 'custom') {
+                _rpmController.text = choice;
+              } else if (_rpmController.text.trim().isEmpty) {
+                _rpmController.text = '';
+              }
+            });
+          },
+          showSelectedIcon: false,
+        ),
+        if (_rpmSelection == 'custom') ...[
+          const SizedBox(height: 8),
+          _field(controller: _rpmController, label: 'Custom RPM'),
+        ],
+      ],
     );
   }
 
@@ -2113,6 +2196,365 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
+  Future<void> _compareWithServerSnapshot() async {
+    if (_isFetchingServerSnapshot) {
+      return;
+    }
+    setState(() {
+      _isFetchingServerSnapshot = true;
+      _serverSnapshotError = null;
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final snapshot = await api.getMetadataItem(kind: 'music', id: _item.id);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverSnapshotItem = snapshot;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverSnapshotError = 'Failed to fetch server snapshot: $error';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFetchingServerSnapshot = false;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> get _serverCreators =>
+      _serverSnapshotItem?.creators?.cast<Map<String, dynamic>>() ??
+      const <Map<String, dynamic>>[];
+
+  List<CatalogDisc> get _serverDiscs =>
+      _serverSnapshotItem?.music?.discs ?? const <CatalogDisc>[];
+
+  List<String> _creatorsForRoleFromSource(
+    List<Map<String, dynamic>> source,
+    List<String> keywords,
+  ) {
+    final values = <String>[];
+    for (final creator in source) {
+      final role = creator['role']?.toString().toLowerCase() ?? '';
+      if (!keywords.any(role.contains)) {
+        continue;
+      }
+      final name = creator['name']?.toString().trim();
+      if (name == null || name.isEmpty || values.contains(name)) {
+        continue;
+      }
+      values.add(name);
+    }
+    return values;
+  }
+
+  List<_MusicianCreditEntry> _musicianEntriesFromSource(
+    List<Map<String, dynamic>> source,
+  ) {
+    final values = <_MusicianCreditEntry>[];
+    for (final creator in source) {
+      final role = creator['role']?.toString().trim() ?? '';
+      if (!_roleMatches(
+        role,
+        const ['musician', 'performer', 'instrumentalist'],
+      )) {
+        continue;
+      }
+      final rawName = creator['name']?.toString().trim() ?? '';
+      if (rawName.isEmpty) {
+        continue;
+      }
+      values.add(
+        _MusicianCreditEntry(
+          name: rawName,
+          instrument: _extractInstrumentFromRole(role),
+        ),
+      );
+    }
+    return values;
+  }
+
+  List<_MusicianCreditEntry> _cloneMusicians(
+    List<_MusicianCreditEntry> values,
+  ) {
+    return [
+      for (final value in values)
+        _MusicianCreditEntry(name: value.name, instrument: value.instrument),
+    ];
+  }
+
+  String _formatNameList(List<String> values) {
+    final normalized = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+    return normalized.isEmpty ? '—' : normalized.join('\n');
+  }
+
+  String _formatMusicianList(List<_MusicianCreditEntry> values) {
+    final normalized =
+        values.where((value) => value.name.trim().isNotEmpty).map((value) {
+      final instrument = value.instrument?.trim();
+      if (instrument == null || instrument.isEmpty) {
+        return value.name.trim();
+      }
+      return '${value.name.trim()} ($instrument)';
+    }).toList(growable: false);
+    return normalized.isEmpty ? '—' : normalized.join('\n');
+  }
+
+  String _formatDisc(CatalogDisc? disc) {
+    if (disc == null) {
+      return '—';
+    }
+    final lines = <String>[];
+    if ((disc.discName ?? '').trim().isNotEmpty) {
+      lines.add('Title: ${disc.discName!.trim()}');
+    }
+    if ((disc.storageDevice ?? '').trim().isNotEmpty) {
+      lines.add('Storage: ${disc.storageDevice!.trim()}');
+    }
+    if ((disc.slot ?? '').trim().isNotEmpty) {
+      lines.add('Slot: ${disc.slot!.trim()}');
+    }
+    if ((disc.matrixSideA ?? '').trim().isNotEmpty) {
+      lines.add('Matrix A: ${disc.matrixSideA!.trim()}');
+    }
+    if ((disc.matrixSideB ?? '').trim().isNotEmpty) {
+      lines.add('Matrix B: ${disc.matrixSideB!.trim()}');
+    }
+    if (lines.isEmpty) {
+      return 'Disc #${disc.discNumber}';
+    }
+    return lines.join('\n');
+  }
+
+  Widget _serverSnapshotCompareSection({
+    required bool showCreatorsDiff,
+    required bool showDiscsDiff,
+  }) {
+    final localDiscs = {
+      for (final disc in _buildSubmittedDiscMetadata()) disc.discNumber: disc,
+    };
+    final serverDiscs = {
+      for (final disc in _serverDiscs) disc.discNumber: disc,
+    };
+    final allDiscNumbers =
+        <int>{...localDiscs.keys, ...serverDiscs.keys}.toList()..sort();
+
+    final serverComposer =
+        _creatorsForRoleFromSource(_serverCreators, const ['composer']);
+    final serverConductor =
+        _creatorsForRoleFromSource(_serverCreators, const ['conductor']);
+    final serverOrchestra = _creatorsForRoleFromSource(
+      _serverCreators,
+      const ['orchestra', 'ensemble'],
+    );
+    final serverChorus = _creatorsForRoleFromSource(
+      _serverCreators,
+      const ['chorus', 'choir'],
+    );
+    final serverSongwriter = _creatorsForRoleFromSource(
+      _serverCreators,
+      const ['songwriter', 'lyricist'],
+    );
+    final serverProducer =
+        _creatorsForRoleFromSource(_serverCreators, const ['producer']);
+    final serverEngineer =
+        _creatorsForRoleFromSource(_serverCreators, const ['engineer']);
+    final serverMusicians = _musicianEntriesFromSource(_serverCreators);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OutlinedButton.icon(
+          onPressed:
+              _isFetchingServerSnapshot ? null : _compareWithServerSnapshot,
+          icon: _isFetchingServerSnapshot
+              ? const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.compare_arrows, size: 16),
+          label: const Text('Compare full item with server'),
+        ),
+        if (_serverSnapshotError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _serverSnapshotError!,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.redAccent),
+          ),
+        ],
+        if (_serverSnapshotItem != null && showCreatorsDiff) ...[
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Creators diff (Local vs Server)',
+            entries: [
+              MetadataDiffEntry(
+                label: 'Composer',
+                localValue: _formatNameList(_composerCredits),
+                serverValue: _formatNameList(serverComposer),
+                onAccept: () => setState(
+                  () => _composerCredits = List<String>.from(serverComposer),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Conductor',
+                localValue: _formatNameList(_conductorCredits),
+                serverValue: _formatNameList(serverConductor),
+                onAccept: () => setState(
+                  () => _conductorCredits = List<String>.from(serverConductor),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Orchestra',
+                localValue: _formatNameList(_orchestraCredits),
+                serverValue: _formatNameList(serverOrchestra),
+                onAccept: () => setState(
+                  () => _orchestraCredits = List<String>.from(serverOrchestra),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Chorus',
+                localValue: _formatNameList(_chorusCredits),
+                serverValue: _formatNameList(serverChorus),
+                onAccept: () => setState(
+                  () => _chorusCredits = List<String>.from(serverChorus),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Songwriter',
+                localValue: _formatNameList(_songwriterCredits),
+                serverValue: _formatNameList(serverSongwriter),
+                onAccept: () => setState(
+                  () =>
+                      _songwriterCredits = List<String>.from(serverSongwriter),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Producer',
+                localValue: _formatNameList(_producerCredits),
+                serverValue: _formatNameList(serverProducer),
+                onAccept: () => setState(
+                  () => _producerCredits = List<String>.from(serverProducer),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Engineer',
+                localValue: _formatNameList(_engineerCredits),
+                serverValue: _formatNameList(serverEngineer),
+                onAccept: () => setState(
+                  () => _engineerCredits = List<String>.from(serverEngineer),
+                ),
+              ),
+              MetadataDiffEntry(
+                label: 'Musicians',
+                localValue: _formatMusicianList(_musicianCredits),
+                serverValue: _formatMusicianList(serverMusicians),
+                onAccept: () => setState(
+                  () => _musicianCredits = _cloneMusicians(serverMusicians),
+                ),
+              ),
+            ],
+            onAcceptAll: () {
+              setState(() {
+                _composerCredits = List<String>.from(serverComposer);
+                _conductorCredits = List<String>.from(serverConductor);
+                _orchestraCredits = List<String>.from(serverOrchestra);
+                _chorusCredits = List<String>.from(serverChorus);
+                _songwriterCredits = List<String>.from(serverSongwriter);
+                _producerCredits = List<String>.from(serverProducer);
+                _engineerCredits = List<String>.from(serverEngineer);
+                _musicianCredits = _cloneMusicians(serverMusicians);
+              });
+            },
+          ),
+        ],
+        if (_serverSnapshotItem != null && showDiscsDiff) ...[
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Discs diff (Local vs Server)',
+            entries: [
+              for (final discNumber in allDiscNumbers)
+                MetadataDiffEntry(
+                  label: 'Disc #$discNumber',
+                  localValue: _formatDisc(localDiscs[discNumber]),
+                  serverValue: _formatDisc(serverDiscs[discNumber]),
+                  onAccept: serverDiscs[discNumber] == null
+                      ? null
+                      : () => _applyServerDisc(discNumber),
+                ),
+            ],
+            onAcceptAll: serverDiscs.isEmpty ? null : _applyAllServerDiscs,
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _ensureDiscExists(int discNumber) {
+    if (_editableTrackRows.any((row) => row.discNumber == discNumber)) {
+      return;
+    }
+    _editableTrackRows.add(
+      _createTrackRow(
+        discNumber: discNumber,
+        position: 1,
+        title: '',
+        artist: '',
+        durationLabel: '',
+      ),
+    );
+    _renumberDiscTracks(discNumber);
+  }
+
+  void _applyServerDiscValue(CatalogDisc disc) {
+    _ensureDiscExists(disc.discNumber);
+    final draft = _discDraftFor(disc.discNumber);
+    draft.discTitleController.text =
+        disc.discName ?? 'Disc #${disc.discNumber}';
+    draft.storageDeviceController.text = disc.storageDevice ?? '';
+    draft.slotController.text = disc.slot ?? '';
+    draft.matrixSideAController.text = disc.matrixSideA ?? '';
+    draft.matrixSideBController.text = disc.matrixSideB ?? '';
+  }
+
+  void _applyServerDisc(int discNumber) {
+    CatalogDisc? serverDisc;
+    for (final disc in _serverDiscs) {
+      if (disc.discNumber == discNumber) {
+        serverDisc = disc;
+        break;
+      }
+    }
+    if (serverDisc == null) {
+      return;
+    }
+    setState(() => _applyServerDiscValue(serverDisc!));
+  }
+
+  void _applyAllServerDiscs() {
+    if (_serverDiscs.isEmpty) {
+      return;
+    }
+    setState(() {
+      for (final disc in _serverDiscs) {
+        _applyServerDiscValue(disc);
+      }
+    });
+  }
+
   List<String> _creatorsForRole(List<String> keywords) {
     final values = <String>[];
     for (final creator in _item.creators ?? const <Map<String, dynamic>>[]) {
@@ -2129,44 +2571,120 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return values;
   }
 
-  String _creatorLines(List<Map<String, dynamic>>? creators) {
-    if (creators == null || creators.isEmpty) {
-      return '';
+  List<_MusicianCreditEntry> _musicianEntriesForRole() {
+    final values = <_MusicianCreditEntry>[];
+    for (final creator in _item.creators ?? const <Map<String, dynamic>>[]) {
+      final role = creator['role']?.toString().trim() ?? '';
+      if (!_roleMatches(
+        role,
+        const ['musician', 'performer', 'instrumentalist'],
+      )) {
+        continue;
+      }
+      final rawName = creator['name']?.toString().trim() ?? '';
+      if (rawName.isEmpty) {
+        continue;
+      }
+      final instrument = _extractInstrumentFromRole(role);
+      values.add(
+        _MusicianCreditEntry(
+          name: rawName,
+          instrument: instrument,
+        ),
+      );
     }
-    return creators
-        .map((entry) {
-          final name = entry['name']?.toString().trim() ?? '';
-          final role = entry['role']?.toString().trim() ?? '';
-          if (name.isEmpty) {
-            return '';
-          }
-          return role.isEmpty ? name : '$role: $name';
-        })
-        .where((line) => line.isNotEmpty)
-        .join('\n');
+    return values;
   }
 
-  List<Map<String, dynamic>>? _creatorList(String value) {
-    final lines = value
-        .split(RegExp(r'\r?\n'))
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList(growable: false);
-    if (lines.isEmpty) {
+  String? _extractInstrumentFromRole(String role) {
+    final match = RegExp(r'\(([^)]+)\)').firstMatch(role);
+    final value = match?.group(1)?.trim();
+    return (value == null || value.isEmpty) ? null : value;
+  }
+
+  List<Map<String, dynamic>>? _buildCreatorsForSubmit() {
+    final original = (_item.creators ?? const <Map<String, dynamic>>[])
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: true);
+
+    final managedKeywords = <String>[
+      'composer',
+      'conductor',
+      'orchestra',
+      'ensemble',
+      'chorus',
+      'choir',
+      'songwriter',
+      'lyricist',
+      'producer',
+      'engineer',
+      'musician',
+      'performer',
+      'instrumentalist',
+    ];
+    final preserved = <Map<String, dynamic>>[
+      for (final entry in original)
+        if (!_roleMatches(entry['role']?.toString(), managedKeywords)) entry,
+    ];
+    final rebuilt = <Map<String, dynamic>>[
+      ...preserved,
+      ..._roleEntries(_composerCredits, 'Composer'),
+      ..._roleEntries(_conductorCredits, 'Conductor'),
+      ..._roleEntries(_orchestraCredits, 'Orchestra'),
+      ..._roleEntries(_chorusCredits, 'Chorus'),
+      ..._roleEntries(_songwriterCredits, 'Songwriter'),
+      ..._roleEntries(_producerCredits, 'Producer'),
+      ..._roleEntries(_engineerCredits, 'Engineer'),
+      ..._musicianRoleEntries(_musicianCredits),
+    ];
+    if (rebuilt.isEmpty) {
       return null;
     }
+    final deduped = <Map<String, dynamic>>[];
+    final seen = <String>{};
+    for (final entry in rebuilt) {
+      final name = (entry['name']?.toString() ?? '').trim();
+      if (name.isEmpty) {
+        continue;
+      }
+      final role = (entry['role']?.toString() ?? '').trim();
+      final key = '${role.toLowerCase()}|${name.toLowerCase()}';
+      if (!seen.add(key)) {
+        continue;
+      }
+      deduped.add({
+        if (role.isNotEmpty) 'role': role,
+        'name': name,
+      });
+    }
+    return deduped.isEmpty ? null : deduped;
+  }
+
+  List<Map<String, dynamic>> _roleEntries(List<String> names, String role) {
     return [
-      for (final line in lines)
-        if (line.contains(':'))
+      for (final name in names)
+        if (name.trim().isNotEmpty) {'role': role, 'name': name.trim()},
+    ];
+  }
+
+  List<Map<String, dynamic>> _musicianRoleEntries(
+    List<_MusicianCreditEntry> values,
+  ) {
+    return [
+      for (final value in values)
+        if (value.name.trim().isNotEmpty)
           {
-            'role': line.split(':').first.trim(),
-            'name': line.split(':').skip(1).join(':').trim(),
-          }
-        else
-          {'name': line},
-    ]
-        .where((entry) => (entry['name'] as String).isNotEmpty)
-        .toList(growable: false);
+            'role': value.instrument?.trim().isNotEmpty == true
+                ? 'Musician (${value.instrument!.trim()})'
+                : 'Musician',
+            'name': value.name.trim(),
+          },
+    ];
+  }
+
+  bool _roleMatches(String? role, List<String> keywords) {
+    final normalized = role?.toLowerCase() ?? '';
+    return keywords.any(normalized.contains);
   }
 
   List<String>? _splitCommaList(String value) {
@@ -2257,6 +2775,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       spars: emptyToNull(_sparsController.text),
       soundType: emptyToNull(_soundTypeController.text),
       vinylColor: emptyToNull(_vinylColorController.text),
+      vinylWeight: emptyToNull(_vinylWeightController.text),
       mediaCondition: emptyToNull(_mediaConditionController.text),
       instrument: emptyToNull(_instrumentController.text),
       isLive: _isLive,
@@ -2282,7 +2801,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           series: updatedSeries.hasData ? updatedSeries : null,
           music: updatedMusic.hasData ? updatedMusic : null,
           publishing: updatedPublishing.hasData ? updatedPublishing : null,
-          creators: _creatorList(_creditsController.text),
+          creators: _buildCreatorsForSubmit(),
           genres: _splitCommaList(_genresController.text),
           country: emptyToNull(_countryController.text),
           language: emptyToNull(_languageController.text),
@@ -2447,6 +2966,345 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             formats: widget.request.physicalFormats,
           );
   }
+}
+
+class _EditableNameListField extends StatefulWidget {
+  const _EditableNameListField({
+    super.key,
+    required this.values,
+    required this.onChanged,
+    required this.hintText,
+  });
+
+  final List<String> values;
+  final ValueChanged<List<String>> onChanged;
+  final String hintText;
+
+  @override
+  State<_EditableNameListField> createState() => _EditableNameListFieldState();
+}
+
+class _EditableNameListFieldState extends State<_EditableNameListField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _addValue() {
+    final value = _controller.text.trim();
+    if (value.isEmpty) {
+      return;
+    }
+    final exists = widget.values.any(
+      (existing) => existing.toLowerCase() == value.toLowerCase(),
+    );
+    if (!exists) {
+      widget.onChanged([...widget.values, value]);
+    }
+    _controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final values = widget.values;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (values.isEmpty)
+          const Text('No entries', style: TextStyle(color: kEditTextMuted))
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (var index = 0; index < values.length; index++)
+                InputChip(
+                  label: Text(values[index]),
+                  onDeleted: () {
+                    final updated = List<String>.from(values)..removeAt(index);
+                    widget.onChanged(updated);
+                  },
+                ),
+            ],
+          ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                onSubmitted: (_) => _addValue(),
+                decoration: InputDecoration(
+                  labelText: widget.hintText,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: _addValue,
+              icon: const Icon(Icons.add),
+              label: const Text('Add'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _EditableChipField extends StatefulWidget {
+  const _EditableChipField({
+    super.key,
+    required this.label,
+    required this.values,
+    required this.suggestions,
+    required this.onChanged,
+  });
+
+  final String label;
+  final List<String> values;
+  final List<String> suggestions;
+  final ValueChanged<List<String>> onChanged;
+
+  @override
+  State<_EditableChipField> createState() => _EditableChipFieldState();
+}
+
+class _EditableChipFieldState extends State<_EditableChipField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _addValue([String? initial]) {
+    final raw = (initial ?? _controller.text).trim();
+    if (raw.isEmpty) {
+      return;
+    }
+    final exists = widget.values.any(
+      (value) => value.toLowerCase() == raw.toLowerCase(),
+    );
+    if (!exists) {
+      widget.onChanged([...widget.values, raw]);
+    }
+    _controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final values = widget.values;
+    final suggestions = widget.suggestions
+        .where(
+          (candidate) => !values.any(
+            (value) => value.toLowerCase() == candidate.toLowerCase(),
+          ),
+        )
+        .toList(growable: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (values.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (var index = 0; index < values.length; index++)
+                InputChip(
+                  label: Text(values[index]),
+                  onDeleted: () {
+                    final updated = List<String>.from(values)..removeAt(index);
+                    widget.onChanged(updated);
+                  },
+                ),
+            ],
+          ),
+        if (values.isNotEmpty) const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                onSubmitted: (_) => _addValue(),
+                decoration: InputDecoration(
+                  labelText: 'Add ${widget.label}',
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: _addValue,
+              icon: const Icon(Icons.add),
+              label: const Text('Add'),
+            ),
+          ],
+        ),
+        if (suggestions.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final suggestion in suggestions)
+                ActionChip(
+                  label: Text(suggestion),
+                  onPressed: () => _addValue(suggestion),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _EditableMusicianListField extends StatefulWidget {
+  const _EditableMusicianListField({
+    super.key,
+    required this.values,
+    required this.onChanged,
+    required this.hintName,
+    required this.hintInstrument,
+  });
+
+  final List<_MusicianCreditEntry> values;
+  final ValueChanged<List<_MusicianCreditEntry>> onChanged;
+  final String hintName;
+  final String hintInstrument;
+
+  @override
+  State<_EditableMusicianListField> createState() =>
+      _EditableMusicianListFieldState();
+}
+
+class _EditableMusicianListFieldState
+    extends State<_EditableMusicianListField> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _instrumentController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _instrumentController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _instrumentController.dispose();
+    super.dispose();
+  }
+
+  void _addValue() {
+    final name = _nameController.text.trim();
+    final instrument = emptyToNull(_instrumentController.text);
+    if (name.isEmpty) {
+      return;
+    }
+    final exists = widget.values.any(
+      (value) =>
+          value.name.toLowerCase() == name.toLowerCase() &&
+          (value.instrument ?? '').toLowerCase() ==
+              (instrument ?? '').toLowerCase(),
+    );
+    if (!exists) {
+      widget.onChanged([
+        ...widget.values,
+        _MusicianCreditEntry(
+          name: name,
+          instrument: instrument,
+        ),
+      ]);
+    }
+    _nameController.clear();
+    _instrumentController.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final values = widget.values;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (values.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (var index = 0; index < values.length; index++)
+                InputChip(
+                  label: Text(values[index].label),
+                  onDeleted: () {
+                    final updated = List<_MusicianCreditEntry>.from(values)
+                      ..removeAt(index);
+                    widget.onChanged(updated);
+                  },
+                ),
+            ],
+          ),
+        if (values.isNotEmpty) const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: widget.hintName),
+                onSubmitted: (_) => _addValue(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: _instrumentController,
+                decoration: InputDecoration(labelText: widget.hintInstrument),
+                onSubmitted: (_) => _addValue(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: _addValue,
+              icon: const Icon(Icons.add),
+              label: const Text('Add'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _MusicianCreditEntry {
+  const _MusicianCreditEntry({
+    required this.name,
+    this.instrument,
+  });
+
+  final String name;
+  final String? instrument;
+
+  String get label => instrument == null || instrument!.trim().isEmpty
+      ? name
+      : '$name (${instrument!.trim()})';
 }
 
 class _EditableMusicTrackRow {

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -69,6 +70,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
+    this.onCompareMetadataWithServer,
     this.groupMode,
     this.folderPreset,
     this.pinnedFolderPresets = const [],
@@ -127,6 +129,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final VoidCallback? onCompareMetadataWithServer;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupMode? groupMode;
   final List<LibraryFolderPreset> pinnedFolderPresets;
@@ -212,11 +215,13 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 pinnedSortFavoriteIds: pinnedSortFavoriteIds,
                                 onSortFavoriteSelected: onSortFavoriteSelected,
                                 onManageFavoritesPressed: onManageSortFavorites,
+                                iconOnly: true,
                               ),
                             const _LibraryDesktopToolbarSeparator(),
                             LibraryViewModeDropdown(
                               viewMode: viewState.viewMode,
                               onChanged: onViewModeChanged,
+                              iconOnly: true,
                             ),
                             if (supportsMediaReleaseSplit) ...[
                               const _LibraryDesktopToolbarSeparator(),
@@ -241,10 +246,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                     ),
                                   ],
                                   child: _LibraryToolbarSecondaryTrigger(
-                                    label: browserMode ==
+                                    icon: browserMode ==
                                             LibraryWorkspaceBrowserMode.media
-                                        ? mediaScopeLabel
-                                        : 'Releases',
+                                        ? Icons.layers_outlined
+                                        : Icons.inventory_2_outlined,
+                                    tooltip: browserMode ==
+                                            LibraryWorkspaceBrowserMode.media
+                                        ? 'Scope: $mediaScopeLabel'
+                                        : 'Scope: Releases',
                                   ),
                                 ),
                               ),
@@ -253,6 +262,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             LibraryDetailsLayoutDropdown(
                               detailsLayout: viewState.detailsLayout,
                               onChanged: onDetailsLayoutChanged,
+                              iconOnly: true,
                             ),
                             if (viewState.viewMode == LibraryViewMode.list) ...[
                               const _LibraryDesktopToolbarSeparator(),
@@ -351,6 +361,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onReassignIndex: onReassignIndex,
                     onPrintReport: onPrintReport,
                     onShareCollection: onShareCollection,
+                    onCompareMetadataWithServer: onCompareMetadataWithServer,
                   ),
                 ],
               ),
@@ -376,52 +387,94 @@ class _LibraryDesktopInlineSelectionToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Row(
-      children: [
-        TextButton(
-          onPressed: callbacks.onClearSelection,
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            foregroundColor: palette.textPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          child: const Text('Cancel'),
+    final secondaryButtonStyle = TextButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      foregroundColor: palette.textPrimary,
+      backgroundColor: librarySelectionToolbarSecondaryAction(context),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(color: librarySelectionToolbarBorder(context)),
+      ),
+    );
+    final primaryButtonStyle = TextButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      foregroundColor: palette.textPrimary,
+      backgroundColor: librarySelectionToolbarPrimaryAction(context),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(
+          color: librarySelectionToolbarBorder(context).withValues(alpha: 0.82),
         ),
-        const SizedBox(width: 4),
-        TextButton(
-          onPressed: callbacks.onSelectAll,
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            foregroundColor: palette.textPrimary,
-            backgroundColor: Colors.white.withValues(alpha: 0.08),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          child: const Text('All'),
+      ),
+    );
+    return SizedBox(
+      height: 34,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: librarySelectionToolbarSurface(context),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: librarySelectionToolbarBorder(context)),
         ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: LibrarySelectionControls(
-              callbacks: callbacks,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$selectedCount of $totalSelectableCount selected',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: palette.textPrimary,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Row(
+            children: [
+              TextButton(
+                onPressed: callbacks.onClearSelection,
+                style: secondaryButtonStyle,
+                child: const Text('Cancel'),
               ),
+              const SizedBox(width: 4),
+              Tooltip(
+                message: 'Select all visible items',
+                child: TextButton(
+                  onPressed: callbacks.onSelectAll,
+                  style: primaryButtonStyle,
+                  child: const Text('Select all'),
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 18,
+                margin: const EdgeInsets.symmetric(horizontal: 6),
+                color: librarySelectionToolbarBorder(context),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: LibrarySelectionControls(
+                    callbacks: callbacks,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: librarySelectionToolbarCountChip(context),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: librarySelectionToolbarBorder(context)
+                        .withValues(alpha: 0.86),
+                  ),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Text(
+                    '$selectedCount of $totalSelectableCount selected',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: palette.textPrimary,
+                        ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -437,22 +490,7 @@ class _LibraryDesktopToolbarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: palette.textMuted,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.22,
-              ),
-        ),
-        const SizedBox(width: 3),
-        child,
-      ],
-    );
+    return child;
   }
 }
 
@@ -477,15 +515,17 @@ class _LibraryDesktopToolbarSeparator extends StatelessWidget {
 
 class _LibraryToolbarSecondaryTrigger extends StatelessWidget {
   const _LibraryToolbarSecondaryTrigger({
-    required this.label,
+    required this.icon,
+    this.tooltip,
   });
 
-  final String label;
+  final IconData icon;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return DecoratedBox(
+    final trigger = DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panelRaised,
         borderRadius: BorderRadius.circular(4),
@@ -498,13 +538,7 @@ class _LibraryToolbarSecondaryTrigger extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: palette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
+              Icon(icon, size: 16, color: palette.textPrimary),
               const SizedBox(width: 6),
               const Icon(Icons.arrow_drop_down, size: 16),
             ],
@@ -512,6 +546,10 @@ class _LibraryToolbarSecondaryTrigger extends StatelessWidget {
         ),
       ),
     );
+    if (tooltip == null || tooltip!.trim().isEmpty) {
+      return trigger;
+    }
+    return Tooltip(message: tooltip, child: trigger);
   }
 }
 
@@ -619,12 +657,20 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     required this.onScan,
     required this.onRefreshMetadata,
     required this.onSearchChanged,
+    this.onSearchInputChanged,
     required this.onClearBucket,
+    this.onClearSearch,
+    this.searchActive = false,
+    this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
+    this.onSearchSuggestionSelected,
     this.onCollectionStatusScopeChanged,
     this.selectedLetter,
     this.onLetterSelected,
     this.onRandomPick,
     this.onScanCover,
+    this.searchTarget = LibrarySearchTarget.all,
+    this.searchTargetOptions = const <LibrarySearchTarget>[],
+    this.onSearchTargetChanged,
   });
 
   final LibraryTypeConfig type;
@@ -641,9 +687,18 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
   final VoidCallback onScan;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String>? onSearchInputChanged;
   final VoidCallback onClearBucket;
+  final VoidCallback? onClearSearch;
+  final bool searchActive;
+  final List<LibraryToolbarSearchSuggestion> searchSuggestions;
+  final ValueChanged<LibraryToolbarSearchSuggestion>?
+      onSearchSuggestionSelected;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
+  final LibrarySearchTarget searchTarget;
+  final List<LibrarySearchTarget> searchTargetOptions;
+  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -712,8 +767,15 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   selectedFilterLabel: selectedBucket,
                   onSearch: onSearchChanged,
                   onClearFilter: onClearBucket,
-                  onChanged: onSearchChanged,
+                  onChanged: onSearchInputChanged,
                   selectionColor: appPalette(context).selection,
+                  searchTarget: searchTarget,
+                  searchTargetOptions: searchTargetOptions,
+                  onSearchTargetChanged: onSearchTargetChanged,
+                  onClearSearch: onClearSearch,
+                  searchActive: searchActive,
+                  suggestions: searchSuggestions,
+                  onSuggestionSelected: onSearchSuggestionSelected,
                 ),
               ),
             ),
@@ -754,14 +816,37 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final secondaryButtonStyle = TextButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      foregroundColor: palette.textPrimary,
+      backgroundColor: librarySelectionToolbarSecondaryAction(context),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(color: librarySelectionToolbarBorder(context)),
+      ),
+    );
+    final primaryButtonStyle = TextButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      foregroundColor: palette.textPrimary,
+      backgroundColor: librarySelectionToolbarPrimaryAction(context),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(
+          color: librarySelectionToolbarBorder(context).withValues(alpha: 0.82),
+        ),
+      ),
+    );
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: palette.selection.withValues(alpha: 0.34),
+        color: librarySelectionToolbarSurface(context),
+        borderRadius: BorderRadius.circular(8),
         border: Border(
           bottom: showBottomBorder
-              ? BorderSide(color: palette.selection.withValues(alpha: 0.72))
+              ? BorderSide(color: librarySelectionToolbarBorder(context))
               : BorderSide.none,
         ),
       ),
@@ -769,34 +854,23 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
         children: [
           TextButton(
             onPressed: callbacks.onClearSelection,
-            style: TextButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              foregroundColor: palette.textPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
+            style: secondaryButtonStyle,
             child: const Text('Cancel'),
           ),
-          TextButton(
-            onPressed: callbacks.onSelectAll,
-            style: TextButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              foregroundColor: palette.textPrimary,
-              backgroundColor: Colors.white.withValues(alpha: 0.08),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
+          const SizedBox(width: 4),
+          Tooltip(
+            message: 'Select all visible items',
+            child: TextButton(
+              onPressed: callbacks.onSelectAll,
+              style: primaryButtonStyle,
+              child: const Text('Select all'),
             ),
-            child: const Text('All'),
           ),
           Container(
             width: 1,
             height: 20,
             margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: palette.divider,
+            color: librarySelectionToolbarBorder(context),
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -807,12 +881,25 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Text(
-            '$selectedCount of $totalSelectableCount selected',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: palette.textPrimary,
-                ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: librarySelectionToolbarCountChip(context),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: librarySelectionToolbarBorder(context)
+                    .withValues(alpha: 0.86),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Text(
+                '$selectedCount of $totalSelectableCount selected',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: palette.textPrimary,
+                    ),
+              ),
+            ),
           ),
         ],
       ),
@@ -832,6 +919,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     required this.onAdd,
     required this.onScan,
     required this.onSearchChanged,
+    this.onSearchInputChanged,
     required this.onRefreshMetadata,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
@@ -871,12 +959,18 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.onEditGradePickList,
     this.onEditTagPickList,
     this.onEditSort,
+    this.onCompareMetadataWithServer,
     this.availableLetters = const {},
     this.selectedLetter,
     this.onLetterSelected,
     this.selectionCallbacks,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
+    this.searchTarget = LibrarySearchTarget.all,
+    this.searchTargetOptions = const <LibrarySearchTarget>[],
+    this.onSearchTargetChanged,
+    this.onClearSearch,
+    this.searchActive = false,
   });
 
   final LibraryTypeConfig type;
@@ -888,6 +982,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onScan;
   final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String>? onSearchInputChanged;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
@@ -928,12 +1023,18 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
+  final VoidCallback? onCompareMetadataWithServer;
   final Set<String> availableLetters;
   final String? selectedLetter;
   final ValueChanged<String?>? onLetterSelected;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
   final int totalSelectableCount;
+  final LibrarySearchTarget searchTarget;
+  final List<LibrarySearchTarget> searchTargetOptions;
+  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
+  final VoidCallback? onClearSearch;
+  final bool searchActive;
 
   @override
   Widget build(BuildContext context) {
@@ -955,18 +1056,68 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                   hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
                   leading: const Icon(Icons.search),
                   trailing: selectedBucket == null
-                      ? null
+                      ? (searchActive
+                          ? [
+                              IconButton(
+                                tooltip: 'Clear search',
+                                onPressed: onClearSearch,
+                                icon: const Icon(Icons.clear, size: 18),
+                              ),
+                            ]
+                          : null)
                       : [
+                          if (searchActive)
+                            IconButton(
+                              tooltip: 'Clear search',
+                              onPressed: onClearSearch,
+                              icon: const Icon(Icons.clear, size: 18),
+                            ),
                           IconButton(
                             tooltip: 'Clear scope chip',
                             onPressed: onClearBucket,
                             icon: const Icon(Icons.clear, size: 18),
                           ),
                         ],
-                  onChanged: onSearchChanged,
+                  onChanged: onSearchInputChanged,
                   onSubmitted: onSearchChanged,
                 ),
               ),
+              if (searchTargetOptions.isNotEmpty &&
+                  onSearchTargetChanged != null) ...[
+                const SizedBox(width: 6),
+                PopupMenuButton<LibrarySearchTarget>(
+                  tooltip: 'Search scope',
+                  onSelected: onSearchTargetChanged,
+                  itemBuilder: (context) => [
+                    for (final option in searchTargetOptions)
+                      PopupMenuItem<LibrarySearchTarget>(
+                        value: option,
+                        child: Text(_librarySearchTargetLabel(option)),
+                      ),
+                  ],
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.tune, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          _librarySearchTargetLabel(searchTarget),
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(width: 8),
               IconButton.filled(
                 style: IconButton.styleFrom(
@@ -1005,6 +1156,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 onEditGradePickList: onEditGradePickList,
                 onEditTagPickList: onEditTagPickList,
                 onEditSort: onEditSort,
+                onCompareMetadataWithServer: onCompareMetadataWithServer,
               ),
             ],
           ),
@@ -1275,4 +1427,12 @@ class _ScopeDropdownTrigger extends StatelessWidget {
       ),
     );
   }
+}
+
+String _librarySearchTargetLabel(LibrarySearchTarget target) {
+  return switch (target) {
+    LibrarySearchTarget.all => 'Albums & Tracks',
+    LibrarySearchTarget.mediaOnly => 'Albums',
+    LibrarySearchTarget.tracksOnly => 'Tracks',
+  };
 }

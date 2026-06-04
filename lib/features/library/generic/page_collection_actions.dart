@@ -26,20 +26,59 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     await runCollectionAction((actions) => actions.removeOwned(item));
   }
 
+  bool supportsMetadataCompareWithServer() {
+    final kind = widget.type.workspace.kind.apiValue;
+    return kind == 'comic' || kind == 'music';
+  }
+
+  LibraryProjectionItem? selectedProjectionItemFor(
+      LibraryProjection projection) {
+    final selectedId = _selectedId;
+    if (selectedId == null) {
+      return null;
+    }
+    for (final item in projection.filteredItems) {
+      if (item.entry.id == selectedId) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  Future<void> compareMetadataWithServerFlow(
+    LibraryProjection projection, {
+    LibraryProjectionItem? item,
+  }) async {
+    if (!supportsMetadataCompareWithServer()) {
+      return;
+    }
+    final targetItem = item ?? selectedProjectionItemFor(projection);
+    if (targetItem == null) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select an item first.')),
+      );
+      return;
+    }
+    await showEditDialog(
+      targetItem,
+      targetItem.source.ownedItem,
+      openMetadataCompareOnOpen: true,
+    );
+  }
+
   Future<void> handleItemContextMenu(
     LibraryProjection projection,
     LibraryProjectionItem item,
     Offset position,
   ) async {
-    final contextSelectionIds = contextMenuSelectionItemIds(
-      _selection.itemIds,
-      clickedId: item.entry.id,
-    );
+    final contextSelectionIds = <String>{item.entry.id};
     final selectionChanged =
         contextSelectionIds.length != _selection.itemIds.length ||
-        !contextSelectionIds.containsAll(_selection.itemIds);
-    if (selectionChanged ||
-        _selectedId != item.entry.id) {
+            !contextSelectionIds.containsAll(_selection.itemIds);
+    if (selectionChanged || _selectedId != item.entry.id) {
       _rebuild(() {
         _selection = _selection.replace(contextSelectionIds);
         _selectedId = item.entry.id;
@@ -56,6 +95,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
       entry: item.entry,
       accent: widget.accent,
       selectedCount: contextSelectionIds.length,
+      supportsMetadataCompare: supportsMetadataCompareWithServer(),
     );
     if (result == null || !mounted) return;
     switch (result.action) {
@@ -65,6 +105,11 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
           return;
         }
         unawaited(showEditDialog(item, item.source.ownedItem));
+      case LibraryItemContextAction.compareMetadataWithServer:
+        if (isBatchSelection) {
+          return;
+        }
+        await compareMetadataWithServerFlow(projection, item: item);
       case LibraryItemContextAction.duplicate:
         if (isBatchSelection) {
           await bulkDuplicateFlow(projection);
@@ -290,7 +335,8 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     ref.invalidate(shelfProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Duplicated $count item${count == 1 ? '' : 's'}')),
+        SnackBar(
+            content: Text('Duplicated $count item${count == 1 ? '' : 's'}')),
       );
     }
   }
@@ -345,7 +391,8 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
 
       _rebuild(() => _isScanningCover = false);
 
-      final results = (response['results'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      final results =
+          (response['results'] as List?)?.cast<Map<String, dynamic>>() ?? [];
       final queryPhash = response['query_phash'] as String? ?? '';
 
       if (results.isEmpty) {
@@ -405,7 +452,8 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
                         ),
                       )
                     : const Icon(Icons.image, size: 40),
-                title: Text('$entityType / ${entityId.length > 8 ? '${entityId.substring(0, 8)}…' : entityId}'),
+                title: Text(
+                    '$entityType / ${entityId.length > 8 ? '${entityId.substring(0, 8)}…' : entityId}'),
                 subtitle: Text('$confidence% match (distance: $distance)'),
                 onTap: () {
                   Navigator.of(dialogContext).pop();
