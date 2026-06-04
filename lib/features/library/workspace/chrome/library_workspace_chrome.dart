@@ -65,6 +65,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               const VerticalDivider(width: 1)
             else
               LibraryResizableDivider(
+                style: LibraryResizableDividerStyle.clzDragger,
                 color: accentDivider,
                 onDragDelta: (delta) => onRightWidthChanged!(
                   clampLibraryPaneWidth(
@@ -76,7 +77,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               ),
             SizedBox(
               width: effectiveRightWidth,
-                child: inspectorPane,
+              child: inspectorPane,
             ),
           ],
         ),
@@ -99,7 +100,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               ),
             SizedBox(
               height: effectiveBottomHeight,
-                child: inspectorPane,
+              child: inspectorPane,
             ),
           ],
         ),
