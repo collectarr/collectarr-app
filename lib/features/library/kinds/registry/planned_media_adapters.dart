@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
@@ -130,11 +131,16 @@ LibraryMediaAdapter plannedMediaAdapter(
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   LibraryWorkspaceConfig config,
 ) {
+  final coverGridHeightFactor = switch (config.kind) {
+    CatalogMediaKind.music => 1.0,
+    _ => 1.53,
+  };
   return LibraryWorkspaceViewProfile(
     config: config,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
     minCoverSize: kPlannedMediaMinCoverSize,
     maxCoverSize: kPlannedMediaMaxCoverSize,
+    coverGridHeightFactor: coverGridHeightFactor,
     presetConfig: plannedMediaViewPresetConfig,
     clampColumnWidth: clampPlannedMediaTableColumnWidth,
     defaultDetailsLayout: LibraryDetailsLayout.bottom,

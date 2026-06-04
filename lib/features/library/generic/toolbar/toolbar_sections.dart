@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/selection/library_selection_cont
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -216,10 +217,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                           itemBuilder: (context) => [
                             PopupMenuItem(
                               value: LibraryWorkspaceBrowserMode.media,
+                              height: kLibraryToolbarPopupItemHeight,
                               child: Text(mediaScopeLabel),
                             ),
                             const PopupMenuItem(
                               value: LibraryWorkspaceBrowserMode.releases,
+                              height: kLibraryToolbarPopupItemHeight,
                               child: Text('Releases'),
                             ),
                           ],
@@ -360,9 +363,8 @@ class _LibraryDesktopToolbarSection extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: palette.textMuted,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: 0.22,
-                fontSize: 10,
               ),
         ),
         const SizedBox(width: 3),
@@ -407,21 +409,24 @@ class _LibraryToolbarSecondaryTrigger extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: palette.divider),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(Icons.arrow_drop_down, size: 16),
-          ],
+      child: SizedBox(
+        height: kLibraryToolbarTextDropdownHeight,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: palette.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.arrow_drop_down, size: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -769,14 +774,13 @@ class _LibraryWorkspaceMenuButton extends StatelessWidget {
             items.add(
               PopupMenuItem<_LibraryWorkspaceDestination>(
                 enabled: false,
-                height: 24,
+                height: kLibraryToolbarPopupSectionHeaderHeight,
                 child: Text(
                   destination.section.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.24,
-                  ),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.24,
+                      ),
                 ),
               ),
             );
@@ -785,6 +789,7 @@ class _LibraryWorkspaceMenuButton extends StatelessWidget {
           items.add(
             PopupMenuItem<_LibraryWorkspaceDestination>(
               value: destination,
+              height: kLibraryToolbarPopupItemHeight,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -962,10 +967,10 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: palette.panel,
+        color: palette.selection.withValues(alpha: 0.34),
         border: Border(
           bottom: showBottomBorder
-              ? BorderSide(color: palette.divider)
+              ? BorderSide(color: palette.selection.withValues(alpha: 0.72))
               : BorderSide.none,
         ),
       ),
@@ -975,7 +980,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
             onPressed: callbacks.onClearSelection,
             style: TextButton.styleFrom(
               visualDensity: VisualDensity.compact,
-              foregroundColor: palette.textMuted,
+              foregroundColor: palette.textPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
@@ -988,6 +993,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
             style: TextButton.styleFrom(
               visualDensity: VisualDensity.compact,
               foregroundColor: palette.textPrimary,
+              backgroundColor: Colors.white.withValues(alpha: 0.08),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
@@ -1014,7 +1020,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
             '$selectedCount of $totalSelectableCount selected',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: palette.textMuted,
+                  color: palette.textPrimary,
                 ),
           ),
         ],
@@ -1346,8 +1352,6 @@ class LibraryToolbarChromeRow extends StatelessWidget {
   final bool canJumpToIssue;
   final ValueChanged<String>? onJumpToIssueSubmitted;
 
-  static const double _statusScopeDropdownHeight = 36;
-
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
@@ -1397,7 +1401,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                     for (final scope in LibraryCollectionStatusScope.values)
                       PopupMenuItem<LibraryCollectionStatusScope>(
                         value: scope,
-                        height: _statusScopeDropdownHeight,
+                        height: kLibraryToolbarTextDropdownHeight,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: LibraryCollectionStatusScopeMenuItem(
                           scope: scope,
@@ -1411,7 +1415,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                   child: _ScopeDropdownTrigger(
                     scope: collectionStatusScope,
                     accent: accent,
-                    height: _statusScopeDropdownHeight,
+                    height: kLibraryToolbarTextDropdownHeight,
                     textStyle: dropdownTextStyle,
                   ),
                 ),

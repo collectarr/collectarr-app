@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('cover tile renders scope, score, and selection markers',
+  testWidgets('cover tile renders cover overlays and remains tappable',
       (tester) async {
     var tapped = false;
 
@@ -29,7 +29,9 @@ void main() {
                 collectionStatus: 'for_sale',
                 updatedAt: DateTime.utc(2026),
               ),
+              active: false,
               selected: true,
+              selectionMode: true,
               onTap: () => tapped = true,
             ),
           ),
@@ -37,16 +39,17 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Superman, Vol. 4 #8A'));
+    await tester.tap(find.byType(LibraryCoverTile));
 
     expect(tapped, isTrue);
     expect(find.byTooltip('For sale'), findsOneWidget);
-    expect(find.text('8.0'), findsOneWidget);
+    expect(find.byIcon(Icons.sell_outlined), findsOneWidget);
     expect(find.byIcon(Icons.check), findsOneWidget);
-    expect(find.text('2016'), findsOneWidget);
+    expect(find.text('Superman, Vol. 4 #8A'), findsNothing);
+    expect(find.text('2016'), findsNothing);
   });
 
-  testWidgets('cover tile renders resolved and original video titles',
+  testWidgets('cover tile hides secondary metadata labels in covers mode',
       (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -63,7 +66,9 @@ void main() {
                 originalTitle: 'Sen to Chihiro no Kamikakushi',
                 updatedAt: DateTime.utc(2026),
               ),
+              active: false,
               selected: false,
+              selectionMode: false,
               onTap: () {},
             ),
           ),
@@ -71,8 +76,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Spirited Away'), findsWidgets);
-    expect(find.text('Sen to Chihiro no Kamikakushi'), findsOneWidget);
+    expect(find.text('Spirited Away'), findsOneWidget);
+    expect(find.text('Sen to Chihiro no Kamikakushi'), findsNothing);
+    expect(find.text('movie-1'), findsNothing);
   });
 
   testWidgets('cover tile shows hover selection affordance and edit action',
@@ -93,7 +99,9 @@ void main() {
                   title: 'Spirited Away',
                   updatedAt: DateTime.utc(2026),
                 ),
+                active: false,
                 selected: false,
+                selectionMode: false,
                 onTap: () {},
                 onEditTap: () => editTapped = true,
               ),
@@ -117,5 +125,69 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(editTapped, isTrue);
+  });
+
+  testWidgets('active inspection state does not show checked selection',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: SizedBox(
+            width: 140,
+            height: 220,
+            child: LibraryCoverTile(
+              entry: LibraryWorkspaceEntry(
+                id: 'music-1',
+                mediaType: 'music',
+                title: 'Lupus Dei',
+                updatedAt: DateTime.utc(2026),
+              ),
+              active: true,
+              selected: false,
+              selectionMode: false,
+              onTap: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.check), findsNothing);
+    expect(find.byIcon(Icons.check_box_outline_blank), findsNothing);
+  });
+
+  testWidgets('selection toggle tap does not trigger tile tap', (tester) async {
+    var tileTapped = false;
+    var toggleTapped = false;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: SizedBox(
+            width: 140,
+            height: 220,
+            child: LibraryCoverTile(
+              entry: LibraryWorkspaceEntry(
+                id: 'music-2',
+                mediaType: 'music',
+                title: 'Bible of the Beast',
+                updatedAt: DateTime.utc(2026),
+              ),
+              active: false,
+              selected: false,
+              selectionMode: true,
+              onTap: () => tileTapped = true,
+              onSelectionToggleTap: () => toggleTapped = true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.check_box_outline_blank));
+    await tester.pumpAndSettle();
+
+    expect(toggleTapped, isTrue);
+    expect(tileTapped, isFalse);
   });
 }

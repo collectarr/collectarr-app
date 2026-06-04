@@ -13,14 +13,16 @@ import 'support/library_add_test_harness.dart';
 import '../../../helpers/test_constants.dart';
 
 void main() {
-  testWidgets('manual add flow surfaces digital ownership type', (tester) async {
+  testWidgets('manual action opens edit modal with save action',
+      (tester) async {
     SharedPreferences.setMockInitialValues({});
     configureLibraryAddDesktopViewport(tester);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          mediaCatalogProvider.overrideWith((ref) async => fallbackMediaCatalog),
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -39,22 +41,8 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField &&
-            widget.decoration?.labelText == 'Physical format',
-      ),
-      'Digital',
-    );
-    await pumpUntilSettled(tester);
-
-    expect(
-      find.text(
-        'Owned copies created from this draft will be saved as Digital copy.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Save'), findsWidgets);
+    expect(find.byTooltip('Close'), findsWidgets);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();

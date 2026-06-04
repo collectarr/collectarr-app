@@ -1,6 +1,3 @@
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -13,11 +10,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryCoverTile extends ConsumerStatefulWidget {
   const LibraryCoverTile({
     required this.entry,
+    required this.active,
     required this.selected,
+    required this.selectionMode,
     required this.onTap,
+    this.onSelectionToggleTap,
     this.onDoubleTap,
     this.onEditTap,
     this.onSecondaryTapUp,
+    this.coverSize = 128,
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.selectionColor = kAppHighlight,
@@ -26,11 +27,15 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
   });
 
   final LibraryWorkspaceEntry entry;
+  final bool active;
   final bool selected;
+  final bool selectionMode;
   final VoidCallback onTap;
+  final VoidCallback? onSelectionToggleTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onEditTap;
   final GestureTapUpCallback? onSecondaryTapUp;
+  final double coverSize;
   final Color selectedColor;
   final Color accentColor;
   final Color selectionColor;
@@ -43,76 +48,31 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
 class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   bool _hovered = false;
 
-  LibraryMetadataPresentation? _metadataPresentationForEntry(
-    LibraryWorkspaceEntry entry,
-  ) {
-    final type = collectarrLibraryTypes.byKind(entry.mediaType);
-    if (type == null) {
-      return null;
-    }
-    return type.presentation.builder.buildMetadataPresentation(
-      singularLabel: type.singularLabel,
-      mediaFields: type.mediaFields,
-      releaseFields: type.releaseFields,
-      entry: entry,
-      includeIdentityFacts: true,
-      tapFor: (_) => null,
-    );
-  }
-
-  String? _metadataFactValue(
-    LibraryMetadataPresentation? presentation,
-    String label,
-  ) {
-    if (presentation == null) {
-      return null;
-    }
-    for (final fact in presentation.allFacts) {
-      if (fact.label == label) {
-        final value = fact.value.trim();
-        if (value.isNotEmpty && value != '-') {
-          return value;
-        }
-      }
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
-    final metadataPresentation = _metadataPresentationForEntry(entry);
+    final active = widget.active;
     final selected = widget.selected;
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
     final flat = uiPrefs.flatCovers;
-    final showTitles = uiPrefs.showCoverTitles;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
-      ? palette.selection
-      : widget.selectedColor;
-    final resolvedSelectionColor =
-      widget.selectionColor == kAppHighlight
-          ? widget.accentColor
-          : widget.selectionColor;
-    final resolvedMutedTextColor =
-        widget.mutedTextColor == kAppTextMuted
-            ? palette.textMuted
-            : widget.mutedTextColor;
-    final selectedTextColor = ThemeData.estimateBrightnessForColor(
-          resolvedSelectedColor,
-        ) ==
-        Brightness.dark
-      ? Colors.white
-      : Theme.of(context).colorScheme.onSurface;
-    final selectedSecondaryTextColor = selectedTextColor.withValues(alpha: 0.72);
-    final showSelectionToggle = selected || _hovered;
+        ? palette.selection
+        : widget.selectedColor;
+    final resolvedSelectionColor = widget.selectionColor == kAppHighlight
+        ? widget.accentColor
+        : widget.selectionColor;
+    final showSelectionToggle = widget.selectionMode || selected || _hovered;
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, entry);
-    final scoreLabel = _audienceScoreLabel(metadataPresentation);
     final comic = entry.comic;
     final auxiliaryBadges = _auxiliaryBadges(entry);
     final strongSelection =
-      selected && entry.browseScope != LibraryBrowserScope.title;
+        selected && entry.browseScope != LibraryBrowserScope.title;
+    final selectedBorderWidth =
+        (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
+    final activeBorderWidth =
+        (widget.coverSize * 0.02).clamp(2.0, 3.5).toDouble();
 
     return RepaintBoundary(
       child: Container(
@@ -124,23 +84,39 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
               : (flat ? Colors.transparent : palette.field),
           borderRadius: flat ? BorderRadius.zero : kAppRadiusSmall,
           border: flat
-              ? (selected
+              ? (selected || active
                   ? Border.all(
-                      color: widget.accentColor,
-                      width: strongSelection ? 3 : 2,
+                      color: selected
+                          ? widget.accentColor
+                          : widget.accentColor.withValues(alpha: 0.82),
+                      width: selected
+                          ? (strongSelection
+                              ? selectedBorderWidth + 1
+                              : selectedBorderWidth)
+                          : activeBorderWidth,
                     )
                   : null)
               : Border.all(
-                  color: selected ? widget.accentColor : palette.cardBorder,
-                  width: selected ? (strongSelection ? 3 : 2) : 1,
+                  color: selected
+                      ? widget.accentColor
+                      : active
+                          ? widget.accentColor.withValues(alpha: 0.82)
+                          : palette.cardBorder,
+                  width: selected
+                      ? (strongSelection
+                          ? selectedBorderWidth + 1
+                          : selectedBorderWidth)
+                      : active
+                          ? activeBorderWidth
+                          : 1,
                 ),
           boxShadow: flat
               ? null
               : [
                   BoxShadow(
                     color: Theme.of(context).shadowColor.withValues(
-                      alpha: palette.isDark ? 0.6 : 0.18,
-                    ),
+                          alpha: palette.isDark ? 0.6 : 0.18,
+                        ),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -211,93 +187,32 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                         ),
                       if (showSelectionToggle)
                         Positioned(
-                          top: 6,
                           left: 6,
-                          child: _LibraryTileSelectionToggle(
-                            selected: selected,
-                            accentColor: resolvedSelectionColor,
+                          bottom: 6,
+                          child: _LibraryTileSelectionToggleButton(
+                            onTap: widget.onSelectionToggleTap,
+                            child: _LibraryTileSelectionToggle(
+                              selected: selected,
+                              accentColor: resolvedSelectionColor,
+                              coverSize: widget.coverSize,
+                            ),
                           ),
                         ),
                       if (scopeBadge != null)
                         Positioned(
-                          left: 6,
-                          bottom: 6,
-                          child: scopeBadge,
-                        ),
-                      if (scoreLabel != null)
-                        Positioned(
                           right: 6,
                           bottom: 6,
-                          child: _LibraryTileScorePill(label: scoreLabel),
+                          child: scopeBadge,
                         ),
                     ],
                   ),
                 ),
-                if (showTitles) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    entry.itemNumber == null
-                        ? entry.resolvedTitle
-                        : '${entry.resolvedTitle} #${entry.itemNumber}',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color:
-                              selected ? selectedTextColor : resolvedMutedTextColor,
-                          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                          fontSize: 11,
-                          height: 1.2,
-                        ),
-                  ),
-                  if (entry.originalTitle != null &&
-                      entry.originalTitle != entry.resolvedTitle)
-                    Text(
-                      entry.originalTitle!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: selected
-                                ? selectedSecondaryTextColor
-                                : resolvedMutedTextColor.withValues(alpha: 0.7),
-                            fontSize: 10,
-                            height: 1.2,
-                          ),
-                    ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      if (_primaryFormatId(entry) case final fmtId?) ...[
-                        FormatBadge.fromId(fmtId, compact: true),
-                        const SizedBox(width: 4),
-                      ],
-                      const Spacer(),
-                      if (entry.releaseYear != null)
-                        Text(
-                          entry.releaseYear.toString(),
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: selected
-                                    ? selectedSecondaryTextColor
-                                    : resolvedMutedTextColor.withValues(alpha: 0.6),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                              ),
-                        ),
-                    ],
-                  ),
-                ],
               ],
             ),
           ),
         ),
       ),
     );
-  }
-
-  static String? _primaryFormatId(LibraryWorkspaceEntry entry) {
-    for (final edition in entry.editions) {
-      if (edition.physicalFormat != null) return edition.physicalFormat;
-    }
-    return null;
   }
 
   List<Widget> _auxiliaryBadges(LibraryWorkspaceEntry entry) {
@@ -362,7 +277,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     }
     if (entry.isOwned) {
       return _LibraryTileScopePill(
-        icon: Icons.inventory_2_outlined,
+        icon: Icons.check_circle,
         label: 'In collection',
         backgroundColor: colorScheme.primaryContainer,
         foregroundColor: colorScheme.onPrimaryContainer,
@@ -391,28 +306,23 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
       foregroundColor: colorScheme.onSurfaceVariant,
     );
   }
-
-  String? _audienceScoreLabel(LibraryMetadataPresentation? presentation) {
-    final raw = _metadataFactValue(presentation, 'Audience Rating');
-    if (raw == null || raw.isEmpty) {
-      return null;
-    }
-    final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(raw);
-    return match?.group(1) ?? raw;
-  }
 }
 
 class _LibraryTileSelectionToggle extends StatelessWidget {
   const _LibraryTileSelectionToggle({
     required this.selected,
     required this.accentColor,
+    required this.coverSize,
   });
 
   final bool selected;
   final Color accentColor;
+  final double coverSize;
 
   @override
   Widget build(BuildContext context) {
+    final iconSize = (coverSize * 0.11).clamp(14.0, 20.0).toDouble();
+    final padding = (coverSize * 0.015).clamp(2.0, 4.0).toDouble();
     return DecoratedBox(
       decoration: BoxDecoration(
         color: selected ? accentColor : Colors.white.withValues(alpha: 0.92),
@@ -429,12 +339,37 @@ class _LibraryTileSelectionToggle extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(2),
+        padding: EdgeInsets.all(padding),
         child: Icon(
           selected ? Icons.check : Icons.check_box_outline_blank,
-          size: 14,
+          size: iconSize,
           color: selected ? Colors.white : Colors.black54,
         ),
+      ),
+    );
+  }
+}
+
+class _LibraryTileSelectionToggleButton extends StatelessWidget {
+  const _LibraryTileSelectionToggleButton({
+    required this.child,
+    this.onTap,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (onTap == null) {
+      return child;
+    }
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: child,
       ),
     );
   }
@@ -453,18 +388,21 @@ class _LibraryTileHoverActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: Colors.white.withValues(alpha: 0.94),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-        elevation: 4,
+        color: palette.surfaceBright.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        elevation: 2,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(6),
+          hoverColor: kAppHighlight.withValues(alpha: 0.25),
+          highlightColor: kAppHighlight.withValues(alpha: 0.18),
           child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Icon(icon, size: 14, color: Colors.black87),
+            padding: const EdgeInsets.all(5),
+            child: Icon(icon, size: 15, color: palette.textPrimary),
           ),
         ),
       ),
@@ -491,53 +429,23 @@ class _LibraryTileScopePill extends StatelessWidget {
       message: label,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(999),
+          color: backgroundColor.withValues(alpha: 0.98),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.18),
+            width: 1,
+          ),
           boxShadow: const [
             BoxShadow(
-              blurRadius: 10,
-              color: Color(0x33000000),
-              offset: Offset(0, 2),
+              blurRadius: 8,
+              color: Color(0x29000000),
+              offset: Offset(0, 1),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          padding: const EdgeInsets.all(4),
           child: Icon(icon, size: 14, color: foregroundColor),
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryTileScorePill extends StatelessWidget {
-  const _LibraryTileScorePill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2C335),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: const [
-          BoxShadow(
-            blurRadius: 10,
-            color: Color(0x33000000),
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.2,
-              ),
         ),
       ),
     );

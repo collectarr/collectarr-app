@@ -37,6 +37,7 @@ class LibraryWorkspaceViewProfile {
     required this.maxCoverSize,
     required this.presetConfig,
     required this.clampColumnWidth,
+    this.coverGridHeightFactor = 1.53,
     this.defaultSidebarWidth = kLibrarySidebarDefaultWidth,
     this.defaultDetailsWidth = kLibraryDetailsDefaultWidth,
     this.defaultDetailsHeight = kLibraryDetailsDefaultHeight,
@@ -52,6 +53,7 @@ class LibraryWorkspaceViewProfile {
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
+  final double coverGridHeightFactor;
   final LibraryWorkspacePresetResolver presetConfig;
   final LibraryTableColumnWidthClamp clampColumnWidth;
   final double defaultSidebarWidth;
@@ -87,7 +89,8 @@ class LibraryWorkspaceViewProfile {
       visibleColumns: Set.of(config.defaultVisibleColumns),
       columnWidths: const {},
     );
-    return defaults.withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
+    return defaults
+        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
   }
 
   LibraryWorkspaceViewState fromPreferences(

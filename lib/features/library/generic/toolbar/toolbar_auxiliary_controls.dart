@@ -260,7 +260,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
             itemBuilder: (context) => [
               PopupMenuItem<Object>(
                 value: libraryManageSortFavoritesMenuValue,
-                height: 32,
+                height: kLibraryToolbarPopupItemHeight,
                 child: const _LibraryToolbarSortMenuRow(
                   label: 'Manage Favorites',
                   icon: Icons.settings_outlined,
@@ -271,7 +271,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
               for (final favorite in pinnedFavorites)
                 PopupMenuItem<Object>(
                   value: favorite,
-                  height: 32,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: _LibraryToolbarSortMenuRow(
                     label: favorite.label,
                     icon: favorite.icon,
@@ -284,7 +284,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
               for (final favorite in overflowFavorites)
                 PopupMenuItem<Object>(
                   value: favorite,
-                  height: 32,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: _LibraryToolbarSortMenuRow(
                     label: favorite.label,
                     icon: favorite.icon,
@@ -1114,11 +1114,11 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             child: Container(
               constraints: BoxConstraints(
-                minWidth: label == 'All' ? 34 : 22,
+                minWidth: label == 'All' ? 36 : 24,
                 minHeight: 24,
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: label == 'All' ? 8 : 0,
+                horizontal: label == 'All' ? 9 : 2,
                 vertical: 4,
               ),
               decoration: BoxDecoration(
@@ -1359,11 +1359,14 @@ class LibraryFilterButton extends StatelessWidget {
       child: DecoratedBox(
         decoration: libraryToolbarDropdownDecoration(context),
         child: SizedBox.square(
-          dimension: 30,
+          dimension: kLibraryToolbarControlHeight,
           child: IconButton(
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(width: 30, height: 30),
+            constraints: const BoxConstraints.tightFor(
+              width: kLibraryToolbarControlHeight,
+              height: kLibraryToolbarControlHeight,
+            ),
             icon: Icon(
               activeCount > 0 ? Icons.filter_alt : Icons.filter_alt_outlined,
               size: 17,
@@ -1396,11 +1399,10 @@ class LibraryItemCountLabel extends StatelessWidget {
         : '$shown of $total ${pluralLabel.toLowerCase()}';
     return Text(
       label,
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
-        color: appPalette(context).textMuted,
-      ),
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: appPalette(context).textMuted,
+          ),
     );
   }
 }
@@ -1423,7 +1425,9 @@ class LibraryToolbarScopeChip extends StatelessWidget {
       backgroundColor: appPalette(context).selection,
       label: Text(
         label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
       ),
       labelPadding: const EdgeInsets.symmetric(horizontal: 2),
       onDeleted: onClear,

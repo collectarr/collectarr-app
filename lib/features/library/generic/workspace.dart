@@ -89,12 +89,13 @@ class LibraryWorkspace extends ConsumerWidget {
       groupMode != LibraryGroupMode.title &&
       groupMode != LibraryGroupMode.ownership;
 
-  bool _isSelected(LibraryProjectionItem item) {
-    if (selectionEnabled) {
-      return selectedIds.contains(item.entry.id);
-    }
-    return item.entry.id == selectedId;
-  }
+  bool _isActive(LibraryProjectionItem item) => item.entry.id == selectedId;
+
+  bool _isSelectionSelected(LibraryProjectionItem item) =>
+      selectedIds.contains(item.entry.id);
+
+  bool _isHighlighted(LibraryProjectionItem item) =>
+      selectionEnabled ? _isSelectionSelected(item) : _isActive(item);
 
   VoidCallback _selectionTap(LibraryProjectionItem item) {
     return () {
@@ -118,7 +119,7 @@ class LibraryWorkspace extends ConsumerWidget {
         onToggleSelectionItem(item.entry.id);
         return;
       }
-      if (_isSelected(item)) {
+      if (_isActive(item) && !selectionEnabled) {
         return;
       }
       onActivateItem(item.entry.id);
@@ -133,37 +134,42 @@ class LibraryWorkspace extends ConsumerWidget {
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
     final cardScale = defaultCoverSize > 0
-      ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
-      : 1.0;
-    final cardCoverWidth = (uiPrefs.cardCoverWidth * cardScale)
-        .clamp(60.0, 164.0)
-        .toDouble();
+        ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
+        : 1.0;
+    final cardCoverWidth =
+        (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
     final cardTileWidth = (430.0 * cardScale).clamp(336.0, 620.0).toDouble();
     final cardTileHeight = (156.0 * cardScale).clamp(132.0, 228.0).toDouble();
+    final coverMainAxisExtent =
+        viewState.coverSize * adapter.viewProfile.coverGridHeightFactor;
     if (_showGrouped && items.isNotEmpty) {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
             items: items,
-          adapter: adapter,
+            adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
-          selectionEnabled: selectionEnabled,
-          selectedIds: selectedIds,
+            selectionEnabled: selectionEnabled,
+            selectedIds: selectedIds,
             accent: accent,
             maxCrossAxisExtent: viewState.coverSize,
-            mainAxisExtent: viewState.coverSize * 1.53,
-          onSelectionChanged: onBoxSelectionChanged,
+            mainAxisExtent: coverMainAxisExtent,
+            onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCoverTile(
               key: ValueKey(item.entry.id),
               entry: item.entry,
-              selected: _isSelected(item),
+              active: _isActive(item),
+              selected: _isSelectionSelected(item),
+              selectionMode: selectionEnabled,
               onTap: _selectionTap(item),
+              onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
               onDoubleTap: () => onOpenItem(item),
-                onEditTap: () => onEditItem(item),
+              onEditTap: () => onEditItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
+              coverSize: viewState.coverSize,
               selectedColor: palette.selection,
               accentColor: accent,
               selectionColor: accent,
@@ -172,20 +178,20 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         LibraryViewMode.card => _GroupedGrid(
             items: items,
-          adapter: adapter,
+            adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
-          selectionEnabled: selectionEnabled,
-          selectedIds: selectedIds,
+            selectionEnabled: selectionEnabled,
+            selectedIds: selectedIds,
             accent: accent,
             maxCrossAxisExtent: cardTileWidth,
             mainAxisExtent: cardTileHeight,
-          onSelectionChanged: onBoxSelectionChanged,
+            onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               key: ValueKey(item.entry.id),
               entry: item.entry,
-              selected: _isSelected(item),
+              selected: _isHighlighted(item),
               onTap: _selectionTap(item),
               onDoubleTap: () => onOpenItem(item),
               onSecondaryTapUp: onItemContextMenu == null
@@ -201,16 +207,16 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
             items: items,
-          adapter: adapter,
+            adapter: adapter,
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
-          selectionEnabled: selectionEnabled,
-          selectedIds: selectedIds,
+            selectionEnabled: selectionEnabled,
+            selectedIds: selectedIds,
             accent: accent,
             maxCrossAxisExtent: 560,
             mainAxisExtent: 204,
-          onSelectionChanged: onBoxSelectionChanged,
+            onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => const SizedBox.shrink(),
           ),
         LibraryViewMode.list => _buildTable(),
@@ -223,7 +229,7 @@ class LibraryWorkspace extends ConsumerWidget {
           items: items,
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: viewState.coverSize,
-          mainAxisExtent: viewState.coverSize * 1.53,
+          mainAxisExtent: coverMainAxisExtent,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
           padding: gridPadding,
@@ -235,13 +241,17 @@ class LibraryWorkspace extends ConsumerWidget {
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.entry.id),
             entry: item.entry,
-            selected: _isSelected(item),
+            active: _isActive(item),
+            selected: _isSelectionSelected(item),
+            selectionMode: selectionEnabled,
             onTap: _selectionTap(item),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
             onDoubleTap: () => onOpenItem(item),
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
+            coverSize: viewState.coverSize,
             selectedColor: palette.selection,
             accentColor: accent,
             selectionColor: accent,
@@ -264,7 +274,7 @@ class LibraryWorkspace extends ConsumerWidget {
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             key: ValueKey(item.entry.id),
             entry: item.entry,
-            selected: _isSelected(item),
+            selected: _isHighlighted(item),
             onTap: _selectionTap(item),
             onDoubleTap: () => onOpenItem(item),
             onSecondaryTapUp: onItemContextMenu == null
@@ -278,7 +288,7 @@ class LibraryWorkspace extends ConsumerWidget {
             coverWidth: cardCoverWidth,
           ),
         ),
-        LibraryViewMode.cardFlow => LibraryFlowCarousel(
+      LibraryViewMode.cardFlow => LibraryFlowCarousel(
           items: items,
           selectedId: selectedId,
           selectedAnchorId: selectedAnchorId,
@@ -295,14 +305,14 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.shelves => LibraryShelfView<LibraryProjectionItem>(
           items: items,
           entryOf: (item) => item.entry,
-          isSelected: _isSelected,
+          isSelected: _isHighlighted,
           onTap: (item) => _selectionTap(item)(),
           onDoubleTap: onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
               : (item, d) => onItemContextMenu!(item, d.globalPosition),
           accent: accent,
-          shelfHeight: viewState.coverSize * 1.53,
+          shelfHeight: coverMainAxisExtent,
           bookWidth: viewState.coverSize,
           emptyBuilder: _emptyBuilder,
         ),
@@ -356,9 +366,9 @@ class LibraryWorkspace extends ConsumerWidget {
                   columnLabelFor: adapter.columnLabel,
                   columnIsNumeric: adapter.columnIsNumeric,
                   cellBuilder: _tableCell,
-                  isSelected: _isSelected,
+                  isSelected: _isHighlighted,
                   onEntryTap: (item) => _selectionTap(item)(),
-                    onEntryDoubleTap: onOpenItem,
+                  onEntryDoubleTap: onOpenItem,
                   onEntrySecondaryTapUp: onItemContextMenu == null
                       ? null
                       : (item, details) =>
@@ -468,8 +478,7 @@ class _GroupedGridState extends State<_GroupedGrid> {
   Widget build(BuildContext context) {
     final groups = <String, List<LibraryProjectionItem>>{};
     for (final item in widget.items) {
-      final key =
-          genericBucketForItemMode(item, widget.type, widget.groupMode);
+      final key = genericBucketForItemMode(item, widget.type, widget.groupMode);
       (groups[key] ??= []).add(item);
     }
     final sortedKeys = groups.keys.toList()..sort();
