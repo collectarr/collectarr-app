@@ -71,26 +71,23 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
       seriesGroup: emptyToNull(map['seriesGroup'] ?? ''),
     );
 
-    final updatedCreators =
-        ((map['creators'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .where(
-              (creator) =>
-                  emptyToNull(creator['name']?.toString() ?? '') != null,
-            )
-            .map((creator) {
-              final normalized = <String, dynamic>{
-                ...creator,
-                'name': creator['name']?.toString() ?? '',
-                'role': creator['role']?.toString() ?? '',
-              };
-              normalized.removeWhere(
-                (key, value) =>
-                    value == null || (value is String && value.trim().isEmpty),
-              );
-              return normalized;
-            })
-            .toList();
+    final updatedCreators = ((map['creators'] as List<dynamic>?) ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .where(
+          (creator) => emptyToNull(creator['name']?.toString() ?? '') != null,
+        )
+        .map((creator) {
+      final normalized = <String, dynamic>{
+        ...creator,
+        'name': creator['name']?.toString() ?? '',
+        'role': creator['role']?.toString() ?? '',
+      };
+      normalized.removeWhere(
+        (key, value) =>
+            value == null || (value is String && value.trim().isEmpty),
+      );
+      return normalized;
+    }).toList();
     final updatedCharacters =
         ((map['characters'] as List<dynamic>?) ?? const [])
             .map((character) => character.toString().trim())
@@ -104,17 +101,16 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                   emptyToNull(character['name']?.toString() ?? '') != null,
             )
             .map((character) {
-              final normalized = <String, dynamic>{
-                ...character,
-                'name': character['name']?.toString() ?? '',
-              };
-              normalized.removeWhere(
-                (key, value) =>
-                    value == null || (value is String && value.trim().isEmpty),
-              );
-              return normalized;
-            })
-            .toList();
+      final normalized = <String, dynamic>{
+        ...character,
+        'name': character['name']?.toString() ?? '',
+      };
+      normalized.removeWhere(
+        (key, value) =>
+            value == null || (value is String && value.trim().isEmpty),
+      );
+      return normalized;
+    }).toList();
     final updatedLinks = ((map['links'] as List<dynamic>?) ?? const [])
         .whereType<Map<String, dynamic>>()
         .map(
@@ -147,7 +143,7 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
       series: seriesTitle == null && widget.request.item.series == null
           ? null
           : CatalogSeriesDetails(
-            seriesId: seriesId ?? widget.request.item.series?.seriesId,
+              seriesId: seriesId ?? widget.request.item.series?.seriesId,
               seriesTitle: seriesTitle,
               volumeName: widget.request.item.series?.volumeName,
               volumeNumber: widget.request.item.series?.volumeNumber,
@@ -187,8 +183,10 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
             ? null
             : LibraryPersonalEditSelection(
                 anchorType: normalizedAnchorType,
-                editionId: isVariantScope ? widget.request.ownedItem?.editionId : null,
-                variantId: isVariantScope ? widget.request.ownedItem?.variantId : null,
+                editionId:
+                    isVariantScope ? widget.request.ownedItem?.editionId : null,
+                variantId:
+                    isVariantScope ? widget.request.ownedItem?.variantId : null,
                 bundleReleaseId: null,
                 condition: null,
                 grade: emptyToNull(map['grade'] ?? ''),
@@ -196,7 +194,9 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                 pricePaidCents: parseMoneyCents(map['purchasePrice'] ?? ''),
                 currency: emptyToNull(map['purchaseCurrency'] ?? ''),
                 personalNotes: emptyToNull(map['notes'] ?? ''),
-                quantity: parseInt(map['quantity'] ?? '') ?? widget.request.ownedItem?.quantity ?? 1,
+                quantity: parseInt(map['quantity'] ?? '') ??
+                    widget.request.ownedItem?.quantity ??
+                    1,
                 locationId: null,
                 locationChanged: false,
                 tags: emptyToNull(map['tags'] ?? ''),
@@ -222,9 +222,11 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                 ownerLabel: emptyToNull(map['owner'] ?? ''),
                 lastBagBoardDate: parseDate(map['bagBoardDate'] ?? ''),
                 collectionStatus: emptyToNull(map['collectionStatus'] ?? ''),
-                storageDevice: emptyToNull(map['location'] ?? map['storageBox'] ?? ''),
+                storageDevice:
+                    emptyToNull(map['location'] ?? map['storageBox'] ?? ''),
               ),
-        tracking: normalizedStatus == null && widget.request.trackingEntry == null
+        tracking: normalizedStatus == null &&
+                widget.request.trackingEntry == null
             ? null
             : LibraryTrackingEditSelection(
                 editionId: widget.request.trackingEntry?.editionId,
@@ -240,8 +242,8 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
                 seasonNumber: widget.request.trackingEntry?.seasonNumber,
                 episodeNumber: widget.request.trackingEntry?.episodeNumber,
               ),
-        customFieldEdits:
-            Map<String, String?>.from(map['customFieldEdits'] as Map<String, String?>? ?? const {}),
+        customFieldEdits: Map<String, String?>.from(
+            map['customFieldEdits'] as Map<String, String?>? ?? const {}),
         itemImageEdits: List<ItemImageEdit>.from(
           map['itemImageEdits'] as List<ItemImageEdit>? ?? const [],
         ),
@@ -259,23 +261,16 @@ class _ComicLibraryEditDialogState extends State<ComicLibraryEditDialog> {
       formKey: _formKey,
       accent: widget.request.accent,
       icon: widget.request.type.workspace.icon,
-      title: 'Edit ${widget.request.type.singularLabel.toLowerCase()} — $title',
-      badges: [
-        const EditMiniBadge('Comics'),
-        if (emptyToNull(widget.request.item.physicalFormatLabel ?? '') != null)
-          EditMiniBadge(widget.request.item.physicalFormatLabel!),
-        if (widget.request.ownedItem != null) const EditMiniBadge('Owned'),
-        if (widget.request.ownedItem == null && widget.request.trackingEntry != null)
-          const EditMiniBadge('Tracked'),
-      ],
+      title: title,
+      badges: const <Widget>[],
       body: ComicEditPanel(key: _panelKey, request: widget.request),
       onClose: () => Navigator.of(context).pop(null),
+      onCancel: () => Navigator.of(context).pop(null),
       onSave: _submit,
+      onPrevious: widget.request.onPrevious,
+      onNext: widget.request.onNext,
       tabOrderKey: null,
       allowTabReorder: true,
-      ebaySearchQuery: widget.request.item.itemNumber != null
-          ? '${widget.request.item.title} #${widget.request.item.itemNumber}'
-          : widget.request.item.title,
     );
   }
 }

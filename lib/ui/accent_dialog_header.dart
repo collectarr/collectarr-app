@@ -42,7 +42,7 @@ class AccentDialogHeader extends StatelessWidget {
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 18, color: Colors.white),
+            Icon(icon, size: 20, color: Colors.white),
             const SizedBox(width: 10),
           ],
           Expanded(
@@ -52,7 +52,7 @@ class AccentDialogHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w800,
               ),
             ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -322,6 +323,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.secondaryLocalBytes,
     this.ownedItemId,
     this.borderRadius = 4,
+    this.fit = BoxFit.contain,
     this.accentColor = kAppAccent,
     this.enableFullscreen = true,
     this.enableHoverCue = true,
@@ -338,6 +340,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final Uint8List? secondaryLocalBytes;
   final String? ownedItemId;
   final double borderRadius;
+  final BoxFit fit;
   final Color accentColor;
   final bool enableFullscreen;
   final bool enableHoverCue;
@@ -352,6 +355,7 @@ class LibraryInteractiveCover extends StatefulWidget {
 class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool _hovered = false;
   bool _showSecondary = false;
+  bool _previewWarmRequested = false;
 
   @override
   void didUpdateWidget(covariant LibraryInteractiveCover oldWidget) {
@@ -365,6 +369,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       // Parent rebuild already redraws this widget; avoid an extra reset frame.
       _showSecondary = false;
       _hovered = false;
+      _previewWarmRequested = false;
     }
   }
 
@@ -390,9 +395,6 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   }
 
   Future<void> _warmPreviewImage() async {
-    if (!mounted) {
-      return;
-    }
     for (final imageUrl in [
       widget.imageUrl?.trim(),
       widget.secondaryImageUrl?.trim()
@@ -401,7 +403,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
         continue;
       }
       try {
-        await precacheImage(NetworkImage(imageUrl), context);
+        final provider = kIsWeb
+            ? NetworkImage(imageUrl) as ImageProvider<Object>
+            : CachedNetworkImageProvider(imageUrl);
+        await precacheImage(provider, context);
       } catch (error, stackTrace) {
         logRecoverableError(
           source: 'library_cover_image',
@@ -413,11 +418,19 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     }
   }
 
+  void _maybeWarmPreviewImage() {
+    if (_previewWarmRequested || !_canPreview) {
+      return;
+    }
+    _previewWarmRequested = true;
+    unawaited(_warmPreviewImage());
+  }
+
   Future<void> _openPreview() async {
     if (!_canPreview) {
       return;
     }
-    await _warmPreviewImage();
+    _maybeWarmPreviewImage();
     if (!mounted) {
       return;
     }
@@ -454,6 +467,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
           child: Material(
             color: Colors.transparent,
             child: Stack(
+              fit: StackFit.expand,
               children: [
                 Positioned.fill(
                   child: GestureDetector(
@@ -511,6 +525,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                   localBytes: localBytes,
                                   ownedItemId: ownedItemId,
                                   borderRadius: 0,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ),
@@ -678,9 +693,16 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       builder: (context, constraints) {
         final compactHoverCue =
             constraints.maxWidth < 180 || constraints.maxHeight < 160;
+        final canExpandInBothAxes =
+            constraints.hasBoundedWidth && constraints.hasBoundedHeight;
         return MouseRegion(
           cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
-          onEnter: hoverCue ? (_) => setState(() => _hovered = true) : null,
+          onEnter: hoverCue
+              ? (_) {
+                  _maybeWarmPreviewImage();
+                  setState(() => _hovered = true);
+                }
+              : null,
           onExit: hoverCue ? (_) => setState(() => _hovered = false) : null,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -690,6 +712,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
               curve: Curves.easeOutCubic,
               scale: _hovered ? 1.02 : 1,
               child: Stack(
+                fit: canExpandInBothAxes ? StackFit.expand : StackFit.loose,
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 170),
@@ -717,6 +740,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         localBytes: _activeLocalBytes,
                         ownedItemId: widget.ownedItemId,
                         borderRadius: widget.borderRadius,
+                        fit: widget.fit,
                       ),
                     ),
                   ),

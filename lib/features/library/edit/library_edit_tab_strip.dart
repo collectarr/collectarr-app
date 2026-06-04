@@ -43,18 +43,18 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
     final foreground = selected ? palette.textPrimary : palette.textMuted;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: selected
-            ? palette.surface.withValues(alpha: palette.isDark ? 0.44 : 0.9)
+            ? palette.surface.withValues(alpha: palette.isDark ? 0.6 : 0.98)
             : highlighted
-                ? palette.surfaceSubtle.withValues(alpha: 0.55)
-                : Colors.transparent,
-        border: Border(
-          bottom: BorderSide(
-            color: selected ? accent : Colors.transparent,
-            width: 1.5,
-          ),
+                ? palette.surfaceSubtle.withValues(alpha: 0.72)
+                : palette.surfaceSubtle.withValues(alpha: 0.42),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: selected ? accent.withValues(alpha: 0.92) : palette.divider,
+          width: selected ? 1.1 : 1,
         ),
       ),
       alignment: Alignment.center,

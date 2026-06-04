@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -11,16 +11,124 @@ const booksPreviewLabels = LibraryMediaPreviewLabels(
 );
 
 const booksLibraryGroupModes = [
+  // Main
+  LibraryGroupMode.creator,
+  LibraryGroupMode.country,
+  LibraryGroupMode.language,
+  LibraryGroupMode.releaseDate,
+  LibraryGroupMode.releaseMonth,
+  LibraryGroupMode.publicationPlace,
+  LibraryGroupMode.releaseYear,
   LibraryGroupMode.publisher,
   LibraryGroupMode.series,
-  LibraryGroupMode.year,
-  LibraryGroupMode.creator,
+  // Value
+  LibraryGroupMode.condition,
+  LibraryGroupMode.dustJacketCondition,
+  LibraryGroupMode.isSigned,
+  LibraryGroupMode.purchaseDate,
+  LibraryGroupMode.purchaseMonth,
+  LibraryGroupMode.purchaseStore,
+  LibraryGroupMode.purchaseYear,
+  LibraryGroupMode.signedBy,
+  LibraryGroupMode.soldDate,
+  LibraryGroupMode.soldMonth,
+  LibraryGroupMode.soldYear,
+  // Edition
+  LibraryGroupMode.audiobookAbridged,
+  LibraryGroupMode.boxSet,
+  LibraryGroupMode.edition,
+  LibraryGroupMode.extras,
+  LibraryGroupMode.firstEdition,
+  LibraryGroupMode.format,
+  LibraryGroupMode.narrator,
+  LibraryGroupMode.originalCountry,
+  LibraryGroupMode.originalLanguage,
+  LibraryGroupMode.originalPublicationDate,
+  LibraryGroupMode.originalPublicationMonth,
+  LibraryGroupMode.originalPublicationPlace,
+  LibraryGroupMode.originalPublicationYear,
+  LibraryGroupMode.originalPublisher,
+  LibraryGroupMode.paperType,
+  LibraryGroupMode.printedBy,
+  // Credits
+  LibraryGroupMode.coverArtist,
+  LibraryGroupMode.editor,
+  LibraryGroupMode.forewordAuthor,
+  LibraryGroupMode.ghostWriter,
+  LibraryGroupMode.illustrator,
+  LibraryGroupMode.photography,
+  LibraryGroupMode.translator,
+  // Categorization
+  LibraryGroupMode.genre,
+  LibraryGroupMode.subject,
+  // Personal
+  LibraryGroupMode.addedDate,
+  LibraryGroupMode.addedMonth,
+  LibraryGroupMode.addedYear,
+  LibraryGroupMode.collectionStatus,
+  LibraryGroupMode.dustJacket,
+  LibraryGroupMode.imageType,
   LibraryGroupMode.location,
-  LibraryGroupMode.title,
-  LibraryGroupMode.ownership,
+  LibraryGroupMode.modifiedDate,
+  LibraryGroupMode.modifiedMonth,
+  LibraryGroupMode.myRating,
+  LibraryGroupMode.owner,
+  LibraryGroupMode.readDate,
+  LibraryGroupMode.watched,
+  LibraryGroupMode.readMonth,
+  LibraryGroupMode.readYear,
+  LibraryGroupMode.reader,
+  LibraryGroupMode.readingStatus,
+  LibraryGroupMode.tags,
 ];
 
 const booksLibraryGroupModeDefinitions = [
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.creator,
+    label: 'Author',
+    sidebarTitle: 'Authors',
+    icon: Icons.person_outline,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.country,
+    label: 'Country',
+    sidebarTitle: 'Countries',
+    icon: Icons.flag_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.language,
+    label: 'Language',
+    sidebarTitle: 'Languages',
+    icon: Icons.translate_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseDate,
+    label: 'Publication Date',
+    sidebarTitle: 'Publication Dates',
+    icon: Icons.event_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseMonth,
+    label: 'Publication Month',
+    sidebarTitle: 'Publication Months',
+    icon: Icons.event_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.publicationPlace,
+    label: 'Publication Place',
+    sidebarTitle: 'Publication Places',
+    icon: Icons.place_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseYear,
+    label: 'Publication Year',
+    sidebarTitle: 'Publication Years',
+    icon: Icons.calendar_today_outlined,
+  ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
     label: 'Publisher',
@@ -35,17 +143,279 @@ const booksLibraryGroupModeDefinitions = [
     icon: Icons.collections_bookmark_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.year,
-    label: 'Year',
-    sidebarTitle: 'Years',
+    mode: LibraryGroupMode.condition,
+    label: 'Book Condition',
+    sidebarTitle: 'Book Conditions',
+    icon: Icons.verified_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.dustJacketCondition,
+    label: 'Dust Jacket Condition',
+    sidebarTitle: 'Dust Jacket Conditions',
+    icon: Icons.checkroom_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.isSigned,
+    label: 'Is Signed',
+    sidebarTitle: 'Is Signed',
+    icon: Icons.draw_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseDate,
+    label: 'Purchase Date',
+    sidebarTitle: 'Purchase Dates',
+    icon: Icons.shopping_bag_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseMonth,
+    label: 'Purchase Month',
+    sidebarTitle: 'Purchase Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseStore,
+    label: 'Purchase Store',
+    sidebarTitle: 'Purchase Stores',
+    icon: Icons.store_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseYear,
+    label: 'Purchase Year',
+    sidebarTitle: 'Purchase Years',
     icon: Icons.calendar_today_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.creator,
-    label: 'Creator',
-    sidebarTitle: 'Creators',
-    icon: Icons.draw_outlined,
+    mode: LibraryGroupMode.signedBy,
+    label: 'Signed by',
+    sidebarTitle: 'Signed by',
+    icon: Icons.edit_outlined,
     supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.soldDate,
+    label: 'Sold Date',
+    sidebarTitle: 'Sold Dates',
+    icon: Icons.sell_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.soldMonth,
+    label: 'Sold Month',
+    sidebarTitle: 'Sold Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.soldYear,
+    label: 'Sold Year',
+    sidebarTitle: 'Sold Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.audiobookAbridged,
+    label: 'Audiobook Abridged',
+    sidebarTitle: 'Audiobook Abridged',
+    icon: Icons.headphones_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.boxSet,
+    label: 'Box Set',
+    sidebarTitle: 'Box Sets',
+    icon: Icons.inventory_2_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.edition,
+    label: 'Edition',
+    sidebarTitle: 'Editions',
+    icon: Icons.book_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.extras,
+    label: 'Extras',
+    sidebarTitle: 'Extras',
+    icon: Icons.extension_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.firstEdition,
+    label: 'First Edition',
+    sidebarTitle: 'First Edition',
+    icon: Icons.looks_one_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.format,
+    label: 'Format',
+    sidebarTitle: 'Formats',
+    icon: Icons.menu_book_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.narrator,
+    label: 'Narrator',
+    sidebarTitle: 'Narrators',
+    icon: Icons.record_voice_over_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalCountry,
+    label: 'Original Country',
+    sidebarTitle: 'Original Countries',
+    icon: Icons.flag_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalLanguage,
+    label: 'Original Language',
+    sidebarTitle: 'Original Languages',
+    icon: Icons.translate_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalPublicationDate,
+    label: 'Original Publication Date',
+    sidebarTitle: 'Original Publication Dates',
+    icon: Icons.event_repeat_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalPublicationMonth,
+    label: 'Original Publication Month',
+    sidebarTitle: 'Original Publication Months',
+    icon: Icons.event_repeat_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalPublicationPlace,
+    label: 'Original Publication Place',
+    sidebarTitle: 'Original Publication Places',
+    icon: Icons.place_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalPublicationYear,
+    label: 'Original Publication Year',
+    sidebarTitle: 'Original Publication Years',
+    icon: Icons.event_repeat_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalPublisher,
+    label: 'Original Publisher',
+    sidebarTitle: 'Original Publishers',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.paperType,
+    label: 'Paper Type',
+    sidebarTitle: 'Paper Types',
+    icon: Icons.layers_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.printedBy,
+    label: 'Printed By',
+    sidebarTitle: 'Printed By',
+    icon: Icons.print_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.coverArtist,
+    label: 'Cover Artist',
+    sidebarTitle: 'Cover Artists',
+    icon: Icons.brush_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.editor,
+    label: 'Editor',
+    sidebarTitle: 'Editors',
+    icon: Icons.edit_note_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.forewordAuthor,
+    label: 'Foreword Author',
+    sidebarTitle: 'Foreword Authors',
+    icon: Icons.short_text_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.ghostWriter,
+    label: 'Ghost Writer',
+    sidebarTitle: 'Ghost Writers',
+    icon: Icons.edit_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.illustrator,
+    label: 'Illustrator',
+    sidebarTitle: 'Illustrators',
+    icon: Icons.brush_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.photography,
+    label: 'Photographer',
+    sidebarTitle: 'Photographers',
+    icon: Icons.photo_camera_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.translator,
+    label: 'Translator',
+    sidebarTitle: 'Translators',
+    icon: Icons.g_translate_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.genre,
+    label: 'Genre',
+    sidebarTitle: 'Genres',
+    icon: Icons.category_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.subject,
+    label: 'Subject',
+    sidebarTitle: 'Subjects',
+    icon: Icons.subject_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedDate,
+    label: 'Added Date',
+    sidebarTitle: 'Added Dates',
+    icon: Icons.event_available_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedMonth,
+    label: 'Added Month',
+    sidebarTitle: 'Added Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedYear,
+    label: 'Added Year',
+    sidebarTitle: 'Added Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.collectionStatus,
+    label: 'Collection Status',
+    sidebarTitle: 'Collection Status',
+    icon: Icons.task_alt_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.dustJacket,
+    label: 'Dust Jacket',
+    sidebarTitle: 'Dust Jacket',
+    icon: Icons.checkroom_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.imageType,
+    label: 'Image Type',
+    sidebarTitle: 'Image Types',
+    icon: Icons.photo_library_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.location,
@@ -54,16 +424,71 @@ const booksLibraryGroupModeDefinitions = [
     icon: Icons.place_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.title,
-    label: 'Title',
-    sidebarTitle: 'Titles',
-    icon: Icons.sort_by_alpha,
+    mode: LibraryGroupMode.modifiedDate,
+    label: 'Modified Date',
+    sidebarTitle: 'Modified Dates',
+    icon: Icons.update_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.ownership,
-    label: 'Ownership',
-    sidebarTitle: 'Ownership',
-    icon: Icons.inventory_2_outlined,
+    mode: LibraryGroupMode.modifiedMonth,
+    label: 'Modified Month',
+    sidebarTitle: 'Modified Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.myRating,
+    label: 'My Rating',
+    sidebarTitle: 'My Ratings',
+    icon: Icons.star_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.owner,
+    label: 'Owner',
+    sidebarTitle: 'Owners',
+    icon: Icons.person_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.readDate,
+    label: 'Read Date',
+    sidebarTitle: 'Read Dates',
+    icon: Icons.menu_book_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watched,
+    label: 'Read It',
+    sidebarTitle: 'Read It',
+    icon: Icons.done_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.readMonth,
+    label: 'Read Month',
+    sidebarTitle: 'Read Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.readYear,
+    label: 'Read Year',
+    sidebarTitle: 'Read Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.reader,
+    label: 'Reader',
+    sidebarTitle: 'Readers',
+    icon: Icons.person_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.readingStatus,
+    label: 'Reading Status',
+    sidebarTitle: 'Reading Status',
+    icon: Icons.local_library_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.tags,
+    label: 'Tags',
+    sidebarTitle: 'Tags',
+    icon: Icons.sell_outlined,
+    supportsBucketManagement: true,
   ),
 ];
 
@@ -79,69 +504,11 @@ const booksLibraryGroupLabels = LibraryMediaGroupLabels(
 const booksLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
 
 String booksLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return _simpleLibraryBucketLabel(
+  return defaultLibraryBucketLabel(
     context,
     booksLibraryGroupLabels,
     booksLibraryBucketLabelOverrides,
   );
-}
-
-String _simpleLibraryBucketLabel(
-  LibraryBucketingContext context,
-  LibraryMediaGroupLabels labels,
-  LibraryBucketLabelOverrides overrides,
-) {
-  final entry = context.entry;
-  final publisher = entry.publisher?.trim();
-  return switch (context.groupMode) {
-    LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-    LibraryGroupMode.year =>
-      entry.releaseYear?.toString() ??
-          (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.publisher =>
-      publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-    LibraryGroupMode.location => _locationBucket(entry.locationPath),
-    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
-    LibraryGroupMode.ownership => entry.isOwned
-        ? overrides.owned
-        : entry.isWishlisted
-        ? overrides.wishlist
-        : overrides.catalogOnly,
-    LibraryGroupMode.creator => _creatorBucket(entry),
-    _ => context.groupMode.name,
-  };
-}
-
-String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
-  final seriesTitle = entry.series?.seriesTitle?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  final title = entry.resolvedTitle.trim();
-  return title.isEmpty ? unknownLabel : title;
-}
-
-String _locationBucket(String? location) {
-  final normalized = location?.trim();
-  if (normalized == null || normalized.isEmpty) {
-    return 'No location';
-  }
-  return normalized;
-}
-
-String _titleBucket(String title) {
-  final trimmed = title.trim();
-  return trimmed.isEmpty ? 'Unknown' : trimmed.substring(0, 1).toUpperCase();
-}
-
-String _creatorBucket(LibraryWorkspaceEntry entry) {
-  for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
-    final name = credit['name']?.toString().trim();
-    if (name != null && name.isNotEmpty) {
-      return name;
-    }
-  }
-  return 'Unknown creator';
 }
 
 const booksLibrarySortColumnDefinitions = [

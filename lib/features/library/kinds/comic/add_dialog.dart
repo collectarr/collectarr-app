@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
@@ -158,7 +159,7 @@ class _ComicManualPane extends StatelessWidget {
     );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.panelRaised,
+        color: palette.panel,
         border: Border(left: BorderSide(color: palette.divider)),
       ),
       child: Padding(
@@ -166,41 +167,24 @@ class _ComicManualPane extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: palette.panel,
-                border: Border.all(color: palette.divider),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _ManualKindHeader(
-                      icon: request.type.workspace.icon,
-                      accent: request.accent,
-                      title: 'Manual comic issue',
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        const LibraryAddResultBadge('main'),
-                        LibraryAddResultBadge(
-                          copyTypeLabel ?? 'owned defaults',
-                          accent: request.accent,
-                        ),
-                        if (request.defaultLocationLabel != null)
-                          LibraryAddResultBadge(
-                            request.defaultLocationLabel!,
-                            accent: request.accent,
-                          ),
-                      ],
-                    ),
-                  ],
+            LibraryAddManualIntroCard(
+              icon: request.type.workspace.icon,
+              accent: request.accent,
+              title: 'Manual comic issue',
+              subtitle:
+                  'Set issue basics here, then review collector fields before saving.',
+              badges: [
+                const LibraryAddResultBadge('main'),
+                libraryAddManualIntroBadge(
+                  copyTypeLabel ?? 'owned defaults',
+                  accent: request.accent,
                 ),
-              ),
+                if (request.defaultLocationLabel != null)
+                  libraryAddManualIntroBadge(
+                    request.defaultLocationLabel!,
+                    accent: request.accent,
+                  ),
+              ],
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -271,10 +255,12 @@ class _ComicManualPane extends StatelessWidget {
                               _ComicManualResponsiveItem(
                                 flex: 2,
                                 child: SingleValuePickField(
-                                  controller: request.physicalFormatLabelController,
+                                  controller:
+                                      request.physicalFormatLabelController,
                                   options: request.physicalFormatOptions,
                                   label: 'Format',
-                                  onChanged: request.onPhysicalFormatLabelChanged,
+                                  onChanged:
+                                      request.onPhysicalFormatLabelChanged,
                                   onManage: request.onManagePhysicalFormats,
                                 ),
                               ),
@@ -381,7 +367,8 @@ class _ComicManualPane extends StatelessWidget {
                                   controller: pageQualityController,
                                   decoration: const InputDecoration(
                                     labelText: 'Page Quality',
-                                    prefixIcon: Icon(Icons.auto_stories_outlined),
+                                    prefixIcon:
+                                        Icon(Icons.auto_stories_outlined),
                                   ),
                                 ),
                               ),
@@ -439,45 +426,6 @@ class _ComicManualPane extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ManualKindHeader extends StatelessWidget {
-  const _ManualKindHeader({
-    required this.icon,
-    required this.accent,
-    required this.title,
-  });
-
-  final IconData icon;
-  final Color accent;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: accent),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: palette.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

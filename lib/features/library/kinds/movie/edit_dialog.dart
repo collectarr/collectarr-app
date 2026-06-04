@@ -25,7 +25,9 @@ class MovieLibraryEditPresentationBuilder
             LibraryEditTabSpec(
                 id: 'photos', icon: Icons.image, label: 'My Images'),
             LibraryEditTabSpec(
-                id: 'synopsis', icon: Icons.description_outlined, label: 'Plot'),
+                id: 'synopsis',
+                icon: Icons.description_outlined,
+                label: 'Plot'),
             LibraryEditTabSpec(id: 'cast', icon: Icons.people, label: 'Cast'),
             LibraryEditTabSpec(
                 id: 'crew', icon: Icons.people_outline, label: 'Crew'),
@@ -45,7 +47,9 @@ class MovieLibraryEditPresentationBuilder
             LibraryEditTabSpec(
                 id: 'photos', icon: Icons.image, label: 'My Images'),
             LibraryEditTabSpec(
-                id: 'synopsis', icon: Icons.description_outlined, label: 'Plot'),
+                id: 'synopsis',
+                icon: Icons.description_outlined,
+                label: 'Plot'),
             LibraryEditTabSpec(id: 'cast', icon: Icons.people, label: 'Cast'),
             LibraryEditTabSpec(
                 id: 'crew', icon: Icons.people_outline, label: 'Crew'),
@@ -59,7 +63,9 @@ class MovieLibraryEditPresentationBuilder
             LibraryEditTabSpec(
                 id: 'edition', icon: Icons.info_outline, label: 'Edition'),
             LibraryEditTabSpec(
-                id: 'synopsis', icon: Icons.description_outlined, label: 'Plot'),
+                id: 'synopsis',
+                icon: Icons.description_outlined,
+                label: 'Plot'),
             LibraryEditTabSpec(id: 'cast', icon: Icons.people, label: 'Cast'),
             LibraryEditTabSpec(
                 id: 'crew', icon: Icons.people_outline, label: 'Crew'),
@@ -86,14 +92,14 @@ class MovieLibraryEditPresentationBuilder
       'main' => ['tracking_context', 'ownership_reference', 'owned_grading'],
       'value' => ['purchase', 'value_summary'],
       'personal' => [
-        'tracking_personal',
-        'ownership_fields',
-        'purchase_fields',
-        'sold_fields',
-        'wishlist_reference',
-        'owned_notes',
-        'collection_fields_info',
-      ],
+          'tracking_personal',
+          'ownership_fields',
+          'purchase_fields',
+          'sold_fields',
+          'wishlist_reference',
+          'owned_notes',
+          'collection_fields_info',
+        ],
       'sold' => ['sold_status', 'profit_loss'],
       'custom' => ['custom_fields'],
       'photos' => ['photos'],
@@ -111,21 +117,23 @@ const movieLibraryEditPresentation = LibraryEditPresentation(
 );
 
 class MovieLibraryEditDialog extends StatelessWidget {
-    const MovieLibraryEditDialog({super.key, required this.request});
+  const MovieLibraryEditDialog({super.key, required this.request});
 
-    final LibraryEditDialogRequest request;
+  final LibraryEditDialogRequest request;
 
-    @override
-    Widget build(BuildContext context) {
-        return LibraryEditRenderer.fromDraft(
-            draft: LibraryEditDraft.fromRequest(request),
-        );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return LibraryEditRenderer.fromDraft(
+      draft: LibraryEditDraft.fromRequest(request),
+      onPrevious: request.onPrevious,
+      onNext: request.onNext,
+    );
+  }
 }
 
 Widget buildMovieLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
-    return MovieLibraryEditDialog(request: request);
+  return MovieLibraryEditDialog(request: request);
 }

@@ -51,12 +51,14 @@ void main() {
     await tester.pump();
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(find.text('Opening editor for The Return of the King...'), findsOneWidget);
+    expect(find.text('Opening editor for The Return of the King...'),
+        findsOneWidget);
 
     completer.complete(request);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Edit book — The Return of the King'), findsOneWidget);
+    expect(find.textContaining('The Return of the King'), findsWidgets);
+    expect(find.text('Save'), findsOneWidget);
   });
 }
 

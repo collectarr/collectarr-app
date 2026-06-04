@@ -61,11 +61,15 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
     this.itemImages = const [],
+    this.onPrevious,
+    this.onNext,
   }) : draft = null;
 
   LibraryEditRenderer.fromDraft({
     super.key,
     required LibraryEditDraft draft,
+    this.onPrevious,
+    this.onNext,
   })  : draft = draft,
         type = draft.type,
         item = draft.item,
@@ -90,10 +94,13 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
   final LibraryEditDraft? draft;
 
   @override
-  ConsumerState<LibraryEditRenderer> createState() => _LibraryEditRendererState();
+  ConsumerState<LibraryEditRenderer> createState() =>
+      _LibraryEditRendererState();
 }
 
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
@@ -108,128 +115,126 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _publisherController => _draft.publisherController;
   TextEditingController get _coverDateController => _draft.coverDateController;
   TextEditingController get _coverDateYearPartController =>
-    _draft.coverDateYearPartController;
+      _draft.coverDateYearPartController;
   TextEditingController get _coverDateMonthPartController =>
-    _draft.coverDateMonthPartController;
+      _draft.coverDateMonthPartController;
   TextEditingController get _coverDateDayPartController =>
-    _draft.coverDateDayPartController;
+      _draft.coverDateDayPartController;
   TextEditingController get _releaseDateController =>
-    _draft.releaseDateController;
+      _draft.releaseDateController;
   TextEditingController get _releaseDateYearPartController =>
-    _draft.releaseDateYearPartController;
+      _draft.releaseDateYearPartController;
   TextEditingController get _releaseDateMonthPartController =>
-    _draft.releaseDateMonthPartController;
+      _draft.releaseDateMonthPartController;
   TextEditingController get _releaseDateDayPartController =>
-    _draft.releaseDateDayPartController;
+      _draft.releaseDateDayPartController;
   TextEditingController get _releaseYearController =>
-    _draft.releaseYearController;
+      _draft.releaseYearController;
   TextEditingController get _pageCountController => _draft.pageCountController;
   TextEditingController get _editionTitleController =>
-    _draft.editionTitleController;
+      _draft.editionTitleController;
   TextEditingController get _barcodeController => _draft.barcodeController;
   TextEditingController get _variantController => _draft.variantController;
   TextEditingController get _physicalFormatLabelController =>
-    _draft.physicalFormatLabelController;
+      _draft.physicalFormatLabelController;
   TextEditingController get _coverController => _draft.coverController;
   TextEditingController get _thumbnailController => _draft.thumbnailController;
   TextEditingController get _synopsisController => _draft.synopsisController;
   TextEditingController get _sortKeyController => _draft.sortKeyController;
   TextEditingController get _originalTitleController =>
-    _draft.originalTitleController;
+      _draft.originalTitleController;
   TextEditingController get _runtimeController => _draft.runtimeController;
   TextEditingController get _audienceRatingController =>
-    _draft.audienceRatingController;
+      _draft.audienceRatingController;
   TextEditingController get _countryController => _draft.countryController;
   TextEditingController get _languageController => _draft.languageController;
-  TextEditingController get _ageRatingController =>
-    _draft.ageRatingController;
+  TextEditingController get _ageRatingController => _draft.ageRatingController;
   TextEditingController get _genresEditController =>
-    _draft.genresEditController;
+      _draft.genresEditController;
   TextEditingController get _titleExtensionController =>
-    _draft.titleExtensionController;
+      _draft.titleExtensionController;
   TextEditingController get _crossoverController => _draft.crossoverController;
-  TextEditingController get _storyArcsController =>
-    _draft.storyArcsController;
+  TextEditingController get _storyArcsController => _draft.storyArcsController;
   TextEditingController get _seriesTitleController =>
-    _draft.seriesTitleController;
+      _draft.seriesTitleController;
   TextEditingController get _developersController =>
-    _draft.developersController;
+      _draft.developersController;
   TextEditingController get _ownerLabelController =>
-    _draft.ownerLabelController;
+      _draft.ownerLabelController;
   TextEditingController get _imprintController => _draft.imprintController;
   TextEditingController get _seriesGroupController =>
-    _draft.seriesGroupController;
+      _draft.seriesGroupController;
   TextEditingController get _conditionController => _draft.conditionController;
   TextEditingController get _gradeController => _draft.gradeController;
   TextEditingController get _purchaseDateController =>
-    _draft.purchaseDateController;
+      _draft.purchaseDateController;
   TextEditingController get _priceController => _draft.priceController;
   TextEditingController get _currencyController => _draft.currencyController;
   TextEditingController get _quantityController => _draft.quantityController;
   TextEditingController get _notesController => _draft.notesController;
   TextEditingController get _wishlistPriceController =>
-    _draft.wishlistPriceController;
+      _draft.wishlistPriceController;
   TextEditingController get _wishlistCurrencyController =>
-    _draft.wishlistCurrencyController;
+      _draft.wishlistCurrencyController;
   TextEditingController get _wishlistNotesController =>
-    _draft.wishlistNotesController;
+      _draft.wishlistNotesController;
   TextEditingController get _ratingController => _draft.ratingController;
   TextEditingController get _trackingController => _draft.trackingController;
   TextEditingController get _progressCurrentController =>
-    _draft.progressCurrentController;
+      _draft.progressCurrentController;
   TextEditingController get _progressTotalController =>
-    _draft.progressTotalController;
+      _draft.progressTotalController;
   TextEditingController get _timesCompletedController =>
-    _draft.timesCompletedController;
+      _draft.timesCompletedController;
   TextEditingController get _seasonNumberController =>
-    _draft.seasonNumberController;
+      _draft.seasonNumberController;
   TextEditingController get _episodeNumberController =>
-    _draft.episodeNumberController;
+      _draft.episodeNumberController;
   TextEditingController get _trackingNotesController =>
-    _draft.trackingNotesController;
+      _draft.trackingNotesController;
   TextEditingController get _tagsController => _draft.tagsController;
-    List<String> get _tagOptions => _draft.tagOptions;
-    set _tagOptions(List<String> value) => _draft.tagOptions = value;
+  List<String> get _tagOptions => _draft.tagOptions;
+  set _tagOptions(List<String> value) => _draft.tagOptions = value;
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
   List<SeriesRegistryEntry> _seriesEntries = const [];
-    List<StorageLocation> get _availableLocations => _draft.availableLocations;
-    set _availableLocations(List<StorageLocation> value) =>
+  List<StorageLocation> get _availableLocations => _draft.availableLocations;
+  set _availableLocations(List<StorageLocation> value) =>
       _draft.availableLocations = value;
-    String? get _selectedLocationId => _draft.selectedLocationId;
-    set _selectedLocationId(String? value) => _draft.selectedLocationId = value;
-    String get _selectedOwnedAnchorType => _draft.selectedOwnedAnchorType;
-    set _selectedOwnedAnchorType(String value) =>
+  String? get _selectedLocationId => _draft.selectedLocationId;
+  set _selectedLocationId(String? value) => _draft.selectedLocationId = value;
+  String get _selectedOwnedAnchorType => _draft.selectedOwnedAnchorType;
+  set _selectedOwnedAnchorType(String value) =>
       _draft.selectedOwnedAnchorType = value;
-    String? get _selectedEditionId => _draft.selectedEditionId;
-    set _selectedEditionId(String? value) => _draft.selectedEditionId = value;
-    String? get _selectedVariantId => _draft.selectedVariantId;
-    set _selectedVariantId(String? value) => _draft.selectedVariantId = value;
-    String? get _selectedBundleReleaseId => _draft.selectedBundleReleaseId;
-    set _selectedBundleReleaseId(String? value) =>
+  String? get _selectedEditionId => _draft.selectedEditionId;
+  set _selectedEditionId(String? value) => _draft.selectedEditionId = value;
+  String? get _selectedVariantId => _draft.selectedVariantId;
+  set _selectedVariantId(String? value) => _draft.selectedVariantId = value;
+  String? get _selectedBundleReleaseId => _draft.selectedBundleReleaseId;
+  set _selectedBundleReleaseId(String? value) =>
       _draft.selectedBundleReleaseId = value;
-    String? get _selectedTrackingEditionId => _draft.selectedTrackingEditionId;
-    set _selectedTrackingEditionId(String? value) =>
+  String? get _selectedTrackingEditionId => _draft.selectedTrackingEditionId;
+  set _selectedTrackingEditionId(String? value) =>
       _draft.selectedTrackingEditionId = value;
-    String? get _selectedTrackingVariantId => _draft.selectedTrackingVariantId;
-    set _selectedTrackingVariantId(String? value) =>
+  String? get _selectedTrackingVariantId => _draft.selectedTrackingVariantId;
+  set _selectedTrackingVariantId(String? value) =>
       _draft.selectedTrackingVariantId = value;
-    String get _selectedWishlistAnchorType => _draft.selectedWishlistAnchorType;
-    set _selectedWishlistAnchorType(String value) =>
+  String get _selectedWishlistAnchorType => _draft.selectedWishlistAnchorType;
+  set _selectedWishlistAnchorType(String value) =>
       _draft.selectedWishlistAnchorType = value;
-    String? get _selectedWishlistEditionId => _draft.selectedWishlistEditionId;
-    set _selectedWishlistEditionId(String? value) =>
+  String? get _selectedWishlistEditionId => _draft.selectedWishlistEditionId;
+  set _selectedWishlistEditionId(String? value) =>
       _draft.selectedWishlistEditionId = value;
-    String? get _selectedWishlistVariantId => _draft.selectedWishlistVariantId;
-    set _selectedWishlistVariantId(String? value) =>
+  String? get _selectedWishlistVariantId => _draft.selectedWishlistVariantId;
+  set _selectedWishlistVariantId(String? value) =>
       _draft.selectedWishlistVariantId = value;
-    String? get _selectedWishlistBundleReleaseId =>
+  String? get _selectedWishlistBundleReleaseId =>
       _draft.selectedWishlistBundleReleaseId;
-    set _selectedWishlistBundleReleaseId(String? value) =>
+  set _selectedWishlistBundleReleaseId(String? value) =>
       _draft.selectedWishlistBundleReleaseId = value;
-    set _locationChanged(bool value) => _draft.locationChanged = value;
+  set _locationChanged(bool value) => _draft.locationChanged = value;
 
   TextEditingController get _sellPriceController => _draft.sellPriceController;
   TextEditingController get _soldToController => _draft.soldToController;
@@ -244,38 +249,38 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Map<String, int> get _episodeRatings => _draft.episodeRatings;
   set _episodeRatings(Map<String, int> value) => _draft.episodeRatings = value;
 
-    TextEditingController get _rawOrSlabbedController =>
+  TextEditingController get _rawOrSlabbedController =>
       _draft.rawOrSlabbedController;
-    TextEditingController get _gradingCompanyController =>
+  TextEditingController get _gradingCompanyController =>
       _draft.gradingCompanyController;
-    TextEditingController get _graderNotesController =>
+  TextEditingController get _graderNotesController =>
       _draft.graderNotesController;
-    TextEditingController get _signedByController => _draft.signedByController;
-    TextEditingController get _labelTypeController => _draft.labelTypeController;
-    TextEditingController get _certificationNumberController =>
+  TextEditingController get _signedByController => _draft.signedByController;
+  TextEditingController get _labelTypeController => _draft.labelTypeController;
+  TextEditingController get _certificationNumberController =>
       _draft.certificationNumberController;
-    TextEditingController get _coverPriceController =>
+  TextEditingController get _coverPriceController =>
       _draft.coverPriceController;
   bool get _keyComic => _draft.keyComic;
   set _keyComic(bool value) => _draft.keyComic = value;
-    TextEditingController get _keyReasonController => _draft.keyReasonController;
+  TextEditingController get _keyReasonController => _draft.keyReasonController;
 
-    TextEditingController get _featuresController => _draft.featuresController;
-    TextEditingController get _purchaseStoreController =>
+  TextEditingController get _featuresController => _draft.featuresController;
+  TextEditingController get _purchaseStoreController =>
       _draft.purchaseStoreController;
-    TextEditingController get _boxSetNameController =>
+  TextEditingController get _boxSetNameController =>
       _draft.boxSetNameController;
-    TextEditingController get _storageDeviceController =>
+  TextEditingController get _storageDeviceController =>
       _draft.storageDeviceController;
-    TextEditingController get _storageSlotController =>
+  TextEditingController get _storageSlotController =>
       _draft.storageSlotController;
   List<String> get _hdrFormats => _draft.hdrFormats;
 
-    TextEditingController get _regionController => _draft.regionController;
-    TextEditingController get _packagingController => _draft.packagingController;
-    TextEditingController get _distributorController =>
+  TextEditingController get _regionController => _draft.regionController;
+  TextEditingController get _packagingController => _draft.packagingController;
+  TextEditingController get _distributorController =>
       _draft.distributorController;
-    TextEditingController get _screenRatioController =>
+  TextEditingController get _screenRatioController =>
       _draft.screenRatioController;
 
   // Collection status & bag/board
@@ -295,14 +300,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   set _gameCoreRegion(String? value) => _draft.gameCoreRegion = value;
   bool get _gameValueIsLocked => _draft.gameValueIsLocked;
   set _gameValueIsLocked(bool value) => _draft.gameValueIsLocked = value;
-    TextEditingController get _marketValueController =>
+  TextEditingController get _marketValueController =>
       _draft.marketValueController;
-    TextEditingController get _audioTracksController =>
+  TextEditingController get _audioTracksController =>
       _draft.audioTracksController;
-    TextEditingController get _subtitlesController => _draft.subtitlesController;
-    TextEditingController get _layersController => _draft.layersController;
-    TextEditingController get _colorController => _draft.colorController;
-    TextEditingController get _nrDiscsController => _draft.nrDiscsController;
+  TextEditingController get _subtitlesController => _draft.subtitlesController;
+  TextEditingController get _layersController => _draft.layersController;
+  TextEditingController get _colorController => _draft.colorController;
+  TextEditingController get _nrDiscsController => _draft.nrDiscsController;
 
   String? get _physicalFormatId => _draft.physicalFormatId;
   set _physicalFormatId(String? value) => _draft.physicalFormatId = value;
@@ -460,46 +465,24 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final editChrome = widget.type.editChrome;
-    final issueBadgeLabel = editChrome.showsIssueBadge
-        ? emptyToNull(_numberController.text)
-        : null;
-    final physicalFormatBadgeLabel = editChrome.showsPhysicalFormatBadge
-        ? _physicalFormatForId(_physicalFormatId)?.label ??
-            widget.item.physicalFormatLabel
-        : null;
-    final dialogTitle = editChrome.titleUsesItemTitle
-        ? widget.item.title
-        : 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}';
+    final dialogTitle = widget.item.title;
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
       icon: widget.type.workspace.icon,
       title: dialogTitle,
-      badges: [
-        if (issueBadgeLabel != null)
-          IssuePill(label: '#$issueBadgeLabel', color: widget.accent),
-        if (physicalFormatBadgeLabel != null)
-          EditMiniBadge(physicalFormatBadgeLabel),
-        if (_isOwned) const EditMiniBadge('Owned'),
-        if (_isTrackingOnly) const EditMiniBadge('Tracked'),
-        if (_soldAt != null) const EditMiniBadge('Sold'),
-        if (_conditionController.text.trim().isNotEmpty)
-          EditMiniBadge(_conditionController.text.trim()),
-        if (_selectedLocationLabel != null)
-          EditMiniBadge(_selectedLocationLabel!),
-      ],
+      badges: const <Widget>[],
       tabController: _tabController,
       tabs: [
         for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)
       ],
       views: _tabViews(),
       onClose: () => Navigator.of(context).pop(),
+      onCancel: () => Navigator.of(context).pop(),
       onSave: _submit,
+      onPrevious: widget.onPrevious,
+      onNext: widget.onNext,
       tabOrderKey: 'edit_tab_order_${widget.type.workspace.kind.apiValue}',
-      ebaySearchQuery: widget.item.itemNumber != null
-          ? '${widget.item.title} #${widget.item.itemNumber}'
-          : widget.item.title,
     );
   }
 
@@ -551,7 +534,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _mediaTab() {
-    if (_isVideoKind) return _LibraryEditRendererVideoTabs(this)._videoMediaTab();
+    if (_isVideoKind)
+      return _LibraryEditRendererVideoTabs(this)._videoMediaTab();
     return _genericMediaTab();
   }
 
@@ -632,8 +616,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                       label: 'Page count',
                       validator: optionalIntValidator,
                     ),
-                  if (mediaFields.showImprint)
-                    _imprintField(),
+                  if (mediaFields.showImprint) _imprintField(),
                   if (mediaFields.showSeriesGroup)
                     _seriesGroupField(label: 'Series group'),
                 ]),
@@ -660,9 +643,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                       label: releaseFields.barcodeLabel),
                 ]),
                 if (releaseFields.showPhysicalFormat &&
-                  (_effectivePhysicalFormats.isNotEmpty ||
-                    _physicalFormatOptions.isNotEmpty ||
-                    _physicalFormatLabelController.text.trim().isNotEmpty)) ...[
+                    (_effectivePhysicalFormats.isNotEmpty ||
+                        _physicalFormatOptions.isNotEmpty ||
+                        _physicalFormatLabelController.text
+                            .trim()
+                            .isNotEmpty)) ...[
                   const SizedBox(height: 10),
                   _physicalFormatField(label: 'Physical format'),
                 ],
@@ -770,8 +755,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         label: 'Page count',
                         validator: optionalIntValidator,
                       ),
-                    if (mediaFields.showImprint)
-                      _imprintField(),
+                    if (mediaFields.showImprint) _imprintField(),
                     if (mediaFields.showSeriesGroup)
                       _seriesGroupField(label: 'Series group'),
                   ]),
@@ -798,10 +782,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         controller: _barcodeController,
                         label: releaseFields.barcodeLabel),
                   ]),
-                    if (releaseFields.showPhysicalFormat &&
+                  if (releaseFields.showPhysicalFormat &&
                       (_effectivePhysicalFormats.isNotEmpty ||
-                        _physicalFormatOptions.isNotEmpty ||
-                        _physicalFormatLabelController.text.trim().isNotEmpty)) ...[
+                          _physicalFormatOptions.isNotEmpty ||
+                          _physicalFormatLabelController.text
+                              .trim()
+                              .isNotEmpty)) ...[
                     const SizedBox(height: 10),
                     _physicalFormatField(label: 'Physical format'),
                   ],
@@ -989,22 +975,22 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       lastBagBoardDate: _lastBagBoardDate,
       onLastBagBoardDateChanged: (value) =>
           setState(() => _lastBagBoardDate = value),
-        isGameKind: widget.type.workspace.kind.apiValue == 'game',
-        gameCompleteness: _gameCompleteness,
-        onGameCompletenessChanged: (value) =>
+      isGameKind: widget.type.workspace.kind.apiValue == 'game',
+      gameCompleteness: _gameCompleteness,
+      onGameCompletenessChanged: (value) =>
           setState(() => _gameCompleteness = value),
-        gameHasBox: _gameHasBox,
-        onGameHasBoxChanged: (value) => setState(() => _gameHasBox = value),
-        gameHasManual: _gameHasManual,
-        onGameHasManualChanged: (value) => setState(() => _gameHasManual = value),
-        gamePriceChartingId: _gamePriceChartingId,
-        onGamePriceChartingIdChanged: (value) =>
+      gameHasBox: _gameHasBox,
+      onGameHasBoxChanged: (value) => setState(() => _gameHasBox = value),
+      gameHasManual: _gameHasManual,
+      onGameHasManualChanged: (value) => setState(() => _gameHasManual = value),
+      gamePriceChartingId: _gamePriceChartingId,
+      onGamePriceChartingIdChanged: (value) =>
           setState(() => _gamePriceChartingId = value),
-        gameCoreRegion: _gameCoreRegion,
-        onGameCoreRegionChanged: (value) =>
+      gameCoreRegion: _gameCoreRegion,
+      onGameCoreRegionChanged: (value) =>
           setState(() => _gameCoreRegion = value),
-        gameValueIsLocked: _gameValueIsLocked,
-        onGameValueIsLockedChanged: (value) =>
+      gameValueIsLocked: _gameValueIsLocked,
+      onGameValueIsLockedChanged: (value) =>
           setState(() => _gameValueIsLocked = value),
     );
   }
@@ -1575,7 +1561,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
-
   Widget _locationField({String label = 'Location'}) {
     final selectedLabel = _selectedLocationLabel;
     return InkWell(
@@ -1613,7 +1598,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onChanged: (value) => setState(() => _collectionStatus = value),
     );
   }
-
 
   String? get _selectedLocationLabel {
     final locationLabel =
@@ -1741,18 +1725,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       controller: _titleController,
       options: [for (final entry in _seriesEntries) entry.title],
       label: 'Series',
-      validator: (value) => emptyToNull(value ?? '') == null
-          ? 'Enter a title'
-          : null,
+      validator: (value) =>
+          emptyToNull(value ?? '') == null ? 'Enter a title' : null,
       onChanged: (value) {
         final normalized = emptyToNull(value ?? '');
-        final matchingEntry = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
-              (entry) =>
-                  entry != null &&
-                  entry.title.trim().toLowerCase() ==
-                      (normalized?.toLowerCase() ?? ''),
-              orElse: () => null,
-            );
+        final matchingEntry =
+            _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+                  (entry) =>
+                      entry != null &&
+                      entry.title.trim().toLowerCase() ==
+                          (normalized?.toLowerCase() ?? ''),
+                  orElse: () => null,
+                );
         setState(() {
           _selectedSeriesId = matchingEntry?.coreSeriesId;
         });

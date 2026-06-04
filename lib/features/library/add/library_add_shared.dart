@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -94,7 +95,8 @@ ButtonStyle libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
   return OutlinedButton.styleFrom(
     foregroundColor: accent,
     side: BorderSide(color: accent.withValues(alpha: 0.78)),
-    minimumSize: const Size(0, kLibraryAddControlHeight),
+    minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
+    shape: kLibraryDialogFooterButtonShape,
     padding: const EdgeInsets.symmetric(horizontal: 12),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     visualDensity: VisualDensity.compact,

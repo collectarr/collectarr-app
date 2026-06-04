@@ -114,7 +114,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   bool get _isOwned => widget.request.ownedItem != null;
 
-  bool get _hasTrackingContext => _isOwned || widget.request.trackingEntry != null;
+  bool get _hasTrackingContext =>
+      _isOwned || widget.request.trackingEntry != null;
 
   bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
@@ -175,8 +176,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         TextEditingController(text: item.series?.seriesTitle ?? '');
     _volumeNameController =
         TextEditingController(text: item.series?.volumeName ?? '');
-    _volumeNumberController =
-        TextEditingController(text: item.series?.volumeNumber?.toString() ?? '');
+    _volumeNumberController = TextEditingController(
+        text: item.series?.volumeNumber?.toString() ?? '');
     _releaseDateController = _draft.releaseDateController;
     _releaseYearController = _draft.releaseYearController;
     _pageCountController = _draft.pageCountController;
@@ -207,7 +208,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _ratingController = _draft.ratingController;
     _trackingController = _draft.trackingController;
     _trackingController.text =
-      _type.trackingProfile.normalizeStorageValue(_trackingController.text) ?? '';
+        _type.trackingProfile.normalizeStorageValue(_trackingController.text) ??
+            '';
     _tagsController = _draft.tagsController;
     _tagOptions = List<String>.from(_draft.tagOptions);
     _sellPriceController = _draft.sellPriceController;
@@ -271,25 +273,19 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       formKey: _formKey,
       accent: _accent,
       icon: _type.workspace.icon,
-      title: 'Edit ${_type.singularLabel.toLowerCase()} — ${widget.request.item.title}',
-      badges: [
-        const EditMiniBadge('Books'),
-        if (_isOwned) const EditMiniBadge('Owned'),
-        if (!_isOwned && widget.request.trackingEntry != null)
-          const EditMiniBadge('Tracked'),
-        if (_seriesTitleController.text.trim().isNotEmpty)
-          EditMiniBadge(_seriesTitleController.text.trim()),
-        if (_selectedLocationLabel != null) EditMiniBadge(_selectedLocationLabel!),
-      ],
+      title: widget.request.item.title,
+      badges: const <Widget>[],
       tabController: _tabController,
-      tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
+      tabs: [
+        for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)
+      ],
       views: _tabViews(),
       onClose: () => Navigator.of(context).pop(),
+      onCancel: () => Navigator.of(context).pop(),
       onSave: _submit,
+      onPrevious: widget.request.onPrevious,
+      onNext: widget.request.onNext,
       tabOrderKey: 'edit_tab_order_${_type.workspace.kind.apiValue}',
-      ebaySearchQuery: widget.request.item.itemNumber != null
-          ? '${widget.request.item.title} #${widget.request.item.itemNumber}'
-          : widget.request.item.title,
     );
   }
 
@@ -594,13 +590,20 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 ),
                 _field(controller: _sortKeyController, label: 'Title sort'),
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(controller: _numberController, label: _type.mediaFields.numberLabel),
-                _field(controller: _publisherController, label: _type.mediaFields.publisherLabel),
-                _field(controller: _editionTitleController, label: _type.releaseFields.editionTitleLabel),
+                _field(
+                    controller: _numberController,
+                    label: _type.mediaFields.numberLabel),
+                _field(
+                    controller: _publisherController,
+                    label: _type.mediaFields.publisherLabel),
+                _field(
+                    controller: _editionTitleController,
+                    label: _type.releaseFields.editionTitleLabel),
                 _field(controller: _countryController, label: 'Country'),
                 _field(controller: _languageController, label: 'Language'),
                 _field(controller: _imprintController, label: 'Imprint'),
-                _field(controller: _seriesGroupController, label: 'Series group'),
+                _field(
+                    controller: _seriesGroupController, label: 'Series group'),
               ], wideColumns: 2, ultraWideColumns: 4),
             ],
           ),
@@ -736,8 +739,12 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           child: Column(
             children: [
               _responsiveFields([
-                _field(controller: _barcodeController, label: _type.releaseFields.barcodeLabel),
-                _field(controller: _variantController, label: _type.releaseFields.variantLabel),
+                _field(
+                    controller: _barcodeController,
+                    label: _type.releaseFields.barcodeLabel),
+                _field(
+                    controller: _variantController,
+                    label: _type.releaseFields.variantLabel),
               ]),
             ],
           ),
@@ -857,7 +864,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ],
               _responsiveFields([
                 if (_isOwned) _locationField(),
-                SizedBox(width: 120, child: MediaRatingField(controller: _ratingController)),
+                SizedBox(
+                    width: 120,
+                    child: MediaRatingField(controller: _ratingController)),
                 SizedBox(
                   width: 180,
                   child: MediaTrackingStatusField(
@@ -1140,7 +1149,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   }
 
   String? get _selectedLocationLabel {
-    final locationLabel = locationPathForId(_availableLocations, _selectedLocationId);
+    final locationLabel =
+        locationPathForId(_availableLocations, _selectedLocationId);
     if (locationLabel != null) {
       return locationLabel;
     }
@@ -1279,7 +1289,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     if (names == null) {
       return null;
     }
-    return [for (final name in names) {'name': name}];
+    return [
+      for (final name in names) {'name': name}
+    ];
   }
 
   void _submit() {
@@ -1345,12 +1357,13 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
-            anchorType: (_selectedEditionId != null || _selectedVariantId != null)
-              ? 'variant'
-              : 'item',
-            editionId: _selectedEditionId,
-            variantId: _selectedVariantId,
-            bundleReleaseId: null,
+                anchorType:
+                    (_selectedEditionId != null || _selectedVariantId != null)
+                        ? 'variant'
+                        : 'item',
+                editionId: _selectedEditionId,
+                variantId: _selectedVariantId,
+                bundleReleaseId: null,
                 condition: emptyToNull(_conditionController.text),
                 grade: emptyToNull(_gradeController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),
@@ -1375,8 +1388,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         tracking: !_hasTrackingContext
             ? null
             : LibraryTrackingEditSelection(
-          editionId: _selectedEditionId,
-          variantId: _selectedVariantId,
+                editionId: _selectedEditionId,
+                variantId: _selectedVariantId,
                 rating: parseInt(_ratingController.text),
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
@@ -1385,17 +1398,20 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 progressTotal: widget.request.trackingEntry?.progressTotal,
                 timesCompleted: widget.request.trackingEntry?.timesCompleted,
                 notes: widget.request.trackingEntry?.notes,
-                seasonNumber: widget.request.trackingEntry?.seasonNumber ?? widget.request.item.series?.seasonNumber,
-                episodeNumber: widget.request.trackingEntry?.episodeNumber ?? widget.request.item.series?.episodeNumber,
+                seasonNumber: widget.request.trackingEntry?.seasonNumber ??
+                    widget.request.item.series?.seasonNumber,
+                episodeNumber: widget.request.trackingEntry?.episodeNumber ??
+                    widget.request.item.series?.episodeNumber,
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
         wishlist: !_hasWishlistContext
             ? null
             : LibraryWishlistEditSelection(
-                anchorType: (_selectedEditionId != null || _selectedVariantId != null)
-                    ? 'variant'
-                    : 'item',
+                anchorType:
+                    (_selectedEditionId != null || _selectedVariantId != null)
+                        ? 'variant'
+                        : 'item',
                 editionId: _selectedEditionId,
                 variantId: _selectedVariantId,
                 bundleReleaseId: null,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,6 @@ class ComicInspectorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final accent = request.inspector.accent;
     final children = <Widget>[
       request.hero,
@@ -42,15 +42,8 @@ class ComicInspectorPanel extends StatelessWidget {
       const SizedBox(height: 6),
     ];
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(
-          left: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.22),
-          ),
-        ),
-      ),
+    return LibraryDetailsPaneFrame(
+      accentColor: accent,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
         children: children,

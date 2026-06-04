@@ -84,4 +84,30 @@ void main() {
     expect(find.text('Pick Publisher'), findsNothing);
     expect(find.text('Publisher B'), findsNothing);
   });
+
+  testWidgets(
+      'single value pick field keeps dropdown action when empty options',
+      (tester) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleValuePickField(
+            controller: controller,
+            options: const [],
+            label: 'Publisher',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Pick Publisher'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Pick Publisher'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PopupMenuItem<String>), findsOneWidget);
+  });
 }

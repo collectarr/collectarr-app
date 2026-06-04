@@ -238,7 +238,7 @@ void main() {
     expect(find.text('New Series'), findsOneWidget);
     expect(find.text('Manage Series'), findsOneWidget);
 
-    await tester.tap(find.text('Cancel'));
+    await tester.tap(find.text('Cancel').last);
     await tester.pumpAndSettle();
 
     await tester.enterText(

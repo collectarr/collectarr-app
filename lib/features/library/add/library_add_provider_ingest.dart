@@ -15,60 +15,87 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
       await _addItems([previewItem], target);
       return;
     }
+    var currentCandidate = candidate;
     try {
-      // Preview: fetch + normalize without creating in core DB.
-      final preview = await ref.read(apiClientProvider).adminProviderPreview(
-            provider: candidate.provider,
-            providerItemId: candidate.providerItemId,
-          );
-      if (!mounted) return;
+      while (mounted) {
+        // Preview: fetch + normalize without creating in core DB.
+        final preview = await ref.read(apiClientProvider).adminProviderPreview(
+              provider: currentCandidate.provider,
+              providerItemId: currentCandidate.providerItemId,
+            );
+        if (!mounted) return;
 
-      final previewItem = metadataItemFromPreview(preview);
-      final catalog = ref.read(mediaCatalogProvider).maybeWhen(
-            data: (value) => value,
-            orElse: () => fallbackMediaCatalog,
-          );
+        final previewItem = metadataItemFromPreview(preview);
+        final catalog = ref.read(mediaCatalogProvider).maybeWhen(
+              data: (value) => value,
+              orElse: () => fallbackMediaCatalog,
+            );
+        final visibleCandidates = _visibleProviderResults();
+        final currentIndex = visibleCandidates.indexWhere(
+          (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
+        );
+        ProviderCandidate? navigateCandidate;
 
-      // Open edit dialog so the user can review / modify all fields.
-      final result = await showLibraryEditDialog(
-        context: context,
-        request: LibraryEditDialogRequest(
-          type: widget.type,
-          item: previewItem,
-          ownedItem: null,
-          accent: LibraryAccentScope.accentOf(context),
-          physicalFormats: physicalMediaFormatsForKind(
-            catalog,
-            widget.type.workspace.kind,
+        // Open edit dialog so the user can review / modify all fields.
+        final result = await showLibraryEditDialog(
+          context: context,
+          request: LibraryEditDialogRequest(
+            type: widget.type,
+            item: previewItem,
+            ownedItem: null,
+            accent: LibraryAccentScope.accentOf(context),
+            physicalFormats: physicalMediaFormatsForKind(
+              catalog,
+              widget.type.workspace.kind,
+            ),
+            onPrevious: currentIndex > 0
+                ? () {
+                    navigateCandidate = visibleCandidates[currentIndex - 1];
+                    Navigator.of(context).pop();
+                  }
+                : null,
+            onNext:
+                currentIndex >= 0 && currentIndex < visibleCandidates.length - 1
+                    ? () {
+                        navigateCandidate = visibleCandidates[currentIndex + 1];
+                        Navigator.of(context).pop();
+                      }
+                    : null,
           ),
-        ),
-      );
-      if (result == null || !mounted) return;
+        );
+        if (!mounted) return;
+        if (navigateCandidate != null) {
+          currentCandidate = navigateCandidate!;
+          continue;
+        }
+        if (result == null) return;
 
-      // Ingest: create item in core DB.
-      final ingest = await ref.read(apiClientProvider).adminProviderIngest(
-            provider: candidate.provider,
-            providerItemId: candidate.providerItemId,
+        // Ingest: create item in core DB.
+        final ingest = await ref.read(apiClientProvider).adminProviderIngest(
+              provider: currentCandidate.provider,
+              providerItemId: currentCandidate.providerItemId,
+            );
+
+        // Apply user corrections if any fields differ from the ingested item.
+        final edited = result.item;
+        final ingested = metadataItemFromIngestResult(ingest.item);
+        if (mounted) {
+          await applyIngestCorrections(
+            kind: ingested.kind,
+            itemId: ingest.itemId,
+            preview: previewItem,
+            edited: edited,
           );
+        }
 
-      // Apply user corrections if any fields differ from the ingested item.
-      final edited = result.item;
-      final ingested = metadataItemFromIngestResult(ingest.item);
-      if (mounted) {
-        await applyIngestCorrections(
-          kind: ingested.kind,
-          itemId: ingest.itemId,
-          preview: previewItem,
+        // Use the ingested item as base but overlay the user's edits.
+        final finalItem = mergeProviderAddResult(
+          ingested: ingested,
           edited: edited,
         );
+        await _addItems([finalItem], target);
+        return;
       }
-
-      // Use the ingested item as base but overlay the user's edits.
-      final finalItem = mergeProviderAddResult(
-        ingested: ingested,
-        edited: edited,
-      );
-      await _addItems([finalItem], target);
     } catch (error) {
       if (mounted &&
           await _clearRejectedMetadataSession(error, 'Provider ingest')) {
@@ -271,16 +298,46 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
     if (_isAdding) {
       return;
     }
-    final result = await showLibraryEditDialog(
-      context: context,
-      request: LibraryEditDialogRequest(
-        type: widget.type,
-        item: proposalDraftFromCandidate(candidate),
-        ownedItem: null,
-        accent: LibraryAccentScope.accentOf(context),
-        physicalFormats: _currentPhysicalFormats(),
-      ),
-    );
+    var currentCandidate = candidate;
+    LibraryEditSelection? result;
+    while (mounted) {
+      final visibleCandidates = _visibleProviderResults();
+      final currentIndex = visibleCandidates.indexWhere(
+        (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
+      );
+      ProviderCandidate? navigateCandidate;
+      result = await showLibraryEditDialog(
+        context: context,
+        request: LibraryEditDialogRequest(
+          type: widget.type,
+          item: proposalDraftFromCandidate(currentCandidate),
+          ownedItem: null,
+          accent: LibraryAccentScope.accentOf(context),
+          physicalFormats: _currentPhysicalFormats(),
+          onPrevious: currentIndex > 0
+              ? () {
+                  navigateCandidate = visibleCandidates[currentIndex - 1];
+                  Navigator.of(context).pop();
+                }
+              : null,
+          onNext:
+              currentIndex >= 0 && currentIndex < visibleCandidates.length - 1
+                  ? () {
+                      navigateCandidate = visibleCandidates[currentIndex + 1];
+                      Navigator.of(context).pop();
+                    }
+                  : null,
+        ),
+      );
+      if (!mounted) {
+        return;
+      }
+      if (navigateCandidate != null) {
+        currentCandidate = navigateCandidate!;
+        continue;
+      }
+      break;
+    }
     if (result == null || !mounted) {
       return;
     }
@@ -293,11 +350,11 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
       await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: widget.type,
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
+        provider: currentCandidate.provider,
+        providerItemId: currentCandidate.providerItemId,
         query: _providerQuery,
         title: proposalItem.title,
-        summary: proposalItem.synopsis ?? candidate.summary,
+        summary: proposalItem.synopsis ?? currentCandidate.summary,
         imageUrl: proposalItem.displayCoverUrl,
         metadataPayload: proposalItem.toCatalogItem().toSyncPayload(),
         source: 'Add ${widget.type.pluralLabel} provider result',

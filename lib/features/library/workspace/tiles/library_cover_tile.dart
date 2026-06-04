@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -160,6 +162,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           imageUrl: entry.displayCoverUrl,
                           ownedItemId: entry.ownedItemId,
                           accentColor: widget.accentColor,
+                          fit: BoxFit.cover,
                           enableFullscreen: false,
                           enableSecondaryControl: false,
                         ),
@@ -187,8 +190,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                         ),
                       if (showSelectionToggle)
                         Positioned(
-                          left: 6,
-                          bottom: 6,
+                          left: 5,
+                          bottom: 5,
                           child: _LibraryTileSelectionToggleButton(
                             onTap: widget.onSelectionToggleTap,
                             child: _LibraryTileSelectionToggle(
@@ -200,8 +203,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                         ),
                       if (scopeBadge != null)
                         Positioned(
-                          right: 6,
-                          bottom: 6,
+                          right: 5,
+                          bottom: 5,
                           child: scopeBadge,
                         ),
                     ],
@@ -249,61 +252,26 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   }
 
   Widget? _scopeBadge(BuildContext context, LibraryWorkspaceEntry entry) {
-    final colorScheme = Theme.of(context).colorScheme;
     final status = entry.collectionStatus?.trim().toLowerCase();
-    if (status == 'sold') {
-      return _LibraryTileScopePill(
-        icon: Icons.sell,
-        label: 'Sold',
-        backgroundColor: colorScheme.errorContainer,
-        foregroundColor: colorScheme.onErrorContainer,
-      );
-    }
-    if (status == 'for_sale') {
-      return _LibraryTileScopePill(
-        icon: Icons.sell_outlined,
-        label: 'For sale',
-        backgroundColor: Colors.orange.shade700,
-        foregroundColor: Colors.white,
-      );
-    }
-    if (status == 'on_order') {
-      return _LibraryTileScopePill(
-        icon: Icons.local_shipping_outlined,
-        label: 'On order',
-        backgroundColor: colorScheme.secondaryContainer,
-        foregroundColor: colorScheme.onSecondaryContainer,
-      );
-    }
-    if (entry.isOwned) {
-      return _LibraryTileScopePill(
-        icon: Icons.check_circle,
-        label: 'In collection',
-        backgroundColor: colorScheme.primaryContainer,
-        foregroundColor: colorScheme.onPrimaryContainer,
-      );
-    }
-    if (entry.isWishlisted) {
-      return _LibraryTileScopePill(
-        icon: Icons.star,
-        label: 'Wishlist',
-        backgroundColor: colorScheme.tertiaryContainer,
-        foregroundColor: colorScheme.onTertiaryContainer,
-      );
-    }
-    if (entry.isTracked) {
-      return _LibraryTileScopePill(
-        icon: Icons.equalizer,
-        label: 'Tracked',
-        backgroundColor: colorScheme.secondaryContainer,
-        foregroundColor: colorScheme.onSecondaryContainer,
-      );
-    }
+    final palette = appPalette(context);
+    final scope = switch (status) {
+      'sold' => LibraryCollectionStatusScope.sold,
+      'for_sale' => LibraryCollectionStatusScope.forSale,
+      'on_order' => LibraryCollectionStatusScope.onOrder,
+      _ when entry.isOwned => LibraryCollectionStatusScope.inCollection,
+      _ when entry.isWishlisted => LibraryCollectionStatusScope.wishList,
+      _ when entry.isTracked => LibraryCollectionStatusScope.notInCollection,
+      _ => LibraryCollectionStatusScope.notInCollection,
+    };
+    final iconColor = libraryCollectionStatusScopeColor(
+      scope,
+      widget.accentColor,
+      palette.textMuted,
+    );
     return _LibraryTileScopePill(
-      icon: Icons.add_box_outlined,
-      label: 'Catalog only',
-      backgroundColor: colorScheme.surfaceContainerHighest,
-      foregroundColor: colorScheme.onSurfaceVariant,
+      icon: scope.icon,
+      label: scope.label,
+      color: iconColor,
     );
   }
 }
@@ -321,8 +289,8 @@ class _LibraryTileSelectionToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = (coverSize * 0.11).clamp(14.0, 20.0).toDouble();
-    final padding = (coverSize * 0.015).clamp(2.0, 4.0).toDouble();
+    final iconSize = (coverSize * 0.095).clamp(12.0, 16.0).toDouble();
+    final padding = (coverSize * 0.01).clamp(1.0, 2.0).toDouble();
     return DecoratedBox(
       decoration: BoxDecoration(
         color: selected ? accentColor : Colors.white.withValues(alpha: 0.92),
@@ -375,7 +343,7 @@ class _LibraryTileSelectionToggleButton extends StatelessWidget {
   }
 }
 
-class _LibraryTileHoverActionButton extends StatelessWidget {
+class _LibraryTileHoverActionButton extends StatefulWidget {
   const _LibraryTileHoverActionButton({
     required this.icon,
     required this.tooltip,
@@ -387,22 +355,41 @@ class _LibraryTileHoverActionButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_LibraryTileHoverActionButton> createState() =>
+      _LibraryTileHoverActionButtonState();
+}
+
+class _LibraryTileHoverActionButtonState
+    extends State<_LibraryTileHoverActionButton> {
+  bool _tapHandledOnDown = false;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Tooltip(
-      message: tooltip,
+      message: widget.tooltip,
       child: Material(
         color: palette.surfaceBright.withValues(alpha: 0.95),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         elevation: 2,
         child: InkWell(
-          onTap: onTap,
+          onTapDown: (_) {
+            _tapHandledOnDown = true;
+            widget.onTap();
+          },
+          onTapCancel: () => _tapHandledOnDown = false,
+          onTap: () {
+            if (!_tapHandledOnDown) {
+              widget.onTap();
+            }
+            _tapHandledOnDown = false;
+          },
           borderRadius: BorderRadius.circular(6),
           hoverColor: kAppHighlight.withValues(alpha: 0.25),
           highlightColor: kAppHighlight.withValues(alpha: 0.18),
           child: Padding(
             padding: const EdgeInsets.all(5),
-            child: Icon(icon, size: 15, color: palette.textPrimary),
+            child: Icon(widget.icon, size: 15, color: palette.textPrimary),
           ),
         ),
       ),
@@ -414,39 +401,21 @@ class _LibraryTileScopePill extends StatelessWidget {
   const _LibraryTileScopePill({
     required this.icon,
     required this.label,
-    required this.backgroundColor,
-    required this.foregroundColor,
+    required this.color,
   });
 
   final IconData icon;
   final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: label,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: backgroundColor.withValues(alpha: 0.98),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: Colors.black.withValues(alpha: 0.18),
-            width: 1,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 8,
-              color: Color(0x29000000),
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Icon(icon, size: 14, color: foregroundColor),
-        ),
+      child: Icon(
+        icon,
+        size: 13,
+        color: color,
       ),
     );
   }

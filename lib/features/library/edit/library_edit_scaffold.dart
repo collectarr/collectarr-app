@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,12 +23,14 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.views = const [],
     this.body,
     required this.onClose,
+    required this.onCancel,
     required this.onSave,
+    this.onPrevious,
+    this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
     this.tabReorderLongPressDelay = const Duration(milliseconds: 220),
     this.tabOrderKey,
-    this.ebaySearchQuery,
   }) : assert(
           body != null ||
               (tabController != null &&
@@ -47,22 +49,23 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> views;
   final Widget? body;
   final VoidCallback onClose;
+  final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final bool allowTabReorder;
   final Duration tabReorderLongPressDelay;
+
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
-  /// If non-null, an eBay search button appears in the title bar.
-  final String? ebaySearchQuery;
 
   @override
   State<LibraryEditDialogScaffold> createState() =>
       _LibraryEditDialogScaffoldState();
 }
 
-class _LibraryEditDialogScaffoldState
-    extends State<LibraryEditDialogScaffold> {
+class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   late List<int> _tabOrder;
 
   @override
@@ -165,7 +168,8 @@ class _LibraryEditDialogScaffoldState
               ],
             ),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+              constraints:
+                  BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
               child: Form(
                 key: widget.formKey,
                 child: Column(
@@ -177,7 +181,6 @@ class _LibraryEditDialogScaffoldState
                       badges: widget.badges,
                       onClose: widget.onClose,
                       chromeVariant: widget.chromeVariant,
-                      ebaySearchQuery: widget.ebaySearchQuery,
                     ),
                     if (hasTabStrip)
                       LibraryEditTabStripFrame(
@@ -203,7 +206,10 @@ class _LibraryEditDialogScaffoldState
                       ),
                     ),
                     _LibraryEditFooter(
+                      onCancel: widget.onCancel,
                       onSave: widget.onSave,
+                      onPrevious: widget.onPrevious,
+                      onNext: widget.onNext,
                       chromeVariant: widget.chromeVariant,
                       accent: widget.accent,
                     ),
@@ -283,7 +289,8 @@ class _ReorderableTabStrip extends StatelessWidget {
                                 ),
                               ),
                               child: GestureDetector(
-                                onTap: () => tabController.animateTo(tabOrder[i]),
+                                onTap: () =>
+                                    tabController.animateTo(tabOrder[i]),
                                 child: LibraryEditStyledTabLabel(
                                   tab: tabs[i],
                                   accent: accent,
@@ -320,7 +327,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.badges,
     required this.onClose,
     required this.chromeVariant,
-    this.ebaySearchQuery,
   });
 
   final Color accent;
@@ -329,24 +335,19 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final List<Widget> badges;
   final VoidCallback onClose;
   final LibraryEditChromeVariant chromeVariant;
-  final String? ebaySearchQuery;
-
-  Future<void> _searchOnEbay() async {
-    final query = ebaySearchQuery;
-    if (query == null) return;
-    await launchEbaySearch(query);
-  }
 
   @override
   Widget build(BuildContext context) {
-    final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final isMovieDesktop =
+        chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final headerMinHeight = isMovieDesktop ? 46.0 : 48.0;
     return Container(
       constraints: BoxConstraints(minHeight: headerMinHeight),
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       decoration: BoxDecoration(
         color: accent,
-        border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
+        border:
+            Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
@@ -378,17 +379,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
               ],
             ),
           ),
-          if (ebaySearchQuery != null)
-            IconButton(
-              tooltip: 'Search on eBay',
-              onPressed: _searchOnEbay,
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(
-                Icons.shopping_cart_outlined,
-                size: 17,
-                color: Colors.white,
-              ),
-            ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,
@@ -403,41 +393,90 @@ class _LibraryEditTitleBar extends StatelessWidget {
 
 class _LibraryEditFooter extends StatelessWidget {
   const _LibraryEditFooter({
+    required this.onCancel,
     required this.onSave,
+    this.onPrevious,
+    this.onNext,
     required this.chromeVariant,
     required this.accent,
   });
 
+  final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    final isMovieDesktop = chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final isMovieDesktop =
+        chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final navButtonStyle = OutlinedButton.styleFrom(
+      shape: kLibraryDialogFooterButtonShape,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
+      visualDensity: VisualDensity.compact,
+    );
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kLibraryDialogFooterHorizontalPadding,
+        vertical: kLibraryDialogFooterVerticalPadding,
+      ),
       decoration: BoxDecoration(
         color: appPalette(context).toolbar,
         border: Border(top: BorderSide(color: appPalette(context).divider)),
       ),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: FilledButton.icon(
-          style: FilledButton.styleFrom(
-            backgroundColor: isMovieDesktop
-                ? Color.alphaBlend(accent.withValues(alpha: 0.18), Colors.white)
-                : accent,
-            foregroundColor: isMovieDesktop ? Colors.black87 : null,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-            textStyle: const TextStyle(fontWeight: FontWeight.w700),
-            visualDensity: VisualDensity.compact,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 112,
+            child: OutlinedButton.icon(
+              style: navButtonStyle,
+              onPressed: onPrevious,
+              icon: const Icon(Icons.chevron_left),
+              label: const Text('Previous'),
+            ),
           ),
-          onPressed: onSave,
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Save'),
-        ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 112,
+            child: OutlinedButton.icon(
+              style: navButtonStyle,
+              onPressed: onNext,
+              icon: const Icon(Icons.chevron_right),
+              label: const Text('Next'),
+            ),
+          ),
+          const Spacer(),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              shape: kLibraryDialogFooterButtonShape,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: onCancel,
+            child: const Text('Cancel'),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: isMovieDesktop
+                  ? Color.alphaBlend(
+                      accent.withValues(alpha: 0.18), Colors.white)
+                  : accent,
+              foregroundColor: isMovieDesktop ? Colors.black87 : null,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              shape: kLibraryDialogFooterButtonShape,
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: onSave,
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('Save'),
+          ),
+        ],
       ),
     );
   }

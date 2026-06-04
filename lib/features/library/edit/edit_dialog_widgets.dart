@@ -70,8 +70,9 @@ ThemeData editDialogTheme({
         horizontal: compactDesktop ? 8 : 9,
         vertical: compactDesktop ? 6 : 7,
       ),
-      floatingLabelBehavior:
-          compactDesktop ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
+      floatingLabelBehavior: compactDesktop
+          ? FloatingLabelBehavior.always
+          : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
         color: palette.textMuted,
         fontSize: compactDesktop ? 12 : null,
@@ -139,7 +140,8 @@ class EditTabShell extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
               decoration: BoxDecoration(
                 color: appPalette(context).surface,
-                border: Border(right: BorderSide(color: appPalette(context).divider)),
+                border: Border(
+                    right: BorderSide(color: appPalette(context).divider)),
               ),
               child: Column(
                 children: [
@@ -215,6 +217,92 @@ class EditSection extends StatelessWidget {
               child,
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditSectionStateMessage extends StatelessWidget {
+  const EditSectionStateMessage({
+    super.key,
+    required this.message,
+    this.icon = Icons.info_outline,
+  });
+
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface.withValues(alpha: 0.72),
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 16, color: palette.textMuted),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: palette.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EditSectionLoadingState extends StatelessWidget {
+  const EditSectionLoadingState({
+    super.key,
+    this.message = 'Loading…',
+  });
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface.withValues(alpha: 0.72),
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        child: Row(
+          children: [
+            const SizedBox.square(
+              dimension: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: palette.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -419,7 +507,8 @@ class SoldSummaryPanel extends StatelessWidget {
                 : '$symbol${(paid / 100).toStringAsFixed(2)}',
           ),
           const SizedBox(width: 6),
-          Icon(Icons.arrow_forward, size: 14, color: appPalette(context).textMuted),
+          Icon(Icons.arrow_forward,
+              size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 6),
           ValueContextChip(
             icon: Icons.sell_outlined,
@@ -429,7 +518,8 @@ class SoldSummaryPanel extends StatelessWidget {
                 : '$symbol${(sold / 100).toStringAsFixed(2)}',
           ),
           const SizedBox(width: 6),
-          Icon(Icons.arrow_forward, size: 14, color: appPalette(context).textMuted),
+          Icon(Icons.arrow_forward,
+              size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),

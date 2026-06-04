@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
@@ -111,75 +112,37 @@ class _MovieManualPane extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: palette.panelRaised,
-                border: Border.all(color: palette.divider),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          request.type.workspace.icon,
-                          size: 20,
-                          color: request.accent,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Manual movie setup',
-                                style: TextStyle(
-                                  color: palette.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Set release basics here, then review format and collection details before saving.',
-                                style: TextStyle(
-                                  color: palette.textMuted,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        LibraryAddResultBadge(request.defaultCondition,
-                            accent: request.accent),
-                        LibraryAddResultBadge(request.defaultGrade,
-                            accent: request.accent),
-                        if (request.defaultLocationLabel != null)
-                          LibraryAddResultBadge(request.defaultLocationLabel!,
-                              accent: request.accent),
-                        if (request.defaultPurchaseDate != null)
-                          LibraryAddResultBadge(
-                            _formatDate(request.defaultPurchaseDate!),
-                            accent: request.accent,
-                          ),
-                        if (copyTypeLabel != null)
-                          LibraryAddResultBadge(copyTypeLabel,
-                              accent: request.accent),
-                      ],
-                    ),
-                  ],
+            LibraryAddManualIntroCard(
+              icon: request.type.workspace.icon,
+              accent: request.accent,
+              title: 'Manual movie setup',
+              subtitle:
+                  'Set release basics here, then review format and collection details before saving.',
+              badges: [
+                libraryAddManualIntroBadge(
+                  request.defaultCondition,
+                  accent: request.accent,
                 ),
-              ),
+                libraryAddManualIntroBadge(
+                  request.defaultGrade,
+                  accent: request.accent,
+                ),
+                if (request.defaultLocationLabel != null)
+                  libraryAddManualIntroBadge(
+                    request.defaultLocationLabel!,
+                    accent: request.accent,
+                  ),
+                if (request.defaultPurchaseDate != null)
+                  libraryAddManualIntroBadge(
+                    _formatDate(request.defaultPurchaseDate!),
+                    accent: request.accent,
+                  ),
+                if (copyTypeLabel != null)
+                  libraryAddManualIntroBadge(
+                    copyTypeLabel,
+                    accent: request.accent,
+                  ),
+              ],
             ),
             const SizedBox(height: 12),
             Expanded(

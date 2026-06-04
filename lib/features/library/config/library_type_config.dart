@@ -95,6 +95,8 @@ class LibraryEditDialogRequest {
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
     this.itemImages = const [],
+    this.onPrevious,
+    this.onNext,
   });
 
   final LibraryTypeConfig type;
@@ -108,6 +110,8 @@ class LibraryEditDialogRequest {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
 }
 
 typedef LibraryEditDialogBuilder = Widget Function(

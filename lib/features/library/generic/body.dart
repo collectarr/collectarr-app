@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -424,6 +426,7 @@ class _LibrarySidebarResizableLayoutState
     extends State<_LibrarySidebarResizableLayout> {
   late double _width;
   bool _dragging = false;
+  Timer? _persistDebounce;
 
   @override
   void initState() {
@@ -443,6 +446,24 @@ class _LibrarySidebarResizableLayoutState
     }
   }
 
+  @override
+  void dispose() {
+    _persistDebounce?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleSidebarWidthPersist(double width) {
+    _persistDebounce?.cancel();
+    _persistDebounce = Timer(const Duration(milliseconds: 16), () {
+      widget.onSidebarWidthChanged(width);
+    });
+  }
+
+  void _flushSidebarWidthPersist() {
+    _persistDebounce?.cancel();
+    widget.onSidebarWidthChanged(_width);
+  }
+
   void _handleDrag(double delta) {
     final nextWidth = clampLibraryPaneWidth(
       _width + delta,
@@ -453,7 +474,7 @@ class _LibrarySidebarResizableLayoutState
       return;
     }
     setState(() => _width = nextWidth);
-    widget.onSidebarWidthChanged(nextWidth);
+    _scheduleSidebarWidthPersist(nextWidth);
   }
 
   @override
@@ -464,7 +485,10 @@ class _LibrarySidebarResizableLayoutState
         LibraryResizableDivider(
           color: widget.dividerColor,
           onDragStart: () => _dragging = true,
-          onDragEnd: () => _dragging = false,
+          onDragEnd: () {
+            _dragging = false;
+            _flushSidebarWidthPersist();
+          },
           onDragDelta: _handleDrag,
         ),
         Expanded(child: widget.content),

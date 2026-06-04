@@ -62,16 +62,95 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
     final db = ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final owned = ownedItemOverride ?? item.source.ownedItem;
-    final wishlist = item.source.wishlistItem;
+    final freshCatalogItem = (await CatalogCacheRepository(db)
+            .findByIds({catalogItem.id}))[catalogItem.id] ??
+        catalogItem;
+    final ownedItems = ref.read(collectionProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => const <OwnedItem>[],
+        );
+    OwnedItem? owned = ownedItemOverride;
+    final overrideOwnedId = owned?.id;
+    if (overrideOwnedId != null) {
+      for (final candidate in ownedItems) {
+        if (!candidate.isDeleted && candidate.id == overrideOwnedId) {
+          owned = candidate;
+          break;
+        }
+      }
+    }
+    owned ??= item.source.ownedItem;
+    if (owned == null ||
+        owned.isDeleted ||
+        owned.itemId != freshCatalogItem.id) {
+      for (final candidate in ownedItems) {
+        if (!candidate.isDeleted && candidate.itemId == freshCatalogItem.id) {
+          owned = candidate;
+          break;
+        }
+      }
+    }
+    final wishlistItems = ref.read(wishlistProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => const <WishlistItem>[],
+        );
+    WishlistItem? wishlist = item.source.wishlistItem;
+    if (wishlist == null ||
+        wishlist.isDeleted ||
+        wishlist.itemId != freshCatalogItem.id) {
+      wishlist = null;
+      for (final candidate in wishlistItems) {
+        if (!candidate.isDeleted && candidate.itemId == freshCatalogItem.id) {
+          wishlist = candidate;
+          break;
+        }
+      }
+    }
     final activeTrackingEntry = resolveActiveTrackingEntry(
-      ref.read(trackingEntriesByCatalogItemProvider)[catalogItem.id] ??
+      ref.read(trackingEntriesByCatalogItemProvider)[freshCatalogItem.id] ??
           const <TrackingEntry>[],
       owned,
     );
+    final shelfState = ref.read(shelfProvider).asData?.value;
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final projection = shelfState == null
+        ? null
+        : _projectionForShelf(
+            shelfState,
+            viewState,
+          );
+    final viewItems =
+        projection?.filteredItems ?? const <LibraryProjectionItem>[];
+    var currentIndex = viewItems.indexWhere(
+      (candidate) => candidate.entry.id == item.entry.id,
+    );
+    if (currentIndex < 0) {
+      currentIndex = viewItems.indexWhere(
+        (candidate) => candidate.source.catalogItem?.id == freshCatalogItem.id,
+      );
+    }
+    final previousItem = currentIndex > 0 ? viewItems[currentIndex - 1] : null;
+    final nextItem = currentIndex >= 0 && currentIndex < viewItems.length - 1
+        ? viewItems[currentIndex + 1]
+        : null;
+    LibraryProjectionItem? queuedNavigationItem;
+    var navigationQueued = false;
+    void queueEditNavigation(LibraryProjectionItem target) {
+      if (navigationQueued) {
+        return;
+      }
+      navigationQueued = true;
+      queuedNavigationItem = target;
+      final navigator = Navigator.of(context, rootNavigator: true);
+      if (!navigator.mounted || !navigator.canPop()) {
+        return;
+      }
+      navigator.pop();
+    }
+
     final baseRequest = LibraryEditDialogRequest(
       type: widget.type,
-      item: LibraryMetadataItem.fromCatalogItem(catalogItem),
+      item: LibraryMetadataItem.fromCatalogItem(freshCatalogItem),
       ownedItem: owned,
       wishlistItem: wishlist,
       trackingEntry: activeTrackingEntry,
@@ -80,6 +159,9 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         catalog,
         widget.type.workspace.kind,
       ),
+      onPrevious:
+          previousItem == null ? null : () => queueEditNavigation(previousItem),
+      onNext: nextItem == null ? null : () => queueEditNavigation(nextItem),
     );
     try {
       if (!mounted) return;
@@ -112,9 +194,24 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
             customFieldDefinitions: definitions,
             customFieldValues: cfValues,
             itemImages: images,
+            onPrevious: baseRequest.onPrevious,
+            onNext: baseRequest.onNext,
           );
         },
       );
+      if (queuedNavigationItem != null) {
+        _isEditDialogInFlight = false;
+        if (!mounted) {
+          return;
+        }
+        unawaited(
+          showEditDialog(
+            queuedNavigationItem!,
+            queuedNavigationItem!.source.ownedItem,
+          ),
+        );
+        return;
+      }
       if (result == null || !mounted) {
         return;
       }
@@ -123,7 +220,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         owned: owned,
         wishlist: wishlist,
         activeTrackingEntry: activeTrackingEntry,
-        catalogItem: catalogItem,
+        catalogItem: freshCatalogItem,
         customFieldRepo: customFieldRepo,
         itemImageRepo: itemImageRepo,
       );

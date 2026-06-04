@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:flutter/material.dart';
 
 /// Build a themed [ThemeData] for add dialogs with the given accent color.
@@ -47,8 +48,9 @@ ButtonStyle libraryAddFilledButtonStyle([Color accent = kAppAccent]) {
   return FilledButton.styleFrom(
     backgroundColor: accent,
     foregroundColor: foreground,
-    minimumSize: const Size(0, 36),
+    minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
     padding: const EdgeInsets.symmetric(horizontal: 14),
+    shape: kLibraryDialogFooterButtonShape,
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     visualDensity: VisualDensity.compact,
     textStyle: const TextStyle(fontWeight: FontWeight.w900),

@@ -137,9 +137,9 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                         ),
                   ],
                 )
-              : Text(
-                  'No cast data available.',
-                  style: TextStyle(color: appPalette(context).textMuted),
+              : const EditSectionStateMessage(
+                  message: 'No cast data available.',
+                  icon: Icons.people_outline,
                 ),
         ),
       ],
@@ -195,9 +195,9 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                         ),
                   ],
                 )
-              : Text(
-                  'No crew data available.',
-                  style: TextStyle(color: appPalette(context).textMuted),
+              : const EditSectionStateMessage(
+                  message: 'No crew data available.',
+                  icon: Icons.badge_outlined,
                 ),
         ),
       ],
@@ -218,9 +218,10 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
           title: 'Disc contents',
           accent: widget.accent,
           child: allDiscs.isEmpty
-              ? Text(
-                  'No disc data available yet. Disc management will be enabled in a future update.',
-                  style: TextStyle(color: appPalette(context).textMuted),
+              ? const EditSectionStateMessage(
+                  message:
+                      'No disc data available yet. Disc management will be enabled in a future update.',
+                  icon: Icons.album_outlined,
                 )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,7 +488,8 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                 const SizedBox(height: 10),
                 _responsiveFields([
                   if (_showPhysicalOwnedFields) ...[
-                    _field(controller: _conditionController, label: 'Condition'),
+                    _field(
+                        controller: _conditionController, label: 'Condition'),
                     _field(controller: _gradeController, label: 'Grade'),
                   ],
                   _field(

@@ -12,6 +12,8 @@ class BoardGameLibraryEditDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryEditRenderer.fromDraft(
       draft: LibraryEditDraft.fromRequest(request),
+      onPrevious: request.onPrevious,
+      onNext: request.onNext,
     );
   }
 }

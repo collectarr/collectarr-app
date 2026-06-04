@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -28,12 +28,71 @@ const musicStatsLabels = LibraryMediaStatsLabels(
 );
 
 const musicLibraryGroupModes = [
+  // Main
   LibraryGroupMode.series,
+  LibraryGroupMode.format,
+  LibraryGroupMode.genre,
   LibraryGroupMode.publisher,
-  LibraryGroupMode.year,
+  LibraryGroupMode.originalReleaseDate,
+  LibraryGroupMode.originalReleaseMonth,
+  LibraryGroupMode.originalReleaseYear,
+  LibraryGroupMode.recordingDate,
+  LibraryGroupMode.recordingMonth,
+  LibraryGroupMode.recordingYear,
+  LibraryGroupMode.releaseDate,
+  LibraryGroupMode.releaseMonth,
+  LibraryGroupMode.releaseYear,
+  // Details
+  LibraryGroupMode.boxSet,
+  LibraryGroupMode.country,
+  LibraryGroupMode.extras,
+  LibraryGroupMode.instrument,
+  LibraryGroupMode.isLive,
+  LibraryGroupMode.mediaCondition,
+  LibraryGroupMode.condition,
+  LibraryGroupMode.packaging,
+  LibraryGroupMode.rpm,
+  LibraryGroupMode.spars,
+  LibraryGroupMode.soundType,
+  LibraryGroupMode.storageDevice,
+  LibraryGroupMode.studio,
+  LibraryGroupMode.vinylColor,
+  // Classical
+  LibraryGroupMode.chorus,
+  LibraryGroupMode.composer,
+  LibraryGroupMode.composition,
+  LibraryGroupMode.conductor,
+  LibraryGroupMode.orchestra,
+  // People
+  LibraryGroupMode.engineer,
+  LibraryGroupMode.musician,
+  LibraryGroupMode.producer,
+  LibraryGroupMode.writer,
+  // Personal
+  LibraryGroupMode.addedDate,
+  LibraryGroupMode.addedMonth,
+  LibraryGroupMode.addedYear,
+  LibraryGroupMode.collectionStatus,
+  LibraryGroupMode.imageType,
+  LibraryGroupMode.isSigned,
+  LibraryGroupMode.bagBoardDate,
+  LibraryGroupMode.bagBoardMonth,
+  LibraryGroupMode.bagBoardYear,
   LibraryGroupMode.location,
-  LibraryGroupMode.title,
-  LibraryGroupMode.ownership,
+  LibraryGroupMode.modifiedDate,
+  LibraryGroupMode.modifiedMonth,
+  LibraryGroupMode.myRating,
+  LibraryGroupMode.owner,
+  LibraryGroupMode.watched,
+  LibraryGroupMode.watchDate,
+  LibraryGroupMode.watchMonth,
+  LibraryGroupMode.watchYear,
+  LibraryGroupMode.purchaseDate,
+  LibraryGroupMode.purchaseMonth,
+  LibraryGroupMode.purchaseStore,
+  LibraryGroupMode.purchaseYear,
+  LibraryGroupMode.signedBy,
+  LibraryGroupMode.tags,
 ];
 
 const musicLibraryGroupModeDefinitions = [
@@ -44,6 +103,19 @@ const musicLibraryGroupModeDefinitions = [
     icon: Icons.collections_bookmark_outlined,
   ),
   LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.format,
+    label: 'Format',
+    sidebarTitle: 'Formats',
+    icon: Icons.album_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.genre,
+    label: 'Genre',
+    sidebarTitle: 'Genres',
+    icon: Icons.music_note_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
     label: 'Label',
     sidebarTitle: 'Labels',
@@ -51,10 +123,269 @@ const musicLibraryGroupModeDefinitions = [
     supportsBucketManagement: true,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.year,
-    label: 'Year',
-    sidebarTitle: 'Years',
+    mode: LibraryGroupMode.originalReleaseDate,
+    label: 'Original Release Date',
+    sidebarTitle: 'Original Release Dates',
+    icon: Icons.event_repeat_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalReleaseMonth,
+    label: 'Original Release Month',
+    sidebarTitle: 'Original Release Months',
+    icon: Icons.event_repeat_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.originalReleaseYear,
+    label: 'Original Release Year',
+    sidebarTitle: 'Original Release Years',
+    icon: Icons.event_repeat_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.recordingDate,
+    label: 'Recording Date',
+    sidebarTitle: 'Recording Dates',
+    icon: Icons.mic_none_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.recordingMonth,
+    label: 'Recording Month',
+    sidebarTitle: 'Recording Months',
+    icon: Icons.mic_none_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.recordingYear,
+    label: 'Recording Year',
+    sidebarTitle: 'Recording Years',
+    icon: Icons.mic_none_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseDate,
+    label: 'Release Date',
+    sidebarTitle: 'Release Dates',
+    icon: Icons.event_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseMonth,
+    label: 'Release Month',
+    sidebarTitle: 'Release Months',
+    icon: Icons.event_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseYear,
+    label: 'Release Year',
+    sidebarTitle: 'Release Years',
+    icon: Icons.event_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.boxSet,
+    label: 'Box Set',
+    sidebarTitle: 'Box Sets',
+    icon: Icons.inventory_2_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.country,
+    label: 'Country',
+    sidebarTitle: 'Countries',
+    icon: Icons.flag_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.extras,
+    label: 'Extra',
+    sidebarTitle: 'Extras',
+    icon: Icons.extension_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.instrument,
+    label: 'Instrument',
+    sidebarTitle: 'Instruments',
+    icon: Icons.piano_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.isLive,
+    label: 'Is Live',
+    sidebarTitle: 'Is Live',
+    icon: Icons.sensors_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.mediaCondition,
+    label: 'Media Condition',
+    sidebarTitle: 'Media Conditions',
+    icon: Icons.album_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.condition,
+    label: 'Package/Sleeve Condition',
+    sidebarTitle: 'Package/Sleeve Conditions',
+    icon: Icons.verified_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.packaging,
+    label: 'Packaging',
+    sidebarTitle: 'Packaging',
+    icon: Icons.inventory_2_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.rpm,
+    label: 'RPM',
+    sidebarTitle: 'RPM',
+    icon: Icons.speed_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.spars,
+    label: 'SPARS',
+    sidebarTitle: 'SPARS',
+    icon: Icons.graphic_eq_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.soundType,
+    label: 'Sound',
+    sidebarTitle: 'Sound',
+    icon: Icons.surround_sound_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.storageDevice,
+    label: 'Storage Device',
+    sidebarTitle: 'Storage Devices',
+    icon: Icons.sd_storage_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.studio,
+    label: 'Studio',
+    sidebarTitle: 'Studios',
+    icon: Icons.business_center_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.vinylColor,
+    label: 'Vinyl Color',
+    sidebarTitle: 'Vinyl Colors',
+    icon: Icons.palette_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.chorus,
+    label: 'Chorus',
+    sidebarTitle: 'Chorus',
+    icon: Icons.groups_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.composer,
+    label: 'Composer',
+    sidebarTitle: 'Composers',
+    icon: Icons.music_note_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.composition,
+    label: 'Composition',
+    sidebarTitle: 'Compositions',
+    icon: Icons.queue_music_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.conductor,
+    label: 'Conductor',
+    sidebarTitle: 'Conductors',
+    icon: Icons.waving_hand_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.orchestra,
+    label: 'Orchestra',
+    sidebarTitle: 'Orchestras',
+    icon: Icons.groups_2_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.engineer,
+    label: 'Engineer',
+    sidebarTitle: 'Engineers',
+    icon: Icons.engineering_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.musician,
+    label: 'Musician',
+    sidebarTitle: 'Musicians',
+    icon: Icons.piano_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.producer,
+    label: 'Producer',
+    sidebarTitle: 'Producers',
+    icon: Icons.factory_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.writer,
+    label: 'Songwriter',
+    sidebarTitle: 'Songwriters',
+    icon: Icons.edit_note_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedDate,
+    label: 'Added Date',
+    sidebarTitle: 'Added Dates',
+    icon: Icons.event_available_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedMonth,
+    label: 'Added Month',
+    sidebarTitle: 'Added Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedYear,
+    label: 'Added Year',
+    sidebarTitle: 'Added Years',
     icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.collectionStatus,
+    label: 'Collection Status',
+    sidebarTitle: 'Collection Status',
+    icon: Icons.task_alt_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.imageType,
+    label: 'Image Type',
+    sidebarTitle: 'Image Types',
+    icon: Icons.photo_library_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.isSigned,
+    label: 'Is Signed',
+    sidebarTitle: 'Is Signed',
+    icon: Icons.draw_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.bagBoardDate,
+    label: 'Last Cleaned Date',
+    sidebarTitle: 'Last Cleaned Dates',
+    icon: Icons.cleaning_services_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.bagBoardMonth,
+    label: 'Last Cleaned Month',
+    sidebarTitle: 'Last Cleaned Months',
+    icon: Icons.cleaning_services_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.bagBoardYear,
+    label: 'Last Cleaned Year',
+    sidebarTitle: 'Last Cleaned Years',
+    icon: Icons.cleaning_services_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.location,
@@ -63,16 +394,89 @@ const musicLibraryGroupModeDefinitions = [
     icon: Icons.place_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.title,
-    label: 'Title',
-    sidebarTitle: 'Titles',
-    icon: Icons.sort_by_alpha,
+    mode: LibraryGroupMode.modifiedDate,
+    label: 'Modified Date',
+    sidebarTitle: 'Modified Dates',
+    icon: Icons.update_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.ownership,
-    label: 'Ownership',
-    sidebarTitle: 'Ownership',
-    icon: Icons.inventory_2_outlined,
+    mode: LibraryGroupMode.modifiedMonth,
+    label: 'Modified Month',
+    sidebarTitle: 'Modified Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.myRating,
+    label: 'My Rating',
+    sidebarTitle: 'My Ratings',
+    icon: Icons.star_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.owner,
+    label: 'Owner',
+    sidebarTitle: 'Owners',
+    icon: Icons.person_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watched,
+    label: 'Played',
+    sidebarTitle: 'Played',
+    icon: Icons.play_arrow_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watchDate,
+    label: 'Played Date',
+    sidebarTitle: 'Played Dates',
+    icon: Icons.play_circle_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watchMonth,
+    label: 'Played Month',
+    sidebarTitle: 'Played Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.watchYear,
+    label: 'Played Year',
+    sidebarTitle: 'Played Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseDate,
+    label: 'Purchase Date',
+    sidebarTitle: 'Purchase Dates',
+    icon: Icons.shopping_bag_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseMonth,
+    label: 'Purchase Month',
+    sidebarTitle: 'Purchase Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseStore,
+    label: 'Purchase Store',
+    sidebarTitle: 'Purchase Stores',
+    icon: Icons.store_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseYear,
+    label: 'Purchase Year',
+    sidebarTitle: 'Purchase Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.signedBy,
+    label: 'Signed by',
+    sidebarTitle: 'Signed by',
+    icon: Icons.edit_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.tags,
+    label: 'Tags',
+    sidebarTitle: 'Tags',
+    icon: Icons.sell_outlined,
   ),
 ];
 
@@ -88,58 +492,11 @@ const musicLibraryGroupLabels = LibraryMediaGroupLabels(
 const musicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
 
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
-  return _simpleLibraryBucketLabel(
+  return defaultLibraryBucketLabel(
     context,
     musicLibraryGroupLabels,
     musicLibraryBucketLabelOverrides,
   );
-}
-
-String _simpleLibraryBucketLabel(
-  LibraryBucketingContext context,
-  LibraryMediaGroupLabels labels,
-  LibraryBucketLabelOverrides overrides,
-) {
-  final entry = context.entry;
-  final publisher = entry.publisher?.trim();
-  return switch (context.groupMode) {
-    LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-    LibraryGroupMode.year =>
-      entry.releaseYear?.toString() ??
-          (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.publisher =>
-      publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-    LibraryGroupMode.location => _locationBucket(entry.locationPath),
-    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
-    LibraryGroupMode.ownership => entry.isOwned
-        ? overrides.owned
-        : entry.isWishlisted
-        ? overrides.wishlist
-        : overrides.catalogOnly,
-    _ => context.groupMode.name,
-  };
-}
-
-String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
-  final seriesTitle = entry.series?.seriesTitle?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  final title = entry.resolvedTitle.trim();
-  return title.isEmpty ? unknownLabel : title;
-}
-
-String _locationBucket(String? location) {
-  final normalized = location?.trim();
-  if (normalized == null || normalized.isEmpty) {
-    return 'No location';
-  }
-  return normalized;
-}
-
-String _titleBucket(String title) {
-  final trimmed = title.trim();
-  return trimmed.isEmpty ? 'Unknown' : trimmed.substring(0, 1).toUpperCase();
 }
 
 const musicLibrarySortColumnDefinitions = [
@@ -151,7 +508,8 @@ const musicLibrarySortColumnDefinitions = [
     column: LibrarySortColumn.publisher,
     label: 'Label',
   ),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.status, label: 'Status'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.status, label: 'Status'),
   LibrarySortColumnDefinition(column: LibrarySortColumn.title, label: 'Title'),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.issue,
@@ -222,7 +580,8 @@ const musicLibrarySortColumnDefinitions = [
     group: LibrarySortFieldGroup.personal,
     defaultAscending: false,
   ),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.country, label: 'Country'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.country, label: 'Country'),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.language,
     label: 'Language',
@@ -236,7 +595,8 @@ const musicLibrarySortColumnDefinitions = [
     column: LibrarySortColumn.ageRating,
     label: 'Age rating',
   ),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.imprint, label: 'Imprint'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
 
 const musicLibraryMediaPresentation = LibraryMediaPresentation(

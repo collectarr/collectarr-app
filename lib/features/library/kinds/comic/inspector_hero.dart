@@ -23,8 +23,7 @@ class ComicInspectorHero extends ConsumerStatefulWidget {
   final LibraryInspectorRequest request;
 
   @override
-  ConsumerState<ComicInspectorHero> createState() =>
-      _ComicInspectorHeroState();
+  ConsumerState<ComicInspectorHero> createState() => _ComicInspectorHeroState();
 }
 
 class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
@@ -38,7 +37,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final ownedItem = request.ownedItem;
     final surface = palette.surface;
     final border =
-      palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
+        palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
     final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
@@ -63,34 +62,32 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             )
             .value;
     final db = ownedItemId == null ? null : ref.watch(localDatabaseProvider);
-    final referenceLabel =
-        (entry.itemNumber?.trim().isNotEmpty == true
-                ? '#${entry.itemNumber!.trim()}'
-                : null) ??
-            entry.primaryReferenceLabel ??
-            libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
-            request.type.singularLabel.toUpperCase();
-    final seriesLabel =
-      entry.series?.seriesTitle?.trim().isNotEmpty == true
+    final referenceLabel = (entry.itemNumber?.trim().isNotEmpty == true
+            ? '#${entry.itemNumber!.trim()}'
+            : null) ??
+        entry.primaryReferenceLabel ??
+        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+        request.type.singularLabel.toUpperCase();
+    final seriesLabel = entry.series?.seriesTitle?.trim().isNotEmpty == true
         ? entry.series!.seriesTitle!.trim()
         : null;
-    final editionLabel =
-        entry.publishing?.subtitle?.trim().isNotEmpty == true
-            ? entry.publishing!.subtitle!.trim()
-            : entry.referenceFormatLabel?.trim().isNotEmpty == true
-                ? entry.referenceFormatLabel!.trim()
-                : entry.variant?.trim().isNotEmpty == true
-                    ? entry.variant!.trim()
-                    : 'Regular edition';
+    final editionLabel = entry.publishing?.subtitle?.trim().isNotEmpty == true
+        ? entry.publishing!.subtitle!.trim()
+        : entry.referenceFormatLabel?.trim().isNotEmpty == true
+            ? entry.referenceFormatLabel!.trim()
+            : entry.variant?.trim().isNotEmpty == true
+                ? entry.variant!.trim()
+                : 'Regular edition';
     final formatLabel = entry.referenceFormatLabel?.trim().isNotEmpty == true
-      ? entry.referenceFormatLabel!.trim()
-      : null;
-    final releaseLabel =
-        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString() ?? '-';
+        ? entry.referenceFormatLabel!.trim()
+        : null;
+    final releaseLabel = formatNullableDate(entry.releaseDate) ??
+        entry.releaseYear?.toString() ??
+        '-';
     final publisherLabel = [
       if (entry.publisher?.trim().isNotEmpty == true) entry.publisher!.trim(),
       if (entry.publishing?.imprint?.trim().isNotEmpty == true)
-      entry.publishing!.imprint!.trim(),
+        entry.publishing!.imprint!.trim(),
     ].join(' / ');
     final subtitleParts = <String>[
       if (entry.crossover?.trim().isNotEmpty == true) entry.crossover!.trim(),
@@ -104,7 +101,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             ? 'Wishlist'
             : 'Not owned';
     final synopsis = entry.plotSummary?.trim().isNotEmpty == true
-      ? entry.plotSummary?.trim()
+        ? entry.plotSummary?.trim()
         : entry.synopsis?.trim();
     final plotDescription = entry.plotDescription?.trim();
     final slabLabel = librarySlabMarkerLabel(
@@ -114,9 +111,9 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final slabGrade = ownedItem?.grade?.trim();
     final showSlabOverlay =
         ownedItem?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
-        slabLabel != null &&
-        slabGrade != null &&
-        slabGrade.isNotEmpty;
+            slabLabel != null &&
+            slabGrade != null &&
+            slabGrade.isNotEmpty;
     final currentValue = ownedItem?.marketValueCents != null
         ? formatMoney(ownedItem!.marketValueCents, ownedItem.currency)
         : null;
@@ -150,49 +147,65 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             width: width,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                border: Border.all(color: border, width: 0.8),
-              ),
-              child: Stack(
-                children: [
-                  LibraryInteractiveCover(
-                    title: entry.resolvedTitle,
-                    itemNumber: entry.itemNumber,
-                    imageUrl: back ? null : entry.displayCoverUrl,
-                    localBytes: back ? localBack : localFront,
-                    ownedItemId: back ? null : ownedItemId,
-                    accentColor: request.accent,
-                    enableHoverCue: true,
-                    enableSecondaryControl: false,
-                    onMissingSecondaryPressed: back || ownedItemId == null || db == null
-                        ? null
-                        : () async {
-                            final savedType = await pickAndStoreOwnedItemImage(
-                              context: context,
-                              db: db,
-                              ownedItemId: ownedItemId,
-                              imageType: 'back_cover',
-                            );
-                            if (savedType == 'back_cover') {
-                              ref.invalidate(
-                                localItemImageProvider((
-                                  ownedItemId: ownedItemId,
-                                  imageType: 'back_cover',
-                                )),
-                              );
-                            }
-                          },
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: border, width: 1.1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).shadowColor.withValues(
+                          alpha: appPalette(context).isDark ? 0.5 : 0.16,
+                        ),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
-                  if (!back && showSlabOverlay)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 0,
-                      child: _ComicSlabCoverOverlay(
-                        label: slabLabel,
-                        grade: slabGrade,
-                      ),
-                    ),
                 ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Stack(
+                  children: [
+                    LibraryInteractiveCover(
+                      title: entry.resolvedTitle,
+                      itemNumber: entry.itemNumber,
+                      imageUrl: back ? null : entry.displayCoverUrl,
+                      localBytes: back ? localBack : localFront,
+                      ownedItemId: back ? null : ownedItemId,
+                      accentColor: request.accent,
+                      fit: BoxFit.cover,
+                      enableHoverCue: true,
+                      enableSecondaryControl: false,
+                      onMissingSecondaryPressed:
+                          back || ownedItemId == null || db == null
+                              ? null
+                              : () async {
+                                  final savedType =
+                                      await pickAndStoreOwnedItemImage(
+                                    context: context,
+                                    db: db,
+                                    ownedItemId: ownedItemId,
+                                    imageType: 'back_cover',
+                                  );
+                                  if (savedType == 'back_cover') {
+                                    ref.invalidate(
+                                      localItemImageProvider((
+                                        ownedItemId: ownedItemId,
+                                        imageType: 'back_cover',
+                                      )),
+                                    );
+                                  }
+                                },
+                    ),
+                    if (!back && showSlabOverlay)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: _ComicSlabCoverOverlay(
+                          label: slabLabel,
+                          grade: slabGrade,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           );
@@ -307,14 +320,19 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                       child: Column(
                         children: [
                           if (seriesLabel != null)
-                            _ComicDetailLine(label: 'Series', value: seriesLabel),
+                            _ComicDetailLine(
+                                label: 'Series', value: seriesLabel),
                           if (formatLabel != null)
-                            _ComicDetailLine(label: 'Format', value: formatLabel),
-                          _ComicDetailLine(label: 'Release', value: releaseLabel),
+                            _ComicDetailLine(
+                                label: 'Format', value: formatLabel),
+                          _ComicDetailLine(
+                              label: 'Release', value: releaseLabel),
                           if (publisherLabel.isNotEmpty)
-                            _ComicDetailLine(label: 'Publisher', value: publisherLabel),
+                            _ComicDetailLine(
+                                label: 'Publisher', value: publisherLabel),
                           if (entry.barcode?.trim().isNotEmpty == true)
-                            _ComicDetailLine(label: 'Barcode', value: entry.barcode!.trim()),
+                            _ComicDetailLine(
+                                label: 'Barcode', value: entry.barcode!.trim()),
                         ],
                       ),
                     ),
@@ -364,7 +382,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                     ),
                 textAlign: TextAlign.start,
               ),
-              if (plotDescription?.isNotEmpty == true) const SizedBox(height: 6),
+              if (plotDescription?.isNotEmpty == true)
+                const SizedBox(height: 6),
             ],
             if (plotDescription?.isNotEmpty == true)
               Text(
@@ -723,7 +742,7 @@ class _ComicKeyReasonBanner extends StatelessWidget {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w800,
-                  fontSize: 10,
+                    fontSize: 10,
                   ),
             ),
           ),
@@ -755,7 +774,7 @@ class _ComicValueRibbon extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: accent,
               fontWeight: FontWeight.w900,
-            fontSize: 10,
+              fontSize: 10,
             ),
       ),
     );
@@ -879,7 +898,7 @@ class _ComicDetailLine extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.16,
                     height: 1,
-                  fontSize: 10,
+                    fontSize: 10,
                   ),
             ),
           ),
@@ -891,7 +910,7 @@ class _ComicDetailLine extends StatelessWidget {
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
                     height: 1.08,
-                  fontSize: 10,
+                    fontSize: 10,
                   ),
             ),
           ),
@@ -900,4 +919,3 @@ class _ComicDetailLine extends StatelessWidget {
     );
   }
 }
-

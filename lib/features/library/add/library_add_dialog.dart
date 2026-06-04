@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/add/library_add_reference_type.d
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_add_registry.dart';
@@ -1035,9 +1036,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             widget.type.workspace.kind)
                         ?.call(context, headerRequest) ??
                     AccentDialogHeader(
-                      title: headerRequest.isMovieDesktopChrome
-                          ? 'Add ${headerRequest.type.pluralLabel}'
-                          : 'Add ${headerRequest.type.pluralLabel} from Collectarr Core',
+                      title: 'Add ${headerRequest.type.pluralLabel}',
                       accent: headerRequest.accent,
                       icon: headerRequest.type.workspace.icon,
                       onClose: () => Navigator.of(context).pop(),

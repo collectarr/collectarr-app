@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../layout/library_pane_widths.dart';
@@ -48,6 +50,8 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   late double _bottomHeight;
   bool _draggingRight = false;
   bool _draggingBottom = false;
+  Timer? _rightPersistDebounce;
+  Timer? _bottomPersistDebounce;
 
   @override
   void initState() {
@@ -67,6 +71,37 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
     }
   }
 
+  @override
+  void dispose() {
+    _rightPersistDebounce?.cancel();
+    _bottomPersistDebounce?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleRightWidthPersist(double width) {
+    _rightPersistDebounce?.cancel();
+    _rightPersistDebounce = Timer(const Duration(milliseconds: 16), () {
+      widget.onRightWidthChanged?.call(width);
+    });
+  }
+
+  void _scheduleBottomHeightPersist(double height) {
+    _bottomPersistDebounce?.cancel();
+    _bottomPersistDebounce = Timer(const Duration(milliseconds: 16), () {
+      widget.onBottomHeightChanged?.call(height);
+    });
+  }
+
+  void _flushRightWidthPersist() {
+    _rightPersistDebounce?.cancel();
+    widget.onRightWidthChanged?.call(_rightWidth);
+  }
+
+  void _flushBottomHeightPersist() {
+    _bottomPersistDebounce?.cancel();
+    widget.onBottomHeightChanged?.call(_bottomHeight);
+  }
+
   void _handleRightDrag(double delta) {
     final nextWidth = clampLibraryPaneWidth(
       _rightWidth - delta,
@@ -77,7 +112,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
       return;
     }
     setState(() => _rightWidth = nextWidth);
-    widget.onRightWidthChanged?.call(nextWidth);
+    _scheduleRightWidthPersist(nextWidth);
   }
 
   void _handleBottomDrag(double delta) {
@@ -90,7 +125,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
       return;
     }
     setState(() => _bottomHeight = nextHeight);
-    widget.onBottomHeightChanged?.call(nextHeight);
+    _scheduleBottomHeightPersist(nextHeight);
   }
 
   @override
@@ -107,7 +142,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
       maxHeight: widget.maxBottomHeight,
     );
     final inspectorPane = widget.frameInspector
-        ? _LibraryDetailsPaneFrame(
+        ? LibraryDetailsPaneFrame(
             accentColor: widget.accentColor,
             child: widget.inspector,
           )
@@ -122,7 +157,10 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
               LibraryResizableDivider(
                 color: accentDivider,
                 onDragStart: () => _draggingRight = true,
-                onDragEnd: () => _draggingRight = false,
+                onDragEnd: () {
+                  _draggingRight = false;
+                  _flushRightWidthPersist();
+                },
                 onDragDelta: _handleRightDrag,
               ),
             SizedBox(
@@ -141,7 +179,10 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
                 axis: Axis.vertical,
                 color: accentDivider,
                 onDragStart: () => _draggingBottom = true,
-                onDragEnd: () => _draggingBottom = false,
+                onDragEnd: () {
+                  _draggingBottom = false;
+                  _flushBottomHeightPersist();
+                },
                 onDragDelta: _handleBottomDrag,
               ),
             SizedBox(
@@ -155,14 +196,19 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   }
 }
 
-class _LibraryDetailsPaneFrame extends StatelessWidget {
-  const _LibraryDetailsPaneFrame({
+class LibraryDetailsPaneFrame extends StatelessWidget {
+  const LibraryDetailsPaneFrame({
     required this.child,
     required this.accentColor,
+    this.title = 'Details',
+    this.icon = Icons.info_outline,
+    super.key,
   });
 
   final Widget child;
   final Color accentColor;
+  final String title;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -202,10 +248,10 @@ class _LibraryDetailsPaneFrame extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 13, color: accentColor),
+                Icon(icon, size: 13, color: accentColor),
                 const SizedBox(width: 5),
                 Text(
-                  'Details',
+                  title,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accentColor,
                         fontWeight: FontWeight.w800,

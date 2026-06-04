@@ -123,7 +123,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
   }
 
   Future<void> _openInlinePicker(List<String> options) async {
-    if (!widget.enabled || options.isEmpty) {
+    if (!widget.enabled) {
       return;
     }
     final fieldBox =
@@ -134,8 +134,36 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       await _openPickerDialog(options);
       return;
     }
-    final fieldOffset = fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final fieldOffset =
+        fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final currentValue = _emptyToNull(widget.controller.text);
+    final popupItems = options.isEmpty
+        ? const <PopupMenuEntry<String>>[
+            PopupMenuItem<String>(
+              enabled: false,
+              height: 8,
+              padding: EdgeInsets.zero,
+              child: SizedBox.shrink(),
+            ),
+          ]
+        : <PopupMenuEntry<String>>[
+            for (final option in options)
+              PopupMenuItem<String>(
+                value: option,
+                child: Row(
+                  children: [
+                    Icon(
+                      currentValue?.toLowerCase() == option.toLowerCase()
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(option)),
+                  ],
+                ),
+              ),
+          ];
     final selected = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -149,24 +177,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         maxWidth: fieldBox.size.width,
         maxHeight: 280,
       ),
-      items: [
-        for (final option in options)
-          PopupMenuItem<String>(
-            value: option,
-            child: Row(
-              children: [
-                Icon(
-                  currentValue?.toLowerCase() == option.toLowerCase()
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  size: 18,
-                ),
-                const SizedBox(width: 10),
-                Expanded(child: Text(option)),
-              ],
-            ),
-          ),
-      ],
+      items: popupItems,
     );
     if (!mounted || selected == null) {
       return;
@@ -222,7 +233,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     final hasBrowseAction =
         widget.onManage != null || widget.showPickerListAction;
     final actionCount = [
-      if (normalizedOptions.isNotEmpty) true,
+      true,
       if (hasBrowseAction) true,
     ].length;
     final suffixWidth =
@@ -251,12 +262,11 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      if (normalizedOptions.isNotEmpty)
-                        _suffixAction(
-                          tooltip: 'Pick ${widget.label}',
-                          onPressed: () => _openInlinePicker(normalizedOptions),
-                          icon: Icons.arrow_drop_down,
-                        ),
+                      _suffixAction(
+                        tooltip: 'Pick ${widget.label}',
+                        onPressed: () => _openInlinePicker(normalizedOptions),
+                        icon: Icons.arrow_drop_down,
+                      ),
                       if (hasBrowseAction)
                         _suffixAction(
                           tooltip:

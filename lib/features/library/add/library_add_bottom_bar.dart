@@ -66,23 +66,32 @@ class _LibraryAddBottomBar extends StatelessWidget {
     final palette = appPalette(context);
     final hasSelection = selectedItem != null || selectedCandidate != null;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    final addLabel = selectedCandidate != null &&
-            (!isAdmin || selectedCandidate!.isStub)
-        ? _localCandidateAddLabel()
-        : effectiveCount > 0
-            ? LibraryAddCopy.addToTargetLabel(
-                count: effectiveCount,
-                type: type,
-                target: addTarget,
-              )
-            : 'Select a ${type.singularLabel.toLowerCase()} to add';
+    final addLabel =
+        selectedCandidate != null && (!isAdmin || selectedCandidate!.isStub)
+            ? _localCandidateAddLabel()
+            : effectiveCount > 0
+                ? LibraryAddCopy.addToTargetLabel(
+                    count: effectiveCount,
+                    type: type,
+                    target: addTarget,
+                  )
+                : 'Select a ${type.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
         border: Border(top: BorderSide(color: palette.divider)),
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(8, isMovieDesktopChrome ? 8 : 7, 8, isMovieDesktopChrome ? 8 : 9),
+        padding: EdgeInsets.fromLTRB(
+          kLibraryDialogFooterHorizontalPadding,
+          isMovieDesktopChrome
+              ? kLibraryDialogFooterVerticalPadding
+              : kLibraryDialogFooterVerticalPadding,
+          kLibraryDialogFooterHorizontalPadding,
+          isMovieDesktopChrome
+              ? kLibraryDialogFooterVerticalPadding
+              : kLibraryDialogFooterVerticalPadding + 2,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -91,10 +100,9 @@ class _LibraryAddBottomBar extends StatelessWidget {
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                LibraryAddResultBadge(
-                    effectiveCount > 0
-                        ? '$effectiveCount selected'
-                        : '0 selected'),
+                LibraryAddResultBadge(effectiveCount > 0
+                    ? '$effectiveCount selected'
+                    : '0 selected'),
                 _LibraryAddTargetMenu(
                   value: addTarget,
                   enabled: !isAdding,
@@ -113,12 +121,11 @@ class _LibraryAddBottomBar extends StatelessWidget {
                           ? 'Queue ingest'
                           : 'Queued ${selectedQueuedIngest!.shortId}',
                       accent: accent,
-                      onPressed:
-                          selectedQueuedIngest != null ||
+                      onPressed: selectedQueuedIngest != null ||
                               isQueueingIngest ||
                               isAdding
-                              ? null
-                              : onQueueIngest,
+                          ? null
+                          : onQueueIngest,
                     ),
                   _LibraryAddBottomActionButton(
                     icon: Icons.outbox_outlined,
@@ -130,7 +137,8 @@ class _LibraryAddBottomBar extends StatelessWidget {
                 ],
               ],
             ),
-            if (addTarget == LibraryAddTarget.owned && !isMovieDesktopChrome) ...[
+            if (addTarget == LibraryAddTarget.owned &&
+                !isMovieDesktopChrome) ...[
               const SizedBox(height: 8),
               _AddTargetDefaultsBar(
                 accent: accent,
@@ -186,7 +194,8 @@ class _LibraryAddBottomBar extends StatelessWidget {
                             dimension: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(isMovieDesktopChrome ? _movieAddLabel() : addLabel),
+                        : Text(
+                            isMovieDesktopChrome ? _movieAddLabel() : addLabel),
                   ),
                 ),
               ],
@@ -425,4 +434,3 @@ class _LibraryAddTargetMenu extends StatelessWidget {
     );
   }
 }
-

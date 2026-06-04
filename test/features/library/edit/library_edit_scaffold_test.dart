@@ -4,16 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('edit scaffold footer shows only Save button', (tester) async {
+  testWidgets('edit scaffold footer shows navigation and action buttons', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
 
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
-    expect(find.text('Previous'), findsNothing);
-    expect(find.text('Next'), findsNothing);
-    expect(find.text('Cancel'), findsNothing);
+    expect(find.text('Previous'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
   });
 
-  testWidgets('reordering tabs keeps logical view order stable', (tester) async {
+  testWidgets('reordering tabs keeps logical view order stable',
+      (tester) async {
     await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
 
     expect(find.text('Main tab'), findsOneWidget);
@@ -52,7 +55,8 @@ class _EditScaffoldHarness extends StatefulWidget {
 class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  late final TabController _tabController = TabController(length: 2, vsync: this);
+  late final TabController _tabController =
+      TabController(length: 2, vsync: this);
 
   @override
   void dispose() {
@@ -80,6 +84,7 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
             SizedBox.expand(child: Text('Details tab')),
           ],
           onClose: () {},
+          onCancel: () {},
           onSave: () {},
         ),
       ),

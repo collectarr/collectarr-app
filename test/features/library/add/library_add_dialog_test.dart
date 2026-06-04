@@ -218,7 +218,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Add Games from Collectarr Core'), findsOneWidget);
+    expect(find.text('Add Games'), findsOneWidget);
     expect(
       find.text(
         'Barcode 759606083060 is prefilled for games. Search Core or add it manually with the same code.',
@@ -1072,7 +1072,7 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.textContaining('Edit movie'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
     expect(find.text('Save'), findsAtLeastNWidgets(1));
   });
 
@@ -1115,7 +1115,7 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.textContaining('Edit comic'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
   });
 
   testWidgets('comic manual action remains available after rebuilds',
@@ -1149,7 +1149,7 @@ void main() {
 
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
-    expect(find.textContaining('Edit comic'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
 
     await tester.pumpWidget(buildSubject());
     await pumpUntilSettled(tester);
@@ -1313,7 +1313,7 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.textContaining('Edit movie'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
     expect(find.text('Save'), findsAtLeastNWidgets(1));
   });
 

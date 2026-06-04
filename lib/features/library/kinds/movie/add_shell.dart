@@ -15,7 +15,7 @@ Widget buildMovieAddHeader(
   LibraryAddHeaderRequest request,
 ) {
   return SizedBox(
-    height: 44,
+    height: 46,
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: request.accent,
@@ -23,15 +23,15 @@ Widget buildMovieAddHeader(
       ),
       child: Row(
         children: [
-          const SizedBox(width: 10),
-          Icon(request.type.workspace.icon, size: 18, color: Colors.white),
+          const SizedBox(width: 14),
+          Icon(request.type.workspace.icon, size: 20, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
             child: const Text(
               'Add Movies',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: FontWeight.w900,
               ),
             ),

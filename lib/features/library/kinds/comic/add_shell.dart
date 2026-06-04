@@ -22,15 +22,15 @@ Widget buildComicAddHeader(
       ),
       child: Row(
         children: [
-          const SizedBox(width: 10),
-          const Icon(Icons.library_books, size: 19, color: Colors.white),
+          const SizedBox(width: 14),
+          const Icon(Icons.library_books, size: 20, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Add Comics',
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w900,
               ),
             ),
