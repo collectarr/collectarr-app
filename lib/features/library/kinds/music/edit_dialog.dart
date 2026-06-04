@@ -333,9 +333,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       return;
     }
     _didAutoOpenMetadataCompare = true;
-    final peopleTabIndex = _tabSpecs.indexWhere((tab) => tab.id == 'people');
-    if (peopleTabIndex >= 0 && peopleTabIndex < _tabController.length) {
-      _tabController.animateTo(peopleTabIndex);
+    final compareTabIndex =
+        _tabSpecs.indexWhere((tab) => tab.id == 'classical');
+    if (compareTabIndex >= 0 && compareTabIndex < _tabController.length) {
+      _tabController.animateTo(compareTabIndex);
     }
     unawaited(_compareWithServerSnapshot());
   }
@@ -2336,6 +2337,155 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return lines.join('\n');
   }
 
+  String _diffText(String? value) {
+    final normalized = value?.trim() ?? '';
+    return normalized.isEmpty ? '—' : normalized;
+  }
+
+  String _diffDate(DateTime? value) {
+    return value == null ? '—' : formatDate(value);
+  }
+
+  String _diffList(Iterable<String>? values) {
+    if (values == null) {
+      return '—';
+    }
+    final normalized = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+    if (normalized.isEmpty) {
+      return '—';
+    }
+    return normalized.join(', ');
+  }
+
+  List<MetadataDiffEntry> _musicMetadataDiffEntries(CatalogItem serverItem) {
+    final serverMusic = serverItem.music;
+    return [
+      MetadataDiffEntry(
+        label: 'Title',
+        localValue: _diffText(_titleController.text),
+        serverValue: _diffText(serverItem.title),
+      ),
+      MetadataDiffEntry(
+        label: 'Sort title',
+        localValue: _diffText(_sortKeyController.text),
+        serverValue: _diffText(serverItem.sortKey),
+      ),
+      MetadataDiffEntry(
+        label: 'Artist',
+        localValue: _diffText(_artistController.text),
+        serverValue: _diffText(serverItem.series?.seriesTitle),
+      ),
+      MetadataDiffEntry(
+        label: 'Subtitle',
+        localValue: _diffText(_subtitleController.text),
+        serverValue: _diffText(serverItem.publishing?.subtitle),
+      ),
+      MetadataDiffEntry(
+        label: 'Label',
+        localValue: _diffText(_publisherController.text),
+        serverValue: _diffText(serverItem.publisher),
+      ),
+      MetadataDiffEntry(
+        label: 'Release date',
+        localValue: _diffText(_releaseDateController.text),
+        serverValue: _diffDate(serverItem.releaseDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Original release date',
+        localValue: _diffText(_originalReleaseDateController.text),
+        serverValue: _diffDate(serverMusic?.originalReleaseDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Recording date',
+        localValue: _diffText(_recordingDateController.text),
+        serverValue: _diffDate(serverMusic?.recordingDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Release status',
+        localValue: _diffText(_releaseStatusController.text),
+        serverValue: _diffText(serverMusic?.releaseStatus),
+      ),
+      MetadataDiffEntry(
+        label: 'Catalog number',
+        localValue: _diffText(_catalogNumberController.text),
+        serverValue: _diffText(serverMusic?.catalogNumber),
+      ),
+      MetadataDiffEntry(
+        label: 'Country',
+        localValue: _diffText(_countryController.text),
+        serverValue: _diffText(serverItem.country),
+      ),
+      MetadataDiffEntry(
+        label: 'Language',
+        localValue: _diffText(_languageController.text),
+        serverValue: _diffText(serverItem.language),
+      ),
+      MetadataDiffEntry(
+        label: 'Genres',
+        localValue: _diffList(_genreValues),
+        serverValue: _diffList(serverItem.genres),
+      ),
+      MetadataDiffEntry(
+        label: 'Instrument',
+        localValue: _diffText(_instrumentController.text),
+        serverValue: _diffText(serverMusic?.instrument),
+      ),
+      MetadataDiffEntry(
+        label: 'Composition',
+        localValue: _diffText(_compositionController.text),
+        serverValue: _diffText(serverMusic?.composition),
+      ),
+      MetadataDiffEntry(
+        label: 'RPM',
+        localValue: _diffText(_rpmController.text),
+        serverValue: _diffText(serverMusic?.rpm),
+      ),
+      MetadataDiffEntry(
+        label: 'SPARS',
+        localValue: _diffText(_sparsController.text),
+        serverValue: _diffText(serverMusic?.spars),
+      ),
+      MetadataDiffEntry(
+        label: 'Sound',
+        localValue: _diffList(_soundValues),
+        serverValue: _diffList(_splitCommaList(serverMusic?.soundType ?? '')),
+      ),
+      MetadataDiffEntry(
+        label: 'Vinyl color',
+        localValue: _diffText(_vinylColorController.text),
+        serverValue: _diffText(serverMusic?.vinylColor),
+      ),
+      MetadataDiffEntry(
+        label: 'Vinyl weight',
+        localValue: _diffText(_vinylWeightController.text),
+        serverValue: _diffText(serverMusic?.vinylWeight),
+      ),
+      MetadataDiffEntry(
+        label: 'Media condition',
+        localValue: _diffText(_mediaConditionController.text),
+        serverValue: _diffText(serverMusic?.mediaCondition),
+      ),
+      MetadataDiffEntry(
+        label: 'Packaging',
+        localValue: _diffText(_packagingController.text),
+        serverValue: '—',
+      ),
+      MetadataDiffEntry(
+        label: 'Extras',
+        localValue: _diffText(_extrasController.text),
+        serverValue: '—',
+      ),
+      MetadataDiffEntry(
+        label: 'Live recording',
+        localValue: _isLive ? 'Yes' : 'No',
+        serverValue: (serverMusic?.isLive ?? false) ? 'Yes' : 'No',
+      ),
+    ];
+  }
+
   Widget _serverSnapshotCompareSection({
     required bool showCreatorsDiff,
     required bool showDiscsDiff,
@@ -2394,6 +2544,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 .textTheme
                 .bodySmall
                 ?.copyWith(color: Colors.redAccent),
+          ),
+        ],
+        if (_serverSnapshotItem != null) ...[
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Metadata fields diff (Local vs Server)',
+            entries: _musicMetadataDiffEntries(_serverSnapshotItem!),
+            emptyText: 'No field-level differences found.',
           ),
         ],
         if (_serverSnapshotItem != null && showCreatorsDiff) ...[

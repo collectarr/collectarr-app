@@ -899,6 +899,129 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     ];
   }
 
+  String _diffText(String? value) {
+    final normalized = value?.trim() ?? '';
+    return normalized.isEmpty ? '—' : normalized;
+  }
+
+  String _diffDate(DateTime? value) {
+    return value == null ? '—' : formatDate(value);
+  }
+
+  String _diffList(Iterable<String>? values) {
+    if (values == null) {
+      return '—';
+    }
+    final normalized = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+    if (normalized.isEmpty) {
+      return '—';
+    }
+    return normalized.join(', ');
+  }
+
+  List<MetadataDiffEntry> _comicMetadataDiffEntries(CatalogItem serverItem) {
+    return [
+      MetadataDiffEntry(
+        label: 'Title',
+        localValue: _diffText(titleCtl.text),
+        serverValue: _diffText(serverItem.title),
+      ),
+      MetadataDiffEntry(
+        label: 'Series',
+        localValue: _diffText(seriesCtl.text),
+        serverValue: _diffText(serverItem.series?.seriesTitle),
+      ),
+      MetadataDiffEntry(
+        label: 'Issue number',
+        localValue: _diffText(issueNumberCtl.text),
+        serverValue: _diffText(serverItem.itemNumber),
+      ),
+      MetadataDiffEntry(
+        label: 'Variant',
+        localValue: _diffText(variantCtl.text),
+        serverValue: _diffText(serverItem.variant),
+      ),
+      MetadataDiffEntry(
+        label: 'Edition / variant title',
+        localValue: _diffText(variantDescCtl.text),
+        serverValue: _diffText(serverItem.editionTitle),
+      ),
+      MetadataDiffEntry(
+        label: 'Format',
+        localValue: _diffText(formatCtl.text),
+        serverValue: _diffText(serverItem.physicalFormatLabel),
+      ),
+      MetadataDiffEntry(
+        label: 'Publisher',
+        localValue: _diffText(publisherCtl.text),
+        serverValue: _diffText(serverItem.publisher),
+      ),
+      MetadataDiffEntry(
+        label: 'Imprint',
+        localValue: _diffText(imprintCtl.text),
+        serverValue: _diffText(serverItem.publishing?.imprint),
+      ),
+      MetadataDiffEntry(
+        label: 'Cover date',
+        localValue: _diffText(coverDateCtl.text),
+        serverValue: _diffDate(serverItem.coverDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Release date',
+        localValue: _diffText(releaseDateCtl.text),
+        serverValue: _diffDate(serverItem.releaseDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Country',
+        localValue: _diffText(countryCtl.text),
+        serverValue: _diffText(serverItem.country),
+      ),
+      MetadataDiffEntry(
+        label: 'Language',
+        localValue: _diffText(languageCtl.text),
+        serverValue: _diffText(serverItem.language),
+      ),
+      MetadataDiffEntry(
+        label: 'Age rating',
+        localValue: _diffText(ageCtl.text),
+        serverValue: _diffText(serverItem.ageRating),
+      ),
+      MetadataDiffEntry(
+        label: 'Page count',
+        localValue: _diffText(pagesCtl.text),
+        serverValue: _diffText(serverItem.publishing?.pageCount?.toString()),
+      ),
+      MetadataDiffEntry(
+        label: 'Genres',
+        localValue: _diffText(genresCtl.text),
+        serverValue: _diffList(serverItem.genres),
+      ),
+      MetadataDiffEntry(
+        label: 'Story arcs',
+        localValue: _diffText(storyArcsCtl.text),
+        serverValue: _diffList(serverItem.storyArcs),
+      ),
+      MetadataDiffEntry(
+        label: 'Crossover',
+        localValue: _diffText(crossoverCtl.text),
+        serverValue: _diffText(serverItem.crossover),
+      ),
+      MetadataDiffEntry(
+        label: 'Barcode',
+        localValue: _diffText(barcodeCtl.text),
+        serverValue: _diffText(serverItem.barcode),
+      ),
+      MetadataDiffEntry(
+        label: 'Plot summary',
+        localValue: _diffText(summaryCtl.text),
+        serverValue: _diffText(serverItem.plotSummary),
+      ),
+    ];
+  }
+
   Widget _buildServerSnapshotDiffSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -926,6 +1049,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
           ),
         ],
         if (_serverSnapshotItem != null) ...[
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Metadata fields diff (Local vs Server)',
+            entries: _comicMetadataDiffEntries(_serverSnapshotItem!),
+            emptyText: 'No field-level differences found.',
+          ),
           const SizedBox(height: 8),
           MetadataDiffPanel(
             title: 'Creators diff (Local vs Server)',
