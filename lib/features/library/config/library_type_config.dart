@@ -383,6 +383,7 @@ class LibraryTypeConfig {
     this.mediaFields = const MediaEditFields(),
     this.releaseFields = const ReleaseEditFields(),
     this.collectionExportTitleLabel = 'Title',
+    this.mediaReleaseScopeLabel = 'Media',
     this.manualAddUsesTitleAsSeries = false,
     this.editUsesTitleAsSeries = false,
     this.transferableFieldKeys = kDefaultTransferableFieldKeys,
@@ -413,6 +414,7 @@ class LibraryTypeConfig {
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
   final String collectionExportTitleLabel;
+  final String mediaReleaseScopeLabel;
   final bool manualAddUsesTitleAsSeries;
   final bool editUsesTitleAsSeries;
   final List<String> transferableFieldKeys;

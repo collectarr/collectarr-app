@@ -73,6 +73,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     publisherLabel: 'Publisher / Studio / Creator',
   ),
   collectionExportTitleLabel: 'Series',
+  mediaReleaseScopeLabel: 'Series',
   manualAddUsesTitleAsSeries: true,
   editUsesTitleAsSeries: true,
   transferableFieldKeys: [

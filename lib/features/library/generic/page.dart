@@ -332,6 +332,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _selectedBucket = null;
       _selectedLetter = null;
       _linkedMetadataFilter = null;
+      _selection = LibrarySelectionState.empty();
+      _filterSelection = LibraryFilterSelection.none;
       _collectionStatusScope = LibraryCollectionStatusScope.all;
       _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       _activeSmartListId = null;
@@ -2040,4 +2042,3 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
   }
 }
-

@@ -93,10 +93,17 @@ void main() {
     expect(
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
+    expect(moviesLibraryConfig.mediaReleaseScopeLabel, 'Media');
     expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
     expect(libraryAccentForKind('anime'), const Color(0xFFC94DFF));
     expect(libraryIconForKind('tv'), Icons.tv_outlined);
     expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
+  });
+
+  test('media/release scope labels are kind-owned', () {
+    expect(comicsLibraryConfig.mediaReleaseScopeLabel, 'Series');
+    expect(musicLibraryConfig.mediaReleaseScopeLabel, 'Media');
+    expect(booksLibraryConfig.mediaReleaseScopeLabel, 'Media');
   });
 
   test('anime and tv library configs are first-class video kinds', () {
