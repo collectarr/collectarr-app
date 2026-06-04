@@ -103,7 +103,6 @@ class LibraryBody extends StatelessWidget {
     this.onPinnedFolderPresetsChanged,
     this.onManageBuckets,
     this.inspectorContextLabel,
-    this.desktopToolbarBand,
   });
 
   final LibraryTypeConfig type;
@@ -147,7 +146,7 @@ class LibraryBody extends StatelessWidget {
   final bool preferToolbarAlphabet;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
-    final ValueChanged<LibrarySeriesCompletionScope>?
+  final ValueChanged<LibrarySeriesCompletionScope>?
       onSeriesCompletionScopeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
@@ -179,7 +178,6 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;
   final String? inspectorContextLabel;
-  final Widget? desktopToolbarBand;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +192,8 @@ class LibraryBody extends StatelessWidget {
           preferredLayout: viewState.detailsLayout,
           compact: compact,
           hasSelection: selected != null,
-          hideWhenSelectionEmpty: adapter.viewProfile.hideDetailsWhenSelectionEmpty,
+          hideWhenSelectionEmpty:
+              adapter.viewProfile.hideDetailsWhenSelectionEmpty,
         );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
@@ -290,7 +289,6 @@ class LibraryBody extends StatelessWidget {
 
         final workspaceContent = Column(
           children: [
-            if (!compact && desktopToolbarBand != null) desktopToolbarBand!,
             if (workspaceOverride == null &&
                 !showSidebar &&
                 !canShowSidebar &&
@@ -350,8 +348,7 @@ class LibraryBody extends StatelessWidget {
                     ancestorScopeLabels: sidebarAncestorScopeLabels,
                     onNavigateBack: onSidebarNavigateBack,
                     onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
-                    onNavigateToAncestorScope:
-                      onSidebarNavigateToAncestorScope,
+                    onNavigateToAncestorScope: onSidebarNavigateToAncestorScope,
                     searchQuery: searchQuery,
                     activeSmartListName: activeSmartListName,
                     quickView: quickView,
@@ -368,7 +365,7 @@ class LibraryBody extends StatelessWidget {
                     onCollectionStatusScopeChanged:
                         onCollectionStatusScopeChanged,
                     onSeriesCompletionScopeChanged:
-                      onSeriesCompletionScopeChanged,
+                        onSeriesCompletionScopeChanged,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
