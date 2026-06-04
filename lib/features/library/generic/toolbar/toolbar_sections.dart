@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -8,20 +7,15 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
-import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/state/auth_provider.dart';
-import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 2;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
@@ -81,6 +75,17 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
+    this.selectionCallbacks,
+    this.selectedCount = 0,
+    this.totalSelectableCount = 0,
+    this.inspectorItem,
+    this.onInspectorEdit,
+    this.onInspectorShare,
+    this.onInspectorDuplicate,
+    this.onInspectorToggleOwned,
+    this.onInspectorLoan,
+    this.onInspectorRefreshMetadata,
+    this.onInspectorUnlinkFromCore,
     this.showBottomBorder = true,
   });
 
@@ -136,6 +141,17 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
+  final LibrarySelectionCallbacks? selectionCallbacks;
+  final int selectedCount;
+  final int totalSelectableCount;
+  final LibraryProjectionItem? inspectorItem;
+  final VoidCallback? onInspectorEdit;
+  final VoidCallback? onInspectorShare;
+  final VoidCallback? onInspectorDuplicate;
+  final VoidCallback? onInspectorToggleOwned;
+  final VoidCallback? onInspectorLoan;
+  final VoidCallback? onInspectorRefreshMetadata;
+  final VoidCallback? onInspectorUnlinkFromCore;
   final bool showBottomBorder;
 
   @override
@@ -153,6 +169,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             .contains(libraryColumnFavoriteKey(preset)))
           preset,
     ];
+    final selectionMode = selectionCallbacks != null && selectedCount > 0;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.toolbar,
@@ -168,106 +185,116 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    if (!viewState.isSidebarVisible &&
-                        onGroupModeChanged != null) ...[
-                      LibraryGroupModeMenuButton(
-                        type: type,
-                        folderPreset: folderPreset,
-                        accent: libraryAccentForKind(type.workspace.kind),
-                        icon: folderPreset == null
-                            ? Icons.account_tree_outlined
-                            : genericFolderPresetIcon(folderPreset!, type),
-                        onChanged: onGroupModeChanged!,
-                        sidebarVisible: viewState.isSidebarVisible,
-                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                        pinnedFolderPresets: pinnedFolderPresets,
-                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-                        iconOnly: true,
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    if (onEditSort != null)
-                      const _LibraryDesktopToolbarSeparator(),
-                    if (onEditSort != null)
-                      LibraryToolbarSortButton(
-                        onPressed: onEditSort!,
-                        sortFavorites: sortFavorites,
-                        activeSortFavoriteId: activeSortFavoriteId,
-                        pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                        onSortFavoriteSelected: onSortFavoriteSelected,
-                        onManageFavoritesPressed: onManageSortFavorites,
-                      ),
-                    const _LibraryDesktopToolbarSeparator(),
-                    LibraryViewModeDropdown(
-                      viewMode: viewState.viewMode,
-                      onChanged: onViewModeChanged,
-                    ),
-                    if (supportsMediaReleaseSplit) ...[
-                      const _LibraryDesktopToolbarSeparator(),
-                      _LibraryDesktopToolbarSection(
-                        label: 'Scope',
-                        child: PopupMenuButton<LibraryWorkspaceBrowserMode>(
-                          tooltip: 'Browser scope',
-                          initialValue: browserMode,
-                          onSelected: onBrowserModeChanged,
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: LibraryWorkspaceBrowserMode.media,
-                              height: kLibraryToolbarPopupItemHeight,
-                              child: Text(mediaScopeLabel),
+              child: selectionMode
+                  ? _LibraryDesktopInlineSelectionToolbar(
+                      selectedCount: selectedCount,
+                      totalSelectableCount: totalSelectableCount,
+                      callbacks: selectionCallbacks!,
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          if (!viewState.isSidebarVisible &&
+                              onGroupModeChanged != null) ...[
+                            LibraryGroupModeMenuButton(
+                              type: type,
+                              folderPreset: folderPreset,
+                              accent: libraryAccentForKind(type.workspace.kind),
+                              icon: folderPreset == null
+                                  ? Icons.account_tree_outlined
+                                  : genericFolderPresetIcon(
+                                      folderPreset!, type),
+                              onChanged: onGroupModeChanged!,
+                              sidebarVisible: viewState.isSidebarVisible,
+                              onSidebarVisibilityChanged:
+                                  onSidebarVisibilityChanged,
+                              pinnedFolderPresets: pinnedFolderPresets,
+                              onPinnedPresetsChanged:
+                                  onPinnedFolderPresetsChanged,
+                              iconOnly: true,
                             ),
-                            const PopupMenuItem(
-                              value: LibraryWorkspaceBrowserMode.releases,
-                              height: kLibraryToolbarPopupItemHeight,
-                              child: Text('Releases'),
+                            const SizedBox(width: 4),
+                          ],
+                          if (onEditSort != null)
+                            const _LibraryDesktopToolbarSeparator(),
+                          if (onEditSort != null)
+                            LibraryToolbarSortButton(
+                              onPressed: onEditSort!,
+                              sortFavorites: sortFavorites,
+                              activeSortFavoriteId: activeSortFavoriteId,
+                              pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                              onSortFavoriteSelected: onSortFavoriteSelected,
+                              onManageFavoritesPressed: onManageSortFavorites,
+                            ),
+                          const _LibraryDesktopToolbarSeparator(),
+                          LibraryViewModeDropdown(
+                            viewMode: viewState.viewMode,
+                            onChanged: onViewModeChanged,
+                          ),
+                          if (supportsMediaReleaseSplit) ...[
+                            const _LibraryDesktopToolbarSeparator(),
+                            _LibraryDesktopToolbarSection(
+                              label: 'Scope',
+                              child:
+                                  PopupMenuButton<LibraryWorkspaceBrowserMode>(
+                                tooltip: 'Browser scope',
+                                initialValue: browserMode,
+                                onSelected: onBrowserModeChanged,
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(
+                                    value: LibraryWorkspaceBrowserMode.media,
+                                    height: kLibraryToolbarPopupItemHeight,
+                                    child: Text(mediaScopeLabel),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: LibraryWorkspaceBrowserMode.releases,
+                                    height: kLibraryToolbarPopupItemHeight,
+                                    child: Text('Releases'),
+                                  ),
+                                ],
+                                child: _LibraryToolbarSecondaryTrigger(
+                                  label: browserMode ==
+                                          LibraryWorkspaceBrowserMode.media
+                                      ? mediaScopeLabel
+                                      : 'Releases',
+                                ),
+                              ),
                             ),
                           ],
-                          child: _LibraryToolbarSecondaryTrigger(
-                            label:
-                                browserMode == LibraryWorkspaceBrowserMode.media
-                                    ? mediaScopeLabel
-                                    : 'Releases',
+                          const _LibraryDesktopToolbarSeparator(),
+                          LibraryDetailsLayoutDropdown(
+                            detailsLayout: viewState.detailsLayout,
+                            onChanged: onDetailsLayoutChanged,
                           ),
-                        ),
+                          if (viewState.viewMode == LibraryViewMode.list) ...[
+                            const _LibraryDesktopToolbarSeparator(),
+                            _LibraryDesktopToolbarSection(
+                              label: 'Columns',
+                              child: _LibraryColumnLauncher(
+                                activeLabel: activeColumnFavoriteLabel,
+                                onManageColumns: onEditColumns,
+                                pinnedPresets: pinnedColumnPresets,
+                                overflowPresets: overflowColumnPresets,
+                                onPresetSelected: onColumnFavoriteSelected,
+                              ),
+                            ),
+                          ] else if (viewState.viewMode.supportsCoverSize) ...[
+                            const _LibraryDesktopToolbarSeparator(),
+                            _LibraryDesktopToolbarSection(
+                              label: 'Covers',
+                              child: LibraryCoverSizeSlider(
+                                viewMode: viewState.viewMode,
+                                coverSize: viewState.coverSize,
+                                minCoverSize: adapter.viewProfile.minCoverSize,
+                                maxCoverSize: adapter.viewProfile.maxCoverSize,
+                                onChanged: onCoverSizeChanged,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                    ],
-                    const _LibraryDesktopToolbarSeparator(),
-                    LibraryDetailsLayoutDropdown(
-                      detailsLayout: viewState.detailsLayout,
-                      onChanged: onDetailsLayoutChanged,
                     ),
-                    if (viewState.viewMode == LibraryViewMode.list) ...[
-                      const _LibraryDesktopToolbarSeparator(),
-                      _LibraryDesktopToolbarSection(
-                        label: 'Columns',
-                        child: _LibraryColumnLauncher(
-                          activeLabel: activeColumnFavoriteLabel,
-                          onManageColumns: onEditColumns,
-                          pinnedPresets: pinnedColumnPresets,
-                          overflowPresets: overflowColumnPresets,
-                          onPresetSelected: onColumnFavoriteSelected,
-                        ),
-                      ),
-                    ] else if (viewState.viewMode.supportsCoverSize) ...[
-                      const _LibraryDesktopToolbarSeparator(),
-                      _LibraryDesktopToolbarSection(
-                        label: 'Covers',
-                        child: LibraryCoverSizeSlider(
-                          viewMode: viewState.viewMode,
-                          coverSize: viewState.coverSize,
-                          minCoverSize: adapter.viewProfile.minCoverSize,
-                          maxCoverSize: adapter.viewProfile.maxCoverSize,
-                          onChanged: onCoverSizeChanged,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
             ),
             const SizedBox(width: 6),
             LibraryWorkspaceControlStrip(
@@ -335,11 +362,88 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   onPrintReport: onPrintReport,
                   onShareCollection: onShareCollection,
                 ),
+                if (inspectorItem != null)
+                  InspectorUnifiedToolbar(
+                    entry: inspectorItem!.entry,
+                    onEdit: onInspectorEdit,
+                    onShare: onInspectorShare,
+                    onDuplicate: onInspectorDuplicate,
+                    onToggleOwned: onInspectorToggleOwned,
+                    onLoan: onInspectorLoan,
+                    onRefreshMetadata: onInspectorRefreshMetadata,
+                    onUnlinkFromCore: onInspectorUnlinkFromCore,
+                    framed: false,
+                    includeLayoutControl: false,
+                  ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LibraryDesktopInlineSelectionToolbar extends StatelessWidget {
+  const _LibraryDesktopInlineSelectionToolbar({
+    required this.selectedCount,
+    required this.totalSelectableCount,
+    required this.callbacks,
+  });
+
+  final int selectedCount;
+  final int totalSelectableCount;
+  final LibrarySelectionCallbacks callbacks;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Row(
+      children: [
+        TextButton(
+          onPressed: callbacks.onClearSelection,
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            foregroundColor: palette.textPrimary,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: const Text('Cancel'),
+        ),
+        const SizedBox(width: 4),
+        TextButton(
+          onPressed: callbacks.onSelectAll,
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            foregroundColor: palette.textPrimary,
+            backgroundColor: Colors.white.withValues(alpha: 0.08),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          child: const Text('All'),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: LibrarySelectionControls(
+              callbacks: callbacks,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$selectedCount of $totalSelectableCount selected',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: palette.textPrimary,
+              ),
+        ),
+      ],
     );
   }
 }
@@ -637,297 +741,6 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-enum _LibraryWorkspaceDestination {
-  shelf,
-  calendar,
-  admin,
-  settings,
-  shortcuts,
-}
-
-extension on _LibraryWorkspaceDestination {
-  String get label {
-    switch (this) {
-      case _LibraryWorkspaceDestination.shelf:
-        return 'Shelf';
-      case _LibraryWorkspaceDestination.calendar:
-        return 'Calendar';
-      case _LibraryWorkspaceDestination.admin:
-        return 'Admin';
-      case _LibraryWorkspaceDestination.settings:
-        return 'Settings';
-      case _LibraryWorkspaceDestination.shortcuts:
-        return 'Keyboard shortcuts';
-    }
-  }
-
-  IconData get icon {
-    switch (this) {
-      case _LibraryWorkspaceDestination.shelf:
-        return Icons.inventory_2_outlined;
-      case _LibraryWorkspaceDestination.calendar:
-        return Icons.calendar_month_outlined;
-      case _LibraryWorkspaceDestination.admin:
-        return Icons.admin_panel_settings_outlined;
-      case _LibraryWorkspaceDestination.settings:
-        return Icons.settings_outlined;
-      case _LibraryWorkspaceDestination.shortcuts:
-        return Icons.keyboard_command_key;
-    }
-  }
-
-  String? get route {
-    switch (this) {
-      case _LibraryWorkspaceDestination.shelf:
-        return AppRoutes.shelf;
-      case _LibraryWorkspaceDestination.calendar:
-        return AppRoutes.calendar;
-      case _LibraryWorkspaceDestination.admin:
-        return AppRoutes.admin;
-      case _LibraryWorkspaceDestination.settings:
-        return AppRoutes.settings;
-      case _LibraryWorkspaceDestination.shortcuts:
-        return null;
-    }
-  }
-
-  String get section {
-    switch (this) {
-      case _LibraryWorkspaceDestination.shelf:
-      case _LibraryWorkspaceDestination.calendar:
-        return 'Workspace';
-      case _LibraryWorkspaceDestination.admin:
-        return 'Administration';
-      case _LibraryWorkspaceDestination.settings:
-      case _LibraryWorkspaceDestination.shortcuts:
-        return 'Help';
-    }
-  }
-}
-
-class _LibraryDesktopUtilityCluster extends ConsumerWidget {
-  const _LibraryDesktopUtilityCluster();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authControllerProvider);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const _LibraryDesktopSyncButton(),
-        const SizedBox(width: 4),
-        _LibraryWorkspaceMenuButton(isAdmin: auth.isAdmin),
-      ],
-    );
-  }
-}
-
-class _LibraryWorkspaceMenuButton extends StatelessWidget {
-  const _LibraryWorkspaceMenuButton({required this.isAdmin});
-
-  final bool isAdmin;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final background = Color.alphaBlend(
-      palette.surface.withValues(alpha: 0.88),
-      palette.toolbar,
-    );
-    final border = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.08),
-      palette.divider,
-    );
-    final destinations = [
-      _LibraryWorkspaceDestination.shelf,
-      _LibraryWorkspaceDestination.calendar,
-      if (isAdmin) _LibraryWorkspaceDestination.admin,
-      _LibraryWorkspaceDestination.settings,
-      _LibraryWorkspaceDestination.shortcuts,
-    ];
-    return PopupMenuButton<_LibraryWorkspaceDestination>(
-      tooltip: 'Workspace menu',
-      onSelected: (destination) {
-        final route = destination.route;
-        if (route != null) {
-          context.go(route);
-          return;
-        }
-        showKeyboardShortcutsDialog(context);
-      },
-      color: palette.surface,
-      surfaceTintColor: Colors.transparent,
-      position: PopupMenuPosition.under,
-      itemBuilder: (context) {
-        final items = <PopupMenuEntry<_LibraryWorkspaceDestination>>[];
-        String? currentSection;
-        for (final destination in destinations) {
-          if (destination.section != currentSection) {
-            if (items.isNotEmpty) {
-              items.add(const PopupMenuDivider(height: 8));
-            }
-            items.add(
-              PopupMenuItem<_LibraryWorkspaceDestination>(
-                enabled: false,
-                height: kLibraryToolbarPopupSectionHeaderHeight,
-                child: Text(
-                  destination.section.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.24,
-                      ),
-                ),
-              ),
-            );
-            currentSection = destination.section;
-          }
-          items.add(
-            PopupMenuItem<_LibraryWorkspaceDestination>(
-              value: destination,
-              height: kLibraryToolbarPopupItemHeight,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(destination.icon, size: 16, color: palette.textPrimary),
-                  const SizedBox(width: 8),
-                  Text(destination.label),
-                ],
-              ),
-            ),
-          );
-        }
-        return items;
-      },
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: background,
-          border: Border.all(color: border),
-          borderRadius: BorderRadius.circular(2),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.menu, size: 15, color: palette.textPrimary),
-              const SizedBox(width: 5),
-              Text(
-                'Menu',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const SizedBox(width: 1),
-              Icon(Icons.expand_more, size: 15, color: palette.textMuted),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryDesktopSyncButton extends ConsumerWidget {
-  const _LibraryDesktopSyncButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sync = ref.watch(syncControllerProvider);
-    final palette = appPalette(context);
-    final background = Color.alphaBlend(
-      palette.surface.withValues(alpha: 0.88),
-      palette.toolbar,
-    );
-    final border = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.08),
-      palette.divider,
-    );
-    final foreground = sync.isOffline
-        ? (palette.isDark ? Colors.orange.shade200 : Colors.orange.shade700)
-        : palette.textPrimary;
-    final mutedForeground = foreground.withValues(alpha: 0.72);
-    final badgeBackground = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.18 : 0.12),
-      palette.selection,
-    );
-    return Tooltip(
-      message: sync.isSyncing
-          ? 'Personal sync is running'
-          : sync.pendingCount > 0
-              ? 'Run personal sync now (${sync.pendingCount} pending)'
-              : 'Run personal sync now',
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(2),
-          onTap: sync.isSyncing
-              ? null
-              : () => ref.read(syncControllerProvider.notifier).syncNow(),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-            decoration: BoxDecoration(
-              color: background,
-              border: Border.all(color: border),
-              borderRadius: BorderRadius.circular(2),
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      sync.isOffline
-                          ? Icons.cloud_off_outlined
-                          : Icons.sync_outlined,
-                      size: 15,
-                      color: sync.isSyncing ? mutedForeground : foreground,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Sync',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color:
-                                sync.isSyncing ? mutedForeground : foreground,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ],
-                ),
-                if (!sync.isSyncing && sync.pendingCount > 0)
-                  Positioned(
-                    right: -7,
-                    top: -7,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: badgeBackground,
-                        border: Border.all(color: border),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        sync.pendingCount > 99
-                            ? '99+'
-                            : sync.pendingCount.toString(),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

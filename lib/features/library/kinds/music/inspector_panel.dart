@@ -2,9 +2,6 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -46,8 +43,6 @@ class MusicInspectorPanel extends StatelessWidget {
           ListView(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
             children: [
-              _MusicInspectorToolbar(request: request),
-              const SizedBox(height: 8),
               _MusicInspectorHeader(inspector: request.inspector),
               const SizedBox(height: 10),
               _MusicInspectorMain(inspector: request.inspector),
@@ -62,152 +57,6 @@ class MusicInspectorPanel extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-enum _MusicInspectorMenuAction {
-  duplicate,
-  removeOrCollect,
-  loan,
-  refreshMetadata,
-}
-
-class _MusicInspectorToolbar extends StatelessWidget {
-  const _MusicInspectorToolbar({required this.request});
-
-  final LibraryInspectorPanelRequest request;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final entry = request.inspector.entry;
-    final hasOwnedCopy = request.inspector.ownedItem != null;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surface.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          children: [
-            _MusicInspectorToolbarButton(
-              icon: Icons.edit_outlined,
-              label: 'Edit',
-              onPressed: request.onEdit,
-            ),
-            const SizedBox(width: 6),
-            if (_ebayUri(entry) case final uri?)
-              _MusicInspectorIconButton(
-                tooltip: 'Find sold listings on eBay',
-                icon: Icons.shopping_bag_outlined,
-                onPressed: () =>
-                    launchUrl(uri, mode: LaunchMode.externalApplication),
-              ),
-            const Spacer(),
-            PopupMenuButton<_MusicInspectorMenuAction>(
-              tooltip: 'More actions',
-              onSelected: (value) {
-                switch (value) {
-                  case _MusicInspectorMenuAction.duplicate:
-                    request.onDuplicate?.call();
-                    return;
-                  case _MusicInspectorMenuAction.removeOrCollect:
-                    request.onToggleOwned?.call();
-                    return;
-                  case _MusicInspectorMenuAction.loan:
-                    request.onLoan?.call();
-                    return;
-                  case _MusicInspectorMenuAction.refreshMetadata:
-                    request.onRefreshMetadata?.call();
-                    return;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<_MusicInspectorMenuAction>(
-                  value: _MusicInspectorMenuAction.duplicate,
-                  enabled: request.onDuplicate != null,
-                  height: kLibraryToolbarPopupItemHeight,
-                  child: const ListTile(
-                    dense: true,
-                    leading: Icon(Icons.copy_all_outlined),
-                    title: Text('Duplicate'),
-                  ),
-                ),
-                PopupMenuItem<_MusicInspectorMenuAction>(
-                  value: _MusicInspectorMenuAction.removeOrCollect,
-                  enabled: request.onToggleOwned != null,
-                  height: kLibraryToolbarPopupItemHeight,
-                  child: ListTile(
-                    dense: true,
-                    leading: Icon(
-                      entry.isOwned
-                          ? Icons.delete_outline
-                          : Icons.add_circle_outline,
-                    ),
-                    title: Text(entry.isOwned ? 'Remove' : 'Collect'),
-                  ),
-                ),
-                PopupMenuItem<_MusicInspectorMenuAction>(
-                  value: _MusicInspectorMenuAction.loan,
-                  enabled: request.onLoan != null && hasOwnedCopy,
-                  height: kLibraryToolbarPopupItemHeight,
-                  child: const ListTile(
-                    dense: true,
-                    leading: Icon(Icons.handshake_outlined),
-                    title: Text('Loan'),
-                  ),
-                ),
-                PopupMenuItem<_MusicInspectorMenuAction>(
-                  value: _MusicInspectorMenuAction.refreshMetadata,
-                  enabled: request.onRefreshMetadata != null,
-                  height: kLibraryToolbarPopupItemHeight,
-                  child: const ListTile(
-                    dense: true,
-                    leading: Icon(Icons.cloud_download_outlined),
-                    title: Text('Update from Core'),
-                  ),
-                ),
-              ],
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.more_vert, size: 18),
-              ),
-            ),
-            if (request.onDetailsLayoutChanged != null) ...[
-              const SizedBox(width: 4),
-              PopupMenuButton<LibraryDetailsLayout>(
-                tooltip: 'Layout',
-                onSelected: request.onDetailsLayoutChanged,
-                itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    value: LibraryDetailsLayout.bottom,
-                    height: kLibraryToolbarPopupItemHeight,
-                    child: Text('Horizontal Split'),
-                  ),
-                  PopupMenuItem(
-                    value: LibraryDetailsLayout.right,
-                    height: kLibraryToolbarPopupItemHeight,
-                    child: Text('Vertical Split'),
-                  ),
-                  PopupMenuItem(
-                    value: LibraryDetailsLayout.hidden,
-                    height: kLibraryToolbarPopupItemHeight,
-                    child: Text('No Details'),
-                  ),
-                ],
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.view_sidebar_outlined, size: 18),
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -693,62 +542,6 @@ class _MusicInspectorInfoLine extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MusicInspectorToolbarButton extends StatelessWidget {
-  const _MusicInspectorToolbarButton({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        minimumSize: const Size(0, 32),
-      ),
-    );
-  }
-}
-
-class _MusicInspectorIconButton extends StatelessWidget {
-  const _MusicInspectorIconButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: SizedBox(
-        height: 32,
-        width: 32,
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-          ),
-          onPressed: onPressed,
-          child: Icon(icon, size: 16),
-        ),
       ),
     );
   }

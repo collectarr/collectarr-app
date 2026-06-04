@@ -488,6 +488,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             shelfState,
             viewState,
           );
+    final toolbarInspectorItem = projection?.selectedItem;
+    final toolbarLoanable = toolbarInspectorItem != null &&
+        toolbarInspectorItem.entry.ownedItemId != null &&
+        !_activeLoanOwnedItemIds
+            .contains(toolbarInspectorItem.entry.ownedItemId);
     final useFab =
         ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return LibraryKeyboardShortcuts(
@@ -639,6 +644,65 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     pinnedFolderPresets: _pinnedFolderPresets,
                     onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
                     onGroupModeChanged: _setFolderPreset,
+                    inspectorItem: toolbarInspectorItem,
+                    onInspectorEdit: toolbarInspectorItem == null
+                        ? null
+                        : () => unawaited(
+                              showEditDialog(
+                                toolbarInspectorItem,
+                                toolbarInspectorItem.source.ownedItem,
+                              ),
+                            ),
+                    onInspectorShare: toolbarInspectorItem == null
+                        ? null
+                        : () => showCollectionShareDialog(
+                              context: context,
+                              title: widget.type.workspace.title,
+                              items: [toolbarInspectorItem.entry],
+                            ),
+                    onInspectorDuplicate: toolbarInspectorItem == null ||
+                            toolbarInspectorItem.source.ownedItem == null
+                        ? null
+                        : () => unawaited(
+                              singleDuplicateFlow(toolbarInspectorItem),
+                            ),
+                    onInspectorToggleOwned: toolbarInspectorItem == null
+                        ? null
+                        : toolbarInspectorItem.entry.isOwned
+                            ? () => unawaited(
+                                  confirmAndRemoveOwned(toolbarInspectorItem),
+                                )
+                            : () => unawaited(
+                                  runCollectionAction(
+                                    (actions) =>
+                                        actions.addOwned(toolbarInspectorItem),
+                                  ),
+                                ),
+                    onInspectorLoan: toolbarLoanable && projection != null
+                        ? () {
+                            final selectedItem = toolbarInspectorItem;
+                            setState(() {
+                              _selection = _selection.replace({
+                                selectedItem.entry.id,
+                              });
+                              _selectionAnchorId = selectedItem.entry.id;
+                              _selectedId = selectedItem.entry.id;
+                            });
+                            unawaited(showLoanSelectionFlow(projection));
+                          }
+                        : null,
+                    onInspectorRefreshMetadata: toolbarInspectorItem == null
+                        ? null
+                        : () => unawaited(
+                              _refreshVideoTitleFromCore(toolbarInspectorItem),
+                            ),
+                    onInspectorUnlinkFromCore: toolbarInspectorItem == null
+                        ? null
+                        : () => showAppToast(
+                              context,
+                              'Unlink from Core is not implemented yet.',
+                              tone: AppToastTone.info,
+                            ),
                     includeDesktopSecondaryBand: true,
                     selectionCallbacks: (
                       onClearSelection: () => setState(() {

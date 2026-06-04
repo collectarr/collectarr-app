@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_folder_secti
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
+import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
@@ -75,7 +76,8 @@ class _InspectorConditionGradeOptionsRequest {
 }
 
 final _inspectorConditionGradeOptionsProvider = FutureProvider.autoDispose
-    .family<PickListConditionGradeOptions, _InspectorConditionGradeOptionsRequest>(
+    .family<PickListConditionGradeOptions,
+        _InspectorConditionGradeOptionsRequest>(
   (ref, request) async {
     return loadConditionGradePickListOptions(
       request.db,
@@ -267,9 +269,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : widget.onAddOwned;
     final onToggleWishlist =
         selected.isWishlisted ? widget.onRemoveWishlist : widget.onAddWishlist;
-    final onEdit = widget.onEdit == null
-        ? null
-        : () => widget.onEdit!(activeOwnedItem);
+    final onEdit =
+        widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
     final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty
         ? () => showMetadataCorrectionDialog(
               context: context,
@@ -304,6 +305,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onRefreshMetadata = widget.type.supportedMetadataProviders.isEmpty
         ? null
         : () => _refreshSelectedEntryMetadata(selected);
+    final onShare = () => _shareInspectorEntry(selected);
+    final onUnlinkFromCore = () => _unlinkInspectorEntryFromCore(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
         context: context,
@@ -328,6 +331,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       );
     }
+
     final hero = widget.type.inspectorHeroBuilder?.call(
           context,
           inspectorRequest,
@@ -375,7 +379,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           );
     Widget? conditionGradeSection;
     if (!usesCustomInspectorPanel &&
-      activeOwnedItem != null &&
+        activeOwnedItem != null &&
         (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
         resolveOwnedDigitalFlag(
               activeOwnedItem,
@@ -499,6 +503,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           onDuplicate: onDuplicate,
           onLoan: onLoan,
           onRefreshMetadata: onRefreshMetadata,
+          onShare: onShare,
+          onUnlinkFromCore: onUnlinkFromCore,
         ),
       );
     }
@@ -538,28 +544,29 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               ),
             ),
           ),
-              if (ownedCopies.isNotEmpty) ...[
-                const SizedBox(height: _kInspectorOuterGap),
-                ownedCopiesSection!,
-              ],
-              if (activeBundleReleaseId != null) ...[
-                const SizedBox(height: _kInspectorOuterGap),
-                bundleSection!,
-              ],
-              if (activeOwnedItem != null &&
-                  (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
-                  resolveOwnedDigitalFlag(
-                        activeOwnedItem,
-                        selected.editions,
-                        fallbackLabel: selected.variant,
-                      ) !=
-                      true) ...[
-                        const SizedBox(height: _kInspectorOuterGap),
-                conditionGradeSection!,
-              ],
-              const SizedBox(height: _kInspectorOuterGap),
-              ...primarySections,
-              ...trailingSections,
+          if (ownedCopies.isNotEmpty) ...[
+            const SizedBox(height: _kInspectorOuterGap),
+            ownedCopiesSection!,
+          ],
+          if (activeBundleReleaseId != null) ...[
+            const SizedBox(height: _kInspectorOuterGap),
+            bundleSection!,
+          ],
+          if (activeOwnedItem != null &&
+              (widget.type.conditions.isNotEmpty ||
+                  widget.type.grades.isNotEmpty) &&
+              resolveOwnedDigitalFlag(
+                    activeOwnedItem,
+                    selected.editions,
+                    fallbackLabel: selected.variant,
+                  ) !=
+                  true) ...[
+            const SizedBox(height: _kInspectorOuterGap),
+            conditionGradeSection!,
+          ],
+          const SizedBox(height: _kInspectorOuterGap),
+          ...primarySections,
+          ...trailingSections,
         ],
       ),
     );
@@ -742,7 +749,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  Future<void> _refreshSelectedEntryMetadata(LibraryWorkspaceEntry entry) async {
+  Future<void> _refreshSelectedEntryMetadata(
+      LibraryWorkspaceEntry entry) async {
     final result = await showLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,
@@ -759,6 +767,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         content: Text(
           'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
         ),
+      ),
+    );
+  }
+
+  void _shareInspectorEntry(LibraryWorkspaceEntry entry) {
+    showCollectionShareDialog(
+      context: context,
+      title: entry.resolvedTitle,
+      items: <LibraryWorkspaceEntry>[entry],
+    );
+  }
+
+  void _unlinkInspectorEntryFromCore(LibraryWorkspaceEntry entry) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text('Unlink from Core not implemented yet for "${entry.title}".'),
       ),
     );
   }
