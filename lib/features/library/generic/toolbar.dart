@@ -88,6 +88,11 @@ class LibraryToolbar extends StatelessWidget {
     this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
+    this.groupMode,
+    this.folderPreset,
+    this.pinnedFolderPresets = const [],
+    this.onPinnedFolderPresetsChanged,
+    this.onGroupModeChanged,
     this.includeDesktopSecondaryBand = true,
   });
 
@@ -162,6 +167,11 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final LibraryGroupMode? groupMode;
+  final LibraryFolderPreset? folderPreset;
+  final List<LibraryFolderPreset> pinnedFolderPresets;
+  final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
+  final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
   final bool includeDesktopSecondaryBand;
 
   @override
@@ -318,6 +328,12 @@ class LibraryToolbar extends StatelessWidget {
                       onReassignIndex: effectiveReassignIndex,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
+                      groupMode: groupMode,
+                      folderPreset: folderPreset,
+                      pinnedFolderPresets: pinnedFolderPresets,
+                      onPinnedFolderPresetsChanged:
+                          onPinnedFolderPresetsChanged,
+                      onGroupModeChanged: onGroupModeChanged,
                     ),
                   if (selectionCallbacks != null && selectedCount > 0) ...[
                     const LibraryToolbarDividerLine(),

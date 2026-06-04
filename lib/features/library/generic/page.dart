@@ -634,7 +634,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     selectionEnabled: _selection.enabled,
                     selectedCount: _selection.selectedCount,
                     totalSelectableCount: projection?.filteredItems.length ?? 0,
-                    includeDesktopSecondaryBand: false,
+                    groupMode: _activeSidebarGroupMode,
+                    folderPreset: _activeFolderPreset,
+                    pinnedFolderPresets: _pinnedFolderPresets,
+                    onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
+                    onGroupModeChanged: _setFolderPreset,
+                    includeDesktopSecondaryBand: true,
                     selectionCallbacks: (
                       onClearSelection: () => setState(() {
                             _selection = _selection.clear();
@@ -903,77 +908,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           : null,
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
       inspectorContextLabel: releasePositionLabel,
-      desktopToolbarBand: LibraryDesktopSecondaryToolbar(
-        type: widget.type,
-        viewState: viewState,
-        adapter: _adapter,
-        counts: projection.counts,
-        onEditColumns: showColumnChooserFlow,
-        onEditSort: showSortDialogFlow,
-        onSidebarVisibilityChanged: _setGroupingPanelVisibility,
-        onViewModeChanged: (mode) => _updateViewState(
-          (state) => state.copyWith(viewMode: mode),
-        ),
-        browserMode: _activeBrowserMode,
-        supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
-        onBrowserModeChanged: _setBrowserMode,
-        showReleaseFolderBack: _releaseFolderTitleItemId != null,
-        releaseFolderLabel: _releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack:
-            _releaseFolderTitleItemId == null ? null : _closeReleaseFolder,
-        onDetailsLayoutChanged: (layout) => _updateViewState(
-          (state) => state.copyWith(detailsLayout: layout),
-        ),
-        onCoverSizeChanged: (size) => _updateViewState(
-          (state) => state.copyWith(coverSize: size),
-        ),
-        selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
-        onClearBucket: _clearToolbarSearchChip,
-        quickView: _quickView,
-        hasActiveFilters: _hasActiveFilter,
-        onQuickViewSelected: (view) =>
-            _setQuickView(_quickView == view ? null : view),
-        onClearFilters: _clearFilters,
-        onEditFilters: () => showFilterDialogFlow(projection),
-        activeFilterCount: _filterSelection.activeFilterCount,
-        activeSortFavoriteId: _activeSortFavorite?.id,
-        sortFavorites: _sortFavorites,
-        onSortFavoriteSelected: _applySortFavorite,
-        pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
-        onManageSortFavorites: showSortFavoritesManagerFlow,
-        onRandomPick: projection.filteredItems.isNotEmpty
-            ? () => pickRandomItemFlow(projection)
-            : null,
-        onDownloadAllCovers: () => downloadAllCoversFlow(shelfState),
-        shelfState: shelfState,
-        onSmartLists: () => showSmartListsFlow(shelfState),
-        onFolders: showUserFoldersFlow,
-        onReadingQueue: showsReadingQueue() ? showReadingQueueFlow : null,
-        onEditConditionPickList: widget.type.conditions.isNotEmpty
-            ? showConditionPickListEditorFlow
-            : null,
-        onEditGradePickList:
-            widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
-        onEditTagPickList: showTagPickListEditorFlow,
-        onTransferFieldData: _hasOwnedItemsInProjection(projection)
-            ? () => showTransferFieldDataFlow(projection)
-            : null,
-        onReassignIndex: _hasOwnedItemsInProjection(projection) &&
-                widget.type.capabilities.supportsIndexReassignment
-            ? () => reassignIndexFlow(projection)
-            : null,
-        onPrintReport: projection.filteredItems.isNotEmpty
-            ? () => printReportFlow(projection)
-            : null,
-        onShareCollection: projection.filteredItems.isNotEmpty
-            ? () => shareCollectionFlow(projection)
-            : null,
-        folderPreset: _activeFolderPreset,
-        groupMode: _activeSidebarGroupMode,
-        pinnedFolderPresets: _pinnedFolderPresets,
-        onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
-        onGroupModeChanged: _setFolderPreset,
-      ),
     );
   }
 
