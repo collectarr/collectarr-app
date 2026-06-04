@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -62,7 +64,8 @@ void main() {
       LibrarySeriesCompletionScope.completed,
     );
     expect(parsed.quickView, LibraryQuickView.missingMetadata);
-    expect(parsed.filterSelection.ownershipFilter, LibraryOwnershipFilter.owned);
+    expect(
+        parsed.filterSelection.ownershipFilter, LibraryOwnershipFilter.owned);
     expect(
       parsed.filterSelection.trackingStatusFilter,
       LibraryTrackingStatusFilter.completed,
@@ -80,7 +83,8 @@ void main() {
 
   test('invalid route params fall back safely', () {
     final parsed = LibraryRouteState.fromUri(
-      Uri.parse('/libraries?kind=movie&folder=nope&sort=bad&filters=%%%&folders=maybe'),
+      Uri.parse(
+          '/libraries?kind=movie&folder=nope&sort=bad&filters=%%%&folders=maybe'),
     );
 
     expect(parsed.kind, 'movie');
@@ -89,5 +93,49 @@ void main() {
     expect(parsed.sortRules, isNull);
     expect(parsed.filterSelection, LibraryFilterSelection.none);
     expect(parsed.isSidebarVisible, isNull);
+  });
+
+  test('filtered route state drops explicit state when route kind mismatches',
+      () {
+    final state = LibraryRouteState(
+      kind: 'movie',
+      searchQuery: 'alien',
+      quickView: LibraryQuickView.owned,
+      filterSelection: const LibraryFilterSelection(
+        ownershipFilter: LibraryOwnershipFilter.owned,
+      ),
+    );
+
+    final filtered = state.filteredForType(musicLibraryConfig);
+
+    expect(filtered.kind, 'music');
+    expect(filtered.hasExplicitViewState, isFalse);
+    expect(filtered.searchQuery, isNull);
+    expect(filtered.quickView, isNull);
+    expect(filtered.filterSelection, LibraryFilterSelection.none);
+  });
+
+  test('filtered route state sanitizes grade-only views for no-grade types',
+      () {
+    final state = LibraryRouteState(
+      kind: 'music',
+      quickView: LibraryQuickView.missingGrade,
+      filterSelection: const LibraryFilterSelection(
+        ownershipFilter: LibraryOwnershipFilter.missingGrade,
+        grade: '9.8',
+      ),
+    );
+
+    final filtered = state.filteredForType(musicLibraryConfig);
+
+    expect(filtered.quickView, isNull);
+    expect(
+        filtered.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
+    expect(filtered.filterSelection.grade, isNull);
+
+    final comicsFiltered = state.filteredForType(comicsLibraryConfig);
+    expect(comicsFiltered.quickView, isNull);
+    expect(comicsFiltered.filterSelection.ownershipFilter,
+        LibraryOwnershipFilter.all);
   });
 }

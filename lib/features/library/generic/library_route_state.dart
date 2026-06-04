@@ -52,7 +52,7 @@ class LibraryRouteState {
 
   bool get hasExplicitViewState {
     return searchQuery != null ||
-      folderPreset != null ||
+        folderPreset != null ||
         groupMode != null ||
         selectedBucket != null ||
         linkedMetadataValue != null ||
@@ -79,8 +79,7 @@ class LibraryRouteState {
       collectionStatusScope:
           _enumByName(LibraryCollectionStatusScope.values, params[scopeKey]) ??
               LibraryCollectionStatusScope.all,
-      seriesCompletionScope:
-          _enumByName(
+      seriesCompletionScope: _enumByName(
             LibrarySeriesCompletionScope.values,
             params[seriesScopeKey],
           ) ??
@@ -139,6 +138,11 @@ class LibraryRouteState {
   }
 
   LibraryRouteState filteredForType(LibraryTypeConfig type) {
+    final expectedKind = type.workspace.kind.apiValue;
+    final routeKind = kind?.trim().toLowerCase();
+    if (routeKind != null && routeKind != expectedKind) {
+      return LibraryRouteState(kind: expectedKind);
+    }
     final allowedGroupModes = type.availableGroupModes.toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
@@ -152,20 +156,23 @@ class LibraryRouteState {
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
     return LibraryRouteState(
-      kind: kind,
+      kind: expectedKind,
       searchQuery: searchQuery,
-        groupMode: filteredFolderPreset?.primaryMode ??
+      groupMode: filteredFolderPreset?.primaryMode ??
           (groupMode != null && allowedGroupModes.contains(groupMode)
-            ? groupMode
-            : null),
-        folderPreset: filteredFolderPreset,
+              ? groupMode
+              : null),
+      folderPreset: filteredFolderPreset,
       selectedBucket: selectedBucket,
       linkedMetadataValue: linkedMetadataValue,
       selectedLetter: selectedLetter,
       collectionStatusScope: collectionStatusScope,
       seriesCompletionScope: seriesCompletionScope,
-      quickView: quickView,
-      filterSelection: filterSelection,
+      quickView: sanitizeLibraryQuickViewForType(quickView, type),
+      filterSelection: sanitizeLibraryFilterSelectionForType(
+        filterSelection,
+        type,
+      ),
       sortRules: filteredSortRules == null || filteredSortRules.isEmpty
           ? null
           : filteredSortRules,
@@ -238,7 +245,8 @@ class LibraryRouteState {
         'customFieldDefinitionId': _trimmed(selection.customFieldDefinitionId),
       if (_trimmed(selection.customFieldValue) != null)
         'customFieldValue': _trimmed(selection.customFieldValue),
-      if (_trimmed(selection.series) != null) 'series': _trimmed(selection.series),
+      if (_trimmed(selection.series) != null)
+        'series': _trimmed(selection.series),
       if (_trimmed(selection.location) != null)
         'location': _trimmed(selection.location),
       if (_trimmed(selection.tag) != null) 'tag': _trimmed(selection.tag),
@@ -318,6 +326,19 @@ class LibraryRouteState {
       _ => null,
     };
   }
+}
+
+LibraryQuickView? sanitizeLibraryQuickViewForType(
+  LibraryQuickView? quickView,
+  LibraryTypeConfig type,
+) {
+  if (quickView == null) {
+    return null;
+  }
+  if (quickView.requiresGrades && type.grades.isEmpty) {
+    return null;
+  }
+  return quickView;
 }
 
 String? _trimmed(Object? value) {

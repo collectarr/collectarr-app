@@ -137,6 +137,36 @@ void main() {
     );
   });
 
+  test('filter selection sanitization drops unsupported grade filters', () {
+    const selection = LibraryFilterSelection(
+      ownershipFilter: LibraryOwnershipFilter.missingGrade,
+      grade: '9.8',
+      condition: 'Mint',
+      publisher: 'DC',
+      country: 'US',
+    );
+
+    final sanitizedMusic = sanitizeLibraryFilterSelectionForType(
+      selection,
+      musicLibraryConfig,
+    );
+    expect(sanitizedMusic.ownershipFilter, LibraryOwnershipFilter.all);
+    expect(sanitizedMusic.grade, isNull);
+    expect(sanitizedMusic.condition, 'Mint');
+    expect(sanitizedMusic.publisher, 'DC');
+    expect(sanitizedMusic.country, 'US');
+
+    final sanitizedComics = sanitizeLibraryFilterSelectionForType(
+      selection,
+      comicsLibraryConfig,
+    );
+    expect(
+      sanitizedComics.ownershipFilter,
+      LibraryOwnershipFilter.missingGrade,
+    );
+    expect(sanitizedComics.grade, '9.8');
+  });
+
   test('filter options extract normalized tags from entries', () {
     final options = LibraryFilterOptions.fromEntries([
       LibraryWorkspaceEntry(
@@ -158,7 +188,8 @@ void main() {
     expect(options.tags, ['Signed', 'Sketched', 'Variant']);
   });
 
-  testWidgets('filter dialog exposes custom field filter and returns selection', (
+  testWidgets('filter dialog exposes custom field filter and returns selection',
+      (
     tester,
   ) async {
     LibraryFilterSelection? selection;

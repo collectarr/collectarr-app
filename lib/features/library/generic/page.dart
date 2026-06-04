@@ -117,7 +117,7 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
 }
 
 class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
-  with LibraryPageUtilities {
+    with LibraryPageUtilities {
   static bool _viewStateCacheWarmupStarted = false;
 
   final _searchController = TextEditingController();
@@ -173,7 +173,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Map<String, List<String>>? _cachedCustomFieldValuesForSignature;
   int? _cachedCustomFieldValuesSignature;
   Map<String, Map<String, String>>?
-  _cachedCustomFieldValuesByDefinitionForSignature;
+      _cachedCustomFieldValuesByDefinitionForSignature;
   int? _cachedCustomFieldValuesByDefinitionSignature;
 
   LibraryMediaAdapter get _adapter =>
@@ -256,8 +256,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       }
 
       final nextGroupMode = folderPreset?.primaryMode ?? groupMode;
-      final preferencesChanged =
-          _quickView != quickView ||
+      final preferencesChanged = _quickView !=
+              sanitizeLibraryQuickViewForType(quickView, widget.type) ||
           _folderPreset != folderPreset ||
           _groupMode != nextGroupMode ||
           !listEquals(_pinnedFolderPresets, pinnedPresets) ||
@@ -270,7 +270,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       }
 
       setState(() {
-        _quickView = quickView;
+        _quickView = sanitizeLibraryQuickViewForType(quickView, widget.type);
         _folderPreset = folderPreset;
         _groupMode = nextGroupMode;
         _pinnedFolderPresets = pinnedPresets;
@@ -291,10 +291,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _primeCachedViewPreferences() {
     final allowedGroupModes = widget.type.availableGroupModes.toSet();
-    _quickView = _viewPrefs.cachedQuickView;
-    final cachedGroupMode = allowedGroupModes.contains(_viewPrefs.cachedGroupMode)
-        ? _viewPrefs.cachedGroupMode
-        : null;
+    _quickView = sanitizeLibraryQuickViewForType(
+      _viewPrefs.cachedQuickView,
+      widget.type,
+    );
+    final cachedGroupMode =
+        allowedGroupModes.contains(_viewPrefs.cachedGroupMode)
+            ? _viewPrefs.cachedGroupMode
+            : null;
     _folderPreset = sanitizeLibraryFolderPreset(
           _viewPrefs.cachedFolderPreset,
           allowedModes: allowedGroupModes,
@@ -491,10 +495,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           projection == null ? null : () => _selectAllVisible(projection),
       onDelete:
           projection == null ? null : () => _removeVisibleSelection(projection),
-      onNextItem:
-        projection == null ? null : () => _navigateKeyboardSelection(projection, 1),
-      onPreviousItem:
-        projection == null ? null : () => _navigateKeyboardSelection(projection, -1),
+      onNextItem: projection == null
+          ? null
+          : () => _navigateKeyboardSelection(projection, 1),
+      onPreviousItem: projection == null
+          ? null
+          : () => _navigateKeyboardSelection(projection, -1),
       onEscape: _handleKeyboardEscape,
       child: Scaffold(
         backgroundColor: appPalette(context).canvas,
@@ -535,7 +541,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onBrowserModeChanged: _setBrowserMode,
                     showReleaseFolderBack: _releaseFolderTitleItemId != null,
                     releaseFolderLabel:
-                      _releaseFolderLabelForProjection(projection),
+                        _releaseFolderLabelForProjection(projection),
                     onReleaseFolderBack: _releaseFolderTitleItemId == null
                         ? null
                         : _closeReleaseFolder,
@@ -592,8 +598,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                         : null,
                     onScanCover: () => scanCoverFlow(),
                     onDownloadAllCovers: shelfState != null
-                      ? () => downloadAllCoversFlow(shelfState)
-                      : null,
+                        ? () => downloadAllCoversFlow(shelfState)
+                        : null,
                     counts: projection?.counts ?? const LibraryToolbarCounts(),
                     shelfState: shelfState,
                     onEditConditionPickList: widget.type.conditions.isNotEmpty
@@ -606,7 +612,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onSmartLists: () => showSmartListsFlow(shelfState),
                     onFolders: showUserFoldersFlow,
                     onReadingQueue:
-                      showsReadingQueue() ? showReadingQueueFlow : null,
+                        showsReadingQueue() ? showReadingQueueFlow : null,
                     onTransferFieldData: projection != null &&
                             projection.filteredItems.isNotEmpty
                         ? () => showTransferFieldDataFlow(projection)
@@ -638,15 +644,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                         }
                       },
                       onBulkEdit: () => bulkEditFlow(projection),
-                        onPrintToPdf: () => printSelectedReportFlow(projection),
-                        onExportCsvTxt: () =>
+                      onPrintToPdf: () => printSelectedReportFlow(projection),
+                      onExportCsvTxt: () =>
                           shareSelectedCollectionFlow(projection),
-                        onBulkDuplicate: () => bulkDuplicateFlow(projection),
-                          onBulkLoan: () => showLoanSelectionFlow(projection),
-                        onTransferFieldData: () =>
+                      onBulkDuplicate: () => bulkDuplicateFlow(projection),
+                      onBulkLoan: () => showLoanSelectionFlow(projection),
+                      onTransferFieldData: () =>
                           showTransferFieldDataForSelectionFlow(projection),
-                        onBulkUpdateValues: null,
-                        onBulkUpdateKeyInfo: null,
+                      onBulkUpdateValues: null,
+                      onBulkUpdateKeyInfo: null,
                       onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                       onBulkMoveToWishlist: () =>
                           bulkMoveToWishlistFlow(projection),
@@ -707,9 +713,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
-    final releasePositionLabel =
-        _releasePositionLabelForProjection(projection);
-    if (_releaseFolderTitleItemId != null && projection.filteredItems.isNotEmpty) {
+    final releasePositionLabel = _releasePositionLabelForProjection(projection);
+    if (_releaseFolderTitleItemId != null &&
+        projection.filteredItems.isNotEmpty) {
       final hasSelection = projection.filteredItems.any(
         (item) => item.entry.id == _selectedId,
       );
@@ -764,7 +770,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onActivateItem: _activateItem,
       onToggleSelectionItem: _toggleSelectionItem,
       onOpenItem: (item) {
-        final isMediaTitle = item.entry.browseScope == LibraryBrowserScope.title;
+        final isMediaTitle =
+            item.entry.browseScope == LibraryBrowserScope.title;
         if (_supportsMediaReleaseSplit &&
             _activeBrowserMode == LibraryWorkspaceBrowserMode.media &&
             isMediaTitle) {
@@ -832,16 +839,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onItemContextMenu: (item, position) =>
           handleItemContextMenu(projection, item, position),
       sidebarBreadcrumbs: _sidebarBreadcrumbs,
-        sidebarAncestorScopeLabels: _sidebarAncestorScopeLabels,
+      sidebarAncestorScopeLabels: _sidebarAncestorScopeLabels,
       onSidebarNavigateBack:
           _scopeHistory.isEmpty ? null : _navigateSidebarBack,
       onSidebarNavigateToBreadcrumb: _navigateSidebarToBreadcrumb,
-        onSidebarNavigateToAncestorScope: _navigateSidebarToAncestorScope,
+      onSidebarNavigateToAncestorScope: _navigateSidebarToAncestorScope,
       searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
       activeSmartListName: _activeSmartListName,
       quickView: _quickView,
       collectionStatusScope: _collectionStatusScope,
-        seriesCompletionScope: _seriesCompletionScope,
+      seriesCompletionScope: _seriesCompletionScope,
       collectionStatusScopeLabel:
           _collectionStatusScope == LibraryCollectionStatusScope.all
               ? null
@@ -862,7 +869,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       db: ref.read(localDatabaseProvider),
       folderPreset: _activeFolderPreset,
       pinnedFolderPresets: _pinnedFolderPresets,
-        onManageBuckets: supportsBucketManagement(activeProjectionGroupMode)
+      onManageBuckets: supportsBucketManagement(activeProjectionGroupMode)
           ? () => unawaited(_showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
@@ -949,9 +956,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _cachedOwnedCopiesActive != null) {
       return _cachedOwnedCopiesActive!;
     }
-    final active = items
-        .where((item) => !item.isDeleted)
-        .toList(growable: false);
+    final active =
+        items.where((item) => !item.isDeleted).toList(growable: false);
     _cachedOwnedCopiesSource = items;
     _cachedOwnedCopiesActive = active;
     return active;
@@ -968,9 +974,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _cachedWishlistActive != null) {
       return _cachedWishlistActive!;
     }
-    final active = items
-        .where((item) => !item.isDeleted)
-        .toList(growable: false);
+    final active =
+        items.where((item) => !item.isDeleted).toList(growable: false);
     _cachedWishlistSource = items;
     _cachedWishlistActive = active;
     return active;
@@ -1079,8 +1084,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   LibraryGroupMode get _projectionGroupMode =>
       _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
-        ? LibraryGroupMode.title
-        : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
+          ? LibraryGroupMode.title
+          : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
 
   LibraryGroupMode get _activeGroupMode => _projectionGroupMode;
 
@@ -1145,7 +1150,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (items.isEmpty) {
       return null;
     }
-    final selectedIndex = items.indexWhere((item) => item.entry.id == _selectedId);
+    final selectedIndex =
+        items.indexWhere((item) => item.entry.id == _selectedId);
     final index = selectedIndex < 0 ? 0 : selectedIndex;
     return 'Release ${index + 1}/${items.length}';
   }
@@ -1599,12 +1605,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _setQuickView(LibraryQuickView? view) {
+    final nextView = sanitizeLibraryQuickViewForType(view, widget.type);
     _mutateSidebarScope(() {
-      _quickView = view;
+      _quickView = nextView;
       _activeSmartListId = null;
       _activeSmartListName = null;
     });
-    unawaited(_viewPrefs.writeQuickView(view));
+    unawaited(_viewPrefs.writeQuickView(nextView));
   }
 
   void _setGroupMode(LibraryGroupMode mode) {
@@ -1675,7 +1682,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _applyRouteStateFromUri(Uri uri) {
-    final routeState = LibraryRouteState.fromUri(uri).filteredForType(widget.type);
+    final routeState =
+        LibraryRouteState.fromUri(uri).filteredForType(widget.type);
     if (!routeState.hasExplicitViewState) {
       return;
     }
@@ -1691,14 +1699,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       allowedModes: widget.type.availableGroupModes,
     );
     _groupMode = sidebarVisible
-      ? routeFolderPreset?.primaryMode ??
-        routeState.groupMode ??
-        libraryDefaultGroupMode(widget.type)
-      : null;
+        ? routeFolderPreset?.primaryMode ??
+            routeState.groupMode ??
+            libraryDefaultGroupMode(widget.type)
+        : null;
     _folderPreset = !sidebarVisible
-      ? null
-      : routeFolderPreset ??
-        (_groupMode == null ? null : LibraryFolderPreset.single(_groupMode!));
+        ? null
+        : routeFolderPreset ??
+            (_groupMode == null
+                ? null
+                : LibraryFolderPreset.single(_groupMode!));
     _selectedBucket = routeState.selectedBucket;
     _selectedLetter = routeState.selectedLetter;
     _linkedMetadataFilter = routeState.linkedMetadataValue == null
@@ -1801,7 +1811,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (items.isEmpty) {
       return;
     }
-    final currentIndex = items.indexWhere((item) => item.entry.id == _selectedId);
+    final currentIndex =
+        items.indexWhere((item) => item.entry.id == _selectedId);
     final nextIndex = currentIndex < 0
         ? (delta < 0 ? items.length - 1 : 0)
         : (currentIndex + delta).clamp(0, items.length - 1);
@@ -1922,18 +1933,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
     final ownedCopiesByItemId = <String, List<OwnedItem>>{};
     for (final ownedItem in allOwnedCopies) {
-      (ownedCopiesByItemId[ownedItem.itemId] ??= <OwnedItem>[])
-        .add(ownedItem);
+      (ownedCopiesByItemId[ownedItem.itemId] ??= <OwnedItem>[]).add(ownedItem);
     }
     final wishlistByItemId = <String, List<WishlistItem>>{};
     for (final wishlistItem in allWishlistItems) {
       (wishlistByItemId[wishlistItem.itemId] ??= <WishlistItem>[])
-        .add(wishlistItem);
+          .add(wishlistItem);
     }
-    final ownedCopies =
-      ownedCopiesByItemId[titleItemId] ?? const <OwnedItem>[];
+    final ownedCopies = ownedCopiesByItemId[titleItemId] ?? const <OwnedItem>[];
     final wishlistItems =
-      wishlistByItemId[titleItemId] ?? const <WishlistItem>[];
+        wishlistByItemId[titleItemId] ?? const <WishlistItem>[];
     final drilldownItems = buildVideoShelfReleaseItems(
       titleItem: titleItem,
       ownedCopies: ownedCopies,
