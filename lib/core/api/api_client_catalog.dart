@@ -46,17 +46,22 @@ class _CatalogApiClient {
     required String kind,
     required String id,
   }) async {
+    final encodedKind = Uri.encodeComponent(kind);
+    final encodedId = Uri.encodeComponent(id);
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/metadata/$kind/$id',
+      '/metadata/$encodedKind/$encodedId',
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('/metadata/$kind/$id returned an empty response body');
+      throw StateError(
+        '/metadata/$encodedKind/$encodedId returned an empty response body',
+      );
     }
     return CatalogItem.fromJson(_client._resolveImageUrls(data));
   }
 
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     final response = await _client._dio.get<List<dynamic>>(
       '/metadata/items/$itemId/bundle-releases',
     );
@@ -150,7 +155,8 @@ class _CatalogApiClient {
   }
 
   Future<Map<String, dynamic>> getSeries(String seriesId) async {
-    final response = await _client._dio.get<Map<String, dynamic>>('/series/$seriesId');
+    final response =
+        await _client._dio.get<Map<String, dynamic>>('/series/$seriesId');
     final data = response.data;
     if (data == null) {
       throw StateError('/series/$seriesId returned an empty response body');
@@ -159,7 +165,8 @@ class _CatalogApiClient {
   }
 
   Future<List<Map<String, dynamic>>> getSeriesItems(String seriesId) async {
-    final response = await _client._dio.get<List<dynamic>>('/series/$seriesId/items');
+    final response =
+        await _client._dio.get<List<dynamic>>('/series/$seriesId/items');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -198,7 +205,8 @@ class _CatalogApiClient {
         .toList(growable: false);
   }
 
-  Future<CatalogEdition> createEdition(String itemId, {required String title}) async {
+  Future<CatalogEdition> createEdition(String itemId,
+      {required String title}) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
       '/metadata/items/${Uri.encodeComponent(itemId)}/editions',
       data: {'title': title},
@@ -210,7 +218,8 @@ class _CatalogApiClient {
     return CatalogEdition.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> lookupBarcode(String barcode, {String? kind}) async {
+  Future<Map<String, dynamic>> lookupBarcode(String barcode,
+      {String? kind}) async {
     final response = await _client._dio.get<Map<String, dynamic>>(
       '/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
       queryParameters: {if (kind != null) 'kind': kind},

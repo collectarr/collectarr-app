@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -2219,7 +2220,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         return;
       }
       setState(() {
-        _serverSnapshotError = 'Failed to fetch server snapshot: $error';
+        _serverSnapshotError = _metadataCompareErrorMessage(error);
       });
     } finally {
       if (mounted) {
@@ -2228,6 +2229,27 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         });
       }
     }
+  }
+
+  String _metadataCompareErrorMessage(Object error) {
+    if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 422) {
+        return 'Server rejected this compare request (422). '
+            'This item likely has an unsupported metadata id format.';
+      }
+      final body = error.response?.data;
+      if (body is Map<String, dynamic>) {
+        final detail = body['detail']?.toString().trim();
+        if (detail != null && detail.isNotEmpty) {
+          return 'Could not load server metadata: $detail';
+        }
+      }
+      if (statusCode != null) {
+        return 'Could not load server metadata (HTTP $statusCode).';
+      }
+    }
+    return 'Could not load the current metadata snapshot from the server.';
   }
 
   List<Map<String, dynamic>> get _serverCreators =>
