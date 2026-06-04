@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:dio/dio.dart';
 
 class LibraryAddCoreSearchResult {
   const LibraryAddCoreSearchResult({
@@ -80,8 +81,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   final rankedItems = rerankLibraryMetadataItems(mappedItems, rerankHints);
   return LibraryAddCoreSearchResult(
     items: rankedItems,
-    shouldSearchProvider:
-        providerSearchAvailable &&
+    shouldSearchProvider: providerSearchAvailable &&
         shouldSearchProviderForCoreResults(rankedItems, rerankHints),
   );
 }
@@ -128,7 +128,8 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
   ).timeout(timeout);
   final foundItems = [
     for (final result in results)
-      if (result.item != null) LibraryMetadataItem.fromCatalogItem(result.item!),
+      if (result.item != null)
+        LibraryMetadataItem.fromCatalogItem(result.item!),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,
@@ -147,15 +148,51 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   int? year,
   String? kindOverride,
 }) async {
-  final rawResults = await searchLibraryProviderCandidates(
-    api,
-    type,
-    provider: provider,
-    query: query,
-    series: series,
-    issueNumber: issueNumber,
-    year: year,
-    kindOverride: kindOverride,
-  );
+  final normalizedProvider = provider.trim().isEmpty ? null : provider.trim();
+  List<ProviderCandidate> rawResults;
+  try {
+    rawResults = await searchLibraryProviderCandidates(
+      api,
+      type,
+      provider: normalizedProvider,
+      query: query,
+      series: series,
+      issueNumber: issueNumber,
+      year: year,
+      kindOverride: kindOverride,
+    );
+  } catch (error) {
+    if (_isMissingBearerTokenError(error) && normalizedProvider != null) {
+      // Some deployments require auth for provider-specific routes; fall back
+      // to the aggregated providers endpoint so anonymous search still works.
+      rawResults = await searchLibraryProviderCandidates(
+        api,
+        type,
+        provider: null,
+        query: query,
+        series: series,
+        issueNumber: issueNumber,
+        year: year,
+        kindOverride: kindOverride,
+      );
+    } else {
+      rethrow;
+    }
+  }
   return rerankProviderCandidates(rawResults, rerankHints);
+}
+
+bool _isMissingBearerTokenError(Object error) {
+  if (error is! DioException) {
+    return false;
+  }
+  if (error.response?.statusCode != 401) {
+    return false;
+  }
+  final data = error.response?.data;
+  if (data is! Map) {
+    return false;
+  }
+  final code = data['code']?.toString().trim();
+  return code == 'missing_bearer_token';
 }
