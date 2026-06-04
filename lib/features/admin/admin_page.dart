@@ -60,6 +60,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
   var _ingestJobs = const <AdminProviderIngestJob>[];
   var _proposals = const <AdminMetadataProposal>[];
+  var _releaseMappingRules = const <AdminReleaseMediaMappingRule>[];
   AdminProviderIngestJobSummary? _ingestJobSummary;
   AdminMetadataProposalSummary? _dashboardProposalSummary;
   AdminMetadataProposalSummary? _proposalSummary;
@@ -87,6 +88,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _duplicateErrorMessage;
   String? _proposalStatusMessage;
   String? _proposalErrorMessage;
+  String? _releaseRulesStatusMessage;
+  String? _releaseRulesErrorMessage;
   bool _isLoadingDashboard = false;
   bool _isReindexing = false;
   bool _isLoadingProviders = false;
@@ -97,6 +100,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   bool _autoRefreshIngestJobs = true;
   bool _isSearching = false;
   bool _isDirectIngesting = false;
+  bool _isLoadingReleaseMappingRules = false;
+  bool _showProviderMediaResults = true;
+  bool _showProviderReleaseResults = true;
   bool _isLoadingProposals = false;
   String? _inspectingItemId;
   String? _updatingCatalogItemId;
@@ -129,6 +135,292 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     super.dispose();
   }
 
+  bool _isProviderReleaseCandidate(ProviderCandidate candidate) {
+    if (candidate.candidateType == 'series') {
+      return false;
+    }
+    if (candidate.candidateType == 'issue' || candidate.isVariant) {
+      return true;
+    }
+    final issueNumber = candidate.issueNumber?.trim();
+    return issueNumber != null && issueNumber.isNotEmpty;
+  }
+
+  List<ProviderCandidate> _visibleProviderResults() {
+    if (_showProviderMediaResults && _showProviderReleaseResults) {
+      return _results;
+    }
+    return _results.where((candidate) {
+      final isRelease = _isProviderReleaseCandidate(candidate);
+      return isRelease
+          ? _showProviderReleaseResults
+          : _showProviderMediaResults;
+    }).toList(growable: false);
+  }
+
+  void _prefillFromActiveProposal() {
+    final activeId = _activeProposalId;
+    if (activeId == null || activeId.isEmpty) {
+      setState(() {
+        _errorMessage = 'No active proposal selected for prefill.';
+      });
+      return;
+    }
+    AdminMetadataProposal? proposal;
+    for (final entry in _proposals) {
+      if (entry.id == activeId) {
+        proposal = entry;
+        break;
+      }
+    }
+    if (proposal == null) {
+      setState(() {
+        _errorMessage = 'Active proposal is no longer available.';
+      });
+      return;
+    }
+    final activeProposal = proposal;
+    final searchableProviders = _providerOptions();
+    final kindFromPayload =
+        activeProposal.metadataPayload?['kind']?.toString().trim();
+    final resolvedKind = kindFromPayload != null && kindFromPayload.isNotEmpty
+        ? kindFromPayload
+        : _selectedProviderKindFilter;
+    final query = activeProposal.query.trim().isEmpty
+        ? activeProposal.displayTitle
+        : activeProposal.query;
+    setState(() {
+      if (searchableProviders
+          .any((entry) => entry.name == activeProposal.provider)) {
+        _selectedProvider = activeProposal.provider;
+      }
+      _selectedProviderKindFilter = resolvedKind;
+      _queryController.text = query;
+      _providerItemIdController.text =
+          activeProposal.providerItemId?.trim() ?? '';
+      _statusMessage = 'Prefilled from active proposal.';
+      _errorMessage = null;
+    });
+  }
+
+  Future<void> _loadReleaseMappingRules({bool showErrors = true}) async {
+    setState(() {
+      _isLoadingReleaseMappingRules = true;
+      _releaseRulesErrorMessage = null;
+    });
+    try {
+      final rows =
+          await ref.read(apiClientProvider).adminReleaseMediaMappingRules();
+      if (!mounted) return;
+      setState(() {
+        _releaseMappingRules = rows;
+        _isLoadingReleaseMappingRules = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingReleaseMappingRules = false;
+        if (showErrors) {
+          _releaseRulesErrorMessage = 'Failed to load mapping rules: $error';
+        }
+      });
+    }
+  }
+
+  Future<void> _showCreateReleaseMappingRuleDialog() async {
+    final result = await showDialog<_ReleaseMappingRuleFormResult>(
+      context: context,
+      builder: (context) => _ReleaseMappingRuleDialog(
+        providers: _providerOptions()
+            .map((entry) => entry.name)
+            .toList(growable: false),
+        kinds: _providerKindOptions(forSearch: true),
+        kindLabels: _catalogKindLabels(),
+      ),
+    );
+    if (result == null) {
+      return;
+    }
+    try {
+      await ref.read(apiClientProvider).adminCreateReleaseMediaMappingRule(
+            payload: AdminReleaseMediaMappingRuleUpsert(
+              provider: result.provider,
+              releaseType: result.releaseType,
+              targetKind: result.targetKind,
+              priority: result.priority,
+              isActive: result.isActive,
+              notes: result.notes,
+            ),
+          );
+      if (!mounted) return;
+      setState(() {
+        _releaseRulesStatusMessage = 'Release mapping rule created.';
+        _releaseRulesErrorMessage = null;
+      });
+      await _loadReleaseMappingRules();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _releaseRulesErrorMessage = 'Failed to create mapping rule: $error';
+      });
+    }
+  }
+
+  Future<void> _showEditReleaseMappingRuleDialog(
+    AdminReleaseMediaMappingRule rule,
+  ) async {
+    final result = await showDialog<_ReleaseMappingRuleFormResult>(
+      context: context,
+      builder: (context) => _ReleaseMappingRuleDialog(
+        providers: _providerOptions()
+            .map((entry) => entry.name)
+            .toList(growable: false),
+        kinds: _providerKindOptions(forSearch: true),
+        kindLabels: _catalogKindLabels(),
+        initialProvider: rule.provider,
+        initialReleaseType: rule.releaseType,
+        initialTargetKind: rule.targetKind,
+        initialPriority: rule.priority,
+        initialIsActive: rule.isActive,
+        initialNotes: rule.notes,
+      ),
+    );
+    if (result == null) {
+      return;
+    }
+    try {
+      await ref.read(apiClientProvider).adminUpdateReleaseMediaMappingRule(
+            ruleId: rule.id,
+            payload: AdminReleaseMediaMappingRuleUpsert(
+              provider: result.provider,
+              releaseType: result.releaseType,
+              targetKind: result.targetKind,
+              priority: result.priority,
+              isActive: result.isActive,
+              notes: result.notes,
+            ),
+          );
+      if (!mounted) return;
+      setState(() {
+        _releaseRulesStatusMessage = 'Release mapping rule updated.';
+        _releaseRulesErrorMessage = null;
+      });
+      await _loadReleaseMappingRules();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _releaseRulesErrorMessage = 'Failed to update mapping rule: $error';
+      });
+    }
+  }
+
+  Future<void> _deleteReleaseMappingRule(
+      AdminReleaseMediaMappingRule rule) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AccentAlertDialog(
+        title: const Text('Delete mapping rule?'),
+        content: Text('Delete "${rule.releaseType} -> ${rule.targetKind}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) {
+      return;
+    }
+    try {
+      await ref.read(apiClientProvider).adminDeleteReleaseMediaMappingRule(
+            ruleId: rule.id,
+          );
+      if (!mounted) return;
+      setState(() {
+        _releaseRulesStatusMessage = 'Release mapping rule deleted.';
+        _releaseRulesErrorMessage = null;
+      });
+      await _loadReleaseMappingRules();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _releaseRulesErrorMessage = 'Failed to delete mapping rule: $error';
+      });
+    }
+  }
+
+  Future<void> _applyRulePrefillDefaults() async {
+    final source = _activeProposalId != null
+        ? 'proposal'
+        : (_ingestHistory.isNotEmpty ? 'ingest_history' : 'manual');
+    try {
+      final resolved =
+          await ref.read(apiClientProvider).adminResolveProviderPrefill(
+                source: source,
+                provider:
+                    _selectedProvider.trim().isEmpty ? null : _selectedProvider,
+                kind: _selectedProviderKindFilter,
+                query: _queryController.text,
+                providerItemId: _providerItemIdController.text,
+                proposalId: source == 'proposal' ? _activeProposalId : null,
+                ingestHistoryId:
+                    source == 'ingest_history' ? _ingestHistory.first.id : null,
+              );
+      if (!mounted) return;
+      final providerOptions = _providerOptions();
+      setState(() {
+        if (resolved.provider != null &&
+            providerOptions.any((entry) => entry.name == resolved.provider)) {
+          _selectedProvider = resolved.provider!;
+        }
+        if (resolved.kind != null) {
+          _selectedProviderKindFilter = resolved.kind;
+        }
+        if (resolved.query != null) {
+          _queryController.text = resolved.query!;
+        }
+        if (resolved.providerItemId != null) {
+          _providerItemIdController.text = resolved.providerItemId!;
+        }
+        _statusMessage = resolved.notes.isEmpty
+            ? 'Applied centralized prefill defaults.'
+            : resolved.notes.join(' \u2022 ');
+        _errorMessage = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Failed to apply rule defaults: $error';
+      });
+    }
+  }
+
+  void _prefillFromLatestIngest() {
+    if (_ingestHistory.isEmpty) {
+      setState(() {
+        _errorMessage = 'No ingest history available for prefill.';
+      });
+      return;
+    }
+    final entry = _ingestHistory.first;
+    final ingestProviders = _providerOptions(forIngest: true);
+    setState(() {
+      if (ingestProviders.any((provider) => provider.name == entry.provider)) {
+        _selectedProvider = entry.provider;
+      }
+      _providerItemIdController.text = entry.providerItemId;
+      _queryController.text = '';
+      _statusMessage =
+          'Prefilled provider and item ID from latest ingest history entry.';
+      _errorMessage = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
@@ -140,8 +432,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         const Tab(icon: Icon(Icons.dashboard_outlined), text: 'Dashboard'),
       const Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Catalog'),
       const Tab(icon: Icon(Icons.hub_outlined), text: 'Providers'),
-      if (isAdmin)
-        const Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
+      if (isAdmin) const Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
       if (isAdmin)
         const Tab(icon: Icon(Icons.settings_outlined), text: 'System'),
     ];
@@ -171,6 +462,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       ),
     );
   }
+
   // ─── Dashboard tab (admin only) ───
   Widget _buildDashboardTab() {
     return ListView(
@@ -188,20 +480,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 icon: _isReindexing
                     ? const SizedBox.square(
                         dimension: 18,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.manage_search_outlined),
               ),
               IconButton(
                 tooltip: 'Refresh dashboard',
-                onPressed:
-                    _isLoadingDashboard ? null : _loadDashboard,
+                onPressed: _isLoadingDashboard ? null : _loadDashboard,
                 icon: _isLoadingDashboard
                     ? const SizedBox.square(
                         dimension: 18,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.refresh),
               ),
@@ -242,13 +531,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           title: 'Catalog search',
           trailing: IconButton(
             tooltip: 'Search catalog',
-            onPressed:
-                _isSearchingCatalog ? null : _searchCatalog,
+            onPressed: _isSearchingCatalog ? null : _searchCatalog,
             icon: _isSearchingCatalog
                 ? const SizedBox.square(
                     dimension: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.search),
           ),
@@ -265,9 +552,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     onChanged: (value) {
                       setState(() {
                         _catalogKindFilter =
-                            value == null || value.isEmpty
-                                ? null
-                                : value;
+                            value == null || value.isEmpty ? null : value;
                       });
                     },
                   );
@@ -276,30 +561,25 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     decoration: const InputDecoration(
                       labelText: 'Find catalog items',
                       hintText: 'Search by title, number, or provider ID',
-                      prefixIcon:
-                          Icon(Icons.manage_search_outlined),
+                      prefixIcon: Icon(Icons.manage_search_outlined),
                       border: OutlineInputBorder(),
                     ),
                     textInputAction: TextInputAction.search,
                     onSubmitted: (_) => _searchCatalog(),
                   );
                   final searchButton = FilledButton.icon(
-                    onPressed: _isSearchingCatalog
-                        ? null
-                        : _searchCatalog,
+                    onPressed: _isSearchingCatalog ? null : _searchCatalog,
                     icon: _isSearchingCatalog
                         ? const SizedBox.square(
                             dimension: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.search),
                     label: const Text('Search'),
                   );
                   if (constraints.maxWidth < 640) {
                     return Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         kindField,
                         const SizedBox(height: 12),
@@ -313,16 +593,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     );
                   }
                   return Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(width: 180, child: kindField),
                       const SizedBox(width: 12),
                       Expanded(child: queryField),
                       const SizedBox(width: 12),
                       Padding(
-                        padding:
-                            const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 4),
                         child: searchButton,
                       ),
                     ],
@@ -333,8 +611,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                   _catalogErrorMessage != null) ...[
                 const SizedBox(height: 12),
                 _MessageRow(
-                  message: _catalogErrorMessage ??
-                      _catalogStatusMessage!,
+                  message: _catalogErrorMessage ?? _catalogStatusMessage!,
                   isError: _catalogErrorMessage != null,
                 ),
               ],
@@ -361,8 +638,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               if (_duplicateStatusMessage != null ||
                   _duplicateErrorMessage != null) ...[
                 _MessageRow(
-                  message: _duplicateErrorMessage ??
-                      _duplicateStatusMessage!,
+                  message: _duplicateErrorMessage ?? _duplicateStatusMessage!,
                   isError: _duplicateErrorMessage != null,
                 ),
                 const SizedBox(height: 12),
@@ -378,8 +654,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             ],
           ),
         ),
-        if (_lastIngest != null ||
-            _inspectErrorMessage != null) ...[
+        if (_lastIngest != null || _inspectErrorMessage != null) ...[
           const SizedBox(height: 12),
           _AdminPanel(
             icon: Icons.fact_check_outlined,
@@ -402,6 +677,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   // ─── Providers tab (all users, ingest jobs admin-only) ───
   Widget _buildProvidersTab(BuildContext context, {required bool isAdmin}) {
+    final visibleProviderResults = _visibleProviderResults();
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -410,13 +686,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           title: 'Provider status',
           trailing: IconButton(
             tooltip: 'Refresh providers',
-            onPressed:
-                _isLoadingProviders ? null : _loadProviders,
+            onPressed: _isLoadingProviders ? null : _loadProviders,
             icon: _isLoadingProviders
                 ? const SizedBox.square(
                     dimension: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.refresh),
           ),
@@ -508,6 +782,20 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     label: const Text('Open add dialog'),
                   ),
                   OutlinedButton.icon(
+                    onPressed: _activeProposalId == null
+                        ? null
+                        : _prefillFromActiveProposal,
+                    icon: const Icon(Icons.history_toggle_off_outlined),
+                    label: const Text('Prefill from active proposal'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _ingestHistory.isEmpty
+                        ? null
+                        : _prefillFromLatestIngest,
+                    icon: const Icon(Icons.playlist_add_check_circle_outlined),
+                    label: const Text('Prefill from latest ingest'),
+                  ),
+                  OutlinedButton.icon(
                     onPressed: _results.isEmpty
                         ? null
                         : () {
@@ -522,22 +810,39 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                   ),
                 ],
               ),
-              if (_statusMessage != null ||
-                  _errorMessage != null) ...[
+              if (_statusMessage != null || _errorMessage != null) ...[
                 const SizedBox(height: 12),
                 _MessageRow(
-                  message:
-                      _errorMessage ?? _statusMessage!,
+                  message: _errorMessage ?? _statusMessage!,
                   isError: _errorMessage != null,
                 ),
               ],
               const SizedBox(height: 12),
+              _ProviderEntityScopeToggles(
+                showMediaResults: _showProviderMediaResults,
+                showReleaseResults: _showProviderReleaseResults,
+                onShowMediaResultsChanged: (value) {
+                  if (!value && !_showProviderReleaseResults) {
+                    return;
+                  }
+                  setState(() {
+                    _showProviderMediaResults = value;
+                  });
+                },
+                onShowReleaseResultsChanged: (value) {
+                  if (!value && !_showProviderMediaResults) {
+                    return;
+                  }
+                  setState(() {
+                    _showProviderReleaseResults = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
               _ProviderResultsList(
-                results: _results,
-                ingestingProviderItemId:
-                    _ingestingProviderItemId,
-                canIngestProvider:
-                    _providerSupportsIngest,
+                results: visibleProviderResults,
+                ingestingProviderItemId: _ingestingProviderItemId,
+                canIngestProvider: _providerSupportsIngest,
                 activeProposalId: _activeProposalId,
                 activeProposalTitle: _activeProposalTitle,
                 onApproveProposal: _approveProposalWithCandidate,
@@ -549,19 +854,38 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         if (isAdmin) ...[
           const SizedBox(height: 12),
           _AdminPanel(
+            icon: Icons.rule_folder_outlined,
+            title: 'Mapping & prefill rules',
+            child: _ReleaseMappingRulesPanel(
+              rules: _releaseMappingRules,
+              kindLabels: _catalogKindLabels(),
+              isLoading: _isLoadingReleaseMappingRules,
+              statusMessage: _releaseRulesStatusMessage,
+              errorMessage: _releaseRulesErrorMessage,
+              onRefresh: () =>
+                  unawaited(_loadReleaseMappingRules(showErrors: true)),
+              onAdd: _showCreateReleaseMappingRuleDialog,
+              onEdit: (rule) =>
+                  unawaited(_showEditReleaseMappingRuleDialog(rule)),
+              onDelete: (rule) => unawaited(_deleteReleaseMappingRule(rule)),
+              onApplyDefaults: () => unawaited(_applyRulePrefillDefaults()),
+            ),
+          ),
+        ],
+        if (isAdmin) ...[
+          const SizedBox(height: 12),
+          _AdminPanel(
             icon: Icons.queue_outlined,
             title: 'Provider ingest jobs',
             trailing: IconButton(
               tooltip: 'Refresh ingest jobs',
               onPressed: _isPollingIngestJobs
                   ? null
-                  : () =>
-                      unawaited(_refreshIngestJobs()),
+                  : () => unawaited(_refreshIngestJobs()),
               icon: _isPollingIngestJobs
                   ? const SizedBox.square(
                       dimension: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.refresh),
             ),
@@ -574,29 +898,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               statusFilter: _ingestJobStatusFilter,
               providerFilter: _ingestJobProviderFilter,
               selectedProvider: _selectedProvider,
-              providers:
-                  _providerOptions(forIngest: true),
+              providers: _providerOptions(forIngest: true),
               isLoadingProviders: _isLoadingProviders,
-              providerItemIdController:
-                  _jobProviderItemIdController,
-              queryController:
-                  _ingestJobQueryController,
+              providerItemIdController: _jobProviderItemIdController,
+              queryController: _ingestJobQueryController,
               isRunningJobs: _isRunningJobs,
               actionJobId: _jobActionId,
-              onProviderChanged:
-                  _changeSelectedProvider,
-              onAutoRefreshChanged:
-                  _changeIngestJobAutoRefresh,
-              onStatusFilterChanged:
-                  _changeIngestJobStatusFilter,
-              onProviderFilterChanged:
-                  _changeIngestJobProviderFilter,
-              onApplyFilters: () =>
-                  unawaited(_refreshIngestJobs()),
-              onRefresh: () =>
-                  unawaited(_refreshIngestJobs()),
-              onQueueCurrent:
-                  _queueCurrentProviderItemId,
+              onProviderChanged: _changeSelectedProvider,
+              onAutoRefreshChanged: _changeIngestJobAutoRefresh,
+              onStatusFilterChanged: _changeIngestJobStatusFilter,
+              onProviderFilterChanged: _changeIngestJobProviderFilter,
+              onApplyFilters: () => unawaited(_refreshIngestJobs()),
+              onRefresh: () => unawaited(_refreshIngestJobs()),
+              onQueueCurrent: _queueCurrentProviderItemId,
               onRunPending: _runPendingIngestJobs,
               onRun: _runIngestJob,
               onRetry: _retryIngestJob,
@@ -625,8 +939,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _AdminPanel(
           icon: Icons.history_outlined,
           title: 'Search index history',
-          child:
-              _SearchHistoryList(history: _searchHistory),
+          child: _SearchHistoryList(history: _searchHistory),
         ),
         const SizedBox(height: 12),
         _AdminPanel(
@@ -952,7 +1265,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _lastIngest = null;
         _inspectingItemId = null;
       });
-      await _showCanonicalItemInspectionDialog(fresh, auditLogs, bundleReleases);
+      await _showCanonicalItemInspectionDialog(
+          fresh, auditLogs, bundleReleases);
     } catch (error) {
       if (!mounted) {
         return;
@@ -1157,28 +1471,34 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     addField('synopsis', item.synopsis, correction.synopsis);
     addField('edition_title', edition?.title, correction.editionTitle);
     addField('page_count', item.publishing?.pageCount, correction.pageCount);
-    addField('runtime_minutes', item.video?.runtimeMinutes, correction.runtimeMinutes);
+    addField('runtime_minutes', item.video?.runtimeMinutes,
+        correction.runtimeMinutes);
     addField(
       'publisher',
       edition?.publisher ?? item.publisher,
       correction.publisher,
     );
-    addField('release_date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
+    addField('release_date', edition?.releaseDate ?? item.coverDate,
+        correction.releaseDate);
     addField('imprint', item.publishing?.imprint, correction.imprint);
     addField('subtitle', item.publishing?.subtitle, correction.subtitle);
-    addField('series_group', item.publishing?.seriesGroup, correction.seriesGroup);
+    addField(
+        'series_group', item.publishing?.seriesGroup, correction.seriesGroup);
     addField('country', item.country, correction.country);
     addField('language', item.language, correction.language);
     addField('age_rating', item.ageRating, correction.ageRating);
-    addField('catalog_number', item.music?.catalogNumber, correction.catalogNumber);
-    addField('release_status', item.music?.releaseStatus, correction.releaseStatus);
+    addField(
+        'catalog_number', item.music?.catalogNumber, correction.catalogNumber);
+    addField(
+        'release_status', item.music?.releaseStatus, correction.releaseStatus);
     if (correction.physicalFormat != null &&
         edition?.physicalFormat != correction.physicalFormat) {
       fields.add('physical_format');
     }
     addField('variant_name', variant?.name, correction.variantName);
     addField('barcode', variant?.barcode ?? item.barcode, correction.barcode);
-    addField('cover_image_url', variant?.coverImageUrl, correction.coverImageUrl);
+    addField(
+        'cover_image_url', variant?.coverImageUrl, correction.coverImageUrl);
     addField(
       'thumbnail_image_url',
       variant?.thumbnailImageUrl,
@@ -1700,9 +2020,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalStatusMessage = null;
     });
     try {
-      final result = await ref.read(apiClientProvider).adminApproveMetadataProposal(
-            proposalId: proposal.id,
-          );
+      final result =
+          await ref.read(apiClientProvider).adminApproveMetadataProposal(
+                proposalId: proposal.id,
+              );
       if (!mounted) {
         return;
       }
@@ -1743,7 +2064,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     );
   }
 
-  Future<void> _approveProposalWithCandidate(ProviderCandidate candidate) async {
+  Future<void> _approveProposalWithCandidate(
+      ProviderCandidate candidate) async {
     final proposalId = _activeProposalId;
     if (proposalId == null || proposalId.isEmpty) {
       return;
@@ -1929,6 +2251,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         initialProvider: _selectedProvider,
         initialQuery: _queryController.text,
         initialProviderItemId: _providerItemIdController.text,
+        initialShowMediaResults: _showProviderMediaResults,
+        initialShowReleaseResults: _showProviderReleaseResults,
       ),
     );
     if (request == null || !mounted) {
@@ -1939,6 +2263,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _selectedProvider = request.provider;
       _queryController.text = request.query ?? '';
       _providerItemIdController.text = request.providerItemId ?? '';
+      _showProviderMediaResults = request.showMediaResults;
+      _showProviderReleaseResults = request.showReleaseResults;
       _errorMessage = null;
       _statusMessage = null;
     });
@@ -2006,7 +2332,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   void _changeProposalProviderFilter(String? value) {
-    final nextValue = value == null || value.trim().isEmpty ? null : value.trim();
+    final nextValue =
+        value == null || value.trim().isEmpty ? null : value.trim();
     if (nextValue == _proposalProviderFilter) {
       return;
     }
@@ -2128,4 +2455,3 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return false;
   }
 }
-

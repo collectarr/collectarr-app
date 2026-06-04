@@ -185,6 +185,113 @@ class AdminMetadataProposal {
   }
 }
 
+class AdminReleaseMediaMappingRule {
+  const AdminReleaseMediaMappingRule({
+    required this.id,
+    required this.releaseType,
+    required this.targetKind,
+    required this.priority,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+    this.provider,
+    this.notes,
+  });
+
+  final String id;
+  final String? provider;
+  final String releaseType;
+  final String targetKind;
+  final int priority;
+  final bool isActive;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  factory AdminReleaseMediaMappingRule.fromJson(Map<String, dynamic> json) {
+    return AdminReleaseMediaMappingRule(
+      id: json['id']?.toString() ?? '',
+      provider: json['provider'] as String?,
+      releaseType: json['release_type']?.toString() ?? '',
+      targetKind: json['target_kind']?.toString() ?? '',
+      priority: (json['priority'] as num?)?.toInt() ?? 100,
+      isActive: json['is_active'] as bool? ?? true,
+      notes: json['notes'] as String?,
+      createdAt: _adminDateTimeFromJson(json['created_at']),
+      updatedAt: _adminDateTimeFromJson(json['updated_at']),
+    );
+  }
+}
+
+class AdminReleaseMediaMappingRuleUpsert {
+  const AdminReleaseMediaMappingRuleUpsert({
+    required this.releaseType,
+    required this.targetKind,
+    required this.priority,
+    required this.isActive,
+    this.provider,
+    this.notes,
+  });
+
+  final String? provider;
+  final String releaseType;
+  final String targetKind;
+  final int priority;
+  final bool isActive;
+  final String? notes;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'provider': provider,
+      'release_type': releaseType.trim(),
+      'target_kind': targetKind,
+      'priority': priority,
+      'is_active': isActive,
+      'notes': notes?.trim().isEmpty ?? true ? null : notes!.trim(),
+    };
+  }
+}
+
+class AdminProviderPrefillResolved {
+  const AdminProviderPrefillResolved({
+    required this.source,
+    this.provider,
+    this.kind,
+    this.query,
+    this.providerItemId,
+    this.releaseType,
+    this.matchedRule,
+    this.notes = const <String>[],
+  });
+
+  final String source;
+  final String? provider;
+  final String? kind;
+  final String? query;
+  final String? providerItemId;
+  final String? releaseType;
+  final AdminReleaseMediaMappingRule? matchedRule;
+  final List<String> notes;
+
+  factory AdminProviderPrefillResolved.fromJson(Map<String, dynamic> json) {
+    final ruleJson = json['matched_rule'];
+    return AdminProviderPrefillResolved(
+      source: json['source']?.toString() ?? 'manual',
+      provider: json['provider'] as String?,
+      kind: json['kind'] as String?,
+      query: json['query'] as String?,
+      providerItemId: json['provider_item_id'] as String?,
+      releaseType: json['release_type'] as String?,
+      matchedRule: ruleJson is Map<String, dynamic>
+          ? AdminReleaseMediaMappingRule.fromJson(ruleJson)
+          : null,
+      notes: (json['notes'] as List<dynamic>? ?? const <dynamic>[])
+          .map((entry) => entry.toString())
+          .toList(growable: false),
+    );
+  }
+}
+
 class AdminUser {
   const AdminUser({
     required this.id,

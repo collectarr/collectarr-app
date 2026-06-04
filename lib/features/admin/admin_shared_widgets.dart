@@ -128,7 +128,8 @@ class _MetadataProposalPanel extends StatelessWidget {
                   .surfaceContainerHighest
                   .withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -173,7 +174,8 @@ class _MetadataProposalPanel extends StatelessWidget {
                   child: _MetadataProposalTile(
                     proposal: proposal,
                     isActing: actingProposalId == proposal.id,
-                    canApproveLinkedItem: canApproveLinkedItem(proposal.provider),
+                    canApproveLinkedItem:
+                        canApproveLinkedItem(proposal.provider),
                     onReview: () => onReview(proposal),
                     onApprove: () => onApprove(proposal),
                     onApproveLinked: () => onApproveLinked(proposal),
@@ -244,7 +246,8 @@ class _MetadataProposalTile extends StatelessWidget {
                   .bodySmall
                   ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
-            if (proposal.summary != null && proposal.summary!.trim().isNotEmpty) ...[
+            if (proposal.summary != null &&
+                proposal.summary!.trim().isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 proposal.summary!,
@@ -307,6 +310,8 @@ class _ProviderAddRequest {
     required this.mode,
     required this.kind,
     required this.provider,
+    required this.showMediaResults,
+    required this.showReleaseResults,
     this.query,
     this.providerItemId,
   });
@@ -314,6 +319,8 @@ class _ProviderAddRequest {
   final _ProviderAddMode mode;
   final String? kind;
   final String provider;
+  final bool showMediaResults;
+  final bool showReleaseResults;
   final String? query;
   final String? providerItemId;
 }
@@ -327,6 +334,8 @@ class _ProviderAddDialog extends StatefulWidget {
     this.initialProvider,
     this.initialQuery,
     this.initialProviderItemId,
+    this.initialShowMediaResults = true,
+    this.initialShowReleaseResults = true,
   });
 
   final List<AdminProviderStatus> providers;
@@ -336,6 +345,8 @@ class _ProviderAddDialog extends StatefulWidget {
   final String? initialProvider;
   final String? initialQuery;
   final String? initialProviderItemId;
+  final bool initialShowMediaResults;
+  final bool initialShowReleaseResults;
 
   @override
   State<_ProviderAddDialog> createState() => _ProviderAddDialogState();
@@ -347,6 +358,8 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
   late String _selectedProvider;
   late final TextEditingController _queryController;
   late final TextEditingController _providerItemIdController;
+  late bool _showMediaResults;
+  late bool _showReleaseResults;
   String? _error;
 
   @override
@@ -359,6 +372,8 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
     _providerItemIdController = TextEditingController(
       text: widget.initialProviderItemId ?? '',
     );
+    _showMediaResults = widget.initialShowMediaResults;
+    _showReleaseResults = widget.initialShowReleaseResults;
     _syncSelectedProvider();
   }
 
@@ -375,7 +390,8 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
         if ((_mode == _ProviderAddMode.search
                 ? provider.supportsSearch
                 : provider.supportsIngest) &&
-            (_selectedKind == null || provider.effectiveKinds.contains(_selectedKind)))
+            (_selectedKind == null ||
+                provider.effectiveKinds.contains(_selectedKind)))
           provider,
     ];
   }
@@ -390,9 +406,8 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final actionLabel = _mode == _ProviderAddMode.search
-        ? 'Search provider'
-        : 'Add to catalog';
+    final actionLabel =
+        _mode == _ProviderAddMode.search ? 'Search provider' : 'Add to catalog';
     return AccentAlertDialog(
       shape: _kAdminDialogShape,
       title: const Text('Add metadata from provider'),
@@ -437,7 +452,8 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
                 isLoading: false,
                 onChanged: (value) {
                   setState(() {
-                    _selectedKind = value == null || value.isEmpty ? null : value;
+                    _selectedKind =
+                        value == null || value.isEmpty ? null : value;
                     _error = null;
                     _syncSelectedProvider();
                   });
@@ -461,6 +477,37 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
                     ? 'Search for candidates inside the selected category before creating anything in the canonical catalog.'
                     : 'Use a known provider item ID when you already know the exact external record you want to ingest.',
                 style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 14,
+                runSpacing: 8,
+                children: [
+                  _ProviderEntityScopeToggle(
+                    label: 'Media',
+                    value: _showMediaResults,
+                    onChanged: (value) {
+                      if (!value && !_showReleaseResults) {
+                        return;
+                      }
+                      setState(() {
+                        _showMediaResults = value;
+                      });
+                    },
+                  ),
+                  _ProviderEntityScopeToggle(
+                    label: 'Releases',
+                    value: _showReleaseResults,
+                    onChanged: (value) {
+                      if (!value && !_showMediaResults) {
+                        return;
+                      }
+                      setState(() {
+                        _showReleaseResults = value;
+                      });
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               if (_mode == _ProviderAddMode.search)
@@ -534,6 +581,8 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
           mode: _mode,
           kind: kind,
           provider: _selectedProvider,
+          showMediaResults: _showMediaResults,
+          showReleaseResults: _showReleaseResults,
           query: query,
         ),
       );
@@ -551,7 +600,242 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
         mode: _mode,
         kind: kind,
         provider: _selectedProvider,
+        showMediaResults: _showMediaResults,
+        showReleaseResults: _showReleaseResults,
         providerItemId: providerItemId,
+      ),
+    );
+  }
+}
+
+class _ReleaseMappingRuleFormResult {
+  const _ReleaseMappingRuleFormResult({
+    required this.provider,
+    required this.releaseType,
+    required this.targetKind,
+    required this.priority,
+    required this.isActive,
+    this.notes,
+  });
+
+  final String? provider;
+  final String releaseType;
+  final String targetKind;
+  final int priority;
+  final bool isActive;
+  final String? notes;
+}
+
+class _ReleaseMappingRuleDialog extends StatefulWidget {
+  const _ReleaseMappingRuleDialog({
+    required this.providers,
+    required this.kinds,
+    required this.kindLabels,
+    this.initialProvider,
+    this.initialReleaseType,
+    this.initialTargetKind,
+    this.initialPriority = 100,
+    this.initialIsActive = true,
+    this.initialNotes,
+  });
+
+  final List<String> providers;
+  final List<String> kinds;
+  final Map<String, String> kindLabels;
+  final String? initialProvider;
+  final String? initialReleaseType;
+  final String? initialTargetKind;
+  final int initialPriority;
+  final bool initialIsActive;
+  final String? initialNotes;
+
+  @override
+  State<_ReleaseMappingRuleDialog> createState() =>
+      _ReleaseMappingRuleDialogState();
+}
+
+class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
+  late final TextEditingController _releaseTypeController;
+  late final TextEditingController _priorityController;
+  late final TextEditingController _notesController;
+  String? _provider;
+  String? _targetKind;
+  late bool _isActive;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _releaseTypeController = TextEditingController(
+      text: widget.initialReleaseType ?? '',
+    );
+    _priorityController = TextEditingController(
+      text: widget.initialPriority.toString(),
+    );
+    _notesController = TextEditingController(
+      text: widget.initialNotes ?? '',
+    );
+    _provider = widget.initialProvider;
+    _targetKind = widget.initialTargetKind ??
+        (widget.kinds.contains('comic')
+            ? 'comic'
+            : (widget.kinds.isNotEmpty ? widget.kinds.first : null));
+    _isActive = widget.initialIsActive;
+  }
+
+  @override
+  void dispose() {
+    _releaseTypeController.dispose();
+    _priorityController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: _kAdminDialogShape,
+      title: const Text('Release mapping rule'),
+      content: SizedBox(
+        width: 480,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DropdownButtonFormField<String?>(
+              initialValue: _provider,
+              decoration: const InputDecoration(
+                labelText: 'Provider scope',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('All providers'),
+                ),
+                for (final provider in widget.providers)
+                  DropdownMenuItem<String?>(
+                    value: provider,
+                    child: Text(provider),
+                  ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _provider = value;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _releaseTypeController,
+              decoration: const InputDecoration(
+                labelText: 'Release type',
+                hintText: 'issue, variant, season, episode...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _targetKind,
+              decoration: const InputDecoration(
+                labelText: 'Target media kind',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                for (final kind in widget.kinds)
+                  DropdownMenuItem<String>(
+                    value: kind,
+                    child: Text(widget.kindLabels[kind] ?? kind),
+                  ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _targetKind = value;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _priorityController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Priority (lower wins)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _notesController,
+              minLines: 2,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Notes (optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _isActive,
+              onChanged: (value) {
+                setState(() {
+                  _isActive = value ?? true;
+                });
+              },
+              title: const Text('Rule is active'),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: _MessageRow(message: _error!, isError: true),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+
+  void _submit() {
+    final releaseType = _releaseTypeController.text.trim().toLowerCase();
+    if (releaseType.isEmpty) {
+      setState(() {
+        _error = 'Release type is required.';
+      });
+      return;
+    }
+    final targetKind = _targetKind?.trim();
+    if (targetKind == null || targetKind.isEmpty) {
+      setState(() {
+        _error = 'Select a target media kind.';
+      });
+      return;
+    }
+    final parsedPriority = int.tryParse(_priorityController.text.trim());
+    if (parsedPriority == null || parsedPriority < 0) {
+      setState(() {
+        _error = 'Priority must be a positive number.';
+      });
+      return;
+    }
+    Navigator.of(context).pop(
+      _ReleaseMappingRuleFormResult(
+        provider:
+            _provider?.trim().isNotEmpty == true ? _provider!.trim() : null,
+        releaseType: releaseType,
+        targetKind: targetKind,
+        priority: parsedPriority,
+        isActive: _isActive,
+        notes: _notesController.text.trim(),
       ),
     );
   }
@@ -618,7 +902,6 @@ class _CorrectionPreviewEntry {
   final String before;
   final String after;
 }
-
 
 class _Fact extends StatelessWidget {
   const _Fact({required this.label, required this.value});

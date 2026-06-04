@@ -130,7 +130,8 @@ class ApiClient {
     return _catalogApi.getMetadataItem(kind: kind, id: id);
   }
 
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     return _catalogApi.getItemBundleReleases(itemId);
   }
 
@@ -381,6 +382,60 @@ class ApiClient {
     );
   }
 
+  Future<List<AdminReleaseMediaMappingRule>> adminReleaseMediaMappingRules({
+    String? provider,
+    bool? active,
+  }) async {
+    return _adminApi.adminReleaseMediaMappingRules(
+      provider: provider,
+      active: active,
+    );
+  }
+
+  Future<AdminReleaseMediaMappingRule> adminCreateReleaseMediaMappingRule({
+    required AdminReleaseMediaMappingRuleUpsert payload,
+  }) async {
+    return _adminApi.adminCreateReleaseMediaMappingRule(payload: payload);
+  }
+
+  Future<AdminReleaseMediaMappingRule> adminUpdateReleaseMediaMappingRule({
+    required String ruleId,
+    required AdminReleaseMediaMappingRuleUpsert payload,
+  }) async {
+    return _adminApi.adminUpdateReleaseMediaMappingRule(
+      ruleId: ruleId,
+      payload: payload,
+    );
+  }
+
+  Future<void> adminDeleteReleaseMediaMappingRule({
+    required String ruleId,
+  }) async {
+    return _adminApi.adminDeleteReleaseMediaMappingRule(ruleId: ruleId);
+  }
+
+  Future<AdminProviderPrefillResolved> adminResolveProviderPrefill({
+    required String source,
+    String? provider,
+    String? kind,
+    String? query,
+    String? providerItemId,
+    String? releaseType,
+    String? proposalId,
+    int? ingestHistoryId,
+  }) async {
+    return _adminApi.adminResolveProviderPrefill(
+      source: source,
+      provider: provider,
+      kind: kind,
+      query: query,
+      providerItemId: providerItemId,
+      releaseType: releaseType,
+      proposalId: proposalId,
+      ingestHistoryId: ingestHistoryId,
+    );
+  }
+
   Future<List<AdminProviderIngestHistoryEntry>>
       adminProviderIngestHistory() async {
     return _adminApi.adminProviderIngestHistory();
@@ -539,7 +594,8 @@ class ApiClient {
     return _catalogApi.getItemSeasons(itemId);
   }
 
-  Future<CatalogEdition> createEdition(String itemId, {required String title}) async {
+  Future<CatalogEdition> createEdition(String itemId,
+      {required String title}) async {
     return _catalogApi.createEdition(itemId, title: title);
   }
 

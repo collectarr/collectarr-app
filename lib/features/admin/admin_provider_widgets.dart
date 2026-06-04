@@ -1465,6 +1465,255 @@ class _ProviderResultsList extends StatelessWidget {
   }
 }
 
+class _ProviderEntityScopeToggles extends StatelessWidget {
+  const _ProviderEntityScopeToggles({
+    required this.showMediaResults,
+    required this.showReleaseResults,
+    required this.onShowMediaResultsChanged,
+    required this.onShowReleaseResultsChanged,
+  });
+
+  final bool showMediaResults;
+  final bool showReleaseResults;
+  final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowReleaseResultsChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Wrap(
+          spacing: 14,
+          runSpacing: 8,
+          children: [
+            _ProviderEntityScopeToggle(
+              label: 'Media',
+              value: showMediaResults,
+              onChanged: onShowMediaResultsChanged,
+            ),
+            _ProviderEntityScopeToggle(
+              label: 'Releases',
+              value: showReleaseResults,
+              onChanged: onShowReleaseResultsChanged,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderEntityScopeToggle extends StatelessWidget {
+  const _ProviderEntityScopeToggle({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: () => onChanged(!value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox.square(
+              dimension: 18,
+              child: Checkbox(
+                value: value,
+                onChanged: (checked) => onChanged(checked ?? false),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: palette.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReleaseMappingRulesPanel extends StatelessWidget {
+  const _ReleaseMappingRulesPanel({
+    required this.rules,
+    required this.kindLabels,
+    required this.isLoading,
+    required this.onRefresh,
+    required this.onAdd,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onApplyDefaults,
+    this.statusMessage,
+    this.errorMessage,
+  });
+
+  final List<AdminReleaseMediaMappingRule> rules;
+  final Map<String, String> kindLabels;
+  final bool isLoading;
+  final VoidCallback onRefresh;
+  final VoidCallback onAdd;
+  final ValueChanged<AdminReleaseMediaMappingRule> onEdit;
+  final ValueChanged<AdminReleaseMediaMappingRule> onDelete;
+  final VoidCallback onApplyDefaults;
+  final String? statusMessage;
+  final String? errorMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Maintain release-to-media mapping rules and apply centralized prefill defaults.',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            FilledButton.icon(
+              onPressed: isLoading ? null : onAdd,
+              icon: const Icon(Icons.add),
+              label: const Text('Add mapping rule'),
+            ),
+            OutlinedButton.icon(
+              onPressed: isLoading ? null : onApplyDefaults,
+              icon: const Icon(Icons.auto_fix_high_outlined),
+              label: const Text('Apply rule defaults'),
+            ),
+            IconButton(
+              tooltip: 'Refresh rules',
+              onPressed: isLoading ? null : onRefresh,
+              icon: isLoading
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+            ),
+          ],
+        ),
+        if (statusMessage != null || errorMessage != null) ...[
+          const SizedBox(height: 12),
+          _MessageRow(
+            message: errorMessage ?? statusMessage!,
+            isError: errorMessage != null,
+          ),
+        ],
+        const SizedBox(height: 12),
+        if (rules.isEmpty)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.panel,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: palette.divider),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text('No mapping rules defined yet.'),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rules.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final rule = rules[index];
+              final providerLabel = rule.provider ?? 'all providers';
+              final targetLabel =
+                  kindLabels[rule.targetKind] ?? rule.targetKind;
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${rule.releaseType} -> $targetLabel',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 4),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                _MiniChip(label: providerLabel),
+                                _MiniChip(label: 'priority ${rule.priority}'),
+                                _MiniChip(
+                                    label:
+                                        rule.isActive ? 'active' : 'disabled'),
+                              ],
+                            ),
+                            if (rule.notes != null &&
+                                rule.notes!.trim().isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                rule.notes!,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: 'Edit rule',
+                        onPressed: () => onEdit(rule),
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                      IconButton(
+                        tooltip: 'Delete rule',
+                        onPressed: () => onDelete(rule),
+                        icon: const Icon(Icons.delete_outline),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+}
+
 class _ProviderResultTile extends StatelessWidget {
   const _ProviderResultTile({
     required this.candidate,
@@ -1484,9 +1733,35 @@ class _ProviderResultTile extends StatelessWidget {
   final String? activeProposalId;
   final String? activeProposalTitle;
 
+  String? _releaseLinkHint() {
+    final seriesTitle = candidate.series?.seriesTitle?.trim();
+    final issueNumber = candidate.issueNumber?.trim();
+    final variantName = candidate.variantName?.trim();
+    final parts = <String>[];
+    if (seriesTitle != null && seriesTitle.isNotEmpty) {
+      parts.add('media "$seriesTitle"');
+    }
+    if (issueNumber != null && issueNumber.isNotEmpty) {
+      parts.add('issue $issueNumber');
+    }
+    if (variantName != null && variantName.isNotEmpty) {
+      parts.add('variant "$variantName"');
+    }
+    if (parts.isEmpty) {
+      return null;
+    }
+    return 'Link to ${parts.join(' \u2022 ')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isReleaseResult = candidate.candidateType == 'issue' ||
+        candidate.candidateType == 'variant' ||
+        candidate.isVariant ||
+        (candidate.issueNumber?.trim().isNotEmpty ?? false);
+    final entityLabel = isReleaseResult ? 'Release result' : 'Media result';
+    final releaseLinkHint = isReleaseResult ? _releaseLinkHint() : null;
     return LayoutBuilder(
       builder: (context, constraints) {
         final isNarrow = constraints.maxWidth < 560;
@@ -1514,7 +1789,7 @@ class _ProviderResultTile extends StatelessWidget {
               children: [
                 _MiniChip(label: candidate.provider),
                 _MiniChip(label: candidate.kind),
-                _MiniChip(label: 'Provider match'),
+                _MiniChip(label: entityLabel),
               ],
             ),
             const SizedBox(height: 4),
@@ -1523,6 +1798,28 @@ class _ProviderResultTile extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
               maxLines: 1,
             ),
+            if (releaseLinkHint != null) ...[
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.link_outlined,
+                    size: 14,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      releaseLinkHint,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colorScheme.primary,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (candidate.summary != null &&
                 candidate.summary!.trim().isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -1617,4 +1914,3 @@ class _ProviderResultTile extends StatelessWidget {
     );
   }
 }
-
