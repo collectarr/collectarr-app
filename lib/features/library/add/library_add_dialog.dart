@@ -671,23 +671,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// Video-kind filter for movie library: allows searching across releases and box sets.
   late final Set<String> _videoKindFilters;
 
-    String _canonicalVideoSearchKind(String kind) =>
+  String _canonicalVideoSearchKind(String kind) =>
       catalogMediaKindFromValue(kind).apiValue;
 
   bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
 
-      bool get _showsVideoKindFilters =>
-        _isVideoKind && widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
+  bool get _showsVideoKindFilters =>
+      _isVideoKind && widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
 
-      List<String> get _allVideoSearchKinds {
-      final configured = widget.type.addChrome.videoKindFilterOptions
+  List<String> get _allVideoSearchKinds {
+    final configured = widget.type.addChrome.videoKindFilterOptions
         .map((option) => _canonicalVideoSearchKind(option.kind))
         .toSet()
         .toList();
-      return configured.isEmpty
+    return configured.isEmpty
         ? [_canonicalVideoSearchKind(widget.type.workspace.kind.apiValue)]
         : configured;
-      }
+  }
 
   bool get _isMovieDesktopChrome => widget.type.capabilities.wideDialog;
 
@@ -799,8 +799,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   void _syncManualKindSpecificFactoryValues() {
-    final factory =
-        LibraryAddRegistry.manualKindSpecificFactoryFor(widget.type.workspace.kind);
+    final factory = LibraryAddRegistry.manualKindSpecificFactoryFor(
+        widget.type.workspace.kind);
     if (factory == null) {
       if (_manualKindSpecificFactoryValues.isNotEmpty ||
           _manualKindSpecificCreatedControllers.isNotEmpty) {
@@ -895,8 +895,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       numberController: _searchNumberController,
       publisherController: _searchPublisherController,
       yearController: _searchYearController,
-        videoKindFilters: _showsVideoKindFilters ? _videoKindFilters : null,
-        onVideoKindFilterChanged: _showsVideoKindFilters
+      videoKindFilters: _showsVideoKindFilters ? _videoKindFilters : null,
+      onVideoKindFilterChanged: _showsVideoKindFilters
           ? (kind, checked) {
               final canonicalKind = _canonicalVideoSearchKind(kind);
               setState(() {
@@ -1165,7 +1165,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         yearController: _yearController,
                         barcodeController: _barcodeController,
                         variantController: _variantController,
-                        physicalFormatLabelController: _physicalFormatLabelController,
+                        physicalFormatLabelController:
+                            _physicalFormatLabelController,
                         coverController: _coverController,
                         backCoverController: _backCoverController,
                         creatorsController: _creatorsController,
@@ -1212,7 +1213,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           listName: kSeriesGroupPickListName,
                           label: 'Series Group',
                         ),
-                        onManagePhysicalFormats: () => _manageSingleValuePickList(
+                        onManagePhysicalFormats: () =>
+                            _manageSingleValuePickList(
                           listName: kPhysicalFormatPickListName,
                           label: 'Physical format',
                           builtInValues: [
@@ -1839,7 +1841,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       editionTitle: _emptyToNull(
           ctl('editionTitleController', _editionTitleController).text),
       physicalFormat: _physicalFormatId,
-        physicalFormatLabel: _emptyToNull(_physicalFormatLabelController.text) ??
+      physicalFormatLabel: _emptyToNull(_physicalFormatLabelController.text) ??
           _physicalFormatForId(_physicalFormatId)?.label,
       publisher:
           _emptyToNull(ctl('publisherController', _publisherController).text),
@@ -1860,11 +1862,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _emptyToNull(ctl('languageController', _languageController).text),
       ageRating:
           _emptyToNull(ctl('ageRatingController', _ageRatingController).text),
-        series: widget.type.manualAddUsesTitleAsSeries
+      series: widget.type.manualAddUsesTitleAsSeries
           ? CatalogSeriesDetails(
-            seriesId: _selectedManualSeriesId,
-            seriesTitle: _emptyToNull(_titleController.text),
-          )
+              seriesId: _selectedManualSeriesId,
+              seriesTitle: _emptyToNull(_titleController.text),
+            )
           : null,
       publishing: (pageCount != null ||
               _imprintController.text.trim().isNotEmpty ||
@@ -1892,6 +1894,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (e is TextEditingController) return e;
       return fallback;
     }
+
     String? ctlTextOrNull(String key, [TextEditingController? fallback]) {
       final e = _manualKindSpecific[key];
       final controller = e is TextEditingController ? e : fallback;
@@ -1927,19 +1930,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               .trim(),
       quantity: 1,
       coverPriceCents: coverPriceCents,
-        rawOrSlabbed:
+      rawOrSlabbed:
           ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
-        gradingCompany:
+      gradingCompany:
           ctlTextOrNull('gradingCompanyController', _gradingCompanyController),
-        graderNotes:
+      graderNotes:
           ctlTextOrNull('graderNotesController', _graderNotesController),
-        signedBy: ctlTextOrNull('signedByController', _signedByController),
-        labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
-        pageQuality: ctlTextOrNull('pageQualityController'),
-        certificationNumber: ctlTextOrNull(
+      signedBy: ctlTextOrNull('signedByController', _signedByController),
+      labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
+      pageQuality: ctlTextOrNull('pageQualityController'),
+      certificationNumber: ctlTextOrNull(
         'certificationNumberController',
         _certificationNumberController,
-        ),
+      ),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,
@@ -2099,7 +2102,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final kindsToSearch = _isVideoKind
           ? (_videoKindFilters.isEmpty
               ? _allVideoSearchKinds
-            : _videoKindFilters.map(_canonicalVideoSearchKind).toSet().toList())
+              : _videoKindFilters
+                  .map(_canonicalVideoSearchKind)
+                  .toSet()
+                  .toList())
           : <String>[];
       final seriesText = _searchSeriesController.text.trim().isNotEmpty
           ? _searchSeriesController.text.trim()
@@ -2169,6 +2175,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _precacheProviderCandidateCovers(results);
     } catch (error) {
       if (mounted) {
+        if (_isMissingBearerTokenError(error)) {
+          // Provider candidates are optional; keep the add dialog usable without
+          // surfacing an auth-only failure banner for anonymous sessions.
+          setState(() => _error = null);
+          return;
+        }
         if (await _clearRejectedMetadataSession(error, 'Provider search')) {
           return;
         }
@@ -2415,6 +2427,21 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           onError: (_, __) {},
         ).catchError((_) {}),
     ]);
+  }
+
+  bool _isMissingBearerTokenError(Object error) {
+    if (error is! DioException) {
+      return false;
+    }
+    if (error.response?.statusCode != 401) {
+      return false;
+    }
+    final data = error.response?.data;
+    if (data is! Map) {
+      return false;
+    }
+    final code = data['code']?.toString().trim();
+    return code == 'missing_bearer_token';
   }
 
   Future<bool> _clearRejectedMetadataSession(
@@ -2683,10 +2710,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _conditionOptions = options.conditions;
       _gradeOptions = options.grades;
       _tagOptions = tagOptions;
-      _publisherOptions = List<String>.from(vocabularyResults[0] as List<String>);
+      _publisherOptions =
+          List<String>.from(vocabularyResults[0] as List<String>);
       _imprintOptions = List<String>.from(vocabularyResults[1] as List<String>);
-      _seriesGroupOptions = List<String>.from(vocabularyResults[2] as List<String>);
-      _physicalFormatOptions = List<String>.from(vocabularyResults[3] as List<String>);
+      _seriesGroupOptions =
+          List<String>.from(vocabularyResults[2] as List<String>);
+      _physicalFormatOptions =
+          List<String>.from(vocabularyResults[3] as List<String>);
       _manualSeriesEntries = List<SeriesRegistryEntry>.from(
         vocabularyResults[4] as List<SeriesRegistryEntry>,
       );
@@ -2749,7 +2779,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   List<String> get _manualPhysicalFormatOptions {
     return mergePickListValues(
-      builtInValues: [for (final format in _currentPhysicalFormats()) format.label],
+      builtInValues: [
+        for (final format in _currentPhysicalFormats()) format.label
+      ],
       customValues: _physicalFormatOptions,
       selectedValues: [_physicalFormatLabelController.text],
     );

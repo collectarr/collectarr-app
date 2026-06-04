@@ -1153,7 +1153,8 @@ void main() {
     Widget buildSubject() {
       return ProviderScope(
         overrides: [
-          mediaCatalogProvider.overrideWith((ref) async => fallbackMediaCatalog),
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
