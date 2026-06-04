@@ -1,22 +1,45 @@
 import 'package:flutter/material.dart';
 
-class LibraryResizableDivider extends StatelessWidget {
+class LibraryResizableDivider extends StatefulWidget {
   const LibraryResizableDivider({
     super.key,
     required this.onDragDelta,
     this.axis = Axis.horizontal,
     this.color,
+    this.useCumulativeDelta = false,
   });
 
   final ValueChanged<double> onDragDelta;
   final Axis axis;
   final Color? color;
+  final bool useCumulativeDelta;
+
+  @override
+  State<LibraryResizableDivider> createState() =>
+      _LibraryResizableDividerState();
+}
+
+class _LibraryResizableDividerState extends State<LibraryResizableDivider> {
+  double _cumulativeDelta = 0;
+
+  void _resetDrag() {
+    _cumulativeDelta = 0;
+  }
+
+  void _emitDelta(double delta) {
+    if (!widget.useCumulativeDelta) {
+      widget.onDragDelta(delta);
+      return;
+    }
+    _cumulativeDelta += delta;
+    widget.onDragDelta(_cumulativeDelta);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor = color ?? Theme.of(context).dividerColor;
+    final dividerColor = widget.color ?? Theme.of(context).dividerColor;
     final gripColor = dividerColor.withValues(alpha: 0.75);
-    final isHorizontalResize = axis == Axis.horizontal;
+    final isHorizontalResize = widget.axis == Axis.horizontal;
     return MouseRegion(
       cursor: isHorizontalResize
           ? SystemMouseCursors.resizeColumn
@@ -25,12 +48,19 @@ class LibraryResizableDivider extends StatelessWidget {
         label: 'Resize panel',
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
+          onHorizontalDragStart:
+              isHorizontalResize ? (_) => _resetDrag() : null,
           onHorizontalDragUpdate: isHorizontalResize
-              ? (details) => onDragDelta(details.delta.dx)
+              ? (details) => _emitDelta(details.delta.dx)
               : null,
+          onHorizontalDragEnd: isHorizontalResize ? (_) => _resetDrag() : null,
+          onHorizontalDragCancel: isHorizontalResize ? _resetDrag : null,
+          onVerticalDragStart: isHorizontalResize ? null : (_) => _resetDrag(),
           onVerticalDragUpdate: isHorizontalResize
               ? null
-              : (details) => onDragDelta(details.delta.dy),
+              : (details) => _emitDelta(details.delta.dy),
+          onVerticalDragEnd: isHorizontalResize ? null : (_) => _resetDrag(),
+          onVerticalDragCancel: isHorizontalResize ? null : _resetDrag,
           child: SizedBox(
             width: isHorizontalResize ? 12 : double.infinity,
             height: isHorizontalResize ? double.infinity : 12,

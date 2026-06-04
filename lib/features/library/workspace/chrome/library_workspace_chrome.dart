@@ -66,6 +66,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
             else
               LibraryResizableDivider(
                 color: accentDivider,
+                useCumulativeDelta: true,
                 onDragDelta: (delta) => onRightWidthChanged!(
                   clampLibraryPaneWidth(
                     effectiveRightWidth - delta,
@@ -89,6 +90,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
               LibraryResizableDivider(
                 axis: Axis.vertical,
                 color: accentDivider,
+                useCumulativeDelta: true,
                 onDragDelta: (delta) => onBottomHeightChanged!(
                   clampLibraryPaneHeight(
                     effectiveBottomHeight - delta,

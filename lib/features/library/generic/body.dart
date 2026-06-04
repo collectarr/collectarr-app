@@ -377,6 +377,7 @@ class LibraryBody extends StatelessWidget {
                 ),
                 LibraryResizableDivider(
                   color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
+                  useCumulativeDelta: true,
                   onDragDelta: (delta) => onSidebarWidthChanged(
                     clampLibraryPaneWidth(
                       sidebarWidth + delta,
