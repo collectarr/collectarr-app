@@ -1,0 +1,52 @@
+name: Validate Release Config
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Preview release version
+        id: semantic_preview
+        uses: cycjimmy/semantic-release-action@v6
+        with:
+          dry_run: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summarize preview
+        shell: bash
+        run: |
+          echo "would_publish=${{ steps.semantic_preview.outputs.new_release_published }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${{ steps.semantic_preview.outputs.new_release_version }}" ]; then
+            echo "next_version=${{ steps.semantic_preview.outputs.new_release_version }}" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.0"
+
+      - name: Validate web release build path
+        env:
+          METADATA_BASE_URL: https://example.collectarr.local
+        run: |
+          flutter pub get --enforce-lockfile
+          dart run build_runner build --delete-conflicting-outputs
+          flutter build web --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL

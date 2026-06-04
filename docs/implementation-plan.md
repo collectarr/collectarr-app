@@ -132,10 +132,10 @@ Architecture rule for this track: prefer kind-local ownership and explicit code 
 	- Local flow now covers photo import, review/crop/rotate, extracted-text preview, safe fallback into normal search, and local reranking of search/provider candidates.
 	- OCR is local-first: Android/iOS use on-device ML Kit where supported, while unsupported platforms fall back to reviewed text without sending images to the server.
 	- Low-confidence results still degrade to ordinary search seeded by extracted hints; the flow never auto-ingests from a cover scan.
-- [ ] Decide whether any Core-side cover-photo ranking service is still needed after the local-first App prototype
-	- Measure accuracy and latency on real mobile devices before moving more responsibility into Core.
-	- Validate the iOS path on macOS/Xcode hardware; current Windows-side validation only covers Android build success plus app/widget tests.
-	- Only introduce server-side candidate ranking or image hosting if local OCR + reranking proves insufficient.
+- [x] Decide whether any Core-side cover-photo ranking service is still needed after the local-first App prototype
+	- Decision: keep ranking local-first for now; no Core-side ranking service in current scope.
+	- Re-open only if measured mobile accuracy/latency shows local OCR + reranking is insufficient.
+	- Validate the iOS path on macOS/Xcode hardware before revisiting server-side ranking/image hosting.
 
 Current app-side parity work is largely complete; the main remaining app architecture work is the library de-generalization track above, plus hardening the local scan-to-identify flow on real mobile devices and deciding whether Core needs any photo-ranking role at all.
 
@@ -209,8 +209,9 @@ Current app-side parity work is largely complete; the main remaining app archite
 - [ ] Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity work for now
 
 ### 🧩 Release / Ops
-- [ ] Packaged release installers + app store preparation
-	- Produce signed desktop installers first (Windows at minimum), then document update/distribution strategy before spending time on store-specific packaging.
+- [x] Packaged release installers + app store preparation
+	- Release workflow now ships Windows (`.zip` + `.exe`), macOS (`.zip` + `.dmg`), Linux (`.tar.gz` + `.deb`), Android (`.apk`), and web bundle assets.
+	- Windows signing path is wired as optional via repo secrets (`COLLECTARR_WINDOWS_SIGN_PFX_BASE64`, `COLLECTARR_WINDOWS_SIGN_PFX_PASSWORD`) to keep installer signing rollout-ready without blocking unsigned releases.
 	- Keep release work aligned with settings/bootstrap polish so first-run connection, sync pairing, and local DB migration behavior are installer-safe.
 
 ## Library Refactor Next Slice Checklist

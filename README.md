@@ -189,12 +189,22 @@ The first packaged rollout keeps installation manual. The in-app updater stays
 hidden until the release workflow also publishes installer assets that the
 desktop client can install directly.
 
+Windows signing is optional and enabled when these repository secrets are set:
+`COLLECTARR_WINDOWS_SIGN_PFX_BASE64` and
+`COLLECTARR_WINDOWS_SIGN_PFX_PASSWORD`. Optional timestamp override:
+`COLLECTARR_WINDOWS_SIGN_TIMESTAMP_URL` (repo variable).
+
 ## Related Repos
 
 | Repo | Purpose |
 |------|---------|
 | `collectarr-core` | Canonical metadata catalog, providers, image delivery, admin APIs |
 | `collectarr-sync` | Optional personal sync service |
+
+## 🧭 Library Parity Contract
+
+See [docs/library-parity-contract.md](docs/library-parity-contract.md) for the
+app-side parity commitments and Core contract reference.
 
 ## Roadmap
 

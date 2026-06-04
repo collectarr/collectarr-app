@@ -72,7 +72,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.semantic_preview.outputs.new_release_published == 'true'
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
         if: steps.semantic_preview.outputs.new_release_published == 'true'
@@ -145,7 +145,7 @@ jobs:
           flutter-version: '3.44.0'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
@@ -177,13 +177,46 @@ jobs:
           flutter-version: '3.44.0'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build Windows app
         run: flutter build windows --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
+
+      - name: Optionally sign Windows binaries
+        shell: pwsh
+        env:
+          SIGN_CERT_BASE64: ${{ secrets.COLLECTARR_WINDOWS_SIGN_PFX_BASE64 }}
+          SIGN_CERT_PASSWORD: ${{ secrets.COLLECTARR_WINDOWS_SIGN_PFX_PASSWORD }}
+          SIGN_TIMESTAMP_URL: ${{ vars.COLLECTARR_WINDOWS_SIGN_TIMESTAMP_URL || 'http://timestamp.digicert.com' }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SIGN_CERT_BASE64) -or [string]::IsNullOrWhiteSpace($env:SIGN_CERT_PASSWORD)) {
+            Write-Output "Signing secrets not configured; publishing unsigned Windows binaries."
+            exit 0
+          }
+
+          $certPath = Join-Path $env:RUNNER_TEMP "collectarr-signing.pfx"
+          [System.IO.File]::WriteAllBytes($certPath, [System.Convert]::FromBase64String($env:SIGN_CERT_BASE64))
+
+          $signTool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Filter signtool.exe -Recurse |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $signTool) {
+            throw "signtool.exe not found in Windows SDK."
+          }
+
+          $targets = Get-ChildItem "build/windows/x64/runner/Release" -File |
+            Where-Object { $_.Extension -in @(".exe", ".dll") }
+          foreach ($target in $targets) {
+            & $signTool.FullName sign /fd SHA256 /f $certPath /p $env:SIGN_CERT_PASSWORD /tr $env:SIGN_TIMESTAMP_URL /td SHA256 $target.FullName
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to sign $($target.FullName)"
+            }
+          }
+
+          Remove-Item $certPath -Force
 
       - name: Package Windows portable artifact
         shell: pwsh
@@ -254,7 +287,7 @@ jobs:
           flutter-version: '3.44.0'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
@@ -316,7 +349,7 @@ jobs:
           flutter-version: '3.44.0'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
