@@ -62,7 +62,7 @@ List<Widget> buildComicInspectorSections(
   if (details.isNotEmpty) {
     sections.add(
       LibraryInspectorSection(
-        title: 'Details',
+        title: 'Info',
         accentColor: request.accent,
         children: [LibraryInspectorFactGrid(facts: details)],
       ),
@@ -149,7 +149,8 @@ List<String> _creatorNames(List<Map<String, dynamic>>? creators) {
 List<LibraryInspectorFactData> _detailFacts(LibraryWorkspaceEntry entry) {
   final rows = <LibraryInspectorFactData>[];
   if (entry.referenceFormatLabel?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()));
+    rows.add(
+        LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()));
   }
   if (entry.country?.trim().isNotEmpty == true) {
     rows.add(LibraryInspectorFactData('Country', entry.country!.trim()));
@@ -161,7 +162,8 @@ List<LibraryInspectorFactData> _detailFacts(LibraryWorkspaceEntry entry) {
     rows.add(LibraryInspectorFactData('Age', entry.ageRating!.trim()));
   }
   if (entry.publishing?.pageCount != null) {
-    rows.add(LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()));
+    rows.add(LibraryInspectorFactData(
+        'Pages', entry.publishing!.pageCount.toString()));
   }
   return rows;
 }
@@ -172,16 +174,23 @@ List<LibraryInspectorFactData> _collectorFacts(OwnedItem? ownedItem) {
   }
   final rows = <LibraryInspectorFactData>[];
   if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Raw / Slabbed', ownedItem.rawOrSlabbed!.trim()));
+    rows.add(LibraryInspectorFactData(
+        'Raw / Slabbed', ownedItem.rawOrSlabbed!.trim()));
   }
   if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Grading Co.', ownedItem.gradingCompany!.trim()));
+    rows.add(LibraryInspectorFactData(
+        'Grading Co.', ownedItem.gradingCompany!.trim()));
   }
   if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Certification', ownedItem.certificationNumber!.trim()));
+    rows.add(LibraryInspectorFactData(
+        'Certification', ownedItem.certificationNumber!.trim()));
   }
   if (ownedItem.keyComic == true) {
-    rows.add(LibraryInspectorFactData('Key', ownedItem.keyReason?.trim().isNotEmpty == true ? ownedItem.keyReason!.trim() : 'Yes'));
+    rows.add(LibraryInspectorFactData(
+        'Key',
+        ownedItem.keyReason?.trim().isNotEmpty == true
+            ? ownedItem.keyReason!.trim()
+            : 'Yes'));
   }
   return rows;
 }
@@ -202,11 +211,12 @@ List<LibraryInspectorFactData> _personalFacts(
   final trackingStatusLabel = trackingEntry?.status?.label;
   final readStatus =
       trackingStatusLabel == null || trackingStatusLabel == 'Not tracked'
-      ? ownedItem?.readStatus
-      : trackingStatusLabel;
+          ? ownedItem?.readStatus
+          : trackingStatusLabel;
   rows.add(LibraryInspectorFactData('Read', _readLabel(readStatus)));
   if (ownedItem?.indexNumber != null) {
-    rows.add(LibraryInspectorFactData('Index', ownedItem!.indexNumber.toString()));
+    rows.add(
+        LibraryInspectorFactData('Index', ownedItem!.indexNumber.toString()));
   }
   rows.add(
     LibraryInspectorFactData(
@@ -230,23 +240,26 @@ List<LibraryInspectorFactData> _valueFacts(
   if (ownedItem == null) {
     return const [];
   }
-  final effectiveOwnedCopies = ownedCopies.isNotEmpty
-      ? ownedCopies
-      : <OwnedItem>[ownedItem];
+  final effectiveOwnedCopies =
+      ownedCopies.isNotEmpty ? ownedCopies : <OwnedItem>[ownedItem];
 
   final rows = <LibraryInspectorFactData>[];
   if (ownedItem.coverPriceCents != null) {
-    rows.add(LibraryInspectorFactData('Cover Price', formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
+    rows.add(LibraryInspectorFactData('Cover Price',
+        formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
   }
   if (ownedItem.marketValueCents != null) {
-    rows.add(LibraryInspectorFactData('Current Value', formatMoney(ownedItem.marketValueCents, ownedItem.currency)));
+    rows.add(LibraryInspectorFactData('Current Value',
+        formatMoney(ownedItem.marketValueCents, ownedItem.currency)));
   }
   if (ownedItem.pricePaidCents != null) {
-    rows.add(LibraryInspectorFactData('Paid', formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
+    rows.add(LibraryInspectorFactData(
+        'Paid', formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
   }
 
   if (effectiveOwnedCopies.length > 1) {
-    final totalsCurrency = _inspectorValueCurrency(effectiveOwnedCopies, ownedItem);
+    final totalsCurrency =
+        _inspectorValueCurrency(effectiveOwnedCopies, ownedItem);
     final totalMarketValue = _sumOwnedValueCents(
       effectiveOwnedCopies,
       (item) => item.marketValueCents,
@@ -256,10 +269,12 @@ List<LibraryInspectorFactData> _valueFacts(
       (item) => item.pricePaidCents,
     );
     if (totalMarketValue != null) {
-      rows.add(LibraryInspectorFactData('Total Value', formatMoney(totalMarketValue, totalsCurrency)));
+      rows.add(LibraryInspectorFactData(
+          'Total Value', formatMoney(totalMarketValue, totalsCurrency)));
     }
     if (totalPaid != null) {
-      rows.add(LibraryInspectorFactData('Total Paid', formatMoney(totalPaid, totalsCurrency)));
+      rows.add(LibraryInspectorFactData(
+          'Total Paid', formatMoney(totalPaid, totalsCurrency)));
     }
   }
   return rows;

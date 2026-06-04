@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_personal_det
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -104,6 +105,8 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.onEdit,
     this.onDetailsLayoutChanged,
     this.onFilterByValue,
+    this.searchQuery,
+    this.searchTarget = LibrarySearchTarget.all,
     this.db,
     this.contextLabel,
   });
@@ -119,6 +122,8 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final void Function(OwnedItem? ownedItem)? onEdit;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
+  final String? searchQuery;
+  final LibrarySearchTarget searchTarget;
   final LocalDatabase? db;
   final String? contextLabel;
 
@@ -201,6 +206,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,
       onFilterByValue: widget.onFilterByValue,
+      searchQuery: widget.searchQuery,
+      searchTarget: widget.searchTarget,
     );
     final activeBundleReleaseId =
         activeOwnedItem?.bundleReleaseId ?? selected.referenceBundleReleaseId;
@@ -466,12 +473,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           db: widget.db!,
           accent: widget.accent,
         ),
-      ...buildLibraryInspectorKindSections(
-        context: context,
-        type: widget.type,
-        entry: selected,
-        accent: widget.accent,
-      ),
+      ...?(!usesCustomInspectorPanel
+          ? buildLibraryInspectorKindSections(
+              context: context,
+              type: widget.type,
+              entry: selected,
+              accent: widget.accent,
+            )
+          : null),
     ];
     if (widget.type.inspectorPanelBuilder != null) {
       return widget.type.inspectorPanelBuilder!(
@@ -531,29 +540,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
           ),
           const SizedBox(height: 6),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: palette.surface,
-              border: Border.all(color: palette.divider),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  hero,
-                  const SizedBox(height: 6),
-                  InspectorActionBar(
-                    type: widget.type,
-                    entry: selected,
-                    onToggleOwned: onToggleOwned,
-                    onToggleWishlist: onToggleWishlist,
-                    onEdit: onEdit,
-                    onCorrectMetadata: onCorrectMetadata,
-                    extraActions: extraActions,
-                    onOpenDetails: onOpenDetails,
-                  ),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Column(
+              children: [
+                hero,
+                const SizedBox(height: 6),
+                InspectorActionBar(
+                  type: widget.type,
+                  entry: selected,
+                  onToggleOwned: onToggleOwned,
+                  onToggleWishlist: onToggleWishlist,
+                  onEdit: onEdit,
+                  onCorrectMetadata: onCorrectMetadata,
+                  extraActions: extraActions,
+                  onOpenDetails: onOpenDetails,
+                ),
+              ],
             ),
           ),
           if (ownedCopies.isNotEmpty) ...[

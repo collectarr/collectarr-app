@@ -289,6 +289,43 @@ void main() {
     expect(selected, {'one', 'two', 'four'});
   });
 
+  testWidgets('workspace grid ignores secondary-button drag selection',
+      (tester) async {
+    Set<String> selected = {'four'};
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 250,
+          height: 240,
+          child: LibraryWorkspaceGrid<String>(
+            items: const ['one', 'two', 'three', 'four'],
+            maxCrossAxisExtent: 120,
+            mainAxisExtent: 100,
+            selectionEnabled: true,
+            selectedIds: selected,
+            itemIdOf: (item) => item,
+            onSelectionChanged: (value) => selected = value,
+            emptyBuilder: (_) => const Text('No items'),
+            itemBuilder: (_, item) => Text(item),
+          ),
+        ),
+      ),
+    );
+
+    final gridTopLeft = tester.getTopLeft(find.byType(GridView));
+    final gesture = await tester.startGesture(
+      gridTopLeft + const Offset(16, 16),
+      kind: PointerDeviceKind.mouse,
+      buttons: kSecondaryMouseButton,
+    );
+    await gesture.moveTo(gridTopLeft + const Offset(225, 95));
+    await gesture.up();
+    await tester.pump();
+
+    expect(selected, {'four'});
+  });
+
   testWidgets(
       'workspace grid lays out inside sliver adapters when shrink-wrapped',
       (tester) async {

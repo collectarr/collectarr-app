@@ -1975,7 +1975,8 @@ class _EditionCard extends StatelessWidget {
                 style: const TextStyle(
                   color: kAppTextHint,
                   fontSize: 8,
-                  fontFamily: 'monospace',
+                  fontFamily: kClzMonospaceFontFamily,
+                  fontFamilyFallback: kClzMonospaceFontFallback,
                 ),
               ),
           ],

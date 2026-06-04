@@ -305,7 +305,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     this.onRefreshMetadata,
     this.onUnlinkFromCore,
     this.onDetailsLayoutChanged,
-    this.framed = true,
+    this.framed = false,
     this.includeLayoutControl = true,
   });
 

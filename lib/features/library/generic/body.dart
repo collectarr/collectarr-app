@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -49,6 +50,28 @@ double resolveLibraryWorkspaceMinWidth({
   };
 }
 
+double resolveLibrarySidebarMinWidth(
+  BuildContext context, {
+  required String selectedBucketLabel,
+  required int ancestorScopeDepth,
+}) {
+  final labelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ) ??
+      const TextStyle(fontSize: 12, fontWeight: FontWeight.w800);
+  final textPainter = TextPainter(
+    text: TextSpan(text: selectedBucketLabel, style: labelStyle),
+    maxLines: 1,
+    textDirection: Directionality.of(context),
+  )..layout();
+  final leadingInset =
+      ancestorScopeDepth == 0 ? 0.0 : 14.0 + ancestorScopeDepth * 12.0;
+  final rowWidth = 6.0 + leadingInset + 20.0 + 6.0 + textPainter.width + 8.0;
+  return rowWidth
+      .clamp(kLibrarySidebarMinWidth, kLibraryPaneStoredMaxWidth)
+      .toDouble();
+}
+
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -81,6 +104,7 @@ class LibraryBody extends StatelessWidget {
     this.onSidebarNavigateToBreadcrumb,
     this.onSidebarNavigateToAncestorScope,
     this.searchQuery,
+    this.searchTarget = LibrarySearchTarget.all,
     this.activeSmartListName,
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
@@ -151,6 +175,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<int>? onSidebarNavigateToBreadcrumb;
   final ValueChanged<int>? onSidebarNavigateToAncestorScope;
   final String? searchQuery;
+  final LibrarySearchTarget searchTarget;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -209,6 +234,13 @@ class LibraryBody extends StatelessWidget {
         final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
           viewState: viewState,
         );
+        final resolvedSelectedBucket =
+            selectedBucket ?? genericAllBucketLabel(type);
+        final sidebarMinWidth = resolveLibrarySidebarMinWidth(
+          context,
+          selectedBucketLabel: resolvedSelectedBucket,
+          ancestorScopeDepth: sidebarAncestorScopeLabels.length,
+        );
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,
@@ -226,10 +258,11 @@ class LibraryBody extends StatelessWidget {
           workspaceMinWidth: workspaceMinWidth,
           hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
           rightDetailsWidth: requestedDetailsWidth,
+          minWidth: sidebarMinWidth,
         );
         final sidebarWidth = clampLibraryPaneWidth(
           viewState.sidebarWidth,
-          minWidth: kLibrarySidebarMinWidth,
+          minWidth: sidebarMinWidth,
           maxWidth: maxSidebarWidth,
         );
         final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
@@ -305,6 +338,8 @@ class LibraryBody extends StatelessWidget {
               : (ownedItem) => onEditItem(selected, ownedItem),
           onDetailsLayoutChanged: onDetailsLayoutChanged,
           onFilterByValue: onFilterByValue,
+          searchQuery: searchQuery,
+          searchTarget: searchTarget,
           db: db,
         );
 
@@ -353,7 +388,7 @@ class LibraryBody extends StatelessWidget {
           buckets: projection.buckets,
           groupMode: groupMode,
           groupLoading: groupLoading,
-          selectedBucket: selectedBucket ?? genericAllBucketLabel(type),
+          selectedBucket: resolvedSelectedBucket,
           onSelected: (bucket) => onBucketChanged(
             bucket == genericAllBucketLabel(type) ? null : bucket,
           ),
@@ -405,7 +440,7 @@ class LibraryBody extends StatelessWidget {
                   sidebar: sidebar,
                   content: detailsLayoutWidget,
                   initialWidth: sidebarWidth,
-                  minWidth: kLibrarySidebarMinWidth,
+                  minWidth: sidebarMinWidth,
                   maxWidth: maxSidebarWidth,
                   accentColor: accent,
                   onSidebarWidthChanged: onSidebarWidthChanged,

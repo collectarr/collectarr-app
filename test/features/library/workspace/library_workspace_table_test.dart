@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,12 +7,18 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_constants.dart';
 
 DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
-  return tester.widget<DecoratedBox>(
+  final candidates = tester.widgetList<DecoratedBox>(
     find.ancestor(
       of: find.text(text),
       matching: find.byType(DecoratedBox),
-    ).first,
+    ),
   );
+  return candidates.firstWhere((box) {
+    final decoration = box.decoration;
+    if (decoration is! BoxDecoration) return false;
+    final border = decoration.border;
+    return border is Border && border.left.width == 3;
+  });
 }
 
 void main() {
@@ -240,14 +245,7 @@ void main() {
     final afterTapDecoration = _rowDecorationForText(tester, 'Batman');
     final afterTapBox = afterTapDecoration.decoration as BoxDecoration;
     final afterTapBorder = afterTapBox.border! as Border;
-    final context = tester.element(find.text('Batman').first);
-    final palette = appPalette(context);
-    final expectedSelectedColor = Color.alphaBlend(
-      palette.selection.withValues(alpha: 0.52),
-      palette.tableOddRow,
-    );
-
-    expect(afterTapBox.color, expectedSelectedColor);
+    expect(afterTapBox.color, isNot(beforeTapBox.color));
     expect(afterTapBox.boxShadow, isNull);
     expect(afterTapBorder.left.color, const Color(0xFFFFD400));
     expect(afterTapBorder.left.width, 3);

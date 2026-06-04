@@ -164,8 +164,8 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
             if (_scannedBarcodes.isNotEmpty) ...[
               Text(
                 '${_scannedBarcodes.length} barcode(s) scanned:',
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w600),
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               ConstrainedBox(
@@ -180,15 +180,18 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                         children: [
                           Text(
                             '${i + 1}.',
-                            style: TextStyle(
-                                fontSize: 11, color: kAppTextMuted),
+                            style:
+                                TextStyle(fontSize: 11, color: kAppTextMuted),
                           ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               _scannedBarcodes[i],
                               style: const TextStyle(
-                                  fontSize: 12, fontFamily: 'monospace'),
+                                fontSize: 12,
+                                fontFamily: kClzMonospaceFontFamily,
+                                fontFamilyFallback: kClzMonospaceFontFallback,
+                              ),
                             ),
                           ),
                           InkWell(

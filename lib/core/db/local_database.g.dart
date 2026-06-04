@@ -222,6 +222,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> tracksJson = GeneratedColumn<String>(
       'tracks_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _discsJsonMeta =
+      const VerificationMeta('discsJson');
+  @override
+  late final GeneratedColumn<String> discsJson = GeneratedColumn<String>(
+      'discs_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _editionsJsonMeta =
       const VerificationMeta('editionsJson');
   @override
@@ -426,6 +432,7 @@ class $CatalogCacheTable extends CatalogCache
         runtimeMinutes,
         trackCount,
         tracksJson,
+        discsJson,
         editionsJson,
         creatorsJson,
         charactersJson,
@@ -664,6 +671,10 @@ class $CatalogCacheTable extends CatalogCache
           tracksJson.isAcceptableOrUnknown(
               data['tracks_json']!, _tracksJsonMeta));
     }
+    if (data.containsKey('discs_json')) {
+      context.handle(_discsJsonMeta,
+          discsJson.isAcceptableOrUnknown(data['discs_json']!, _discsJsonMeta));
+    }
     if (data.containsKey('editions_json')) {
       context.handle(
           _editionsJsonMeta,
@@ -895,6 +906,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.int, data['${effectivePrefix}track_count']),
       tracksJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tracks_json']),
+      discsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}discs_json']),
       editionsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}editions_json']),
       creatorsJson: attachedDatabase.typeMapping
@@ -999,6 +1012,7 @@ class CatalogCacheData extends DataClass
   final int? runtimeMinutes;
   final int? trackCount;
   final String? tracksJson;
+  final String? discsJson;
   final String? editionsJson;
   final String? creatorsJson;
   final String? charactersJson;
@@ -1064,6 +1078,7 @@ class CatalogCacheData extends DataClass
       this.runtimeMinutes,
       this.trackCount,
       this.tracksJson,
+      this.discsJson,
       this.editionsJson,
       this.creatorsJson,
       this.charactersJson,
@@ -1196,6 +1211,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || tracksJson != null) {
       map['tracks_json'] = Variable<String>(tracksJson);
+    }
+    if (!nullToAbsent || discsJson != null) {
+      map['discs_json'] = Variable<String>(discsJson);
     }
     if (!nullToAbsent || editionsJson != null) {
       map['editions_json'] = Variable<String>(editionsJson);
@@ -1386,6 +1404,9 @@ class CatalogCacheData extends DataClass
       tracksJson: tracksJson == null && nullToAbsent
           ? const Value.absent()
           : Value(tracksJson),
+      discsJson: discsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(discsJson),
       editionsJson: editionsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(editionsJson),
@@ -1512,6 +1533,7 @@ class CatalogCacheData extends DataClass
       runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
       trackCount: serializer.fromJson<int?>(json['trackCount']),
       tracksJson: serializer.fromJson<String?>(json['tracksJson']),
+      discsJson: serializer.fromJson<String?>(json['discsJson']),
       editionsJson: serializer.fromJson<String?>(json['editionsJson']),
       creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
       charactersJson: serializer.fromJson<String?>(json['charactersJson']),
@@ -1583,6 +1605,7 @@ class CatalogCacheData extends DataClass
       'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
       'trackCount': serializer.toJson<int?>(trackCount),
       'tracksJson': serializer.toJson<String?>(tracksJson),
+      'discsJson': serializer.toJson<String?>(discsJson),
       'editionsJson': serializer.toJson<String?>(editionsJson),
       'creatorsJson': serializer.toJson<String?>(creatorsJson),
       'charactersJson': serializer.toJson<String?>(charactersJson),
@@ -1651,6 +1674,7 @@ class CatalogCacheData extends DataClass
           Value<int?> runtimeMinutes = const Value.absent(),
           Value<int?> trackCount = const Value.absent(),
           Value<String?> tracksJson = const Value.absent(),
+          Value<String?> discsJson = const Value.absent(),
           Value<String?> editionsJson = const Value.absent(),
           Value<String?> creatorsJson = const Value.absent(),
           Value<String?> charactersJson = const Value.absent(),
@@ -1738,6 +1762,7 @@ class CatalogCacheData extends DataClass
             runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
         trackCount: trackCount.present ? trackCount.value : this.trackCount,
         tracksJson: tracksJson.present ? tracksJson.value : this.tracksJson,
+        discsJson: discsJson.present ? discsJson.value : this.discsJson,
         editionsJson:
             editionsJson.present ? editionsJson.value : this.editionsJson,
         creatorsJson:
@@ -1867,6 +1892,7 @@ class CatalogCacheData extends DataClass
           data.trackCount.present ? data.trackCount.value : this.trackCount,
       tracksJson:
           data.tracksJson.present ? data.tracksJson.value : this.tracksJson,
+      discsJson: data.discsJson.present ? data.discsJson.value : this.discsJson,
       editionsJson: data.editionsJson.present
           ? data.editionsJson.value
           : this.editionsJson,
@@ -1970,6 +1996,7 @@ class CatalogCacheData extends DataClass
           ..write('runtimeMinutes: $runtimeMinutes, ')
           ..write('trackCount: $trackCount, ')
           ..write('tracksJson: $tracksJson, ')
+          ..write('discsJson: $discsJson, ')
           ..write('editionsJson: $editionsJson, ')
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
@@ -2040,6 +2067,7 @@ class CatalogCacheData extends DataClass
         runtimeMinutes,
         trackCount,
         tracksJson,
+        discsJson,
         editionsJson,
         creatorsJson,
         charactersJson,
@@ -2109,6 +2137,7 @@ class CatalogCacheData extends DataClass
           other.runtimeMinutes == this.runtimeMinutes &&
           other.trackCount == this.trackCount &&
           other.tracksJson == this.tracksJson &&
+          other.discsJson == this.discsJson &&
           other.editionsJson == this.editionsJson &&
           other.creatorsJson == this.creatorsJson &&
           other.charactersJson == this.charactersJson &&
@@ -2176,6 +2205,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<int?> runtimeMinutes;
   final Value<int?> trackCount;
   final Value<String?> tracksJson;
+  final Value<String?> discsJson;
   final Value<String?> editionsJson;
   final Value<String?> creatorsJson;
   final Value<String?> charactersJson;
@@ -2242,6 +2272,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.runtimeMinutes = const Value.absent(),
     this.trackCount = const Value.absent(),
     this.tracksJson = const Value.absent(),
+    this.discsJson = const Value.absent(),
     this.editionsJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
@@ -2309,6 +2340,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.runtimeMinutes = const Value.absent(),
     this.trackCount = const Value.absent(),
     this.tracksJson = const Value.absent(),
+    this.discsJson = const Value.absent(),
     this.editionsJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
@@ -2379,6 +2411,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<int>? runtimeMinutes,
     Expression<int>? trackCount,
     Expression<String>? tracksJson,
+    Expression<String>? discsJson,
     Expression<String>? editionsJson,
     Expression<String>? creatorsJson,
     Expression<String>? charactersJson,
@@ -2447,6 +2480,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
       if (trackCount != null) 'track_count': trackCount,
       if (tracksJson != null) 'tracks_json': tracksJson,
+      if (discsJson != null) 'discs_json': discsJson,
       if (editionsJson != null) 'editions_json': editionsJson,
       if (creatorsJson != null) 'creators_json': creatorsJson,
       if (charactersJson != null) 'characters_json': charactersJson,
@@ -2517,6 +2551,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<int?>? runtimeMinutes,
       Value<int?>? trackCount,
       Value<String?>? tracksJson,
+      Value<String?>? discsJson,
       Value<String?>? editionsJson,
       Value<String?>? creatorsJson,
       Value<String?>? charactersJson,
@@ -2583,6 +2618,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
       trackCount: trackCount ?? this.trackCount,
       tracksJson: tracksJson ?? this.tracksJson,
+      discsJson: discsJson ?? this.discsJson,
       editionsJson: editionsJson ?? this.editionsJson,
       creatorsJson: creatorsJson ?? this.creatorsJson,
       charactersJson: charactersJson ?? this.charactersJson,
@@ -2727,6 +2763,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (tracksJson.present) {
       map['tracks_json'] = Variable<String>(tracksJson.value);
     }
+    if (discsJson.present) {
+      map['discs_json'] = Variable<String>(discsJson.value);
+    }
     if (editionsJson.present) {
       map['editions_json'] = Variable<String>(editionsJson.value);
     }
@@ -2857,6 +2896,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('runtimeMinutes: $runtimeMinutes, ')
           ..write('trackCount: $trackCount, ')
           ..write('tracksJson: $tracksJson, ')
+          ..write('discsJson: $discsJson, ')
           ..write('editionsJson: $editionsJson, ')
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
@@ -13847,6 +13887,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<int?> runtimeMinutes,
   Value<int?> trackCount,
   Value<String?> tracksJson,
+  Value<String?> discsJson,
   Value<String?> editionsJson,
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
@@ -13915,6 +13956,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<int?> runtimeMinutes,
   Value<int?> trackCount,
   Value<String?> tracksJson,
+  Value<String?> discsJson,
   Value<String?> editionsJson,
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
@@ -14072,6 +14114,9 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get tracksJson => $composableBuilder(
       column: $table.tracksJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get discsJson => $composableBuilder(
+      column: $table.discsJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get editionsJson => $composableBuilder(
       column: $table.editionsJson, builder: (column) => ColumnFilters(column));
@@ -14300,6 +14345,9 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get tracksJson => $composableBuilder(
       column: $table.tracksJson, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get discsJson => $composableBuilder(
+      column: $table.discsJson, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get editionsJson => $composableBuilder(
       column: $table.editionsJson,
       builder: (column) => ColumnOrderings(column));
@@ -14517,6 +14565,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get tracksJson => $composableBuilder(
       column: $table.tracksJson, builder: (column) => column);
 
+  GeneratedColumn<String> get discsJson =>
+      $composableBuilder(column: $table.discsJson, builder: (column) => column);
+
   GeneratedColumn<String> get editionsJson => $composableBuilder(
       column: $table.editionsJson, builder: (column) => column);
 
@@ -14664,6 +14715,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> runtimeMinutes = const Value.absent(),
             Value<int?> trackCount = const Value.absent(),
             Value<String?> tracksJson = const Value.absent(),
+            Value<String?> discsJson = const Value.absent(),
             Value<String?> editionsJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
@@ -14731,6 +14783,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             runtimeMinutes: runtimeMinutes,
             trackCount: trackCount,
             tracksJson: tracksJson,
+            discsJson: discsJson,
             editionsJson: editionsJson,
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
@@ -14798,6 +14851,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> runtimeMinutes = const Value.absent(),
             Value<int?> trackCount = const Value.absent(),
             Value<String?> tracksJson = const Value.absent(),
+            Value<String?> discsJson = const Value.absent(),
             Value<String?> editionsJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
@@ -14865,6 +14919,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             runtimeMinutes: runtimeMinutes,
             trackCount: trackCount,
             tracksJson: tracksJson,
+            discsJson: discsJson,
             editionsJson: editionsJson,
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,

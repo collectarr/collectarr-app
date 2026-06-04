@@ -31,10 +31,12 @@ class LibraryFlowCarousel extends StatefulWidget {
     required this.selectedIds,
     required this.accent,
     required this.emptyBuilder,
+    this.selectionEnabled = true,
     required this.onApplySelection,
     required this.onActivateItem,
     required this.onToggleSelectionItem,
     required this.onOpenItem,
+    this.onEditItem,
     this.onItemContextMenu,
   });
 
@@ -44,10 +46,12 @@ class LibraryFlowCarousel extends StatefulWidget {
   final Set<String> selectedIds;
   final Color accent;
   final WidgetBuilder emptyBuilder;
+  final bool selectionEnabled;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
   final ValueChanged<String> onActivateItem;
   final ValueChanged<String> onToggleSelectionItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
+  final ValueChanged<LibraryProjectionItem>? onEditItem;
   final LibraryFlowItemContextMenuCallback? onItemContextMenu;
 
   @override
@@ -76,7 +80,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
   void didUpdateWidget(covariant LibraryFlowCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
     final nextIndex = _resolvedIndex();
-    if (nextIndex != _currentIndex && widget.selectedIds.isEmpty) {
+    if (nextIndex != _currentIndex &&
+        (!widget.selectionEnabled || widget.selectedIds.isEmpty)) {
       _currentIndex = nextIndex;
       if (_controller.hasClients) {
         _controller.animateToPage(
@@ -142,7 +147,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                 padEnds: true,
                                 onPageChanged: (index) {
                                   setState(() => _currentIndex = index);
-                                  if (widget.selectedIds.isEmpty) {
+                                  if (!widget.selectionEnabled ||
+                                      widget.selectedIds.isEmpty) {
                                     widget.onActivateItem(
                                         widget.items[index].entry.id);
                                   }
@@ -176,17 +182,25 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                       child: _FlowCarouselCard(
                                         item: item,
                                         accent: widget.accent,
-                                        selected: widget.selectedIds
-                                            .contains(item.entry.id),
+                                        selected: widget.selectionEnabled &&
+                                            widget.selectedIds
+                                                .contains(item.entry.id),
                                         selectionMode:
-                                            widget.selectedIds.isNotEmpty,
+                                            widget.selectionEnabled &&
+                                                widget.selectedIds.isNotEmpty,
                                         focused: index == _currentIndex,
                                         onTap: () => _handleTap(item, index),
-                                        onSelectionToggleTap: () =>
-                                            widget.onToggleSelectionItem(
-                                                item.entry.id),
+                                        onSelectionToggleTap: widget
+                                                .selectionEnabled
+                                            ? () =>
+                                                widget.onToggleSelectionItem(
+                                                    item.entry.id)
+                                            : null,
                                         onDoubleTap: () =>
                                             widget.onOpenItem(item),
+                                        onEditTap: widget.onEditItem == null
+                                            ? null
+                                            : () => widget.onEditItem!(item),
                                         onSecondaryTapUp:
                                             widget.onItemContextMenu == null
                                                 ? null
@@ -381,6 +395,13 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
 
   void _handleTap(LibraryProjectionItem item, int index) {
     _focusNode.requestFocus();
+    if (!widget.selectionEnabled) {
+      widget.onActivateItem(item.entry.id);
+      if (index != _currentIndex) {
+        _animateToPage(index);
+      }
+      return;
+    }
     final isRangeSelection = _isRangeSelectionModifierPressed();
     final isToggleSelection = _isToggleSelectionModifierPressed();
     if (isRangeSelection) {
@@ -560,6 +581,7 @@ class _FlowCarouselCard extends StatefulWidget {
     required this.focused,
     required this.onTap,
     this.onSelectionToggleTap,
+    this.onEditTap,
     this.onDoubleTap,
     this.onSecondaryTapUp,
   });
@@ -571,6 +593,7 @@ class _FlowCarouselCard extends StatefulWidget {
   final bool focused;
   final VoidCallback onTap;
   final VoidCallback? onSelectionToggleTap;
+  final VoidCallback? onEditTap;
   final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
 
@@ -600,8 +623,9 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
             palette.cardBackground,
           )
         : palette.panel;
-    final showSelectionToggle =
-        widget.selectionMode || widget.selected || _hovered;
+    final showSelectionToggle = widget.onSelectionToggleTap != null &&
+        (widget.selectionMode || widget.selected || _hovered);
+    final showEditButton = _hovered && widget.onEditTap != null;
     return SizedBox(
       width: 260,
       child: Material(
@@ -680,6 +704,16 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           notesLabel: libraryNotesMarkerLabel(entry.notes),
                         ),
                       ),
+                      if (showEditButton)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: LibraryTileHoverActionButton(
+                            icon: Icons.edit_outlined,
+                            tooltip: 'Edit item',
+                            onTap: widget.onEditTap!,
+                          ),
+                        ),
                       if (showSelectionToggle)
                         Positioned(
                           left: 8,

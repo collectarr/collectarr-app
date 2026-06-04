@@ -51,3 +51,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logos/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Variable.ttf

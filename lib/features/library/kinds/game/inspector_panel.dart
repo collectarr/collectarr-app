@@ -1,5 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
@@ -10,15 +8,15 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Widget buildMusicInspectorPanel(
+Widget buildGameInspectorPanel(
   BuildContext context,
   LibraryInspectorPanelRequest request,
 ) {
-  return MusicInspectorPanel(request: request);
+  return GameInspectorPanel(request: request);
 }
 
-class MusicInspectorPanel extends StatelessWidget {
-  const MusicInspectorPanel({super.key, required this.request});
+class GameInspectorPanel extends StatelessWidget {
+  const GameInspectorPanel({super.key, required this.request});
 
   final LibraryInspectorPanelRequest request;
 
@@ -41,7 +39,8 @@ class MusicInspectorPanel extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-              child: InspectorBackdrop(entry: entry, ownedItem: ownedItem)),
+            child: InspectorBackdrop(entry: entry, ownedItem: ownedItem),
+          ),
           ListView(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
             children: [
@@ -57,13 +56,11 @@ class MusicInspectorPanel extends StatelessWidget {
                 onDetailsLayoutChanged: request.onDetailsLayoutChanged,
               ),
               const SizedBox(height: 8),
-              _MusicInspectorHeader(inspector: request.inspector),
+              _GameInspectorHeader(inspector: request.inspector),
               const SizedBox(height: 10),
-              _MusicInspectorMain(inspector: request.inspector),
+              _GameInspectorMain(inspector: request.inspector),
               const SizedBox(height: 10),
-              _MusicInspectorTracks(inspector: request.inspector),
-              const SizedBox(height: 10),
-              _MusicInspectorDetailsPersonal(inspector: request.inspector),
+              _GameInspectorDetailsPersonal(inspector: request.inspector),
               if (request.trailingSections.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 ...request.trailingSections,
@@ -76,15 +73,15 @@ class MusicInspectorPanel extends StatelessWidget {
   }
 }
 
-class _MusicInspectorHeader extends StatelessWidget {
-  const _MusicInspectorHeader({required this.inspector});
+class _GameInspectorHeader extends StatelessWidget {
+  const _GameInspectorHeader({required this.inspector});
 
   final LibraryInspectorRequest inspector;
 
   @override
   Widget build(BuildContext context) {
     final entry = inspector.entry;
-    final artist = entry.series?.seriesTitle?.trim();
+    final series = entry.series?.seriesTitle?.trim();
     final palette = appPalette(context);
     final statusIcon =
         entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
@@ -104,9 +101,9 @@ class _MusicInspectorHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (artist != null && artist.isNotEmpty)
+            if (series != null && series.isNotEmpty)
               Text(
-                artist,
+                series,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: inspector.accent,
                       fontWeight: FontWeight.w800,
@@ -159,27 +156,22 @@ class _MusicInspectorHeader extends StatelessWidget {
   }
 }
 
-class _MusicInspectorMain extends StatelessWidget {
-  const _MusicInspectorMain({required this.inspector});
+class _GameInspectorMain extends StatelessWidget {
+  const _GameInspectorMain({required this.inspector});
 
   final LibraryInspectorRequest inspector;
 
   @override
   Widget build(BuildContext context) {
     final entry = inspector.entry;
-    final music = entry.music;
     final palette = appPalette(context);
-    final discGroups =
-        _groupTracksByDisc(music?.tracks ?? const <CatalogTrack>[]);
-    final discCount = discGroups.length;
-    final totalTracks = music?.trackCount ?? (music?.tracks.length ?? 0);
-    final totalDuration =
-        _formatTotalDuration(music?.tracks ?? const <CatalogTrack>[]);
     final releaseYear = entry.releaseYear?.toString();
     final genreText = entry.genres == null || entry.genres!.isEmpty
         ? null
         : entry.genres!.join(' | ');
-    final formatLabel = entry.referenceFormatLabel ?? entry.variant ?? '-';
+    final platforms = entry.game?.platforms.isNotEmpty == true
+        ? entry.game!.platforms
+        : entry.rawPlatforms ?? const <String>[];
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -233,26 +225,26 @@ class _MusicInspectorMain extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  if (entry.barcode?.isNotEmpty == true)
-                    _MusicInspectorInfoLine(
+                  if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
+                      entry.variant?.trim().isNotEmpty == true)
+                    _GameInspectorInfoLine(
+                      icon: Icons.album_outlined,
+                      text: entry.referenceFormatLabel ?? entry.variant ?? '-',
+                    ),
+                  if (platforms.isNotEmpty)
+                    _GameInspectorInfoLine(
+                      icon: Icons.sports_esports_outlined,
+                      text: platforms.join(' | '),
+                    ),
+                  if (entry.audienceRating?.trim().isNotEmpty == true)
+                    _GameInspectorInfoLine(
+                      icon: Icons.shield_outlined,
+                      text: 'Audience: ${entry.audienceRating!}',
+                    ),
+                  if (entry.barcode?.trim().isNotEmpty == true)
+                    _GameInspectorInfoLine(
                       icon: Icons.qr_code_2,
                       text: entry.barcode!,
-                    ),
-                  _MusicInspectorInfoLine(
-                    icon: Icons.album_outlined,
-                    text: [
-                      formatLabel,
-                      if (discCount > 0)
-                        '$discCount ${discCount == 1 ? 'Disc' : 'Discs'}',
-                      if (totalTracks > 0)
-                        '$totalTracks ${totalTracks == 1 ? 'Track' : 'Tracks'}',
-                      if (totalDuration != null) totalDuration,
-                    ].join(' | '),
-                  ),
-                  if (music?.catalogNumber?.isNotEmpty == true)
-                    _MusicInspectorInfoLine(
-                      icon: Icons.confirmation_number_outlined,
-                      text: 'Cat No ${music!.catalogNumber!}',
                     ),
                   if (_ebayUri(entry) case final uri?) ...[
                     const SizedBox(height: 8),
@@ -289,42 +281,8 @@ class _MusicInspectorMain extends StatelessWidget {
   }
 }
 
-class _MusicInspectorTracks extends StatelessWidget {
-  const _MusicInspectorTracks({required this.inspector});
-
-  final LibraryInspectorRequest inspector;
-
-  @override
-  Widget build(BuildContext context) {
-    final tracks = inspector.entry.music?.tracks ?? const <CatalogTrack>[];
-    final groups = _groupTracksByDisc(tracks);
-    if (groups.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    final rawQuery = inspector.searchQuery?.trim().toLowerCase();
-    final highlightTerms = inspector.searchTarget.includesTracks
-        ? _musicSearchTerms(rawQuery)
-        : const <String>[];
-
-    return LibraryInspectorSection(
-      title: 'Tracks',
-      accentColor: inspector.accent,
-      children: [
-        for (var index = 0; index < groups.length; index++) ...[
-          _MusicDiscTable(
-            discNumber: groups[index].discNumber,
-            tracks: groups[index].tracks,
-            highlightTerms: highlightTerms,
-          ),
-          if (index < groups.length - 1) const SizedBox(height: 12),
-        ],
-      ],
-    );
-  }
-}
-
-class _MusicInspectorDetailsPersonal extends StatelessWidget {
-  const _MusicInspectorDetailsPersonal({required this.inspector});
+class _GameInspectorDetailsPersonal extends StatelessWidget {
+  const _GameInspectorDetailsPersonal({required this.inspector});
 
   final LibraryInspectorRequest inspector;
 
@@ -332,76 +290,59 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     final entry = inspector.entry;
     final owned = inspector.ownedItem;
-    final music = entry.music;
     final detailRows = <(String, String)>[
       if (entry.publisher?.trim().isNotEmpty == true)
-        ('Label', entry.publisher!),
+        ('Publisher', entry.publisher!),
       if (entry.releaseDate != null || entry.releaseYear != null)
         (
           'Release',
           formatNullableDate(entry.releaseDate) ??
               entry.releaseYear!.toString(),
         ),
-      if (music?.originalReleaseDate != null)
-        ('Original release', formatDate(music!.originalReleaseDate!)),
-      if (music?.recordingDate != null)
-        ('Recording date', formatDate(music!.recordingDate!)),
-      if (entry.country?.trim().isNotEmpty == true) ('Country', entry.country!),
-      if (entry.language?.trim().isNotEmpty == true)
-        ('Language', entry.language!),
       if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
           entry.variant?.trim().isNotEmpty == true)
         ('Format', entry.referenceFormatLabel ?? entry.variant ?? '-'),
-      if (music?.releaseStatus?.trim().isNotEmpty == true)
-        ('Release status', music!.releaseStatus!),
-      if (music?.isLive != null)
-        ('Live recording', music!.isLive! ? 'Yes' : 'No'),
-      if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
-      if (music?.spars?.trim().isNotEmpty == true) ('SPARS', music!.spars!),
-      if (music?.soundType?.trim().isNotEmpty == true)
-        ('Sound', music!.soundType!),
-      if (music?.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', music!.vinylColor!),
-      if (music?.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', music!.vinylWeight!),
-      if (music?.mediaCondition?.trim().isNotEmpty == true)
-        ('Media condition', music!.mediaCondition!),
-      if (owned?.packaging?.trim().isNotEmpty == true)
-        ('Packaging', owned!.packaging!),
-      if (owned?.boxSetName?.trim().isNotEmpty == true)
-        ('Box set', owned!.boxSetName!),
-      if (owned?.features?.trim().isNotEmpty == true)
-        ('Extras', owned!.features!),
-      if (music?.studio?.trim().isNotEmpty == true) ('Studio', music!.studio!),
-      if (music?.catalogNumber?.trim().isNotEmpty == true)
-        ('Catalog number', music!.catalogNumber!),
+      if (entry.audienceRating?.trim().isNotEmpty == true)
+        ('Audience rating', entry.audienceRating!),
+      if (entry.ageRating?.trim().isNotEmpty == true)
+        ('Age rating', entry.ageRating!),
+      if (entry.country?.trim().isNotEmpty == true) ('Country', entry.country!),
+      if (entry.language?.trim().isNotEmpty == true)
+        ('Language', entry.language!),
+      if (entry.game?.platforms.isNotEmpty == true)
+        ('Platforms', entry.game!.platforms.join(', ')),
+      if (entry.game?.toySubtype?.trim().isNotEmpty == true)
+        ('Subtype', entry.game!.toySubtype!),
+      if (entry.game?.toyType?.trim().isNotEmpty == true)
+        ('Type', entry.game!.toyType!),
       if (entry.barcode?.trim().isNotEmpty == true) ('Barcode', entry.barcode!),
       if (entry.genres?.isNotEmpty == true)
         ('Genres', entry.genres!.join(', ')),
       if (entry.tags?.trim().isNotEmpty == true) ('Tags', entry.tags!),
     ];
     final personalRows = <(String, String)>[
-      ('Index', owned?.indexNumber?.toString() ?? '-'),
       if (owned?.condition?.trim().isNotEmpty == true)
         ('Condition', owned!.condition!),
+      if (entry.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', entry.collectionStatus!),
       if (entry.locationPath?.trim().isNotEmpty == true)
         ('Location', entry.locationPath!),
-      if (owned?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', owned!.collectionStatus!),
       if (owned?.storageDevice?.trim().isNotEmpty == true)
         ('Storage device', owned!.storageDevice!),
       if (owned?.storageSlot?.trim().isNotEmpty == true)
         ('Storage slot', owned!.storageSlot!),
+      if (owned?.ownerLabel?.trim().isNotEmpty == true)
+        ('Owner', owned!.ownerLabel!),
       if (owned?.pricePaidCents != null)
         ('Price paid', formatMoney(owned!.pricePaidCents, owned.currency)),
-      if (owned?.sellPriceCents != null)
-        ('Current value', formatMoney(owned!.sellPriceCents, owned.currency)),
+      if (owned?.marketValueCents != null)
+        ('Current value', formatMoney(owned!.marketValueCents, owned.currency)),
       if (owned?.purchaseDate != null)
         ('Purchase date', formatDate(owned!.purchaseDate!)),
       if (owned?.purchaseStore?.trim().isNotEmpty == true)
         ('Purchase store', owned!.purchaseStore!),
-      if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
-      ('Modified', formatNullableDate(owned?.updatedAt) ?? '-'),
+      if (entry.addedAt != null) ('Added', formatDate(entry.addedAt!)),
+      ('Modified', formatDate(entry.updatedAt)),
     ];
     final creditRows = _buildCreditsRows(entry.creators);
 
@@ -411,21 +352,21 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
           title: 'Info',
           accentColor: inspector.accent,
           children: [
-            _MusicInspectorFactRows(rows: detailRows),
+            _GameInspectorFactRows(rows: detailRows),
           ],
         ),
         LibraryInspectorSection(
           title: 'Personal',
           accentColor: inspector.accent,
           children: [
-            _MusicInspectorFactRows(rows: personalRows),
+            _GameInspectorFactRows(rows: personalRows),
           ],
         ),
         LibraryInspectorSection(
           title: 'Credits',
           accentColor: inspector.accent,
           children: [
-            _MusicInspectorFactRows(rows: creditRows),
+            _GameInspectorFactRows(rows: creditRows),
           ],
         ),
       ],
@@ -433,138 +374,8 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   }
 }
 
-class _MusicDiscTable extends StatelessWidget {
-  const _MusicDiscTable({
-    required this.discNumber,
-    required this.tracks,
-    this.highlightTerms = const <String>[],
-  });
-
-  final int discNumber;
-  final List<CatalogTrack> tracks;
-  final List<String> highlightTerms;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final discDuration = _formatTotalDuration(tracks);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Disc #$discNumber',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-            ),
-            if (discDuration != null) ...[
-              const SizedBox(width: 8),
-              Text(
-                discDuration,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 6),
-        for (final track in tracks)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: _MusicTrackRow(
-              track: track,
-              highlight: _matchesTrackTerms(track, highlightTerms),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _MusicTrackRow extends StatelessWidget {
-  const _MusicTrackRow({
-    required this.track,
-    required this.highlight,
-  });
-
-  final CatalogTrack track;
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final highlightColor = Color.alphaBlend(
-      const Color(0xFFE8CF74).withValues(alpha: palette.isDark ? 0.84 : 0.5),
-      palette.surface,
-    );
-    return DecoratedBox(
-      key: ValueKey(
-          'music-track-row-${track.discNumber ?? 1}-${track.position ?? 0}-${track.title}'),
-      decoration: BoxDecoration(
-        color: highlight ? highlightColor : Colors.transparent,
-        borderRadius: BorderRadius.circular(2),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 24,
-              child: Text(
-                (track.position ?? '-').toString(),
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    track.title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  if (track.artist?.trim().isNotEmpty == true)
-                    Text(
-                      track.artist!.trim(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                ],
-              ),
-            ),
-            if (track.durationSeconds != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  _formatTrackDuration(track.durationSeconds!),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: palette.textMuted,
-                      ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MusicInspectorFactRows extends StatelessWidget {
-  const _MusicInspectorFactRows({
+class _GameInspectorFactRows extends StatelessWidget {
+  const _GameInspectorFactRows({
     required this.rows,
   });
 
@@ -618,8 +429,8 @@ class _MusicInspectorFactRows extends StatelessWidget {
   }
 }
 
-class _MusicInspectorInfoLine extends StatelessWidget {
-  const _MusicInspectorInfoLine({
+class _GameInspectorInfoLine extends StatelessWidget {
+  const _GameInspectorInfoLine({
     required this.icon,
     required this.text,
   });
@@ -651,83 +462,6 @@ class _MusicInspectorInfoLine extends StatelessWidget {
   }
 }
 
-class _DiscTrackGroup {
-  const _DiscTrackGroup({
-    required this.discNumber,
-    required this.tracks,
-  });
-
-  final int discNumber;
-  final List<CatalogTrack> tracks;
-}
-
-List<_DiscTrackGroup> _groupTracksByDisc(List<CatalogTrack> tracks) {
-  if (tracks.isEmpty) {
-    return const <_DiscTrackGroup>[];
-  }
-  final byDisc = <int, List<CatalogTrack>>{};
-  for (final track in tracks) {
-    final disc = track.discNumber ?? 1;
-    final grouped = byDisc.putIfAbsent(disc, () => <CatalogTrack>[]);
-    grouped.add(track);
-  }
-  final groups = <_DiscTrackGroup>[];
-  final sortedDiscs = byDisc.keys.toList(growable: false)..sort();
-  for (final disc in sortedDiscs) {
-    final discTracks = byDisc[disc]!
-      ..sort(
-        (a, b) => (a.position ?? 0).compareTo(b.position ?? 0),
-      );
-    groups.add(_DiscTrackGroup(discNumber: disc, tracks: discTracks));
-  }
-  return groups;
-}
-
-String _formatTrackDuration(int totalSeconds) {
-  final minutes = totalSeconds ~/ 60;
-  final seconds = totalSeconds % 60;
-  return '$minutes:${seconds.toString().padLeft(2, '0')}';
-}
-
-String? _formatTotalDuration(List<CatalogTrack> tracks) {
-  var total = 0;
-  for (final track in tracks) {
-    final duration = track.durationSeconds;
-    if (duration != null && duration > 0) {
-      total += duration;
-    }
-  }
-  if (total <= 0) {
-    return null;
-  }
-  final minutes = total ~/ 60;
-  final seconds = total % 60;
-  return '$minutes:${seconds.toString().padLeft(2, '0')}';
-}
-
-List<String> _musicSearchTerms(String? query) {
-  if (query == null || query.isEmpty) {
-    return const <String>[];
-  }
-  return query
-      .split(RegExp(r'\s+'))
-      .map((value) => value.trim())
-      .where((value) => value.isNotEmpty)
-      .toList(growable: false);
-}
-
-bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
-  if (terms.isEmpty) {
-    return false;
-  }
-  final searchable = <String>[
-    track.title,
-    if (track.artist?.trim().isNotEmpty == true) track.artist!.trim(),
-    if (track.position != null) track.position!.toString(),
-  ].join(' ').toLowerCase();
-  return terms.every(searchable.contains);
-}
-
 List<(String, String)> _buildCreditsRows(List<Map<String, dynamic>>? creators) {
   if (creators == null || creators.isEmpty) {
     return const <(String, String)>[];
@@ -756,20 +490,19 @@ List<(String, String)> _buildCreditsRows(List<Map<String, dynamic>>? creators) {
 }
 
 Uri? _ebayUri(LibraryWorkspaceEntry entry) {
-  final barcode = entry.barcode?.trim();
-  if (barcode == null || barcode.isEmpty) {
-    return null;
-  }
   final query = <String>[
-    barcode,
+    if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
+    entry.resolvedTitle,
     if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
       entry.series!.seriesTitle!.trim(),
-    entry.resolvedTitle,
     if (entry.releaseYear != null) entry.releaseYear.toString(),
   ].join(' ');
+  if (query.trim().isEmpty) {
+    return null;
+  }
   return Uri.https(
     'www.ebay.com',
-    '/sch/11233/i.html',
+    '/sch/139973/i.html',
     <String, String>{
       '_nkw': query,
       'LH_Sold': '1',

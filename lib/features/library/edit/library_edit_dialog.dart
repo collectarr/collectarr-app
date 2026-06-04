@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -200,6 +201,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
   List<SeriesRegistryEntry> _seriesEntries = const [];
+  late final TextEditingController _gamePlatformsController;
+  List<String> _gameDeveloperOptions = const [];
+  List<String> _gameGenreOptions = const [];
+  List<String> _gamePlatformOptions = const [];
   List<StorageLocation> get _availableLocations => _draft.availableLocations;
   set _availableLocations(List<StorageLocation> value) =>
       _draft.availableLocations = value;
@@ -448,6 +453,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         if (mounted) setState(() {});
       });
 
+    _gamePlatformsController = TextEditingController(
+      text: (widget.item.game?.platforms ?? const <String>[]).join(', '),
+    );
+    _initializeGameChipEditors();
+
     unawaited(_loadCatalogVocabularyOptions());
 
     if (_isOwned) {
@@ -458,9 +468,62 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   void dispose() {
+    _gamePlatformsController.dispose();
     _tabController.dispose();
     _draft.dispose();
     super.dispose();
+  }
+
+  void _initializeGameChipEditors() {
+    if (!_isGameKind) {
+      return;
+    }
+    _gameDeveloperOptions =
+        _mergePickListOptions(_splitPickList(_developersController.text));
+    _gameGenreOptions = _mergePickListOptions(
+      _splitPickList(_genresEditController.text),
+      widget.item.genres ?? const <String>[],
+    );
+    _gamePlatformOptions = _mergePickListOptions(
+      _splitPickList(_gamePlatformsController.text),
+      widget.item.game?.platforms ?? const <String>[],
+      const <String>[
+        'PlayStation 5',
+        'PlayStation 4',
+        'Xbox Series X|S',
+        'Xbox One',
+        'Nintendo Switch',
+        'PC',
+      ],
+    );
+  }
+
+  List<String> _splitPickList(String value) {
+    return splitPickListValues(value);
+  }
+
+  List<String> _mergePickListOptions(Iterable<String> seed,
+      [Iterable<String>? b, Iterable<String>? c, Iterable<String>? d]) {
+    final merged = <String>[
+      ...seed,
+      if (b != null) ...b,
+      if (c != null) ...c,
+      if (d != null) ...d,
+    ];
+    final seen = <String>{};
+    final output = <String>[];
+    for (final candidate in merged) {
+      final value = candidate.trim();
+      if (value.isEmpty) {
+        continue;
+      }
+      final key = value.toLowerCase();
+      if (!seen.add(key)) {
+        continue;
+      }
+      output.add(value);
+    }
+    return output;
   }
 
   @override
@@ -559,9 +622,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   validator: (value) =>
                       emptyToNull(value ?? '') == null ? 'Enter a title' : null,
                 ),
-                _field(
+                if (_isGameKind)
+                  _field(controller: _sortKeyController, label: 'Sort title')
+                else
+                  _field(
                     controller: _numberController,
-                    label: mediaFields.numberLabel),
+                    label: mediaFields.numberLabel,
+                  ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
@@ -571,10 +638,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 const SizedBox(height: 10),
                 _responsiveFields([
                   _field(controller: _seriesTitleController, label: 'Series'),
-                  _field(
+                  TagPickListField(
                     controller: _developersController,
+                    options: _gameDeveloperOptions,
                     label: 'Developer',
-                    hint: 'Comma-separated',
+                    hint: 'Comma-separated developers',
                   ),
                 ]),
               ],
@@ -595,14 +663,21 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               if (_isGameKind) ...[
                 const SizedBox(height: 10),
                 _responsiveFields([
+                  TagPickListField(
+                    controller: _gamePlatformsController,
+                    options: _gamePlatformOptions,
+                    label: 'Platform',
+                    hint: 'Comma-separated platforms',
+                  ),
                   _field(
                     controller: _audienceRatingController,
                     label: 'Audience rating',
                   ),
-                  _field(
+                  TagPickListField(
                     controller: _genresEditController,
+                    options: _gameGenreOptions,
                     label: 'Genre',
-                    hint: 'Comma-separated',
+                    hint: 'Comma-separated genres',
                   ),
                 ]),
               ],
@@ -698,9 +773,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         ? 'Enter a title'
                         : null,
                   ),
-                  _field(
+                  if (_isGameKind)
+                    _field(controller: _sortKeyController, label: 'Sort title')
+                  else
+                    _field(
                       controller: _numberController,
-                      label: mediaFields.numberLabel),
+                      label: mediaFields.numberLabel,
+                    ),
                 ]),
                 const SizedBox(height: 10),
                 _responsiveFields([
@@ -710,10 +789,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   const SizedBox(height: 10),
                   _responsiveFields([
                     _field(controller: _seriesTitleController, label: 'Series'),
-                    _field(
+                    TagPickListField(
                       controller: _developersController,
+                      options: _gameDeveloperOptions,
                       label: 'Developer',
-                      hint: 'Comma-separated',
+                      hint: 'Comma-separated developers',
                     ),
                   ]),
                 ],
@@ -734,14 +814,21 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 if (_isGameKind) ...[
                   const SizedBox(height: 10),
                   _responsiveFields([
+                    TagPickListField(
+                      controller: _gamePlatformsController,
+                      options: _gamePlatformOptions,
+                      label: 'Platform',
+                      hint: 'Comma-separated platforms',
+                    ),
                     _field(
                       controller: _audienceRatingController,
                       label: 'Audience rating',
                     ),
-                    _field(
+                    TagPickListField(
                       controller: _genresEditController,
+                      options: _gameGenreOptions,
                       label: 'Genre',
-                      hint: 'Comma-separated',
+                      hint: 'Comma-separated genres',
                     ),
                   ]),
                 ],
@@ -1927,7 +2014,25 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final selection = _draft.buildSelection();
+    var selection = _draft.buildSelection();
+    if (_isGameKind) {
+      final currentGame = selection.item.game;
+      final updatedGame = GameCatalogDetails(
+        platforms: _splitPickList(_gamePlatformsController.text),
+        toySubtype: currentGame?.toySubtype,
+        toyType: currentGame?.toyType,
+      );
+      selection = LibraryEditSelection(
+        item: selection.item.copyWith(
+          game: updatedGame.hasData ? updatedGame : null,
+        ),
+        personal: selection.personal,
+        wishlist: selection.wishlist,
+        tracking: selection.tracking,
+        customFieldEdits: selection.customFieldEdits,
+        itemImageEdits: selection.itemImageEdits,
+      );
+    }
     Navigator.of(context).pop(selection);
   }
 

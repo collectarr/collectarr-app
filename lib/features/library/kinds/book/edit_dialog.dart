@@ -83,6 +83,32 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   late final TextEditingController _charactersController;
   late final TextEditingController _storyArcsController;
   late final TextEditingController _genresController;
+  late final TextEditingController _subjectsController;
+  late final TextEditingController _paperTypeController;
+  late final TextEditingController _printedByController;
+  late final TextEditingController _dustJacketConditionController;
+  late final TextEditingController _publicationPlaceController;
+  late final TextEditingController _originalCountryController;
+  late final TextEditingController _originalLanguageController;
+  late final TextEditingController _originalPublisherController;
+  late final TextEditingController _originalPublicationPlaceController;
+  late final TextEditingController _ownerLabelController;
+  late final TextEditingController _signedByController;
+  late final TextEditingController _purchaseStoreController;
+  late final TextEditingController _marketValueController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+
+  late final TextEditingController _authorController;
+  late final TextEditingController _editorController;
+  late final TextEditingController _illustratorController;
+  late final TextEditingController _coverArtistController;
+  late final TextEditingController _photographerController;
+  late final TextEditingController _forewordAuthorController;
+  late final TextEditingController _translatorController;
+  late final TextEditingController _ghostWriterController;
+  late final TextEditingController _narratorController;
 
   late final TextEditingController _conditionController;
   late final TextEditingController _gradeController;
@@ -109,8 +135,16 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   DateTime? _startedAt;
   DateTime? _finishedAt;
   DateTime? _soldAt;
+  DateTime? _originalPublicationDate;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
+  String? _collectionStatus;
+  DateTime? _lastBagBoardDate;
+  bool _firstEdition = false;
+  bool _audiobookAbridged = false;
+  bool _dustJacket = false;
+  final List<_BookExternalLinkEdit> _externalLinkEdits =
+      <_BookExternalLinkEdit>[];
 
   bool get _isOwned => widget.request.ownedItem != null;
 
@@ -197,6 +231,68 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         TextEditingController(text: (item.storyArcs ?? const []).join(', '));
     _genresController =
         TextEditingController(text: (item.genres ?? const []).join(', '));
+    _subjectsController = TextEditingController(
+      text: (item.publishing?.subjects ?? const <String>[]).join(', '),
+    );
+    _paperTypeController =
+        TextEditingController(text: item.publishing?.paperType ?? '');
+    _printedByController =
+        TextEditingController(text: item.publishing?.printedBy ?? '');
+    _dustJacketConditionController = TextEditingController(
+      text: item.publishing?.dustJacketCondition ?? '',
+    );
+    _publicationPlaceController =
+        TextEditingController(text: item.publishing?.publicationPlace ?? '');
+    _originalCountryController =
+        TextEditingController(text: item.publishing?.originalCountry ?? '');
+    _originalLanguageController =
+        TextEditingController(text: item.publishing?.originalLanguage ?? '');
+    _originalPublisherController =
+        TextEditingController(text: item.publishing?.originalPublisher ?? '');
+    _originalPublicationPlaceController = TextEditingController(
+      text: item.publishing?.originalPublicationPlace ?? '',
+    );
+    _ownerLabelController = _draft.ownerLabelController;
+    _signedByController = _draft.signedByController;
+    _purchaseStoreController = _draft.purchaseStoreController;
+    _marketValueController = _draft.marketValueController;
+    _progressCurrentController = _draft.progressCurrentController;
+    _progressTotalController = _draft.progressTotalController;
+    _timesCompletedController = _draft.timesCompletedController;
+
+    _authorController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['author', 'writer'])
+          .join(', '),
+    );
+    _editorController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['editor']).join(', '),
+    );
+    _illustratorController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['illustrator'])
+          .join(', '),
+    );
+    _coverArtistController = TextEditingController(
+      text:
+          _creatorNamesForRoles(item.creators, const ['cover artist', 'cover'])
+              .join(', '),
+    );
+    _photographerController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['photographer'])
+          .join(', '),
+    );
+    _forewordAuthorController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['foreword']).join(', '),
+    );
+    _translatorController = TextEditingController(
+      text:
+          _creatorNamesForRoles(item.creators, const ['translator']).join(', '),
+    );
+    _ghostWriterController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['ghost']).join(', '),
+    );
+    _narratorController = TextEditingController(
+      text: _creatorNamesForRoles(item.creators, const ['narrator']).join(', '),
+    );
 
     _conditionController = _draft.conditionController;
     _gradeController = _draft.gradeController;
@@ -226,6 +322,15 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _selectedVariantId = dialogState.selectedVariantId;
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
+    _collectionStatus = _draft.collectionStatus;
+    _lastBagBoardDate = _draft.lastBagBoardDate;
+    _originalPublicationDate = item.publishing?.originalPublicationDate;
+    _firstEdition = item.publishing?.firstEdition ?? false;
+    _audiobookAbridged = item.publishing?.audiobookAbridged ?? false;
+    _dustJacket = item.publishing?.dustJacket ?? false;
+    _externalLinkEdits.addAll(
+      _buildInitialExternalLinkEdits(widget.request.item.trailerUrls),
+    );
 
     unawaited(_loadTagOptions());
 
@@ -263,6 +368,27 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _charactersController.dispose();
     _storyArcsController.dispose();
     _genresController.dispose();
+    _subjectsController.dispose();
+    _paperTypeController.dispose();
+    _printedByController.dispose();
+    _dustJacketConditionController.dispose();
+    _publicationPlaceController.dispose();
+    _originalCountryController.dispose();
+    _originalLanguageController.dispose();
+    _originalPublisherController.dispose();
+    _originalPublicationPlaceController.dispose();
+    _authorController.dispose();
+    _editorController.dispose();
+    _illustratorController.dispose();
+    _coverArtistController.dispose();
+    _photographerController.dispose();
+    _forewordAuthorController.dispose();
+    _translatorController.dispose();
+    _ghostWriterController.dispose();
+    _narratorController.dispose();
+    for (final edit in _externalLinkEdits) {
+      edit.dispose();
+    }
     _draft.dispose();
     super.dispose();
   }
@@ -599,25 +725,94 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 _field(
                     controller: _editionTitleController,
                     label: _type.releaseFields.editionTitleLabel),
+                _field(
+                    controller: _barcodeController,
+                    label: _type.releaseFields.barcodeLabel),
+                _field(
+                    controller: _variantController,
+                    label: _type.releaseFields.variantLabel),
                 _field(controller: _countryController, label: 'Country'),
                 _field(controller: _languageController, label: 'Language'),
                 _field(controller: _imprintController, label: 'Imprint'),
                 _field(
                     controller: _seriesGroupController, label: 'Series group'),
+                _field(
+                    controller: _publicationPlaceController,
+                    label: 'Publication place'),
               ], wideColumns: 2, ultraWideColumns: 4),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _genresController,
+                label: 'Genres',
+                hint: 'Add genre',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _subjectsController,
+                label: 'Subjects',
+                hint: 'Add subject',
+              ),
             ],
           ),
         );
       case 'book_credits':
         return EditSection(
-          title: 'Credits & discovery',
+          title: 'Credits',
           accent: _accent,
           child: Column(
             children: [
               EditTokenListField(
-                controller: _creatorsController,
-                label: 'Creators',
-                hint: 'Author, Illustrator',
+                controller: _authorController,
+                label: 'Author',
+                hint: 'Add author',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _editorController,
+                label: 'Editor',
+                hint: 'Add editor',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _illustratorController,
+                label: 'Illustrator',
+                hint: 'Add illustrator',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _coverArtistController,
+                label: 'Cover artist',
+                hint: 'Add cover artist',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _photographerController,
+                label: 'Photographer',
+                hint: 'Add photographer',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _forewordAuthorController,
+                label: 'Foreword author',
+                hint: 'Add foreword author',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _translatorController,
+                label: 'Translator',
+                hint: 'Add translator',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _ghostWriterController,
+                label: 'Ghost writer',
+                hint: 'Add ghost writer',
+              ),
+              const SizedBox(height: 10),
+              EditTokenListField(
+                controller: _narratorController,
+                label: 'Narrator',
+                hint: 'Add narrator',
               ),
               const SizedBox(height: 10),
               EditTokenListField(
@@ -633,12 +828,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ),
               const SizedBox(height: 10),
               EditTokenListField(
-                controller: _genresController,
-                label: 'Genres',
-                hint: 'Add genre',
-              ),
-              const SizedBox(height: 10),
-              EditTokenListField(
                 controller: _seriesTagsController,
                 label: 'Series tags',
                 hint: 'Add tag',
@@ -648,7 +837,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         );
       case 'book_contents':
         return EditSection(
-          title: 'Series & contents',
+          title: 'Edition & publication details',
           accent: _accent,
           child: Column(
             children: [
@@ -676,7 +865,73 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                   label: 'Release year',
                   validator: optionalIntValidator,
                 ),
+                _field(controller: _paperTypeController, label: 'Paper type'),
+                _field(controller: _printedByController, label: 'Printed by'),
+                _field(
+                  controller: _originalPublisherController,
+                  label: 'Original publisher',
+                ),
+                _field(
+                  controller: _originalPublicationPlaceController,
+                  label: 'Original publication place',
+                ),
+                _field(
+                  controller: _originalCountryController,
+                  label: 'Original country',
+                ),
+                _field(
+                  controller: _originalLanguageController,
+                  label: 'Original language',
+                ),
               ], wideColumns: 2, ultraWideColumns: 3),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _datePickerField(
+                  label: 'Original publication date',
+                  value: _originalPublicationDate,
+                  onChanged: (value) =>
+                      setState(() => _originalPublicationDate = value),
+                ),
+                Material(
+                  type: MaterialType.transparency,
+                  child: SwitchListTile(
+                    value: _firstEdition,
+                    onChanged: (value) => setState(() => _firstEdition = value),
+                    title: const Text('First edition'),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                Material(
+                  type: MaterialType.transparency,
+                  child: SwitchListTile(
+                    value: _dustJacket,
+                    onChanged: (value) => setState(() => _dustJacket = value),
+                    title: const Text('Dust jacket'),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ),
+                _field(
+                  controller: _dustJacketConditionController,
+                  label: 'Dust jacket condition',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              Material(
+                type: MaterialType.transparency,
+                child: SwitchListTile(
+                  value: _audiobookAbridged,
+                  onChanged: (value) =>
+                      setState(() => _audiobookAbridged = value),
+                  title: const Text('Audiobook abridged'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
             ],
           ),
         );
@@ -734,18 +989,44 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         );
       case 'book_identifiers_links':
         return EditSection(
-          title: 'Identifiers & links',
+          title: 'Links',
           accent: _accent,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _responsiveFields([
-                _field(
-                    controller: _barcodeController,
-                    label: _type.releaseFields.barcodeLabel),
-                _field(
-                    controller: _variantController,
-                    label: _type.releaseFields.variantLabel),
-              ]),
+              Text(
+                'Manage website links (Goodreads, Amazon, publisher pages, etc.).',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: kEditTextMuted,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              if (_externalLinkEdits.isEmpty)
+                const EditSectionStateMessage(
+                  message: 'No links yet. Add one below.',
+                  icon: Icons.link_off_outlined,
+                )
+              else
+                Column(
+                  children: [
+                    for (var index = 0;
+                        index < _externalLinkEdits.length;
+                        index++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _buildExternalLinkRow(index),
+                      ),
+                  ],
+                ),
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: _addExternalLink,
+                  icon: const Icon(Icons.add_link),
+                  label: const Text('Add Link'),
+                ),
+              ),
             ],
           ),
         );
@@ -793,6 +1074,24 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                   onChanged: (value) => setState(() => _finishedAt = value),
                 ),
               ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _progressCurrentController,
+                  label: 'Pages read',
+                  validator: optionalIntValidator,
+                ),
+                _field(
+                  controller: _progressTotalController,
+                  label: 'Total pages',
+                  validator: optionalIntValidator,
+                ),
+                _field(
+                  controller: _timesCompletedController,
+                  label: 'Times completed',
+                  validator: optionalIntValidator,
+                ),
+              ]),
             ],
           ),
         );
@@ -830,6 +1129,45 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                     validator: positiveIntValidator,
                   ),
               ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _purchaseStoreController,
+                  label: 'Purchase store',
+                ),
+                _field(
+                  controller: _marketValueController,
+                  label: 'Estimated market value',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                DropdownButtonFormField<String>(
+                  initialValue: _collectionStatus,
+                  isExpanded: true,
+                  dropdownColor: kEditPanelRaised,
+                  borderRadius: kEditMenuBorderRadius,
+                  decoration: const InputDecoration(
+                    labelText: 'Collection status',
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('In collection')),
+                    DropdownMenuItem(
+                        value: 'for_sale', child: Text('For sale')),
+                    DropdownMenuItem(
+                        value: 'on_order', child: Text('On order')),
+                  ],
+                  onChanged: (value) =>
+                      setState(() => _collectionStatus = value),
+                ),
+                _datePickerField(
+                  label: 'Last bag & board date',
+                  value: _lastBagBoardDate,
+                  onChanged: (value) =>
+                      setState(() => _lastBagBoardDate = value),
+                ),
+              ]),
               if (parseMoneyCents(_priceController.text) != null ||
                   parseMoneyCents(_sellPriceController.text) != null) ...[
                 const SizedBox(height: 12),
@@ -864,20 +1202,19 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ],
               _responsiveFields([
                 if (_isOwned) _locationField(),
+                if (_isOwned)
+                  _field(
+                    controller: _ownerLabelController,
+                    label: 'Owner',
+                  ),
+                if (_isOwned)
+                  _field(
+                    controller: _signedByController,
+                    label: 'Signed by',
+                  ),
                 SizedBox(
                     width: 120,
                     child: MediaRatingField(controller: _ratingController)),
-                SizedBox(
-                  width: 180,
-                  child: MediaTrackingStatusField(
-                    profile: _type.trackingProfile,
-                    value: _trackingController.text,
-                    label: 'Tracking status',
-                    onChanged: (value) {
-                      _trackingController.text = value ?? '';
-                    },
-                  ),
-                ),
               ]),
               if (_isOwned) ...[
                 const SizedBox(height: 10),
@@ -906,19 +1243,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                   _field(controller: _soldToController, label: 'Sold to'),
                 ]),
               ],
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _datePickerField(
-                  label: 'Started',
-                  value: _startedAt,
-                  onChanged: (value) => setState(() => _startedAt = value),
-                ),
-                _datePickerField(
-                  label: 'Finished',
-                  value: _finishedAt,
-                  onChanged: (value) => setState(() => _finishedAt = value),
-                ),
-              ]),
             ],
           ),
         );
@@ -1266,11 +1590,34 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
+  List<String> _creatorNamesForRoles(
+    List<Map<String, dynamic>>? creators,
+    List<String> roleNeedles,
+  ) {
+    if (creators == null || creators.isEmpty) {
+      return const <String>[];
+    }
+    final names = <String>[];
+    for (final creator in creators) {
+      final name = creator['name']?.toString().trim();
+      if (name == null || name.isEmpty) {
+        continue;
+      }
+      final role = creator['role']?.toString().toLowerCase() ?? '';
+      if (!roleNeedles.any((needle) => role.contains(needle))) {
+        continue;
+      }
+      if (!names.contains(name)) {
+        names.add(name);
+      }
+    }
+    return names;
+  }
+
   List<String> _creatorNames(List<Map<String, dynamic>>? creators) {
     return creators
-            ?.map((entry) => entry['name']?.toString() ?? '')
-            .where((value) => value.trim().isNotEmpty)
-            .map((value) => value.trim())
+            ?.map((entry) => entry['name']?.toString().trim() ?? '')
+            .where((value) => value.isNotEmpty)
             .toList(growable: false) ??
         const <String>[];
   }
@@ -1284,14 +1631,191 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     return normalized.isEmpty ? null : normalized;
   }
 
-  List<Map<String, dynamic>>? _creatorList(String value) {
+  List<Map<String, dynamic>>? _creatorList(
+    String value, {
+    String? role,
+  }) {
     final names = _splitList(value);
     if (names == null) {
       return null;
     }
     return [
-      for (final name in names) {'name': name}
+      for (final name in names) {'name': name, if (role != null) 'role': role}
     ];
+  }
+
+  List<Map<String, dynamic>>? _buildUpdatedCreators() {
+    final existing =
+        widget.request.item.creators ?? const <Map<String, dynamic>>[];
+    const knownRoleNeedles = <String>[
+      'author',
+      'writer',
+      'editor',
+      'illustrator',
+      'cover',
+      'photographer',
+      'foreword',
+      'translator',
+      'ghost',
+      'narrator',
+    ];
+
+    final merged = <Map<String, dynamic>>[];
+
+    for (final creator in existing) {
+      final role = creator['role']?.toString().toLowerCase() ?? '';
+      if (knownRoleNeedles.any((needle) => role.contains(needle))) {
+        continue;
+      }
+      merged.add(Map<String, dynamic>.from(creator));
+    }
+
+    void addCreators(String text, String role) {
+      final parsed = _creatorList(text, role: role);
+      if (parsed != null) {
+        merged.addAll(parsed);
+      }
+    }
+
+    addCreators(_authorController.text, 'Author');
+    addCreators(_editorController.text, 'Editor');
+    addCreators(_illustratorController.text, 'Illustrator');
+    addCreators(_coverArtistController.text, 'Cover Artist');
+    addCreators(_photographerController.text, 'Photographer');
+    addCreators(_forewordAuthorController.text, 'Foreword Author');
+    addCreators(_translatorController.text, 'Translator');
+    addCreators(_ghostWriterController.text, 'Ghost Writer');
+    addCreators(_narratorController.text, 'Narrator');
+
+    return merged.isEmpty ? null : merged;
+  }
+
+  List<_BookExternalLinkEdit> _buildInitialExternalLinkEdits(
+    List<TrailerLink> links,
+  ) {
+    final externalLinks =
+        links.where((link) => link.isExternalLink).toList(growable: false);
+    return [
+      for (final link in externalLinks)
+        _BookExternalLinkEdit(
+          url: link.url,
+          description: link.description ?? link.title ?? '',
+        ),
+    ];
+  }
+
+  void _addExternalLink() {
+    setState(() {
+      _externalLinkEdits.add(_BookExternalLinkEdit());
+    });
+  }
+
+  void _removeExternalLinkAt(int index) {
+    setState(() {
+      final removed = _externalLinkEdits.removeAt(index);
+      removed.dispose();
+    });
+  }
+
+  void _moveExternalLink(int fromIndex, int toIndex) {
+    if (toIndex < 0 || toIndex >= _externalLinkEdits.length) {
+      return;
+    }
+    setState(() {
+      final entry = _externalLinkEdits.removeAt(fromIndex);
+      _externalLinkEdits.insert(toIndex, entry);
+    });
+  }
+
+  Widget _buildExternalLinkRow(int index) {
+    final link = _externalLinkEdits[index];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: kEditPanelRaised,
+        border: Border.all(color: kEditDivider),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        child: Column(
+          children: [
+            _responsiveFields([
+              TextFormField(
+                key: ValueKey('bookExternalLinkUrlField_$index'),
+                controller: link.urlController,
+                decoration: const InputDecoration(
+                  labelText: 'URL',
+                  hintText: 'https://example.com',
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('bookExternalLinkDescriptionField_$index'),
+                controller: link.descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Goodreads, Amazon, etc.',
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton(
+                  tooltip: 'Move up',
+                  icon: const Icon(Icons.arrow_upward, size: 18),
+                  onPressed: index > 0
+                      ? () => _moveExternalLink(index, index - 1)
+                      : null,
+                ),
+                IconButton(
+                  tooltip: 'Move down',
+                  icon: const Icon(Icons.arrow_downward, size: 18),
+                  onPressed: index < _externalLinkEdits.length - 1
+                      ? () => _moveExternalLink(index, index + 1)
+                      : null,
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: 'Remove link',
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  onPressed: () => _removeExternalLinkAt(index),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<TrailerLink> _buildUpdatedLinks() {
+    final preservedTrailers = widget.request.item.trailerUrls
+        .where((link) => !link.isExternalLink)
+        .toList(growable: false);
+    final external = <TrailerLink>[];
+    for (final edit in _externalLinkEdits) {
+      final url = edit.urlController.text.trim();
+      if (url.isEmpty) {
+        continue;
+      }
+      final uri = Uri.tryParse(url);
+      final scheme = uri?.scheme.toLowerCase();
+      if (uri == null || (scheme != 'http' && scheme != 'https')) {
+        continue;
+      }
+      final description = edit.descriptionController.text.trim();
+      external.add(
+        TrailerLink(
+          url: url,
+          title: description.isEmpty ? null : description,
+          description: description.isEmpty ? null : description,
+          source: 'External Link',
+          isAutomatic: false,
+          kind: 'external',
+        ),
+      );
+    }
+    return [...preservedTrailers, ...external];
   }
 
   void _submit() {
@@ -1307,6 +1831,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _draft.startedAt = _startedAt;
     _draft.finishedAt = _finishedAt;
     _draft.soldAt = _soldAt;
+    _draft.collectionStatus = _collectionStatus;
+    _draft.lastBagBoardDate = _lastBagBoardDate;
     _draft.replaceMediaEdits(
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
@@ -1321,13 +1847,28 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       episodeNumber: widget.request.item.series?.episodeNumber,
       tags: _splitList(_seriesTagsController.text) ?? const <String>[],
     );
+    final existingPublishing = widget.request.item.publishing;
     final updatedPublishing = CatalogPublishingDetails(
       pageCount: parseInt(_pageCountController.text),
-      coverPriceCents: widget.request.item.publishing?.coverPriceCents,
-      currency: widget.request.item.publishing?.currency,
+      coverPriceCents: existingPublishing?.coverPriceCents,
+      currency: existingPublishing?.currency,
       imprint: emptyToNull(_imprintController.text),
       subtitle: emptyToNull(_subtitleController.text),
       seriesGroup: emptyToNull(_seriesGroupController.text),
+      publicationPlace: emptyToNull(_publicationPlaceController.text),
+      originalCountry: emptyToNull(_originalCountryController.text),
+      originalLanguage: emptyToNull(_originalLanguageController.text),
+      originalPublicationDate: _originalPublicationDate,
+      originalPublicationPlace:
+          emptyToNull(_originalPublicationPlaceController.text),
+      originalPublisher: emptyToNull(_originalPublisherController.text),
+      paperType: emptyToNull(_paperTypeController.text),
+      printedBy: emptyToNull(_printedByController.text),
+      subjects: _splitList(_subjectsController.text) ?? const <String>[],
+      dustJacketCondition: emptyToNull(_dustJacketConditionController.text),
+      dustJacket: _dustJacket,
+      audiobookAbridged: _audiobookAbridged,
+      firstEdition: _firstEdition,
     );
 
     Navigator.of(context).pop(
@@ -1347,12 +1888,13 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           variant: emptyToNull(_variantController.text),
           series: updatedSeries.hasData ? updatedSeries : null,
           publishing: updatedPublishing.hasData ? updatedPublishing : null,
-          creators: _creatorList(_creatorsController.text),
+          creators: _buildUpdatedCreators(),
           characters: _splitList(_charactersController.text),
           storyArcs: _splitList(_storyArcsController.text),
           genres: _splitList(_genresController.text),
           country: emptyToNull(_countryController.text),
           language: emptyToNull(_languageController.text),
+          trailerUrls: _buildUpdatedLinks(),
         ),
         personal: !_isOwned
             ? null
@@ -1380,10 +1922,15 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 rawOrSlabbed: null,
                 gradingCompany: null,
                 graderNotes: null,
-                signedBy: null,
+                signedBy: emptyToNull(_signedByController.text),
                 keyComic: null,
                 keyReason: null,
                 coverPriceCents: null,
+                purchaseStore: emptyToNull(_purchaseStoreController.text),
+                collectionStatus: _collectionStatus,
+                lastBagBoardDate: _lastBagBoardDate,
+                marketValueCents: parseMoneyCents(_marketValueController.text),
+                ownerLabel: emptyToNull(_ownerLabelController.text),
               ),
         tracking: !_hasTrackingContext
             ? null
@@ -1394,9 +1941,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
                 finishedAt: _finishedAt,
-                progressCurrent: widget.request.trackingEntry?.progressCurrent,
-                progressTotal: widget.request.trackingEntry?.progressTotal,
-                timesCompleted: widget.request.trackingEntry?.timesCompleted,
+                progressCurrent: parseInt(_progressCurrentController.text),
+                progressTotal: parseInt(_progressTotalController.text),
+                timesCompleted: parseInt(_timesCompletedController.text),
                 notes: widget.request.trackingEntry?.notes,
                 seasonNumber: widget.request.trackingEntry?.seasonNumber ??
                     widget.request.item.series?.seasonNumber,
@@ -1496,5 +2043,21 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               });
             },
     );
+  }
+}
+
+class _BookExternalLinkEdit {
+  _BookExternalLinkEdit({
+    String url = '',
+    String description = '',
+  })  : urlController = TextEditingController(text: url),
+        descriptionController = TextEditingController(text: description);
+
+  final TextEditingController urlController;
+  final TextEditingController descriptionController;
+
+  void dispose() {
+    urlController.dispose();
+    descriptionController.dispose();
   }
 }

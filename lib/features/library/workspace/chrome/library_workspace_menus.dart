@@ -55,11 +55,13 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
     required this.label,
     this.padding = const EdgeInsets.fromLTRB(12, 8, 12, 6),
     this.leadingInset = 0,
+    this.leadingLineWidth = 0,
   });
 
   final String label;
   final EdgeInsetsGeometry padding;
   final double leadingInset;
+  final double leadingLineWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +70,12 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
       child: Row(
         children: [
           if (leadingInset > 0) SizedBox(width: leadingInset),
+          if (leadingLineWidth > 0)
+            SizedBox(
+              width: leadingLineWidth,
+              child:
+                  Divider(height: 1, color: libraryToolbarMenuBorder(context)),
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -153,9 +161,20 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
     if (onTap == null) {
       return content;
     }
+    final hover = libraryToolbarMenuHover(context);
     return InkWell(
       borderRadius: BorderRadius.zero,
       onTap: onTap,
+      overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return hover.withValues(alpha: 0.92);
+        }
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.focused)) {
+          return hover.withValues(alpha: 0.80);
+        }
+        return null;
+      }),
       child: content,
     );
   }
@@ -180,21 +199,18 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
     return LibraryWorkspaceMenuRow(
       label: label,
       onTap: onTap,
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-      leadingWidth: 18,
-      leading: highlighted
-          ? Icon(Icons.check, size: 16, color: libraryToolbarMenuText(context))
-          : null,
+      padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
       trailing: Icon(
         expanded ? Icons.expand_less : Icons.expand_more,
         size: 18,
         color: libraryToolbarMenuMutedText(context),
       ),
-      backgroundColor:
-          highlighted ? libraryToolbarMenuHover(context) : Colors.transparent,
+      backgroundColor: highlighted
+          ? libraryToolbarMenuHover(context).withValues(alpha: 0.55)
+          : Colors.transparent,
       textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
             color: libraryToolbarMenuText(context),
-            fontWeight: FontWeight.w700,
+            fontWeight: highlighted ? FontWeight.w700 : FontWeight.w600,
           ),
     );
   }

@@ -23,7 +23,8 @@ abstract final class _LibraryScopeControllerOps {
     ];
   }
 
-  static List<String> sidebarAncestorScopeLabels(GenericLibraryPageState state) {
+  static List<String> sidebarAncestorScopeLabels(
+      GenericLibraryPageState state) {
     return [
       for (final snapshot in state._scopeHistory)
         if (snapshot.selectedBucket != null) sidebarScopeLabel(state, snapshot),
@@ -38,7 +39,8 @@ abstract final class _LibraryScopeControllerOps {
       for (var historyIndex = 0;
           historyIndex < state._scopeHistory.length;
           historyIndex += 1)
-        if (state._scopeHistory[historyIndex].selectedBucket != null) historyIndex,
+        if (state._scopeHistory[historyIndex].selectedBucket != null)
+          historyIndex,
     ];
     if (index < 0 || index >= bucketIndexes.length) {
       return;
@@ -155,7 +157,7 @@ abstract final class _LibraryScopeControllerOps {
       filterSelection: state._filterSelection,
       activeSmartListId: state._activeSmartListId,
       activeSmartListName: state._activeSmartListName,
-      searchQuery: state._searchController.text.trim(),
+      searchQuery: state._appliedSearchQuery.trim(),
     );
   }
 
@@ -178,6 +180,8 @@ abstract final class _LibraryScopeControllerOps {
       selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
       composing: TextRange.empty,
     );
+    state._appliedSearchQuery = snapshot.searchQuery;
+    state._searchPinnedItemId = null;
   }
 
   static void navigateSidebarBack(GenericLibraryPageState state) {
@@ -224,12 +228,15 @@ abstract final class _LibraryScopeControllerOps {
       state._activeSmartListName = null;
       state._scopeHistory = const [];
       state._searchController.clear();
+      state._appliedSearchQuery = '';
+      state._searchPinnedItemId = null;
       state._selectionAnchorId = null;
     });
     state._syncRouteState();
   }
 
-  static void applySmartList(GenericLibraryPageState state, SmartList smartList) {
+  static void applySmartList(
+      GenericLibraryPageState state, SmartList smartList) {
     state._mutateState(() {
       state._activeSmartListId = smartList.id;
       state._activeSmartListName = smartList.name;
@@ -237,9 +244,12 @@ abstract final class _LibraryScopeControllerOps {
       state._quickView = smartList.quickView;
       if (smartList.searchQuery != null) {
         state._searchController.text = smartList.searchQuery!;
+        state._appliedSearchQuery = smartList.searchQuery!.trim();
       } else {
         state._searchController.clear();
+        state._appliedSearchQuery = '';
       }
+      state._searchPinnedItemId = null;
       if (state._viewState != null) {
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._viewState = state._viewState!.withSortRules(
@@ -272,6 +282,8 @@ abstract final class _LibraryScopeControllerOps {
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
       state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
       state._searchController.clear();
+      state._appliedSearchQuery = '';
+      state._searchPinnedItemId = null;
       state._selectedBucket = null;
       state._selectedLetter = null;
       state._linkedMetadataFilter = null;

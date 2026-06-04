@@ -4,21 +4,38 @@ class TrailerLink {
   const TrailerLink({
     required this.url,
     this.title,
+    this.description,
     this.source,
     this.isAutomatic = true,
+    this.kind = 'trailer',
   });
 
   final String url;
   final String? title;
+  final String? description;
   final String? source;
   final bool isAutomatic;
+  final String kind;
+
+  bool get isExternalLink => kind == 'external' || kind == 'link';
+  bool get isTrailerLink => !isExternalLink;
 
   factory TrailerLink.fromJson(Map<String, dynamic> json) {
+    final rawKind = (json['kind'] ?? json['type'])?.toString().toLowerCase();
+    final source = json['source'] as String?;
+    final inferredKind = rawKind ??
+        ((source?.toLowerCase().contains('external') ?? false)
+            ? 'external'
+            : 'trailer');
+    final title = json['title'] as String?;
+    final description = json['description'] as String?;
     return TrailerLink(
       url: json['url'] as String,
-      title: json['title'] as String?,
-      source: json['source'] as String?,
+      title: title ?? description,
+      description: description ?? title,
+      source: source,
       isAutomatic: json['is_automatic'] as bool? ?? true,
+      kind: inferredKind,
     );
   }
 
@@ -26,8 +43,10 @@ class TrailerLink {
     return {
       'url': url,
       if (title != null) 'title': title,
+      if (description != null) 'description': description,
       if (source != null) 'source': source,
       'is_automatic': isAutomatic,
+      'kind': kind,
     };
   }
 }
@@ -297,6 +316,7 @@ class MusicCatalogDetails {
     this.spars,
     this.soundType,
     this.vinylColor,
+    this.vinylWeight,
     this.mediaCondition,
     this.instrument,
     this.isLive,
@@ -315,6 +335,7 @@ class MusicCatalogDetails {
   final String? spars;
   final String? soundType;
   final String? vinylColor;
+  final String? vinylWeight;
   final String? mediaCondition;
   final String? instrument;
   final bool? isLive;
@@ -333,6 +354,7 @@ class MusicCatalogDetails {
       spars != null ||
       soundType != null ||
       vinylColor != null ||
+      vinylWeight != null ||
       mediaCondition != null ||
       instrument != null ||
       isLive != null ||
@@ -735,6 +757,21 @@ sealed class CatalogItem {
   }
 
   factory CatalogItem.fromJson(Map<String, dynamic> json) {
+    final trailerLinks = (json['trailer_urls'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .map(TrailerLink.fromJson)
+            .toList(growable: false) ??
+        const <TrailerLink>[];
+    final externalLinks = (json['external_links'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((entry) => TrailerLink.fromJson({
+                  ...entry,
+                  if (entry['kind'] == null && entry['type'] == null)
+                    'kind': 'external',
+                }))
+            .toList(growable: false) ??
+        const <TrailerLink>[];
+
     final series = CatalogSeriesDetails(
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
@@ -777,6 +814,7 @@ sealed class CatalogItem {
       spars: json['spars'] as String?,
       soundType: json['sound_type'] as String?,
       vinylColor: json['vinyl_color'] as String?,
+      vinylWeight: json['vinyl_weight'] as String?,
       mediaCondition: json['media_condition'] as String?,
       instrument: json['instrument'] as String?,
       isLive: json['is_live'] as bool?,
@@ -875,10 +913,7 @@ sealed class CatalogItem {
       genres: (json['genres'] as List<dynamic>?)
           ?.whereType<String>()
           .toList(growable: false),
-      trailerUrls: (json['trailer_urls'] as List<dynamic>?)
-          ?.whereType<Map<String, dynamic>>()
-          .map(TrailerLink.fromJson)
-          .toList(growable: false),
+      trailerUrls: [...trailerLinks, ...externalLinks],
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
@@ -1020,6 +1055,7 @@ sealed class CatalogItem {
       'spars': music?.spars,
       'sound_type': music?.soundType,
       'vinyl_color': music?.vinylColor,
+      'vinyl_weight': music?.vinylWeight,
       'media_condition': music?.mediaCondition,
       'instrument': music?.instrument,
       'is_live': music?.isLive,
@@ -1039,9 +1075,17 @@ sealed class CatalogItem {
       'language': language,
       'age_rating': ageRating,
       'audience_rating': audienceRating,
-      if (trailerUrls.isNotEmpty)
+      if (trailerUrls.any((link) => link.isTrailerLink))
         'trailer_urls':
-            trailerUrls.map((t) => t.toJson()).toList(growable: false),
+            trailerUrls
+                .where((link) => link.isTrailerLink)
+                .map((t) => t.toJson())
+                .toList(growable: false),
+      if (trailerUrls.any((link) => link.isExternalLink))
+        'external_links': trailerUrls
+            .where((link) => link.isExternalLink)
+            .map((link) => link.toJson())
+            .toList(growable: false),
       'page_count': publishing?.pageCount,
       'cover_price_cents': publishing?.coverPriceCents,
       'currency': publishing?.currency,

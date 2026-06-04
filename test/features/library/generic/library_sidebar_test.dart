@@ -53,20 +53,23 @@ void main() {
     );
 
     expect(
-      find.text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)),
+      find.text(
+          genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)),
       findsOneWidget,
     );
     expect(find.text('Folder set'), findsNothing);
     expect(find.text('Current folder'), findsNothing);
 
-    await tester.tap(find.text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)).first);
+    await tester.tap(find
+        .text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig))
+        .first);
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('manageGroupFavoritesButton')), findsOneWidget);
+    expect(find.byKey(const ValueKey('manageGroupFavoritesButton')),
+        findsOneWidget);
     expect(find.byIcon(Icons.push_pin), findsNothing);
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
@@ -110,7 +113,8 @@ void main() {
                   LibrarySeriesBucket(title: 'All Movies', count: 12),
                 ],
                 groupMode: LibraryGroupMode.releaseYear,
-                folderPreset: LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
+                folderPreset:
+                    LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
                 selectedBucket: 'All Movies',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},

@@ -51,7 +51,7 @@ void main() {
     );
 
     expect(find.text('Main'), findsOneWidget);
-    expect(find.byIcon(Icons.check), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing);
     expect(find.byIcon(Icons.expand_more), findsOneWidget);
   });
 }

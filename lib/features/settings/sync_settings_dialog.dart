@@ -98,7 +98,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
     return Dialog(
       backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
       ),
       child: ConstrainedBox(
@@ -274,7 +274,9 @@ class _SyncFieldRow extends StatelessWidget {
                   isExpanded: true,
                   dropdownColor: appPalette(context).panelRaised,
                   borderRadius: kAppMenuBorderRadius,
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurface),
                   icon: const Icon(Icons.expand_more, size: 16),
                   items: SyncFieldPolicy.values
                       .map((p) => DropdownMenuItem(

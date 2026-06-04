@@ -15,7 +15,9 @@ class LibraryDetailTrailersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (trailerUrls.isEmpty) {
+    final effectiveTrailers =
+        trailerUrls.where((link) => link.isTrailerLink).toList(growable: false);
+    if (effectiveTrailers.isEmpty) {
       return const SizedBox.shrink();
     }
     return Padding(
@@ -37,7 +39,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          for (final trailer in trailerUrls)
+          for (final trailer in effectiveTrailers)
             _TrailerTile(trailer: trailer, accent: accent),
         ],
       ),

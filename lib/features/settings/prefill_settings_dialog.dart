@@ -114,7 +114,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     return Dialog(
       backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
       ),
       child: ConstrainedBox(
@@ -149,8 +149,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                     _textField('Condition', _conditionController,
                         hint: 'e.g. Near Mint, Very Good'),
                     const SizedBox(height: 10),
-                    _textField('Grade', _gradeController,
-                        hint: 'e.g. 9.6, A+'),
+                    _textField('Grade', _gradeController, hint: 'e.g. 9.6, A+'),
                     const SizedBox(height: 10),
                     _locationField(),
                     const SizedBox(height: 10),
@@ -199,7 +198,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             'Location',
-            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
+            style:
+                TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -216,7 +216,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.place, size: 16, color: appPalette(context).textMuted),
+                  Icon(Icons.place,
+                      size: 16, color: appPalette(context).textMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -284,16 +285,19 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             label,
-            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
+            style:
+                TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
           child: TextField(
             controller: controller,
-            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
+            style: TextStyle(
+                fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(fontSize: 12, color: appPalette(context).textMuted),
+              hintStyle:
+                  TextStyle(fontSize: 12, color: appPalette(context).textMuted),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               filled: true,
@@ -325,7 +329,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             'Read Status',
-            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
+            style:
+                TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -343,7 +348,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 isExpanded: true,
                 dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
-                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurface),
                 icon: const Icon(Icons.expand_more, size: 16),
                 items: _readStatusOptions
                     .map((s) => DropdownMenuItem(
@@ -391,9 +398,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                     : _gradeController.text,
                 locationId: _selectedLocationId,
                 readStatus: _readStatus,
-                tags: _tagsController.text.isEmpty
-                    ? null
-                    : _tagsController.text,
+                tags:
+                    _tagsController.text.isEmpty ? null : _tagsController.text,
               );
               await defaults.save();
               if (mounted) Navigator.of(context).pop(defaults);

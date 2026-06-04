@@ -11,10 +11,12 @@ class LibraryViewModeDropdown extends StatelessWidget {
     super.key,
     required this.viewMode,
     required this.onChanged,
+    this.iconOnly = false,
   });
 
   final LibraryViewMode viewMode;
   final ValueChanged<LibraryViewMode> onChanged;
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +31,13 @@ class LibraryViewModeDropdown extends StatelessWidget {
       context,
       textStyle: dropdownTextStyle,
     );
-    final triggerWidth = _measureSplitTriggerWidth(
-      context,
-      leadingLabel: 'View',
-      valueLabel: _viewModeLabel(viewMode),
-    );
+    final triggerWidth = iconOnly
+        ? 34.0
+        : _measureSplitTriggerWidth(
+            context,
+            leadingLabel: 'View',
+            valueLabel: _viewModeLabel(viewMode),
+          );
     return SizedBox(
       width: triggerWidth,
       child: PopupMenuButton<LibraryViewMode>(
@@ -80,6 +84,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
           leadingLabel: 'View',
           valueLabel: _viewModeLabel(viewMode),
           valueIcon: _viewModeIcon(viewMode),
+          iconOnly: iconOnly,
         ),
       ),
     );
@@ -91,10 +96,12 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
     super.key,
     required this.detailsLayout,
     required this.onChanged,
+    this.iconOnly = false,
   });
 
   final LibraryDetailsLayout detailsLayout;
   final ValueChanged<LibraryDetailsLayout> onChanged;
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -109,11 +116,13 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       context,
       textStyle: dropdownTextStyle,
     );
-    final triggerWidth = _measureSplitTriggerWidth(
-      context,
-      leadingLabel: 'Layout',
-      valueLabel: _detailsLayoutMenuLabel(detailsLayout),
-    );
+    final triggerWidth = iconOnly
+        ? 34.0
+        : _measureSplitTriggerWidth(
+            context,
+            leadingLabel: 'Layout',
+            valueLabel: _detailsLayoutMenuLabel(detailsLayout),
+          );
     return SizedBox(
       width: triggerWidth,
       child: PopupMenuButton<LibraryDetailsLayout>(
@@ -164,6 +173,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
           leadingLabel: 'Layout',
           valueLabel: _detailsLayoutMenuLabel(detailsLayout),
           valueIcon: _detailsLayoutIcon(detailsLayout),
+          iconOnly: iconOnly,
         ),
       ),
     );
@@ -389,14 +399,29 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
     required this.leadingLabel,
     required this.valueLabel,
     required this.valueIcon,
+    this.iconOnly = false,
   });
 
   final String leadingLabel;
   final String valueLabel;
   final IconData valueIcon;
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
+    if (iconOnly) {
+      return DecoratedBox(
+        decoration: libraryToolbarDropdownDecoration(context),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(
+            valueIcon,
+            size: 15,
+            color: libraryToolbarControlText(context),
+          ),
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: libraryToolbarDropdownDecoration(context),
       child: Padding(
@@ -404,28 +429,30 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              leadingLabel,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: libraryToolbarControlMutedText(context),
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(width: 8),
             Icon(
               valueIcon,
               size: 15,
               color: libraryToolbarControlText(context),
             ),
-            const SizedBox(width: 6),
-            Text(
-              valueLabel,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: libraryToolbarControlText(context),
-                    fontWeight: FontWeight.w800,
-                  ),
-            ),
-            const SizedBox(width: 6),
+            if (!iconOnly) ...[
+              const SizedBox(width: 8),
+              Text(
+                leadingLabel,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: libraryToolbarControlMutedText(context),
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                valueLabel,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: libraryToolbarControlText(context),
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const SizedBox(width: 6),
+            ],
             Icon(
               Icons.keyboard_arrow_down,
               size: 16,

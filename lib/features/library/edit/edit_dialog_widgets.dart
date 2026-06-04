@@ -39,6 +39,10 @@ ThemeData editDialogTheme({
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: palette.divider),
+      ),
     ),
     popupMenuTheme: PopupMenuThemeData(
       color: palette.panelRaised,

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliar
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -35,6 +36,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.cardLayout = LibraryCardLayout.horizontal,
     this.selectionMode = false,
     this.onSelectionToggleTap,
+    this.onEditTap,
     super.key,
   });
 
@@ -53,13 +55,19 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final LibraryCardLayout cardLayout;
   final bool selectionMode;
   final VoidCallback? onSelectionToggleTap;
+  final VoidCallback? onEditTap;
 
   @override
   Widget build(BuildContext context) {
     final metadataPresentation = _metadataPresentationForEntry(entry);
     final palette = appPalette(context);
-    final resolvedSelectedColor =
-        selectedColor == kAppSelection ? palette.selection : selectedColor;
+    final resolvedSelectedColor = selectedColor == kAppSelection
+        ? libraryWorkspaceSelectionBackground(
+            context,
+            accentColor: accentColor,
+            baseColor: palette.cardBackground,
+          )
+        : selectedColor;
     final resolvedMutedTextColor =
         mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
     final selectedTitleColor = ThemeData.estimateBrightnessForColor(
@@ -390,6 +398,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (onEditTap != null)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: LibraryTileHoverActionButton(
+                      icon: Icons.edit_outlined,
+                      tooltip: 'Edit item',
+                      onTap: onEditTap!,
+                    ),
+                  ),
                 Positioned(
                   right: 6,
                   bottom: 6,
@@ -411,7 +429,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
   }) {
     final palette = appPalette(context);
     final comic = entry.comic;
-    final background = selected ? palette.selection : palette.cardBackground;
+    final background = selected
+        ? libraryWorkspaceSelectionBackground(
+            context,
+            accentColor: accentColor,
+            baseColor: palette.cardBackground,
+          )
+        : palette.cardBackground;
     final titleColor = selected
         ? selectedTitleColor
         : (palette.isDark ? kAppAccentLight : accentColor);
@@ -577,6 +601,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (onEditTap != null)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: LibraryTileHoverActionButton(
+                      icon: Icons.edit_outlined,
+                      tooltip: 'Edit item',
+                      onTap: onEditTap!,
+                    ),
+                  ),
                 Positioned(
                   right: 6,
                   bottom: 6,
@@ -615,7 +649,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required Color mutedColor,
   }) {
     final palette = appPalette(context);
-    final background = selected ? palette.selection : palette.cardBackground;
+    final background = selected
+        ? libraryWorkspaceSelectionBackground(
+            context,
+            accentColor: accentColor,
+            baseColor: palette.cardBackground,
+          )
+        : palette.cardBackground;
     final titleColor = selected ? selectedTitleColor : palette.textPrimary;
     final subtitleColor =
         selected ? selectedTitleColor.withValues(alpha: 0.9) : mutedColor;
@@ -777,6 +817,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (onEditTap != null)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: LibraryTileHoverActionButton(
+                      icon: Icons.edit_outlined,
+                      tooltip: 'Edit item',
+                      onTap: onEditTap!,
+                    ),
+                  ),
                 Positioned(
                   right: 6,
                   bottom: 6,
@@ -796,7 +846,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required Color mutedColor,
   }) {
     final palette = appPalette(context);
-    final background = selected ? palette.selection : palette.cardBackground;
+    final background = selected
+        ? libraryWorkspaceSelectionBackground(
+            context,
+            accentColor: accentColor,
+            baseColor: palette.cardBackground,
+          )
+        : palette.cardBackground;
     final titleColor = selected ? selectedTitleColor : palette.textPrimary;
     final subtitleColor =
         selected ? selectedTitleColor.withValues(alpha: 0.9) : mutedColor;
@@ -904,6 +960,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         accentColor: accentColor,
                         coverSize: coverWidth,
                       ),
+                    ),
+                  ),
+                if (onEditTap != null)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: LibraryTileHoverActionButton(
+                      icon: Icons.edit_outlined,
+                      tooltip: 'Edit item',
+                      onTap: onEditTap!,
                     ),
                   ),
                 Positioned(
