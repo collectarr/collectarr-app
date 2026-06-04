@@ -2,18 +2,15 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      metadata_base_url:
-        description: "Optional override for Core metadata API base URL"
-        required: false
-        default: ""
-        type: string
 
 permissions:
   contents: write
   issues: write
   pull-requests: write
   packages: write
+
+env:
+  METADATA_BASE_URL: ${{ secrets.COLLECTARR_METADATA_BASE_URL }}
 
 jobs:
   release:
@@ -83,11 +80,9 @@ jobs:
 
       - name: Build web bundle
         if: steps.semantic_preview.outputs.new_release_published == 'true'
-        env:
-          METADATA_BASE_URL: ${{ inputs.metadata_base_url != '' && inputs.metadata_base_url || secrets.COLLECTARR_METADATA_BASE_URL }}
         run: |
           if [ -z "$METADATA_BASE_URL" ]; then
-            echo "::error title=Missing metadata URL::Set COLLECTARR_METADATA_BASE_URL as a repo/org secret or provide metadata_base_url when running workflow_dispatch."
+            echo "::error title=Missing metadata URL::Set COLLECTARR_METADATA_BASE_URL as a repo/org secret."
             exit 1
           fi
           flutter build web --release \
@@ -157,8 +152,7 @@ jobs:
 
       - name: Build Android artifacts
         run: |
-          flutter build apk --release
-          flutter build appbundle --release
+          flutter build apk --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
 
       - name: Upload Android assets
         env:
@@ -168,8 +162,7 @@ jobs:
         run: |
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk dist/collectarr-android-v${RELEASE_VERSION}.apk
-          cp build/app/outputs/bundle/release/app-release.aab dist/collectarr-android-v${RELEASE_VERSION}.aab
-          gh release upload "v${RELEASE_VERSION}" dist/collectarr-android-v${RELEASE_VERSION}.apk dist/collectarr-android-v${RELEASE_VERSION}.aab --clobber
+          gh release upload "v${RELEASE_VERSION}" dist/collectarr-android-v${RELEASE_VERSION}.apk --clobber
 
   release-windows:
     needs: release
@@ -190,22 +183,62 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build Windows app
-        run: flutter build windows --release
+        run: flutter build windows --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
 
-      - name: Package Windows artifact
+      - name: Package Windows portable artifact
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "dist/collectarr-windows-v$env:RELEASE_VERSION.zip" -Force
+          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" -Force
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y
+
+      - name: Package Windows installer
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        run: |
+          $iss = @"
+          [Setup]
+          AppId={{4A0B73CB-02AA-4D1D-8A20-1D2B4F6E31C3}
+          AppName=Collectarr
+          AppVersion=$env:RELEASE_VERSION
+          DefaultDirName={autopf}\Collectarr
+          DefaultGroupName=Collectarr
+          OutputDir=dist
+          OutputBaseFilename=collectarr-windows-installer-v$env:RELEASE_VERSION
+          Compression=lzma
+          SolidCompression=yes
+          WizardStyle=modern
+
+          [Files]
+          Source: "build\\windows\\x64\\runner\\Release\\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+
+          [Icons]
+          Name: "{group}\\Collectarr"; Filename: "{app}\\collectarr_app.exe"
+          Name: "{group}\\Uninstall Collectarr"; Filename: "{uninstallexe}"
+
+          [Run]
+          Filename: "{app}\\collectarr_app.exe"; Description: "Launch Collectarr"; Flags: nowait postinstall skipifsilent
+          "@
+          $issPath = "dist\collectarr-installer.iss"
+          Set-Content -Path $issPath -Value $iss -Encoding UTF8
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" $issPath
 
       - name: Upload Windows asset
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
-        run: gh release upload "v$env:RELEASE_VERSION" "dist/collectarr-windows-v$env:RELEASE_VERSION.zip" --clobber
+        run: |
+          gh release upload "v$env:RELEASE_VERSION" \
+            "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" \
+            "dist/collectarr-windows-installer-v$env:RELEASE_VERSION.exe" \
+            --clobber
 
   release-macos:
     needs: release
@@ -226,9 +259,9 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build macOS app
-        run: flutter build macos --release
+        run: flutter build macos --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
 
-      - name: Package macOS artifact
+      - name: Package macOS portable artifact
         env:
           RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
         shell: bash
@@ -239,11 +272,100 @@ jobs:
             echo "::error title=Missing macOS app bundle::Could not find built .app in build/macos/Build/Products/Release"
             exit 1
           fi
-          ditto -c -k --keepParent "$app_path" "dist/collectarr-macos-v${RELEASE_VERSION}.zip"
+          ditto -c -k --keepParent "$app_path" "dist/collectarr-macos-portable-v${RELEASE_VERSION}.zip"
+
+      - name: Package macOS installer
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: |
+          app_path="$(find build/macos/Build/Products/Release -maxdepth 1 -name "*.app" | head -n 1)"
+          if [ -z "$app_path" ]; then
+            echo "::error title=Missing macOS app bundle::Could not find built .app in build/macos/Build/Products/Release"
+            exit 1
+          fi
+          hdiutil create -volname "Collectarr" -srcfolder "$app_path" -ov -format UDZO "dist/collectarr-macos-installer-v${RELEASE_VERSION}.dmg"
 
       - name: Upload macOS asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
         shell: bash
-        run: gh release upload "v${RELEASE_VERSION}" "dist/collectarr-macos-v${RELEASE_VERSION}.zip" --clobber
+        run: |
+          gh release upload "v${RELEASE_VERSION}" \
+            "dist/collectarr-macos-portable-v${RELEASE_VERSION}.zip" \
+            "dist/collectarr-macos-installer-v${RELEASE_VERSION}.dmg" \
+            --clobber
+
+  release-linux:
+    needs: release
+    if: needs.release.outputs.release_published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Linux app
+        run: flutter build linux --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
+
+      - name: Package Linux portable artifact
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: |
+          mkdir -p dist
+          tar -C build/linux/x64/release -czf "dist/collectarr-linux-portable-v${RELEASE_VERSION}.tar.gz" bundle
+
+      - name: Package Linux installer (.deb)
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: |
+          mkdir -p pkgroot/DEBIAN pkgroot/usr/lib/collectarr-app pkgroot/usr/bin
+          cp -a build/linux/x64/release/bundle/. pkgroot/usr/lib/collectarr-app/
+          executable="$(find pkgroot/usr/lib/collectarr-app -maxdepth 1 -type f -executable | head -n 1 | xargs basename)"
+          if [ -z "$executable" ]; then
+            echo "::error title=Missing Linux binary::Could not detect executable in linux bundle"
+            exit 1
+          fi
+          cat > pkgroot/DEBIAN/control <<EOF
+          Package: collectarr-app
+          Version: ${RELEASE_VERSION}
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Maintainer: Collectarr
+          Description: Collectarr desktop application
+          EOF
+          cat > pkgroot/usr/bin/collectarr-app <<EOF
+          #!/usr/bin/env bash
+          exec /usr/lib/collectarr-app/${executable} "\$@"
+          EOF
+          chmod 755 pkgroot/usr/bin/collectarr-app
+          dpkg-deb --build pkgroot "dist/collectarr-linux-installer-v${RELEASE_VERSION}.deb"
+
+      - name: Upload Linux assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+        shell: bash
+        run: |
+          gh release upload "v${RELEASE_VERSION}" \
+            "dist/collectarr-linux-portable-v${RELEASE_VERSION}.tar.gz" \
+            "dist/collectarr-linux-installer-v${RELEASE_VERSION}.deb" \
+            --clobber
