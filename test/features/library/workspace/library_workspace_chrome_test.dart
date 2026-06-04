@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -104,28 +103,5 @@ void main() {
 
     expect(find.text('Details'), findsNothing);
     expect(find.text('Inspector body'), findsOneWidget);
-  });
-
-  testWidgets('right details divider uses CLZ dragger thickness',
-      (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 900,
-            height: 500,
-            child: LibraryDetailsAwareLayout(
-              detailsLayout: LibraryDetailsLayout.right,
-              onRightWidthChanged: (_) {},
-              content: const ColoredBox(color: Colors.blue),
-              inspector: const Center(child: Text('Inspector body')),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    final dragger = find.byType(LibraryResizableDivider).first;
-    expect(tester.getSize(dragger).width, 6);
   });
 }

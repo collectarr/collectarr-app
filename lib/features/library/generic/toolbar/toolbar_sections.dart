@@ -80,6 +80,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
+    this.showWorkspaceUtilities = false,
     this.showBottomBorder = true,
   });
 
@@ -135,6 +136,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
+  final bool showWorkspaceUtilities;
   final bool showBottomBorder;
 
   @override
@@ -332,6 +334,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   onPrintReport: onPrintReport,
                   onShareCollection: onShareCollection,
                 ),
+                if (showWorkspaceUtilities) ...[
+                  const _LibraryDesktopToolbarSeparator(),
+                  const _LibraryDesktopUtilityCluster(),
+                ],
               ],
             ),
           ],
@@ -562,65 +568,76 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final showChromeRow = onCollectionStatusScopeChanged != null;
     final showAlphabetRow = onLetterSelected != null;
+    final leftControls = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LibraryToolbarPrimaryActions(
+          addLabel: 'Add ${type.pluralLabel}',
+          onAdd: onAdd,
+          onScanBarcode: onScan,
+          onRefreshMetadata: onRefreshMetadata,
+          onRandomPick: onRandomPick,
+          onScanCover: onScanCover,
+          addBackgroundColor: accent,
+          addForegroundColor: Colors.white,
+        ),
+        if (showChromeRow) ...[
+          const SizedBox(width: 6),
+          LibraryCollectionStatusScopeDropdown(
+            collectionStatusScope: collectionStatusScope,
+            onCollectionStatusScopeChanged: onCollectionStatusScopeChanged!,
+          ),
+        ],
+      ],
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            LibraryToolbarPrimaryActions(
-              addLabel: 'Add ${type.pluralLabel}',
-              onAdd: onAdd,
-              onScanBarcode: onScan,
-              onRefreshMetadata: onRefreshMetadata,
-              onRandomPick: onRandomPick,
-              onScanCover: onScanCover,
-              addBackgroundColor: accent,
-              addForegroundColor: Colors.white,
-            ),
-            if (showChromeRow) ...[
-              const SizedBox(width: 6),
-              LibraryCollectionStatusScopeDropdown(
-                collectionStatusScope: collectionStatusScope,
-                onCollectionStatusScopeChanged: onCollectionStatusScopeChanged!,
-              ),
-            ],
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 380,
-              child: LibraryToolbarSearch(
-                controller: searchController,
-                hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-                onScanBarcode: onScan,
-                onScanCover: onScanCover,
-                selectedFilterLabel: selectedBucket,
-                onSearch: onSearchChanged,
-                onClearFilter: onClearBucket,
-                onChanged: onSearchChanged,
-                selectionColor: appPalette(context).selection,
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: leftControls,
               ),
             ),
-            if (showAlphabetRow) ...[
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 420,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: LibraryToolbarAlphabetRow(
-                      letters: availableLetters,
-                      selectedLetter: selectedLetter,
-                      onLetterSelected: onLetterSelected!,
-                    ),
+          ),
+          if (showAlphabetRow)
+            Expanded(
+              child: Center(
+                child: SizedBox(
+                  width: 420,
+                  child: LibraryToolbarAlphabetRow(
+                    letters: availableLetters,
+                    selectedLetter: selectedLetter,
+                    onLetterSelected: onLetterSelected!,
                   ),
                 ),
               ),
-            ],
-            const SizedBox(width: 6),
-            const _LibraryDesktopUtilityCluster(),
-          ],
-        ),
+            )
+          else
+            const Spacer(),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                width: 380,
+                child: LibraryToolbarSearch(
+                  controller: searchController,
+                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                  onScanBarcode: onScan,
+                  onScanCover: onScanCover,
+                  selectedFilterLabel: selectedBucket,
+                  onSearch: onSearchChanged,
+                  onClearFilter: onClearBucket,
+                  onChanged: onSearchChanged,
+                  selectionColor: appPalette(context).selection,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

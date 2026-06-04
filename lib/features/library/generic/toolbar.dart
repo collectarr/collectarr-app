@@ -334,6 +334,7 @@ class LibraryToolbar extends StatelessWidget {
                       onPinnedFolderPresetsChanged:
                           onPinnedFolderPresetsChanged,
                       onGroupModeChanged: onGroupModeChanged,
+                      showWorkspaceUtilities: true,
                       showBottomBorder: false,
                     ),
                   if (selectionCallbacks != null && selectedCount > 0) ...[
