@@ -9,7 +9,7 @@
 [![Issues](https://img.shields.io/github/issues/collectarr/collectarr-app)](https://github.com/collectarr/collectarr-app/issues)
 ![Made with Flutter](https://img.shields.io/badge/Made%20with-Flutter-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.12+-0175C2?logo=dart&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20Android-lightgrey)
+![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-lightgrey)
 
 > A local-first collection manager for comics, books, games, board games, movies, music, and more.
 
@@ -176,7 +176,10 @@ The release workflow now publishes:
 
 - GitHub Release notes and tag via semantic-release
 - Web container image to GHCR: `ghcr.io/collectarr/collectarr-app-web`
-- Installable release assets for Android (`.apk`, `.aab`), Windows (`.zip`), and macOS (`.zip`)
+- Android release asset: `.apk`
+- Windows release assets: portable `.zip` and installer `.exe`
+- macOS release assets: portable `.zip` and installer `.dmg`
+- Linux release assets: portable `.tar.gz` and installer `.deb`
 
 For web builds, `COLLECTARR_API_BASE_URL` is injected at release time from the
 `COLLECTARR_METADATA_BASE_URL` GitHub secret (repo or org level). You can still

@@ -48,10 +48,11 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-      // Quantize to 64-pixel steps so resizing panels doesn't re-decode.
+      // Quantize to 32-pixel steps to keep sharper cover caches while
+      // still avoiding excessive re-decodes during layout resizing.
       final resolvedCacheWidth = constraints.hasBoundedWidth &&
         constraints.maxWidth > 0
-          ? (((constraints.maxWidth * pixelRatio) / 64).ceil() * 64)
+          ? (((constraints.maxWidth * pixelRatio) / 32).ceil() * 32)
             : null;
       final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
 
@@ -65,7 +66,7 @@ class LibraryCoverImage extends ConsumerWidget {
           fit: fit,
           cacheWidth: cacheWidth,
           gaplessPlayback: true,
-          filterQuality: FilterQuality.medium,
+          filterQuality: FilterQuality.high,
           errorBuilder: (_, __, ___) => placeholder,
         ),
       );
@@ -82,7 +83,7 @@ class LibraryCoverImage extends ConsumerWidget {
           // Keep a stable decoded image across layout switches.
           cacheWidth: null,
           gaplessPlayback: true,
-          filterQuality: FilterQuality.medium,
+          filterQuality: FilterQuality.high,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
           errorBuilder: (_, __, ___) => placeholder,
         ),
@@ -95,7 +96,7 @@ class LibraryCoverImage extends ConsumerWidget {
         image: provider,
         fit: fit,
         gaplessPlayback: true,
-        filterQuality: FilterQuality.medium,
+        filterQuality: FilterQuality.high,
         frameBuilder: (context, child, _, __) => child,
         errorBuilder: (_, __, ___) => placeholder,
       ),

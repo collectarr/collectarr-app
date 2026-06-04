@@ -246,29 +246,29 @@ ThemeData applySharedSurfaceTheme(
             letterSpacing: -0.05,
           ),
           bodyLarge: base.textTheme.bodyLarge?.copyWith(
-            fontSize: 13,
+            fontSize: 14,
             height: 1.2,
           ),
           bodyMedium: base.textTheme.bodyMedium?.copyWith(
-            fontSize: 12,
+            fontSize: 13,
             height: 1.16,
           ),
           bodySmall: base.textTheme.bodySmall?.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             height: 1.14,
           ),
           labelLarge: base.textTheme.labelLarge?.copyWith(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.1,
           ),
           labelMedium: base.textTheme.labelMedium?.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.08,
           ),
           labelSmall: base.textTheme.labelSmall?.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.08,
           ),
