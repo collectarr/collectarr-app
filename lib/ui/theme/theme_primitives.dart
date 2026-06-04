@@ -2,6 +2,9 @@ import 'package:collectarr_app/ui/theme/date_picker_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
+const String kClzPrimaryFontFamily = 'Gilroy';
+const List<String> kClzFontFallback = ['Segoe UI', 'Roboto'];
+
 ColorScheme buildAppColorScheme(AppThemePalette palette) {
   final base = ColorScheme.fromSeed(
     seedColor: palette.accent,
@@ -18,7 +21,8 @@ ColorScheme buildAppColorScheme(AppThemePalette palette) {
     surfaceContainerHigh: palette.panelRaised,
     surfaceContainerHighest: palette.surfaceBright,
     outline: palette.divider,
-    outlineVariant: palette.isDark ? const Color(0xFF373737) : const Color(0xFFD0D0D0),
+    outlineVariant:
+        palette.isDark ? const Color(0xFF373737) : const Color(0xFFD0D0D0),
   );
 }
 
@@ -148,7 +152,8 @@ IconButtonThemeData buildAppIconButtonTheme(
   return IconButtonThemeData(
     style: IconButton.styleFrom(
       foregroundColor: palette.textPrimary,
-      backgroundColor: palette.isDark ? const Color(0xFF343434) : palette.surfaceSubtle,
+      backgroundColor:
+          palette.isDark ? const Color(0xFF343434) : palette.surfaceSubtle,
       disabledForegroundColor: palette.isDark
           ? const Color(0xFF777777)
           : palette.textMuted.withValues(alpha: 0.7),
@@ -220,7 +225,8 @@ ThemeData applySharedSurfaceTheme(
     ),
     filledButtonTheme: buildAppFilledButtonTheme(palette),
     outlinedButtonTheme: buildAppOutlinedButtonTheme(palette),
-    iconButtonTheme: buildAppIconButtonTheme(compact: compact, palette: palette),
+    iconButtonTheme:
+        buildAppIconButtonTheme(compact: compact, palette: palette),
     inputDecorationTheme:
         inputDecorationTheme ?? buildAppInputDecorationTheme(palette),
     searchBarTheme: buildAppSearchBarTheme(palette),
@@ -228,7 +234,8 @@ ThemeData applySharedSurfaceTheme(
     datePickerTheme: buildAppDatePickerTheme(palette: palette),
     textTheme: base.textTheme
         .apply(
-          fontFamily: 'Segoe UI',
+          fontFamily: kClzPrimaryFontFamily,
+          fontFamilyFallback: kClzFontFallback,
           bodyColor: palette.textPrimary,
           displayColor: palette.textPrimary,
         )
