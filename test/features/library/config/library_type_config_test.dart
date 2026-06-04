@@ -291,6 +291,20 @@ void main() {
     }
   });
 
+  test('media adapter registry covers all active kinds', () {
+    expect(
+      collectarrMediaAdapters.supportedKinds,
+      containsAll(collectarrLibraryTypes.supportedKinds),
+    );
+    for (final kind in collectarrLibraryTypes.supportedKinds) {
+      expect(
+        collectarrMediaAdapters.byKind(kind),
+        isNotNull,
+        reason: 'Missing media adapter for $kind.',
+      );
+    }
+  });
+
   test('transferable field keys are kind-owned', () {
     expect(booksLibraryConfig.transferableFieldKeys,
         kDefaultTransferableFieldKeys);
@@ -402,7 +416,10 @@ void main() {
       'book',
       'game',
       'boardgame',
+      'manga',
       'movie',
+      'tv',
+      'anime',
       'music',
     ]);
     expect(collectarrMediaAdapters.supportedKinds, [
@@ -410,14 +427,19 @@ void main() {
       'book',
       'game',
       'boardgame',
+      'manga',
       'movie',
+      'tv',
+      'anime',
       'music',
     ]);
     expect(collectarrMediaAdapters.byKind(' Comic '), comicsMediaAdapter);
-    // 'manga' and 'anime' adapters removed; adapter behavior now consolidated.
     expect(collectarrMediaAdapters.byKind('book')?.type, booksLibraryConfig);
     expect(collectarrMediaAdapters.byKind('boardgame')?.type,
         boardGamesLibraryConfig);
+    expect(collectarrMediaAdapters.byKind('manga')?.type, mangaLibraryConfig);
+    expect(collectarrMediaAdapters.byKind('tv')?.type, tvLibraryConfig);
+    expect(collectarrMediaAdapters.byKind('anime')?.type, animeLibraryConfig);
     expect(
       collectarrMediaAdapters
           .byKind('movie')

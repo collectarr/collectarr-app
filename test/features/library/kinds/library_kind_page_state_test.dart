@@ -29,42 +29,115 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('known kind pages create concrete state classes', () {
-    expect(BookLibraryPage(type: booksLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/books')).createState(), isA<BookLibraryPageState>());
-    expect(GameLibraryPage(type: gamesLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/games')).createState(), isA<GameLibraryPageState>());
-    expect(BoardGameLibraryPage(type: boardGamesLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/boardgames')).createState(), isA<BoardGameLibraryPageState>());
-    expect(MusicLibraryPage(type: musicLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/music')).createState(), isA<MusicLibraryPageState>());
-    expect(ComicLibraryPage(type: comicsLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/comics')).createState(), isA<ComicLibraryPageState>());
-    expect(MangaLibraryPage(type: mangaLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/manga')).createState(), isA<MangaLibraryPageState>());
-    expect(MovieLibraryPage(type: moviesLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/movies')).createState(), isA<MovieLibraryPageState>());
-    expect(TvLibraryPage(type: tvLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/tv')).createState(), isA<TvLibraryPageState>());
-    expect(AnimeLibraryPage(type: animeLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/anime')).createState(), isA<AnimeLibraryPageState>());
+    expect(
+        BookLibraryPage(
+                type: booksLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/books'))
+            .createState(),
+        isA<BookLibraryPageState>());
+    expect(
+        GameLibraryPage(
+                type: gamesLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/games'))
+            .createState(),
+        isA<GameLibraryPageState>());
+    expect(
+        BoardGameLibraryPage(
+                type: boardGamesLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/boardgames'))
+            .createState(),
+        isA<BoardGameLibraryPageState>());
+    expect(
+        MusicLibraryPage(
+                type: musicLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/music'))
+            .createState(),
+        isA<MusicLibraryPageState>());
+    expect(
+        ComicLibraryPage(
+                type: comicsLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/comics'))
+            .createState(),
+        isA<ComicLibraryPageState>());
+    expect(
+        MangaLibraryPage(
+                type: mangaLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/manga'))
+            .createState(),
+        isA<MangaLibraryPageState>());
+    expect(
+        MovieLibraryPage(
+                type: moviesLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/movies'))
+            .createState(),
+        isA<MovieLibraryPageState>());
+    expect(
+        TvLibraryPage(
+                type: tvLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/tv'))
+            .createState(),
+        isA<TvLibraryPageState>());
+    expect(
+        AnimeLibraryPage(
+                type: animeLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/anime'))
+            .createState(),
+        isA<AnimeLibraryPageState>());
   });
 
   test('video-like kinds share the explicit video drilldown state base', () {
-    expect(MovieLibraryPage(type: moviesLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/movies')).createState(), isA<VideoDrilldownLibraryPageState>());
-    expect(TvLibraryPage(type: tvLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/tv')).createState(), isA<VideoDrilldownLibraryPageState>());
-    expect(AnimeLibraryPage(type: animeLibraryConfig, topBar: const SizedBox(), accent: Colors.blue, routeUri: Uri(path: '/anime')).createState(), isA<VideoDrilldownLibraryPageState>());
+    expect(
+        MovieLibraryPage(
+                type: moviesLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/movies'))
+            .createState(),
+        isA<VideoDrilldownLibraryPageState>());
+    expect(
+        TvLibraryPage(
+                type: tvLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/tv'))
+            .createState(),
+        isA<VideoDrilldownLibraryPageState>());
+    expect(
+        AnimeLibraryPage(
+                type: animeLibraryConfig,
+                topBar: const SizedBox(),
+                accent: Colors.blue,
+                routeUri: Uri(path: '/anime'))
+            .createState(),
+        isA<VideoDrilldownLibraryPageState>());
   });
 
   test('reading queue visibility is now kind-owned in page state', () {
-    final dynamic bookState = BookLibraryPage(
-      type: booksLibraryConfig,
-      topBar: const SizedBox(),
-      accent: Colors.blue,
-      routeUri: Uri(path: '/books'),
-    ).createState();
-    final dynamic gameState = GameLibraryPage(
-      type: gamesLibraryConfig,
-      topBar: const SizedBox(),
-      accent: Colors.blue,
-      routeUri: Uri(path: '/games'),
-    ).createState();
-
-    expect(bookState.showsReadingQueue(), isTrue);
-    expect(gameState.showsReadingQueue(), isFalse);
+    expect(booksLibraryConfig.capabilities.supportsReadingQueue, isTrue);
+    expect(gamesLibraryConfig.capabilities.supportsReadingQueue, isFalse);
   });
 
-  test('library kind page builder dispatches known kinds and falls back to generic', () {
+  test(
+      'library kind page builder dispatches known kinds and falls back to generic',
+      () {
     expect(
       buildLibraryKindPage(
         type: collectarrLibraryTypes.byKind('comic')!,

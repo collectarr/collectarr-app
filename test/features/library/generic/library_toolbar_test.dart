@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -572,5 +573,84 @@ void main() {
       find.byType(LibrarySelectionToolbarBand),
     );
     expect(selectionBand.showBottomBorder, isFalse);
+  });
+
+  testWidgets('toolbar capability gates stay consistent across all kinds',
+      (tester) async {
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+    tester.view.physicalSize = const Size(1800, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    for (final type in collectarrLibraryTypes.types) {
+      final adapter =
+          collectarrMediaAdapters.byKind(type.workspace.kind.apiValue);
+      expect(
+        adapter,
+        isNotNull,
+        reason: 'Missing adapter for ${type.workspace.kind.apiValue}',
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: LibraryToolbar(
+                type: type,
+                searchController: searchController,
+                viewState: adapter!.viewProfile.defaults(),
+                adapter: adapter,
+                counts: const LibraryToolbarCounts(),
+                onAdd: () {},
+                onScan: () {},
+                onSearchChanged: (_) {},
+                onEditColumns: () {},
+                onSortChanged: (_) {},
+                onSidebarVisibilityChanged: (_) {},
+                onViewModeChanged: (_) {},
+                onDetailsLayoutChanged: (_) {},
+                onCoverSizeChanged: (_) {},
+                selectedBucket: null,
+                onClearBucket: () {},
+                onRefreshMetadata: () {},
+                quickView: null,
+                onQuickViewSelected: (_) {},
+                hasActiveFilters: false,
+                onClearFilters: () {},
+                onScanCover: () {},
+                onReadingQueue: () {},
+                onReassignIndex: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final filtering = tester.widget<LibraryDesktopFilteringToolbar>(
+        find.byType(LibraryDesktopFilteringToolbar),
+      );
+      final secondary = tester.widget<LibraryDesktopSecondaryToolbar>(
+        find.byType(LibraryDesktopSecondaryToolbar),
+      );
+
+      expect(
+        filtering.onScanCover,
+        type.capabilities.canScanCover ? isNotNull : isNull,
+        reason: 'scan-cover gate mismatch for ${type.workspace.kind.apiValue}',
+      );
+      expect(
+        secondary.onReadingQueue,
+        type.capabilities.supportsReadingQueue ? isNotNull : isNull,
+        reason:
+            'reading-queue gate mismatch for ${type.workspace.kind.apiValue}',
+      );
+      expect(
+        secondary.onReassignIndex,
+        type.capabilities.supportsIndexReassignment ? isNotNull : isNull,
+        reason:
+            'reassign-index gate mismatch for ${type.workspace.kind.apiValue}',
+      );
+    }
   });
 }
