@@ -5,6 +5,27 @@ final _random = math.Random();
 /// Collection actions, context menu handling, bulk operations, and barcode
 /// scanning for the library page.
 extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
+  bool _isNonServerMetadataId(String id) {
+    final normalized = id.trim().toLowerCase();
+    return normalized.startsWith('preview-') ||
+        normalized.startsWith('local-') ||
+        normalized.startsWith('provider:');
+  }
+
+  bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {
+    if (!supportsMetadataCompareWithServer()) {
+      return false;
+    }
+    final catalogId = item.source.catalogItem?.id ?? item.entry.id;
+    if (_isNonServerMetadataId(catalogId)) {
+      return false;
+    }
+    if (item.entry.hasMissingMetadata) {
+      return false;
+    }
+    return true;
+  }
+
   Future<void> runCollectionAction(
     Future<void> Function(LibraryCollectionActions actions) action,
   ) async {
@@ -62,6 +83,19 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
       );
       return;
     }
+    if (!canCompareMetadataWithServerItem(targetItem)) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'This item cannot be compared with server metadata.',
+          ),
+        ),
+      );
+      return;
+    }
     await showEditDialog(
       targetItem,
       targetItem.source.ownedItem,
@@ -95,7 +129,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
       entry: item.entry,
       accent: widget.accent,
       selectedCount: contextSelectionIds.length,
-      supportsMetadataCompare: supportsMetadataCompareWithServer(),
+      supportsMetadataCompare: canCompareMetadataWithServerItem(item),
     );
     if (result == null || !mounted) return;
     switch (result.action) {

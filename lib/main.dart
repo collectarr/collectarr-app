@@ -17,40 +17,52 @@ const _interFontAsset = 'assets/fonts/Inter-Variable.ttf';
 const _monoFontAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  final container = ProviderContainer();
-
-  // Capture Flutter framework errors.
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    container.read(appLogProvider.notifier).error(
-          'flutter',
-          details.exceptionAsString(),
-          detail: details.stack?.toString(),
-        );
-  };
-
-  // Capture uncaught async errors.
+  ProviderContainer? container;
   runZonedGuarded(
     () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      container = ProviderContainer();
+
+      // Capture Flutter framework errors.
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+        container?.read(appLogProvider.notifier).error(
+              'flutter',
+              details.exceptionAsString(),
+              detail: details.stack?.toString(),
+            );
+      };
+
       // Register per-kind LibraryAdd builders so the generic add dialog
       // can discover custom panes at runtime.
       registerLibraryAddBuilders();
-      await _logFontDiagnostics(container);
+      await _logFontDiagnostics(container!);
 
       if (kDebugMode && kIsWeb) {
-        await seedLocalDatabase(container.read(localDatabaseProvider));
+        await seedLocalDatabase(container!.read(localDatabaseProvider));
       }
 
       runApp(
         UncontrolledProviderScope(
-          container: container,
+          container: container!,
           child: const CollectarrApp(),
         ),
       );
     },
     (error, stack) {
-      container.read(appLogProvider.notifier).error(
+      final activeContainer = container;
+      if (activeContainer == null) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: error,
+            stack: stack,
+            library: 'zone',
+            context: ErrorDescription('while bootstrapping Collectarr'),
+          ),
+        );
+        return;
+      }
+      activeContainer.read(appLogProvider.notifier).error(
             'zone',
             error.toString(),
             detail: stack.toString(),

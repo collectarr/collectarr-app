@@ -773,13 +773,23 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                             projection.filteredItems.isNotEmpty
                         ? () => shareCollectionFlow(projection)
                         : null,
-                    onCompareMetadataWithServer: projection != null &&
-                            supportsMetadataCompareWithServer() &&
-                            selectedProjectionItemFor(projection) != null
-                        ? () => unawaited(compareMetadataWithServerFlow(
+                    onCompareMetadataWithServer: (() {
+                      if (projection == null ||
+                          !supportsMetadataCompareWithServer()) {
+                        return null;
+                      }
+                      final selected = selectedProjectionItemFor(projection);
+                      if (selected == null ||
+                          !canCompareMetadataWithServerItem(selected)) {
+                        return null;
+                      }
+                      return () => unawaited(
+                            compareMetadataWithServerFlow(
                               projection,
-                            ))
-                        : null,
+                              item: selected,
+                            ),
+                          );
+                    })(),
                     selectionEnabled: _selection.enabled &&
                         viewState.viewMode != LibraryViewMode.cardFlow,
                     selectedCount:
@@ -1091,10 +1101,21 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => shareCollectionFlow(projection)
             : null,
-        onCompareMetadataWithServer: supportsMetadataCompareWithServer() &&
-                selectedProjectionItemFor(projection) != null
-            ? () => unawaited(compareMetadataWithServerFlow(projection))
-            : null,
+        onCompareMetadataWithServer: (() {
+          if (!supportsMetadataCompareWithServer()) {
+            return null;
+          }
+          final selected = selectedProjectionItemFor(projection);
+          if (selected == null || !canCompareMetadataWithServerItem(selected)) {
+            return null;
+          }
+          return () => unawaited(
+                compareMetadataWithServerFlow(
+                  projection,
+                  item: selected,
+                ),
+              );
+        })(),
         groupMode: _activeSidebarGroupMode,
         folderPreset: _activeFolderPreset,
         pinnedFolderPresets: _pinnedFolderPresets,
