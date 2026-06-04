@@ -167,6 +167,10 @@ class LibraryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final targetAccent = libraryAccentForKind(type.workspace.kind);
+    final effectiveScanCover =
+        type.capabilities.canScanCover ? onScanCover : null;
+    final effectiveReadingQueue =
+        type.capabilities.supportsReadingQueue ? onReadingQueue : null;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
       duration: kAppAnimNormal,
@@ -225,7 +229,7 @@ class LibraryToolbar extends StatelessWidget {
                   onDownloadAllCovers: onDownloadAllCovers,
                   onSmartLists: onSmartLists,
                   onFolders: onFolders,
-                  onReadingQueue: onReadingQueue,
+                  onReadingQueue: effectiveReadingQueue,
                   onEditConditionPickList: onEditConditionPickList,
                   onEditGradePickList: onEditGradePickList,
                   onEditTagPickList: onEditTagPickList,
@@ -257,7 +261,7 @@ class LibraryToolbar extends StatelessWidget {
                     onScan: onScan,
                     onRefreshMetadata: onRefreshMetadata,
                     onRandomPick: onRandomPick,
-                    onScanCover: onScanCover,
+                    onScanCover: effectiveScanCover,
                     onSearchChanged: onSearchChanged,
                     onClearBucket: onClearBucket,
                   ),
@@ -304,7 +308,7 @@ class LibraryToolbar extends StatelessWidget {
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
                       onFolders: onFolders,
-                      onReadingQueue: onReadingQueue,
+                      onReadingQueue: effectiveReadingQueue,
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,
                       onEditTagPickList: onEditTagPickList,
@@ -330,4 +334,3 @@ class LibraryToolbar extends StatelessWidget {
     );
   }
 }
-

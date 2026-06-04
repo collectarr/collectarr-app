@@ -1846,7 +1846,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool showsReadingQueue() {
-    return false;
+    return widget.type.capabilities.supportsReadingQueue;
   }
 
   @protected

@@ -63,6 +63,7 @@ const booksLibraryConfig = LibraryTypeConfig(
     contentHierarchy: LibraryContentHierarchy.volumes,
     supportsOwnedItemImages: false,
     supportsMediaReleaseSplit: true,
+    supportsReadingQueue: true,
   ),
   conditions: kBookConditions,
 );

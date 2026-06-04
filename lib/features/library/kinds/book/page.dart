@@ -9,8 +9,7 @@ class BookLibraryPage extends GenericLibraryPage {
     required super.topBar,
     required super.accent,
     required super.routeUri,
-  }) : super(
-        );
+  }) : super();
 
   @override
   ConsumerState<GenericLibraryPage> createState() => BookLibraryPageState();
@@ -19,7 +18,4 @@ class BookLibraryPage extends GenericLibraryPage {
 class BookLibraryPageState extends GenericLibraryPageState {
   @override
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) => false;
-
-  @override
-  bool showsReadingQueue() => true;
 }

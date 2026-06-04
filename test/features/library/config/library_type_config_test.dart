@@ -126,9 +126,12 @@ void main() {
     expect(booksLibraryConfig.collectionExportTitleLabel, 'Title');
   });
 
-  test('books library config enables creator spotlight in shared hero chrome', () {
+  test('books library config enables creator spotlight in shared hero chrome',
+      () {
     expect(booksLibraryConfig.capabilities.showsCreatorSpotlight, isTrue);
+    expect(booksLibraryConfig.capabilities.supportsReadingQueue, isTrue);
     expect(moviesLibraryConfig.capabilities.showsCreatorSpotlight, isFalse);
+    expect(moviesLibraryConfig.capabilities.supportsReadingQueue, isFalse);
   });
 
   test('library type config can carry an add dialog launcher override', () {
@@ -217,10 +220,10 @@ void main() {
         'openlibrary');
     expect(collectarrLibraryTypes.byKind('movie')?.defaultMetadataProvider,
         'tmdb');
-    expect(collectarrLibraryTypes.byKind('tv')?.defaultMetadataProvider,
-      'tmdb');
+    expect(
+        collectarrLibraryTypes.byKind('tv')?.defaultMetadataProvider, 'tmdb');
     expect(collectarrLibraryTypes.byKind('anime')?.defaultMetadataProvider,
-      'anilist');
+        'anilist');
     expect(collectarrLibraryTypes.byKind('music')?.defaultMetadataProvider,
         'musicbrainz');
     expect(collectarrLibraryTypes.byKind('bluray'), isNull);
@@ -282,12 +285,14 @@ void main() {
   });
 
   test('transferable field keys are kind-owned', () {
-    expect(booksLibraryConfig.transferableFieldKeys, kDefaultTransferableFieldKeys);
+    expect(booksLibraryConfig.transferableFieldKeys,
+        kDefaultTransferableFieldKeys);
     expect(
       comicsLibraryConfig.transferableFieldKeys,
       containsAll(kComicTransferableFieldKeys),
     );
-    expect(booksLibraryConfig.transferableFieldKeys, isNot(contains('keyComic')));
+    expect(
+        booksLibraryConfig.transferableFieldKeys, isNot(contains('keyComic')));
   });
 
   test('add wording chrome is kind-owned', () {
@@ -337,8 +342,8 @@ void main() {
   });
 
   test('game kinds use dedicated edit dialog builders', () {
-    expect(gamesLibraryConfig.editDialogBuilder,
-        same(buildGameLibraryEditDialog));
+    expect(
+        gamesLibraryConfig.editDialogBuilder, same(buildGameLibraryEditDialog));
     expect(boardGamesLibraryConfig.editDialogBuilder,
         same(buildBoardGameLibraryEditDialog));
   });
@@ -448,7 +453,8 @@ void main() {
       LibraryGroupMode.ownership,
     ]);
     expect(
-      booksLibraryConfig.presentation.sortFavorites.map((favorite) => favorite.id),
+      booksLibraryConfig.presentation.sortFavorites
+          .map((favorite) => favorite.id),
       ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
     expect(comicsLibraryConfig.presentation.externalFacetBucketModes, [
@@ -462,7 +468,8 @@ void main() {
       ['series_issue', 'recent', 'publisher_date', 'value_desc'],
     );
     expect(
-      comicsLibraryConfig.presentation.columnFavorites.map((preset) => preset.label),
+      comicsLibraryConfig.presentation.columnFavorites
+          .map((preset) => preset.label),
       comicsTableColumnPresets.map((preset) => preset.label),
     );
     expect(booksLibraryConfig.presentation.compactBucketIcon, Icons.folder);

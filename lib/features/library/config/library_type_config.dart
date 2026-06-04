@@ -284,6 +284,7 @@ class LibraryTypeCapabilities {
     this.supportsOwnedItemImages = true,
     this.supportsVideoKindFilters = false,
     this.supportsMediaReleaseSplit = false,
+    this.supportsReadingQueue = false,
     this.wideDialog = false,
     this.videoSeriesEntryTypes = const {},
     this.videoShelfDrilldownEntryTypes = const {},
@@ -297,6 +298,7 @@ class LibraryTypeCapabilities {
   final bool supportsOwnedItemImages;
   final bool supportsVideoKindFilters;
   final bool supportsMediaReleaseSplit;
+  final bool supportsReadingQueue;
   final bool wideDialog;
   final Set<String> videoSeriesEntryTypes;
   final Set<String> videoShelfDrilldownEntryTypes;
@@ -312,7 +314,8 @@ class LibraryTypeCapabilities {
   }
 
   bool supportsVideoShelfDrilldown(String mediaType) {
-    return videoShelfDrilldownEntryTypes.contains(mediaType.trim().toLowerCase());
+    return videoShelfDrilldownEntryTypes
+        .contains(mediaType.trim().toLowerCase());
   }
 }
 
@@ -376,8 +379,8 @@ class LibraryTypeConfig {
     this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
     this.presentation = genericLibraryMediaPresentation,
-    this.editPresentation =
-      const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.editPresentation = const LibraryEditPresentation(
+        builder: DefaultLibraryEditPresentationBuilder()),
     this.addChrome = const LibraryAddChromeConfig(),
     this.editChrome = const LibraryEditChromeConfig(),
     this.mediaFields = const MediaEditFields(),
@@ -438,12 +441,12 @@ class LibraryTypeConfig {
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
-    List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
+  List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
 
-    List<LibrarySortColumn> get availableSortColumns =>
+  List<LibrarySortColumn> get availableSortColumns =>
       workspace.availableSortColumns;
 
-    List<LibraryTableColumn> get availableTableColumns =>
+  List<LibraryTableColumn> get availableTableColumns =>
       workspace.availableTableColumns;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
