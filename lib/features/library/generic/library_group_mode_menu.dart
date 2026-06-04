@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryGroupModeMenuAction { disableFolders }
@@ -350,7 +351,6 @@ class _LibraryGroupModeDropdownMenuState
                 if (widget.hasSidebarVisibilityToggle && widget.sidebarVisible)
                   _buildActionItem(
                     context,
-                    icon: Icons.folder_off_outlined,
                     label: 'No folders',
                     onTap: () => _emitSelection(
                       LibraryGroupModeMenuAction.disableFolders,
@@ -393,20 +393,25 @@ class _LibraryGroupModeDropdownMenuState
                     ],
                   ),
                 ),
+                const LibraryWorkspaceMenuSectionDivider(
+                  label: 'Favorites',
+                  leadingInset: 12,
+                  leadingLineWidth: 52,
+                ),
                 if (favoritePresets.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                    padding: const EdgeInsets.fromLTRB(26, 2, 12, 10),
                     child: Text(
                       'No favorites',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: libraryToolbarMenuMutedText(context),
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                     ),
                   )
                 else
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    padding: const EdgeInsets.fromLTRB(22, 0, 6, 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -414,14 +419,14 @@ class _LibraryGroupModeDropdownMenuState
                           _buildPresetItem(
                             context,
                             preset,
-                            sectionHighlighted: false,
                           ),
                       ],
                     ),
                   ),
                 const LibraryWorkspaceMenuSectionDivider(
                   label: 'Folders',
-                  leadingInset: 36,
+                  leadingInset: 12,
+                  leadingLineWidth: 52,
                 ),
                 for (final category in _categories)
                   _buildSection(
@@ -450,79 +455,51 @@ class _LibraryGroupModeDropdownMenuState
         : null;
     final hasSelectedMode = modes.contains(selectedSingleMode) ||
         presets.contains(widget.selectedPreset);
-    final highlightColor =
-        libraryToolbarMenuText(context).withValues(alpha: 0.95);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Stack(
-            children: [
-              if (!expanded && hasSelectedMode)
-                Positioned(
-                  left: 0,
-                  top: 4,
-                  bottom: 4,
-                  child: Container(
-                    key: ValueKey('groupModeSectionBar_$label'),
-                    width: 4,
-                    color: highlightColor,
-                  ),
-                ),
-              Padding(
-                padding: EdgeInsets.only(
-                    left: !expanded && hasSelectedMode ? 10 : 0),
-                child: LibraryWorkspaceMenuTreeHeader(
-                  label: label,
-                  expanded: expanded,
-                  highlighted: hasSelectedMode,
-                  onTap: () {
-                    setState(() {
-                      _expandedSections[label] = !expanded;
-                    });
-                  },
-                ),
-              ),
-            ],
+          LibraryWorkspaceMenuTreeHeader(
+            label: label,
+            expanded: expanded,
+            highlighted: hasSelectedMode,
+            onTap: () {
+              setState(() {
+                _expandedSections[label] = !expanded;
+              });
+            },
           ),
           if (expanded)
             Padding(
-              padding: const EdgeInsets.only(left: 28),
-              child: Stack(
-                children: [
-                  if (hasSelectedMode)
-                    Positioned(
-                      left: 0,
-                      top: 4,
-                      bottom: 4,
-                      child: Container(
-                        key: ValueKey('groupModeSectionLevelBar_$label'),
-                        width: 4,
-                        color: highlightColor,
+              padding: const EdgeInsets.fromLTRB(18, 0, 0, 4),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      key: ValueKey('groupModeSectionLevelBar_$label'),
+                      width: 1,
+                      margin: const EdgeInsets.fromLTRB(0, 4, 10, 4),
+                      color: libraryToolbarMenuBorder(context)
+                          .withValues(alpha: hasSelectedMode ? 0.85 : 0.65),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 6, 6, 6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final mode in modes)
+                              _buildModeItem(context, mode),
+                            for (final preset in presets)
+                              _buildPresetItem(context, preset),
+                          ],
+                        ),
                       ),
                     ),
-                  Padding(
-                    padding: EdgeInsets.only(left: hasSelectedMode ? 10 : 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final mode in modes)
-                          _buildModeItem(
-                            context,
-                            mode,
-                            sectionHighlighted: hasSelectedMode,
-                          ),
-                        for (final preset in presets)
-                          _buildPresetItem(
-                            context,
-                            preset,
-                            sectionHighlighted: hasSelectedMode,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
         ],
@@ -532,7 +509,7 @@ class _LibraryGroupModeDropdownMenuState
 
   Widget _buildActionItem(
     BuildContext context, {
-    required IconData icon,
+    IconData? icon,
     required String label,
     required VoidCallback onTap,
   }) {
@@ -540,92 +517,71 @@ class _LibraryGroupModeDropdownMenuState
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       child: LibraryWorkspaceMenuRow(
         label: label,
-        leading: Icon(
-          icon,
-          size: 16,
-          color: libraryToolbarMenuMutedText(context),
-        ),
+        leading: icon == null
+            ? null
+            : Icon(
+                icon,
+                size: 16,
+                color: libraryToolbarMenuMutedText(context),
+              ),
         onTap: onTap,
         textStyle: TextStyle(
           color: libraryToolbarMenuText(context),
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
       ),
     );
   }
 
-  Widget _buildModeItem(
-    BuildContext context,
-    LibraryGroupMode mode, {
-    required bool sectionHighlighted,
-  }) {
+  Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
     final isSelected =
         widget.selectedPreset == LibraryFolderPreset.single(mode);
-    final selectedBackground =
-        isSelected ? libraryToolbarMenuHover(context) : Colors.transparent;
+    final selectedBackground = _selectedRowBackground(context, isSelected);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Padding(
-        padding:
-            EdgeInsets.only(left: isSelected && !sectionHighlighted ? 10 : 0),
-        child: LibraryWorkspaceMenuRow(
-          key: ValueKey('groupModeItemRow_${mode.name}'),
-          label: genericGroupModeFolderSetLabel(mode, widget.type),
-          leadingWidth: 16,
-          leading: isSelected
-              ? Icon(
-                  Icons.check,
-                  size: 16,
-                  color: libraryToolbarMenuText(context),
-                )
-              : null,
-          onTap: () => _emitSelection(LibraryFolderPreset.single(mode)),
-          padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-          backgroundColor: selectedBackground,
-          textStyle: TextStyle(
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-            color: libraryToolbarMenuText(context),
-          ),
+      child: LibraryWorkspaceMenuRow(
+        key: ValueKey('groupModeItemRow_${mode.name}'),
+        label: genericGroupModeFolderSetLabel(mode, widget.type),
+        onTap: () => _emitSelection(LibraryFolderPreset.single(mode)),
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+        backgroundColor: selectedBackground,
+        textStyle: TextStyle(
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          color: libraryToolbarMenuText(context),
         ),
       ),
     );
   }
 
-  Widget _buildPresetItem(
-    BuildContext context,
-    LibraryFolderPreset preset, {
-    required bool sectionHighlighted,
-  }) {
+  Widget _buildPresetItem(BuildContext context, LibraryFolderPreset preset) {
     final isSelected = preset == widget.selectedPreset;
     final keySuffix = preset.storageValue.replaceAll('>', '_');
-    final selectedBackground =
-        isSelected ? libraryToolbarMenuHover(context) : Colors.transparent;
+    final selectedBackground = _selectedRowBackground(context, isSelected);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Padding(
-        padding:
-            EdgeInsets.only(left: isSelected && !sectionHighlighted ? 10 : 0),
-        child: LibraryWorkspaceMenuRow(
-          key: ValueKey('groupPresetItemRow_$keySuffix'),
-          label: genericFolderPresetLabel(preset, widget.type),
-          leadingWidth: 16,
-          leading: isSelected
-              ? Icon(
-                  Icons.check,
-                  size: 16,
-                  color: libraryToolbarMenuText(context),
-                )
-              : null,
-          onTap: () => _emitSelection(preset),
-          padding: const EdgeInsets.fromLTRB(6, 8, 8, 8),
-          backgroundColor: selectedBackground,
-          textStyle: TextStyle(
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-            color: libraryToolbarMenuText(context),
-          ),
+      child: LibraryWorkspaceMenuRow(
+        key: ValueKey('groupPresetItemRow_$keySuffix'),
+        label: genericFolderPresetLabel(preset, widget.type),
+        onTap: () => _emitSelection(preset),
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+        backgroundColor: selectedBackground,
+        textStyle: TextStyle(
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          color: libraryToolbarMenuText(context),
         ),
       ),
+    );
+  }
+
+  Color _selectedRowBackground(BuildContext context, bool selected) {
+    if (!selected) {
+      return Colors.transparent;
+    }
+    final palette = appPalette(context);
+    return Color.alphaBlend(
+      palette.textPrimary.withValues(alpha: palette.isDark ? 0.17 : 0.10),
+      libraryToolbarMenuSurface(context),
     );
   }
 }

@@ -37,6 +37,7 @@ void main() {
     expect(find.byIcon(Icons.push_pin), findsNothing);
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Manage Favorites'), findsOneWidget);
+    expect(find.text('Favorites'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);
@@ -75,6 +76,10 @@ void main() {
     await tester.tap(editionHeader);
     await tester.pumpAndSettle();
 
+    expect(
+      find.byKey(const ValueKey('groupModeSectionLevelBar_Edition')),
+      findsOneWidget,
+    );
     expect(find.text('Format'), findsOneWidget);
     expect(find.text('Audio Tracks'), findsOneWidget);
     expect(find.text('Edition Release Date'), findsOneWidget);
@@ -86,10 +91,6 @@ void main() {
 
     expect(
       find.byKey(const ValueKey('groupModeSectionBar_Main')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
       findsNothing,
     );
   });
@@ -268,8 +269,7 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
-        findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
 
     await tester.tapAt(const Offset(700, 500));
     await tester.pumpAndSettle();
