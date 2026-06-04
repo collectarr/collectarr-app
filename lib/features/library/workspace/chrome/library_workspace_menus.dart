@@ -31,14 +31,19 @@ class LibraryWorkspaceMenuPanel extends StatelessWidget {
   const LibraryWorkspaceMenuPanel({
     super.key,
     required this.child,
+    this.includeBackground = true,
   });
 
   final Widget child;
+  final bool includeBackground;
 
   @override
   Widget build(BuildContext context) {
+    final decoration = libraryToolbarMenuPanelDecoration(context);
     return DecoratedBox(
-      decoration: libraryToolbarMenuPanelDecoration(context),
+      decoration: includeBackground
+          ? decoration
+          : decoration.copyWith(color: Colors.transparent),
       child: child,
     );
   }
@@ -49,10 +54,12 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
     super.key,
     required this.label,
     this.padding = const EdgeInsets.fromLTRB(12, 8, 12, 6),
+    this.leadingInset = 0,
   });
 
   final String label;
   final EdgeInsetsGeometry padding;
+  final double leadingInset;
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +67,7 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
       padding: padding,
       child: Row(
         children: [
-          Expanded(
-            child: Divider(height: 1, color: libraryToolbarMenuBorder(context)),
-          ),
+          if (leadingInset > 0) SizedBox(width: leadingInset),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -109,12 +114,12 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveTextStyle =
-        textStyle ?? Theme.of(context).textTheme.bodyMedium?.copyWith(
+    final effectiveTextStyle = textStyle ??
+        Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: libraryToolbarMenuText(context),
               fontWeight: FontWeight.w500,
             );
-    final content = DecoratedBox(
+    final content = Ink(
       decoration: BoxDecoration(color: backgroundColor ?? Colors.transparent),
       child: Padding(
         padding: padding,
