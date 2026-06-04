@@ -648,9 +648,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                       onBulkEdit: _hasOwnedItemsInSelection(projection)
                           ? () => bulkEditFlow(projection)
                           : null,
-                      onPrintToPdf: () => printSelectedReportFlow(projection),
-                      onExportCsvTxt: () =>
-                          shareSelectedCollectionFlow(projection),
+                      onPrintToPdf: _hasSelectedItemsInSelection(projection)
+                          ? () => printSelectedReportFlow(projection)
+                          : null,
+                      onExportCsvTxt: _hasSelectedItemsInSelection(projection)
+                          ? () => shareSelectedCollectionFlow(projection)
+                          : null,
                       onBulkDuplicate: _hasOwnedItemsInSelection(projection)
                           ? () => bulkDuplicateFlow(projection)
                           : null,
@@ -672,9 +675,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                           _hasMoveToWishlistEligibleItemsInSelection(projection)
                               ? () => bulkMoveToWishlistFlow(projection)
                               : null,
-                      onBulkRemove: () => bulkRemoveFlow(projection),
-                      onBulkRefreshMetadata: () =>
-                          bulkRefreshMetadataFlow(projection),
+                      onBulkRemove: _hasRemovableItemsInSelection(projection)
+                          ? () => bulkRemoveFlow(projection)
+                          : null,
+                      onBulkRefreshMetadata:
+                          _hasSelectedItemsInSelection(projection)
+                              ? () => bulkRefreshMetadataFlow(projection)
+                              : null,
                     ),
                   ),
                   Expanded(
@@ -1444,6 +1451,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
+  bool _hasSelectedItemsInSelection(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) {
+      return false;
+    }
+    return projection.filteredItems.any(
+      (item) => _selection.itemIds.contains(item.entry.id),
+    );
+  }
+
   bool _hasLoanableOwnedItemsInSelection(LibraryProjection? projection) {
     if (projection == null || _selection.itemIds.isEmpty) {
       return false;
@@ -1476,6 +1492,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       (item) =>
           _selection.itemIds.contains(item.entry.id) &&
           !item.entry.isWishlisted,
+    );
+  }
+
+  bool _hasRemovableItemsInSelection(LibraryProjection? projection) {
+    if (projection == null || _selection.itemIds.isEmpty) {
+      return false;
+    }
+    return projection.filteredItems.any(
+      (item) =>
+          _selection.itemIds.contains(item.entry.id) &&
+          (item.entry.ownedItemId != null ||
+              item.entry.isWishlisted ||
+              item.source.trackingEntry != null),
     );
   }
 

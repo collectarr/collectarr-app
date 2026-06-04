@@ -73,8 +73,8 @@ void main() {
       onBulkUpdateKeyInfo: null,
       onBulkMoveToOwned: () {},
       onBulkMoveToWishlist: () {},
-      onBulkRemove: () {},
-      onBulkRefreshMetadata: () {},
+      onBulkRemove: null,
+      onBulkRefreshMetadata: null,
     );
 
     await tester.pumpWidget(
@@ -116,8 +116,8 @@ void main() {
       onBulkUpdateKeyInfo: null,
       onBulkMoveToOwned: () {},
       onBulkMoveToWishlist: () {},
-      onBulkRemove: () {},
-      onBulkRefreshMetadata: () {},
+      onBulkRemove: null,
+      onBulkRefreshMetadata: null,
     );
 
     await tester.pumpWidget(
@@ -156,14 +156,27 @@ void main() {
           (widget.child as ListTile).title is Text &&
           ((widget.child as ListTile).title as Text).data == 'Duplicate',
     );
+    final updateFromCoreItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem &&
+          widget.enabled == false &&
+          widget.child is ListTile &&
+          (widget.child as ListTile).title is Text &&
+          ((widget.child as ListTile).title as Text).data == 'Update from Core',
+    );
 
     final editButton = tester.widget<TextButton>(
       find.widgetWithText(TextButton, 'Edit'),
     );
+    final removeButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Remove'),
+    );
     expect(editButton.onPressed, isNull);
+    expect(removeButton.onPressed, isNull);
     expect(duplicateItem, findsOneWidget);
     expect(loanItem, findsOneWidget);
     expect(transferItem, findsOneWidget);
+    expect(updateFromCoreItem, findsOneWidget);
   });
 
   testWidgets('utility menu uses a labeled trigger and section headers', (

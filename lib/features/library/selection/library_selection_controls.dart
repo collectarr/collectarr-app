@@ -27,8 +27,8 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onBulkUpdateKeyInfo,
   VoidCallback? onBulkMoveToOwned,
   VoidCallback? onBulkMoveToWishlist,
-  VoidCallback onBulkRemove,
-  VoidCallback onBulkRefreshMetadata,
+  VoidCallback? onBulkRemove,
+  VoidCallback? onBulkRefreshMetadata,
 });
 
 class LibrarySelectionControls extends StatelessWidget {
@@ -226,11 +226,12 @@ class LibrarySelectionControls extends StatelessWidget {
                 dense: true,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BulkAction.updateFromCore,
+              enabled: callbacks.onBulkRefreshMetadata != null,
               child: ListTile(
-                leading: Icon(Icons.sync),
-                title: Text('Update from Core'),
+                leading: const Icon(Icons.sync),
+                title: const Text('Update from Core'),
                 dense: true,
               ),
             ),
