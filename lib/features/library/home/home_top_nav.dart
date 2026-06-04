@@ -6,7 +6,10 @@ import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +96,16 @@ class MediaLibraryNav extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 4, right: 6),
-            child: _LibraryNavCollapseButton(accent: accent),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const _LibraryTopNavSyncButton(),
+                const SizedBox(width: 4),
+                const _LibraryTopNavMenuButton(),
+                const SizedBox(width: 4),
+                _LibraryNavCollapseButton(accent: accent),
+              ],
+            ),
           ),
         ],
       ),
@@ -186,6 +198,10 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                       selectedLabel: selectedLabel,
                     ),
                     const SizedBox(width: 6),
+                    const _LibraryTopNavSyncButton(),
+                    const SizedBox(width: 4),
+                    const _LibraryTopNavMenuButton(),
+                    const SizedBox(width: 4),
                     _LibraryNavCollapseButton(accent: accent),
                   ],
                 ),
@@ -232,7 +248,6 @@ class _MediaLibraryTitle extends StatelessWidget {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
@@ -288,9 +303,132 @@ class _LibraryNavCollapseButton extends ConsumerWidget {
           : 'Hide library selector',
       label: '',
       icon: navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
-      onPressed: () => ref
-          .read(libraryNavPreferencesProvider.notifier)
-          .toggleCollapsed(),
+      onPressed: () =>
+          ref.read(libraryNavPreferencesProvider.notifier).toggleCollapsed(),
+    );
+  }
+}
+
+enum _LibraryTopNavDestination {
+  shelf,
+  calendar,
+  admin,
+  settings,
+  shortcuts,
+}
+
+extension on _LibraryTopNavDestination {
+  String get label {
+    switch (this) {
+      case _LibraryTopNavDestination.shelf:
+        return 'Shelf';
+      case _LibraryTopNavDestination.calendar:
+        return 'Calendar';
+      case _LibraryTopNavDestination.admin:
+        return 'Admin';
+      case _LibraryTopNavDestination.settings:
+        return 'Settings';
+      case _LibraryTopNavDestination.shortcuts:
+        return 'Keyboard shortcuts';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case _LibraryTopNavDestination.shelf:
+        return Icons.inventory_2_outlined;
+      case _LibraryTopNavDestination.calendar:
+        return Icons.calendar_month_outlined;
+      case _LibraryTopNavDestination.admin:
+        return Icons.admin_panel_settings_outlined;
+      case _LibraryTopNavDestination.settings:
+        return Icons.settings_outlined;
+      case _LibraryTopNavDestination.shortcuts:
+        return Icons.keyboard_command_key;
+    }
+  }
+
+  String? get route {
+    switch (this) {
+      case _LibraryTopNavDestination.shelf:
+        return AppRoutes.shelf;
+      case _LibraryTopNavDestination.calendar:
+        return AppRoutes.calendar;
+      case _LibraryTopNavDestination.admin:
+        return AppRoutes.admin;
+      case _LibraryTopNavDestination.settings:
+        return AppRoutes.settings;
+      case _LibraryTopNavDestination.shortcuts:
+        return null;
+    }
+  }
+}
+
+class _LibraryTopNavMenuButton extends ConsumerWidget {
+  const _LibraryTopNavMenuButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isAdmin = ref.watch(authControllerProvider).isAdmin;
+    final destinations = [
+      _LibraryTopNavDestination.shelf,
+      _LibraryTopNavDestination.calendar,
+      if (isAdmin) _LibraryTopNavDestination.admin,
+      _LibraryTopNavDestination.settings,
+      _LibraryTopNavDestination.shortcuts,
+    ];
+    return PopupMenuButton<_LibraryTopNavDestination>(
+      tooltip: 'Workspace menu',
+      position: PopupMenuPosition.under,
+      onSelected: (destination) {
+        final route = destination.route;
+        if (route != null) {
+          context.go(route);
+          return;
+        }
+        showKeyboardShortcutsDialog(context);
+      },
+      itemBuilder: (context) => [
+        for (final destination in destinations)
+          PopupMenuItem<_LibraryTopNavDestination>(
+            value: destination,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(destination.icon, size: 16),
+                const SizedBox(width: 8),
+                Text(destination.label),
+              ],
+            ),
+          ),
+      ],
+      child: _HeaderActionButton(
+        tooltip: 'Workspace menu',
+        label: 'Menu',
+        icon: Icons.menu,
+        onPressed: null,
+      ),
+    );
+  }
+}
+
+class _LibraryTopNavSyncButton extends ConsumerWidget {
+  const _LibraryTopNavSyncButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sync = ref.watch(syncControllerProvider);
+    return _HeaderActionButton(
+      tooltip: sync.isSyncing
+          ? 'Personal sync is running'
+          : sync.pendingCount > 0
+              ? 'Run personal sync now (${sync.pendingCount} pending)'
+              : 'Run personal sync now',
+      label: 'Sync',
+      icon: sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
+      onPressed: sync.isSyncing
+          ? null
+          : () => ref.read(syncControllerProvider.notifier).syncNow(),
     );
   }
 }
@@ -403,9 +541,8 @@ double _headerTitleWidth({
       maxLabelLength = label.length;
     }
   }
-  final estimated = (18.0 + 6 + maxLabelLength * 8.2 + 14)
-      .clamp(104.0, 240.0)
-      .toDouble();
+  final estimated =
+      (18.0 + 6 + maxLabelLength * 8.2 + 14).clamp(104.0, 240.0).toDouble();
   final available = maxWidth * 0.24;
   if (available <= 0) {
     return estimated;
@@ -467,8 +604,8 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
   }
 
   void _scrollBy(double delta) {
-    final target =
-        (_scrollController.offset + delta).clamp(0.0, _scrollController.position.maxScrollExtent);
+    final target = (_scrollController.offset + delta)
+        .clamp(0.0, _scrollController.position.maxScrollExtent);
     _scrollController.animateTo(target,
         duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
   }
@@ -505,7 +642,8 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                         const EdgeInsets.symmetric(horizontal: 1, vertical: 4),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minWidth: (constraints.maxWidth - 2).clamp(0.0, double.infinity),
+                        minWidth: (constraints.maxWidth - 2)
+                            .clamp(0.0, double.infinity),
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -522,7 +660,8 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                                   final groupCount = group.types.fold<int>(
                                     0,
                                     (sum, type) =>
-                                        sum + (widget.counts[type.kind]?.total ?? 0),
+                                        sum +
+                                        (widget.counts[type.kind]?.total ?? 0),
                                   );
                                   return Padding(
                                     padding: EdgeInsets.only(
@@ -542,10 +681,13 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                                           ),
                                       label: group.label,
                                       tooltip: group.label,
-                                      selected: group.containsKind(widget.selectedKind),
+                                      selected: group
+                                          .containsKind(widget.selectedKind),
                                       count: groupCount,
-                                      onPressed: () => widget.onSelected(representative),
-                                      animationDuration: widget.animationDuration,
+                                      onPressed: () =>
+                                          widget.onSelected(representative),
+                                      animationDuration:
+                                          widget.animationDuration,
                                     ),
                                   );
                                 },

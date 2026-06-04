@@ -80,7 +80,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
-    this.showWorkspaceUtilities = false,
     this.showBottomBorder = true,
   });
 
@@ -136,7 +135,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
-  final bool showWorkspaceUtilities;
   final bool showBottomBorder;
 
   @override
@@ -334,10 +332,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   onPrintReport: onPrintReport,
                   onShareCollection: onShareCollection,
                 ),
-                if (showWorkspaceUtilities) ...[
-                  const _LibraryDesktopToolbarSeparator(),
-                  const _LibraryDesktopUtilityCluster(),
-                ],
               ],
             ),
           ],
@@ -595,6 +589,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
+            flex: 3,
             child: Align(
               alignment: Alignment.centerLeft,
               child: SingleChildScrollView(
@@ -605,20 +600,19 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
           ),
           if (showAlphabetRow)
             Expanded(
+              flex: 4,
               child: Center(
-                child: SizedBox(
-                  width: 420,
-                  child: LibraryToolbarAlphabetRow(
-                    letters: availableLetters,
-                    selectedLetter: selectedLetter,
-                    onLetterSelected: onLetterSelected!,
-                  ),
+                child: LibraryToolbarAlphabetRow(
+                  letters: availableLetters,
+                  selectedLetter: selectedLetter,
+                  onLetterSelected: onLetterSelected!,
                 ),
               ),
             )
           else
-            const Spacer(),
+            const Spacer(flex: 4),
           Expanded(
+            flex: 3,
             child: Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
