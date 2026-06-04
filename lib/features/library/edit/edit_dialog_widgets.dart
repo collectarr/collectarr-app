@@ -192,15 +192,14 @@ class EditSection extends StatelessWidget {
     final p = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: DecoratedBox(
+      child: Container(
         decoration: BoxDecoration(
-          color: Colors.transparent,
-          border: Border(
-            top: BorderSide(color: p.divider.withValues(alpha: 0.85)),
-          ),
+          color: p.surfaceSubtle.withValues(alpha: p.isDark ? 0.66 : 0.9),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: p.divider.withValues(alpha: 0.9)),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -209,11 +208,11 @@ class EditSection extends StatelessWidget {
                 style: TextStyle(
                   color: p.textMuted,
                   fontWeight: FontWeight.w800,
-                  fontSize: 11,
-                  letterSpacing: 0.3,
+                  fontSize: 12,
+                  letterSpacing: 0.2,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               child,
             ],
           ),
