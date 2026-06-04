@@ -2,7 +2,7 @@
 
 > App owns the Flutter client, local Drift database, offline-first library UI, CSV/CLZ import-export, barcode UX, sync client UX, and user-facing collection workflows. It consumes Core metadata and optional Sync state.
 
-> Current shipped app library kinds: `comic`, `book`, `game`, `boardgame`, `movie`, `music`. Older `manga` / `anime` / `tv` references below are historical planning context unless they are called out explicitly as future work.
+> Current shipped app library kinds: `comic`, `manga`, `anime`, `book`, `game`, `boardgame`, `movie`, `tv`, `music`.
 
 ## ✅ Done
 

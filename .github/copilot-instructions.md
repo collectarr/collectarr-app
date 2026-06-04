@@ -8,7 +8,7 @@
 ## Project Context
 
 - **collectarr-app** is a Flutter 3.44+ / Dart 3.12+ offline-first desktop + mobile app for managing physical media collections.
-- The current in-app library registry ships 6 active kinds: `comic`, `book`, `game`, `boardgame`, `movie`, `music`.
+- The current in-app library registry ships 9 active kinds: `comic`, `manga`, `anime`, `book`, `game`, `boardgame`, `movie`, `tv`, `music`.
 - Entry point: `lib/main.dart`.
 - App code lives in `lib/`; tests live in `test/`.
 - State management: **Riverpod** (`flutter_riverpod`).
@@ -59,7 +59,7 @@
 ## Flutter and Style
 
 - Target SDK: `>=3.5.0 <4.0.0`.
-- 6 active library kinds: comic, book, game, boardgame, movie, music.
+- 9 active library kinds: comic, manga, anime, book, game, boardgame, movie, tv, music.
 - Comics still have kind-owned add/edit/presentation code, but they participate in the shared config-driven library system under `lib/features/library/`.
 - `LibrarySeriesBucket` and `LibrarySeriesSidebar` are shared by both comics and generic libraries.
 - Cover images: `LibraryCoverImage` (local base64 → CachedNetworkImage → placeholder).

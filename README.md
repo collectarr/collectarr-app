@@ -24,13 +24,13 @@ The goal is simple: fast local shelves, rich metadata, flexible ownership
 tracking, and a UI that feels like a serious collection tool instead of a thin
 web wrapper.
 
-The current in-app library registry ships six active kinds: comics, books,
-games, board games, movies, and music.
+The current in-app library registry ships nine active kinds: comics, manga,
+anime, books, games, board games, movies, TV, and music.
 
 ## What Collectarr Focuses On
 
 - **Local-first ownership** — your collection state lives in the app, not only on a remote account
-- **Multi-media support** — one app for comics, books, games, board games, movies, and music
+- **Multi-media support** — one app for comics, manga, anime, books, games, board games, movies, TV, and music
 - **Collector workflows** — variants, formats, barcode flows, grouped shelves, bulk editing, and custom fields
 - **Provider-backed metadata** — canonical metadata comes from `collectarr-core` and its provider integrations
 - **Admin-friendly architecture** — image cache controls, ingest flows, proposals, and provider health exist as first-class features
