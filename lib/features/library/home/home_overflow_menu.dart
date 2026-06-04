@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
           PopupMenuItem(
             key: ValueKey('library-overflow-item-${type.kind}'),
             value: type,
-            height: 38,
+            height: kLibraryToolbarPopupItemHeight,
             padding: EdgeInsets.zero,
             child: _OverflowMenuRow(
               type: type,
@@ -125,7 +126,7 @@ class _OverflowMenuRow extends StatelessWidget {
     final accent = libraryAccentForKind(type.kind);
     final palette = appPalette(context);
     return SizedBox(
-      height: 38,
+      height: kLibraryToolbarPopupItemHeight,
       child: Row(
         children: [
           Container(width: 4, height: double.infinity, color: accent),
@@ -140,7 +141,7 @@ class _OverflowMenuRow extends StatelessWidget {
               style: TextStyle(
                 color: palette.textPrimary,
                 fontSize: 12,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -158,7 +159,7 @@ class _OverflowMenuRow extends StatelessWidget {
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 11,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

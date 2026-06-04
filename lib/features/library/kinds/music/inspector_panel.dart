@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -130,6 +131,7 @@ class _MusicInspectorToolbar extends StatelessWidget {
                 PopupMenuItem<_MusicInspectorMenuAction>(
                   value: _MusicInspectorMenuAction.duplicate,
                   enabled: request.onDuplicate != null,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: const ListTile(
                     dense: true,
                     leading: Icon(Icons.copy_all_outlined),
@@ -139,6 +141,7 @@ class _MusicInspectorToolbar extends StatelessWidget {
                 PopupMenuItem<_MusicInspectorMenuAction>(
                   value: _MusicInspectorMenuAction.removeOrCollect,
                   enabled: request.onToggleOwned != null,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: ListTile(
                     dense: true,
                     leading: Icon(
@@ -152,6 +155,7 @@ class _MusicInspectorToolbar extends StatelessWidget {
                 PopupMenuItem<_MusicInspectorMenuAction>(
                   value: _MusicInspectorMenuAction.loan,
                   enabled: request.onLoan != null && hasOwnedCopy,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: const ListTile(
                     dense: true,
                     leading: Icon(Icons.handshake_outlined),
@@ -161,6 +165,7 @@ class _MusicInspectorToolbar extends StatelessWidget {
                 PopupMenuItem<_MusicInspectorMenuAction>(
                   value: _MusicInspectorMenuAction.refreshMetadata,
                   enabled: request.onRefreshMetadata != null,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: const ListTile(
                     dense: true,
                     leading: Icon(Icons.cloud_download_outlined),
@@ -181,14 +186,17 @@ class _MusicInspectorToolbar extends StatelessWidget {
                 itemBuilder: (context) => const [
                   PopupMenuItem(
                     value: LibraryDetailsLayout.bottom,
+                    height: kLibraryToolbarPopupItemHeight,
                     child: Text('Horizontal Split'),
                   ),
                   PopupMenuItem(
                     value: LibraryDetailsLayout.right,
+                    height: kLibraryToolbarPopupItemHeight,
                     child: Text('Vertical Split'),
                   ),
                   PopupMenuItem(
                     value: LibraryDetailsLayout.hidden,
+                    height: kLibraryToolbarPopupItemHeight,
                     child: Text('No Details'),
                   ),
                 ],

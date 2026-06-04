@@ -325,86 +325,150 @@ class LibraryBody extends StatelessWidget {
           ],
         );
 
+        final sidebar = LibrarySidebar(
+          type: type,
+          accent: accent,
+          buckets: projection.buckets,
+          groupMode: groupMode,
+          groupLoading: groupLoading,
+          selectedBucket: selectedBucket ?? genericAllBucketLabel(type),
+          onSelected: (bucket) => onBucketChanged(
+            bucket == genericAllBucketLabel(type) ? null : bucket,
+          ),
+          onGroupModeChanged: onGroupModeChanged,
+          breadcrumbs: sidebarBreadcrumbs,
+          ancestorScopeLabels: sidebarAncestorScopeLabels,
+          onNavigateBack: onSidebarNavigateBack,
+          onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
+          onNavigateToAncestorScope: onSidebarNavigateToAncestorScope,
+          searchQuery: searchQuery,
+          activeSmartListName: activeSmartListName,
+          quickView: quickView,
+          collectionStatusScope: collectionStatusScope,
+          seriesCompletionScope: seriesCompletionScope,
+          collectionStatusScopeLabel: collectionStatusScopeLabel,
+          linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+          selectedLetter: sidebarSelectedLetter,
+          seriesStatusSummary: seriesStatusSummary,
+          filterSelection: filterSelection,
+          hasActiveFilters: hasActiveFilter,
+          onEditFilters: onEditFilters,
+          onClearFilters: onClearFilters,
+          onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
+          onSeriesCompletionScopeChanged: onSeriesCompletionScopeChanged,
+          onClearFilter:
+              selectedBucket == null ? null : () => onBucketChanged(null),
+          onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+          onManageBuckets: onManageBuckets,
+          pinnedFolderPresets: pinnedFolderPresets,
+          onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
+        );
+        final detailsLayoutWidget = LibraryDetailsAwareLayout(
+          content: workspaceContent,
+          detailsLayout: detailsLayout,
+          inspector: details,
+          frameInspector: type.inspectorPanelBuilder == null,
+          rightWidth: viewState.detailsWidth,
+          bottomHeight: viewState.detailsHeight,
+          maxRightWidth: maxDetailsWidth,
+          maxBottomHeight: maxDetailsHeight,
+          onRightWidthChanged: onDetailsWidthChanged,
+          onBottomHeightChanged: onDetailsHeightChanged,
+          accentColor: accent,
+        );
         return ColoredBox(
           color: palette.canvas,
-          child: Row(
-            children: [
-              if (showSidebar) ...[
-                SizedBox(
-                  width: sidebarWidth,
-                  child: LibrarySidebar(
-                    type: type,
-                    accent: accent,
-                    buckets: projection.buckets,
-                    groupMode: groupMode,
-                    groupLoading: groupLoading,
-                    selectedBucket:
-                        selectedBucket ?? genericAllBucketLabel(type),
-                    onSelected: (bucket) => onBucketChanged(
-                      bucket == genericAllBucketLabel(type) ? null : bucket,
-                    ),
-                    onGroupModeChanged: onGroupModeChanged,
-                    breadcrumbs: sidebarBreadcrumbs,
-                    ancestorScopeLabels: sidebarAncestorScopeLabels,
-                    onNavigateBack: onSidebarNavigateBack,
-                    onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
-                    onNavigateToAncestorScope: onSidebarNavigateToAncestorScope,
-                    searchQuery: searchQuery,
-                    activeSmartListName: activeSmartListName,
-                    quickView: quickView,
-                    collectionStatusScope: collectionStatusScope,
-                    seriesCompletionScope: seriesCompletionScope,
-                    collectionStatusScopeLabel: collectionStatusScopeLabel,
-                    linkedMetadataFilterLabel: linkedMetadataFilterLabel,
-                    selectedLetter: sidebarSelectedLetter,
-                    seriesStatusSummary: seriesStatusSummary,
-                    filterSelection: filterSelection,
-                    hasActiveFilters: hasActiveFilter,
-                    onEditFilters: onEditFilters,
-                    onClearFilters: onClearFilters,
-                    onCollectionStatusScopeChanged:
-                        onCollectionStatusScopeChanged,
-                    onSeriesCompletionScopeChanged:
-                        onSeriesCompletionScopeChanged,
-                    onClearFilter: selectedBucket == null
-                        ? null
-                        : () => onBucketChanged(null),
-                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                    onManageBuckets: onManageBuckets,
-                    pinnedFolderPresets: pinnedFolderPresets,
-                    onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
-                  ),
-                ),
-                LibraryResizableDivider(
-                  color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
-                  onDragDelta: (delta) => onSidebarWidthChanged(
-                    clampLibraryPaneWidth(
-                      sidebarWidth + delta,
-                      minWidth: kLibrarySidebarMinWidth,
-                      maxWidth: maxSidebarWidth,
-                    ),
-                  ),
-                ),
-              ],
-              Expanded(
-                child: LibraryDetailsAwareLayout(
-                  content: workspaceContent,
-                  detailsLayout: detailsLayout,
-                  inspector: details,
-                  frameInspector: type.inspectorPanelBuilder == null,
-                  rightWidth: viewState.detailsWidth,
-                  bottomHeight: viewState.detailsHeight,
-                  maxRightWidth: maxDetailsWidth,
-                  maxBottomHeight: maxDetailsHeight,
-                  onRightWidthChanged: onDetailsWidthChanged,
-                  onBottomHeightChanged: onDetailsHeightChanged,
-                  accentColor: accent,
-                ),
-              ),
-            ],
-          ),
+          child: showSidebar
+              ? _LibrarySidebarResizableLayout(
+                  sidebar: sidebar,
+                  content: detailsLayoutWidget,
+                  initialWidth: sidebarWidth,
+                  minWidth: kLibrarySidebarMinWidth,
+                  maxWidth: maxSidebarWidth,
+                  dividerColor:
+                      accent.withValues(alpha: palette.isDark ? 0.3 : 0.2),
+                  onSidebarWidthChanged: onSidebarWidthChanged,
+                )
+              : detailsLayoutWidget,
         );
       },
+    );
+  }
+}
+
+class _LibrarySidebarResizableLayout extends StatefulWidget {
+  const _LibrarySidebarResizableLayout({
+    required this.sidebar,
+    required this.content,
+    required this.initialWidth,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.dividerColor,
+    required this.onSidebarWidthChanged,
+  });
+
+  final Widget sidebar;
+  final Widget content;
+  final double initialWidth;
+  final double minWidth;
+  final double maxWidth;
+  final Color dividerColor;
+  final ValueChanged<double> onSidebarWidthChanged;
+
+  @override
+  State<_LibrarySidebarResizableLayout> createState() =>
+      _LibrarySidebarResizableLayoutState();
+}
+
+class _LibrarySidebarResizableLayoutState
+    extends State<_LibrarySidebarResizableLayout> {
+  late double _width;
+  bool _dragging = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _width = widget.initialWidth;
+  }
+
+  @override
+  void didUpdateWidget(covariant _LibrarySidebarResizableLayout oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_dragging) {
+      _width = clampLibraryPaneWidth(
+        widget.initialWidth,
+        minWidth: widget.minWidth,
+        maxWidth: widget.maxWidth,
+      );
+    }
+  }
+
+  void _handleDrag(double delta) {
+    final nextWidth = clampLibraryPaneWidth(
+      _width + delta,
+      minWidth: widget.minWidth,
+      maxWidth: widget.maxWidth,
+    );
+    if ((_width - nextWidth).abs() < 0.01) {
+      return;
+    }
+    setState(() => _width = nextWidth);
+    widget.onSidebarWidthChanged(nextWidth);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(width: _width, child: widget.sidebar),
+        LibraryResizableDivider(
+          color: widget.dividerColor,
+          onDragStart: () => _dragging = true,
+          onDragEnd: () => _dragging = false,
+          onDragDelta: _handleDrag,
+        ),
+        Expanded(child: widget.content),
+      ],
     );
   }
 }

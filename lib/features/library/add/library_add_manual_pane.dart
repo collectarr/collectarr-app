@@ -155,10 +155,12 @@ class _ManualPaneState extends State<_ManualPane> {
                                   .isNotEmpty) ...[
                             const SizedBox(height: 8),
                             SingleValuePickField(
-                              controller: widget.request.physicalFormatLabelController,
+                              controller:
+                                  widget.request.physicalFormatLabelController,
                               options: widget.request.physicalFormatOptions,
                               label: 'Physical format',
-                              onChanged: widget.request.onPhysicalFormatLabelChanged,
+                              onChanged:
+                                  widget.request.onPhysicalFormatLabelChanged,
                               onManage: widget.request.onManagePhysicalFormats,
                             ),
                           ],
@@ -225,7 +227,8 @@ class _ManualPaneState extends State<_ManualPane> {
                                 ),
                                 const SizedBox(height: 8),
                                 SingleValuePickField(
-                                  controller: widget.request.seriesGroupController,
+                                  controller:
+                                      widget.request.seriesGroupController,
                                   options: widget.request.seriesGroupOptions,
                                   label: 'Series Group',
                                   onManage: widget.request.onManageSeriesGroups,
@@ -273,19 +276,19 @@ class _ManualPaneState extends State<_ManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                    controller: _kindSpecificController(
-                                    'purchasePriceController',
-                                    _fallbackPurchasePriceController,
-                                    ),
+                                      controller: _kindSpecificController(
+                                        'purchasePriceController',
+                                        _fallbackPurchasePriceController,
+                                      ),
                                       decoration: const InputDecoration(
                                           labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
                               Expanded(
                                   child: TextField(
-                                    controller: _kindSpecificController(
-                                    'purchaseDateController',
-                                    _fallbackPurchaseDateController,
-                                    ),
+                                      controller: _kindSpecificController(
+                                        'purchaseDateController',
+                                        _fallbackPurchaseDateController,
+                                      ),
                                       decoration: const InputDecoration(
                                           labelText: 'Purchase Date'))),
                             ]),
@@ -293,19 +296,19 @@ class _ManualPaneState extends State<_ManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                    controller: _kindSpecificController(
-                                    'coverPriceController',
-                                    _fallbackCoverPriceController,
-                                    ),
+                                      controller: _kindSpecificController(
+                                        'coverPriceController',
+                                        _fallbackCoverPriceController,
+                                      ),
                                       decoration: const InputDecoration(
                                           labelText: 'Cover Price'))),
                               const SizedBox(width: 8),
                               Expanded(
                                   child: TextField(
-                                    controller: _kindSpecificController(
-                                    'soldPriceController',
-                                    _fallbackSoldPriceController,
-                                    ),
+                                      controller: _kindSpecificController(
+                                        'soldPriceController',
+                                        _fallbackSoldPriceController,
+                                      ),
                                       decoration: const InputDecoration(
                                           labelText: 'Sold Price'))),
                             ]),
@@ -322,10 +325,10 @@ class _ManualPaneState extends State<_ManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                    controller: _kindSpecificController(
-                                    'ownerLabelController',
-                                    _fallbackOwnerLabelController,
-                                    ),
+                                      controller: _kindSpecificController(
+                                        'ownerLabelController',
+                                        _fallbackOwnerLabelController,
+                                      ),
                                       decoration: const InputDecoration(
                                           labelText: 'Owner'))),
                               const SizedBox(width: 8),
@@ -337,10 +340,10 @@ class _ManualPaneState extends State<_ManualPane> {
                             ]),
                             const SizedBox(height: 8),
                             TextField(
-                              controller: _kindSpecificController(
-                                'personalNotesController',
-                                _fallbackPersonalNotesController,
-                              ),
+                                controller: _kindSpecificController(
+                                  'personalNotesController',
+                                  _fallbackPersonalNotesController,
+                                ),
                                 decoration:
                                     const InputDecoration(labelText: 'Notes'),
                                 maxLines: 4),
@@ -424,10 +427,10 @@ class _ManualPaneState extends State<_ManualPane> {
                             title: 'Links',
                             accent: widget.request.accent,
                             child: TextField(
-                            controller: _kindSpecificController(
-                              'linksController',
-                              _fallbackLinksController,
-                            ),
+                                controller: _kindSpecificController(
+                                  'linksController',
+                                  _fallbackLinksController,
+                                ),
                                 maxLines: 3,
                                 decoration: const InputDecoration(
                                     labelText: 'Links (one per line)'))),
@@ -549,14 +552,15 @@ class _ManualSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Row(
       children: [
-        Icon(icon, size: 18, color: kAppAccent),
+        Icon(icon, size: 18, color: palette.accent),
         const SizedBox(width: 8),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: palette.textPrimary,
             fontWeight: FontWeight.w900,
           ),
         ),

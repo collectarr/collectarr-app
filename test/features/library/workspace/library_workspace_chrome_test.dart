@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -103,5 +104,68 @@ void main() {
 
     expect(find.text('Details'), findsNothing);
     expect(find.text('Inspector body'), findsOneWidget);
+  });
+
+  testWidgets('right divider drag decreases details width when dragged right', (
+    tester,
+  ) async {
+    double? reportedWidth;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 500,
+            child: LibraryDetailsAwareLayout(
+              detailsLayout: LibraryDetailsLayout.right,
+              rightWidth: 340,
+              onRightWidthChanged: (value) => reportedWidth = value,
+              content: const ColoredBox(color: Colors.blue),
+              inspector: const SizedBox.shrink(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.drag(
+        find.byType(LibraryResizableDivider), const Offset(24, 0));
+    await tester.pump();
+
+    expect(reportedWidth, isNotNull);
+    expect(reportedWidth, lessThan(340));
+  });
+
+  testWidgets('bottom divider drag decreases details height when dragged down',
+      (
+    tester,
+  ) async {
+    double? reportedHeight;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 500,
+            child: LibraryDetailsAwareLayout(
+              detailsLayout: LibraryDetailsLayout.bottom,
+              bottomHeight: 300,
+              onBottomHeightChanged: (value) => reportedHeight = value,
+              content: const ColoredBox(color: Colors.blue),
+              inspector: const SizedBox.shrink(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.drag(
+        find.byType(LibraryResizableDivider), const Offset(0, 24));
+    await tester.pump();
+
+    expect(reportedHeight, isNotNull);
+    expect(reportedHeight, lessThan(300));
   });
 }

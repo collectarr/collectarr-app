@@ -28,8 +28,8 @@ class _BarcodePrefillBanner extends StatelessWidget {
                 'Barcode $barcode is prefilled for ${type.pluralLabel.toLowerCase()}. Search Core or add it manually with the same code.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: palette.textPrimary,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -134,7 +134,8 @@ class _LibraryAddModeBar extends StatelessWidget {
                             maxWidth: 620,
                           )
                         : _LibraryAddModeTextField(
-                            fieldKey: const ValueKey('library-add-barcode-field'),
+                            fieldKey:
+                                const ValueKey('library-add-barcode-field'),
                             controller: barcodeController,
                             label: 'Barcode / UPC / ISBN',
                             hintText: 'Scan or enter barcode / UPC / ISBN...',
@@ -153,7 +154,8 @@ class _LibraryAddModeBar extends StatelessWidget {
                       icon: Icons.qr_code_2,
                       label: 'Barcode',
                       accent: accent,
-                      onPressed: () => onModeChanged(LibraryAddDialogMode.barcode),
+                      onPressed: () =>
+                          onModeChanged(LibraryAddDialogMode.barcode),
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.edit_note,
@@ -174,7 +176,8 @@ class _LibraryAddModeBar extends StatelessWidget {
                       icon: Icons.search,
                       label: 'Search',
                       accent: accent,
-                      onPressed: () => onModeChanged(LibraryAddDialogMode.search),
+                      onPressed: () =>
+                          onModeChanged(LibraryAddDialogMode.search),
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.edit_note,
@@ -200,7 +203,8 @@ class _LibraryAddModeBar extends StatelessWidget {
                       icon: Icons.search,
                       label: 'Back to Search',
                       accent: accent,
-                      onPressed: () => onModeChanged(LibraryAddDialogMode.search),
+                      onPressed: () =>
+                          onModeChanged(LibraryAddDialogMode.search),
                     ),
                   ],
                 ],
@@ -368,7 +372,6 @@ class _LibraryAddModeBar extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _LibraryAddModeTabStrip extends StatelessWidget {
@@ -603,7 +606,7 @@ class _LibraryAddModeButton extends StatelessWidget {
           );
     final style = outlined
         ? libraryAddOutlinedButtonStyle(accent)
-      : libraryAddFilledButtonStyle(accent);
+        : libraryAddFilledButtonStyle(accent);
     return SizedBox(
       height: kLibraryAddModeControlHeight,
       child: outlined
@@ -651,7 +654,8 @@ class _AdvancedToggleButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(3),
             side: BorderSide(
-              color: expanded ? accent.withValues(alpha: 0.5) : kAppBorderSubtle,
+              color:
+                  expanded ? accent.withValues(alpha: 0.5) : kAppBorderSubtle,
             ),
           ),
           padding: EdgeInsets.zero,
@@ -807,8 +811,7 @@ class _SuggestionDropdown extends StatelessWidget {
         padding: EdgeInsets.zero,
         shrinkWrap: true,
         itemCount: suggestions.length,
-        separatorBuilder: (_, __) =>
-            Divider(height: 1, color: palette.divider),
+        separatorBuilder: (_, __) => Divider(height: 1, color: palette.divider),
         itemBuilder: (context, index) {
           final item = suggestions[index];
           return _SuggestionTile(

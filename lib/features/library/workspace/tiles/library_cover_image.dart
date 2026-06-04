@@ -48,59 +48,59 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-      // Quantize to 32-pixel steps to keep sharper cover caches while
-      // still avoiding excessive re-decodes during layout resizing.
-      final resolvedCacheWidth = constraints.hasBoundedWidth &&
-        constraints.maxWidth > 0
-          ? (((constraints.maxWidth * pixelRatio) / 32).ceil() * 32)
-            : null;
-      final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
+        // Quantize to 32-pixel steps to keep sharper cover caches while
+        // still avoiding excessive re-decodes during layout resizing.
+        final resolvedCacheWidth =
+            constraints.hasBoundedWidth && constraints.maxWidth > 0
+                ? (((constraints.maxWidth * pixelRatio) / 32).ceil() * 32)
+                : null;
+        final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
 
-    // Prefer local offline bytes when available
-    if (_looksLikeSupportedImage(local)) {
-      final safeLocal = local!;
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: Image.memory(
-          safeLocal,
-          fit: fit,
-          cacheWidth: cacheWidth,
-          gaplessPlayback: true,
-          filterQuality: FilterQuality.high,
-          errorBuilder: (_, __, ___) => placeholder,
-        ),
-      );
-    }
-    if (url == null) {
-      return placeholder;
-    }
-    if (kIsWeb) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: Image.network(
-          url,
-          fit: fit,
-          // Keep a stable decoded image across layout switches.
-          cacheWidth: null,
-          gaplessPlayback: true,
-          filterQuality: FilterQuality.high,
-          webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
-          errorBuilder: (_, __, ___) => placeholder,
-        ),
-      );
-    }
-    final provider = CachedNetworkImageProvider(url);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: Image(
-        image: provider,
-        fit: fit,
-        gaplessPlayback: true,
-        filterQuality: FilterQuality.high,
-        frameBuilder: (context, child, _, __) => child,
-        errorBuilder: (_, __, ___) => placeholder,
-      ),
-    );
+        // Prefer local offline bytes when available
+        if (_looksLikeSupportedImage(local)) {
+          final safeLocal = local!;
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Image.memory(
+              safeLocal,
+              fit: fit,
+              cacheWidth: cacheWidth,
+              gaplessPlayback: true,
+              filterQuality: FilterQuality.high,
+              errorBuilder: (_, __, ___) => placeholder,
+            ),
+          );
+        }
+        if (url == null) {
+          return placeholder;
+        }
+        if (kIsWeb) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Image.network(
+              url,
+              fit: fit,
+              // Keep a stable decoded image across layout switches.
+              cacheWidth: null,
+              gaplessPlayback: true,
+              filterQuality: FilterQuality.high,
+              webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+              errorBuilder: (_, __, ___) => placeholder,
+            ),
+          );
+        }
+        final provider = CachedNetworkImageProvider(url);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Image(
+            image: provider,
+            fit: fit,
+            gaplessPlayback: true,
+            filterQuality: FilterQuality.high,
+            frameBuilder: (context, child, _, __) => child,
+            errorBuilder: (_, __, ___) => placeholder,
+          ),
+        );
       },
     );
   }
@@ -126,8 +126,7 @@ class LibraryCoverImage extends ConsumerWidget {
     }
 
     // PNG signature
-    final isPng =
-        bytes[0] == 0x89 &&
+    final isPng = bytes[0] == 0x89 &&
         bytes[1] == 0x50 &&
         bytes[2] == 0x4E &&
         bytes[3] == 0x47 &&
@@ -146,8 +145,7 @@ class LibraryCoverImage extends ConsumerWidget {
     }
 
     // GIF87a / GIF89a
-    final isGif =
-        bytes[0] == 0x47 &&
+    final isGif = bytes[0] == 0x47 &&
         bytes[1] == 0x49 &&
         bytes[2] == 0x46 &&
         bytes[3] == 0x38 &&
@@ -158,8 +156,7 @@ class LibraryCoverImage extends ConsumerWidget {
     }
 
     // WEBP: RIFF....WEBP
-    final isWebp =
-        bytes[0] == 0x52 &&
+    final isWebp = bytes[0] == 0x52 &&
         bytes[1] == 0x49 &&
         bytes[2] == 0x46 &&
         bytes[3] == 0x46 &&
@@ -296,10 +293,11 @@ class SlabFrameOverlay extends StatelessWidget {
                   child: Text(
                     labelType!.toUpperCase(),
                     style: TextStyle(
-                      color: ThemeData.estimateBrightnessForColor(_labelColor) ==
-                              Brightness.dark
-                          ? Colors.white
-                          : Colors.black87,
+                      color:
+                          ThemeData.estimateBrightnessForColor(_labelColor) ==
+                                  Brightness.dark
+                              ? Colors.white
+                              : Colors.black87,
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.3,
@@ -358,8 +356,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   @override
   void didUpdateWidget(covariant LibraryInteractiveCover oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final coverChanged =
-        oldWidget.ownedItemId != widget.ownedItemId ||
+    final coverChanged = oldWidget.ownedItemId != widget.ownedItemId ||
         oldWidget.imageUrl != widget.imageUrl ||
         oldWidget.secondaryImageUrl != widget.secondaryImageUrl ||
         oldWidget.localBytes != widget.localBytes ||
@@ -385,19 +382,21 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   String? get _activeImageUrl =>
       _showSecondary ? widget.secondaryImageUrl : widget.imageUrl;
 
-    Uint8List? get _activeLocalBytes =>
+  Uint8List? get _activeLocalBytes =>
       _showSecondary ? widget.secondaryLocalBytes : widget.localBytes;
 
   bool get _canPreview {
-    return widget.enableFullscreen &&
-        (_hasFront || _hasSecondary);
+    return widget.enableFullscreen && (_hasFront || _hasSecondary);
   }
 
   Future<void> _warmPreviewImage() async {
     if (!mounted) {
       return;
     }
-    for (final imageUrl in [widget.imageUrl?.trim(), widget.secondaryImageUrl?.trim()]) {
+    for (final imageUrl in [
+      widget.imageUrl?.trim(),
+      widget.secondaryImageUrl?.trim()
+    ]) {
       if (imageUrl == null || imageUrl.isEmpty) {
         continue;
       }
@@ -423,14 +422,24 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       return;
     }
     final size = MediaQuery.sizeOf(context);
+    final renderBox = context.findRenderObject() as RenderBox?;
+    final renderedAspectRatio =
+        renderBox != null && renderBox.hasSize && renderBox.size.height > 0
+            ? renderBox.size.width / renderBox.size.height
+            : null;
+    final coverAspectRatio = renderedAspectRatio != null &&
+            renderedAspectRatio.isFinite &&
+            renderedAspectRatio > 0
+        ? renderedAspectRatio
+        : (2 / 3);
     final maxPreviewWidth = size.width * 0.92;
     final maxPreviewHeight = size.height * 0.92;
     final previewWidth = maxPreviewWidth < 420
-      ? maxPreviewWidth
-      : (size.width * 0.70).clamp(420.0, maxPreviewWidth);
+        ? maxPreviewWidth
+        : (size.width * 0.70).clamp(420.0, maxPreviewWidth);
     final previewHeight = maxPreviewHeight < 320
-      ? maxPreviewHeight
-      : (size.height * 0.70).clamp(320.0, maxPreviewHeight);
+        ? maxPreviewHeight
+        : (size.height * 0.70).clamp(320.0, maxPreviewHeight);
     final effectivePreviewWidth = math.max(0.0, previewWidth);
     final effectivePreviewHeight = math.max(0.0, previewHeight);
     var showBackOnly = _showSecondary;
@@ -460,27 +469,27 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         final contentWidth = effectivePreviewWidth - 28;
                         final contentHeight = effectivePreviewHeight - 28;
                         final hasExplicitFront =
-                          (widget.localBytes?.isNotEmpty ?? false) ||
-                          (widget.imageUrl?.trim().isNotEmpty ?? false);
+                            (widget.localBytes?.isNotEmpty ?? false) ||
+                                (widget.imageUrl?.trim().isNotEmpty ?? false);
                         final hasExplicitBack =
-                          (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
-                          (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
+                            (widget.secondaryLocalBytes?.isNotEmpty ?? false) ||
+                                (widget.secondaryImageUrl?.trim().isNotEmpty ??
+                                    false);
                         final maxSideBySideCoverWidth = math.min(
                           (contentWidth - 12) / 2,
-                          contentHeight * (2 / 3),
+                          contentHeight * coverAspectRatio,
                         );
                         // Show both covers whenever each can remain readable.
                         const minReadableSideBySideCoverWidth = 150.0;
-                        final showSideBySide =
-                          hasExplicitFront &&
-                          hasExplicitBack &&
-                          maxSideBySideCoverWidth >=
-                              minReadableSideBySideCoverWidth;
+                        final showSideBySide = hasExplicitFront &&
+                            hasExplicitBack &&
+                            maxSideBySideCoverWidth >=
+                                minReadableSideBySideCoverWidth;
                         final showSwitchBadges =
-                          widget.enableSecondaryControl &&
-                          hasExplicitFront &&
-                          hasExplicitBack &&
-                          !showSideBySide;
+                            widget.enableSecondaryControl &&
+                                hasExplicitFront &&
+                                hasExplicitBack &&
+                                !showSideBySide;
 
                         Widget buildCover({
                           required String? imageUrl,
@@ -488,14 +497,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                           String? ownedItemId,
                         }) {
                           return AspectRatio(
-                            aspectRatio: 2 / 3,
+                            aspectRatio: coverAspectRatio,
                             child: DecoratedBox(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.78),
-                                  width: 1,
-                                ),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(7),
@@ -513,111 +518,108 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         }
 
                         final singleCover = buildCover(
-                          imageUrl:
-                              showBackOnly ? widget.secondaryImageUrl : widget.imageUrl,
+                          imageUrl: showBackOnly
+                              ? widget.secondaryImageUrl
+                              : widget.imageUrl,
                           localBytes: showBackOnly
                               ? widget.secondaryLocalBytes
                               : widget.localBytes,
                           ownedItemId: showBackOnly ? null : widget.ownedItemId,
                         );
 
-                        return GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {},
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: size.width * 0.92,
-                              maxHeight: size.height * 0.92,
-                            ),
-                            child: SizedBox(
-                              width: effectivePreviewWidth,
-                              height: effectivePreviewHeight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(14),
-                                child: Stack(
-                                  children: [
-                                    Positioned.fill(
-                                      child: InteractiveViewer(
-                                        minScale: 0.5,
-                                        maxScale: 5,
-                                        child: Center(
-                                          child: showSideBySide
-                                              ? Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    ConstrainedBox(
-                                                      constraints: BoxConstraints(
-                                                        maxHeight: contentHeight,
-                                                        maxWidth:
-                                                            (contentWidth - 12) / 2,
-                                                      ),
-                                                      child: buildCover(
-                                                        imageUrl: widget.imageUrl,
-                                                        localBytes: widget.localBytes,
-                                                        ownedItemId:
-                                                            widget.ownedItemId,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    ConstrainedBox(
-                                                      constraints: BoxConstraints(
-                                                        maxHeight: contentHeight,
-                                                        maxWidth:
-                                                            (contentWidth - 12) / 2,
-                                                      ),
-                                                      child: buildCover(
-                                                        imageUrl:
-                                                            widget.secondaryImageUrl,
-                                                        localBytes:
-                                                            widget.secondaryLocalBytes,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              : ConstrainedBox(
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: size.width * 0.92,
+                            maxHeight: size.height * 0.92,
+                          ),
+                          child: SizedBox(
+                            width: effectivePreviewWidth,
+                            height: effectivePreviewHeight,
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: InteractiveViewer(
+                                      minScale: 0.5,
+                                      maxScale: 5,
+                                      child: showSideBySide
+                                          ? Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ConstrainedBox(
                                                   constraints: BoxConstraints(
                                                     maxHeight: contentHeight,
-                                                    maxWidth: math.min(
-                                                      contentWidth,
-                                                      contentHeight * (2 / 3),
-                                                    ),
+                                                    maxWidth:
+                                                        (contentWidth - 12) / 2,
                                                   ),
-                                                  child: singleCover,
+                                                  child: buildCover(
+                                                    imageUrl: widget.imageUrl,
+                                                    localBytes:
+                                                        widget.localBytes,
+                                                    ownedItemId:
+                                                        widget.ownedItemId,
+                                                  ),
                                                 ),
-                                        ),
+                                                const SizedBox(width: 12),
+                                                ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                    maxHeight: contentHeight,
+                                                    maxWidth:
+                                                        (contentWidth - 12) / 2,
+                                                  ),
+                                                  child: buildCover(
+                                                    imageUrl: widget
+                                                        .secondaryImageUrl,
+                                                    localBytes: widget
+                                                        .secondaryLocalBytes,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxHeight: contentHeight,
+                                                maxWidth: math.min(
+                                                  contentWidth,
+                                                  contentHeight *
+                                                      coverAspectRatio,
+                                                ),
+                                              ),
+                                              child: singleCover,
+                                            ),
+                                    ),
+                                  ),
+                                  if (showSwitchBadges)
+                                    Positioned(
+                                      left: 8,
+                                      right: 8,
+                                      bottom: 8,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          _PreviewCoverSwitchBadge(
+                                            label: 'Front',
+                                            selected: !showBackOnly,
+                                            accentColor: widget.accentColor,
+                                            onPressed: () => setDialogState(
+                                              () => showBackOnly = false,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _PreviewCoverSwitchBadge(
+                                            label: 'Back',
+                                            selected: showBackOnly,
+                                            accentColor: widget.accentColor,
+                                            onPressed: () => setDialogState(
+                                              () => showBackOnly = true,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    if (showSwitchBadges)
-                                      Positioned(
-                                        left: 8,
-                                        right: 8,
-                                        bottom: 8,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            _PreviewCoverSwitchBadge(
-                                              label: 'Front',
-                                              selected: !showBackOnly,
-                                              accentColor: widget.accentColor,
-                                              onPressed: () => setDialogState(
-                                                () => showBackOnly = false,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            _PreviewCoverSwitchBadge(
-                                              label: 'Back',
-                                              selected: showBackOnly,
-                                              accentColor: widget.accentColor,
-                                              onPressed: () => setDialogState(
-                                                () => showBackOnly = true,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
+                                ],
                               ),
                             ),
                           ),
@@ -668,7 +670,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       palette.surface.withValues(alpha: 0.94),
     );
     final controlForeground =
-        ThemeData.estimateBrightnessForColor(controlBackground) == Brightness.dark
+        ThemeData.estimateBrightnessForColor(controlBackground) ==
+                Brightness.dark
             ? Colors.white
             : palette.textPrimary;
     return LayoutBuilder(
@@ -730,10 +733,12 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                             opacity: _hovered ? 1 : 0,
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                color: controlBackground.withValues(alpha: 0.96),
+                                color:
+                                    controlBackground.withValues(alpha: 0.96),
                                 borderRadius: BorderRadius.circular(999),
                                 border: Border.all(
-                                  color: widget.accentColor.withValues(alpha: 0.7),
+                                  color:
+                                      widget.accentColor.withValues(alpha: 0.7),
                                 ),
                               ),
                               child: Padding(
@@ -844,8 +849,8 @@ class _CoverFrame extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).shadowColor.withValues(
-              alpha: palette.isDark ? 0.65 : 0.22,
-            ),
+                  alpha: palette.isDark ? 0.65 : 0.22,
+                ),
             blurRadius: 16,
             offset: Offset(0, 6),
           ),

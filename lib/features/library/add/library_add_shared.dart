@@ -39,7 +39,8 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final details = <String>[
-      if (result.query != null && result.query!.trim().isNotEmpty) result.query!,
+      if (result.query != null && result.query!.trim().isNotEmpty)
+        result.query!,
       if (result.issueNumber != null && result.issueNumber!.trim().isNotEmpty)
         '#${result.issueNumber}',
       if (result.year != null) result.year!.toString(),
@@ -49,16 +50,21 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
     final confidence = result.confidenceLabel?.trim();
     final reviewSummary = result.reviewSummary?.trim();
     final palette = appPalette(context);
+    final bannerColor = Color.alphaBlend(
+      kAppAccent.withValues(alpha: palette.isDark ? 0.18 : 0.1),
+      palette.surfaceDim,
+    );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF243926),
+        color: bannerColor,
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Row(
           children: [
-            const Icon(Icons.photo_camera_outlined, size: 18, color: kAppAccent),
+            const Icon(Icons.photo_camera_outlined,
+                size: 18, color: kAppAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -67,8 +73,8 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
                     : 'Cover scan filled search hints: ${details.join(' | ')}${confidence == null || confidence.isEmpty ? '' : ' ($confidence confidence)'}${reviewSummary == null || reviewSummary.isEmpty ? '' : ' • $reviewSummary'}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: palette.textPrimary,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),

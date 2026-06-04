@@ -11,7 +11,8 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
   ) async {
     final isAdmin = ref.read(authControllerProvider).isAdmin;
     if (!isAdmin || candidate.isStub) {
-      await _addItems([candidate.placeholderItem()], target);
+      final previewItem = await _providerAddItemForCandidate(candidate);
+      await _addItems([previewItem], target);
       return;
     }
     try {
@@ -24,9 +25,9 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
 
       final previewItem = metadataItemFromPreview(preview);
       final catalog = ref.read(mediaCatalogProvider).maybeWhen(
-        data: (value) => value,
-        orElse: () => fallbackMediaCatalog,
-      );
+            data: (value) => value,
+            orElse: () => fallbackMediaCatalog,
+          );
 
       // Open edit dialog so the user can review / modify all fields.
       final result = await showLibraryEditDialog(
@@ -80,6 +81,39 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
               'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)}',
         );
       }
+    }
+  }
+
+  Future<LibraryMetadataItem> _providerAddItemForCandidate(
+    ProviderCandidate candidate,
+  ) async {
+    if (candidate.isStub) {
+      return candidate.placeholderItem();
+    }
+    final cachedPreview = _providerPreviews[candidate.localCatalogId];
+    if (cachedPreview != null) {
+      return metadataItemFromPreview(cachedPreview);
+    }
+    try {
+      final preview = await ref.read(apiClientProvider).providerPreview(
+            provider: candidate.provider,
+            providerItemId: candidate.providerItemId,
+          );
+      if (mounted) {
+        _rebuild(() {
+          _providerPreviews[candidate.localCatalogId] = preview;
+        });
+      }
+      return metadataItemFromPreview(preview);
+    } catch (error) {
+      if (mounted && _isMissingBearerTokenError(error)) {
+        _rebuild(
+          () => _error =
+              'Provider preview needs authentication. Adding basic provider metadata only.',
+        );
+        return candidate.placeholderItem();
+      }
+      rethrow;
     }
   }
 

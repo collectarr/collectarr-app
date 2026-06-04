@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -392,6 +393,7 @@ class _LibraryTopNavMenuButton extends ConsumerWidget {
         for (final destination in destinations)
           PopupMenuItem<_LibraryTopNavDestination>(
             value: destination,
+            height: kLibraryToolbarPopupItemHeight,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -479,11 +481,10 @@ class _OverdueLoanChip extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
                 ],
               ),
@@ -517,12 +518,17 @@ class _HeaderActionButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
-          minimumSize: const Size(30, 30),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          minimumSize: const Size(
+            kLibraryToolbarControlHeight,
+            kLibraryToolbarControlHeight,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           foregroundColor: palette.textMuted,
           side: BorderSide(color: palette.divider),
           backgroundColor: palette.surface,
-          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+          textStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
         ),
         icon: Icon(icon, size: 15),
         label: Text(label),

@@ -1043,8 +1043,7 @@ void main() {
     );
   });
 
-  testWidgets('movie add dialog exposes physical format edition data',
-      (tester) async {
+  testWidgets('movie manual action opens edit modal', (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1073,27 +1072,11 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Physical format'), findsOneWidget);
-    expect(find.text('Add Movies from Collectarr Core'), findsNothing);
-    expect(find.text('Add Movies'), findsOneWidget);
-    expect(find.text('Search by'), findsNothing);
-    await tester.enterText(
-      textFieldByKeyOrLabel('', 'Physical format'),
-      'Digital',
-    );
-    await pumpUntilSettled(tester);
-    expect(
-      find.text(
-        'Owned copies created from this draft will be saved as Digital copy.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Studio'), findsOneWidget);
-    expect(find.text('Format / Edition'), findsOneWidget);
-    expect(find.text('UPC / Barcode'), findsOneWidget);
+    expect(find.textContaining('Edit movie'), findsAtLeastNWidgets(1));
+    expect(find.text('Save'), findsAtLeastNWidgets(1));
   });
 
-  testWidgets('showLibraryAddDialog uses comic-specific manual add flow',
+  testWidgets('showLibraryAddDialog opens comic edit modal from manual action',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -1132,19 +1115,11 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Manual comic issue'), findsOneWidget);
-    expect(anyText('Collection defaults'), findsOneWidget);
-    expect(find.text('Main'), findsOneWidget);
-    expect(anyText('Collector'), findsOneWidget);
-    expect(find.text('Series'), findsOneWidget);
-    expect(find.text('Issue No.'), findsOneWidget);
-    expect(anyText('Raw / Slabbed'), findsOneWidget);
-    expect(anyText('Grading Co.'), findsOneWidget);
-    expect(anyText('Page Quality'), findsOneWidget);
-    expect(find.byTooltip('Select or manage series'), findsOneWidget);
+    expect(find.textContaining('Edit comic'), findsAtLeastNWidgets(1));
   });
 
-  testWidgets('comic manual inputs survive dialog rebuilds', (tester) async {
+  testWidgets('comic manual action remains available after rebuilds',
+      (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1174,25 +1149,11 @@ void main() {
 
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
-
-    await tester.enterText(textFieldByKeyOrLabel('', 'Issue No.'), '423A');
-    await tester.scrollUntilVisible(
-      anyText('Certification No.'),
-      160,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      textFieldByKeyOrLabel('', 'Certification No.'),
-      'CGC-423',
-    );
-    await tester.pump();
+    expect(find.textContaining('Edit comic'), findsAtLeastNWidgets(1));
 
     await tester.pumpWidget(buildSubject());
     await pumpUntilSettled(tester);
-
-    expect(find.text('423A'), findsOneWidget);
-    expect(find.text('CGC-423'), findsOneWidget);
+    expect(find.text('Manual', skipOffstage: false), findsWidgets);
   });
 
   testWidgets('showLibraryAddDialog uses comic-specific preview pane',
@@ -1313,7 +1274,7 @@ void main() {
     expect(find.text('423'), findsOneWidget);
   });
 
-  testWidgets('showLibraryAddDialog uses movie-specific manual add flow',
+  testWidgets('showLibraryAddDialog opens movie edit modal from manual action',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -1352,9 +1313,8 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Manual movie setup'), findsOneWidget);
-    expect(find.text('Poster / cover URL'), findsOneWidget);
-    expect(find.text('Release year'), findsOneWidget);
+    expect(find.textContaining('Edit movie'), findsAtLeastNWidgets(1));
+    expect(find.text('Save'), findsAtLeastNWidgets(1));
   });
 
   testWidgets('showLibraryAddDialog uses movie-specific preview pane',
@@ -1919,6 +1879,170 @@ void main() {
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
     expect(find.text('Matched on: Artist'), findsOneWidget);
   });
+
+  testWidgets('music core add hydrates full metadata before persist',
+      (tester) async {
+    configureLibraryAddDesktopViewport(tester);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: musicLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Show advanced fields'));
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-series-field')),
+      'Daft Punk Core',
+    );
+    await tester.tap(find.byTooltip('Search').first);
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Random Access Memories').last);
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.byType(FilledButton).last);
+    await pumpUntilSettled(tester);
+
+    final rows = await db.select(db.catalogCache).get();
+    expect(rows, isNotEmpty);
+    expect(rows.single.id, 'music-core-1');
+    expect(rows.single.trackCount, 2);
+    expect(rows.single.tracksJson, contains('Give Life Back to Music'));
+  });
+
+  testWidgets('music provider add persists preview track list for non-admin',
+      (tester) async {
+    configureLibraryAddDesktopViewport(tester);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: musicLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Show advanced fields'));
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-series-field')),
+      'Daft Punk',
+    );
+    await tester.tap(find.byTooltip('Search').first);
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Provider result Daft Punk'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.byType(FilledButton).last);
+    await pumpUntilSettled(tester);
+
+    final rows = await db.select(db.catalogCache).get();
+    expect(rows, isNotEmpty);
+    expect(rows.single.trackCount, 2);
+    expect(rows.single.tracksJson, contains('One More Time'));
+    expect(api.providerPreviewCallCount, greaterThanOrEqualTo(1));
+  });
+
+  testWidgets('add dialog can toggle Core and Provider result visibility',
+      (tester) async {
+    configureLibraryAddDesktopViewport(tester);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider
+              .overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: moviesLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Blade Runner',
+    );
+    await tester.tap(find.text('Search Movies'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Blade Runner 2049'), findsWidgets);
+    expect(find.text('Fallback candidate'), findsWidgets);
+    expect(find.text('Media'), findsOneWidget);
+    expect(find.text('Releases'), findsOneWidget);
+
+    await tester.tap(find.text('Core results'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Blade Runner 2049'), findsNothing);
+    expect(find.text('Fallback candidate'), findsWidgets);
+
+    await tester.tap(find.text('Provider results'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Fallback candidate'), findsNothing);
+
+    await tester.tap(find.text('Core results'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Blade Runner 2049'), findsWidgets);
+
+    await tester.tap(find.text('Media'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Blade Runner 2049'), findsNothing);
+    expect(find.text('Fallback candidate'), findsNothing);
+
+    await tester.tap(find.text('Media'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Blade Runner 2049'), findsWidgets);
+  });
 }
 
 class _FakeLibraryAddApiClient extends ApiClient {
@@ -1982,6 +2106,17 @@ class _FakeLibraryAddApiClient extends ApiClient {
         },
       ];
     }
+    if (query.kind == 'music' && query.series == 'Daft Punk Core') {
+      return const [
+        {
+          'id': 'music-core-1',
+          'kind': 'music',
+          'title': 'Random Access Memories',
+          'publisher': 'Columbia',
+          'release_year': 2013,
+        },
+      ];
+    }
     return const [];
   }
 
@@ -2037,6 +2172,30 @@ class _FakeLibraryAddApiClient extends ApiClient {
             ],
           ),
         ],
+      );
+    }
+    if (kind == 'music' && id == 'music-core-1') {
+      return CatalogItem(
+        id: 'music-core-1',
+        kind: 'music',
+        title: 'Random Access Memories',
+        publisher: 'Columbia',
+        releaseYear: 2013,
+        music: MusicCatalogDetails(
+          trackCount: 2,
+          tracks: [
+            CatalogTrack(
+              position: 1,
+              title: 'Give Life Back to Music',
+              durationSeconds: 273,
+            ),
+            CatalogTrack(
+              position: 2,
+              title: 'The Game of Love',
+              durationSeconds: 331,
+            ),
+          ],
+        ),
       );
     }
     throw StateError('Unknown metadata item $kind/$id');

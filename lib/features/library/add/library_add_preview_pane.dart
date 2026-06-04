@@ -86,9 +86,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     final selectedItem = item;
     final selectedCandidate = candidate;
     final selectedBundle =
-      referenceType == LibraryAddReferenceType.bundleRelease
-        ? selectedBundleReleaseDetail
-        : null;
+        referenceType == LibraryAddReferenceType.bundleRelease
+            ? selectedBundleReleaseDetail
+            : null;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
         color: palette.panel,
@@ -105,14 +105,16 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ),
       );
     }
-    final title = selectedBundle?.title ?? selectedItem?.title ?? selectedCandidate!.title;
+    final title = selectedBundle?.title ??
+        selectedItem?.title ??
+        selectedCandidate!.title;
     final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-      selectedItem?.displayCoverUrl ??
+        selectedItem?.displayCoverUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -253,7 +255,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           const SizedBox(height: 10),
                         ],
                         if (type.capabilities.showsSynopsis &&
-                          synopsis != null &&
+                            synopsis != null &&
                             synopsis.trim().isNotEmpty) ...[
                           Text('Plot', style: TextStyle(color: accent)),
                           const SizedBox(height: 6),
@@ -320,8 +322,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                             children: [
                               const SizedBox.square(
                                 dimension: 14,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -360,7 +362,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                     width: 200,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.74),
+                        color: appPalette(context)
+                            .surfaceSubtle
+                            .withValues(alpha: 0.74),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
@@ -423,7 +427,8 @@ class _BundleReleaseDetailCard extends StatelessWidget {
     final summaryParts = <String>[
       if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
         detail.bundleType!,
-      if (detail.packagingType != null && detail.packagingType!.trim().isNotEmpty)
+      if (detail.packagingType != null &&
+          detail.packagingType!.trim().isNotEmpty)
         detail.packagingType!,
       if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
         detail.publisher!,
@@ -526,21 +531,23 @@ class LibraryAddReferenceSelector extends StatelessWidget {
   }
 }
 
-
 List<(String, String?)> libraryAddMetadataRowsForItem(
   LibraryMetadataItem item,
   LibraryTypeConfig type,
-) => _metadataRowsForItem(item, type);
+) =>
+    _metadataRowsForItem(item, type);
 
 List<(String, String?)> libraryAddMetadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryTypeConfig type,
-) => _metadataRowsForCandidate(candidate, type);
+) =>
+    _metadataRowsForCandidate(candidate, type);
 
 List<(String, String?)> libraryAddMetadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryTypeConfig type,
-) => _metadataRowsForFullPreview(preview, type);
+) =>
+    _metadataRowsForFullPreview(preview, type);
 
 class LibraryAddPreviewMetadataRow extends StatelessWidget {
   const LibraryAddPreviewMetadataRow({
@@ -560,6 +567,7 @@ class LibraryAddPreviewMetadataRow extends StatelessWidget {
     );
   }
 }
+
 String _bundleMemberTitle(BundleReleaseMember member) {
   final number = member.itemNumber;
   if (number != null && number.trim().isNotEmpty) {
@@ -701,10 +709,10 @@ List<_BundleReleaseDiscGroup> _groupBundleMembers(
       _BundleReleaseDiscGroup(
         label: _bundleDiscLabel(grouped[key]!.first),
         members: [...grouped[key]!]..sort((left, right) {
-          final leftSequence = left.sequenceNumber ?? 999999;
-          final rightSequence = right.sequenceNumber ?? 999999;
-          return leftSequence.compareTo(rightSequence);
-        }),
+            final leftSequence = left.sequenceNumber ?? 999999;
+            final rightSequence = right.sequenceNumber ?? 999999;
+            return leftSequence.compareTo(rightSequence);
+          }),
       ),
   ];
 }
@@ -825,7 +833,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                     selected:
                         referenceType == LibraryAddReferenceType.bundleRelease,
                     enabled: bundleAvailable || isLoadingBundleReleases,
-                    label: LibraryAddReferenceType.bundleRelease.labelForType(type),
+                    label: LibraryAddReferenceType.bundleRelease
+                        .labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.bundleRelease,
                     ),
@@ -982,7 +991,8 @@ class _BundleReleaseOptionCard extends StatelessWidget {
     final subtitleParts = <String>[
       if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
         bundle.bundleType!,
-      if (bundle.packagingType != null && bundle.packagingType!.trim().isNotEmpty)
+      if (bundle.packagingType != null &&
+          bundle.packagingType!.trim().isNotEmpty)
         bundle.packagingType!,
       if (releaseDate != null)
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
@@ -1002,9 +1012,8 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                 : palette.surfaceSubtle.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: selected
-                  ? accent.withValues(alpha: 0.85)
-                  : palette.divider,
+              color:
+                  selected ? accent.withValues(alpha: 0.85) : palette.divider,
             ),
           ),
           child: Padding(
@@ -1013,7 +1022,9 @@ class _BundleReleaseOptionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
                   color: selected ? accent : palette.textMuted,
                 ),
                 const SizedBox(width: 10),
@@ -1064,12 +1075,14 @@ String _editionSummaryForSelection(
   }
   final parts = <String>[
     edition.title,
-    if (variant?.name case final variantName? when variantName.trim().isNotEmpty)
+    if (variant?.name case final variantName?
+        when variantName.trim().isNotEmpty)
       'Physical: $variantName',
     if (edition.physicalFormatLabel != null &&
         edition.physicalFormatLabel!.trim().isNotEmpty)
       edition.physicalFormatLabel!,
-    if (edition.region != null && edition.region!.trim().isNotEmpty) edition.region!,
+    if (edition.region != null && edition.region!.trim().isNotEmpty)
+      edition.region!,
     if (edition.releaseDate != null)
       '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
   ];
@@ -1096,7 +1109,9 @@ CatalogVariant? _selectedVariantForEdition(
   String? variantId,
 ) {
   final normalizedVariantId = variantId?.trim();
-  if (edition != null && normalizedVariantId != null && normalizedVariantId.isNotEmpty) {
+  if (edition != null &&
+      normalizedVariantId != null &&
+      normalizedVariantId.isNotEmpty) {
     for (final variant in edition.variants) {
       if (variant.id == normalizedVariantId) {
         return variant;
@@ -1161,11 +1176,14 @@ List<(String, String?)> _metadataRowsForCandidate(
   return [
     if (candidate.series?.seriesTitle != null)
       (previewLabels.series, candidate.series!.seriesTitle),
-    if (candidate.issueNumber != null) (media.numberLabel, candidate.issueNumber),
-    if (candidate.publisher != null) (media.publisherLabel, candidate.publisher),
+    if (candidate.issueNumber != null)
+      (media.numberLabel, candidate.issueNumber),
+    if (candidate.publisher != null)
+      (media.publisherLabel, candidate.publisher),
     if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
-    if (candidate.variantName != null) (release.variantLabel, candidate.variantName),
+    if (candidate.variantName != null)
+      (release.variantLabel, candidate.variantName),
     if (candidate.issueCount != null)
       (previewLabels.itemCount, candidate.issueCount.toString()),
   ];
@@ -1184,26 +1202,30 @@ List<(String, String?)> _metadataRowsForItem(
   final game = item.game;
   final publishing = item.publishing;
   return [
-    if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
+    if (series?.seriesTitle != null)
+      (previewLabels.series, series!.seriesTitle),
     (media.publisherLabel, item.publisher),
-    ('Released', item.releaseDate != null
-        ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
-        : item.releaseYear?.toString()),
-    if (video?.runtimeMinutes != null) ('Runtime', '${video!.runtimeMinutes} min'),
+    (
+      'Released',
+      item.releaseDate != null
+          ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
+          : item.releaseYear?.toString()
+    ),
+    if (video?.runtimeMinutes != null)
+      ('Runtime', '${video!.runtimeMinutes} min'),
     if (item.itemNumber != null) (media.numberLabel, item.itemNumber),
     if (item.displayEditionLabel != null)
       (release.variantLabel, item.displayEditionLabel),
     (release.barcodeLabel, item.barcode),
-    if (type.capabilities.showsTrackData &&
-      music?.trackCount != null)
+    if (type.capabilities.showsTrackData && music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),
     if (music?.catalogNumber != null) ('Catalog No.', music!.catalogNumber),
     if (game?.platforms case final platforms? when platforms.isNotEmpty)
       ('Platforms', platforms.join(', ')),
-    if (publishing?.pageCount != null) ('Pages', publishing!.pageCount.toString()),
+    if (publishing?.pageCount != null)
+      ('Pages', publishing!.pageCount.toString()),
     if (item.country != null) ('Country', item.country),
-    if (music?.releaseStatus != null)
-      ('Release Status', music!.releaseStatus),
+    if (music?.releaseStatus != null) ('Release Status', music!.releaseStatus),
     if (item.language != null) ('Language', item.language),
   ];
 }
@@ -1263,7 +1285,8 @@ List<(String, String?)> _metadataRowsForFullPreview(
       ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
       : null;
   return [
-    if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
+    if (series?.seriesTitle != null)
+      (previewLabels.series, series!.seriesTitle),
     if (preview.publisher != null) (media.publisherLabel, preview.publisher),
     if (publishing?.imprint != null) ('Imprint', publishing!.imprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
@@ -1276,20 +1299,23 @@ List<(String, String?)> _metadataRowsForFullPreview(
     if (preview.language != null) ('Language', preview.language),
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
-    if (preview.variantName != null) (release.variantLabel, preview.variantName),
-    if (collectarrLibraryTypes.capabilitiesForKind(preview.kind).showsTrackData &&
-      music?.trackCount != null)
+    if (preview.variantName != null)
+      (release.variantLabel, preview.variantName),
+    if (collectarrLibraryTypes
+            .capabilitiesForKind(preview.kind)
+            .showsTrackData &&
+        music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),
-    if (music?.catalogNumber != null)
-      ('Catalog No.', music!.catalogNumber),
+    if (music?.catalogNumber != null) ('Catalog No.', music!.catalogNumber),
     if (game?.platforms case final platforms? when platforms.isNotEmpty)
       ('Platforms', platforms.join(', ')),
     if (video?.runtimeMinutes != null)
       ('Runtime', '${video!.runtimeMinutes} min'),
-    if (publishing?.pageCount != null) ('Pages', publishing!.pageCount.toString()),
-    if (music?.releaseStatus != null)
-      ('Release Status', music!.releaseStatus),
-    if (publishing?.seriesGroup != null) ('Series Group', publishing!.seriesGroup),
+    if (publishing?.pageCount != null)
+      ('Pages', publishing!.pageCount.toString()),
+    if (music?.releaseStatus != null) ('Release Status', music!.releaseStatus),
+    if (publishing?.seriesGroup != null)
+      ('Series Group', publishing!.seriesGroup),
   ];
 }
 
@@ -1308,13 +1334,18 @@ List<_PreviewDiscoverySectionData> _discoverySections({
                   : '${credit.name} (${credit.role})')
               .toList(growable: false) ??
           const <String>[]);
-  final characters = item?.characters ?? preview?.characters ?? candidate?.characterPreview ?? const <String>[];
-  final storyArcs = item?.storyArcs ?? preview?.storyArcs ?? candidate?.storyArcPreview ?? const <String>[];
+  final characters = item?.characters ??
+      preview?.characters ??
+      candidate?.characterPreview ??
+      const <String>[];
+  final storyArcs = item?.storyArcs ??
+      preview?.storyArcs ??
+      candidate?.storyArcPreview ??
+      const <String>[];
   final genres = item?.genres ?? preview?.genres ?? const <String>[];
 
   return [
-    if (creators.isNotEmpty)
-      _PreviewDiscoverySectionData('Creators', creators),
+    if (creators.isNotEmpty) _PreviewDiscoverySectionData('Creators', creators),
     if (characters.isNotEmpty)
       _PreviewDiscoverySectionData('Characters', characters),
     if (storyArcs.isNotEmpty)
@@ -1393,6 +1424,16 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final chipBackground = Color.alphaBlend(
+      accent.withValues(alpha: palette.isDark ? 0.22 : 0.1),
+      palette.surface,
+    );
+    final chipBorder = accent.withValues(alpha: palette.isDark ? 0.58 : 0.42);
+    final chipTextColor =
+        ThemeData.estimateBrightnessForColor(chipBackground) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -1413,9 +1454,9 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
               for (final value in values)
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF183B44),
+                    color: chipBackground,
                     borderRadius: BorderRadius.circular(3),
-                    border: Border.all(color: const Color(0x8837C7E8)),
+                    border: Border.all(color: chipBorder),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -1425,7 +1466,7 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
                     child: Text(
                       value,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
+                            color: chipTextColor,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
@@ -1881,9 +1922,7 @@ class _EditionCard extends StatelessWidget {
               : const Color(0x08000000),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: selected
-                ? accent.withValues(alpha: 0.8)
-                : kAppBorderSubtle,
+            color: selected ? accent.withValues(alpha: 0.8) : kAppBorderSubtle,
             width: selected ? 2 : 1,
           ),
         ),
@@ -2013,8 +2052,7 @@ class _VariantGrid extends StatelessWidget {
             _VariantChip(
               key: const ValueKey('library-add-variant-card-any'),
               label: 'Any',
-              selected: selectedVariantId == null ||
-                  selectedVariantId!.isEmpty,
+              selected: selectedVariantId == null || selectedVariantId!.isEmpty,
               accent: accent,
               onTap: () => onVariantSelected(''),
             ),
@@ -2070,9 +2108,7 @@ class _VariantChip extends StatelessWidget {
               : palette.surfaceSubtle.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: selected
-                ? accent.withValues(alpha: 0.8)
-                : palette.divider,
+            color: selected ? accent.withValues(alpha: 0.8) : palette.divider,
             width: selected ? 2 : 1,
           ),
         ),

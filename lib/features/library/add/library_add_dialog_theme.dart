@@ -16,7 +16,10 @@ ThemeData libraryAddDialogTheme(
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: accent,
-        foregroundColor: Colors.white,
+        foregroundColor:
+            ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
+                ? Colors.white
+                : palette.textPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
         visualDensity: VisualDensity.compact,
       ),
@@ -37,9 +40,13 @@ ThemeData libraryAddDialogTheme(
 
 /// Filled button style used in add dialog bottom bars.
 ButtonStyle libraryAddFilledButtonStyle([Color accent = kAppAccent]) {
+  final foreground =
+      ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
+          ? Colors.white
+          : kDefaultAppThemePalette.textPrimary;
   return FilledButton.styleFrom(
     backgroundColor: accent,
-    foregroundColor: Colors.white,
+    foregroundColor: foreground,
     minimumSize: const Size(0, 36),
     padding: const EdgeInsets.symmetric(horizontal: 14),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

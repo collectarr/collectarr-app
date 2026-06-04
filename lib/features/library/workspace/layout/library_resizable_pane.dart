@@ -6,11 +6,15 @@ class LibraryResizableDivider extends StatelessWidget {
     required this.onDragDelta,
     this.axis = Axis.horizontal,
     this.color,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
   final ValueChanged<double> onDragDelta;
   final Axis axis;
   final Color? color;
+  final VoidCallback? onDragStart;
+  final VoidCallback? onDragEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +29,17 @@ class LibraryResizableDivider extends StatelessWidget {
         label: 'Resize panel',
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
+          onHorizontalDragStart:
+              isHorizontalResize ? (_) => onDragStart?.call() : null,
+          onHorizontalDragEnd:
+              isHorizontalResize ? (_) => onDragEnd?.call() : null,
           onHorizontalDragUpdate: isHorizontalResize
               ? (details) => onDragDelta(details.delta.dx)
               : null,
+          onVerticalDragStart:
+              isHorizontalResize ? null : (_) => onDragStart?.call(),
+          onVerticalDragEnd:
+              isHorizontalResize ? null : (_) => onDragEnd?.call(),
           onVerticalDragUpdate: isHorizontalResize
               ? null
               : (details) => onDragDelta(details.delta.dy),

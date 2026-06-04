@@ -393,10 +393,18 @@ class LibraryAddSearchPaneRequest {
     required this.providerNumberText,
     required this.providerPublisherText,
     required this.providerYearText,
+    required this.showCoreResults,
+    required this.showProviderResults,
+    required this.showMediaResults,
+    required this.showReleaseResults,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
+    required this.onShowCoreResultsChanged,
+    required this.onShowProviderResultsChanged,
+    required this.onShowMediaResultsChanged,
+    required this.onShowReleaseResultsChanged,
     required this.onSearchCore,
   });
 
@@ -420,10 +428,18 @@ class LibraryAddSearchPaneRequest {
   final String providerNumberText;
   final String providerPublisherText;
   final String providerYearText;
+  final bool showCoreResults;
+  final bool showProviderResults;
+  final bool showMediaResults;
+  final bool showReleaseResults;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
+  final ValueChanged<bool> onShowCoreResultsChanged;
+  final ValueChanged<bool> onShowProviderResultsChanged;
+  final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowReleaseResultsChanged;
   final VoidCallback onSearchCore;
 }
 
@@ -602,6 +618,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _searchedProvider = false;
   bool _isSearching = false;
   bool _isSearchingProvider = false;
+  bool _showCoreResults = true;
+  bool _showProviderResults = true;
+  bool _showMediaResults = true;
+  bool _showReleaseResults = true;
   bool _isQueueingIngest = false;
   bool _isAdding = false;
   LibraryAddDialogMode _mode = LibraryAddDialogMode.search;
@@ -690,6 +710,75 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   bool get _isMovieDesktopChrome => widget.type.capabilities.wideDialog;
+
+  bool _isCoreReleaseResult(LibraryMetadataItem item) {
+    final itemNumber = item.itemNumber?.trim();
+    final editionTitle = item.editionTitle?.trim();
+    final physicalFormat = item.physicalFormat?.trim();
+    final physicalFormatLabel = item.physicalFormatLabel?.trim();
+    final barcode = item.barcode?.trim();
+    final variant = item.variant?.trim();
+    return (itemNumber != null && itemNumber.isNotEmpty) ||
+        (editionTitle != null && editionTitle.isNotEmpty) ||
+        (physicalFormat != null && physicalFormat.isNotEmpty) ||
+        (physicalFormatLabel != null && physicalFormatLabel.isNotEmpty) ||
+        (barcode != null && barcode.isNotEmpty) ||
+        (variant != null && variant.isNotEmpty);
+  }
+
+  bool _isProviderReleaseResult(ProviderCandidate candidate) =>
+      !_isSeriesCandidate(candidate);
+
+  bool _matchesEntityScopeForCore(LibraryMetadataItem item) {
+    if (_showMediaResults && _showReleaseResults) {
+      return true;
+    }
+    final isRelease = _isCoreReleaseResult(item);
+    return isRelease ? _showReleaseResults : _showMediaResults;
+  }
+
+  bool _matchesEntityScopeForProvider(ProviderCandidate candidate) {
+    if (_showMediaResults && _showReleaseResults) {
+      return true;
+    }
+    final isRelease = _isProviderReleaseResult(candidate);
+    return isRelease ? _showReleaseResults : _showMediaResults;
+  }
+
+  List<LibraryMetadataItem> _visibleCoreResults() {
+    if (!_showCoreResults) {
+      return const <LibraryMetadataItem>[];
+    }
+    return _results.where(_matchesEntityScopeForCore).toList(growable: false);
+  }
+
+  List<ProviderCandidate> _visibleProviderResults() {
+    if (!_showProviderResults) {
+      return const <ProviderCandidate>[];
+    }
+    return _providerResults
+        .where(_matchesEntityScopeForProvider)
+        .toList(growable: false);
+  }
+
+  void _pruneSelectionsForVisibility({
+    required List<LibraryMetadataItem> visibleResults,
+    required List<ProviderCandidate> visibleProviderResults,
+  }) {
+    final visibleResultIds = visibleResults.map((item) => item.id).toSet();
+    final visibleProviderIds =
+        visibleProviderResults.map((item) => item.localCatalogId).toSet();
+    if (_selectedResultId != null &&
+        !visibleResultIds.contains(_selectedResultId)) {
+      _selectedResultId = null;
+    }
+    if (_selectedProviderCandidateId != null &&
+        !visibleProviderIds.contains(_selectedProviderCandidateId)) {
+      _selectedProviderCandidateId = null;
+    }
+    _checkedResultIds.removeWhere((id) => !visibleResultIds.contains(id));
+    _checkedProviderIds.removeWhere((id) => !visibleProviderIds.contains(id));
+  }
 
   @override
   void initState() {
@@ -873,7 +962,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       barcodeController: _barcodeController,
       isSearching: _isSearching,
       isSearchingProvider: _isSearchingProvider,
-      onModeChanged: (mode) => setState(() => _mode = mode),
+      onModeChanged: (mode) {
+        if (mode == LibraryAddDialogMode.manual) {
+          _openManualEditor(_addTarget);
+          return;
+        }
+        setState(() => _mode = mode);
+      },
       onSearch: () {
         _dismissSuggestions();
         _search();
@@ -887,7 +982,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       isScanningCover: _isScanningCover,
       onScanCover: _scanCover,
       onLookupBarcode: _lookupBarcode,
-      onManual: () => setState(() => _mode = LibraryAddDialogMode.manual),
+      onManual: () => _openManualEditor(_addTarget),
       showAdvanced: _showAdvancedSearch,
       onToggleAdvanced: () =>
           setState(() => _showAdvancedSearch = !_showAdvancedSearch),
@@ -992,14 +1087,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
+                      final visibleResults = _visibleCoreResults();
+                      final visibleProviderResults = _visibleProviderResults();
                       final searchPaneRequest = LibraryAddSearchPaneRequest(
                         type: widget.type,
                         isBusy: isBusy,
                         isMovieDesktopChrome: _isMovieDesktopChrome,
                         error: _error,
                         accent: accent,
-                        results: _results,
-                        providerResults: _providerResults,
+                        results: visibleResults,
+                        providerResults: visibleProviderResults,
                         queuedProviderIngests: _queuedProviderIngests,
                         selectedProvider: selectedProvider,
                         searchedProvider: _searchedProvider,
@@ -1014,6 +1111,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         providerNumberText: _searchNumberController.text,
                         providerPublisherText: _searchPublisherController.text,
                         providerYearText: _searchYearController.text,
+                        showCoreResults: _showCoreResults,
+                        showProviderResults: _showProviderResults,
+                        showMediaResults: _showMediaResults,
+                        showReleaseResults: _showReleaseResults,
                         onSelectResult: (id) {
                           _selectCoreResult(id);
                         },
@@ -1030,6 +1131,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _checkedProviderIds.add(id);
                           }
                         }),
+                        onShowCoreResultsChanged: (_) {},
+                        onShowProviderResultsChanged: (_) {},
+                        onShowMediaResultsChanged: (_) {},
+                        onShowReleaseResultsChanged: (_) {},
                         onSearchCore: _search,
                       );
                       final searchPane = widget.searchPaneBuilder
@@ -1072,6 +1177,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.providerPublisherText,
                             providerYearText:
                                 searchPaneRequest.providerYearText,
+                            showCoreResults: searchPaneRequest.showCoreResults,
+                            showProviderResults:
+                                searchPaneRequest.showProviderResults,
+                            showMediaResults:
+                                searchPaneRequest.showMediaResults,
+                            showReleaseResults:
+                                searchPaneRequest.showReleaseResults,
                             onSelectResult: searchPaneRequest.onSelectResult,
                             onSelectProviderCandidate:
                                 searchPaneRequest.onSelectProviderCandidate,
@@ -1079,8 +1191,72 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.onToggleResultCheck,
                             onToggleProviderCheck:
                                 searchPaneRequest.onToggleProviderCheck,
+                            onShowCoreResultsChanged:
+                                searchPaneRequest.onShowCoreResultsChanged,
+                            onShowProviderResultsChanged:
+                                searchPaneRequest.onShowProviderResultsChanged,
+                            onShowMediaResultsChanged:
+                                searchPaneRequest.onShowMediaResultsChanged,
+                            onShowReleaseResultsChanged:
+                                searchPaneRequest.onShowReleaseResultsChanged,
                             onSearchCore: searchPaneRequest.onSearchCore,
                           );
+                      final searchPaneWithSourceToggles =
+                          (_results.isNotEmpty || _providerResults.isNotEmpty)
+                              ? Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _SearchSourceToggles(
+                                      showCoreResults: _showCoreResults,
+                                      showProviderResults: _showProviderResults,
+                                      onShowCoreResultsChanged: (value) =>
+                                          setState(() {
+                                        _showCoreResults = value;
+                                        if (!value) {
+                                          _selectedResultId = null;
+                                          _checkedResultIds.clear();
+                                        }
+                                      }),
+                                      onShowProviderResultsChanged: (value) =>
+                                          setState(() {
+                                        _showProviderResults = value;
+                                        if (!value) {
+                                          _selectedProviderCandidateId = null;
+                                          _checkedProviderIds.clear();
+                                        }
+                                      }),
+                                      showMediaResults: _showMediaResults,
+                                      showReleaseResults: _showReleaseResults,
+                                      onShowMediaResultsChanged: (value) =>
+                                          setState(() {
+                                        if (!value && !_showReleaseResults) {
+                                          return;
+                                        }
+                                        _showMediaResults = value;
+                                        _pruneSelectionsForVisibility(
+                                          visibleResults: _visibleCoreResults(),
+                                          visibleProviderResults:
+                                              _visibleProviderResults(),
+                                        );
+                                      }),
+                                      onShowReleaseResultsChanged: (value) =>
+                                          setState(() {
+                                        if (!value && !_showMediaResults) {
+                                          return;
+                                        }
+                                        _showReleaseResults = value;
+                                        _pruneSelectionsForVisibility(
+                                          visibleResults: _visibleCoreResults(),
+                                          visibleProviderResults:
+                                              _visibleProviderResults(),
+                                        );
+                                      }),
+                                    ),
+                                    Expanded(child: searchPane),
+                                  ],
+                                )
+                              : searchPane;
                       final previewPane = _LibraryAddPreviewPane(
                         type: widget.type,
                         accent: accent,
@@ -1277,7 +1453,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             : constraints.maxHeight * 0.5;
                         return Column(
                           children: [
-                            SizedBox(height: searchHeight, child: searchPane),
+                            SizedBox(
+                              height: searchHeight,
+                              child: searchPaneWithSourceToggles,
+                            ),
                             Expanded(child: previewPane),
                           ],
                         );
@@ -1289,7 +1468,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             width: _clampedResultsPaneWidth(
                               constraints.maxWidth,
                             ),
-                            child: searchPane,
+                            child: searchPaneWithSourceToggles,
                           ),
                           _LibraryAddPaneResizeDivider(
                             onDragDelta: (delta) => _resizeResultsPane(
@@ -1375,10 +1554,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 !canAddBundleSelection ||
                                 !canAddEditionSelection
                             ? null
-                            : () {
+                            : () async {
                                 if (addItems.isNotEmpty) {
-                                  _addItems(
-                                    addItems,
+                                  final resolvedItems =
+                                      await _resolveCoreItemsForAdd(addItems);
+                                  await _addItems(
+                                    resolvedItems,
                                     _addTarget,
                                     referenceType: _referenceType,
                                     editionSelectionsByItemId: selectedResult ==
@@ -1404,7 +1585,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 }
                                 final candidate = selectedCandidate;
                                 if (candidate != null) {
-                                  _addProviderCandidate(candidate, _addTarget);
+                                  await _addProviderCandidate(
+                                    candidate,
+                                    _addTarget,
+                                  );
                                 }
                               },
                         onQueueIngest: selectedCandidate == null
@@ -1744,6 +1928,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setState(() => _error = 'Manual item needs a title.');
       return;
     }
+    await _openManualEditor(target);
+  }
+
+  Future<void> _openManualEditor(LibraryAddTarget target) async {
     final draft = _buildManualDraftItem();
     final customFieldValuesForEdit = _manualCustomFieldValues.entries
         .map((e) => CustomFieldValue(
@@ -2555,6 +2743,50 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _searchYearController.text,
       _barcodeController.text,
     ]);
+  }
+
+  Future<List<LibraryMetadataItem>> _resolveCoreItemsForAdd(
+    List<LibraryMetadataItem> items,
+  ) async {
+    if (items.isEmpty) {
+      return const <LibraryMetadataItem>[];
+    }
+    final api = ref.read(apiClientProvider);
+    final resolved = await Future.wait(
+      items.map((item) async {
+        final hydrated = _hydratedResults[item.id];
+        if (hydrated != null) {
+          return hydrated;
+        }
+        if (item.id.startsWith('local-') ||
+            item.id.startsWith('preview-') ||
+            item.id.startsWith('provider:')) {
+          return item;
+        }
+        try {
+          final full = await api.getMetadataItem(kind: item.kind, id: item.id);
+          final fullItem = LibraryMetadataItem.fromCatalogItem(full);
+          final hasCover = fullItem.displayCoverUrl != null;
+          return hasCover
+              ? fullItem
+              : fullItem.copyWith(
+                  coverImageUrl: item.coverImageUrl,
+                  thumbnailImageUrl:
+                      item.thumbnailImageUrl ?? item.coverImageUrl,
+                );
+        } catch (error, stackTrace) {
+          logRecoverableError(
+            source: 'library_add',
+            message:
+                'Falling back to lightweight add payload for ${item.kind}:${item.id}.',
+            error: error,
+            stackTrace: stackTrace,
+          );
+          return item;
+        }
+      }),
+    );
+    return resolved;
   }
 
   Future<void> _addItems(

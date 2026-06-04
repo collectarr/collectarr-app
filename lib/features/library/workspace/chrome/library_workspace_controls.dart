@@ -45,9 +45,8 @@ class _LibraryToolbarCompactDropdownTriggerState
       child: DecoratedBox(
         decoration: libraryToolbarDropdownDecoration(
           context,
-          backgroundColor: _hovered
-              ? libraryToolbarControlHover(context)
-              : null,
+          backgroundColor:
+              _hovered ? libraryToolbarControlHover(context) : null,
         ),
         child: SizedBox(
           width: kLibraryToolbarCompactDropdownWidth,
@@ -104,7 +103,7 @@ class LibraryWorkspaceIconButton extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onPressed,
-    this.dimension = 30,
+    this.dimension = kLibraryToolbarControlHeight,
     this.iconSize = 17,
   });
 

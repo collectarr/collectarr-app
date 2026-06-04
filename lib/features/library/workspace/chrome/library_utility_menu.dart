@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 
 class LibraryUtilityQuickView<T> {
   const LibraryUtilityQuickView({
@@ -122,7 +123,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
         items.add(
           PopupMenuItem<Object>(
             value: _LibraryUtilityQuickViewSelection<T>(view.value),
-            height: 34,
+            height: kLibraryToolbarPopupItemHeight,
             child: ListTile(
               dense: true,
               minLeadingWidth: 18,
@@ -155,7 +156,8 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
         PopupMenuItem<Object>(
           value: action,
           enabled: action.enabled && action.onSelected != null,
-          height: action.description == null ? 34 : 46,
+          height:
+              action.description == null ? kLibraryToolbarPopupItemHeight : 42,
           child: ListTile(
             dense: true,
             minLeadingWidth: 18,
@@ -186,12 +188,11 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
   PopupMenuEntry<Object> _buildSectionHeader(String label) {
     return PopupMenuItem<Object>(
       enabled: false,
-      height: 24,
+      height: kLibraryToolbarPopupSectionHeaderHeight,
       child: Text(
         label.toUpperCase(),
         style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           letterSpacing: 0.24,
         ),
       ),

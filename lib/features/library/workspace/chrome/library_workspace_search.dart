@@ -1,6 +1,8 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import '../config/library_workspace_tokens.dart';
+
 class LibraryToolbarSearch extends StatelessWidget {
   const LibraryToolbarSearch({
     super.key,
@@ -35,18 +37,24 @@ class LibraryToolbarSearch extends StatelessWidget {
     final inlineActionCount =
         1 + (onScanBarcode != null ? 1 : 0) + (onScanCover != null ? 1 : 0);
     final inlineActionsWidth = inlineActionCount * 28.0 + 8;
-    final inputBackground = colorScheme.brightness == Brightness.dark
-      ? Color.alphaBlend(palette.surface.withValues(alpha: 0.34), palette.field)
-      : const Color(0xFFF2F4F6);
-    final borderColor = colorScheme.brightness == Brightness.dark
-      ? const Color(0xFF4F565D)
-      : const Color(0xFFD0D7DD);
+    final inputBackground = Color.alphaBlend(
+      (palette.isDark ? Colors.white : palette.accent).withValues(
+        alpha: palette.isDark ? 0.045 : 0.03,
+      ),
+      palette.field,
+    );
+    final borderColor = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.34 : 0.22),
+      palette.divider,
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
         final showFilterChip =
             selectedFilterLabel != null && constraints.maxWidth >= 340;
         final availableWidth = constraints.hasBoundedWidth
-            ? (constraints.maxWidth < maxWidth ? constraints.maxWidth : maxWidth)
+            ? (constraints.maxWidth < maxWidth
+                ? constraints.maxWidth
+                : maxWidth)
             : maxWidth;
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -55,67 +63,66 @@ class LibraryToolbarSearch extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: availableWidth),
                 child: ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: inputBackground,
-                    border: Border.all(color: borderColor),
-                  ),
-                  child: SizedBox(
-                    height: inputHeight,
-                    child: TextField(
-                      controller: controller,
-                      onChanged: onChanged,
-                      onSubmitted: onSearch,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 11.5,
-                            height: 1.05,
-                          ),
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: hintText,
-                        hintStyle: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(
-                              color: palette.textMuted,
-                              fontSize: 11,
+                  borderRadius: BorderRadius.circular(2),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: inputBackground,
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: SizedBox(
+                      height: inputHeight,
+                      child: TextField(
+                        controller: controller,
+                        onChanged: onChanged,
+                        onSubmitted: onSearch,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 12.5,
                               height: 1.05,
                             ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        suffixIconConstraints: BoxConstraints(
-                          minWidth: inlineActionsWidth,
-                          maxWidth: inlineActionsWidth,
-                          minHeight: inputHeight,
-                          maxHeight: inputHeight,
-                        ),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _ToolbarSearchInlineAction(
-                                tooltip: 'Search',
-                                icon: Icons.search,
-                                onPressed: () => onSearch(controller.text),
-                              ),
-                              if (onScanBarcode != null)
+                        decoration: InputDecoration(
+                          isDense: true,
+                          hintText: hintText,
+                          hintStyle:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: palette.textMuted,
+                                    fontSize: 12,
+                                    height: 1.05,
+                                  ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          suffixIconConstraints: BoxConstraints(
+                            minWidth: inlineActionsWidth,
+                            maxWidth: inlineActionsWidth,
+                            minHeight: inputHeight,
+                            maxHeight: inputHeight,
+                          ),
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                                 _ToolbarSearchInlineAction(
-                                  tooltip: 'Scan barcode',
-                                  icon: Icons.qr_code_2,
-                                  onPressed: onScanBarcode!,
+                                  tooltip: 'Search',
+                                  icon: Icons.search,
+                                  onPressed: () => onSearch(controller.text),
                                 ),
-                              if (onScanCover != null)
-                                _ToolbarSearchInlineAction(
-                                  tooltip: 'Search by cover',
-                                  icon: Icons.image_search,
-                                  onPressed: onScanCover!,
-                                ),
-                            ],
+                                if (onScanBarcode != null)
+                                  _ToolbarSearchInlineAction(
+                                    tooltip: 'Scan barcode',
+                                    icon: Icons.qr_code_2,
+                                    onPressed: onScanBarcode!,
+                                  ),
+                                if (onScanCover != null)
+                                  _ToolbarSearchInlineAction(
+                                    tooltip: 'Search by cover',
+                                    icon: Icons.image_search,
+                                    onPressed: onScanCover!,
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -123,7 +130,6 @@ class LibraryToolbarSearch extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
             ),
             if (showFilterChip) ...[
               const SizedBox(width: 6),
@@ -139,15 +145,17 @@ class LibraryToolbarSearch extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         selectedFilterLabel!,
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                       ),
                       if (onClearFilter != null) ...[
                         const SizedBox(width: 6),
@@ -196,8 +204,10 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
         style: IconButton.styleFrom(
           backgroundColor: Colors.transparent,
           disabledBackgroundColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
+          hoverColor: libraryToolbarControlHover(context),
+          highlightColor: libraryToolbarControlHover(
+            context,
+          ).withValues(alpha: 0.9),
         ),
         constraints: const BoxConstraints.tightFor(width: 28, height: 28),
         onPressed: onPressed,

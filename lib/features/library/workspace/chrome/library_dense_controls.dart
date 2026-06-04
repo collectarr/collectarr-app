@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryDenseButtonTone { surface, accent, subtle }
@@ -51,9 +52,8 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
     final palette = appPalette(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
-      LibraryDenseButtonTone.accent => enabled
-          ? palette.accent
-          : palette.accent.withValues(alpha: 0.45),
+      LibraryDenseButtonTone.accent =>
+        enabled ? palette.accent : palette.accent.withValues(alpha: 0.45),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
@@ -70,7 +70,10 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
             (widget.tone == LibraryDenseButtonTone.accent
                     ? Colors.white
                     : palette.accent)
-                .withValues(alpha: widget.tone == LibraryDenseButtonTone.accent ? 0.08 : 0.07),
+                .withValues(
+                    alpha: widget.tone == LibraryDenseButtonTone.accent
+                        ? 0.08
+                        : 0.07),
             background,
           )
         : background;
@@ -86,7 +89,10 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             curve: Curves.easeOut,
-            padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            constraints:
+                const BoxConstraints(minHeight: kLibraryDenseControlHeight),
+            padding: widget.padding ??
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: _hovered ? hoveredBackground : background,
               borderRadius: BorderRadius.circular(4),
@@ -94,13 +100,13 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
             ),
             child: DefaultTextStyle(
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: foreground,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.1,
-                  ) ??
+                        color: foreground,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.1,
+                      ) ??
                   TextStyle(
                     color: foreground,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.1,
                   ),
               child: Row(
@@ -151,9 +157,8 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
     final palette = appPalette(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
-      LibraryDenseButtonTone.accent => enabled
-          ? palette.accent
-          : palette.accent.withValues(alpha: 0.45),
+      LibraryDenseButtonTone.accent =>
+        enabled ? palette.accent : palette.accent.withValues(alpha: 0.45),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
@@ -176,15 +181,19 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOut,
-              width: 32,
-              height: 32,
+              width: kLibraryDenseControlHeight,
+              height: kLibraryDenseControlHeight,
               decoration: BoxDecoration(
                 color: _hovered
                     ? Color.alphaBlend(
                         (widget.tone == LibraryDenseButtonTone.accent
                                 ? Colors.white
                                 : palette.accent)
-                            .withValues(alpha: widget.tone == LibraryDenseButtonTone.accent ? 0.08 : 0.07),
+                            .withValues(
+                                alpha:
+                                    widget.tone == LibraryDenseButtonTone.accent
+                                        ? 0.08
+                                        : 0.07),
                         background,
                       )
                     : background,
@@ -249,7 +258,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
           PopupMenuItem<T>(
             value: entry.value,
             enabled: entry.enabled,
-            height: 34,
+            height: kLibraryToolbarPopupItemHeight,
             child: _LibraryDenseMenuItemRow(entry: entry),
           ),
       ],
@@ -312,9 +321,11 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: onPressed,
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(4)),
+              borderRadius:
+                  const BorderRadius.horizontal(left: Radius.circular(4)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -324,7 +335,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                       label,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: foreground,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: 0.1,
                           ),
                     ),
@@ -333,7 +344,8 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
               ),
             ),
           ),
-          Container(width: 1, height: 20, color: foreground.withValues(alpha: 0.18)),
+          Container(
+              width: 1, height: 20, color: foreground.withValues(alpha: 0.18)),
           PopupMenuButton<T>(
             tooltip: tooltip ?? label,
             padding: EdgeInsets.zero,
@@ -354,13 +366,14 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                 PopupMenuItem<T>(
                   value: entry.value,
                   enabled: entry.enabled,
-                  height: 34,
+                  height: kLibraryToolbarPopupItemHeight,
                   child: _LibraryDenseMenuItemRow(entry: entry),
                 ),
             ],
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Icon(Icons.keyboard_arrow_down, size: 16, color: foreground),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              child:
+                  Icon(Icons.keyboard_arrow_down, size: 16, color: foreground),
             ),
           ),
         ],

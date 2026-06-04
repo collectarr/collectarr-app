@@ -35,11 +35,11 @@ class MediaLibraryNavButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final borderColor = selected
-      ? Color.alphaBlend(color.withValues(alpha: 0.24), palette.divider)
-      : palette.divider;
+        ? Color.alphaBlend(color.withValues(alpha: 0.24), palette.divider)
+        : palette.divider;
     final fillColor = selected
-      ? Color.alphaBlend(color.withValues(alpha: 0.06), palette.surface)
-      : Colors.transparent;
+        ? Color.alphaBlend(color.withValues(alpha: 0.06), palette.surface)
+        : Colors.transparent;
     final selectedTextColor = palette.textPrimary;
     final selectedCountColor = palette.textMuted;
     final unselectedTextColor = palette.textMuted;
@@ -52,6 +52,18 @@ class MediaLibraryNavButton extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(2),
           onTap: selected && !enableWhenSelected ? null : onPressed,
+          hoverColor: Color.alphaBlend(
+            color.withValues(alpha: selected ? 0.14 : 0.1),
+            palette.surface,
+          ),
+          highlightColor: Color.alphaBlend(
+            color.withValues(alpha: selected ? 0.1 : 0.07),
+            palette.surface,
+          ),
+          splashColor: Color.alphaBlend(
+            color.withValues(alpha: selected ? 0.18 : 0.12),
+            palette.surface,
+          ),
           child: AnimatedContainer(
             duration: animationDuration,
             curve: Curves.easeOutCubic,
@@ -87,29 +99,34 @@ class MediaLibraryNavButton extends StatelessWidget {
                       const SizedBox(width: 5),
                       Text(
                         resolvedLabel,
-                        style: TextStyle(
-                          color: selected ? selectedTextColor : unselectedTextColor,
-                          fontSize: 11,
-                          fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-                          height: 1,
-                        ),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: selected
+                                  ? selectedTextColor
+                                  : unselectedTextColor,
+                              fontWeight:
+                                  selected ? FontWeight.w700 : FontWeight.w600,
+                              height: 1,
+                            ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         count.toString(),
-                        style: TextStyle(
-                          color: selected ? selectedCountColor : unselectedCountColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          height: 1,
-                        ),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: selected
+                                  ? selectedCountColor
+                                  : unselectedCountColor,
+                              fontWeight: FontWeight.w700,
+                              height: 1,
+                            ),
                       ),
                       if (showsDisclosure) ...[
                         const SizedBox(width: 3),
                         Icon(
                           Icons.arrow_drop_down,
                           size: 16,
-                          color: selected ? selectedCountColor : unselectedCountColor,
+                          color: selected
+                              ? selectedCountColor
+                              : unselectedCountColor,
                         ),
                       ],
                       const SizedBox(width: 5),

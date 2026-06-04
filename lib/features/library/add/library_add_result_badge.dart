@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 class LibraryAddResultBadge extends StatelessWidget {
   const LibraryAddResultBadge(
@@ -21,15 +22,18 @@ class LibraryAddResultBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final badgeColor = accent ??
-        LibraryAccentScope.maybeOf(context)?.accent ??
-        const Color(0xFF0E81A6);
-    final resolvedForeground = foregroundColor ?? Colors.white;
+    final palette = appPalette(context);
+    final badgeColor =
+        accent ?? LibraryAccentScope.maybeOf(context)?.accent ?? palette.accent;
+    final resolvedForeground = foregroundColor ??
+        (ThemeData.estimateBrightnessForColor(badgeColor) == Brightness.dark
+            ? Colors.white
+            : palette.textPrimary);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor ??
             Color.alphaBlend(
-              Colors.black.withValues(alpha: 0.28),
+              palette.surfaceDim.withValues(alpha: 0.62),
               badgeColor,
             ),
         borderRadius: BorderRadius.circular(3),

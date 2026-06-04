@@ -6,15 +6,13 @@ export 'package:collectarr_app/core/utils/text_utils.dart'
 
 const double kCompactControlHeight = 30;
 const double kCompactMenuItemHeight = 30;
-const Color kCompactMenuBackground = kAppBannerInfoBackground;
-const Color kCompactMenuText = Color(0xFFBFEFFF);
 
 /// Derives a dark background tinted by [accent] for popup menus and buttons.
 Color compactMenuBackgroundFor(Color accent, AppThemePalette palette) {
   if (palette.isDark) {
     return Color.alphaBlend(
       accent.withValues(alpha: 0.18),
-      const Color(0xFF161616),
+      palette.surfaceDim,
     );
   }
   return Color.alphaBlend(
@@ -26,7 +24,8 @@ Color compactMenuBackgroundFor(Color accent, AppThemePalette palette) {
 /// Derives a light text color tinted by [accent] for popup menus and buttons.
 Color compactMenuTextFor(Color accent, AppThemePalette palette) {
   if (palette.isDark) {
-    return Color.alphaBlend(accent.withValues(alpha: 0.40), Colors.white);
+    return Color.alphaBlend(
+        accent.withValues(alpha: 0.40), palette.textPrimary);
   }
   return palette.textPrimary;
 }
@@ -192,19 +191,19 @@ class CompactPopupMenuRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: selected
-            ? (palette.isDark ? accent.withValues(alpha: 0.26) : palette.selection)
+            ? (palette.isDark
+                ? accent.withValues(alpha: 0.26)
+                : palette.selection)
             : Colors.transparent,
-        border: selected
-            ? Border(left: BorderSide(color: accent, width: 3))
-            : null,
+        border:
+            selected ? Border(left: BorderSide(color: accent, width: 3)) : null,
       ),
       child: Row(
         children: [
           SizedBox(
             width: 18,
-            child: selected
-                ? Icon(Icons.check, color: textColor, size: 15)
-                : null,
+            child:
+                selected ? Icon(Icons.check, color: textColor, size: 15) : null,
           ),
           const SizedBox(width: 4),
           Expanded(

@@ -149,6 +149,14 @@ OutlinedButtonThemeData buildAppOutlinedButtonTheme(AppThemePalette palette) {
 
 IconButtonThemeData buildAppIconButtonTheme(
     {bool compact = false, AppThemePalette palette = kDefaultAppThemePalette}) {
+  final hoverOverlay = Color.alphaBlend(
+    palette.accent.withValues(alpha: palette.isDark ? 0.24 : 0.14),
+    palette.surfaceSubtle,
+  );
+  final pressedOverlay = Color.alphaBlend(
+    palette.accent.withValues(alpha: palette.isDark ? 0.30 : 0.18),
+    palette.surfaceSubtle,
+  );
   return IconButtonThemeData(
     style: IconButton.styleFrom(
       foregroundColor: palette.textPrimary,
@@ -159,6 +167,9 @@ IconButtonThemeData buildAppIconButtonTheme(
           : palette.textMuted.withValues(alpha: 0.7),
       disabledBackgroundColor:
           palette.isDark ? const Color(0xFF252525) : palette.toolbar,
+      hoverColor: hoverOverlay,
+      highlightColor: pressedOverlay,
+      overlayColor: pressedOverlay,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       visualDensity: compact ? VisualDensity.compact : null,
     ),
@@ -253,31 +264,31 @@ ThemeData applySharedSurfaceTheme(
             letterSpacing: -0.05,
           ),
           bodyLarge: base.textTheme.bodyLarge?.copyWith(
-            fontSize: 14,
-            height: 1.2,
+            fontSize: 15,
+            height: 1.35,
           ),
           bodyMedium: base.textTheme.bodyMedium?.copyWith(
-            fontSize: 13,
-            height: 1.16,
+            fontSize: 14,
+            height: 1.3,
           ),
           bodySmall: base.textTheme.bodySmall?.copyWith(
-            fontSize: 12,
-            height: 1.14,
+            fontSize: 13,
+            height: 1.25,
           ),
           labelLarge: base.textTheme.labelLarge?.copyWith(
             fontSize: 13,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.1,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.15,
           ),
           labelMedium: base.textTheme.labelMedium?.copyWith(
             fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.08,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.05,
           ),
           labelSmall: base.textTheme.labelSmall?.copyWith(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.08,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.04,
           ),
         ),
   );

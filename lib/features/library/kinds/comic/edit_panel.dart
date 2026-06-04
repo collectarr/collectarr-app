@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/text_controller_group.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -300,8 +301,10 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     imprintCtl = _createController(publishing?.imprint ?? '');
     subtitleCtl = _createController(item.titleExtension ?? '');
     final crossover = item.crossover?.trim();
-    crossoverCtl = _createController(crossover?.isNotEmpty == true ? crossover! : '');
-    storyArcsCtl = _createController((item.storyArcs ?? const <String>[]).join(', '));
+    crossoverCtl =
+        _createController(crossover?.isNotEmpty == true ? crossover! : '');
+    storyArcsCtl =
+        _createController((item.storyArcs ?? const <String>[]).join(', '));
     countryCtl = _createController(item.country ?? '');
     languageCtl = _createController(item.language ?? '');
     ageCtl = _createController(item.ageRating ?? '');
@@ -341,7 +344,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     labelTypeCtl = _createController(owned?.labelType ?? '');
     customLabelCtl = _createController(owned?.customLabel ?? '');
     pageQualityCtl = _createController(owned?.pageQuality ?? '');
-    certificationNumberCtl = _createController(owned?.certificationNumber ?? '');
+    certificationNumberCtl =
+        _createController(owned?.certificationNumber ?? '');
     graderNotesCtl = _createController(owned?.graderNotes ?? '');
     signedByCtl = _createController(owned?.signedBy ?? '');
     keyReasonCtl = _createController(owned?.keyReason ?? '');
@@ -366,9 +370,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     );
     tagsCtl = _createController(owned?.tags ?? '');
     notesCtl = _createController(owned?.personalNotes ?? '');
-    coverUrlCtl = _createController(item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
+    coverUrlCtl =
+        _createController(item.coverImageUrl ?? item.thumbnailImageUrl ?? '');
     backCoverUrlCtl = _createController('');
-    collectionStatusCtl = _createController(owned?.collectionStatus ?? 'In Collection');
+    collectionStatusCtl =
+        _createController(owned?.collectionStatus ?? 'In Collection');
 
     indexNumberCtl = _createController(
       owned?.indexNumber?.toString() ?? '',
@@ -444,8 +450,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     }
     final order = parsed.cast<int>();
     final sorted = List<int>.from(order)..sort();
-    final isPermutation =
-        sorted.length == _tabs.length &&
+    final isPermutation = sorted.length == _tabs.length &&
         sorted.indexed.every((entry) => entry.$1 == entry.$2);
     if (!isPermutation || !mounted) {
       return;
@@ -558,12 +563,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
       },
     );
     if (result == null || !mounted) return;
-    final role =
-        result['role']?.toString().trim().isNotEmpty == true
-            ? result['role']!.toString().trim()
-            : result['job']?.toString().trim().isNotEmpty == true
-                ? result['job']!.toString().trim()
-                : '';
+    final role = result['role']?.toString().trim().isNotEmpty == true
+        ? result['role']!.toString().trim()
+        : result['job']?.toString().trim().isNotEmpty == true
+            ? result['job']!.toString().trim()
+            : '';
     setState(() {
       _creators[idx].nameController.text = result['name']?.toString() ?? '';
       if (role.isNotEmpty) {
@@ -976,13 +980,14 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
 
   void _syncSelectedSeriesId(String? value) {
     final normalized = value?.trim();
-    final matchingEntry = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
-          (entry) =>
-              entry != null &&
-              entry.title.trim().toLowerCase() ==
-                  (normalized?.toLowerCase() ?? ''),
-          orElse: () => null,
-        );
+    final matchingEntry =
+        _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+              (entry) =>
+                  entry != null &&
+                  entry.title.trim().toLowerCase() ==
+                      (normalized?.toLowerCase() ?? ''),
+              orElse: () => null,
+            );
     setState(() {
       _selectedSeriesId = matchingEntry?.coreSeriesId;
     });
@@ -1103,8 +1108,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
           ],
           selected: {current},
           onSelectionChanged: (selection) {
-            _setControllerText(
-                rawOrSlabbedCtl, selection.firstOrNull ?? 'Raw');
+            _setControllerText(rawOrSlabbedCtl, selection.firstOrNull ?? 'Raw');
             setState(() {});
           },
         ),
@@ -1117,8 +1121,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Signed by',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        const Text('Signed by', style: TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         for (var i = 0; i < _signedByEntries.length; i++)
           Container(
@@ -1725,8 +1728,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                                   key: const ValueKey('edit-grading-company'))),
                           const SizedBox(width: 8),
                           Expanded(
-                              child: _labelledField(
-                                  'Slab Certification Number',
+                              child: _labelledField('Slab Certification Number',
                                   controller: certificationNumberCtl,
                                   key: const ValueKey(
                                       'edit-certification-number'))),
@@ -2014,15 +2016,16 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                     _coverAction(
                       icon: Icons.restore,
                       label: 'Restore',
-                      onPressed: (widget.request.item.coverImageUrl ?? '').isEmpty
-                          ? null
-                          : () {
-                              _setControllerText(
-                                coverUrlCtl,
-                                widget.request.item.coverImageUrl ?? '',
-                              );
-                              setState(() {});
-                            },
+                      onPressed:
+                          (widget.request.item.coverImageUrl ?? '').isEmpty
+                              ? null
+                              : () {
+                                  _setControllerText(
+                                    coverUrlCtl,
+                                    widget.request.item.coverImageUrl ?? '',
+                                  );
+                                  setState(() {});
+                                },
                     ),
                   ],
                 ),
@@ -2193,8 +2196,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                 Container(
                   decoration: BoxDecoration(
                     border: Border(
-                      bottom:
-                          BorderSide(color: Theme.of(context).dividerColor),
+                      bottom: BorderSide(color: Theme.of(context).dividerColor),
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 6),
@@ -2214,8 +2216,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                       Expanded(
                         child: Text(
                           creator['name']?.toString() ?? '',
-                          style: const TextStyle(
-                              fontSize: 13, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 13, color: Colors.grey),
                         ),
                       ),
                       const Icon(Icons.lock_outline,
@@ -2246,7 +2248,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                   tooltip: 'Add by role',
                   itemBuilder: (_) => [
                     for (final role in _commonCreatorRoles)
-                      PopupMenuItem(value: role, child: Text(role)),
+                      PopupMenuItem(
+                        value: role,
+                        height: kLibraryToolbarPopupItemHeight,
+                        child: Text(role),
+                      ),
                   ],
                   onSelected: _addCreatorWithRole,
                 ),
@@ -2281,8 +2287,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                   key: ValueKey(_creators[i]),
                   decoration: BoxDecoration(
                     border: Border(
-                      bottom:
-                          BorderSide(color: Theme.of(context).dividerColor),
+                      bottom: BorderSide(color: Theme.of(context).dividerColor),
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 6),
@@ -2307,7 +2312,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                               ..._commonCreatorRoles,
                             ];
                             return DropdownButtonFormField<String>(
-                              initialValue: currentRole.isEmpty ? null : currentRole,
+                              initialValue:
+                                  currentRole.isEmpty ? null : currentRole,
                               isDense: true,
                               isExpanded: true,
                               decoration: const InputDecoration(
@@ -2380,10 +2386,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
           Center(
             child: SegmentedButton<bool>(
               segments: const [
-                ButtonSegment(
-                    value: false, label: Text('Core Characters')),
-                ButtonSegment(
-                    value: true, label: Text('Custom Characters')),
+                ButtonSegment(value: false, label: Text('Core Characters')),
+                ButtonSegment(value: true, label: Text('Custom Characters')),
               ],
               selected: {_useCustomCharacters},
               onSelectionChanged: (sel) {
@@ -2413,8 +2417,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                 Container(
                   decoration: BoxDecoration(
                     border: Border(
-                      bottom:
-                          BorderSide(color: Theme.of(context).dividerColor),
+                      bottom: BorderSide(color: Theme.of(context).dividerColor),
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 6),
@@ -2424,8 +2427,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                         flex: 4,
                         child: Text(
                           coreCharacters[i],
-                          style: const TextStyle(
-                              fontSize: 13, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 13, color: Colors.grey),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -2433,12 +2436,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                         flex: 3,
                         child: Text(
                           (i < coreDetails.length
-                                  ? coreDetails[i]['real_name']
-                                      ?.toString()
+                                  ? coreDetails[i]['real_name']?.toString()
                                   : null) ??
                               '',
-                          style: const TextStyle(
-                              fontSize: 13, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 13, color: Colors.grey),
                         ),
                       ),
                       const Icon(Icons.lock_outline,
@@ -2509,8 +2511,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                   key: ValueKey(_characters[i]),
                   decoration: BoxDecoration(
                     border: Border(
-                      bottom:
-                          BorderSide(color: Theme.of(context).dividerColor),
+                      bottom: BorderSide(color: Theme.of(context).dividerColor),
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 6),
@@ -2603,12 +2604,10 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
           // Header row
           Container(
             decoration: BoxDecoration(
-              color:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               border: Border.all(color: Theme.of(context).dividerColor),
             ),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Row(
               children: [
                 const SizedBox(width: 28),
@@ -2662,16 +2661,12 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                 key: ValueKey(links[i]),
                 decoration: BoxDecoration(
                   border: Border(
-                    left:
-                        BorderSide(color: Theme.of(context).dividerColor),
-                    right:
-                        BorderSide(color: Theme.of(context).dividerColor),
-                    bottom:
-                        BorderSide(color: Theme.of(context).dividerColor),
+                    left: BorderSide(color: Theme.of(context).dividerColor),
+                    right: BorderSide(color: Theme.of(context).dividerColor),
+                    bottom: BorderSide(color: Theme.of(context).dividerColor),
                   ),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Row(
                   children: [
                     ReorderableDragStartListener(
@@ -2687,8 +2682,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                         style: const TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           hintText: 'Link title',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                           border: OutlineInputBorder(),
                           isDense: true,
                         ),
@@ -2702,8 +2697,8 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
                         style: const TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           hintText: 'https://',
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                           border: OutlineInputBorder(),
                           isDense: true,
                         ),
@@ -2839,16 +2834,14 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700)),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
         DropdownButtonFormField<String>(
           initialValue: value,
           isDense: true,
           isExpanded: true,
           decoration: const InputDecoration(
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             border: OutlineInputBorder(),
             isDense: true,
           ),
@@ -2875,15 +2868,13 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700)),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
         TextField(
           controller: controller,
           style: const TextStyle(fontSize: 13),
           decoration: const InputDecoration(
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             border: OutlineInputBorder(),
             isDense: true,
           ),
@@ -2996,12 +2987,11 @@ class _EditableComicCreator {
   }
 
   factory _EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
-    final role =
-        result['role']?.toString().trim().isNotEmpty == true
-            ? result['role']!.toString().trim()
-            : result['job']?.toString().trim().isNotEmpty == true
-                ? result['job']!.toString().trim()
-                : '';
+    final role = result['role']?.toString().trim().isNotEmpty == true
+        ? result['role']!.toString().trim()
+        : result['job']?.toString().trim().isNotEmpty == true
+            ? result['job']!.toString().trim()
+            : '';
     return _EditableComicCreator(
       nameController:
           TextEditingController(text: result['name']?.toString() ?? ''),
@@ -3181,7 +3171,8 @@ class _MultiValuePickFieldState extends State<_MultiValuePickField> {
     super.dispose();
   }
 
-  List<String> get _selectedValues => splitPickListValues(widget.controller.text);
+  List<String> get _selectedValues =>
+      splitPickListValues(widget.controller.text);
 
   void _writeSelection(List<String> values) {
     final text = joinPickListValues(values) ?? '';
@@ -3221,7 +3212,8 @@ class _MultiValuePickFieldState extends State<_MultiValuePickField> {
     if (fieldBox == null || overlayBox == null) {
       return;
     }
-    final fieldOffset = fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final fieldOffset =
+        fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final selected = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(

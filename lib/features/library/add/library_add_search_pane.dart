@@ -22,10 +22,18 @@ class _SearchPane extends StatelessWidget {
     required this.providerNumberText,
     required this.providerPublisherText,
     required this.providerYearText,
+    required this.showCoreResults,
+    required this.showProviderResults,
+    required this.showMediaResults,
+    required this.showReleaseResults,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
+    required this.onShowCoreResultsChanged,
+    required this.onShowProviderResultsChanged,
+    required this.onShowMediaResultsChanged,
+    required this.onShowReleaseResultsChanged,
     required this.onSearchCore,
   });
 
@@ -49,10 +57,18 @@ class _SearchPane extends StatelessWidget {
   final String providerNumberText;
   final String providerPublisherText;
   final String providerYearText;
+  final bool showCoreResults;
+  final bool showProviderResults;
+  final bool showMediaResults;
+  final bool showReleaseResults;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
+  final ValueChanged<bool> onShowCoreResultsChanged;
+  final ValueChanged<bool> onShowProviderResultsChanged;
+  final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowReleaseResultsChanged;
   final VoidCallback onSearchCore;
 
   @override
@@ -89,6 +105,117 @@ class _SearchPane extends StatelessWidget {
         onSelectProviderCandidate: onSelectProviderCandidate,
         onToggleResultCheck: onToggleResultCheck,
         onToggleProviderCheck: onToggleProviderCheck,
+      ),
+    );
+  }
+}
+
+class _SearchSourceToggles extends StatelessWidget {
+  const _SearchSourceToggles({
+    required this.showCoreResults,
+    required this.showProviderResults,
+    required this.showMediaResults,
+    required this.showReleaseResults,
+    required this.onShowCoreResultsChanged,
+    required this.onShowProviderResultsChanged,
+    required this.onShowMediaResultsChanged,
+    required this.onShowReleaseResultsChanged,
+  });
+
+  final bool showCoreResults;
+  final bool showProviderResults;
+  final bool showMediaResults;
+  final bool showReleaseResults;
+  final ValueChanged<bool> onShowCoreResultsChanged;
+  final ValueChanged<bool> onShowProviderResultsChanged;
+  final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowReleaseResultsChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(
+          bottom: BorderSide(color: palette.divider),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          children: [
+            _SearchSourceToggle(
+              label: 'Core results',
+              value: showCoreResults,
+              onChanged: onShowCoreResultsChanged,
+            ),
+            _SearchSourceToggle(
+              label: 'Provider results',
+              value: showProviderResults,
+              onChanged: onShowProviderResultsChanged,
+            ),
+            _SearchSourceToggle(
+              label: 'Media',
+              value: showMediaResults,
+              onChanged: onShowMediaResultsChanged,
+            ),
+            _SearchSourceToggle(
+              label: 'Releases',
+              value: showReleaseResults,
+              onChanged: onShowReleaseResultsChanged,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchSourceToggle extends StatelessWidget {
+  const _SearchSourceToggle({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: () => onChanged(!value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox.square(
+              dimension: 18,
+              child: Checkbox(
+                value: value,
+                onChanged: (checked) => onChanged(checked ?? false),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: palette.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -463,6 +590,21 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                 publisherText: publisherText,
                 yearText: yearText,
               );
+        final ownedTone = Theme.of(context).colorScheme.tertiary;
+        final ownedFill = Color.alphaBlend(
+          ownedTone.withValues(alpha: 0.16),
+          palette.tableEvenRow,
+        );
+        final ownedBorder = ownedTone.withValues(alpha: 0.6);
+        final ownedBadgeBackground = Color.alphaBlend(
+          ownedTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
+          palette.surfaceDim,
+        );
+        final ownedBadgeForeground =
+            ThemeData.estimateBrightnessForColor(ownedBadgeBackground) ==
+                    Brightness.dark
+                ? Colors.white
+                : palette.textPrimary;
         return Material(
           color: Colors.transparent,
           child: InkWell(
@@ -476,17 +618,14 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                     ? Color.alphaBlend(
                         accent.withValues(alpha: 0.22), palette.selection)
                     : isOwned
-                        ? Color.alphaBlend(
-                            const Color(0xFF2E7D32).withValues(alpha: 0.1),
-                            palette.tableEvenRow,
-                          )
-                    : palette.tableEvenRow,
+                        ? ownedFill
+                        : palette.tableEvenRow,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: selected
                       ? accent
                       : isOwned
-                          ? const Color(0xFF2E7D32).withValues(alpha: 0.5)
+                          ? ownedBorder
                           : palette.divider,
                   width: selected ? 1.6 : 1,
                 ),
@@ -514,11 +653,12 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                               top: 6,
                               child: LibraryAddResultBadge(
                                 'In collection',
-                                key: ValueKey('library-add-owned-badge-${item.id}'),
+                                key: ValueKey(
+                                    'library-add-owned-badge-${item.id}'),
                                 icon: Icons.playlist_add_check_rounded,
-                                backgroundColor: const Color(0xFF163A1D),
-                                borderColor: const Color(0xFF3FA34D),
-                                foregroundColor: const Color(0xFFC7FFD0),
+                                backgroundColor: ownedBadgeBackground,
+                                borderColor: ownedBorder,
+                                foregroundColor: ownedBadgeForeground,
                               ),
                             ),
                           Positioned(
@@ -541,7 +681,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.5),
+                                    color: palette.surfaceDim
+                                        .withValues(alpha: 0.7),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -549,7 +690,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                                         ? Icons.check_circle
                                         : Icons.radio_button_unchecked,
                                     size: 18,
-                                    color: checked ? accent : Colors.white,
+                                    color:
+                                        checked ? accent : palette.textPrimary,
                                   ),
                                 ),
                               ),
@@ -608,12 +750,12 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                     ],
                     if (isOwned) ...[
                       const SizedBox(height: 5),
-                      const LibraryAddResultBadge(
+                      LibraryAddResultBadge(
                         'Already in collection',
                         icon: Icons.playlist_add_check_rounded,
-                        backgroundColor: Color(0xFF163A1D),
-                        borderColor: Color(0xFF3FA34D),
-                        foregroundColor: Color(0xFFC7FFD0),
+                        backgroundColor: ownedBadgeBackground,
+                        borderColor: ownedBorder,
+                        foregroundColor: ownedBadgeForeground,
                       ),
                     ],
                   ],
@@ -734,8 +876,8 @@ class _ProviderFallbackNotice extends StatelessWidget {
           Expanded(
             child: Text(
               '$requestedProvider unavailable, $fallbackProvider fallback used.',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: palette.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -827,6 +969,21 @@ class _SearchResultTile extends StatelessWidget {
           if (item.barcode != null) item.barcode,
         ].whereType<String>().join(' | ');
     final detailLine = resultDisplay?.detailLine;
+    final ownedTone = Theme.of(context).colorScheme.tertiary;
+    final ownedFill = Color.alphaBlend(
+      ownedTone.withValues(alpha: 0.16),
+      palette.tableEvenRow,
+    );
+    final ownedBorder = ownedTone.withValues(alpha: 0.6);
+    final ownedBadgeBackground = Color.alphaBlend(
+      ownedTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
+      palette.surfaceDim,
+    );
+    final ownedBadgeForeground =
+        ThemeData.estimateBrightnessForColor(ownedBadgeBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : palette.textPrimary;
     return InkWell(
       onTap: onSelect,
       child: DecoratedBox(
@@ -835,17 +992,14 @@ class _SearchResultTile extends StatelessWidget {
               ? Color.alphaBlend(
                   accent.withValues(alpha: 0.46), palette.selection)
               : isOwned
-                  ? Color.alphaBlend(
-                      const Color(0xFF2E7D32).withValues(alpha: 0.1),
-                      palette.tableEvenRow,
-                    )
-              : palette.tableEvenRow,
+                  ? ownedFill
+                  : palette.tableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected
                   ? accent
                   : isOwned
-                      ? const Color(0xFF3FA34D)
+                      ? ownedBorder
                       : Colors.transparent,
               width: 4,
             ),
@@ -888,12 +1042,12 @@ class _SearchResultTile extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (isOwned) ...[
-                          const LibraryAddResultBadge(
+                          LibraryAddResultBadge(
                             'Already in collection',
                             icon: Icons.playlist_add_check_rounded,
-                            backgroundColor: Color(0xFF163A1D),
-                            borderColor: Color(0xFF3FA34D),
-                            foregroundColor: Color(0xFFC7FFD0),
+                            backgroundColor: ownedBadgeBackground,
+                            borderColor: ownedBorder,
+                            foregroundColor: ownedBadgeForeground,
                           ),
                           const SizedBox(height: 4),
                         ],

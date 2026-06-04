@@ -10,7 +10,7 @@ export 'library_workspace_menus.dart';
 export 'library_workspace_search.dart';
 export '../config/library_workspace_tokens.dart';
 
-class LibraryDetailsAwareLayout extends StatelessWidget {
+class LibraryDetailsAwareLayout extends StatefulWidget {
   const LibraryDetailsAwareLayout({
     super.key,
     required this.content,
@@ -39,40 +39,91 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
   final Color accentColor;
 
   @override
-  Widget build(BuildContext context) {
-    final accentDivider = accentColor.withValues(alpha: 0.3);
-    final effectiveRightWidth = clampLibraryPaneWidth(
-      rightWidth,
+  State<LibraryDetailsAwareLayout> createState() =>
+      _LibraryDetailsAwareLayoutState();
+}
+
+class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
+  late double _rightWidth;
+  late double _bottomHeight;
+  bool _draggingRight = false;
+  bool _draggingBottom = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _rightWidth = widget.rightWidth;
+    _bottomHeight = widget.bottomHeight;
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryDetailsAwareLayout oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_draggingRight && widget.rightWidth != oldWidget.rightWidth) {
+      _rightWidth = widget.rightWidth;
+    }
+    if (!_draggingBottom && widget.bottomHeight != oldWidget.bottomHeight) {
+      _bottomHeight = widget.bottomHeight;
+    }
+  }
+
+  void _handleRightDrag(double delta) {
+    final nextWidth = clampLibraryPaneWidth(
+      _rightWidth - delta,
       minWidth: kLibraryDetailsMinWidth,
-      maxWidth: maxRightWidth,
+      maxWidth: widget.maxRightWidth,
+    );
+    if ((_rightWidth - nextWidth).abs() < 0.01) {
+      return;
+    }
+    setState(() => _rightWidth = nextWidth);
+    widget.onRightWidthChanged?.call(nextWidth);
+  }
+
+  void _handleBottomDrag(double delta) {
+    final nextHeight = clampLibraryPaneHeight(
+      _bottomHeight - delta,
+      minHeight: kLibraryDetailsMinHeight,
+      maxHeight: widget.maxBottomHeight,
+    );
+    if ((_bottomHeight - nextHeight).abs() < 0.01) {
+      return;
+    }
+    setState(() => _bottomHeight = nextHeight);
+    widget.onBottomHeightChanged?.call(nextHeight);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accentDivider = widget.accentColor.withValues(alpha: 0.3);
+    final effectiveRightWidth = clampLibraryPaneWidth(
+      _rightWidth,
+      minWidth: kLibraryDetailsMinWidth,
+      maxWidth: widget.maxRightWidth,
     );
     final effectiveBottomHeight = clampLibraryPaneHeight(
-      bottomHeight,
+      _bottomHeight,
       minHeight: kLibraryDetailsMinHeight,
-      maxHeight: maxBottomHeight,
+      maxHeight: widget.maxBottomHeight,
     );
-    final inspectorPane = frameInspector
+    final inspectorPane = widget.frameInspector
         ? _LibraryDetailsPaneFrame(
-            accentColor: accentColor,
-            child: inspector,
+            accentColor: widget.accentColor,
+            child: widget.inspector,
           )
-        : inspector;
-    return switch (detailsLayout) {
+        : widget.inspector;
+    return switch (widget.detailsLayout) {
       LibraryDetailsLayout.right => Row(
           children: [
-            Expanded(child: content),
-            if (onRightWidthChanged == null)
+            Expanded(child: widget.content),
+            if (widget.onRightWidthChanged == null)
               const VerticalDivider(width: 1)
             else
               LibraryResizableDivider(
                 color: accentDivider,
-                onDragDelta: (delta) => onRightWidthChanged!(
-                  clampLibraryPaneWidth(
-                    effectiveRightWidth - delta,
-                    minWidth: kLibraryDetailsMinWidth,
-                    maxWidth: maxRightWidth,
-                  ),
-                ),
+                onDragStart: () => _draggingRight = true,
+                onDragEnd: () => _draggingRight = false,
+                onDragDelta: _handleRightDrag,
               ),
             SizedBox(
               width: effectiveRightWidth,
@@ -82,20 +133,16 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
         ),
       LibraryDetailsLayout.bottom => Column(
           children: [
-            Expanded(child: content),
-            if (onBottomHeightChanged == null)
+            Expanded(child: widget.content),
+            if (widget.onBottomHeightChanged == null)
               const Divider(height: 1)
             else
               LibraryResizableDivider(
                 axis: Axis.vertical,
                 color: accentDivider,
-                onDragDelta: (delta) => onBottomHeightChanged!(
-                  clampLibraryPaneHeight(
-                    effectiveBottomHeight - delta,
-                    minHeight: kLibraryDetailsMinHeight,
-                    maxHeight: maxBottomHeight,
-                  ),
-                ),
+                onDragStart: () => _draggingBottom = true,
+                onDragEnd: () => _draggingBottom = false,
+                onDragDelta: _handleBottomDrag,
               ),
             SizedBox(
               height: effectiveBottomHeight,
@@ -103,7 +150,7 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
             ),
           ],
         ),
-      LibraryDetailsLayout.hidden => content,
+      LibraryDetailsLayout.hidden => widget.content,
     };
   }
 }

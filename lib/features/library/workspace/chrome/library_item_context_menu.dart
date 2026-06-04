@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -26,8 +27,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   required Color accent,
   int selectedCount = 1,
 }) {
-  final overlay =
-      Overlay.of(context).context.findRenderObject() as RenderBox?;
+  final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
   if (overlay == null) {
     return Future.value(null);
   }
@@ -157,15 +157,15 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   );
 }
 
-PopupMenuEntry<LibraryItemContextMenuResult> _header(String label, Color accent) {
+PopupMenuEntry<LibraryItemContextMenuResult> _header(
+    String label, Color accent) {
   return PopupMenuItem<LibraryItemContextMenuResult>(
     enabled: false,
-    height: 28,
+    height: kLibraryToolbarPopupSectionHeaderHeight,
     child: Text(
       label,
       style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         color: accent,
         letterSpacing: 0.5,
       ),
@@ -184,7 +184,7 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
   final destructiveColor = Theme.of(context).colorScheme.error;
   return PopupMenuItem<LibraryItemContextMenuResult>(
     value: LibraryItemContextMenuResult(action),
-    height: 36,
+    height: kLibraryToolbarPopupItemHeight,
     child: Row(
       children: [
         Icon(

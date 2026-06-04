@@ -8,21 +8,22 @@ class LibraryAddModeTab extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.selected = false,
-    this.accent = const Color(0xFF18B7EB),
+    this.accent,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final bool selected;
-  final Color accent;
+  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final colorScheme = Theme.of(context).colorScheme;
+    final resolvedAccent = accent ?? palette.accent;
     final selectedColor = Color.alphaBlend(
-      accent.withValues(alpha: 0.18),
+      resolvedAccent.withValues(alpha: 0.18),
       palette.panelRaised,
     );
     return InkWell(
@@ -36,13 +37,13 @@ class LibraryAddModeTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? selectedColor : palette.panel,
           border: Border.all(
-            color: selected ? accent : palette.divider,
+            color: selected ? resolvedAccent : palette.divider,
           ),
           borderRadius: BorderRadius.circular(3),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: accent.withValues(alpha: 0.34),
+                    color: resolvedAccent.withValues(alpha: 0.34),
                     blurRadius: 8,
                     offset: Offset(0, 1),
                   ),
@@ -52,7 +53,7 @@ class LibraryAddModeTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: accent),
+            Icon(icon, size: 16, color: resolvedAccent),
             const SizedBox(width: 6),
             Text(
               label,

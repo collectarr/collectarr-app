@@ -154,7 +154,43 @@ void main() {
     expect(find.byType(InteractiveViewer), findsNothing);
   });
 
-  testWidgets('preview shows Front/Back badges when dual covers do not fit side-by-side', (
+  testWidgets('tapping empty preview area closes fullscreen preview', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 220,
+              height: 220,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBytes: base64Decode(_tinyPngBase64),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(LibraryInteractiveCover));
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.tapAt(const Offset(140, 400));
+    await pumpUntilSettled(tester);
+    expect(find.byType(InteractiveViewer), findsNothing);
+  });
+
+  testWidgets(
+      'preview shows Front/Back badges when dual covers do not fit side-by-side',
+      (
     tester,
   ) async {
     tester.view.physicalSize = const Size(500, 220);
@@ -191,7 +227,8 @@ void main() {
     await pumpUntilSettled(tester);
   });
 
-  testWidgets('preview hides Front/Back badges when dual covers fit side-by-side', (
+  testWidgets(
+      'preview hides Front/Back badges when dual covers fit side-by-side', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(2200, 1400);
@@ -279,7 +316,8 @@ void main() {
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     addTearDown(gesture.removePointer);
     await gesture.addPointer(location: Offset.zero);
-    await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
+    await gesture
+        .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
     expect(find.byType(AnimatedOpacity), findsNothing);
