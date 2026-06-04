@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
@@ -385,5 +386,119 @@ void main() {
       find.byType(LibraryDesktopSecondaryToolbar),
     );
     expect(comicsSecondary.onReassignIndex, isNotNull);
+  });
+
+  testWidgets('toolbar can hide desktop secondary band explicitly',
+      (tester) async {
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+    tester.view.physicalSize = const Size(1800, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryToolbar(
+              type: comicsLibraryConfig,
+              searchController: searchController,
+              viewState: collectarrMediaAdapters
+                  .byKind('comic')!
+                  .viewProfile
+                  .defaults(),
+              adapter: collectarrMediaAdapters.byKind('comic')!,
+              counts: const LibraryToolbarCounts(),
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onEditColumns: () {},
+              onSortChanged: (_) {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              onRefreshMetadata: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              includeDesktopSecondaryBand: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(LibraryDesktopSecondaryToolbar), findsNothing);
+  });
+
+  testWidgets(
+      'toolbar forwards folder rail controls to desktop secondary toolbar',
+      (tester) async {
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+    tester.view.physicalSize = const Size(1800, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final folderPreset = LibraryFolderPreset.single(LibraryGroupMode.series);
+    final pinnedPresets = <LibraryFolderPreset>[
+      LibraryFolderPreset.single(LibraryGroupMode.series),
+      LibraryFolderPreset.single(LibraryGroupMode.title),
+    ];
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryToolbar(
+              type: comicsLibraryConfig,
+              searchController: searchController,
+              viewState: collectarrMediaAdapters
+                  .byKind('comic')!
+                  .viewProfile
+                  .defaults(),
+              adapter: collectarrMediaAdapters.byKind('comic')!,
+              counts: const LibraryToolbarCounts(),
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onEditColumns: () {},
+              onSortChanged: (_) {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              onRefreshMetadata: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              groupMode: LibraryGroupMode.series,
+              folderPreset: folderPreset,
+              pinnedFolderPresets: pinnedPresets,
+              onPinnedFolderPresetsChanged: (_) {},
+              onGroupModeChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final secondary = tester.widget<LibraryDesktopSecondaryToolbar>(
+      find.byType(LibraryDesktopSecondaryToolbar),
+    );
+    expect(secondary.groupMode, LibraryGroupMode.series);
+    expect(secondary.folderPreset, folderPreset);
+    expect(secondary.pinnedFolderPresets, pinnedPresets);
+    expect(secondary.onGroupModeChanged, isNotNull);
+    expect(secondary.onPinnedFolderPresetsChanged, isNotNull);
   });
 }
