@@ -143,7 +143,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.zero,
       ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       clipBehavior: Clip.antiAlias,
@@ -158,7 +158,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           return DecoratedBox(
             decoration: BoxDecoration(
               color: p.panel,
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.zero,
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x80000000),

@@ -117,7 +117,7 @@ class _LibraryColumnChooserDialogState
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: palette.panelRaised,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.zero,
             border: Border.all(color: palette.divider),
             boxShadow: const [
               BoxShadow(
@@ -144,7 +144,8 @@ class _LibraryColumnChooserDialogState
                       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
                       child: Column(
                         children: [
-                          if (_allPresets.isNotEmpty || widget.onSavePreset != null)
+                          if (_allPresets.isNotEmpty ||
+                              widget.onSavePreset != null)
                             SizedBox(
                               height: favoritesHeight,
                               child: _PresetShelf(
@@ -167,8 +168,9 @@ class _LibraryColumnChooserDialogState
                                           _deletePreset(preset.id!);
                                         }
                                       },
-                                onSave:
-                                    widget.onSavePreset == null ? null : _savePreset,
+                                onSave: widget.onSavePreset == null
+                                    ? null
+                                    : _savePreset,
                               ),
                             ),
                           const SizedBox(height: 12),
@@ -185,25 +187,28 @@ class _LibraryColumnChooserDialogState
                                     child: Column(
                                       children: [
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              12, 12, 12, 8),
                                           child: TextField(
                                             decoration: InputDecoration(
                                               isDense: true,
-                                              prefixIcon: const Icon(Icons.search),
+                                              prefixIcon:
+                                                  const Icon(Icons.search),
                                               suffixIcon: _query.isEmpty
                                                   ? null
                                                   : _InlineClearButton(
-                                                      onPressed: () =>
-                                                          setState(() => _query = ''),
+                                                      onPressed: () => setState(
+                                                          () => _query = ''),
                                                     ),
                                               hintText: 'Search fields',
                                               filled: true,
                                               fillColor: palette.field,
                                               border: const OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(Radius.circular(4)),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(4)),
                                               ),
-                                              contentPadding: const EdgeInsets.symmetric(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 10,
                                                 vertical: 10,
                                               ),
@@ -214,8 +219,8 @@ class _LibraryColumnChooserDialogState
                                         ),
                                         Expanded(
                                           child: ListView(
-                                            padding:
-                                                const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                            padding: const EdgeInsets.fromLTRB(
+                                                12, 0, 12, 12),
                                             children: _availableColumnTiles(
                                               columns,
                                               accent: accent,
@@ -235,25 +240,28 @@ class _LibraryColumnChooserDialogState
                                     accent: accent,
                                     expandChild: true,
                                     child: ReorderableListView.builder(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          12, 12, 12, 12),
                                       itemCount: selectedColumns.length,
-                                      proxyDecorator: (child, index, animation) {
+                                      proxyDecorator:
+                                          (child, index, animation) {
                                         return Material(
                                           color: Color.alphaBlend(
                                             accent.withValues(alpha: 0.18),
                                             palette.panel,
                                           ),
                                           elevation: 6,
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                           child: child,
                                         );
                                       },
                                       onReorderItem: (oldIndex, newIndex) {
                                         setState(() {
-                                          final reordered =
-                                              selectedColumns.toList(growable: true);
-                                          final column = reordered.removeAt(oldIndex);
+                                          final reordered = selectedColumns
+                                              .toList(growable: true);
+                                          final column =
+                                              reordered.removeAt(oldIndex);
                                           if (oldIndex < newIndex) {
                                             newIndex -= 1;
                                           }
@@ -270,8 +278,8 @@ class _LibraryColumnChooserDialogState
                                             'selected-column-${column.name}',
                                           ),
                                           title: widget.columnLabel(column),
-                                          removable:
-                                              column != LibraryTableColumn.title,
+                                          removable: column !=
+                                              LibraryTableColumn.title,
                                           onRemove: () => setState(
                                             () => _selected.remove(column),
                                           ),
@@ -297,7 +305,8 @@ class _LibraryColumnChooserDialogState
                       onPressed: () {
                         setState(() {
                           _selected = Set.of(widget.defaultColumns);
-                          _presetNameController.text = _activePreset?.label ?? '';
+                          _presetNameController.text =
+                              _activePreset?.label ?? '';
                         });
                       },
                       label: 'Reset',
@@ -394,9 +403,7 @@ class _LibraryColumnChooserDialogState
             title: _groupLabel(group),
             accent: accent,
             count: grouped[group]!.length,
-            selectedCount: grouped[group]!
-                .where(_selected.contains)
-                .length,
+            selectedCount: grouped[group]!.where(_selected.contains).length,
             onToggleAll: () => _toggleGroupColumns(grouped[group]!),
             initiallyExpanded:
                 group == LibraryTableColumnGroup.main || _query.isNotEmpty,
@@ -435,7 +442,8 @@ class _LibraryColumnChooserDialogState
                 color: locked
                     ? palette.textMuted
                     : selected
-                        ? (widget.accent ?? Theme.of(context).colorScheme.primary)
+                        ? (widget.accent ??
+                            Theme.of(context).colorScheme.primary)
                         : palette.textMuted,
               ),
               const SizedBox(width: 8),
@@ -443,7 +451,8 @@ class _LibraryColumnChooserDialogState
                 child: Text(
                   widget.columnLabel(column),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w500,
                         color: locked
                             ? palette.textMuted
                             : Theme.of(context).textTheme.bodyMedium?.color,
@@ -459,7 +468,8 @@ class _LibraryColumnChooserDialogState
 
   void _toggleGroupColumns(List<LibraryTableColumn> columns) {
     final allSelected = columns.every(
-      (column) => column == LibraryTableColumn.title || _selected.contains(column),
+      (column) =>
+          column == LibraryTableColumn.title || _selected.contains(column),
     );
     setState(() {
       for (final column in columns) {
@@ -539,14 +549,16 @@ class _SelectedColumnTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
-                      child: Icon(Icons.close, size: 14, color: palette.textMuted),
+                      child:
+                          Icon(Icons.close, size: 14, color: palette.textMuted),
                     ),
                   )
                 : Tooltip(
                     message: 'Title is always visible',
                     child: Padding(
                       padding: const EdgeInsets.all(4),
-                      child: Icon(Icons.lock_outline, size: 14, color: palette.textMuted),
+                      child: Icon(Icons.lock_outline,
+                          size: 14, color: palette.textMuted),
                     ),
                   ),
           ],
@@ -555,8 +567,6 @@ class _SelectedColumnTile extends StatelessWidget {
     );
   }
 }
-
-
 
 class _PresetShelf extends StatelessWidget {
   const _PresetShelf({
@@ -590,10 +600,12 @@ class _PresetShelf extends StatelessWidget {
     final palette = appPalette(context);
     final orderedPresets = [
       ...presets.where(
-        (preset) => pinnedFavoriteKeys.contains(libraryColumnFavoriteKey(preset)),
+        (preset) =>
+            pinnedFavoriteKeys.contains(libraryColumnFavoriteKey(preset)),
       ),
       ...presets.where(
-        (preset) => !pinnedFavoriteKeys.contains(libraryColumnFavoriteKey(preset)),
+        (preset) =>
+            !pinnedFavoriteKeys.contains(libraryColumnFavoriteKey(preset)),
       ),
     ];
     return _PaneFrame(
@@ -677,8 +689,13 @@ class _PresetShelf extends StatelessWidget {
                         children: [
                           Text(
                             preset.label,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: active
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
                                 ),
                           ),
                           const SizedBox(width: 8),
@@ -690,7 +707,10 @@ class _PresetShelf extends StatelessWidget {
                               ].join(', '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
                                     color: palette.textMuted,
                                   ),
                             ),
@@ -754,8 +774,10 @@ class _PaneFrame extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
             decoration: BoxDecoration(
-              color: Color.alphaBlend(accent.withValues(alpha: 0.08), palette.surface),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+              color: Color.alphaBlend(
+                  accent.withValues(alpha: 0.08), palette.surface),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(6)),
               border: Border(bottom: BorderSide(color: palette.divider)),
             ),
             child: Row(
@@ -776,7 +798,8 @@ class _PaneFrame extends StatelessWidget {
                 ),
                 if (count != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: palette.badgeBackground,
                       borderRadius: BorderRadius.circular(999),
@@ -845,9 +868,11 @@ class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => setState(() => _expanded = !_expanded),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(6)),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                   child: Row(
                     children: [
                       Icon(
@@ -859,23 +884,27 @@ class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
                       Expanded(
                         child: Text(
                           widget.title,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w900,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                  ),
                         ),
                       ),
                       LibraryDenseButton(
-                        label: widget.selectedCount == widget.count ? 'Clear' : 'All',
+                        label: widget.selectedCount == widget.count
+                            ? 'Clear'
+                            : 'All',
                         onPressed: widget.onToggleAll,
                         tone: LibraryDenseButtonTone.subtle,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '${widget.selectedCount}/${widget.count}',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: palette.textMuted,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: palette.textMuted,
+                                  fontWeight: FontWeight.w700,
+                                ),
                       ),
                     ],
                   ),

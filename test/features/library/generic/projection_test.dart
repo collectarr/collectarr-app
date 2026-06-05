@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -127,7 +128,8 @@ void main() {
     );
   });
 
-  test('projection applies ancestor bucket scopes to current group buckets', () {
+  test('projection applies ancestor bucket scopes to current group buckets',
+      () {
     final shelf = ShelfState(
       entries: [
         ShelfEntry(
@@ -232,7 +234,8 @@ void main() {
     );
 
     expect(
-      genericBucketForItemMode(item, musicLibraryConfig, LibraryGroupMode.series),
+      genericBucketForItemMode(
+          item, musicLibraryConfig, LibraryGroupMode.series),
       'Unknown artist',
     );
     expect(
@@ -322,32 +325,40 @@ void main() {
       'Genres',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audienceRating),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.audienceRating),
       '8.1',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.color),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.color),
       'Color',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.movieOrTvSeries),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.movieOrTvSeries),
       'TV Series',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseDate),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.releaseDate),
       '1992-08-28',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseMonth),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.releaseMonth),
       'August 1992',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
       '1992',
     );
   });
 
-  test('comic CLZ grouping uses crossover, imprint, series group, and cover date', () {
+  test(
+      'comic CLZ grouping uses crossover, imprint, series group, and cover date',
+      () {
     final item = _projectionItem(
       source: const ShelfEntry(itemId: 'comic-main-1'),
       entry: LibraryWorkspaceEntry(
@@ -365,27 +376,33 @@ void main() {
     );
 
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.crossover),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.crossover),
       'Hush',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.imprint),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.imprint),
       'DC Black Label',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.seriesGroup),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.seriesGroup),
       'Batman Events',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverDate),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.coverDate),
       '2002-10-01',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverMonth),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.coverMonth),
       'October 2002',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverYear),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.coverYear),
       '2002',
     );
   });
@@ -409,19 +426,23 @@ void main() {
     );
 
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.inker),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.inker),
       'Scott Williams',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.coverColorist),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.coverColorist),
       'Brian Haberlin',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.plotter),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.plotter),
       'Neil Gaiman',
     );
     expect(
-      genericBucketForItemMode(item, comicsLibraryConfig, LibraryGroupMode.editorInChief),
+      genericBucketForItemMode(
+          item, comicsLibraryConfig, LibraryGroupMode.editorInChief),
       'Tom DeFalco',
     );
   });
@@ -523,31 +544,38 @@ void main() {
     );
 
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.audioTracks),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.audioTracks),
       'English DTS-HD MA',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.boxSet),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.boxSet),
       'Nolan Collection',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.distributor),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.distributor),
       'Warner Home Video',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseDate),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.editionReleaseDate),
       '2023-10-12',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseMonth),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.editionReleaseMonth),
       'October 2023',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.editionReleaseYear),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.editionReleaseYear),
       '2023',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.extras),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.extras),
       'Commentary',
     );
     expect(
@@ -559,19 +587,23 @@ void main() {
       'Backlog',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedDate),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.addedDate),
       '2024-09-30',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedMonth),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.addedMonth),
       'September 2024',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.addedYear),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.addedYear),
       '2024',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.format),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.format),
       '4K UHD',
     );
     expect(
@@ -579,23 +611,28 @@ void main() {
       'HDR10',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.imageType),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.imageType),
       'Back Cover',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.layers),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.layers),
       'BD-100',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.myRating),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.myRating),
       '9',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.owner),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.owner),
       'me@example.com',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.packaging),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.packaging),
       'Steelbook',
     );
     expect(
@@ -631,11 +668,13 @@ void main() {
       'Orbit DVD',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.regions),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.regions),
       'A/B/C',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.screenRatios),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.screenRatios),
       '2.39:1',
     );
     expect(
@@ -663,27 +702,33 @@ void main() {
       'April 2026',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchDate),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.watchDate),
       '2026-04-10',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchMonth),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.watchMonth),
       'April 2026',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchYear),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.watchYear),
       '2026',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watched),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.watched),
       'Watched',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.subtitles),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.subtitles),
       'English, Romanian',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.watchedWhere),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.watchedWhere),
       'Streaming',
     );
   });
@@ -716,27 +761,33 @@ void main() {
     );
 
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.actor),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.actor),
       'Al Pacino',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.director),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.director),
       'Michael Mann',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.musician),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.musician),
       'Elliot Goldenthal',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.photography),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.photography),
       'Dante Spinotti',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.producer),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.producer),
       'Art Linson',
     );
     expect(
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.writer),
+      genericBucketForItemMode(
+          item, moviesLibraryConfig, LibraryGroupMode.writer),
       'Michael Mann',
     );
   });
@@ -755,7 +806,8 @@ void main() {
     );
 
     expect(
-      libraryEntryMatchesLinkedMetadataFilter(entry, 'Image', comicsMediaAdapter),
+      libraryEntryMatchesLinkedMetadataFilter(
+          entry, 'Image', comicsMediaAdapter),
       isTrue,
     );
     expect(
@@ -786,11 +838,13 @@ void main() {
     );
 
     expect(
-      libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade', comicsMediaAdapter),
+      libraryEntryMatchesLinkedMetadataFilter(
+          entry, 'Blade', comicsMediaAdapter),
       isFalse,
     );
     expect(
-      libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner', comicsMediaAdapter),
+      libraryEntryMatchesLinkedMetadataFilter(
+          entry, 'Warner', comicsMediaAdapter),
       isFalse,
     );
   });
@@ -846,5 +900,104 @@ void main() {
     expect(allBucket.completionPercent, 67);
     expect(sagaBucket.ownedCount, 1);
     expect(sagaBucket.completionPercent, 50);
+  });
+
+  test('music projection can search only tracks', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'album-1',
+          catalogItem: CatalogItem(
+            id: 'album-1',
+            kind: 'music',
+            title: 'Lupus Dei',
+            music: const MusicCatalogDetails(
+              tracks: [
+                CatalogTrack(title: 'Lupus Daemonis (Intro)', position: 1),
+                CatalogTrack(title: 'Prayer In The Dark', position: 3),
+              ],
+            ),
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'album-2',
+          catalogItem: CatalogItem(
+            id: 'album-2',
+            kind: 'music',
+            title: 'Bible of the Beast',
+            music: const MusicCatalogDetails(
+              tracks: [
+                CatalogTrack(title: 'Raise Your Fist, Evangelist', position: 1),
+              ],
+            ),
+          ),
+        ),
+      ],
+      ownedCount: 0,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = LibraryProjection.fromShelf(
+      shelf: shelf,
+      type: musicLibraryConfig,
+      adapter: musicMediaAdapter,
+      viewState: _defaultViewState,
+      query: 'prayer',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.series,
+      searchTarget: LibrarySearchTarget.tracksOnly,
+    );
+
+    expect(projection.filteredItems, hasLength(1));
+    expect(projection.filteredItems.first.entry.id, 'album-1');
+  });
+
+  test('music projection can search only albums', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'album-1',
+          catalogItem: CatalogItem(
+            id: 'album-1',
+            kind: 'music',
+            title: 'Lupus Dei',
+            music: const MusicCatalogDetails(
+              tracks: [
+                CatalogTrack(title: 'Prayer In The Dark', position: 3),
+              ],
+            ),
+          ),
+        ),
+      ],
+      ownedCount: 0,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = LibraryProjection.fromShelf(
+      shelf: shelf,
+      type: musicLibraryConfig,
+      adapter: musicMediaAdapter,
+      viewState: _defaultViewState,
+      query: 'prayer',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.series,
+      searchTarget: LibrarySearchTarget.mediaOnly,
+    );
+
+    expect(projection.filteredItems, isEmpty);
   });
 }

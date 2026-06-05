@@ -27,16 +27,10 @@ class InspectorMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryInspectorSection(
-      title: 'Metadata',
-      accentColor: accent,
-      children: [
-        LibraryMetadataContent(
-          type: type,
-          entry: entry,
-          onFilterByValue: onFilterByValue,
-        ),
-      ],
+    return LibraryMetadataContent(
+      type: type,
+      entry: entry,
+      onFilterByValue: onFilterByValue,
     );
   }
 }
@@ -70,9 +64,10 @@ class InspectorPersonalSection extends StatelessWidget {
       fallbackLabel: entry.variant,
     );
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
-    final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
-      ? ownedItem?.readStatus
-      : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
+    final trackingStatus =
+        trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
+            ? ownedItem?.readStatus
+            : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
     final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
     final trackingFinishedAt =
         trackingEntry?.finishedAt ?? ownedItem?.finishedAt;
@@ -112,7 +107,8 @@ class InspectorPersonalSection extends StatelessWidget {
                 genericLibraryDash(entry.condition),
               ),
             if (ownedIsDigital != true)
-              LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
+              LibraryInspectorFactData(
+                  'Grade', genericLibraryDash(entry.grade)),
             LibraryInspectorFactData(
               'Quantity',
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),

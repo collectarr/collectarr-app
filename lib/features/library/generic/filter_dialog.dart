@@ -792,7 +792,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: palette.panelRaised,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.zero,
               border: Border.all(color: palette.divider),
               boxShadow: const [
                 BoxShadow(

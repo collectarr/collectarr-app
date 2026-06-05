@@ -157,6 +157,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
     this.pinnedSortFavoriteIds = const {},
     this.onSortFavoriteSelected,
     this.onManageFavoritesPressed,
+    this.iconOnly = false,
   });
 
   final VoidCallback onPressed;
@@ -165,6 +166,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
   final Set<String> pinnedSortFavoriteIds;
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
   final VoidCallback? onManageFavoritesPressed;
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -211,15 +213,18 @@ class LibraryToolbarSortButton extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.sort, size: 16),
-                      const SizedBox(width: 7),
-                      Text(
-                        activeFavorite?.label ?? 'Sort By',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: palette.textPrimary,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.1,
-                            ),
-                      ),
+                      if (!iconOnly) ...[
+                        const SizedBox(width: 7),
+                        Text(
+                          activeFavorite?.label ?? 'Sort By',
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: palette.textPrimary,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.1,
+                                  ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -392,7 +397,10 @@ class _SortFavoritesManagerDialogState
     final theme = Theme.of(context);
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-      shape: libraryToolbarDropdownMenuShape(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide(color: libraryToolbarMenuBorder(context)),
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 980, maxHeight: 640),
         child: Column(

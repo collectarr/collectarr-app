@@ -12,6 +12,13 @@ abstract final class _LibraryProjectionControllerOps {
         (state._usesExternalFacetBuckets(mode) && state._selectedBucket != null)
             ? facetBuckets?.itemIdsByBucket[state._selectedBucket!]
             : null;
+    final searchPinnedItemIds = state._searchPinnedItemId == null
+        ? null
+        : <String>{state._searchPinnedItemId!};
+    final effectiveConstrainedItemIds = _mergeConstrainedItemIds(
+      constrainedItemIds,
+      searchPinnedItemIds,
+    );
     final bucketScopeFilters = state._sidebarBucketScopeFilters;
     final overrideBuckets = facetBuckets?.buckets;
     final linkedMetadataFilter = state._linkedMetadataFilter;
@@ -22,9 +29,11 @@ abstract final class _LibraryProjectionControllerOps {
     final collectionStatusScope = state._collectionStatusScope;
     final filterSelection = state._filterSelection;
     final customFieldValues = state.customFieldValuesByItem;
-    final customFieldValuesByDefinition = state.customFieldValuesByDefinitionByItem;
+    final customFieldValuesByDefinition =
+        state.customFieldValuesByDefinitionByItem;
     final activeLoanOwnedItemIds = state._activeLoanOwnedItemIds;
-    final query = state._searchController.text;
+    final query = state._appliedSearchQuery;
+    final searchTarget = state._effectiveSearchTarget;
     final browserMode = state._activeBrowserMode;
     final releaseFolderTitleItemId = state._releaseFolderTitleItemId;
     final signature = projectionSignature(
@@ -32,6 +41,7 @@ abstract final class _LibraryProjectionControllerOps {
       shelf: shelf,
       viewState: viewState,
       query: query,
+      searchTarget: searchTarget,
       browserMode: browserMode,
       releaseFolderTitleItemId: releaseFolderTitleItemId,
       mode: mode,
@@ -41,14 +51,14 @@ abstract final class _LibraryProjectionControllerOps {
       collectionStatusScope: collectionStatusScope,
       filterSelection: filterSelection,
       constrainedItemIds: constrainedItemIds,
+      searchPinnedItemId: state._searchPinnedItemId,
       customFieldValuesByItem: customFieldValues,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,
     );
 
-    final canReuseProjection =
-        state._cachedProjection != null &&
-      state._cachedProjectionSignature == signature;
+    final canReuseProjection = state._cachedProjection != null &&
+        state._cachedProjectionSignature == signature;
 
     if (canReuseProjection) {
       return state._cachedProjection!;
@@ -70,11 +80,12 @@ abstract final class _LibraryProjectionControllerOps {
       groupMode: mode,
       bucketScopeFilters: bucketScopeFilters,
       overrideBuckets: overrideBuckets,
-      constrainedItemIds: constrainedItemIds,
+      constrainedItemIds: effectiveConstrainedItemIds,
       filterSelection: filterSelection,
       customFieldValuesByItem: customFieldValues,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      searchTarget: searchTarget,
     );
 
     state._cachedProjectionSignature = signature;
@@ -87,6 +98,7 @@ abstract final class _LibraryProjectionControllerOps {
     required ShelfState shelf,
     required LibraryWorkspaceViewState viewState,
     required String query,
+    required LibrarySearchTarget searchTarget,
     required LibraryWorkspaceBrowserMode browserMode,
     required String? releaseFolderTitleItemId,
     required LibraryGroupMode mode,
@@ -96,6 +108,7 @@ abstract final class _LibraryProjectionControllerOps {
     required LibraryCollectionStatusScope collectionStatusScope,
     required LibraryFilterSelection filterSelection,
     required Set<String>? constrainedItemIds,
+    required String? searchPinnedItemId,
     required Map<String, List<String>> customFieldValuesByItem,
     required Map<String, Map<String, String>>
         customFieldValuesByDefinitionByItem,
@@ -107,6 +120,7 @@ abstract final class _LibraryProjectionControllerOps {
       shelfSignature,
       viewState.hashCode,
       normalizedQuery,
+      searchTarget,
       browserMode,
       releaseFolderTitleItemId,
       mode,
@@ -118,6 +132,7 @@ abstract final class _LibraryProjectionControllerOps {
       filterSelection.hashCode,
       state._linkedMetadataFilter?.value,
       stableSetSignature(constrainedItemIds),
+      searchPinnedItemId,
       stableSetSignature(activeLoanOwnedItemIds),
       customFieldValuesSignatureForProjection(state, customFieldValuesByItem),
       customFieldValuesByDefinitionSignatureForProjection(
@@ -156,7 +171,8 @@ abstract final class _LibraryProjectionControllerOps {
     GenericLibraryPageState state,
     Map<String, Map<String, String>> values,
   ) {
-    if (identical(state._cachedCustomFieldValuesByDefinitionForSignature, values) &&
+    if (identical(
+            state._cachedCustomFieldValuesByDefinitionForSignature, values) &&
         state._cachedCustomFieldValuesByDefinitionSignature != null) {
       return state._cachedCustomFieldValuesByDefinitionSignature!;
     }
@@ -182,5 +198,18 @@ abstract final class _LibraryProjectionControllerOps {
     }
     final sorted = values.toList(growable: false)..sort();
     return Object.hash(values.length, Object.hashAll(sorted));
+  }
+
+  static Set<String>? _mergeConstrainedItemIds(
+    Set<String>? left,
+    Set<String>? right,
+  ) {
+    if (left == null) {
+      return right;
+    }
+    if (right == null) {
+      return left;
+    }
+    return left.intersection(right);
   }
 }

@@ -60,15 +60,18 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_compare_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -171,6 +174,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   List<OwnedItem>? _cachedOwnedCopiesActive;
   List<WishlistItem>? _cachedWishlistSource;
   List<WishlistItem>? _cachedWishlistActive;
+  String _appliedSearchQuery = '';
+  String? _searchPinnedItemId;
   Map<String, List<String>>? _cachedCustomFieldValuesForSignature;
   int? _cachedCustomFieldValuesSignature;
   Map<String, Map<String, String>>?
@@ -180,6 +185,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
       plannedMediaAdapter(widget.type);
+
+  LibrarySearchTarget _searchTarget = LibrarySearchTarget.all;
+
+  bool get _supportsMusicTrackSearch =>
+      widget.type.workspace.kind == CatalogMediaKind.music;
+
+  LibrarySearchTarget get _effectiveSearchTarget =>
+      _supportsMusicTrackSearch ? _searchTarget : LibrarySearchTarget.all;
 
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.workspace.kind);
@@ -211,7 +224,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     try {
       final loadToken = ++_viewPreferenceLoadToken;
       final expectedKind = widget.type.workspace.kind;
-      final allowedGroupModes = widget.type.availableGroupModes;
+      final allowedGroupModes = _scopeAvailableGroupModes;
       final quickViewFuture = _viewPrefs.readQuickView();
       final groupModeFuture = _viewPrefs.readGroupMode(
         allowedModes: allowedGroupModes,
@@ -291,7 +304,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _primeCachedViewPreferences() {
-    final allowedGroupModes = widget.type.availableGroupModes.toSet();
+    final allowedGroupModes = _scopeAvailableGroupModes.toSet();
     _quickView = sanitizeLibraryQuickViewForType(
       _viewPrefs.cachedQuickView,
       widget.type,
@@ -352,6 +365,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _videoShelfDrilldownTitleItemId = null;
       _videoShelfDrilldownReleaseId = null;
       _releaseFolderTitleItemId = null;
+      _searchTarget = LibrarySearchTarget.all;
+      _appliedSearchQuery = '';
+      _searchPinnedItemId = null;
       ref
           .read(
             libraryFacetControllerProvider(
@@ -420,16 +436,122 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _onSearchChanged(String _) {
+    final trimmed = _searchController.text.trim();
+    if (_appliedSearchQuery == trimmed && _searchPinnedItemId == null) {
+      return;
+    }
+    setState(() {
+      _appliedSearchQuery = trimmed;
+      _searchPinnedItemId = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+    _syncRouteState();
+  }
+
+  void _onSearchInputChanged(String _) {
     _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 180), () {
+    _searchDebounce = Timer(const Duration(milliseconds: 60), () {
       if (!mounted) {
         return;
       }
-      _mutateSidebarScope(() {
-        _activeSmartListId = null;
-        _activeSmartListName = null;
-      });
+      setState(() {});
     });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+      _appliedSearchQuery = '';
+      _searchPinnedItemId = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+    _syncRouteState();
+  }
+
+  void _applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) {
+    setState(() {
+      _searchController.value = _searchController.value.copyWith(
+        text: suggestion.title,
+        selection: TextSelection.collapsed(offset: suggestion.title.length),
+        composing: TextRange.empty,
+      );
+      _appliedSearchQuery = suggestion.title.trim();
+      _searchPinnedItemId = suggestion.id;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+    _syncRouteState();
+  }
+
+  List<LibraryToolbarSearchSuggestion> _buildSearchSuggestions(
+    LibraryProjection projection,
+  ) {
+    final query = _searchController.text.trim().toLowerCase();
+    if (query.isEmpty) {
+      return const <LibraryToolbarSearchSuggestion>[];
+    }
+    final ranked = <(int, LibraryToolbarSearchSuggestion)>[];
+    for (final item in projection.allItems) {
+      final entry = item.entry;
+      final title = entry.resolvedTitle.trim().isEmpty
+          ? entry.title.trim()
+          : entry.resolvedTitle.trim();
+      if (title.isEmpty) {
+        continue;
+      }
+      final normalizedTitle = title.toLowerCase();
+      final itemNumber = entry.itemNumber?.trim();
+      final publisher = entry.publisher?.trim();
+      final subtitleParts = <String>[
+        if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
+        if (publisher != null && publisher.isNotEmpty) publisher,
+      ];
+      final subtitle = subtitleParts.isEmpty ? null : subtitleParts.join(' • ');
+      var score = 0;
+      if (normalizedTitle.startsWith(query)) {
+        score = 3;
+      } else if (normalizedTitle.contains(query)) {
+        score = 2;
+      } else if ((itemNumber?.toLowerCase().contains(query) ?? false) ||
+          (publisher?.toLowerCase().contains(query) ?? false)) {
+        score = 1;
+      }
+      if (score == 0) {
+        continue;
+      }
+      ranked.add((
+        score,
+        LibraryToolbarSearchSuggestion(
+          id: entry.id,
+          title: title,
+          subtitle: subtitle,
+        ),
+      ));
+    }
+    ranked.sort((left, right) {
+      final byScore = right.$1.compareTo(left.$1);
+      if (byScore != 0) {
+        return byScore;
+      }
+      return left.$2.title
+          .toLowerCase()
+          .compareTo(right.$2.title.toLowerCase());
+    });
+    return ranked.map((value) => value.$2).take(8).toList(growable: false);
+  }
+
+  void _onSearchTargetChanged(LibrarySearchTarget target) {
+    if (!_supportsMusicTrackSearch || _searchTarget == target) {
+      return;
+    }
+    setState(() {
+      _searchTarget = target;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+    _syncRouteState();
   }
 
   void _mutateState(VoidCallback mutate) {
@@ -489,6 +611,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             shelfState,
             viewState,
           );
+    final searchSuggestions = projection == null
+        ? const <LibraryToolbarSearchSuggestion>[]
+        : _buildSearchSuggestions(projection);
     final useFab =
         ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return LibraryKeyboardShortcuts(
@@ -527,6 +652,23 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onAdd: () => showAddDialogFlow(),
                     onScan: scanBarcodeFlow,
                     onSearchChanged: _onSearchChanged,
+                    onSearchInputChanged: _onSearchInputChanged,
+                    onClearSearch: _clearSearch,
+                    searchActive: _appliedSearchQuery.isNotEmpty ||
+                        _searchPinnedItemId != null,
+                    searchSuggestions: searchSuggestions,
+                    onSearchSuggestionSelected: _applySearchSuggestion,
+                    searchTarget: _effectiveSearchTarget,
+                    searchTargetOptions: _supportsMusicTrackSearch
+                        ? const <LibrarySearchTarget>[
+                            LibrarySearchTarget.all,
+                            LibrarySearchTarget.mediaOnly,
+                            LibrarySearchTarget.tracksOnly,
+                          ]
+                        : const <LibrarySearchTarget>[],
+                    onSearchTargetChanged: _supportsMusicTrackSearch
+                        ? _onSearchTargetChanged
+                        : null,
                     onEditColumns: showColumnChooserFlow,
                     onSortChanged: (column) => _updateViewState(
                       (state) =>
@@ -632,18 +774,43 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                             projection.filteredItems.isNotEmpty
                         ? () => shareCollectionFlow(projection)
                         : null,
-                    selectionEnabled: _selection.enabled,
-                    selectedCount: _selection.selectedCount,
+                    onCompareMetadataWithServer: (() {
+                      if (projection == null ||
+                          !supportsMetadataCompareWithServer()) {
+                        return null;
+                      }
+                      final selected = selectedProjectionItemFor(projection);
+                      if (selected == null ||
+                          !canCompareMetadataWithServerItem(selected)) {
+                        return null;
+                      }
+                      return () => unawaited(
+                            compareMetadataWithServerFlow(
+                              projection,
+                              item: selected,
+                            ),
+                          );
+                    })(),
+                    selectionEnabled: _selection.enabled &&
+                        viewState.viewMode != LibraryViewMode.cardFlow,
+                    selectedCount:
+                        viewState.viewMode == LibraryViewMode.cardFlow
+                            ? 0
+                            : _selection.selectedCount,
                     totalSelectableCount: projection?.filteredItems.length ?? 0,
                     groupMode: _activeSidebarGroupMode,
                     folderPreset: _activeFolderPreset,
+                    availableGroupModes: _scopeAvailableGroupModes,
                     pinnedFolderPresets: _pinnedFolderPresets,
                     onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
                     onGroupModeChanged: _setFolderPreset,
                     includeDesktopSecondaryBand: false,
-                    selectionCallbacks: _selectionCallbacksForProjection(
-                      projection,
-                    ),
+                    selectionCallbacks:
+                        viewState.viewMode == LibraryViewMode.cardFlow
+                            ? null
+                            : _selectionCallbacksForProjection(
+                                projection,
+                              ),
                   ),
                   Expanded(
                     child: shelf.when(
@@ -713,7 +880,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         });
       }
     }
-    final trimmedSearchQuery = _searchController.text.trim();
+    final trimmedSearchQuery = _appliedSearchQuery.trim();
     final seriesStatusSummary = _seriesStatusSummaryForProjection(projection);
     if (kDebugMode &&
         kIsWeb &&
@@ -753,7 +920,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onAdd: () => showAddDialogFlow(),
       onClearFilters: _clearFilters,
       onEditFilters: () => showFilterDialogFlow(projection),
-      selectionEnabled: _selection.enabled,
+      selectionEnabled:
+          _selection.enabled && viewState.viewMode != LibraryViewMode.cardFlow,
       selectedItemIds: _selection.itemIds,
       onApplySelection: _applySelection,
       onActivateItem: _activateItem,
@@ -834,6 +1002,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onSidebarNavigateToBreadcrumb: _navigateSidebarToBreadcrumb,
       onSidebarNavigateToAncestorScope: _navigateSidebarToAncestorScope,
       searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
+      searchTarget: _effectiveSearchTarget,
       activeSmartListName: _activeSmartListName,
       quickView: _quickView,
       collectionStatusScope: _collectionStatusScope,
@@ -934,13 +1103,33 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => shareCollectionFlow(projection)
             : null,
+        onCompareMetadataWithServer: (() {
+          if (!supportsMetadataCompareWithServer()) {
+            return null;
+          }
+          final selected = selectedProjectionItemFor(projection);
+          if (selected == null || !canCompareMetadataWithServerItem(selected)) {
+            return null;
+          }
+          return () => unawaited(
+                compareMetadataWithServerFlow(
+                  projection,
+                  item: selected,
+                ),
+              );
+        })(),
         groupMode: _activeSidebarGroupMode,
         folderPreset: _activeFolderPreset,
+        availableGroupModes: _scopeAvailableGroupModes,
         pinnedFolderPresets: _pinnedFolderPresets,
         onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
         onGroupModeChanged: _setFolderPreset,
-        selectionCallbacks: _selectionCallbacksForProjection(projection),
-        selectedCount: _selection.selectedCount,
+        selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
+            ? null
+            : _selectionCallbacksForProjection(projection),
+        selectedCount: viewState.viewMode == LibraryViewMode.cardFlow
+            ? 0
+            : _selection.selectedCount,
         totalSelectableCount: projection.filteredItems.length,
       ),
     );
@@ -1124,14 +1313,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (!viewState.isSidebarVisible) {
       return null;
     }
-    if (widget.type.availableGroupModes.contains(_groupMode)) {
+    if (_scopeAvailableGroupModes.contains(_groupMode)) {
       return _groupMode;
+    }
+    final fallback = _scopeAvailableGroupModes;
+    if (fallback.isNotEmpty) {
+      return fallback.first;
     }
     return libraryDefaultGroupMode(widget.type);
   }
 
   LibraryGroupMode get _projectionGroupMode =>
-      _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+      _activeBrowserMode == LibraryWorkspaceBrowserMode.releases &&
+              !_isMovieMediaEditionScope
           ? LibraryGroupMode.title
           : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
 
@@ -1139,6 +1333,167 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   bool get _supportsMediaReleaseSplit {
     return widget.type.capabilities.supportsMediaReleaseSplit;
+  }
+
+  bool get _isMovieMediaEditionScope {
+    return widget.type.workspace.kind == CatalogMediaKind.movie &&
+        _supportsMediaReleaseSplit;
+  }
+
+  static const Set<LibraryGroupMode> _movieMediaGroupModes = {
+    LibraryGroupMode.title,
+    LibraryGroupMode.movieOrTvSeries,
+    LibraryGroupMode.genre,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.releaseDate,
+    LibraryGroupMode.releaseMonth,
+    LibraryGroupMode.releaseYear,
+    LibraryGroupMode.country,
+    LibraryGroupMode.language,
+    LibraryGroupMode.ageRating,
+    LibraryGroupMode.audienceRating,
+    LibraryGroupMode.actor,
+    LibraryGroupMode.director,
+    LibraryGroupMode.producer,
+    LibraryGroupMode.writer,
+    LibraryGroupMode.photography,
+    LibraryGroupMode.musician,
+    LibraryGroupMode.collectionStatus,
+    LibraryGroupMode.condition,
+    LibraryGroupMode.location,
+    LibraryGroupMode.addedDate,
+    LibraryGroupMode.addedMonth,
+    LibraryGroupMode.addedYear,
+    LibraryGroupMode.modifiedDate,
+    LibraryGroupMode.modifiedMonth,
+    LibraryGroupMode.watchDate,
+    LibraryGroupMode.watchMonth,
+    LibraryGroupMode.watchYear,
+  };
+
+  static const Set<LibraryGroupMode> _movieEditionGroupModes = {
+    LibraryGroupMode.title,
+    LibraryGroupMode.edition,
+    LibraryGroupMode.editionReleaseDate,
+    LibraryGroupMode.editionReleaseMonth,
+    LibraryGroupMode.editionReleaseYear,
+    LibraryGroupMode.format,
+    LibraryGroupMode.boxSet,
+    LibraryGroupMode.distributor,
+    LibraryGroupMode.hdr,
+    LibraryGroupMode.layers,
+    LibraryGroupMode.packaging,
+    LibraryGroupMode.regions,
+    LibraryGroupMode.screenRatios,
+    LibraryGroupMode.subtitles,
+    LibraryGroupMode.audioTracks,
+    LibraryGroupMode.extras,
+    LibraryGroupMode.collectionStatus,
+    LibraryGroupMode.condition,
+    LibraryGroupMode.location,
+    LibraryGroupMode.purchaseDate,
+    LibraryGroupMode.purchaseMonth,
+    LibraryGroupMode.purchaseYear,
+    LibraryGroupMode.addedDate,
+    LibraryGroupMode.addedMonth,
+    LibraryGroupMode.addedYear,
+    LibraryGroupMode.modifiedDate,
+    LibraryGroupMode.modifiedMonth,
+  };
+
+  static const Set<LibrarySortColumn> _movieMediaSortColumns = {
+    LibrarySortColumn.status,
+    LibrarySortColumn.title,
+    LibrarySortColumn.publisher,
+    LibrarySortColumn.releaseDate,
+    LibrarySortColumn.country,
+    LibrarySortColumn.language,
+    LibrarySortColumn.ageRating,
+    LibrarySortColumn.condition,
+    LibrarySortColumn.price,
+    LibrarySortColumn.location,
+    LibrarySortColumn.collectionStatus,
+    LibrarySortColumn.wishlist,
+    LibrarySortColumn.added,
+    LibrarySortColumn.updated,
+  };
+
+  static const Set<LibrarySortColumn> _movieEditionSortColumns = {
+    LibrarySortColumn.status,
+    LibrarySortColumn.title,
+    LibrarySortColumn.variant,
+    LibrarySortColumn.format,
+    LibrarySortColumn.publisher,
+    LibrarySortColumn.releaseDate,
+    LibrarySortColumn.barcode,
+    LibrarySortColumn.condition,
+    LibrarySortColumn.price,
+    LibrarySortColumn.location,
+    LibrarySortColumn.collectionStatus,
+    LibrarySortColumn.wishlist,
+    LibrarySortColumn.added,
+    LibrarySortColumn.updated,
+  };
+
+  List<LibraryGroupMode> get _scopeAvailableGroupModes {
+    final allowed = widget.type.availableGroupModes;
+    if (!_isMovieMediaEditionScope) {
+      return allowed;
+    }
+    final scoped = _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+        ? _movieEditionGroupModes
+        : _movieMediaGroupModes;
+    return [
+      for (final mode in allowed)
+        if (scoped.contains(mode)) mode,
+    ];
+  }
+
+  List<LibrarySortColumn> get _scopeAvailableSortColumns {
+    final allowed = widget.type.availableSortColumns;
+    if (!_isMovieMediaEditionScope) {
+      return allowed;
+    }
+    final scoped = _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+        ? _movieEditionSortColumns
+        : _movieMediaSortColumns;
+    return [
+      for (final column in allowed)
+        if (scoped.contains(column)) column,
+    ];
+  }
+
+  void _sanitizeScopeDependentState() {
+    final allowedModes = _scopeAvailableGroupModes.toSet();
+    final allowedSort = _scopeAvailableSortColumns.toSet();
+    _groupMode = _groupMode != null && allowedModes.contains(_groupMode)
+        ? _groupMode
+        : (allowedModes.isNotEmpty ? allowedModes.first : null);
+    _folderPreset = sanitizeLibraryFolderPreset(
+      _folderPreset,
+      allowedModes: allowedModes,
+    );
+    _pinnedFolderPresets = [
+      for (final preset in _pinnedFolderPresets)
+        if (sanitizeLibraryFolderPreset(preset, allowedModes: allowedModes)
+            case final sanitized?)
+          sanitized,
+    ];
+    final viewState = _viewState;
+    if (viewState != null) {
+      final filteredRules = [
+        for (final rule in viewState.sortRules)
+          if (allowedSort.contains(rule.column)) rule,
+      ];
+      final defaults = _adapter.viewProfile.defaults().sortRules;
+      final fallbackRules = [
+        for (final rule in defaults)
+          if (allowedSort.contains(rule.column)) rule,
+      ];
+      _viewState = viewState.copyWith(
+        sortRules: filteredRules.isNotEmpty ? filteredRules : fallbackRules,
+      );
+    }
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
@@ -1159,6 +1514,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       if (mode != LibraryWorkspaceBrowserMode.releases) {
         _releaseFolderTitleItemId = null;
       }
+      _sanitizeScopeDependentState();
     });
   }
 
@@ -1207,12 +1563,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibraryFolderPreset get _activeFolderPreset =>
       sanitizeLibraryFolderPreset(
         _folderPreset,
-        allowedModes: widget.type.availableGroupModes,
+        allowedModes: _scopeAvailableGroupModes,
       ) ??
       LibraryFolderPreset.single(_activeGroupMode);
 
   bool get _hasActiveFilter =>
-      _searchController.text.trim().isNotEmpty ||
+      _appliedSearchQuery.trim().isNotEmpty ||
       _linkedMetadataFilter != null ||
       _selectedBucket != null ||
       _selectedLetter != null ||
@@ -1265,7 +1621,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     for (final preset in presets) {
       final sanitized = sanitizeLibraryFolderPreset(
         preset,
-        allowedModes: widget.type.availableGroupModes,
+        allowedModes: _scopeAvailableGroupModes,
       );
       if (sanitized != null && !updated.contains(sanitized)) {
         updated.add(sanitized);
@@ -1416,6 +1772,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _activeSmartListId = null;
       _activeSmartListName = null;
       _searchController.clear();
+      _appliedSearchQuery = '';
+      _searchPinnedItemId = null;
     });
     _selectItem(match.entry.id);
   }
@@ -1748,7 +2106,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void _setFolderPreset(LibraryFolderPreset preset) {
     final sanitized = sanitizeLibraryFolderPreset(
       preset,
-      allowedModes: widget.type.availableGroupModes,
+      allowedModes: _scopeAvailableGroupModes,
     );
     if (sanitized == null) {
       return;
@@ -1777,9 +2135,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   LibraryRouteState _buildRouteState() {
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final allowedSortColumns = _scopeAvailableSortColumns.toSet();
+    final scopedSortRules = [
+      for (final rule in viewState.sortRules)
+        if (allowedSortColumns.contains(rule.column)) rule,
+    ];
     return LibraryRouteState(
       kind: widget.type.workspace.kind.apiValue,
-      searchQuery: _trimmedQuery(_searchController.text),
+      searchQuery: _trimmedQuery(_appliedSearchQuery),
       groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
       folderPreset: viewState.isSidebarVisible ? _activeFolderPreset : null,
       selectedBucket: _selectedBucket,
@@ -1791,7 +2154,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           : LibrarySeriesCompletionScope.all,
       quickView: _quickView,
       filterSelection: _filterSelection,
-      sortRules: viewState.sortRules,
+      sortRules: scopedSortRules,
       isSidebarVisible: viewState.isSidebarVisible,
     );
   }
@@ -1820,20 +2183,27 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     final currentViewState = _viewState ?? _adapter.viewProfile.defaults();
+    final allowedSortColumns = _scopeAvailableSortColumns.toSet();
+    final routeSortRules = [
+      for (final rule in (routeState.sortRules ?? currentViewState.sortRules))
+        if (allowedSortColumns.contains(rule.column)) rule,
+    ];
     _viewState = currentViewState.copyWith(
       isSidebarVisible:
           routeState.isSidebarVisible ?? currentViewState.isSidebarVisible,
-      sortRules: routeState.sortRules ?? currentViewState.sortRules,
+      sortRules: routeSortRules,
     );
     final sidebarVisible = _viewState!.isSidebarVisible;
     final routeFolderPreset = sanitizeLibraryFolderPreset(
       routeState.folderPreset,
-      allowedModes: widget.type.availableGroupModes,
+      allowedModes: _scopeAvailableGroupModes,
     );
     _groupMode = sidebarVisible
         ? routeFolderPreset?.primaryMode ??
             routeState.groupMode ??
-            libraryDefaultGroupMode(widget.type)
+            (_scopeAvailableGroupModes.isNotEmpty
+                ? _scopeAvailableGroupModes.first
+                : libraryDefaultGroupMode(widget.type))
         : null;
     _folderPreset = !sidebarVisible
         ? null
@@ -1849,6 +2219,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _collectionStatusScope = routeState.collectionStatusScope;
     _seriesCompletionScope = routeState.seriesCompletionScope;
     _quickView = routeState.quickView;
+    _sanitizeScopeDependentState();
     _filterSelection = routeState.filterSelection;
     _activeSmartListId = null;
     _activeSmartListName = null;
@@ -1859,6 +2230,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       selection: TextSelection.collapsed(offset: routeQuery.length),
       composing: TextRange.empty,
     );
+    _appliedSearchQuery = routeQuery;
+    _searchPinnedItemId = null;
     final shelfState = ref.read(shelfProvider).asData?.value;
     if (shelfState != null) {
       _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
@@ -1910,6 +2283,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _activeSmartListName = null;
       _scopeHistory = const [];
       _searchController.clear();
+      _appliedSearchQuery = '';
+      _searchPinnedItemId = null;
     });
     _syncRouteState();
   }

@@ -139,6 +139,9 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
             if (event.kind != PointerDeviceKind.mouse) {
               return;
             }
+            if ((event.buttons & kPrimaryMouseButton) == 0) {
+              return;
+            }
             _dragStart = event.localPosition;
             _dragBaseSelection = _selectionIsAdditive
                 ? Set<String>.from(widget.selectedIds)

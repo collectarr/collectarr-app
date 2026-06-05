@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/table/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -107,24 +108,32 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final tableBorderRadius = BorderRadius.circular(2);
-    final resolvedHeaderColor =
-      widget.headerColor == kAppSurface ? palette.surface : widget.headerColor;
-    final resolvedDividerColor =
-      widget.dividerColor == kAppDivider ? palette.divider : widget.dividerColor;
+    final resolvedHeaderColor = widget.headerColor == kAppSurface
+        ? palette.surface
+        : widget.headerColor;
+    final resolvedDividerColor = widget.dividerColor == kAppDivider
+        ? palette.divider
+        : widget.dividerColor;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
-      ? palette.selection
-      : widget.selectedColor;
-    final resolvedOddColor =
-      widget.oddColor == kAppTableOddRow ? palette.tableOddRow : widget.oddColor;
+        ? libraryWorkspaceSelectionBackground(
+            context,
+            accentColor: widget.accentColor,
+            baseColor: palette.surface,
+          )
+        : widget.selectedColor;
+    final resolvedOddColor = widget.oddColor == kAppTableOddRow
+        ? palette.tableOddRow
+        : widget.oddColor;
     final resolvedEvenColor = widget.evenColor == kAppTableEvenRow
-      ? palette.tableEvenRow
-      : widget.evenColor;
+        ? palette.tableEvenRow
+        : widget.evenColor;
     final resolvedBottomBorderColor =
-      widget.bottomBorderColor == kAppTableBottomBorder
-        ? palette.tableBottomBorder
-        : widget.bottomBorderColor;
-    final resolvedHoverColor =
-      widget.hoverColor == kAppTableHover ? palette.tableHover : widget.hoverColor;
+        widget.bottomBorderColor == kAppTableBottomBorder
+            ? palette.tableBottomBorder
+            : widget.bottomBorderColor;
+    final resolvedHoverColor = widget.hoverColor == kAppTableHover
+        ? palette.tableHover
+        : widget.hoverColor;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.surface,

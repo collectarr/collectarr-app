@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -2604,7 +2605,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final uniqueUrls = <String>{
       for (final value in urls)
-        if (value != null && value.trim().isNotEmpty) value.trim(),
+        if (normalizeNetworkImageUrl(value) case final normalized?) normalized,
     };
     await Future.wait([
       for (final url in uniqueUrls)

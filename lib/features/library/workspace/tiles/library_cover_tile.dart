@@ -3,9 +3,11 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_item_bad
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -73,7 +75,11 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final palette = appPalette(context);
     final flat = uiPrefs.flatCovers;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
-        ? palette.selection
+        ? libraryWorkspaceSelectionBackground(
+            context,
+            accentColor: widget.accentColor,
+            baseColor: palette.field,
+          )
         : widget.selectedColor;
     final resolvedSelectionColor = widget.selectionColor == kAppHighlight
         ? widget.accentColor
@@ -196,7 +202,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                         Positioned(
                           top: 6,
                           right: 6,
-                          child: _LibraryTileHoverActionButton(
+                          child: LibraryTileHoverActionButton(
                             icon: Icons.edit_outlined,
                             tooltip: 'Edit item',
                             onTap: widget.onEditTap!,
@@ -295,30 +301,41 @@ class LibraryTileSelectionToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final iconSize = (coverSize * 0.095).clamp(12.0, 16.0).toDouble();
     final padding = (coverSize * 0.01).clamp(1.0, 2.0).toDouble();
+    final selectedBackground = Color.alphaBlend(
+      accentColor.withValues(alpha: 0.84),
+      Colors.white,
+    );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: selected ? accentColor : Colors.white.withValues(alpha: 0.92),
+        color: selected
+            ? selectedBackground
+            : Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: selected ? accentColor : Colors.black.withValues(alpha: 0.18),
+          color: selected
+              ? accentColor
+              : palette.cardBorder.withValues(alpha: 0.9),
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            blurRadius: 8,
-            color: Color(0x33000000),
+            blurRadius: 6,
+            color: Colors.black.withValues(alpha: 0.22),
             offset: Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
         padding: EdgeInsets.all(padding),
-        child: Icon(
-          selected ? Icons.check : Icons.check_box_outline_blank,
-          size: iconSize,
-          color: selected ? Colors.white : Colors.black54,
-        ),
+        child: selected
+            ? Icon(
+                Icons.check,
+                size: iconSize,
+                color: Colors.white,
+              )
+            : SizedBox.square(dimension: iconSize),
       ),
     );
   }
@@ -339,19 +356,28 @@ class LibraryTileSelectionToggleButton extends StatelessWidget {
     if (onTap == null) {
       return child;
     }
+    final palette = appPalette(context);
+    final shape =
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(4));
     return Material(
       color: Colors.transparent,
+      shape: shape,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
+        customBorder: shape,
+        hoverColor: palette.textPrimary.withValues(alpha: 0.06),
+        highlightColor: palette.textPrimary.withValues(alpha: 0.04),
+        splashColor: Colors.transparent,
         child: child,
       ),
     );
   }
 }
 
-class _LibraryTileHoverActionButton extends StatefulWidget {
-  const _LibraryTileHoverActionButton({
+class LibraryTileHoverActionButton extends StatefulWidget {
+  const LibraryTileHoverActionButton({
+    super.key,
     required this.icon,
     required this.tooltip,
     required this.onTap,
@@ -362,12 +388,12 @@ class _LibraryTileHoverActionButton extends StatefulWidget {
   final VoidCallback onTap;
 
   @override
-  State<_LibraryTileHoverActionButton> createState() =>
+  State<LibraryTileHoverActionButton> createState() =>
       _LibraryTileHoverActionButtonState();
 }
 
 class _LibraryTileHoverActionButtonState
-    extends State<_LibraryTileHoverActionButton> {
+    extends State<LibraryTileHoverActionButton> {
   bool _tapHandledOnDown = false;
 
   @override
@@ -379,24 +405,29 @@ class _LibraryTileHoverActionButtonState
         color: palette.surfaceBright.withValues(alpha: 0.95),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         elevation: 2,
-        child: InkWell(
-          onTapDown: (_) {
+        child: Listener(
+          onPointerDown: (event) {
+            if (event.buttons != kPrimaryButton) {
+              return;
+            }
             _tapHandledOnDown = true;
             widget.onTap();
           },
-          onTapCancel: () => _tapHandledOnDown = false,
-          onTap: () {
-            if (!_tapHandledOnDown) {
-              widget.onTap();
-            }
-            _tapHandledOnDown = false;
-          },
-          borderRadius: BorderRadius.circular(6),
-          hoverColor: kAppHighlight.withValues(alpha: 0.25),
-          highlightColor: kAppHighlight.withValues(alpha: 0.18),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Icon(widget.icon, size: 15, color: palette.textPrimary),
+          child: InkWell(
+            onTapCancel: () => _tapHandledOnDown = false,
+            onTap: () {
+              if (!_tapHandledOnDown) {
+                widget.onTap();
+              }
+              _tapHandledOnDown = false;
+            },
+            borderRadius: BorderRadius.circular(6),
+            hoverColor: kAppHighlight.withValues(alpha: 0.25),
+            highlightColor: kAppHighlight.withValues(alpha: 0.18),
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Icon(widget.icon, size: 15, color: palette.textPrimary),
+            ),
           ),
         ),
       ),

@@ -221,6 +221,7 @@ class LibraryWorkspace extends ConsumerWidget {
               cardLayout: LibraryCardLayout.vertical,
               selectionMode: selectionEnabled,
               onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+              onEditTap: () => onEditItem(item),
             ),
           ),
         LibraryViewMode.horizontalCards => _GroupedGrid(
@@ -254,6 +255,7 @@ class LibraryWorkspace extends ConsumerWidget {
               cardLayout: LibraryCardLayout.horizontal,
               selectionMode: selectionEnabled,
               onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+              onEditTap: () => onEditItem(item),
             ),
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
@@ -345,6 +347,7 @@ class LibraryWorkspace extends ConsumerWidget {
             cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+            onEditTap: () => onEditItem(item),
           ),
         ),
       LibraryViewMode.horizontalCards => _buildHorizontalCards(
@@ -358,13 +361,15 @@ class LibraryWorkspace extends ConsumerWidget {
           items: items,
           selectedId: selectedId,
           selectedAnchorId: selectedAnchorId,
-          selectedIds: selectedIds,
+          selectedIds: const <String>{},
           accent: accent,
           emptyBuilder: _emptyBuilder,
-          onApplySelection: onApplySelection,
+          selectionEnabled: false,
+          onApplySelection: (_, __) {},
           onActivateItem: onActivateItem,
-          onToggleSelectionItem: onToggleSelectionItem,
+          onToggleSelectionItem: (_) {},
           onOpenItem: onOpenItem,
+          onEditItem: onEditItem,
           onItemContextMenu: onItemContextMenu,
         ),
       LibraryViewMode.list => _buildTable(),
@@ -513,6 +518,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 selectionMode: selectionEnabled,
                 onSelectionToggleTap: () =>
                     onToggleSelectionItem(item.entry.id),
+                onEditTap: () => onEditItem(item),
               ),
             ),
           );

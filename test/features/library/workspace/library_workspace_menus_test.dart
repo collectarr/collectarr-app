@@ -31,7 +31,7 @@ void main() {
     );
 
     expect(find.text('Folders'), findsOneWidget);
-    expect(find.byType(Divider), findsNWidgets(2));
+    expect(find.byType(Divider), findsOneWidget);
   });
 
   testWidgets('tree header reflects highlight and expansion state', (
@@ -51,7 +51,7 @@ void main() {
     );
 
     expect(find.text('Main'), findsOneWidget);
-    expect(find.byIcon(Icons.check), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing);
     expect(find.byIcon(Icons.expand_more), findsOneWidget);
   });
 }

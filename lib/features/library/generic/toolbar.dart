@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -26,6 +27,14 @@ class LibraryToolbar extends StatelessWidget {
     required this.onAdd,
     required this.onScan,
     required this.onSearchChanged,
+    this.onSearchInputChanged,
+    this.searchTarget = LibrarySearchTarget.all,
+    this.searchTargetOptions = const <LibrarySearchTarget>[],
+    this.onSearchTargetChanged,
+    this.onClearSearch,
+    this.searchActive = false,
+    this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
+    this.onSearchSuggestionSelected,
     required this.onEditColumns,
     required this.onSortChanged,
     this.onEditSort,
@@ -88,8 +97,10 @@ class LibraryToolbar extends StatelessWidget {
     this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
+    this.onCompareMetadataWithServer,
     this.groupMode,
     this.folderPreset,
+    this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
@@ -104,6 +115,15 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onScan;
   final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String>? onSearchInputChanged;
+  final LibrarySearchTarget searchTarget;
+  final List<LibrarySearchTarget> searchTargetOptions;
+  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
+  final VoidCallback? onClearSearch;
+  final bool searchActive;
+  final List<LibraryToolbarSearchSuggestion> searchSuggestions;
+  final ValueChanged<LibraryToolbarSearchSuggestion>?
+      onSearchSuggestionSelected;
   final VoidCallback onEditColumns;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final VoidCallback? onEditSort;
@@ -167,8 +187,10 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
+  final VoidCallback? onCompareMetadataWithServer;
   final LibraryGroupMode? groupMode;
   final LibraryFolderPreset? folderPreset;
+  final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
@@ -206,6 +228,12 @@ class LibraryToolbar extends StatelessWidget {
                   onAdd: onAdd,
                   onScan: onScan,
                   onSearchChanged: onSearchChanged,
+                  onSearchInputChanged: onSearchInputChanged,
+                  searchTarget: searchTarget,
+                  searchTargetOptions: searchTargetOptions,
+                  onSearchTargetChanged: onSearchTargetChanged,
+                  onClearSearch: onClearSearch,
+                  searchActive: searchActive,
                   onRefreshMetadata: onRefreshMetadata,
                   onViewModeChanged: onViewModeChanged,
                   onDetailsLayoutChanged: onDetailsLayoutChanged,
@@ -246,6 +274,7 @@ class LibraryToolbar extends StatelessWidget {
                   onEditGradePickList: onEditGradePickList,
                   onEditTagPickList: onEditTagPickList,
                   onEditSort: onEditSort,
+                  onCompareMetadataWithServer: onCompareMetadataWithServer,
                   availableLetters: availableLetters,
                   selectedLetter: selectedLetter,
                   onLetterSelected: onLetterSelected,
@@ -275,6 +304,14 @@ class LibraryToolbar extends StatelessWidget {
                     onRandomPick: onRandomPick,
                     onScanCover: effectiveScanCover,
                     onSearchChanged: onSearchChanged,
+                    onSearchInputChanged: onSearchInputChanged,
+                    searchTarget: searchTarget,
+                    searchTargetOptions: searchTargetOptions,
+                    onSearchTargetChanged: onSearchTargetChanged,
+                    onClearSearch: onClearSearch,
+                    searchActive: searchActive,
+                    searchSuggestions: searchSuggestions,
+                    onSearchSuggestionSelected: onSearchSuggestionSelected,
                     onClearBucket: onClearBucket,
                   ),
                   if (includeDesktopSecondaryBand)
@@ -328,8 +365,10 @@ class LibraryToolbar extends StatelessWidget {
                       onReassignIndex: effectiveReassignIndex,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
+                      onCompareMetadataWithServer: onCompareMetadataWithServer,
                       groupMode: groupMode,
                       folderPreset: folderPreset,
+                      availableGroupModes: availableGroupModes,
                       pinnedFolderPresets: pinnedFolderPresets,
                       onPinnedFolderPresetsChanged:
                           onPinnedFolderPresetsChanged,

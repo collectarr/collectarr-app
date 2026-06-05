@@ -33,7 +33,7 @@ part 'admin_shared_widgets.dart';
 
 // Resolved at runtime via appPalette(context).panelRaised
 const _kAdminDialogShape = RoundedRectangleBorder(
-  borderRadius: BorderRadius.all(Radius.circular(3)),
+  borderRadius: BorderRadius.zero,
 );
 
 class AdminPage extends ConsumerStatefulWidget {

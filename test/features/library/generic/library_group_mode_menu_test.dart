@@ -32,10 +32,12 @@ void main() {
 
     expect(find.text('No folders'), findsOneWidget);
     expect(find.text('Show folders'), findsNothing);
-    expect(find.byKey(const ValueKey('manageGroupFavoritesButton')), findsOneWidget);
+    expect(find.byKey(const ValueKey('manageGroupFavoritesButton')),
+        findsOneWidget);
     expect(find.byIcon(Icons.push_pin), findsNothing);
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
-    expect(find.text('Favorites'), findsWidgets);
+    expect(find.text('Manage Favorites'), findsOneWidget);
+    expect(find.text('Favorites'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Edition'), findsOneWidget);
@@ -47,8 +49,10 @@ void main() {
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
-    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
-    expect(find.byKey(const ValueKey('groupModeSectionBar_Main')), findsNothing);
+    expect(
+        find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
+    expect(
+        find.byKey(const ValueKey('groupModeSectionBar_Main')), findsNothing);
     expect(
       find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
       findsOneWidget,
@@ -72,6 +76,10 @@ void main() {
     await tester.tap(editionHeader);
     await tester.pumpAndSettle();
 
+    expect(
+      find.byKey(const ValueKey('groupModeSectionLevelBar_Edition')),
+      findsOneWidget,
+    );
     expect(find.text('Format'), findsOneWidget);
     expect(find.text('Audio Tracks'), findsOneWidget);
     expect(find.text('Edition Release Date'), findsOneWidget);
@@ -83,10 +91,6 @@ void main() {
 
     expect(
       find.byKey(const ValueKey('groupModeSectionBar_Main')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
       findsNothing,
     );
   });
@@ -149,7 +153,8 @@ void main() {
     expect(find.text('Manage Folder Favorites'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
 
-    await tester.tap(find.byKey(const ValueKey('folderFavoritesManagerSaveButton')));
+    await tester
+        .tap(find.byKey(const ValueKey('folderFavoritesManagerSaveButton')));
     await tester.pumpAndSettle();
 
     expect(savedPresets, isNotNull);
@@ -188,7 +193,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select one or more fields'), findsWidgets);
-    expect(find.byKey(const ValueKey('folderFavoritesDraftSaveButton')), findsOneWidget);
+    expect(find.byKey(const ValueKey('folderFavoritesDraftSaveButton')),
+        findsOneWidget);
   });
 
   testWidgets('group mode button shows the configured folder set label', (
@@ -233,10 +239,12 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
+    expect(find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
+        findsOneWidget);
   });
 
-  testWidgets('group mode button closes menu after pointer leaves trigger and menu', (
+  testWidgets(
+      'group mode button closes menu after pointer leaves trigger and menu', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -261,12 +269,13 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
 
     await tester.tapAt(const Offset(700, 500));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
+    expect(
+        find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
   });
 
   testWidgets('comic group mode dropdown uses CLZ-like section taxonomy', (
@@ -277,7 +286,8 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: comicsLibraryConfig,
-            selectedPreset: LibraryFolderPreset.single(LibraryGroupMode.publisher),
+            selectedPreset:
+                LibraryFolderPreset.single(LibraryGroupMode.publisher),
             availableModes: libraryGroupModesForType(comicsLibraryConfig),
             initialPinnedPresets: [
               LibraryFolderPreset.single(LibraryGroupMode.series),
@@ -295,7 +305,8 @@ void main() {
     expect(find.text('Cast & Crew'), findsNothing);
     expect(find.text('All Creators'), findsNothing);
 
-    final creatorsHeader = find.widgetWithText(InkWell, 'Creators & Characters');
+    final creatorsHeader =
+        find.widgetWithText(InkWell, 'Creators & Characters');
     await tester.ensureVisible(creatorsHeader);
     await tester.tap(creatorsHeader);
     await tester.pumpAndSettle();

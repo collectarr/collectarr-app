@@ -44,15 +44,13 @@ double resolveLibrarySidebarMaxWidth({
   required double workspaceMinWidth,
   required bool hasRightDetails,
   required double rightDetailsWidth,
+  required double minWidth,
 }) {
-  final reservedWidth =
-      workspaceMinWidth +
+  final reservedWidth = workspaceMinWidth +
       kLibraryPaneDividerWidth +
-      (hasRightDetails
-          ? rightDetailsWidth + kLibraryPaneDividerWidth
-          : 0);
+      (hasRightDetails ? rightDetailsWidth + kLibraryPaneDividerWidth : 0);
   return (viewportWidth - reservedWidth)
-      .clamp(kLibrarySidebarMinWidth, kLibraryPaneStoredMaxWidth)
+      .clamp(minWidth, kLibraryPaneStoredMaxWidth)
       .toDouble();
 }
 
@@ -62,8 +60,7 @@ double resolveLibraryDetailsMaxWidth({
   required bool hasSidebar,
   required double sidebarWidth,
 }) {
-  final reservedWidth =
-      workspaceMinWidth +
+  final reservedWidth = workspaceMinWidth +
       kLibraryPaneDividerWidth +
       (hasSidebar ? sidebarWidth + kLibraryPaneDividerWidth : 0);
   return (viewportWidth - reservedWidth)

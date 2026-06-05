@@ -111,14 +111,14 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.check_box_outline_blank), findsNothing);
+    expect(find.byType(LibraryTileSelectionToggle), findsNothing);
 
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await gesture.addPointer();
     await gesture.moveTo(tester.getCenter(find.byType(LibraryCoverTile)));
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
+    expect(find.byType(LibraryTileSelectionToggle), findsOneWidget);
     expect(find.byTooltip('Edit item'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.edit_outlined));
@@ -184,10 +184,57 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.check_box_outline_blank));
+    await tester.tap(find.byType(LibraryTileSelectionToggle));
     await tester.pumpAndSettle();
 
     expect(toggleTapped, isTrue);
     expect(tileTapped, isFalse);
+  });
+
+  testWidgets('edit action fires on mouse down even when pointer leaves button',
+      (tester) async {
+    var editTapped = false;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Material(
+            child: SizedBox(
+              width: 140,
+              height: 220,
+              child: LibraryCoverTile(
+                entry: LibraryWorkspaceEntry(
+                  id: 'movie-3',
+                  mediaType: 'movie',
+                  title: 'Interstellar',
+                  updatedAt: DateTime.utc(2026),
+                ),
+                active: false,
+                selected: false,
+                selectionMode: false,
+                onTap: () {},
+                onEditTap: () => editTapped = true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final hover = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await hover.addPointer();
+    await hover.moveTo(tester.getCenter(find.byType(LibraryCoverTile)));
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Edit item'), findsOneWidget);
+
+    final editCenter = tester.getCenter(find.byIcon(Icons.edit_outlined));
+    await hover.moveTo(editCenter);
+    await hover.down(editCenter);
+    await hover.moveBy(const Offset(80, 0));
+    await hover.up();
+    await tester.pumpAndSettle();
+
+    expect(editTapped, isTrue);
   });
 }

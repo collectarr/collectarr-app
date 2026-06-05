@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 const Color _kDefaultAccent = kAppAccent;
 const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
-const double _kInspectorSectionSpacing = 10;
-const double _kInspectorSectionRadius = 2;
-const double _kInspectorSectionContentTopPadding = 7;
+const double _kInspectorSectionSpacing = 4;
+const double _kInspectorSectionContentTopPadding = 6;
 const double _kInspectorFactLabelWidth = 104;
 
 class LibraryInspectorFactData {
@@ -51,12 +50,10 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final palette = appPalette(context);
     final resolvedMutedTextColor = widget.mutedTextColor == _kDefaultMutedText
         ? palette.textMuted
         : widget.mutedTextColor;
-    final sectionColor = colorScheme.surface;
     final borderColor = palette.divider;
     final accentBorderColor = widget.accentColor.withValues(alpha: 0.18);
 
@@ -64,92 +61,71 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
       padding: const EdgeInsets.only(bottom: _kInspectorSectionSpacing),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: sectionColor,
-          borderRadius: BorderRadius.circular(_kInspectorSectionRadius),
           border: Border(
-            top: BorderSide(color: borderColor),
-            bottom: BorderSide(color: borderColor),
+            bottom: BorderSide(color: borderColor.withValues(alpha: 0.78)),
           ),
         ),
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: widget.accentColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(_kInspectorSectionRadius),
-                    bottomLeft: Radius.circular(_kInspectorSectionRadius),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: widget.collapsible
+                    ? () => setState(() => _expanded = !_expanded)
+                    : null,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: accentBorderColor),
+                    ),
                   ),
-                ),
-                child: const SizedBox(width: 2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: widget.collapsible
-                        ? () => setState(() => _expanded = !_expanded)
-                        : null,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: accentBorderColor),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          children: [
-                            Text(
-                              widget.title,
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        Text(
+                          widget.title,
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: palette.textMuted,
                                     fontWeight: FontWeight.w900,
-                                fontSize: 12,
+                                    fontSize: 12,
                                     letterSpacing: 0.35,
                                   ),
-                            ),
-                            const Spacer(),
-                            if (widget.collapsible)
-                              Icon(
-                                _expanded
-                                    ? Icons.keyboard_arrow_down
-                                    : Icons.keyboard_arrow_right,
-                                size: 16,
-                                color: resolvedMutedTextColor,
-                              ),
-                          ],
                         ),
-                      ),
+                        const Spacer(),
+                        if (widget.collapsible)
+                          Icon(
+                            _expanded
+                                ? Icons.keyboard_arrow_down
+                                : Icons.keyboard_arrow_right,
+                            size: 16,
+                            color: resolvedMutedTextColor,
+                          ),
+                      ],
                     ),
                   ),
-                  AnimatedCrossFade(
-                    firstChild: const SizedBox.shrink(),
-                    secondChild: Padding(
-                      padding: const EdgeInsets.only(
-                        top: _kInspectorSectionContentTopPadding,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: widget.children,
-                      ),
-                    ),
-                    crossFadeState: _expanded
-                        ? CrossFadeState.showSecond
-                        : CrossFadeState.showFirst,
-                    duration: const Duration(milliseconds: 180),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              AnimatedCrossFade(
+                firstChild: const SizedBox.shrink(),
+                secondChild: Padding(
+                  padding: const EdgeInsets.only(
+                    top: _kInspectorSectionContentTopPadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widget.children,
+                  ),
+                ),
+                crossFadeState: _expanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 180),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -181,7 +157,8 @@ class LibraryInspectorFactGrid extends StatelessWidget {
             for (final fact in facts)
               SizedBox(
                 width: (constraints.maxWidth - 8) / 2,
-                child: LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
+                child: LibraryInspectorFact(fact.label, fact.value,
+                    onTap: fact.onTap),
               ),
           ],
         );
@@ -223,7 +200,7 @@ class LibraryInspectorFact extends StatelessWidget {
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: resolvedMutedTextColor,
                     fontWeight: FontWeight.w800,
-                  fontSize: 12,
+                    fontSize: 12,
                   ),
             ),
           ),
@@ -238,11 +215,12 @@ class LibraryInspectorFact extends StatelessWidget {
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: onSurfaceColor,
+                            color: onSurfaceColor,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                             decoration: TextDecoration.underline,
-                          decorationColor: onSurfaceColor.withValues(alpha: 0.4),
+                            decorationColor:
+                                onSurfaceColor.withValues(alpha: 0.4),
                           ),
                     ),
                   )
@@ -251,7 +229,7 @@ class LibraryInspectorFact extends StatelessWidget {
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: onSurfaceColor,
+                          color: onSurfaceColor,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
@@ -365,14 +343,14 @@ class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
                         Brightness.dark
                     ? Colors.white
                     : Colors.black)
-          .withValues(alpha: 0.18),
+                .withValues(alpha: 0.18),
             baseChipColor,
           )
         : baseChipColor;
-    final chipTextColor = ThemeData.estimateBrightnessForColor(chipColor) ==
-            Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
+    final chipTextColor =
+        ThemeData.estimateBrightnessForColor(chipColor) == Brightness.dark
+            ? Colors.white
+            : Theme.of(context).colorScheme.onSurface;
     final chip = AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       curve: Curves.easeOut,

@@ -2,19 +2,34 @@ import 'package:collectarr_app/features/library/workspace/layout/library_pane_wi
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('sidebar max width can exceed the old hard cap when viewport allows it', () {
+  test('sidebar max width can exceed the old hard cap when viewport allows it',
+      () {
     final maxWidth = resolveLibrarySidebarMaxWidth(
       viewportWidth: 1680,
       workspaceMinWidth: kLibraryWorkspaceMinWidth,
       hasRightDetails: true,
       rightDetailsWidth: 520,
+      minWidth: kLibrarySidebarMinWidth,
     );
 
     expect(maxWidth, 816);
     expect(maxWidth, greaterThan(kLibrarySidebarMaxWidth));
   });
 
-  test('details max width can exceed the old hard cap when viewport allows it', () {
+  test('sidebar max width respects configured minimum width', () {
+    final maxWidth = resolveLibrarySidebarMaxWidth(
+      viewportWidth: 300,
+      workspaceMinWidth: kLibraryWorkspaceMinWidth,
+      hasRightDetails: true,
+      rightDetailsWidth: 260,
+      minWidth: 240,
+    );
+
+    expect(maxWidth, 240);
+  });
+
+  test('details max width can exceed the old hard cap when viewport allows it',
+      () {
     final maxWidth = resolveLibraryDetailsMaxWidth(
       viewportWidth: 1680,
       workspaceMinWidth: kLibraryWorkspaceMinWidth,

@@ -98,10 +98,13 @@ class MusicLibraryEditPresentationBuilder
     required String tabId,
   }) {
     final sections = switch (tabId) {
-      'main' => ['music_release_identity'],
-      'details' => [
+      'main' => [
+          'music_release_identity',
           'music_identifiers_release',
           'music_genres',
+        ],
+      'details' => [
+          'music_format_audio_details',
           'music_album_notes',
         ],
       'classical' => [
@@ -119,7 +122,13 @@ class MusicLibraryEditPresentationBuilder
           if (context.isOwned) 'music_profit_loss',
           if (context.isOwned) 'music_personal_notes',
         ],
-      'people' => ['music_primary_artist', 'music_credits'],
+      'people' => [
+          'music_primary_artist',
+          'music_songwriter',
+          'music_producer',
+          'music_engineer',
+          'music_musician',
+        ],
       'custom' => ['music_custom_fields'],
       'covers' => ['music_remote_cover_assets'],
       'photos' => ['music_local_images'],

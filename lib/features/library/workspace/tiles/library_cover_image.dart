@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -31,7 +32,7 @@ class LibraryCoverImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final url = _normalizedImageUrl(imageUrl);
+    final url = normalizeNetworkImageUrl(imageUrl);
 
     // Resolve local image: prefer explicit local bytes; query DB only when
     // there is no usable remote URL to avoid first-load source swapping.
@@ -104,21 +105,6 @@ class LibraryCoverImage extends ConsumerWidget {
         );
       },
     );
-  }
-
-  String? _normalizedImageUrl(String? value) {
-    final url = value?.trim();
-    if (url == null || url.isEmpty) {
-      return null;
-    }
-    final parsed = Uri.tryParse(url);
-    if (parsed == null || !parsed.hasScheme) {
-      return null;
-    }
-    if (parsed.scheme != 'http' && parsed.scheme != 'https') {
-      return null;
-    }
-    return url;
   }
 
   bool _looksLikeSupportedImage(Uint8List? bytes) {
@@ -396,8 +382,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
 
   Future<void> _warmPreviewImage() async {
     for (final imageUrl in [
-      widget.imageUrl?.trim(),
-      widget.secondaryImageUrl?.trim()
+      normalizeNetworkImageUrl(widget.imageUrl),
+      normalizeNetworkImageUrl(widget.secondaryImageUrl),
     ]) {
       if (imageUrl == null || imageUrl.isEmpty) {
         continue;
