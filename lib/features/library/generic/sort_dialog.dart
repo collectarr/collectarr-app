@@ -13,6 +13,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required LibraryTypeConfig type,
   required List<LibrarySortRule> currentRules,
   bool Function(LibrarySortColumn column)? defaultAscendingForColumn,
+  List<LibrarySortColumn>? availableColumns,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,
@@ -20,6 +21,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       type: type,
       currentRules: currentRules,
       defaultAscendingForColumn: defaultAscendingForColumn,
+      availableColumns: availableColumns,
     ),
   );
 }
@@ -29,11 +31,13 @@ class _LibrarySortDialog extends StatefulWidget {
     required this.type,
     required this.currentRules,
     this.defaultAscendingForColumn,
+    this.availableColumns,
   });
 
   final LibraryTypeConfig type;
   final List<LibrarySortRule> currentRules;
   final bool Function(LibrarySortColumn column)? defaultAscendingForColumn;
+  final List<LibrarySortColumn>? availableColumns;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -558,7 +562,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   List<LibrarySortColumn> _filteredColumns() {
     final query = _query.trim().toLowerCase();
-    return widget.type.availableSortColumns.where((column) {
+    final available =
+        widget.availableColumns ?? widget.type.availableSortColumns;
+    return available.where((column) {
       if (query.isEmpty) {
         return true;
       }

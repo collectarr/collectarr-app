@@ -100,6 +100,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onCompareMetadataWithServer,
     this.groupMode,
     this.folderPreset,
+    this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
@@ -189,6 +190,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onCompareMetadataWithServer;
   final LibraryGroupMode? groupMode;
   final LibraryFolderPreset? folderPreset;
+  final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
@@ -366,6 +368,7 @@ class LibraryToolbar extends StatelessWidget {
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
                       groupMode: groupMode,
                       folderPreset: folderPreset,
+                      availableGroupModes: availableGroupModes,
                       pinnedFolderPresets: pinnedFolderPresets,
                       onPinnedFolderPresetsChanged:
                           onPinnedFolderPresetsChanged,

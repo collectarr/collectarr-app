@@ -139,6 +139,7 @@ class LibraryBody extends StatelessWidget {
     this.onLetterSelected,
     this.db,
     this.folderPreset,
+    this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onManageBuckets,
@@ -216,6 +217,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
   final LibraryFolderPreset? folderPreset;
+  final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;
@@ -393,6 +395,7 @@ class LibraryBody extends StatelessWidget {
             bucket == genericAllBucketLabel(type) ? null : bucket,
           ),
           onGroupModeChanged: onGroupModeChanged,
+          availableGroupModes: availableGroupModes,
           breadcrumbs: sidebarBreadcrumbs,
           ancestorScopeLabels: sidebarAncestorScopeLabels,
           onNavigateBack: onSidebarNavigateBack,

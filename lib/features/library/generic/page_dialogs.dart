@@ -85,10 +85,19 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       type: widget.type,
       currentRules: viewState.sortRules,
       defaultAscendingForColumn: _adapter.viewProfile.initialSortAscending,
+      availableColumns: _scopeAvailableSortColumns,
     );
     if (sortRules != null && mounted) {
+      final allowed = _scopeAvailableSortColumns.toSet();
+      final filteredRules = [
+        for (final rule in sortRules)
+          if (allowed.contains(rule.column)) rule,
+      ];
+      if (filteredRules.isEmpty) {
+        return;
+      }
       _updateViewState(
-        (state) => state.withSortRules(sortRules, _adapter.viewProfile),
+        (state) => state.withSortRules(filteredRules, _adapter.viewProfile),
       );
     }
   }

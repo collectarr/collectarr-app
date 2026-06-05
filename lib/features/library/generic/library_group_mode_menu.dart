@@ -46,6 +46,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
     this.pinnedFolderPresets = const [],
     this.onPinnedPresetsChanged,
     this.iconOnly = false,
+    this.availableModes,
   });
 
   final LibraryTypeConfig type;
@@ -58,6 +59,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedPresetsChanged;
   final bool iconOnly;
+  final List<LibraryGroupMode>? availableModes;
 
   @override
   State<LibraryGroupModeMenuButton> createState() =>
@@ -183,7 +185,8 @@ class _LibraryGroupModeMenuButtonState
     final label = widget.folderPreset == null
         ? 'Group by'
         : genericFolderPresetLabel(widget.folderPreset!, widget.type);
-    final modes = libraryGroupModesForType(widget.type);
+    final modes =
+        widget.availableModes ?? libraryGroupModesForType(widget.type);
     final menuWidth = _resolveMenuWidth(context, modes);
     final overlay = Overlay.of(context, rootOverlay: true)
         .context

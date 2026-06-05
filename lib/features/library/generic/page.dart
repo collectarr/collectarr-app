@@ -224,7 +224,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     try {
       final loadToken = ++_viewPreferenceLoadToken;
       final expectedKind = widget.type.workspace.kind;
-      final allowedGroupModes = widget.type.availableGroupModes;
+      final allowedGroupModes = _scopeAvailableGroupModes;
       final quickViewFuture = _viewPrefs.readQuickView();
       final groupModeFuture = _viewPrefs.readGroupMode(
         allowedModes: allowedGroupModes,
@@ -304,7 +304,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _primeCachedViewPreferences() {
-    final allowedGroupModes = widget.type.availableGroupModes.toSet();
+    final allowedGroupModes = _scopeAvailableGroupModes.toSet();
     _quickView = sanitizeLibraryQuickViewForType(
       _viewPrefs.cachedQuickView,
       widget.type,
@@ -800,6 +800,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     totalSelectableCount: projection?.filteredItems.length ?? 0,
                     groupMode: _activeSidebarGroupMode,
                     folderPreset: _activeFolderPreset,
+                    availableGroupModes: _scopeAvailableGroupModes,
                     pinnedFolderPresets: _pinnedFolderPresets,
                     onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
                     onGroupModeChanged: _setFolderPreset,
@@ -1119,6 +1120,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         })(),
         groupMode: _activeSidebarGroupMode,
         folderPreset: _activeFolderPreset,
+        availableGroupModes: _scopeAvailableGroupModes,
         pinnedFolderPresets: _pinnedFolderPresets,
         onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
         onGroupModeChanged: _setFolderPreset,
@@ -1311,14 +1313,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (!viewState.isSidebarVisible) {
       return null;
     }
-    if (widget.type.availableGroupModes.contains(_groupMode)) {
+    if (_scopeAvailableGroupModes.contains(_groupMode)) {
       return _groupMode;
+    }
+    final fallback = _scopeAvailableGroupModes;
+    if (fallback.isNotEmpty) {
+      return fallback.first;
     }
     return libraryDefaultGroupMode(widget.type);
   }
 
   LibraryGroupMode get _projectionGroupMode =>
-      _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+      _activeBrowserMode == LibraryWorkspaceBrowserMode.releases &&
+              !_isMovieMediaEditionScope
           ? LibraryGroupMode.title
           : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
 
@@ -1326,6 +1333,167 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   bool get _supportsMediaReleaseSplit {
     return widget.type.capabilities.supportsMediaReleaseSplit;
+  }
+
+  bool get _isMovieMediaEditionScope {
+    return widget.type.workspace.kind == CatalogMediaKind.movie &&
+        _supportsMediaReleaseSplit;
+  }
+
+  static const Set<LibraryGroupMode> _movieMediaGroupModes = {
+    LibraryGroupMode.title,
+    LibraryGroupMode.movieOrTvSeries,
+    LibraryGroupMode.genre,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.releaseDate,
+    LibraryGroupMode.releaseMonth,
+    LibraryGroupMode.releaseYear,
+    LibraryGroupMode.country,
+    LibraryGroupMode.language,
+    LibraryGroupMode.ageRating,
+    LibraryGroupMode.audienceRating,
+    LibraryGroupMode.actor,
+    LibraryGroupMode.director,
+    LibraryGroupMode.producer,
+    LibraryGroupMode.writer,
+    LibraryGroupMode.photography,
+    LibraryGroupMode.musician,
+    LibraryGroupMode.collectionStatus,
+    LibraryGroupMode.condition,
+    LibraryGroupMode.location,
+    LibraryGroupMode.addedDate,
+    LibraryGroupMode.addedMonth,
+    LibraryGroupMode.addedYear,
+    LibraryGroupMode.modifiedDate,
+    LibraryGroupMode.modifiedMonth,
+    LibraryGroupMode.watchDate,
+    LibraryGroupMode.watchMonth,
+    LibraryGroupMode.watchYear,
+  };
+
+  static const Set<LibraryGroupMode> _movieEditionGroupModes = {
+    LibraryGroupMode.title,
+    LibraryGroupMode.edition,
+    LibraryGroupMode.editionReleaseDate,
+    LibraryGroupMode.editionReleaseMonth,
+    LibraryGroupMode.editionReleaseYear,
+    LibraryGroupMode.format,
+    LibraryGroupMode.boxSet,
+    LibraryGroupMode.distributor,
+    LibraryGroupMode.hdr,
+    LibraryGroupMode.layers,
+    LibraryGroupMode.packaging,
+    LibraryGroupMode.regions,
+    LibraryGroupMode.screenRatios,
+    LibraryGroupMode.subtitles,
+    LibraryGroupMode.audioTracks,
+    LibraryGroupMode.extras,
+    LibraryGroupMode.collectionStatus,
+    LibraryGroupMode.condition,
+    LibraryGroupMode.location,
+    LibraryGroupMode.purchaseDate,
+    LibraryGroupMode.purchaseMonth,
+    LibraryGroupMode.purchaseYear,
+    LibraryGroupMode.addedDate,
+    LibraryGroupMode.addedMonth,
+    LibraryGroupMode.addedYear,
+    LibraryGroupMode.modifiedDate,
+    LibraryGroupMode.modifiedMonth,
+  };
+
+  static const Set<LibrarySortColumn> _movieMediaSortColumns = {
+    LibrarySortColumn.status,
+    LibrarySortColumn.title,
+    LibrarySortColumn.publisher,
+    LibrarySortColumn.releaseDate,
+    LibrarySortColumn.country,
+    LibrarySortColumn.language,
+    LibrarySortColumn.ageRating,
+    LibrarySortColumn.condition,
+    LibrarySortColumn.price,
+    LibrarySortColumn.location,
+    LibrarySortColumn.collectionStatus,
+    LibrarySortColumn.wishlist,
+    LibrarySortColumn.added,
+    LibrarySortColumn.updated,
+  };
+
+  static const Set<LibrarySortColumn> _movieEditionSortColumns = {
+    LibrarySortColumn.status,
+    LibrarySortColumn.title,
+    LibrarySortColumn.variant,
+    LibrarySortColumn.format,
+    LibrarySortColumn.publisher,
+    LibrarySortColumn.releaseDate,
+    LibrarySortColumn.barcode,
+    LibrarySortColumn.condition,
+    LibrarySortColumn.price,
+    LibrarySortColumn.location,
+    LibrarySortColumn.collectionStatus,
+    LibrarySortColumn.wishlist,
+    LibrarySortColumn.added,
+    LibrarySortColumn.updated,
+  };
+
+  List<LibraryGroupMode> get _scopeAvailableGroupModes {
+    final allowed = widget.type.availableGroupModes;
+    if (!_isMovieMediaEditionScope) {
+      return allowed;
+    }
+    final scoped = _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+        ? _movieEditionGroupModes
+        : _movieMediaGroupModes;
+    return [
+      for (final mode in allowed)
+        if (scoped.contains(mode)) mode,
+    ];
+  }
+
+  List<LibrarySortColumn> get _scopeAvailableSortColumns {
+    final allowed = widget.type.availableSortColumns;
+    if (!_isMovieMediaEditionScope) {
+      return allowed;
+    }
+    final scoped = _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+        ? _movieEditionSortColumns
+        : _movieMediaSortColumns;
+    return [
+      for (final column in allowed)
+        if (scoped.contains(column)) column,
+    ];
+  }
+
+  void _sanitizeScopeDependentState() {
+    final allowedModes = _scopeAvailableGroupModes.toSet();
+    final allowedSort = _scopeAvailableSortColumns.toSet();
+    _groupMode = _groupMode != null && allowedModes.contains(_groupMode)
+        ? _groupMode
+        : (allowedModes.isNotEmpty ? allowedModes.first : null);
+    _folderPreset = sanitizeLibraryFolderPreset(
+      _folderPreset,
+      allowedModes: allowedModes,
+    );
+    _pinnedFolderPresets = [
+      for (final preset in _pinnedFolderPresets)
+        if (sanitizeLibraryFolderPreset(preset, allowedModes: allowedModes)
+            case final sanitized?)
+          sanitized,
+    ];
+    final viewState = _viewState;
+    if (viewState != null) {
+      final filteredRules = [
+        for (final rule in viewState.sortRules)
+          if (allowedSort.contains(rule.column)) rule,
+      ];
+      final defaults = _adapter.viewProfile.defaults().sortRules;
+      final fallbackRules = [
+        for (final rule in defaults)
+          if (allowedSort.contains(rule.column)) rule,
+      ];
+      _viewState = viewState.copyWith(
+        sortRules: filteredRules.isNotEmpty ? filteredRules : fallbackRules,
+      );
+    }
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
@@ -1346,6 +1514,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       if (mode != LibraryWorkspaceBrowserMode.releases) {
         _releaseFolderTitleItemId = null;
       }
+      _sanitizeScopeDependentState();
     });
   }
 
@@ -1394,7 +1563,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibraryFolderPreset get _activeFolderPreset =>
       sanitizeLibraryFolderPreset(
         _folderPreset,
-        allowedModes: widget.type.availableGroupModes,
+        allowedModes: _scopeAvailableGroupModes,
       ) ??
       LibraryFolderPreset.single(_activeGroupMode);
 
@@ -1452,7 +1621,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     for (final preset in presets) {
       final sanitized = sanitizeLibraryFolderPreset(
         preset,
-        allowedModes: widget.type.availableGroupModes,
+        allowedModes: _scopeAvailableGroupModes,
       );
       if (sanitized != null && !updated.contains(sanitized)) {
         updated.add(sanitized);
@@ -1937,7 +2106,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void _setFolderPreset(LibraryFolderPreset preset) {
     final sanitized = sanitizeLibraryFolderPreset(
       preset,
-      allowedModes: widget.type.availableGroupModes,
+      allowedModes: _scopeAvailableGroupModes,
     );
     if (sanitized == null) {
       return;
@@ -1966,6 +2135,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   LibraryRouteState _buildRouteState() {
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final allowedSortColumns = _scopeAvailableSortColumns.toSet();
+    final scopedSortRules = [
+      for (final rule in viewState.sortRules)
+        if (allowedSortColumns.contains(rule.column)) rule,
+    ];
     return LibraryRouteState(
       kind: widget.type.workspace.kind.apiValue,
       searchQuery: _trimmedQuery(_appliedSearchQuery),
@@ -1980,7 +2154,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           : LibrarySeriesCompletionScope.all,
       quickView: _quickView,
       filterSelection: _filterSelection,
-      sortRules: viewState.sortRules,
+      sortRules: scopedSortRules,
       isSidebarVisible: viewState.isSidebarVisible,
     );
   }
@@ -2009,20 +2183,27 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     final currentViewState = _viewState ?? _adapter.viewProfile.defaults();
+    final allowedSortColumns = _scopeAvailableSortColumns.toSet();
+    final routeSortRules = [
+      for (final rule in (routeState.sortRules ?? currentViewState.sortRules))
+        if (allowedSortColumns.contains(rule.column)) rule,
+    ];
     _viewState = currentViewState.copyWith(
       isSidebarVisible:
           routeState.isSidebarVisible ?? currentViewState.isSidebarVisible,
-      sortRules: routeState.sortRules ?? currentViewState.sortRules,
+      sortRules: routeSortRules,
     );
     final sidebarVisible = _viewState!.isSidebarVisible;
     final routeFolderPreset = sanitizeLibraryFolderPreset(
       routeState.folderPreset,
-      allowedModes: widget.type.availableGroupModes,
+      allowedModes: _scopeAvailableGroupModes,
     );
     _groupMode = sidebarVisible
         ? routeFolderPreset?.primaryMode ??
             routeState.groupMode ??
-            libraryDefaultGroupMode(widget.type)
+            (_scopeAvailableGroupModes.isNotEmpty
+                ? _scopeAvailableGroupModes.first
+                : libraryDefaultGroupMode(widget.type))
         : null;
     _folderPreset = !sidebarVisible
         ? null
@@ -2038,6 +2219,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _collectionStatusScope = routeState.collectionStatusScope;
     _seriesCompletionScope = routeState.seriesCompletionScope;
     _quickView = routeState.quickView;
+    _sanitizeScopeDependentState();
     _filterSelection = routeState.filterSelection;
     _activeSmartListId = null;
     _activeSmartListName = null;

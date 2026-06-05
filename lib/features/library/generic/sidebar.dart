@@ -20,6 +20,7 @@ class LibrarySidebar extends StatelessWidget {
     required this.selectedBucket,
     required this.onSelected,
     required this.onGroupModeChanged,
+    this.availableGroupModes,
     this.breadcrumbs = const [],
     this.ancestorScopeLabels = const [],
     this.onNavigateBack,
@@ -58,6 +59,7 @@ class LibrarySidebar extends StatelessWidget {
   final String selectedBucket;
   final ValueChanged<String> onSelected;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
+  final List<LibraryGroupMode>? availableGroupModes;
   final List<String> breadcrumbs;
   final List<String> ancestorScopeLabels;
   final VoidCallback? onNavigateBack;
@@ -78,7 +80,7 @@ class LibrarySidebar extends StatelessWidget {
   final VoidCallback? onClearFilters;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
-    final ValueChanged<LibrarySeriesCompletionScope>?
+  final ValueChanged<LibrarySeriesCompletionScope>?
       onSeriesCompletionScopeChanged;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
@@ -106,8 +108,8 @@ class LibrarySidebar extends StatelessWidget {
           'Search ${genericGroupModeLabel(groupMode, type).toLowerCase()}...',
       collectionStatusScope: collectionStatusScope,
       onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
-        seriesCompletionScope: seriesCompletionScope,
-        onSeriesCompletionScopeChanged: onSeriesCompletionScopeChanged,
+      seriesCompletionScope: seriesCompletionScope,
+      onSeriesCompletionScopeChanged: onSeriesCompletionScopeChanged,
       ancestorScopeLabels: ancestorScopeLabels,
       onNavigateToAncestorScope: onNavigateToAncestorScope,
       headerOverride: LibrarySidebarHeader(
@@ -124,6 +126,7 @@ class LibrarySidebar extends StatelessWidget {
         onNavigateBack: onNavigateBack,
         onNavigateToBreadcrumb: onNavigateToBreadcrumb,
         groupLoading: groupLoading,
+        availableGroupModes: availableGroupModes,
         selectedBucket: selectedBucket,
         searchQuery: searchQuery,
         activeSmartListName: activeSmartListName,
@@ -147,6 +150,4 @@ class LibrarySidebar extends StatelessWidget {
       ),
     );
   }
-
 }
-

@@ -73,6 +73,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onCompareMetadataWithServer,
     this.groupMode,
     this.folderPreset,
+    this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
@@ -132,6 +133,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onCompareMetadataWithServer;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupMode? groupMode;
+  final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
@@ -188,6 +190,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                               LibraryGroupModeMenuButton(
                                 type: type,
                                 folderPreset: folderPreset,
+                                availableModes: availableGroupModes,
                                 accent:
                                     libraryAccentForKind(type.workspace.kind),
                                 icon: folderPreset == null
