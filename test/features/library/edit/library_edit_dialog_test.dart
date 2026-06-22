@@ -346,6 +346,87 @@ void main() {
     expect(find.text('Episodes'), findsNothing);
   });
 
+  testWidgets('movie edit dialog marks provider-synced tabs as read-only', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-readonly-1',
+        kind: 'movie',
+        title: 'Blade Runner',
+        creators: [
+          {'name': 'Harrison Ford', 'role': 'Actor'},
+          {'name': 'Ridley Scott', 'role': 'Director'},
+        ],
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) => LibraryEditRenderer(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.red,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open movie read-only'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie read-only'));
+    await pumpUntilSettled(tester);
+
+    final castTab = find.text('Cast', skipOffstage: false);
+    if (castTab.evaluate().isNotEmpty) {
+      await tester.tap(castTab.first);
+      await pumpUntilSettled(tester);
+      expect(find.textContaining('Read-only: cast credits'), findsOneWidget);
+    }
+
+    final crewTab = find.text('Crew', skipOffstage: false);
+    if (crewTab.evaluate().isNotEmpty) {
+      await tester.tap(crewTab.first);
+      await pumpUntilSettled(tester);
+      expect(find.textContaining('Read-only: crew credits'), findsOneWidget);
+    }
+
+    final discsTab = find.text('Discs', skipOffstage: false);
+    if (discsTab.evaluate().isNotEmpty) {
+      await tester.tap(discsTab.first);
+      await pumpUntilSettled(tester);
+      expect(find.textContaining('Read-only: disc contents'), findsOneWidget);
+    }
+
+    final linksTab = find.text('Links', skipOffstage: false);
+    expect(linksTab, findsWidgets);
+    await tester.tap(linksTab.first);
+    await pumpUntilSettled(tester);
+    expect(find.textContaining('Read-only: external links'), findsOneWidget);
+  });
+
   testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout',
       (
     tester,

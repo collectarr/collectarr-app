@@ -393,10 +393,21 @@ class _ManualPaneState extends State<_ManualPane> {
                         EditSection(
                             title: 'Creators',
                             accent: widget.request.accent,
-                            child: TagPickListField(
-                                controller: widget.request.creatorsController,
-                                options: const [],
-                                label: 'Creators')),
+                            child: Column(
+                              children: [
+                                const EditSectionStateMessage(
+                                  message:
+                                      'Name-only in manual mode. Creator roles/images are read-only and are populated by provider/Core ingest.',
+                                  icon: Icons.lock_outline,
+                                ),
+                                const SizedBox(height: 10),
+                                TagPickListField(
+                                    controller:
+                                        widget.request.creatorsController,
+                                    options: const [],
+                                    label: 'Creators'),
+                              ],
+                            )),
                       ]),
 
                       // Characters (placeholder)
@@ -404,10 +415,21 @@ class _ManualPaneState extends State<_ManualPane> {
                         EditSection(
                             title: 'Characters',
                             accent: widget.request.accent,
-                            child: TagPickListField(
-                                controller: widget.request.charactersController,
-                                options: const [],
-                                label: 'Characters')),
+                            child: Column(
+                              children: [
+                                const EditSectionStateMessage(
+                                  message:
+                                      'Name-only in manual mode. Character metadata beyond name is read-only and comes from provider/Core ingest.',
+                                  icon: Icons.lock_outline,
+                                ),
+                                const SizedBox(height: 10),
+                                TagPickListField(
+                                    controller:
+                                        widget.request.charactersController,
+                                    options: const [],
+                                    label: 'Characters'),
+                              ],
+                            )),
                       ]),
                       // Plot
                       ListView(padding: const EdgeInsets.all(10), children: [
@@ -426,14 +448,24 @@ class _ManualPaneState extends State<_ManualPane> {
                         EditSection(
                             title: 'Links',
                             accent: widget.request.accent,
-                            child: TextField(
-                                controller: _kindSpecificController(
-                                  'linksController',
-                                  _fallbackLinksController,
+                            child: Column(
+                              children: [
+                                const EditSectionStateMessage(
+                                  message:
+                                      'Manual mode saves URL-only links. Link source/title/description is read-only and available via provider/Core ingest.',
+                                  icon: Icons.lock_outline,
                                 ),
-                                maxLines: 3,
-                                decoration: const InputDecoration(
-                                    labelText: 'Links (one per line)'))),
+                                const SizedBox(height: 10),
+                                TextField(
+                                    controller: _kindSpecificController(
+                                      'linksController',
+                                      _fallbackLinksController,
+                                    ),
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Links (one per line)')),
+                              ],
+                            )),
                       ]),
                     ],
                   ),

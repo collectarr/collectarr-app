@@ -99,7 +99,8 @@ void main() {
     expect(find.text('1 rejected'), findsOneWidget);
     expect(find.text('Manual GCD correction'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
+    await tester
+        .tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
     await pumpUntilSettled(tester);
 
     expect(find.textContaining('Reviewing proposal:'), findsOneWidget);
@@ -108,7 +109,8 @@ void main() {
       find.widgetWithText(FilledButton, 'Approve proposal').first,
       delta: -400,
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
+    await tester
+        .tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
     await pumpUntilSettled(tester);
 
     expect(api.lastApprovedProposalId, 'proposal-1');
@@ -236,7 +238,8 @@ void main() {
       'Fantasy, Epic Fantasy, Fellowship',
     );
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
+    await tester
+        .tap(find.widgetWithText(FilledButton, 'Save correction').first);
     await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     expect(find.text('Series tags'), findsWidgets);
@@ -261,9 +264,11 @@ Future<void> _scrollUntilVisible(
       .hitTestable();
   final scrollable = visibleScrollables.evaluate().isNotEmpty
       ? visibleScrollables.last
-      : find.byWidgetPredicate(
-          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
-        ).last;
+      : find
+          .byWidgetPredicate(
+            (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+          )
+          .last;
   for (var index = 0; index < 50; index++) {
     if (finder.evaluate().isNotEmpty) {
       await tester.ensureVisible(finder.first);
@@ -534,6 +539,11 @@ class _FakeAdminApiClient extends ApiClient {
     required String kind,
     required String id,
     String? title,
+    String? titleExtension,
+    String? sortKey,
+    String? originalTitle,
+    String? localizedTitle,
+    List<String>? searchAliases,
     String? itemNumber,
     String? synopsis,
     String? editionTitle,
@@ -547,6 +557,24 @@ class _FakeAdminApiClient extends ApiClient {
     String? country,
     String? language,
     String? ageRating,
+    String? audienceRating,
+    List<String>? genres,
+    List<String>? platforms,
+    List<CatalogTrack>? tracks,
+    List<Map<String, dynamic>>? creators,
+    List<String>? characters,
+    List<String>? storyArcs,
+    String? color,
+    int? nrDiscs,
+    String? screenRatio,
+    String? audioTracks,
+    String? subtitles,
+    String? layers,
+    List<TrailerLink>? trailerUrls,
+    List<TrailerLink>? externalLinks,
+    String? crossover,
+    String? plotSummary,
+    String? plotDescription,
     String? catalogNumber,
     String? releaseStatus,
     String? physicalFormat,
@@ -977,7 +1005,8 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     if (itemId != 'item-1') {
       return const [];
     }
@@ -1199,7 +1228,8 @@ class _FakeAdminApiClient extends ApiClient {
 
   @override
   Future<AdminImageCacheStats> adminImageCacheStats() async {
-    final totalEntries = _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+    final totalEntries =
+        _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
     final totalSizeBytes = totalEntries * 1024 * 128;
     const maxSizeBytes = 1024 * 1024 * 8;
     return AdminImageCacheStats(
@@ -1213,10 +1243,12 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache({String? provider}) async {
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache(
+      {String? provider}) async {
     lastPurgedImageProvider = provider;
     if (provider == null || provider.isEmpty) {
-      final deletedEntries = _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+      final deletedEntries =
+          _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
       _imageProviders.updateAll((key, value) => 0);
       return AdminImageCachePurgeResult(
         deletedEntries: deletedEntries,

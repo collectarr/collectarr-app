@@ -101,8 +101,17 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
         EditSection(
           title: 'Cast',
           accent: widget.accent,
-          child: hasCast
-              ? Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const EditSectionStateMessage(
+                message:
+                    'Read-only: cast credits are synced from provider/Core metadata.',
+                icon: Icons.lock_outline,
+              ),
+              const SizedBox(height: 10),
+              if (hasCast)
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final credit in castEntries)
@@ -137,10 +146,13 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                         ),
                   ],
                 )
-              : const EditSectionStateMessage(
+              else
+                const EditSectionStateMessage(
                   message: 'No cast data available.',
                   icon: Icons.people_outline,
                 ),
+            ],
+          ),
         ),
       ],
     );
@@ -159,8 +171,17 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
         EditSection(
           title: 'Crew',
           accent: widget.accent,
-          child: hasCrew
-              ? Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const EditSectionStateMessage(
+                message:
+                    'Read-only: crew credits are synced from provider/Core metadata.',
+                icon: Icons.lock_outline,
+              ),
+              const SizedBox(height: 10),
+              if (hasCrew)
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final credit in crewEntries)
@@ -195,10 +216,13 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                         ),
                   ],
                 )
-              : const EditSectionStateMessage(
+              else
+                const EditSectionStateMessage(
                   message: 'No crew data available.',
                   icon: Icons.badge_outlined,
                 ),
+            ],
+          ),
         ),
       ],
     );
@@ -217,13 +241,23 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
         EditSection(
           title: 'Disc contents',
           accent: widget.accent,
-          child: allDiscs.isEmpty
-              ? const EditSectionStateMessage(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const EditSectionStateMessage(
+                message:
+                    'Read-only: disc contents are currently synced from provider/Core metadata.',
+                icon: Icons.lock_outline,
+              ),
+              const SizedBox(height: 10),
+              if (allDiscs.isEmpty)
+                const EditSectionStateMessage(
                   message:
                       'No disc data available yet. Disc management will be enabled in a future update.',
                   icon: Icons.album_outlined,
                 )
-              : Column(
+              else
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final (editionTitle, disc) in allDiscs)
@@ -260,6 +294,8 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                       ),
                   ],
                 ),
+            ],
+          ),
         ),
       ],
     );
@@ -876,9 +912,10 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
         EditSection(
           title: 'External Links',
           accent: widget.accent,
-          child: Text(
-            'External links (TMDb, IMDb, etc.) will be available in a future update.',
-            style: TextStyle(color: appPalette(context).textMuted),
+          child: const EditSectionStateMessage(
+            message:
+                'Read-only: external links (TMDb, IMDb, etc.) are synced from provider/Core metadata. Editing will be available in a future update.',
+            icon: Icons.lock_outline,
           ),
         ),
       ],

@@ -203,11 +203,35 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
   }) async {
     final corrections = <String, dynamic>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;
+    if (edited.titleExtension != preview.titleExtension) {
+      corrections['title_extension'] = edited.titleExtension;
+    }
+    if (edited.sortKey != preview.sortKey) {
+      corrections['sort_key'] = edited.sortKey;
+    }
+    if (edited.originalTitle != preview.originalTitle) {
+      corrections['original_title'] = edited.originalTitle;
+    }
+    if (edited.localizedTitle != preview.localizedTitle) {
+      corrections['localized_title'] = edited.localizedTitle;
+    }
+    if (!_sameStringList(edited.searchAliases, preview.searchAliases)) {
+      corrections['search_aliases'] = edited.searchAliases;
+    }
     if (edited.itemNumber != preview.itemNumber) {
       corrections['item_number'] = edited.itemNumber;
     }
     if (edited.synopsis != preview.synopsis) {
       corrections['synopsis'] = edited.synopsis;
+    }
+    if (edited.crossover != preview.crossover) {
+      corrections['crossover'] = edited.crossover;
+    }
+    if (edited.plotSummary != preview.plotSummary) {
+      corrections['plot_summary'] = edited.plotSummary;
+    }
+    if (edited.plotDescription != preview.plotDescription) {
+      corrections['plot_description'] = edited.plotDescription;
     }
     if (edited.publisher != preview.publisher) {
       corrections['publisher'] = edited.publisher;
@@ -230,11 +254,74 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
     if (edited.publishing?.imprint != preview.publishing?.imprint) {
       corrections['imprint'] = edited.publishing?.imprint;
     }
+    if (edited.publishing?.subtitle != preview.publishing?.subtitle) {
+      corrections['subtitle'] = edited.publishing?.subtitle;
+    }
     if (edited.publishing?.seriesGroup != preview.publishing?.seriesGroup) {
       corrections['series_group'] = edited.publishing?.seriesGroup;
     }
+    if (edited.video?.runtimeMinutes != preview.video?.runtimeMinutes) {
+      corrections['runtime_minutes'] = edited.video?.runtimeMinutes;
+    }
     if (edited.physicalFormat != preview.physicalFormat) {
       corrections['physical_format'] = edited.physicalFormat;
+    }
+    if (edited.country != preview.country) {
+      corrections['country'] = edited.country;
+    }
+    if (edited.language != preview.language) {
+      corrections['language'] = edited.language;
+    }
+    if (edited.ageRating != preview.ageRating) {
+      corrections['age_rating'] = edited.ageRating;
+    }
+    if (edited.audienceRating != preview.audienceRating) {
+      corrections['audience_rating'] = edited.audienceRating;
+    }
+    if (!_sameStringList(edited.genres, preview.genres)) {
+      corrections['genres'] = edited.genres;
+    }
+    if (!_sameStringList(edited.game?.platforms, preview.game?.platforms)) {
+      corrections['platforms'] = edited.game?.platforms;
+    }
+    if (!_sameTracks(edited.music?.tracks, preview.music?.tracks)) {
+      corrections['tracks'] = edited.music?.tracks;
+    }
+    if (!_sameCreators(edited.creators, preview.creators)) {
+      corrections['creators'] = edited.creators;
+    }
+    if (!_sameStringList(edited.characters, preview.characters)) {
+      corrections['characters'] = edited.characters;
+    }
+    if (!_sameStringList(edited.storyArcs, preview.storyArcs)) {
+      corrections['story_arcs'] = edited.storyArcs;
+    }
+    if (edited.video?.color != preview.video?.color) {
+      corrections['color'] = edited.video?.color;
+    }
+    if (edited.video?.nrDiscs != preview.video?.nrDiscs) {
+      corrections['nr_discs'] = edited.video?.nrDiscs;
+    }
+    if (edited.video?.screenRatio != preview.video?.screenRatio) {
+      corrections['screen_ratio'] = edited.video?.screenRatio;
+    }
+    if (edited.video?.audioTracks != preview.video?.audioTracks) {
+      corrections['audio_tracks'] = edited.video?.audioTracks;
+    }
+    if (edited.video?.subtitles != preview.video?.subtitles) {
+      corrections['subtitles'] = edited.video?.subtitles;
+    }
+    if (edited.video?.layers != preview.video?.layers) {
+      corrections['layers'] = edited.video?.layers;
+    }
+    if (!_sameTrailerLinks(edited.trailerUrls, preview.trailerUrls)) {
+      corrections['external_links'] = edited.trailerUrls;
+    }
+    if (edited.music?.catalogNumber != preview.music?.catalogNumber) {
+      corrections['catalog_number'] = edited.music?.catalogNumber;
+    }
+    if (edited.music?.releaseStatus != preview.music?.releaseStatus) {
+      corrections['release_status'] = edited.music?.releaseStatus;
     }
     if (edited.coverImageUrl != preview.coverImageUrl) {
       corrections['cover_image_url'] = edited.coverImageUrl;
@@ -247,6 +334,13 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
           kind: kind,
           id: itemId,
           title: corrections['title'] as String?,
+          titleExtension: corrections['title_extension'] as String?,
+          sortKey: corrections['sort_key'] as String?,
+          originalTitle: corrections['original_title'] as String?,
+          localizedTitle: corrections['localized_title'] as String?,
+          searchAliases: corrections.containsKey('search_aliases')
+              ? edited.searchAliases
+              : null,
           itemNumber: corrections['item_number'] as String?,
           synopsis: corrections['synopsis'] as String?,
           editionTitle: corrections['edition_title'] as String?,
@@ -257,8 +351,45 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
           releaseDate: corrections.containsKey('release_date')
               ? edited.releaseDate
               : null,
+          runtimeMinutes: corrections.containsKey('runtime_minutes')
+              ? edited.video?.runtimeMinutes
+              : null,
           imprint: corrections['imprint'] as String?,
+          subtitle: corrections['subtitle'] as String?,
           seriesGroup: corrections['series_group'] as String?,
+          country: corrections['country'] as String?,
+          language: corrections['language'] as String?,
+          ageRating: corrections['age_rating'] as String?,
+          audienceRating: corrections['audience_rating'] as String?,
+          genres: corrections.containsKey('genres') ? edited.genres : null,
+          platforms: corrections.containsKey('platforms')
+              ? edited.game?.platforms
+              : null,
+          tracks:
+              corrections.containsKey('tracks') ? edited.music?.tracks : null,
+          creators: corrections.containsKey('creators')
+              ? _normalizeCreators(edited.creators)
+              : null,
+          characters:
+              corrections.containsKey('characters') ? edited.characters : null,
+          storyArcs:
+              corrections.containsKey('story_arcs') ? edited.storyArcs : null,
+          color: corrections['color'] as String?,
+          nrDiscs: corrections.containsKey('nr_discs')
+              ? edited.video?.nrDiscs
+              : null,
+          screenRatio: corrections['screen_ratio'] as String?,
+          audioTracks: corrections['audio_tracks'] as String?,
+          subtitles: corrections['subtitles'] as String?,
+          layers: corrections['layers'] as String?,
+          externalLinks: corrections.containsKey('external_links')
+              ? edited.trailerUrls
+              : null,
+          crossover: corrections['crossover'] as String?,
+          plotSummary: corrections['plot_summary'] as String?,
+          plotDescription: corrections['plot_description'] as String?,
+          catalogNumber: corrections['catalog_number'] as String?,
+          releaseStatus: corrections['release_status'] as String?,
           barcode: corrections['barcode'] as String?,
           variantName: corrections['variant_name'] as String?,
           physicalFormat: corrections['physical_format'] as String?,
@@ -266,6 +397,152 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
           thumbnailImageUrl: corrections['thumbnail_image_url'] as String?,
           explicitFields: corrections.keys.toSet(),
         );
+  }
+
+  bool _sameStringList(List<String>? a, List<String>? b) {
+    final left = _normalizeStringList(a);
+    final right = _normalizeStringList(b);
+    if (left.length != right.length) {
+      return false;
+    }
+    for (var i = 0; i < left.length; i++) {
+      if (left[i] != right[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<String> _normalizeStringList(List<String>? values) {
+    if (values == null) {
+      return const <String>[];
+    }
+    final normalized = <String>[];
+    for (final value in values) {
+      final entry = value.trim();
+      if (entry.isEmpty) {
+        continue;
+      }
+      normalized.add(entry);
+    }
+    return normalized;
+  }
+
+  bool _sameCreators(
+    List<Map<String, dynamic>>? a,
+    List<Map<String, dynamic>>? b,
+  ) {
+    final left = _normalizeCreators(a);
+    final right = _normalizeCreators(b);
+    if (left.length != right.length) {
+      return false;
+    }
+    for (var i = 0; i < left.length; i++) {
+      final l = left[i];
+      final r = right[i];
+      if (l['name'] != r['name'] || l['role'] != r['role']) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<Map<String, dynamic>> _normalizeCreators(
+      List<Map<String, dynamic>>? values) {
+    if (values == null) {
+      return const <Map<String, dynamic>>[];
+    }
+    final normalized = <Map<String, dynamic>>[];
+    for (final raw in values) {
+      final name = (raw['name']?.toString() ?? '').trim();
+      if (name.isEmpty) {
+        continue;
+      }
+      final role = raw['role']?.toString().trim();
+      normalized.add({
+        'name': name,
+        if (role != null && role.isNotEmpty) 'role': role,
+      });
+    }
+    return normalized;
+  }
+
+  bool _sameTrailerLinks(List<TrailerLink>? a, List<TrailerLink>? b) {
+    final left = _normalizeTrailerLinks(a);
+    final right = _normalizeTrailerLinks(b);
+    if (left.length != right.length) {
+      return false;
+    }
+    for (var i = 0; i < left.length; i++) {
+      if (left[i].toString() != right[i].toString()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<Map<String, dynamic>> _normalizeTrailerLinks(List<TrailerLink>? links) {
+    if (links == null) {
+      return const <Map<String, dynamic>>[];
+    }
+    return [
+      for (final link in links)
+        if (link.url.trim().isNotEmpty)
+          {
+            'url': link.url.trim(),
+            if (link.source != null && link.source!.trim().isNotEmpty)
+              'source': link.source!.trim(),
+            if (link.title != null && link.title!.trim().isNotEmpty)
+              'title': link.title!.trim(),
+            if (link.kind != null && link.kind!.trim().isNotEmpty)
+              'kind': link.kind!.trim(),
+            if (link.description != null && link.description!.trim().isNotEmpty)
+              'description': link.description!.trim(),
+          },
+    ];
+  }
+
+  bool _sameTracks(List<CatalogTrack>? a, List<CatalogTrack>? b) {
+    final left = _normalizeTracks(a);
+    final right = _normalizeTracks(b);
+    if (left.length != right.length) {
+      return false;
+    }
+    for (var i = 0; i < left.length; i++) {
+      final l = left[i];
+      final r = right[i];
+      if (l['title'] != r['title'] ||
+          l['position'] != r['position'] ||
+          l['duration_seconds'] != r['duration_seconds'] ||
+          l['artist'] != r['artist'] ||
+          l['disc_number'] != r['disc_number']) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<Map<String, dynamic>> _normalizeTracks(List<CatalogTrack>? values) {
+    if (values == null) {
+      return const <Map<String, dynamic>>[];
+    }
+    final normalized = <Map<String, dynamic>>[];
+    for (final track in values) {
+      final title = track.title.trim();
+      if (title.isEmpty) {
+        continue;
+      }
+      normalized.add({
+        'title': title,
+        if (track.position != null) 'position': track.position,
+        if (track.durationSeconds != null)
+          'duration_seconds': track.durationSeconds,
+        if (track.artist != null && track.artist!.trim().isNotEmpty)
+          'artist': track.artist!.trim(),
+        if (track.discNumber != null) 'disc_number': track.discNumber,
+      });
+    }
+    return normalized;
   }
 
   LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {

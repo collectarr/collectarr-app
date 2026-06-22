@@ -313,7 +313,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ? null
         : () => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
-    void onUnlinkFromCore() => _unlinkInspectorEntryFromCore(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
         context: context,
@@ -513,7 +512,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           onLoan: onLoan,
           onRefreshMetadata: onRefreshMetadata,
           onShare: onShare,
-          onUnlinkFromCore: onUnlinkFromCore,
         ),
       );
     }
@@ -536,7 +534,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onToggleOwned: onToggleOwned,
             onLoan: onLoan,
             onRefreshMetadata: onRefreshMetadata,
-            onUnlinkFromCore: onUnlinkFromCore,
             onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
           ),
           const SizedBox(height: 6),
@@ -791,15 +788,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       context: context,
       title: entry.resolvedTitle,
       items: <LibraryWorkspaceEntry>[entry],
-    );
-  }
-
-  void _unlinkInspectorEntryFromCore(LibraryWorkspaceEntry entry) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Unlink from Core not implemented yet for "${entry.title}".'),
-      ),
     );
   }
 }

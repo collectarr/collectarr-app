@@ -103,6 +103,12 @@ class AdminMetadataItem {
     this.country,
     this.language,
     this.ageRating,
+    this.audienceRating,
+    this.titleExtension,
+    this.creators = const [],
+    this.characters = const [],
+    this.storyArcs = const [],
+    this.trailerUrls = const [],
     this.providerLinks = const [],
     this.editions = const [],
   });
@@ -112,6 +118,7 @@ class AdminMetadataItem {
   final String title;
   final String? itemNumber;
   final String? synopsis;
+  final String? titleExtension;
   final String? publisher;
   final String? barcode;
   final CatalogSeriesDetails? series;
@@ -124,6 +131,11 @@ class AdminMetadataItem {
   final String? country;
   final String? language;
   final String? ageRating;
+  final String? audienceRating;
+  final List<Map<String, dynamic>> creators;
+  final List<Map<String, dynamic>> characters;
+  final List<Map<String, dynamic>> storyArcs;
+  final List<TrailerLink> trailerUrls;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
 
@@ -194,6 +206,7 @@ class AdminMetadataItem {
       title: json['title'] as String? ?? '',
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
+      titleExtension: json['title_extension'] as String?,
       publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,
       series: series.hasData ? series : null,
@@ -209,6 +222,24 @@ class AdminMetadataItem {
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
+      audienceRating: json['audience_rating'] as String?,
+      creators: (json['creators'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .toList(growable: false),
+      characters: (json['characters'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .toList(growable: false),
+      storyArcs: (json['story_arcs'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .toList(growable: false),
+      trailerUrls: [
+        ...((json['trailer_urls'] as List<dynamic>? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .map(TrailerLink.fromJson)),
+        ...((json['external_links'] as List<dynamic>? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .map(TrailerLink.fromJson)),
+      ].toList(growable: false),
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))
           AdminProviderLink.fromJson(link as Map<String, dynamic>),
