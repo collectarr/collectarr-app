@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -291,7 +292,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _storageSlotController = _draft.storageSlotController;
     _signedByController = _draft.signedByController;
     _collectionStatusController = TextEditingController(
-      text: widget.request.ownedItem?.collectionStatus ?? '',
+      text:
+          _collectionStatusToLabel(widget.request.ownedItem?.collectionStatus),
     );
 
     _physicalFormatId = _draft.physicalFormatId;
@@ -388,6 +390,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       onSave: _submit,
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
+      footerContent: _isOwned ? _ownedSharedFooterRow() : null,
       tabOrderKey:
           'edit_tab_order_${widget.request.type.workspace.kind.apiValue}',
     );
@@ -945,7 +948,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   const SizedBox(height: 10),
                 ],
                 _denseFields([
-                  _locationField(),
                   SizedBox(
                     width: 140,
                     child: MediaRatingField(controller: _ratingController),
@@ -967,15 +969,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   _field(controller: _conditionController, label: 'Condition'),
                   _field(
                       controller: _gradeController, label: 'Media condition'),
-                  _field(
-                    controller: _collectionStatusController,
-                    label: 'Collection status',
-                  ),
-                  _field(
-                    controller: _quantityController,
-                    label: 'Quantity',
-                    validator: positiveIntValidator,
-                  ),
                 ]),
                 const SizedBox(height: 10),
                 _denseFields([
@@ -2100,14 +2093,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return matching.first.imageData;
   }
 
-  Widget _locationField() {
+  Widget _locationField({String labelText = 'Location'}) {
     final label = _selectedLocationLabel;
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: _pickLocation,
       child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Location',
+        decoration: InputDecoration(
+          labelText: labelText,
           suffixIcon: Icon(Icons.place),
         ),
         child: Text(
@@ -2118,6 +2111,69 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         ),
       ),
     );
+  }
+
+  Widget _ownedSharedFooterRow() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 280,
+            child: SingleValuePickField(
+              controller: _collectionStatusController,
+              options: const ['In collection', 'For sale', 'On order'],
+              label: 'Collection status',
+              showPickerListAction: true,
+              onChanged: (selectedLabel) {
+                _collectionStatusController.text = _collectionStatusToLabel(
+                    _collectionStatusFromLabel(selectedLabel));
+              },
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 140,
+            child: InputDecorator(
+              decoration: const InputDecoration(labelText: 'Index'),
+              child: Text(
+                  widget.request.ownedItem?.indexNumber?.toString() ?? '—'),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 140,
+            child: _field(
+              controller: _quantityController,
+              label: 'Quantity',
+              validator: positiveIntValidator,
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 360,
+            child: _locationField(labelText: 'Location'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _collectionStatusToLabel(String? value) {
+    return switch (value) {
+      'for_sale' => 'For sale',
+      'on_order' => 'On order',
+      _ => 'In collection',
+    };
+  }
+
+  String? _collectionStatusFromLabel(String? label) {
+    final normalized = label?.trim().toLowerCase();
+    return switch (normalized) {
+      'for sale' => 'for_sale',
+      'on order' => 'on_order',
+      _ => null,
+    };
   }
 
   String? get _selectedLocationLabel {
@@ -3010,7 +3066,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 storageDevice: emptyToNull(_storageDeviceController.text),
                 storageSlot: emptyToNull(_storageSlotController.text),
                 packaging: emptyToNull(_packagingController.text),
-                collectionStatus: emptyToNull(_collectionStatusController.text),
+                collectionStatus: _collectionStatusFromLabel(
+                  emptyToNull(_collectionStatusController.text),
+                ),
               ),
         tracking: !_hasTrackingContext
             ? null

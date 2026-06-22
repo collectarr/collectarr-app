@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/tracking/media_rating_field.dart
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -139,6 +140,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
   String? _collectionStatus;
+  late final TextEditingController _collectionStatusController;
   DateTime? _lastBagBoardDate;
   bool _firstEdition = false;
   bool _audiobookAbridged = false;
@@ -323,6 +325,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
     _collectionStatus = _draft.collectionStatus;
+    _collectionStatusController = TextEditingController(
+      text: _collectionStatusToLabel(_collectionStatus),
+    );
     _lastBagBoardDate = _draft.lastBagBoardDate;
     _originalPublicationDate = item.publishing?.originalPublicationDate;
     _firstEdition = item.publishing?.firstEdition ?? false;
@@ -389,6 +394,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     for (final edit in _externalLinkEdits) {
       edit.dispose();
     }
+    _collectionStatusController.dispose();
     _draft.dispose();
     super.dispose();
   }
@@ -411,6 +417,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       onSave: _submit,
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
+      footerContent: _isOwned ? _ownedSharedFooterRow() : null,
       tabOrderKey: 'edit_tab_order_${_type.workspace.kind.apiValue}',
     );
   }
@@ -1122,12 +1129,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                   value: _soldAt,
                   onChanged: (value) => setState(() => _soldAt = value),
                 ),
-                if (_isOwned)
-                  _field(
-                    controller: _quantityController,
-                    label: 'Quantity',
-                    validator: positiveIntValidator,
-                  ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
@@ -1143,24 +1144,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                DropdownButtonFormField<String>(
-                  initialValue: _collectionStatus,
-                  isExpanded: true,
-                  dropdownColor: kEditPanelRaised,
-                  borderRadius: kEditMenuBorderRadius,
-                  decoration: const InputDecoration(
-                    labelText: 'Collection status',
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('In collection')),
-                    DropdownMenuItem(
-                        value: 'for_sale', child: Text('For sale')),
-                    DropdownMenuItem(
-                        value: 'on_order', child: Text('On order')),
-                  ],
-                  onChanged: (value) =>
-                      setState(() => _collectionStatus = value),
-                ),
                 _datePickerField(
                   label: 'Last bag & board date',
                   value: _lastBagBoardDate,
@@ -1201,7 +1184,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 const SizedBox(height: 10),
               ],
               _responsiveFields([
-                if (_isOwned) _locationField(),
                 if (_isOwned)
                   _field(
                     controller: _ownerLabelController,
@@ -1256,11 +1238,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               _responsiveFields([
                 _field(controller: _conditionController, label: 'Condition'),
                 _field(controller: _gradeController, label: 'Grade'),
-                _field(
-                  controller: _quantityController,
-                  label: 'Quantity',
-                  validator: positiveIntValidator,
-                ),
               ]),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -1452,14 +1429,14 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     return matching.first.imageData;
   }
 
-  Widget _locationField() {
+  Widget _locationField({String labelText = 'Location'}) {
     final label = _selectedLocationLabel;
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: _pickLocation,
       child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Location',
+        decoration: InputDecoration(
+          labelText: labelText,
           suffixIcon: Icon(Icons.place),
         ),
         child: Text(
@@ -1470,6 +1447,68 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         ),
       ),
     );
+  }
+
+  Widget _ownedSharedFooterRow() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 280,
+            child: SingleValuePickField(
+              controller: _collectionStatusController,
+              options: const ['In collection', 'For sale', 'On order'],
+              label: 'Collection status',
+              showPickerListAction: true,
+              onChanged: (selectedLabel) {
+                _collectionStatus = _collectionStatusFromLabel(selectedLabel);
+              },
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 140,
+            child: InputDecorator(
+              decoration: const InputDecoration(labelText: 'Index'),
+              child: Text(
+                  widget.request.ownedItem?.indexNumber?.toString() ?? '—'),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 140,
+            child: _field(
+              controller: _quantityController,
+              label: 'Quantity',
+              validator: positiveIntValidator,
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 360,
+            child: _locationField(labelText: 'Location'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _collectionStatusToLabel(String? value) {
+    return switch (value) {
+      'for_sale' => 'For sale',
+      'on_order' => 'On order',
+      _ => 'In collection',
+    };
+  }
+
+  String? _collectionStatusFromLabel(String? label) {
+    final normalized = label?.trim().toLowerCase();
+    return switch (normalized) {
+      'for sale' => 'for_sale',
+      'on order' => 'on_order',
+      _ => null,
+    };
   }
 
   String? get _selectedLocationLabel {

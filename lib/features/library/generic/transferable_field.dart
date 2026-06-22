@@ -267,7 +267,7 @@ class TransferableField {
     ),
     TransferableField._(
       key: 'rating',
-      label: 'Rating',
+      label: 'My Rating',
       icon: Icons.star_outline,
       type: TransferableFieldType.integer,
     ),

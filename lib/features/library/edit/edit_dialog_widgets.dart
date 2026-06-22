@@ -149,12 +149,23 @@ class EditTabShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final content = ListView(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-          children: children,
+        final palette = appPalette(context);
+        final scrollContent = DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.panelRaised,
+            border: Border.all(color: palette.divider),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
+            child: Column(children: children),
+          ),
         );
         if (cover == null || constraints.maxWidth < 720) {
-          return content;
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            child: scrollContent,
+          );
         }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -187,7 +198,12 @@ class EditTabShell extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(child: content),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: scrollContent,
+              ),
+            ),
           ],
         );
       },
@@ -213,35 +229,9 @@ class EditSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: p.surfaceSubtle.withValues(alpha: p.isDark ? 0.66 : 0.9),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: p.divider.withValues(alpha: 0.9)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: p.textMuted,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
-                  letterSpacing: 0.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              child,
-            ],
-          ),
-        ),
-      ),
+      child: child,
     );
   }
 }

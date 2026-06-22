@@ -37,16 +37,171 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_di
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' show QueryRow;
 import 'package:url_launcher/url_launcher.dart';
 
 part 'library_edit_dialog_anchor_widgets.dart';
 part 'library_edit_dialog_video_tabs.dart';
 part '../kinds/comic/library_edit_dialog_comic_tabs.dart';
+
+const List<String> _commonCreatorRoles = <String>[
+  'Writer',
+  'Artist',
+  'Cover Artist',
+  'Cover Penciller',
+  'Cover Painter',
+  'Cover Inker',
+  'Cover Colorist',
+  'Cover Separator',
+  'Penciller',
+  'Inker',
+  'Colorist',
+  'Painter',
+  'Letterer',
+  'Separator',
+  'Layouts',
+  'Translator',
+  'Plotter',
+  'Scripter',
+  'Editor',
+  'Editor in Chief',
+];
+
+class _EditableComicCreator {
+  _EditableComicCreator({
+    required this.nameController,
+    required this.roleController,
+    Map<String, dynamic>? metadata,
+  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
+
+  factory _EditableComicCreator.custom({String name = '', String role = ''}) {
+    return _EditableComicCreator(
+      nameController: TextEditingController(text: name),
+      roleController: TextEditingController(text: role),
+      metadata: const {'source_type': 'custom'},
+    );
+  }
+
+  factory _EditableComicCreator.fromMetadata(Map<String, dynamic> metadata) {
+    return _EditableComicCreator(
+      nameController:
+          TextEditingController(text: metadata['name']?.toString() ?? ''),
+      roleController: TextEditingController(
+        text: metadata['role']?.toString() ?? metadata['job']?.toString() ?? '',
+      ),
+      metadata: metadata,
+    );
+  }
+
+  factory _EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
+    final role = result['role']?.toString().trim().isNotEmpty == true
+        ? result['role']!.toString().trim()
+        : result['job']?.toString().trim().isNotEmpty == true
+            ? result['job']!.toString().trim()
+            : '';
+    return _EditableComicCreator(
+      nameController:
+          TextEditingController(text: result['name']?.toString() ?? ''),
+      roleController: TextEditingController(text: role),
+      metadata: {
+        ...result,
+        'source_type': 'core',
+      },
+    );
+  }
+
+  final TextEditingController nameController;
+  final TextEditingController roleController;
+  final Map<String, dynamic> metadata;
+
+  Map<String, dynamic> toMap() {
+    final result = <String, dynamic>{
+      ...metadata,
+      'name': nameController.text.trim(),
+      'role': roleController.text.trim(),
+      'source_type': metadata['source_type']?.toString() ?? 'custom',
+    };
+    result.removeWhere(
+      (key, value) =>
+          value == null || (value is String && value.trim().isEmpty),
+    );
+    return result;
+  }
+
+  void dispose() {
+    nameController.dispose();
+    roleController.dispose();
+  }
+}
+
+class _EditableComicCharacter {
+  _EditableComicCharacter({
+    required this.nameController,
+    required this.realNameController,
+    Map<String, dynamic>? metadata,
+  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
+
+  factory _EditableComicCharacter.custom(String name) {
+    return _EditableComicCharacter(
+      nameController: TextEditingController(text: name),
+      realNameController: TextEditingController(),
+      metadata: const {'source_type': 'custom'},
+    );
+  }
+
+  factory _EditableComicCharacter.fromMetadata(Map<String, dynamic> metadata) {
+    return _EditableComicCharacter(
+      nameController:
+          TextEditingController(text: metadata['name']?.toString() ?? ''),
+      realNameController:
+          TextEditingController(text: metadata['real_name']?.toString() ?? ''),
+      metadata: metadata,
+    );
+  }
+
+  factory _EditableComicCharacter.fromLookupResult(
+      Map<String, dynamic> result) {
+    return _EditableComicCharacter(
+      nameController:
+          TextEditingController(text: result['name']?.toString() ?? ''),
+      realNameController:
+          TextEditingController(text: result['real_name']?.toString() ?? ''),
+      metadata: {
+        ...result,
+        'source_type': 'core',
+      },
+    );
+  }
+
+  final TextEditingController nameController;
+  final TextEditingController realNameController;
+  final Map<String, dynamic> metadata;
+
+  Map<String, dynamic> toMap() {
+    final result = <String, dynamic>{
+      ...metadata,
+      'name': nameController.text.trim(),
+      'real_name': realNameController.text.trim(),
+      'source_type': metadata['source_type']?.toString() ?? 'custom',
+    };
+    result.removeWhere(
+      (key, value) =>
+          value == null || (value is String && value.trim().isEmpty),
+    );
+    return result;
+  }
+
+  void dispose() {
+    nameController.dispose();
+    realNameController.dispose();
+  }
+}
 
 class LibraryEditRenderer extends ConsumerStatefulWidget {
   const LibraryEditRenderer({
@@ -200,11 +355,26 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
+  List<String> _ownerOptions = const [];
+  List<String> _countryOptions = const [];
+  List<String> _languageOptions = const [];
+  List<String> _ageOptions = const [];
+  List<String> _genreOptions = const [];
+  List<String> _crossoverOptions = const [];
+  List<String> _storyArcOptions = const [];
+  List<String> _pageQualityOptions = const [];
+  List<String> _keyCategoryOptions = const [];
   List<SeriesRegistryEntry> _seriesEntries = const [];
   late final TextEditingController _gamePlatformsController;
+  late final TextEditingController _collectionStatusController;
   List<String> _gameDeveloperOptions = const [];
   List<String> _gameGenreOptions = const [];
   List<String> _gamePlatformOptions = const [];
+  final List<_EditableComicCreator> _comicCreators = [];
+  final List<_EditableComicCharacter> _comicCharacters = [];
+  final List<Map<String, TextEditingController>> _comicLinks = [];
+  final TextEditingController _comicCharacterDraftController =
+      TextEditingController();
   List<StorageLocation> get _availableLocations => _draft.availableLocations;
   set _availableLocations(List<StorageLocation> value) =>
       _draft.availableLocations = value;
@@ -262,6 +432,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.graderNotesController;
   TextEditingController get _signedByController => _draft.signedByController;
   TextEditingController get _labelTypeController => _draft.labelTypeController;
+  TextEditingController get _pageQualityController =>
+      _draft.pageQualityController;
   TextEditingController get _certificationNumberController =>
       _draft.certificationNumberController;
   TextEditingController get _coverPriceController =>
@@ -269,6 +441,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   bool get _keyComic => _draft.keyComic;
   set _keyComic(bool value) => _draft.keyComic = value;
   TextEditingController get _keyReasonController => _draft.keyReasonController;
+  TextEditingController get _keyCategoryController =>
+      _draft.keyCategoryController;
 
   TextEditingController get _featuresController => _draft.featuresController;
   TextEditingController get _purchaseStoreController =>
@@ -339,6 +513,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isGameKind {
     return widget.type.workspace.kind.apiValue == 'game';
+  }
+
+  bool get _isComicKind {
+    return widget.type.workspace.kind.apiValue == 'comic';
   }
 
   bool get _hasReleaseAnchor {
@@ -452,11 +630,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     )..addListener(() {
         if (mounted) setState(() {});
       });
+    _collectionStatusController = TextEditingController(
+      text: _collectionStatusToLabel(_collectionStatus),
+    );
 
     _gamePlatformsController = TextEditingController(
       text: (widget.item.game?.platforms ?? const <String>[]).join(', '),
     );
     _initializeGameChipEditors();
+    _initializeComicEditors();
 
     unawaited(_loadCatalogVocabularyOptions());
 
@@ -468,6 +650,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   void dispose() {
+    _collectionStatusController.dispose();
+    _comicCharacterDraftController.dispose();
+    for (final creator in _comicCreators) {
+      creator.dispose();
+    }
+    for (final character in _comicCharacters) {
+      character.dispose();
+    }
+    for (final link in _comicLinks) {
+      link['title']?.dispose();
+      link['url']?.dispose();
+    }
     _gamePlatformsController.dispose();
     _tabController.dispose();
     _draft.dispose();
@@ -496,6 +690,43 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         'PC',
       ],
     );
+  }
+
+  void _initializeComicEditors() {
+    if (!_isComicKind) {
+      return;
+    }
+    for (final creator
+        in widget.item.creators ?? const <Map<String, dynamic>>[]) {
+      _comicCreators.add(_EditableComicCreator.fromMetadata(creator));
+    }
+    if (widget.item.characterDetails != null &&
+        widget.item.characterDetails!.isNotEmpty) {
+      for (final character in widget.item.characterDetails!) {
+        _comicCharacters.add(_EditableComicCharacter.fromMetadata(character));
+      }
+    } else {
+      for (final characterName in widget.item.characters ?? const <String>[]) {
+        _comicCharacters.add(_EditableComicCharacter.custom(characterName));
+      }
+    }
+    for (final link
+        in widget.item.trailerUrls.where((entry) => entry.isExternalLink)) {
+      _comicLinks.add(_createComicLinkControllers(
+        title: link.title ?? link.description ?? '',
+        url: link.url,
+      ));
+    }
+  }
+
+  Map<String, TextEditingController> _createComicLinkControllers({
+    String title = '',
+    String url = '',
+  }) {
+    return <String, TextEditingController>{
+      'title': TextEditingController(text: title),
+      'url': TextEditingController(text: url),
+    };
   }
 
   List<String> _splitPickList(String value) {
@@ -545,6 +776,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onSave: _submit,
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
+      footerContent: _isOwned ? _ownedSharedFooterRow() : null,
       tabOrderKey: 'edit_tab_order_${widget.type.workspace.kind.apiValue}',
     );
   }
@@ -570,8 +802,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       case 'crew':
         return _LibraryEditRendererVideoTabs(this)._crewTab();
       case 'value':
+        if (_isComicKind) {
+          return _ownedComicValueTab();
+        }
         return _valueTab();
       case 'personal':
+        if (_isComicKind) {
+          return _ownedComicPersonalTab();
+        }
         return _personalTab();
       case 'sold':
         return _soldTab();
@@ -583,9 +821,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _coverTab();
       case 'synopsis':
         return _synopsisTab();
+      case 'creators':
+        return _comicCreatorsTab();
+      case 'characters':
+        return _comicCharactersTab();
       case 'discs':
         return _LibraryEditRendererVideoTabs(this)._discsTab();
       case 'links':
+        if (_isComicKind) {
+          return _comicLinksTab();
+        }
         return _LibraryEditRendererVideoTabs(this)._linksTab();
       default:
         throw StateError('Unsupported generic edit tab: $id');
@@ -904,13 +1149,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         controller: _conditionController, label: 'Condition'),
                     _field(controller: _gradeController, label: 'Grade'),
                   ],
-                  if (_isOwned)
-                    _field(
-                      controller: _quantityController,
-                      label: 'Quantity',
-                      validator: positiveIntValidator,
-                    )
-                  else ...[
+                  if (!_isOwned) ...[
                     _trackingEditionSelectionField(),
                     _trackingVariantSelectionField(),
                   ],
@@ -1057,9 +1296,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       marketValueController: _marketValueController,
       sellPriceController: _sellPriceController,
       onPickPurchaseDate: _pickPurchaseDate,
-      collectionStatus: _collectionStatus,
-      onCollectionStatusChanged: (value) =>
-          setState(() => _collectionStatus = value),
       lastBagBoardDate: _lastBagBoardDate,
       onLastBagBoardDateChanged: (value) =>
           setState(() => _lastBagBoardDate = value),
@@ -1134,7 +1370,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 const SizedBox(height: 10),
               ],
               _responsiveFields([
-                if (_showPhysicalOwnedFields) _locationField(),
                 SizedBox(
                   width: 120,
                   child: MediaRatingField(controller: _ratingController),
@@ -1431,11 +1666,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         controller: _conditionController, label: 'Condition'),
                     _field(controller: _gradeController, label: 'Grade'),
                   ],
-                  _field(
-                    controller: _quantityController,
-                    label: 'Quantity',
-                    validator: positiveIntValidator,
-                  ),
                 ]),
               ],
             ),
@@ -1672,19 +1902,32 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _collectionStatusField({String label = 'Collection status'}) {
-    return DropdownButtonFormField<String>(
-      initialValue: _collectionStatus,
-      isExpanded: true,
-      dropdownColor: appPalette(context).panelRaised,
-      borderRadius: kEditMenuBorderRadius,
-      decoration: InputDecoration(labelText: label),
-      items: const [
-        DropdownMenuItem(value: null, child: Text('In collection')),
-        DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
-        DropdownMenuItem(value: 'on_order', child: Text('On order')),
-      ],
-      onChanged: (value) => setState(() => _collectionStatus = value),
+    return SingleValuePickField(
+      controller: _collectionStatusController,
+      options: const ['In collection', 'For sale', 'On order'],
+      label: label,
+      showPickerListAction: true,
+      onChanged: (selectedLabel) {
+        _collectionStatus = _collectionStatusFromLabel(selectedLabel);
+      },
     );
+  }
+
+  String _collectionStatusToLabel(String? value) {
+    return switch (value) {
+      'for_sale' => 'For sale',
+      'on_order' => 'On order',
+      _ => 'In collection',
+    };
+  }
+
+  String? _collectionStatusFromLabel(String? label) {
+    final normalized = label?.trim().toLowerCase();
+    return switch (normalized) {
+      'for sale' => 'for_sale',
+      'on order' => 'on_order',
+      _ => null,
+    };
   }
 
   String? get _selectedLocationLabel {
@@ -1736,6 +1979,77 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ],
         selectedValue: _physicalFormatLabelController.text,
       ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kCountryPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _countryController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kLanguagePickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _languageController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kAgeRatingPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _ageRatingController.text,
+      ),
+      loadMultiValuePickListOptions(
+        db,
+        listName: kGenrePickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValues: _splitPickList(_genresEditController.text),
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kCrossoverPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _crossoverController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kStoryArcPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _storyArcsController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPageQualityPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        builtInValues: const [
+          'White',
+          'Off-White to White',
+          'Cream to Off-White',
+          'Brittle',
+        ],
+        selectedValue: _pageQualityController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kKeyCategoryPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        builtInValues: const [
+          'First appearance',
+          'First issue',
+          'Origin',
+          'Death',
+          'Cameo',
+          'Classic cover',
+        ],
+        selectedValue: _keyCategoryController.text,
+      ),
+      db.customSelect(
+        '''
+SELECT DISTINCT owner_label
+FROM owned_items_cache
+WHERE owner_label IS NOT NULL
+  AND TRIM(owner_label) <> ''
+ORDER BY owner_label COLLATE NOCASE
+''',
+      ).get(),
       seriesRegistry.searchEntries(
         mediaKind: widget.type.workspace.kind.apiValue,
         selectedTitle: _titleController.text,
@@ -1750,8 +2064,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _imprintOptions = List<String>.from(results[1] as List<String>);
       _seriesGroupOptions = List<String>.from(results[2] as List<String>);
       _physicalFormatOptions = List<String>.from(results[3] as List<String>);
+      _countryOptions = List<String>.from(results[4] as List<String>);
+      _languageOptions = List<String>.from(results[5] as List<String>);
+      _ageOptions = List<String>.from(results[6] as List<String>);
+      _genreOptions = List<String>.from(results[7] as List<String>);
+      _crossoverOptions = List<String>.from(results[8] as List<String>);
+      _storyArcOptions = List<String>.from(results[9] as List<String>);
+      _pageQualityOptions = List<String>.from(results[10] as List<String>);
+      _keyCategoryOptions = List<String>.from(results[11] as List<String>);
+      _ownerOptions = [
+        for (final row in (results[12] as List<QueryRow>))
+          row.read<String>('owner_label'),
+      ];
       _seriesEntries = List<SeriesRegistryEntry>.from(
-        results[4] as List<SeriesRegistryEntry>,
+        results[13] as List<SeriesRegistryEntry>,
       );
     });
   }
@@ -1908,6 +2234,260 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
+  Widget _countryPickField({String label = 'Country'}) {
+    return SingleValuePickField(
+      controller: _countryController,
+      options: _countryOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kCountryPickListName,
+        label: label,
+      ),
+    );
+  }
+
+  Widget _crossoverPickField({String label = 'Crossover'}) {
+    return SingleValuePickField(
+      controller: _crossoverController,
+      options: _crossoverOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kCrossoverPickListName,
+        label: label,
+      ),
+    );
+  }
+
+  Widget _storyArcPickField({String label = 'Story Arc'}) {
+    return SingleValuePickField(
+      controller: _storyArcsController,
+      options: _storyArcOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kStoryArcPickListName,
+        label: label,
+      ),
+    );
+  }
+
+  Widget _pageQualityPickField({String label = 'Page quality'}) {
+    return SingleValuePickField(
+      controller: _pageQualityController,
+      options: _pageQualityOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kPageQualityPickListName,
+        label: label,
+        builtInValues: const [
+          'White',
+          'Off-White to White',
+          'Cream to Off-White',
+          'Brittle',
+        ],
+      ),
+    );
+  }
+
+  Widget _keyCategoryPickField({String label = 'Key category'}) {
+    return SingleValuePickField(
+      controller: _keyCategoryController,
+      options: _keyCategoryOptions,
+      label: label,
+      onManage: () => _manageSingleValuePickList(
+        listName: kKeyCategoryPickListName,
+        label: label,
+        builtInValues: const [
+          'First appearance',
+          'First issue',
+          'Origin',
+          'Death',
+          'Cameo',
+          'Classic cover',
+        ],
+      ),
+    );
+  }
+
+  Widget _ownerPickField({String label = 'Owner'}) {
+    return SingleValuePickField(
+      controller: _ownerLabelController,
+      options: _ownerOptions,
+      label: label,
+      showPickerListAction: true,
+    );
+  }
+
+  Future<void> _pickTagsFromDropdown({String title = 'Pick Tags'}) async {
+    final selected = splitPickListValues(_tagsController.text);
+    final options = mergePickListValues(
+      builtInValues: _tagOptions,
+      selectedValues: selected,
+    );
+    final draft = <String>{for (final value in selected) value.toLowerCase()};
+    final result = await showDialog<List<String>>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setLocalState) {
+            return AlertDialog(
+              title: Text(title),
+              content: SizedBox(
+                width: 420,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 360),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final option in options)
+                        CheckboxListTile(
+                          value: draft.contains(option.toLowerCase()),
+                          dense: true,
+                          title: Text(option),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (checked) {
+                            setLocalState(() {
+                              final key = option.toLowerCase();
+                              if (checked ?? false) {
+                                draft.add(key);
+                              } else {
+                                draft.remove(key);
+                              }
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final ordered = [
+                      for (final option in options)
+                        if (draft.contains(option.toLowerCase())) option,
+                    ];
+                    Navigator.of(context).pop(ordered);
+                  },
+                  child: const Text('Apply'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (!mounted || result == null) {
+      return;
+    }
+    final text = joinPickListValues(result) ?? '';
+    _mutateDialogState(() {
+      _tagsController.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    });
+  }
+
+  Widget _tagsDropdownField({String label = 'Tags'}) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _tagsController,
+      builder: (context, value, _) {
+        final tags = splitPickListValues(value.text);
+        return InkWell(
+          borderRadius: BorderRadius.circular(2),
+          onTap: () => _pickTagsFromDropdown(title: 'Pick Tags'),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: label,
+              suffixIconConstraints: const BoxConstraints(
+                minWidth: 72,
+                maxWidth: 72,
+                minHeight: 40,
+              ),
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _pickTagsFromDropdown(title: 'Pick Tags'),
+                    child: const SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: Icon(Icons.arrow_drop_down, size: 18),
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 18,
+                    color: Theme.of(context).dividerColor,
+                  ),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _pickTagsFromDropdown(title: 'Manage Tags'),
+                    child: const SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: Icon(Icons.view_list_outlined, size: 18),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            child: Text(
+              tags.isEmpty ? 'Select tags' : tags.join(', '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: tags.isEmpty ? appPalette(context).textMuted : null,
+                  ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _ownedSharedFooterRow() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 280,
+            child: _collectionStatusField(label: 'Collection Status'),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 140,
+            child: InputDecorator(
+              decoration: const InputDecoration(labelText: 'Index'),
+              child: Text(widget.ownedItem?.indexNumber?.toString() ?? '—'),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 140,
+            child: _field(
+              controller: _quantityController,
+              label: 'Quantity',
+              validator: positiveIntValidator,
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 360,
+            child: _locationField(label: 'Location'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _pickLocation() async {
     final result = await showLocationPickerDialog(
       context: context,
@@ -2025,6 +2605,54 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       selection = LibraryEditSelection(
         item: selection.item.copyWith(
           game: updatedGame.hasData ? updatedGame : null,
+        ),
+        personal: selection.personal,
+        wishlist: selection.wishlist,
+        tracking: selection.tracking,
+        customFieldEdits: selection.customFieldEdits,
+        itemImageEdits: selection.itemImageEdits,
+      );
+    }
+    if (_isComicKind) {
+      final creators = _comicCreators
+          .map((creator) => creator.toMap())
+          .where((creator) =>
+              (creator['name']?.toString().trim().isNotEmpty ?? false))
+          .toList(growable: false);
+      final characterDetails = _comicCharacters
+          .map((character) => character.toMap())
+          .where((character) =>
+              (character['name']?.toString().trim().isNotEmpty ?? false))
+          .toList(growable: false);
+      final characters = characterDetails
+          .map((character) => character['name']!.toString())
+          .toList(growable: false);
+      final trailerLinks = selection.item.trailerUrls
+          .where((link) => link.isTrailerLink)
+          .toList(growable: true);
+      for (final link in _comicLinks) {
+        final title = link['title']?.text.trim() ?? '';
+        final url = link['url']?.text.trim() ?? '';
+        if (url.isEmpty) {
+          continue;
+        }
+        trailerLinks.add(
+          TrailerLink(
+            url: url,
+            title: emptyToNull(title),
+            description: emptyToNull(title),
+            source: 'manual',
+            isAutomatic: false,
+            kind: 'external',
+          ),
+        );
+      }
+      selection = LibraryEditSelection(
+        item: selection.item.copyWith(
+          creators: creators.isEmpty ? null : creators,
+          characterDetails: characterDetails.isEmpty ? null : characterDetails,
+          characters: characters.isEmpty ? null : characters,
+          trailerUrls: trailerLinks,
         ),
         personal: selection.personal,
         wishlist: selection.wishlist,

@@ -4,7 +4,7 @@ class MediaRatingField extends StatefulWidget {
   const MediaRatingField({
     super.key,
     required this.controller,
-    this.label = 'Rating',
+    this.label = 'My Rating',
     this.maxRating = 10,
   });
 
@@ -56,7 +56,7 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
 
   @override
   Widget build(BuildContext context) {
-    final starCount = widget.maxRating <= 5 ? widget.maxRating : 5;
+    final starCount = widget.maxRating.clamp(1, 10);
     final pointsPerStar = widget.maxRating / starCount;
 
     return LayoutBuilder(
@@ -196,7 +196,7 @@ class MediaRatingDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final starCount = maxRating <= 5 ? maxRating : 5;
+    final starCount = maxRating.clamp(1, 10);
     final pointsPerStar = maxRating / starCount;
     final accent = Theme.of(context).colorScheme.primary;
     final muted =

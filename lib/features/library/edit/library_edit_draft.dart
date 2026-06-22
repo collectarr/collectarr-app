@@ -96,9 +96,11 @@ class LibraryEditDraft {
     required this.graderNotesController,
     required this.signedByController,
     required this.labelTypeController,
+    required this.pageQualityController,
     required this.certificationNumberController,
     required this.coverPriceController,
     required this.keyReasonController,
+    required this.keyCategoryController,
     required this.featuresController,
     required this.purchaseStoreController,
     required this.boxSetNameController,
@@ -179,7 +181,8 @@ class LibraryEditDraft {
     List<CustomFieldValue> customFieldValues = const [],
     List<ItemImage> itemImages = const [],
   }) {
-    final initialPhysicalFormatId = _initialPhysicalFormatId(item, physicalFormats);
+    final initialPhysicalFormatId =
+        _initialPhysicalFormatId(item, physicalFormats);
     final effectiveFormats = physicalFormats.isEmpty
         ? allKnownPhysicalMediaFormats
         : physicalFormats;
@@ -193,7 +196,8 @@ class LibraryEditDraft {
     final coverDateController = create(
       item.coverDate == null ? '' : formatDate(item.coverDate!),
     );
-    final coverDateYearPartController = create(item.coverDate?.year.toString() ?? '');
+    final coverDateYearPartController =
+        create(item.coverDate?.year.toString() ?? '');
     final coverDateMonthPartController = create(
       item.coverDate == null
           ? ''
@@ -229,9 +233,9 @@ class LibraryEditDraft {
     final variantController = create(item.variant ?? '');
     final physicalFormatLabelController = create(
       item.physicalFormatLabel ??
-        (type.releaseFields.variantSeedsPhysicalFormatLabel
-          ? item.variant
-          : null) ??
+          (type.releaseFields.variantSeedsPhysicalFormatLabel
+              ? item.variant
+              : null) ??
           (initialPhysicalFormatId == null
               ? null
               : physicalMediaFormatById(
@@ -268,7 +272,9 @@ class LibraryEditDraft {
     final conditionController = create(ownedItem?.condition ?? '');
     final gradeController = create(ownedItem?.grade ?? '');
     final purchaseDateController = create(
-      ownedItem?.purchaseDate == null ? '' : formatDate(ownedItem!.purchaseDate!),
+      ownedItem?.purchaseDate == null
+          ? ''
+          : formatDate(ownedItem!.purchaseDate!),
     );
     final priceController = create(
       ownedItem?.pricePaidCents == null
@@ -301,10 +307,13 @@ class LibraryEditDraft {
       trackingEntry?.timesCompleted?.toString() ?? '',
     );
     final seasonNumberController = create(
-      (trackingEntry?.seasonNumber ?? item.series?.seasonNumber)?.toString() ?? '',
+      (trackingEntry?.seasonNumber ?? item.series?.seasonNumber)?.toString() ??
+          '',
     );
     final episodeNumberController = create(
-      (trackingEntry?.episodeNumber ?? item.series?.episodeNumber)?.toString() ?? '',
+      (trackingEntry?.episodeNumber ?? item.series?.episodeNumber)
+              ?.toString() ??
+          '',
     );
     final trackingNotesController = create(trackingEntry?.notes ?? '');
     final tagsController = create(ownedItem?.tags ?? '');
@@ -319,6 +328,7 @@ class LibraryEditDraft {
     final graderNotesController = create(ownedItem?.graderNotes ?? '');
     final signedByController = create(ownedItem?.signedBy ?? '');
     final labelTypeController = create(ownedItem?.labelType ?? '');
+    final pageQualityController = create(ownedItem?.pageQuality ?? '');
     final certificationNumberController = create(
       ownedItem?.certificationNumber ?? '',
     );
@@ -328,6 +338,7 @@ class LibraryEditDraft {
           : (ownedItem!.coverPriceCents! / 100).toStringAsFixed(2),
     );
     final keyReasonController = create(ownedItem?.keyReason ?? '');
+    final keyCategoryController = create(ownedItem?.keyCategory ?? '');
     final featuresController = create(ownedItem?.features ?? '');
     final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
     final boxSetNameController = create(ownedItem?.boxSetName ?? '');
@@ -441,9 +452,11 @@ class LibraryEditDraft {
       graderNotesController: graderNotesController,
       signedByController: signedByController,
       labelTypeController: labelTypeController,
+      pageQualityController: pageQualityController,
       certificationNumberController: certificationNumberController,
       coverPriceController: coverPriceController,
       keyReasonController: keyReasonController,
+      keyCategoryController: keyCategoryController,
       featuresController: featuresController,
       purchaseStoreController: purchaseStoreController,
       boxSetNameController: boxSetNameController,
@@ -462,8 +475,8 @@ class LibraryEditDraft {
       tagOptions: splitPickListValues(ownedItem?.tags),
       availableLocations: const [],
       selectedLocationId: ownedItem?.locationId,
-      selectedOwnedAnchorType:
-          ownedItem?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue,
+      selectedOwnedAnchorType: ownedItem?.personalAnchor?.apiValue ??
+          PersonalItemAnchorType.item.apiValue,
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: editionSelection.variant?.id,
       selectedBundleReleaseId:
@@ -497,7 +510,8 @@ class LibraryEditDraft {
       physicalFormatId: initialPhysicalFormatId,
       seriesId: item.series?.seriesId,
       customFieldEdits: {
-        for (final value in customFieldValues) value.fieldDefinitionId: value.value,
+        for (final value in customFieldValues)
+          value.fieldDefinitionId: value.value,
       },
       itemImageEdits: const [],
     );
@@ -576,9 +590,11 @@ class LibraryEditDraft {
   final TextEditingController graderNotesController;
   final TextEditingController signedByController;
   final TextEditingController labelTypeController;
+  final TextEditingController pageQualityController;
   final TextEditingController certificationNumberController;
   final TextEditingController coverPriceController;
   final TextEditingController keyReasonController;
+  final TextEditingController keyCategoryController;
   final TextEditingController featuresController;
   final TextEditingController purchaseStoreController;
   final TextEditingController boxSetNameController;
@@ -711,7 +727,7 @@ class LibraryEditDraft {
       seriesGroup: emptyToNull(seriesGroupController.text),
     );
     final parsedStoryArcs = storyArcsController.text
-      .split(RegExp(r'[,\r\n]+'))
+        .split(RegExp(r'[,\r\n]+'))
         .map((storyArc) => storyArc.trim())
         .where((storyArc) => storyArc.isNotEmpty)
         .toList();
@@ -725,7 +741,7 @@ class LibraryEditDraft {
       layers: emptyToNull(layersController.text),
     );
     final parsedGenres = genresEditController.text
-      .split(RegExp(r'[,\r\n]+'))
+        .split(RegExp(r'[,\r\n]+'))
         .map((genre) => genre.trim())
         .where((genre) => genre.isNotEmpty)
         .toList();
@@ -742,7 +758,7 @@ class LibraryEditDraft {
         editionTitle: emptyToNull(editionTitleController.text),
         physicalFormat: physicalFormatId,
         physicalFormatLabel: emptyToNull(physicalFormatLabelController.text) ??
-          physicalFormatForId(physicalFormatId)?.label,
+            physicalFormatForId(physicalFormatId)?.label,
         publisher: emptyToNull(publisherController.text),
         coverDate: parseDate(coverDateController.text),
         releaseDate: parseDate(releaseDateController.text),
@@ -791,27 +807,35 @@ class LibraryEditDraft {
               personalNotes: emptyToNull(notesController.text),
               quantity: parseInt(quantityController.text) ?? 1,
               locationId: showPhysicalOwnedFields ? selectedLocationId : null,
-              locationChanged: showPhysicalOwnedFields ? locationChanged : false,
+              locationChanged:
+                  showPhysicalOwnedFields ? locationChanged : false,
               tags: emptyToNull(tagsController.text),
               soldAt: soldAt,
               sellPriceCents: parseMoneyCents(sellPriceController.text),
               soldTo: emptyToNull(soldToController.text),
-              rawOrSlabbed:
-                  isDigitalFormat ? null : emptyToNull(rawOrSlabbedController.text),
+              rawOrSlabbed: isDigitalFormat
+                  ? null
+                  : emptyToNull(rawOrSlabbedController.text),
               gradingCompany: isDigitalFormat
                   ? null
                   : emptyToNull(gradingCompanyController.text),
-              graderNotes:
-                  isDigitalFormat ? null : emptyToNull(graderNotesController.text),
+              graderNotes: isDigitalFormat
+                  ? null
+                  : emptyToNull(graderNotesController.text),
               signedBy:
                   isDigitalFormat ? null : emptyToNull(signedByController.text),
-              labelType:
-                  isDigitalFormat ? null : emptyToNull(labelTypeController.text),
+              labelType: isDigitalFormat
+                  ? null
+                  : emptyToNull(labelTypeController.text),
+              pageQuality: isDigitalFormat
+                  ? null
+                  : emptyToNull(pageQualityController.text),
               certificationNumber: isDigitalFormat
                   ? null
                   : emptyToNull(certificationNumberController.text),
               keyComic: keyComic,
               keyReason: emptyToNull(keyReasonController.text),
+              keyCategory: emptyToNull(keyCategoryController.text),
               coverPriceCents: isDigitalFormat
                   ? null
                   : parseMoneyCents(coverPriceController.text),
@@ -936,7 +960,9 @@ class LibraryEditDraft {
       for (final name in developerNames)
         <String, dynamic>{'name': name, 'role': 'Developer'},
     ];
-    return merged.isEmpty ? null : List<Map<String, dynamic>>.unmodifiable(merged);
+    return merged.isEmpty
+        ? null
+        : List<Map<String, dynamic>>.unmodifiable(merged);
   }
 
   static List<String> _creatorNamesForRoles(
@@ -971,7 +997,8 @@ class LibraryEditDraft {
         : physicalFormats;
     final configured = item.physicalFormat == null
         ? null
-        : physicalMediaFormatById(item.physicalFormat!, formats: effectiveFormats);
+        : physicalMediaFormatById(item.physicalFormat!,
+            formats: effectiveFormats);
     if (configured != null) {
       return configured.id;
     }

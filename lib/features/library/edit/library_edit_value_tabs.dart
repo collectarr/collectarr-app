@@ -33,8 +33,6 @@ class LibraryEditValueTab extends StatelessWidget {
     required this.marketValueController,
     required this.sellPriceController,
     required this.onPickPurchaseDate,
-    required this.collectionStatus,
-    required this.onCollectionStatusChanged,
     required this.lastBagBoardDate,
     required this.onLastBagBoardDateChanged,
     this.isGameKind = false,
@@ -63,8 +61,6 @@ class LibraryEditValueTab extends StatelessWidget {
   final TextEditingController marketValueController;
   final TextEditingController sellPriceController;
   final VoidCallback onPickPurchaseDate;
-  final String? collectionStatus;
-  final ValueChanged<String?> onCollectionStatusChanged;
   final DateTime? lastBagBoardDate;
   final ValueChanged<DateTime?> onLastBagBoardDateChanged;
   final bool isGameKind;
@@ -127,26 +123,10 @@ class LibraryEditValueTab extends StatelessWidget {
           ),
         ),
         EditSection(
-          title: 'Collection status',
+          title: 'Collection',
           accent: accent,
           child: Column(
             children: [
-              DropdownButtonFormField<String>(
-                initialValue: collectionStatus,
-                isExpanded: true,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kEditMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Status',
-                ),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('In collection')),
-                  DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
-                  DropdownMenuItem(value: 'on_order', child: Text('On order')),
-                ],
-                onChanged: onCollectionStatusChanged,
-              ),
-              const SizedBox(height: 10),
               buildDatePickerField(
                 label: 'Last bag & board date',
                 value: lastBagBoardDate,

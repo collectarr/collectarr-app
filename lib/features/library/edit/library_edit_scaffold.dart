@@ -22,6 +22,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.tabs = const [],
     this.views = const [],
     this.body,
+    this.footerContent,
     required this.onClose,
     required this.onCancel,
     required this.onSave,
@@ -48,6 +49,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> tabs;
   final List<Widget> views;
   final Widget? body;
+  final Widget? footerContent;
   final VoidCallback onClose;
   final VoidCallback onCancel;
   final VoidCallback onSave;
@@ -117,10 +119,20 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   }
 
   void _onReorderItem(int oldIndex, int newIndex) {
+    final controller = widget.tabController;
+    final selectedSourceIndex = controller == null || _tabOrder.isEmpty
+        ? null
+        : _tabOrder[controller.index];
     setState(() {
       final item = _tabOrder.removeAt(oldIndex);
       _tabOrder.insert(newIndex, item);
     });
+    if (controller != null && selectedSourceIndex != null) {
+      final remappedIndex = _tabOrder.indexOf(selectedSourceIndex);
+      if (remappedIndex >= 0 && remappedIndex != controller.index) {
+        controller.animateTo(remappedIndex);
+      }
+    }
     _saveTabOrder();
   }
 
@@ -133,6 +145,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         ? _tabOrder
         : List<int>.generate(widget.tabs.length, (i) => i);
     final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
+    final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
     final maxWidth = isMovieDesktop
         ? (viewport.width > 1440 ? 1220.0 : 1140.0)
@@ -167,53 +180,80 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                 ),
               ],
             ),
-            child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
-              child: Form(
-                key: widget.formKey,
-                child: Column(
-                  children: [
-                    _LibraryEditTitleBar(
-                      accent: widget.accent,
-                      icon: widget.icon,
-                      title: widget.title,
-                      badges: widget.badges,
-                      onClose: widget.onClose,
-                      chromeVariant: widget.chromeVariant,
-                    ),
-                    if (hasTabStrip)
-                      LibraryEditTabStripFrame(
-                        child: _ReorderableTabStrip(
-                          tabController: widget.tabController!,
-                          tabOrder: tabOrder,
-                          tabs: orderedTabs,
-                          accent: widget.accent,
-                          allowReorder: widget.allowTabReorder,
-                          longPressDelay: widget.tabReorderLongPressDelay,
-                          onReorderItem: _onReorderItem,
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints:
+                    BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+                child: Form(
+                  key: widget.formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _LibraryEditTitleBar(
+                        accent: widget.accent,
+                        icon: widget.icon,
+                        title: widget.title,
+                        badges: widget.badges,
+                        onClose: widget.onClose,
+                        chromeVariant: widget.chromeVariant,
+                      ),
+                      if (hasTabStrip)
+                        LibraryEditTabStripFrame(
+                          child: _ReorderableTabStrip(
+                            tabController: widget.tabController!,
+                            tabs: orderedTabs,
+                            accent: widget.accent,
+                            allowReorder: widget.allowTabReorder,
+                            longPressDelay: widget.tabReorderLongPressDelay,
+                            onReorderItem: _onReorderItem,
+                          ),
+                        ),
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: ColoredBox(
+                          color: p.panel,
+                          child: hasTabStrip
+                              ? AnimatedBuilder(
+                                  animation: widget.tabController!,
+                                  builder: (context, _) {
+                                    final rawIndex =
+                                        widget.tabController!.index;
+                                    final currentIndex = rawIndex < 0
+                                        ? 0
+                                        : rawIndex >= orderedViews.length
+                                            ? orderedViews.length - 1
+                                            : rawIndex;
+                                    return orderedViews[currentIndex];
+                                  },
+                                )
+                              : widget.body!,
                         ),
                       ),
-                    Expanded(
-                      child: ColoredBox(
-                        color: p.panel,
-                        child: hasTabStrip
-                            ? TabBarView(
-                                controller: widget.tabController,
-                                children: widget.views,
-                              )
-                            : widget.body!,
+                      if (widget.footerContent != null)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                          decoration: BoxDecoration(
+                            color: p.panelRaised,
+                            border: Border(
+                              top: BorderSide(color: p.divider),
+                            ),
+                          ),
+                          child: widget.footerContent!,
+                        ),
+                      _LibraryEditFooter(
+                        onCancel: widget.onCancel,
+                        onSave: widget.onSave,
+                        onPrevious: widget.onPrevious,
+                        onNext: widget.onNext,
+                        chromeVariant: widget.chromeVariant,
+                        accent: widget.accent,
                       ),
-                    ),
-                    _LibraryEditFooter(
-                      onCancel: widget.onCancel,
-                      onSave: widget.onSave,
-                      onPrevious: widget.onPrevious,
-                      onNext: widget.onNext,
-                      chromeVariant: widget.chromeVariant,
-                      accent: widget.accent,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -231,16 +271,13 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
 class _ReorderableTabStrip extends StatelessWidget {
   const _ReorderableTabStrip({
     required this.tabController,
-    required this.tabOrder,
     required this.tabs,
     required this.accent,
     required this.allowReorder,
     required this.longPressDelay,
     required this.onReorderItem,
   });
-
   final TabController tabController;
-  final List<int> tabOrder;
   final List<Widget> tabs;
   final Color accent;
   final bool allowReorder;
@@ -257,6 +294,7 @@ class _ReorderableTabStrip extends StatelessWidget {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 for (var i = 0; i < tabs.length; i++)
                   allowReorder
@@ -289,12 +327,11 @@ class _ReorderableTabStrip extends StatelessWidget {
                                 ),
                               ),
                               child: GestureDetector(
-                                onTap: () =>
-                                    tabController.animateTo(tabOrder[i]),
+                                onTap: () => tabController.animateTo(i),
                                 child: LibraryEditStyledTabLabel(
                                   tab: tabs[i],
                                   accent: accent,
-                                  selected: tabController.index == tabOrder[i],
+                                  selected: tabController.index == i,
                                   highlighted: candidateData.isNotEmpty,
                                 ),
                               ),
@@ -302,11 +339,11 @@ class _ReorderableTabStrip extends StatelessWidget {
                           },
                         )
                       : GestureDetector(
-                          onTap: () => tabController.animateTo(tabOrder[i]),
+                          onTap: () => tabController.animateTo(i),
                           child: LibraryEditStyledTabLabel(
                             tab: tabs[i],
                             accent: accent,
-                            selected: tabController.index == tabOrder[i],
+                            selected: tabController.index == i,
                             highlighted: false,
                           ),
                         ),

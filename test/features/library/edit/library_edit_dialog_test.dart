@@ -335,7 +335,8 @@ void main() {
     await tester.tap(find.text('Open movie publishing test'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Main').last);
+    await tester.ensureVisible(find.text('Media', skipOffstage: false).last);
+    await tester.tap(find.text('Media').last);
     await pumpUntilSettled(tester);
 
     expect(find.text('Release Date'), findsOneWidget);
@@ -473,6 +474,11 @@ void main() {
           imprint: 'KaBOOM!',
           seriesGroup: 'Miniseries',
         ),
+        creators: const [
+          {'name': 'Jim Campbell', 'role': 'Writer'},
+          {'name': 'Danielle Burgos', 'role': 'Artist'},
+        ],
+        characters: const ['Wirt', 'Greg'],
       ),
     );
     final ownedItem = OwnedItem(
@@ -528,20 +534,40 @@ void main() {
 
     expect(find.text('Details'), findsWidgets);
     expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Covers'), findsOneWidget);
     expect(find.text('Plot'), findsOneWidget);
+    expect(find.text('Creators'), findsOneWidget);
+    expect(find.text('Characters'), findsOneWidget);
+    expect(find.text('Links'), findsOneWidget);
     expect(find.text('Custom Fields'), findsOneWidget);
     expect(find.text('My Images'), findsOneWidget);
     expect(find.text('Sold'), findsNothing);
 
-    expect(find.text('Subtitle'), findsOneWidget);
-    expect(find.text('Crossover'), findsOneWidget);
-    expect(find.text('Story Arcs'), findsOneWidget);
-    expect(find.text('Genres'), findsOneWidget);
-    expect(find.text('Country'), findsOneWidget);
-    expect(find.text('Language'), findsOneWidget);
-    expect(find.text('Age'), findsOneWidget);
-    expect(find.text('No. of Pages'), findsOneWidget);
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Subtitle'), findsNothing);
+    expect(find.text('Country'), findsNothing);
+    expect(find.text('Collection Status'), findsOneWidget);
+    expect(find.text('Index'), findsOneWidget);
+    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Location'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Creators', skipOffstage: false).last);
+    await tester.tap(find.text('Creators', skipOffstage: false).last);
+    await pumpUntilSettled(tester);
+    expect(find.text('Jim Campbell'), findsOneWidget);
+    expect(find.text('Danielle Burgos'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Characters', skipOffstage: false).last);
+    await tester.tap(find.text('Characters', skipOffstage: false).last);
+    await pumpUntilSettled(tester);
+    expect(find.text('Wirt'), findsOneWidget);
+    expect(find.text('Greg'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Details', skipOffstage: false).last);
+    await tester.tap(find.text('Details', skipOffstage: false).last);
+    await pumpUntilSettled(tester);
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Subtitle'),
@@ -552,11 +578,12 @@ void main() {
       'Adventure Time',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'Story Arcs'),
+      find.widgetWithText(TextField, 'Story Arc'),
       'Unknowning, The Tome of the Unknown',
     );
 
-    await tester.tap(find.text('Main').last);
+    await tester.ensureVisible(find.text('Main', skipOffstage: false).last);
+    await tester.tap(find.text('Main', skipOffstage: false).last);
     await pumpUntilSettled(tester);
 
     final hasTpIssueMarker = find.text('#TP-1').evaluate().isNotEmpty ||
@@ -578,6 +605,10 @@ void main() {
     expect(find.byTooltip('Pick Series'), findsOneWidget);
     expect(find.byTooltip('Pick Format'), findsOneWidget);
     expect(find.byTooltip('Pick Publisher'), findsOneWidget);
+    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Cover price'), findsNothing);
+    expect(find.text('Added date'), findsNothing);
+    expect(find.text('Modified date'), findsNothing);
 
     await tester.enterText(
       find.byKey(const Key('comic-cover-date-year')),
@@ -592,7 +623,25 @@ void main() {
       '26',
     );
 
-    await tester.tap(find.text('Covers').last);
+    await tester.ensureVisible(find.text('Value', skipOffstage: false).last);
+    await tester.tap(find.text('Value', skipOffstage: false).last);
+    await pumpUntilSettled(tester);
+    expect(find.text('Cover price'), findsOneWidget);
+    expect(find.text('Price paid'), findsOneWidget);
+    expect(find.text('My value'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Personal', skipOffstage: false).last);
+    await tester.tap(find.text('Personal', skipOffstage: false).last);
+    await pumpUntilSettled(tester);
+    expect(find.text('Read'), findsOneWidget);
+    expect(find.text('Read Date'), findsOneWidget);
+    expect(find.text('Owner'), findsOneWidget);
+    expect(find.text('Notes'), findsOneWidget);
+    expect(find.text('Tags'), findsOneWidget);
+    expect(find.text('Bag/Board Date'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Covers', skipOffstage: false).last);
+    await tester.tap(find.text('Covers', skipOffstage: false).last);
     await pumpUntilSettled(tester);
 
     expect(find.text('Front Cover'), findsOneWidget);
@@ -600,10 +649,11 @@ void main() {
     expect(find.text('Manage My Images'), findsOneWidget);
     expect(find.text('Find Better Cover'), findsOneWidget);
 
-    await tester.tap(find.text('My Images').last);
+    await tester.ensureVisible(find.text('My Images', skipOffstage: false).last);
+    await tester.tap(find.text('My Images', skipOffstage: false).last);
     await pumpUntilSettled(tester);
 
-    expect(find.text('My images workflow'), findsOneWidget);
+    expect(find.text('My images workflow'), findsNothing);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
@@ -1231,7 +1281,7 @@ void main() {
     );
     expect(find.widgetWithText(TextField, 'Condition'), findsNothing);
     expect(find.widgetWithText(TextField, 'Grade'), findsNothing);
-    expect(find.byIcon(Icons.place), findsNothing);
+    expect(find.byIcon(Icons.place), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);

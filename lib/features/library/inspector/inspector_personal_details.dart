@@ -579,7 +579,7 @@ class _InspectorTrackingDetailsEditorState
           ),
         ],
         _InspectorEditorRow(
-          label: 'Rating',
+          label: 'My Rating',
           child: MediaRatingField(controller: _ratingController),
         ),
         _InspectorEditorRow(

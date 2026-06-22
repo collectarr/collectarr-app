@@ -14,6 +14,8 @@ const String kAgeRatingPickListName = 'age_ratings';
 const String kGenrePickListName = 'genres';
 const String kCrossoverPickListName = 'crossovers';
 const String kStoryArcPickListName = 'story_arcs';
+const String kPageQualityPickListName = 'page_qualities';
+const String kKeyCategoryPickListName = 'key_categories';
 
 class PickListConditionGradeOptions {
   const PickListConditionGradeOptions({
