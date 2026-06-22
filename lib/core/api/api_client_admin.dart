@@ -62,6 +62,11 @@ class _AdminApiClient {
     required String kind,
     required String id,
     String? title,
+    String? titleExtension,
+    String? sortKey,
+    String? originalTitle,
+    String? localizedTitle,
+    List<String>? searchAliases,
     String? itemNumber,
     String? synopsis,
     String? editionTitle,
@@ -75,6 +80,24 @@ class _AdminApiClient {
     String? country,
     String? language,
     String? ageRating,
+    String? audienceRating,
+    List<String>? genres,
+    List<String>? platforms,
+    List<CatalogTrack>? tracks,
+    List<Map<String, dynamic>>? creators,
+    List<String>? characters,
+    List<String>? storyArcs,
+    String? color,
+    int? nrDiscs,
+    String? screenRatio,
+    String? audioTracks,
+    String? subtitles,
+    String? layers,
+    List<TrailerLink>? trailerUrls,
+    List<TrailerLink>? externalLinks,
+    String? crossover,
+    String? plotSummary,
+    String? plotDescription,
     String? catalogNumber,
     String? releaseStatus,
     String? physicalFormat,
@@ -88,6 +111,26 @@ class _AdminApiClient {
     final data = <String, dynamic>{
       if (explicitFields.contains('title') || includeNulls || title != null)
         'title': title,
+      if (explicitFields.contains('title_extension') ||
+          includeNulls ||
+          titleExtension != null)
+        'title_extension': titleExtension,
+      if (explicitFields.contains('sort_key') ||
+          includeNulls ||
+          sortKey != null)
+        'sort_key': sortKey,
+      if (explicitFields.contains('original_title') ||
+          includeNulls ||
+          originalTitle != null)
+        'original_title': originalTitle,
+      if (explicitFields.contains('localized_title') ||
+          includeNulls ||
+          localizedTitle != null)
+        'localized_title': localizedTitle,
+      if (explicitFields.contains('search_aliases') ||
+          includeNulls ||
+          searchAliases != null)
+        'search_aliases': searchAliases,
       if (explicitFields.contains('item_number') ||
           includeNulls ||
           itemNumber != null)
@@ -137,6 +180,73 @@ class _AdminApiClient {
           includeNulls ||
           ageRating != null)
         'age_rating': ageRating,
+      if (explicitFields.contains('audience_rating') ||
+          includeNulls ||
+          audienceRating != null)
+        'audience_rating': audienceRating,
+      if (explicitFields.contains('genres') || includeNulls || genres != null)
+        'genres': genres,
+      if (explicitFields.contains('platforms') ||
+          includeNulls ||
+          platforms != null)
+        'platforms': platforms,
+      if (explicitFields.contains('tracks') || includeNulls || tracks != null)
+        'tracks':
+            tracks?.map((track) => track.toJson()).toList(growable: false),
+      if (explicitFields.contains('creators') ||
+          includeNulls ||
+          creators != null)
+        'creators': creators,
+      if (explicitFields.contains('characters') ||
+          includeNulls ||
+          characters != null)
+        'characters': characters,
+      if (explicitFields.contains('story_arcs') ||
+          includeNulls ||
+          storyArcs != null)
+        'story_arcs': storyArcs,
+      if (explicitFields.contains('color') || includeNulls || color != null)
+        'color': color,
+      if (explicitFields.contains('nr_discs') ||
+          includeNulls ||
+          nrDiscs != null)
+        'nr_discs': nrDiscs,
+      if (explicitFields.contains('screen_ratio') ||
+          includeNulls ||
+          screenRatio != null)
+        'screen_ratio': screenRatio,
+      if (explicitFields.contains('audio_tracks') ||
+          includeNulls ||
+          audioTracks != null)
+        'audio_tracks': audioTracks,
+      if (explicitFields.contains('subtitles') ||
+          includeNulls ||
+          subtitles != null)
+        'subtitles': subtitles,
+      if (explicitFields.contains('layers') || includeNulls || layers != null)
+        'layers': layers,
+      if (explicitFields.contains('trailer_urls') ||
+          includeNulls ||
+          trailerUrls != null)
+        'trailer_urls':
+            trailerUrls?.map((link) => link.toJson()).toList(growable: false),
+      if (explicitFields.contains('external_links') ||
+          includeNulls ||
+          externalLinks != null)
+        'external_links':
+            externalLinks?.map((link) => link.toJson()).toList(growable: false),
+      if (explicitFields.contains('crossover') ||
+          includeNulls ||
+          crossover != null)
+        'crossover': crossover,
+      if (explicitFields.contains('plot_summary') ||
+          includeNulls ||
+          plotSummary != null)
+        'plot_summary': plotSummary,
+      if (explicitFields.contains('plot_description') ||
+          includeNulls ||
+          plotDescription != null)
+        'plot_description': plotDescription,
       if (explicitFields.contains('catalog_number') ||
           includeNulls ||
           catalogNumber != null)

@@ -290,7 +290,6 @@ enum InspectorToolbarMenuAction {
   removeOrCollect,
   loan,
   refreshMetadata,
-  unlinkFromCore,
 }
 
 class InspectorUnifiedToolbar extends StatelessWidget {
@@ -378,9 +377,6 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                   case InspectorToolbarMenuAction.refreshMetadata:
                     onRefreshMetadata?.call();
                     return;
-                  case InspectorToolbarMenuAction.unlinkFromCore:
-                    onUnlinkFromCore?.call();
-                    return;
                 }
               },
               itemBuilder: (context) => [
@@ -422,15 +418,6 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                     dense: true,
                     leading: Icon(Icons.cloud_download_outlined),
                     title: Text('Update from Core'),
-                  ),
-                ),
-                PopupMenuItem<InspectorToolbarMenuAction>(
-                  value: InspectorToolbarMenuAction.unlinkFromCore,
-                  enabled: onUnlinkFromCore != null,
-                  child: const ListTile(
-                    dense: true,
-                    leading: Icon(Icons.link_off_outlined),
-                    title: Text('Unlink from Core'),
                   ),
                 ),
               ],
