@@ -6,7 +6,7 @@ const double kLibraryDialogFooterVerticalPadding = 6;
 const Duration kLibraryDialogTabReorderLongPressDelay =
     Duration(milliseconds: 80);
 
-BorderRadius get kLibraryDialogFooterButtonRadius => BorderRadius.circular(3);
+BorderRadius get kLibraryDialogFooterButtonRadius => BorderRadius.circular(2);
 
 RoundedRectangleBorder get kLibraryDialogFooterButtonShape =>
     RoundedRectangleBorder(borderRadius: kLibraryDialogFooterButtonRadius);

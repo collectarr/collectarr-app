@@ -149,7 +149,7 @@ DatePickerThemeData buildAppDatePickerTheme({
       backgroundColor: resolvedAccent,
       foregroundColor: Colors.white,
       textStyle: const TextStyle(fontWeight: FontWeight.w800),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
     ),
   );
 }

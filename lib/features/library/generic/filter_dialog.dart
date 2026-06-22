@@ -1273,7 +1273,7 @@ class _DateFilterButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         backgroundColor: palette.surfaceSubtle,
         side: BorderSide(color: palette.divider),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       ),
       onPressed: onPick,
       icon: const Icon(Icons.calendar_today_outlined, size: 18),

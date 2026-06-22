@@ -132,7 +132,7 @@ FilledButtonThemeData buildAppFilledButtonTheme(AppThemePalette palette) {
     style: FilledButton.styleFrom(
       backgroundColor: palette.accent,
       foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: VisualDensity.compact,
     ),
   );
@@ -143,7 +143,7 @@ OutlinedButtonThemeData buildAppOutlinedButtonTheme(AppThemePalette palette) {
     style: OutlinedButton.styleFrom(
       foregroundColor: palette.textPrimary,
       side: BorderSide(color: palette.divider),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: VisualDensity.compact,
     ),
   );
@@ -172,7 +172,7 @@ IconButtonThemeData buildAppIconButtonTheme(
       hoverColor: hoverOverlay,
       highlightColor: pressedOverlay,
       overlayColor: pressedOverlay,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: compact ? VisualDensity.compact : null,
     ),
   );

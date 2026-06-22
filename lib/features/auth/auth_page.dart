@@ -62,7 +62,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             backgroundColor: _authAccent,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
         ),
