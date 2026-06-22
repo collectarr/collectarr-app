@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -44,6 +45,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildGameLibraryEditDialog,
   editPresentation: gameLibraryEditPresentation,
+  inspectorPanelBuilder: buildGameInspectorPanel,
   presentation: gamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Version',
@@ -56,4 +58,5 @@ const gamesLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     supportsMediaReleaseSplit: true,
   ),
+  showsDefaultInspectorPersonalSection: false,
 );

@@ -49,7 +49,7 @@ void main() {
     );
 
     expect(find.text('Cancel'), findsOneWidget);
-    expect(find.text('All'), findsOneWidget);
+    expect(find.text('Select all'), findsOneWidget);
     expect(find.text('3 of 12 selected'), findsOneWidget);
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);

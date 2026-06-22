@@ -31,6 +31,7 @@ class CatalogCacheRepository {
               final music = item.music;
               final game = item.game;
               final tracks = music?.tracks;
+              final discs = music?.discs;
               final platforms = game?.platforms ?? item.rawPlatforms;
               return CatalogCacheCompanion.insert(
                 id: item.id,
@@ -77,6 +78,15 @@ class CatalogCacheRepository {
                       ? jsonEncode(
                           tracks
                               .map((track) => track.toJson())
+                              .toList(growable: false),
+                        )
+                      : null,
+                ),
+                discsJson: Value(
+                  discs != null && discs.isNotEmpty
+                      ? jsonEncode(
+                          discs
+                              .map((disc) => disc.toJson())
                               .toList(growable: false),
                         )
                       : null,
@@ -168,7 +178,8 @@ class CatalogCacheRepository {
     final seriesRegistry = SeriesRegistryRepository(_db);
     final byKind = <String, List<CatalogItem>>{};
     for (final item in items) {
-      byKind.putIfAbsent(item.kind.trim().toLowerCase(), () => <CatalogItem>[])
+      byKind
+          .putIfAbsent(item.kind.trim().toLowerCase(), () => <CatalogItem>[])
           .add(item);
     }
 
@@ -303,11 +314,13 @@ class CatalogCacheRepository {
       layers: row.layers,
     );
     final tracks = _decodeTracks(row.tracksJson);
+    final discs = _decodeDiscs(row.discsJson);
     final editions = _decodeEditions(row.editionsJson);
     final rawPlatforms = _decodeStringList(row.platformsJson);
     final music = MusicCatalogDetails(
       trackCount: row.trackCount,
       tracks: tracks ?? const <CatalogTrack>[],
+      discs: discs ?? const <CatalogDisc>[],
       catalogNumber: row.catalogNumber,
       releaseStatus: row.releaseStatus,
     );
@@ -375,6 +388,16 @@ class CatalogCacheRepository {
     }
     return decoded
         .map((track) => CatalogTrack.fromJson(track))
+        .toList(growable: false);
+  }
+
+  static List<CatalogDisc>? _decodeDiscs(String? json) {
+    final decoded = _decodeListOfMaps(json);
+    if (decoded == null) {
+      return null;
+    }
+    return decoded
+        .map((disc) => CatalogDisc.fromJson(disc))
         .toList(growable: false);
   }
 

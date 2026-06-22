@@ -2,8 +2,10 @@ import 'package:collectarr_app/ui/theme/date_picker_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
-const String kClzPrimaryFontFamily = 'Gilroy';
+const String kClzPrimaryFontFamily = 'Inter';
+const String kClzMonospaceFontFamily = 'JetBrains Mono';
 const List<String> kClzFontFallback = ['Segoe UI', 'Roboto'];
+const List<String> kClzMonospaceFontFallback = ['Consolas', 'Courier New'];
 
 ColorScheme buildAppColorScheme(AppThemePalette palette) {
   final base = ColorScheme.fromSeed(
@@ -58,7 +60,7 @@ DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
     surfaceTintColor: Colors.transparent,
     clipBehavior: Clip.antiAlias,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.zero,
       side: BorderSide(color: palette.divider),
     ),
     titleTextStyle: TextStyle(

@@ -49,8 +49,7 @@ void main() {
     }
   });
 
-  test('top-level library registry exposes split manga/anime/tv kinds',
-      () {
+  test('top-level library registry exposes split manga/anime/tv kinds', () {
     expect(
       collectarrLibraryTypes.supportedKinds,
       containsAll(['comic', 'manga', 'movie', 'tv', 'anime']),
@@ -82,6 +81,6 @@ void main() {
 
     expect(booksLibraryConfig.releaseFields.barcodeLabel, 'ISBN / Barcode');
     expect(gamesLibraryConfig.releaseFields.variantLabel, 'Platform / Edition');
-    expect(musicLibraryConfig.mediaFields.publisherLabel, 'Label / Artist');
+    expect(musicLibraryConfig.mediaFields.publisherLabel, 'Label');
   });
 }

@@ -534,7 +534,11 @@ class _PayloadPanel extends StatelessWidget {
             const SizedBox(height: 8),
             SelectableText(
               encoded,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+              style: const TextStyle(
+                fontFamily: kClzMonospaceFontFamily,
+                fontFamilyFallback: kClzMonospaceFontFallback,
+                fontSize: 12,
+              ),
             ),
           ],
         ),

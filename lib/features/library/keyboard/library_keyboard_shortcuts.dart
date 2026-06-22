@@ -44,8 +44,7 @@ class LibraryKeyboardShortcuts extends StatelessWidget {
               onSearch!,
         // Ctrl+N / Cmd+N: Add new item
         if (onAdd != null)
-          const SingleActivator(LogicalKeyboardKey.keyN, control: true):
-              onAdd!,
+          const SingleActivator(LogicalKeyboardKey.keyN, control: true): onAdd!,
         // Ctrl+B: Scan barcode
         if (onScan != null)
           const SingleActivator(LogicalKeyboardKey.keyB, control: true):
@@ -137,7 +136,8 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
     );
   }
 
-  Widget _shortcutRow(BuildContext context, String shortcut, String description) {
+  Widget _shortcutRow(
+      BuildContext context, String shortcut, String description) {
     final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -156,7 +156,8 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
                 shortcut,
                 style: TextStyle(
                   fontSize: 12,
-                  fontFamily: 'monospace',
+                  fontFamily: kClzMonospaceFontFamily,
+                  fontFamilyFallback: kClzMonospaceFontFallback,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

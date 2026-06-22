@@ -13,6 +13,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required LibraryTypeConfig type,
   required List<LibrarySortRule> currentRules,
   bool Function(LibrarySortColumn column)? defaultAscendingForColumn,
+  List<LibrarySortColumn>? availableColumns,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,
@@ -20,6 +21,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       type: type,
       currentRules: currentRules,
       defaultAscendingForColumn: defaultAscendingForColumn,
+      availableColumns: availableColumns,
     ),
   );
 }
@@ -29,11 +31,13 @@ class _LibrarySortDialog extends StatefulWidget {
     required this.type,
     required this.currentRules,
     this.defaultAscendingForColumn,
+    this.availableColumns,
   });
 
   final LibraryTypeConfig type;
   final List<LibrarySortRule> currentRules;
   final bool Function(LibrarySortColumn column)? defaultAscendingForColumn;
+  final List<LibrarySortColumn>? availableColumns;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -78,7 +82,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final viewport = MediaQuery.sizeOf(context);
     final availableColumns = _filteredColumns();
     final matchingPreset = _matchingPreset;
-    final favoriteCount = _combinedPresets.length + (matchingPreset == null ? 1 : 0);
+    final favoriteCount =
+        _combinedPresets.length + (matchingPreset == null ? 1 : 0);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -91,7 +96,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: palette.panelRaised,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.zero,
               border: Border.all(color: palette.divider),
               boxShadow: const [
                 BoxShadow(
@@ -128,19 +133,27 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                               tone: LibraryDenseButtonTone.subtle,
                             ),
                             child: _loadingPresets
-                                ? const Center(child: CircularProgressIndicator())
+                                ? const Center(
+                                    child: CircularProgressIndicator())
                                 : ListView(
-                                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(8, 8, 8, 8),
                                     children: [
                                       if (matchingPreset == null)
                                         Padding(
-                                          padding: const EdgeInsets.only(bottom: 8),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 8),
                                           child: _SortPresetTile(
-                                            key: const ValueKey('sort-preset-current-draft'),
-                                            title: _presetNameController.text.trim().isEmpty
+                                            key: const ValueKey(
+                                                'sort-preset-current-draft'),
+                                            title: _presetNameController.text
+                                                    .trim()
+                                                    .isEmpty
                                                 ? 'Current draft'
-                                                : _presetNameController.text.trim(),
-                                            summary: _sortRuleSummary(widget.type, _rules),
+                                                : _presetNameController.text
+                                                    .trim(),
+                                            summary: _sortRuleSummary(
+                                                widget.type, _rules),
                                             accent: accent,
                                             selected: true,
                                             onTap: () {},
@@ -148,20 +161,26 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                         ),
                                       for (final preset in _combinedPresets)
                                         Padding(
-                                          padding: const EdgeInsets.only(bottom: 8),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 8),
                                           child: _SortPresetTile(
-                                            key: ValueKey('sort-preset-${preset.id ?? preset.label}'),
+                                            key: ValueKey(
+                                                'sort-preset-${preset.id ?? preset.label}'),
                                             title: preset.label,
-                                            summary: _sortRuleSummary(widget.type, preset.rules),
+                                            summary: _sortRuleSummary(
+                                                widget.type, preset.rules),
                                             accent: accent,
                                             icon: preset.icon,
                                             selected: matchingPreset != null &&
-                                                (matchingPreset.id == preset.id &&
-                                                    matchingPreset.label == preset.label),
+                                                (matchingPreset.id ==
+                                                        preset.id &&
+                                                    matchingPreset.label ==
+                                                        preset.label),
                                             builtIn: preset.isBuiltIn,
                                             onTap: () => _applyPreset(preset),
                                             onDelete: preset.isSaved
-                                                ? () => _deletePreset(preset.id!)
+                                                ? () =>
+                                                    _deletePreset(preset.id!)
                                                 : null,
                                           ),
                                         ),
@@ -177,7 +196,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                 title: 'Preset',
                                 accent: accent,
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(12, 12, 12, 12),
                                   child: Row(
                                     children: [
                                       Expanded(
@@ -188,17 +208,21 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                             filled: true,
                                             fillColor: palette.field,
                                             border: const OutlineInputBorder(),
-                                            suffixIcon: _presetNameController.text.isEmpty
+                                            suffixIcon: _presetNameController
+                                                    .text.isEmpty
                                                 ? null
                                                 : IconButton(
-                                                    tooltip: 'Clear preset name',
+                                                    tooltip:
+                                                        'Clear preset name',
                                                     onPressed: () {
                                                       setState(() {
                                                         _editingPresetId = null;
-                                                        _presetNameController.clear();
+                                                        _presetNameController
+                                                            .clear();
                                                       });
                                                     },
-                                                    icon: const Icon(Icons.close),
+                                                    icon:
+                                                        const Icon(Icons.close),
                                                   ),
                                           ),
                                           onChanged: (_) => setState(() {}),
@@ -208,7 +232,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                       LibraryDenseButton(
                                         label: 'Save favorite',
                                         icon: Icons.bookmark_add_outlined,
-                                        onPressed: _presetNameController.text.trim().isEmpty
+                                        onPressed: _presetNameController.text
+                                                .trim()
+                                                .isEmpty
                                             ? null
                                             : _savePresetOnly,
                                         tone: LibraryDenseButtonTone.subtle,
@@ -231,52 +257,90 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                         child: Column(
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      12, 12, 12, 8),
                                               child: TextField(
                                                 decoration: InputDecoration(
                                                   hintText: 'Search fields',
                                                   isDense: true,
                                                   filled: true,
                                                   fillColor: palette.field,
-                                                  border: const OutlineInputBorder(),
-                                                  prefixIcon: const Icon(Icons.search),
+                                                  border:
+                                                      const OutlineInputBorder(),
+                                                  prefixIcon:
+                                                      const Icon(Icons.search),
                                                   suffixIcon: _query.isEmpty
                                                       ? null
                                                       : IconButton(
-                                                          tooltip: 'Clear search',
-                                                          onPressed: () => setState(() => _query = ''),
-                                                          icon: const Icon(Icons.close),
+                                                          tooltip:
+                                                              'Clear search',
+                                                          onPressed: () =>
+                                                              setState(() =>
+                                                                  _query = ''),
+                                                          icon: const Icon(
+                                                              Icons.close),
                                                         ),
                                                 ),
-                                                onChanged: (value) => setState(() => _query = value),
+                                                onChanged: (value) => setState(
+                                                    () => _query = value),
                                               ),
                                             ),
                                             Expanded(
                                               child: ListView(
-                                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        12, 0, 12, 12),
                                                 children: [
-                                                  for (final group in LibrarySortFieldGroup.values)
-                                                    if (_groupColumns(group, availableColumns).isNotEmpty)
+                                                  for (final group
+                                                      in LibrarySortFieldGroup
+                                                          .values)
+                                                    if (_groupColumns(group,
+                                                            availableColumns)
+                                                        .isNotEmpty)
                                                       _SortFieldGroupPanel(
-                                                        title: _groupLabel(group),
+                                                        title:
+                                                            _groupLabel(group),
                                                         accent: accent,
-                                                        expanded: _expandedGroups[group] ?? true,
-                                                        onToggle: () => setState(
-                                                          () => _expandedGroups[group] =
-                                                              !(_expandedGroups[group] ?? true),
+                                                        expanded:
+                                                            _expandedGroups[
+                                                                    group] ??
+                                                                true,
+                                                        onToggle: () =>
+                                                            setState(
+                                                          () => _expandedGroups[
+                                                                  group] =
+                                                              !(_expandedGroups[
+                                                                      group] ??
+                                                                  true),
                                                         ),
                                                         children: [
-                                                          for (final column in _groupColumns(group, availableColumns))
+                                                          for (final column
+                                                              in _groupColumns(
+                                                                  group,
+                                                                  availableColumns))
                                                             _AvailableSortFieldTile(
-                                                              key: ValueKey('available-sort-${column.name}'),
-                                                              label: _sortColumnLabel(widget.type, column),
-                                                              directionLabel: _defaultAscending(column)
-                                                                  ? 'ASC'
-                                                                  : 'DESC',
-                                                              selected: _rules.any(
-                                                                (rule) => rule.column == column,
+                                                              key: ValueKey(
+                                                                  'available-sort-${column.name}'),
+                                                              label:
+                                                                  _sortColumnLabel(
+                                                                      widget
+                                                                          .type,
+                                                                      column),
+                                                              directionLabel:
+                                                                  _defaultAscending(
+                                                                          column)
+                                                                      ? 'ASC'
+                                                                      : 'DESC',
+                                                              selected:
+                                                                  _rules.any(
+                                                                (rule) =>
+                                                                    rule.column ==
+                                                                    column,
                                                               ),
-                                                              onTap: () => _toggleColumn(column),
+                                                              onTap: () =>
+                                                                  _toggleColumn(
+                                                                      column),
                                                             ),
                                                         ],
                                                       ),
@@ -296,24 +360,29 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                         accent: accent,
                                         expandChild: true,
                                         child: ReorderableListView.builder(
-                                          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              12, 12, 12, 12),
                                           itemCount: _rules.length,
                                           buildDefaultDragHandles: false,
-                                          proxyDecorator: (child, index, animation) {
+                                          proxyDecorator:
+                                              (child, index, animation) {
                                             return Material(
                                               color: Color.alphaBlend(
                                                 accent.withValues(alpha: 0.14),
                                                 palette.panelRaised,
                                               ),
                                               elevation: 6,
-                                              borderRadius: BorderRadius.circular(6),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                               child: child,
                                             );
                                           },
                                           onReorderItem: (oldIndex, newIndex) {
                                             setState(() {
-                                              final reordered = _rules.toList(growable: true);
-                                              final rule = reordered.removeAt(oldIndex);
+                                              final reordered =
+                                                  _rules.toList(growable: true);
+                                              final rule =
+                                                  reordered.removeAt(oldIndex);
                                               if (oldIndex < newIndex) {
                                                 newIndex -= 1;
                                               }
@@ -324,42 +393,54 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                           itemBuilder: (context, index) {
                                             final rule = _rules[index];
                                             return _SelectedSortRuleTile(
-                                              key: ValueKey('selected-sort-${rule.column.name}'),
+                                              key: ValueKey(
+                                                  'selected-sort-${rule.column.name}'),
                                               index: index,
                                               dragHandleKey: ValueKey(
                                                 'selected-sort-${rule.column.name}-handle',
                                               ),
-                                              title: _sortColumnLabel(widget.type, rule.column),
+                                              title: _sortColumnLabel(
+                                                  widget.type, rule.column),
                                               ascending: rule.ascending,
                                               canMoveUp: index > 0,
-                                              canMoveDown: index < _rules.length - 1,
+                                              canMoveDown:
+                                                  index < _rules.length - 1,
                                               removable: _rules.length > 1,
                                               onMoveUp: () {
                                                 if (index <= 0) {
                                                   return;
                                                 }
                                                 setState(() {
-                                                  final reordered = _rules.toList(growable: true);
-                                                  final current = reordered.removeAt(index);
-                                                  reordered.insert(index - 1, current);
+                                                  final reordered = _rules
+                                                      .toList(growable: true);
+                                                  final current =
+                                                      reordered.removeAt(index);
+                                                  reordered.insert(
+                                                      index - 1, current);
                                                   _rules = reordered;
                                                 });
                                               },
                                               onMoveDown: () {
-                                                if (index >= _rules.length - 1) {
+                                                if (index >=
+                                                    _rules.length - 1) {
                                                   return;
                                                 }
                                                 setState(() {
-                                                  final reordered = _rules.toList(growable: true);
-                                                  final current = reordered.removeAt(index);
-                                                  reordered.insert(index + 1, current);
+                                                  final reordered = _rules
+                                                      .toList(growable: true);
+                                                  final current =
+                                                      reordered.removeAt(index);
+                                                  reordered.insert(
+                                                      index + 1, current);
                                                   _rules = reordered;
                                                 });
                                               },
                                               onToggleDirection: () {
                                                 setState(() {
-                                                  _rules[index] = _rules[index].copyWith(
-                                                    ascending: !_rules[index].ascending,
+                                                  _rules[index] =
+                                                      _rules[index].copyWith(
+                                                    ascending: !_rules[index]
+                                                        .ascending,
                                                   );
                                                 });
                                               },
@@ -395,10 +476,11 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                           'The first field is primary. Later fields break ties.',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: palette.textMuted,
-                                fontWeight: FontWeight.w700,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: palette.textMuted,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -480,11 +562,13 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   List<LibrarySortColumn> _filteredColumns() {
     final query = _query.trim().toLowerCase();
-    return widget.type.availableSortColumns.where((column) {
+    final available =
+        widget.availableColumns ?? widget.type.availableSortColumns;
+    return available.where((column) {
       if (query.isEmpty) {
         return true;
       }
-        return _sortColumnLabel(widget.type, column)
+      return _sortColumnLabel(widget.type, column)
           .toLowerCase()
           .contains(query);
     }).toList(growable: false);
@@ -502,7 +586,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   bool _defaultAscending(LibrarySortColumn column) {
     return widget.defaultAscendingForColumn?.call(column) ??
-      _defaultSortAscending(widget.type, column);
+        _defaultSortAscending(widget.type, column);
   }
 
   void _toggleColumn(LibrarySortColumn column) {
@@ -594,8 +678,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 }
 
-
-
 class _PaneFrame extends StatelessWidget {
   const _PaneFrame({
     required this.title,
@@ -627,8 +709,10 @@ class _PaneFrame extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
             decoration: BoxDecoration(
-              color: Color.alphaBlend(accent.withValues(alpha: 0.08), palette.surface),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+              color: Color.alphaBlend(
+                  accent.withValues(alpha: 0.08), palette.surface),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(6)),
               border: Border(bottom: BorderSide(color: palette.divider)),
             ),
             child: Row(
@@ -649,7 +733,8 @@ class _PaneFrame extends StatelessWidget {
                 ),
                 if (count != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: palette.badgeBackground,
                       borderRadius: BorderRadius.circular(999),
@@ -709,11 +794,13 @@ class _SortPresetTile extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           decoration: BoxDecoration(
             color: selected
-                ? Color.alphaBlend(accent.withValues(alpha: 0.10), palette.surfaceSubtle)
+                ? Color.alphaBlend(
+                    accent.withValues(alpha: 0.10), palette.surfaceSubtle)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: selected ? accent.withValues(alpha: 0.5) : Colors.transparent,
+              color:
+                  selected ? accent.withValues(alpha: 0.5) : Colors.transparent,
             ),
           ),
           child: Row(
@@ -735,15 +822,23 @@ class _SortPresetTile extends StatelessWidget {
                             title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: selected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
                                 ),
                           ),
                         ),
                         if (builtIn)
                           Text(
                             'Built-in',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
                                   color: palette.textMuted,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -881,7 +976,8 @@ class _AvailableSortFieldTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w500,
                       ),
                 ),
               ),

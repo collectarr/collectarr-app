@@ -15,7 +15,7 @@ DatePickerThemeData buildAppDatePickerTheme({
     palette.panelRaised,
   );
   final dialogShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(14),
+    borderRadius: BorderRadius.zero,
     side: BorderSide(color: palette.divider),
   );
   final dayShape = RoundedRectangleBorder(

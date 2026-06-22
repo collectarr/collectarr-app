@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/xml/collection_xml.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
@@ -75,8 +77,7 @@ class _ImportExportWizardDialogState
                     _ExportWizardPane(
                       entries: widget.entries,
                       customFieldDefinitions: widget.customFieldDefinitions,
-                      customFieldValuesByItem:
-                          widget.customFieldValuesByItem,
+                      customFieldValuesByItem: widget.customFieldValuesByItem,
                     ),
                     _ImportWizardPane(
                       controller: _controller,
@@ -478,7 +479,11 @@ class _CsvPreview extends StatelessWidget {
         child: SingleChildScrollView(
           child: SelectableText(
             text,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            style: const TextStyle(
+              fontFamily: kClzMonospaceFontFamily,
+              fontFamilyFallback: kClzMonospaceFontFallback,
+              fontSize: 12,
+            ),
           ),
         ),
       ),

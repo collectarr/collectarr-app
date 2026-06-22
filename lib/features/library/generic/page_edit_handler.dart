@@ -45,8 +45,9 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
 
   Future<void> showEditDialog(
     LibraryProjectionItem item,
-    OwnedItem? ownedItemOverride,
-  ) async {
+    OwnedItem? ownedItemOverride, {
+    bool openMetadataCompareOnOpen = false,
+  }) async {
     if (_isEditDialogInFlight) {
       return;
     }
@@ -162,6 +163,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
       onPrevious:
           previousItem == null ? null : () => queueEditNavigation(previousItem),
       onNext: nextItem == null ? null : () => queueEditNavigation(nextItem),
+      openMetadataCompareOnOpen: openMetadataCompareOnOpen,
     );
     try {
       if (!mounted) return;
@@ -196,6 +198,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
             itemImages: images,
             onPrevious: baseRequest.onPrevious,
             onNext: baseRequest.onNext,
+            openMetadataCompareOnOpen: baseRequest.openMetadataCompareOnOpen,
           );
         },
       );

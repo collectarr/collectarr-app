@@ -119,9 +119,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final accent =
         accentScope?.accent ?? libraryAccentForKind(selectedLibraryKind);
     final animationDuration = accentScope?.animationDuration ??
-        (uiPreferences.animationsEnabled
-            ? kAppAnimNormal
-            : Duration.zero);
+        (uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero);
     _syncTextControllers(settings);
 
     return Theme(
@@ -259,7 +257,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   .syncOnlineFirstIfEnabled());
                             }
                           },
-                          title: const Text('Prefer online-first personal sync'),
+                          title:
+                              const Text('Prefer online-first personal sync'),
                           subtitle: const Text(
                             'Keep the local cache, but sync automatically on startup and after local personal changes when your sync service is available.',
                           ),
@@ -327,8 +326,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         children: [
                           for (final entry in sync.syncLog.reversed)
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2),
+                              padding: const EdgeInsets.symmetric(vertical: 2),
                               child: Row(
                                 children: [
                                   Icon(
@@ -352,7 +350,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: appPalette(context).textSecondary,
+                                        color:
+                                            appPalette(context).textSecondary,
                                       ),
                                     )
                                   else
@@ -426,7 +425,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onVisibilityChanged: (kind, visible) => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .setKindVisible(kind, visible),
-                        onAccentChanged: (kind, color) => ref
+                      onAccentChanged: (kind, color) => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .setKindAccent(kind, color),
                       onReset: () => ref
@@ -521,8 +520,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             min: 4,
                             max: 14,
                             divisions: 10,
-                            label:
-                                '${uiPreferences.gridSpacing.round()} px',
+                            label: '${uiPreferences.gridSpacing.round()} px',
                             onChanged: (value) => ref
                                 .read(uiPreferencesProvider.notifier)
                                 .setGridSpacing(value.roundToDouble()),
@@ -544,8 +542,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             min: 60,
                             max: 120,
                             divisions: 12,
-                            label:
-                                '${uiPreferences.cardCoverWidth.round()} px',
+                            label: '${uiPreferences.cardCoverWidth.round()} px',
                             onChanged: (value) => ref
                                 .read(uiPreferencesProvider.notifier)
                                 .setCardCoverWidth(value.roundToDouble()),
@@ -597,6 +594,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                       ],
                     ),
+                  ),
+                  const _SettingsPanel(
+                    icon: Icons.text_fields_outlined,
+                    title: 'Typography',
+                    child: _FontDiagnosticsPanel(),
                   ),
                 ],
               ),
@@ -722,8 +724,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             icon: const Icon(Icons.delete_forever),
                             label: const Text('Clear entire database'),
                             style: FilledButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.errorContainer,
+                              foregroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .onErrorContainer,
                             ),
                           ),
                         ),
@@ -740,14 +745,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        SelectableText(deviceId.value ?? 'Loading device id...'),
+                        SelectableText(
+                            deviceId.value ?? 'Loading device id...'),
                         const SizedBox(height: 12),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: OutlinedButton.icon(
-                            onPressed: deviceId.isLoading
-                                ? null
-                                : _regenerateDeviceId,
+                            onPressed:
+                                deviceId.isLoading ? null : _regenerateDeviceId,
                             icon: const Icon(Icons.refresh_outlined),
                             label: const Text('Regenerate device id'),
                           ),
@@ -792,7 +797,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ? auth.isAdmin
                                   ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
                                   : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
-                            : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
+                              : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -802,7 +807,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             if (auth.isAuthenticated) ...[
                               OutlinedButton.icon(
                                 onPressed: _refreshAccountPermissions,
-                                icon: const Icon(Icons.manage_accounts_outlined),
+                                icon:
+                                    const Icon(Icons.manage_accounts_outlined),
                                 label: const Text('Refresh permissions'),
                               ),
                               OutlinedButton.icon(
@@ -1452,6 +1458,101 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return 'Session expiry unavailable';
     }
     return 'Session expires ${_formatSyncTime(expiresAt)}';
+  }
+}
+
+class _FontDiagnosticsPanel extends StatelessWidget {
+  const _FontDiagnosticsPanel();
+
+  static const _interAsset = 'assets/fonts/Inter-Variable.ttf';
+  static const _monoAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
+
+  Future<bool> _assetAvailable(String assetPath) async {
+    try {
+      await rootBundle.load(assetPath);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Primary: Inter • Monospace: JetBrains Mono'),
+        const SizedBox(height: 8),
+        Text(
+          'Inter sample: The quick brown fox 12345',
+          style: textTheme.bodyMedium?.copyWith(
+            fontFamily: kClzPrimaryFontFamily,
+            fontFamilyFallback: kClzFontFallback,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'JetBrains Mono sample: ABCDEF 1234567890',
+          style: textTheme.bodyMedium?.copyWith(
+            fontFamily: kClzMonospaceFontFamily,
+            fontFamilyFallback: kClzMonospaceFontFallback,
+          ),
+        ),
+        const SizedBox(height: 12),
+        FutureBuilder<bool>(
+          future: _assetAvailable(_interAsset),
+          builder: (context, snapshot) {
+            final ok = snapshot.data == true;
+            return _FontStatusRow(
+              label: 'Inter font asset',
+              value: ok ? 'Loaded' : 'Missing',
+              ok: ok,
+            );
+          },
+        ),
+        const SizedBox(height: 6),
+        FutureBuilder<bool>(
+          future: _assetAvailable(_monoAsset),
+          builder: (context, snapshot) {
+            final ok = snapshot.data == true;
+            return _FontStatusRow(
+              label: 'JetBrains Mono asset',
+              value: ok ? 'Loaded' : 'Missing',
+              ok: ok,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _FontStatusRow extends StatelessWidget {
+  const _FontStatusRow({
+    required this.label,
+    required this.value,
+    required this.ok,
+  });
+
+  final String label;
+  final String value;
+  final bool ok;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          ok ? Icons.check_circle_outline : Icons.error_outline,
+          size: 16,
+          color: ok ? Colors.greenAccent : Colors.orangeAccent,
+        ),
+        const SizedBox(width: 8),
+        Text('$label: $value'),
+      ],
+    );
   }
 }
 

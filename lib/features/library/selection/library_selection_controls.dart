@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 enum _BulkAction {
@@ -40,23 +42,44 @@ class LibrarySelectionControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final baseStyle = TextButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      foregroundColor: palette.textPrimary,
+      backgroundColor: librarySelectionToolbarSecondaryAction(context),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: BorderSide(
+          color: librarySelectionToolbarBorder(context).withValues(alpha: 0.86),
+        ),
+      ),
+    );
     TextButton actionButton({
       required VoidCallback? onPressed,
       required IconData icon,
       required String label,
       Color? foregroundColor,
+      Color? backgroundColor,
+      Color? borderColor,
     }) {
       return TextButton.icon(
         onPressed: onPressed,
         icon: Icon(icon, size: 15),
         label: Text(label),
-        style: TextButton.styleFrom(
-          visualDensity: VisualDensity.compact,
-          foregroundColor:
-              foregroundColor ?? Theme.of(context).colorScheme.onSurface,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
+        style: baseStyle.copyWith(
+          foregroundColor: WidgetStatePropertyAll(
+            foregroundColor ?? palette.textPrimary,
+          ),
+          backgroundColor: WidgetStatePropertyAll(
+            backgroundColor ?? librarySelectionToolbarSecondaryAction(context),
+          ),
+          side: WidgetStatePropertyAll(
+            BorderSide(
+              color: borderColor ??
+                  librarySelectionToolbarBorder(context)
+                      .withValues(alpha: 0.86),
+            ),
           ),
         ),
       );
@@ -77,6 +100,12 @@ class LibrarySelectionControls extends StatelessWidget {
           icon: Icons.delete_outline,
           label: 'Remove',
           foregroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: Theme.of(context)
+              .colorScheme
+              .errorContainer
+              .withValues(alpha: 0.34),
+          borderColor:
+              Theme.of(context).colorScheme.error.withValues(alpha: 0.52),
         ),
         actionButton(
           onPressed: callbacks.onBulkDuplicate,
@@ -110,12 +139,23 @@ class LibrarySelectionControls extends StatelessWidget {
         ),
         PopupMenuButton<_BulkAction>(
           tooltip: 'More selection actions',
-          style: TextButton.styleFrom(
+          style: ButtonStyle(
             visualDensity: VisualDensity.compact,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
+            foregroundColor: WidgetStatePropertyAll(palette.textPrimary),
+            backgroundColor: WidgetStatePropertyAll(
+              librarySelectionToolbarSecondaryAction(context),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+                side: BorderSide(
+                  color: librarySelectionToolbarBorder(context)
+                      .withValues(alpha: 0.86),
+                ),
+              ),
             ),
           ),
           icon: const Icon(Icons.more_horiz, size: 18),

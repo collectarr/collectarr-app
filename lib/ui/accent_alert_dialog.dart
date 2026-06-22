@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
-/// Alert dialog with unified accent strip header and rounded corners.
+/// Alert dialog with unified accent strip header.
 class AccentAlertDialog extends StatelessWidget {
   const AccentAlertDialog({
     super.key,
@@ -49,7 +49,7 @@ class AccentAlertDialog extends StatelessWidget {
   final Color? accent;
   final VoidCallback? headerOnClose;
 
-  static const _defaultRadius = 10.0;
+  static const _defaultRadius = 0.0;
 
   @override
   Widget build(BuildContext context) {

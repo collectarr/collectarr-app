@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
@@ -8,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/text_controller_group.dart';
@@ -18,6 +20,7 @@ import 'package:collectarr_app/features/library/series/series_registry_repositor
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -233,8 +236,10 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   final List<_EditableComicCreator> _creators = [];
   final List<_EditableComicCharacter> _characters = [];
   final List<String> _signedByEntries = [];
-  bool _useCustomCreators = false;
-  bool _useCustomCharacters = false;
+  bool _isFetchingServerSnapshot = false;
+  String? _serverSnapshotError;
+  CatalogItem? _serverSnapshotItem;
+  bool _didAutoOpenMetadataCompare = false;
   late final TextEditingController summaryCtl;
   late final TextEditingController descriptionCtl;
   final List<Map<String, TextEditingController>> links = [];
@@ -270,6 +275,26 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   void _disposeLinkControllers(Map<String, TextEditingController> link) {
     _textControllers.disposeController(link['title']);
     _textControllers.disposeController(link['url']);
+  }
+
+  void _trackCreatorControllers(_EditableComicCreator creator) {
+    _textControllers.track(creator.nameController);
+    _textControllers.track(creator.roleController);
+  }
+
+  void _disposeCreator(_EditableComicCreator creator) {
+    _textControllers.disposeController(creator.nameController);
+    _textControllers.disposeController(creator.roleController);
+  }
+
+  void _trackCharacterControllers(_EditableComicCharacter character) {
+    _textControllers.track(character.nameController);
+    _textControllers.track(character.realNameController);
+  }
+
+  void _disposeCharacter(_EditableComicCharacter character) {
+    _textControllers.disposeController(character.nameController);
+    _textControllers.disposeController(character.realNameController);
   }
 
   @override
@@ -404,20 +429,25 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     };
 
     for (final creator in item.creators ?? const <Map<String, dynamic>>[]) {
-      _creators.add(_EditableComicCreator.fromMetadata(creator));
+      final editableCreator = _EditableComicCreator.fromMetadata(creator);
+      _trackCreatorControllers(editableCreator);
+      _creators.add(editableCreator);
     }
-    _useCustomCreators = _creators.any((c) => !c.isCore);
     final characterDetails = item.characterDetails;
     if (characterDetails != null && characterDetails.isNotEmpty) {
       for (final character in characterDetails) {
-        _characters.add(_EditableComicCharacter.fromMetadata(character));
+        final editableCharacter =
+            _EditableComicCharacter.fromMetadata(character);
+        _trackCharacterControllers(editableCharacter);
+        _characters.add(editableCharacter);
       }
     } else {
       for (final character in item.characters ?? const <String>[]) {
-        _characters.add(_EditableComicCharacter.custom(character));
+        final editableCharacter = _EditableComicCharacter.custom(character);
+        _trackCharacterControllers(editableCharacter);
+        _characters.add(editableCharacter);
       }
     }
-    _useCustomCharacters = _characters.any((c) => !c.isCore);
     final signedByText = (owned?.signedBy ?? '').trim();
     if (signedByText.isNotEmpty) {
       _signedByEntries.addAll(
@@ -439,25 +469,43 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   }
 
   Future<void> _loadSavedTabOrder() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList(_tabOrderPreferenceKey);
-    if (saved == null || saved.length != _tabs.length) {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList(_tabOrderPreferenceKey);
+      if (saved == null || saved.length != _tabs.length) {
+        return;
+      }
+      final parsed = saved.map(int.tryParse).toList();
+      if (parsed.contains(null)) {
+        return;
+      }
+      final order = parsed.cast<int>();
+      final sorted = List<int>.from(order)..sort();
+      final isPermutation = sorted.length == _tabs.length &&
+          sorted.indexed.every((entry) => entry.$1 == entry.$2);
+      if (!isPermutation || !mounted) {
+        return;
+      }
+      setState(() {
+        _tabOrder = order;
+      });
+    } finally {
+      _autoOpenMetadataCompareIfRequested();
+    }
+  }
+
+  void _autoOpenMetadataCompareIfRequested() {
+    if (_didAutoOpenMetadataCompare ||
+        !widget.request.openMetadataCompareOnOpen ||
+        !mounted) {
       return;
     }
-    final parsed = saved.map(int.tryParse).toList();
-    if (parsed.contains(null)) {
-      return;
+    _didAutoOpenMetadataCompare = true;
+    final creatorsTabIndex = _tabOrder.indexOf(7);
+    if (creatorsTabIndex >= 0) {
+      _tabController.animateTo(creatorsTabIndex);
     }
-    final order = parsed.cast<int>();
-    final sorted = List<int>.from(order)..sort();
-    final isPermutation = sorted.length == _tabs.length &&
-        sorted.indexed.every((entry) => entry.$1 == entry.$2);
-    if (!isPermutation || !mounted) {
-      return;
-    }
-    setState(() {
-      _tabOrder = order;
-    });
+    unawaited(_compareWithServerSnapshot());
   }
 
   Future<void> _saveTabOrder() async {
@@ -494,30 +542,29 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   void dispose() {
     _tabController.dispose();
     _textControllers.dispose();
-    for (final creator in _creators) {
-      creator.dispose();
-    }
-    for (final character in _characters) {
-      character.dispose();
-    }
     super.dispose();
   }
 
   void _addCreator() {
-    _creators.add(_EditableComicCreator.custom());
+    final creator = _EditableComicCreator.custom();
+    _trackCreatorControllers(creator);
+    _creators.add(creator);
     setState(() {});
   }
 
   void _addCreatorWithRole(String role) {
-    _creators.add(_EditableComicCreator.custom(role: role));
+    final creator = _EditableComicCreator.custom(role: role);
+    _trackCreatorControllers(creator);
+    _creators.add(creator);
     setState(() {});
   }
 
   Future<void> _addCatalogCreator() async {
+    final api = ref.read(apiClientProvider);
     final creator = await _showLookupDialog(
       title: 'Find creator',
       searchHint: 'Search creators',
-      search: (query) => _lookupApi().searchCreators(query: query, limit: 24),
+      search: (query) => api.searchCreators(query: query, limit: 24),
       titleForResult: (result) => result['name']?.toString() ?? 'Creator',
       subtitleForResult: (result) {
         final itemCount = (result['item_count'] as num?)?.toInt();
@@ -531,13 +578,15 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     if (creator == null) {
       return;
     }
-    _creators.add(_EditableComicCreator.fromLookupResult(creator));
+    final editableCreator = _EditableComicCreator.fromLookupResult(creator);
+    _trackCreatorControllers(editableCreator);
+    _creators.add(editableCreator);
     setState(() {});
   }
 
   void _removeCreator(int idx) {
     final creator = _creators.removeAt(idx);
-    creator.dispose();
+    _disposeCreator(creator);
     setState(() {});
   }
 
@@ -548,10 +597,11 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   }
 
   Future<void> _lookupCreatorForRow(int idx) async {
+    final api = ref.read(apiClientProvider);
     final result = await _showLookupDialog(
       title: 'Find creator',
       searchHint: 'Search creators',
-      search: (query) => _lookupApi().searchCreators(query: query, limit: 24),
+      search: (query) => api.searchCreators(query: query, limit: 24),
       titleForResult: (r) => r['name']?.toString() ?? 'Creator',
       subtitleForResult: (r) {
         final count = (r['item_count'] as num?)?.toInt();
@@ -593,16 +643,19 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
       characterDraftCtl.clear();
       return;
     }
-    _characters.add(_EditableComicCharacter.custom(normalized));
+    final character = _EditableComicCharacter.custom(normalized);
+    _trackCharacterControllers(character);
+    _characters.add(character);
     characterDraftCtl.clear();
     setState(() {});
   }
 
   Future<void> _addCatalogCharacter() async {
+    final api = ref.read(apiClientProvider);
     final character = await _showLookupDialog(
       title: 'Find character',
       searchHint: 'Search characters',
-      search: (query) => _lookupApi().searchCharacters(query: query, limit: 24),
+      search: (query) => api.searchCharacters(query: query, limit: 24),
       titleForResult: (result) => result['name']?.toString() ?? 'Character',
       subtitleForResult: (result) {
         final appearanceCount = (result['appearance_count'] as num?)?.toInt();
@@ -632,13 +685,16 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     if (alreadyExists) {
       return;
     }
-    _characters.add(_EditableComicCharacter.fromLookupResult(character));
+    final editableCharacter =
+        _EditableComicCharacter.fromLookupResult(character);
+    _trackCharacterControllers(editableCharacter);
+    _characters.add(editableCharacter);
     setState(() {});
   }
 
   void _removeCharacter(int idx) {
     final character = _characters.removeAt(idx);
-    character.dispose();
+    _disposeCharacter(character);
     setState(() {});
   }
 
@@ -791,9 +847,394 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
     return selection;
   }
 
-  dynamic _lookupApi() {
-    return ProviderScope.containerOf(context, listen: false)
-        .read(apiClientProvider);
+  Future<void> _compareWithServerSnapshot() async {
+    if (_isFetchingServerSnapshot) {
+      return;
+    }
+    setState(() {
+      _isFetchingServerSnapshot = true;
+      _serverSnapshotError = null;
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final serverItem = await api.getMetadataItem(
+        kind: widget.request.item.kind,
+        id: widget.request.item.id,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverSnapshotItem = serverItem;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverSnapshotError = _metadataCompareErrorMessage(error);
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFetchingServerSnapshot = false;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> get _serverCreators {
+    return _serverSnapshotItem?.creators ?? const <Map<String, dynamic>>[];
+  }
+
+  String _metadataCompareErrorMessage(Object error) {
+    if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 422) {
+        return 'Server rejected this compare request (422). '
+            'This item likely has an unsupported metadata id format.';
+      }
+      final body = error.response?.data;
+      if (body is Map<String, dynamic>) {
+        final detail = body['detail']?.toString().trim();
+        if (detail != null && detail.isNotEmpty) {
+          return 'Could not load server metadata: $detail';
+        }
+      }
+      if (statusCode != null) {
+        return 'Could not load server metadata (HTTP $statusCode).';
+      }
+    }
+    return 'Could not load the current metadata snapshot from the server.';
+  }
+
+  List<Map<String, dynamic>> get _serverCharacters {
+    final details = _serverSnapshotItem?.characterDetails;
+    if (details != null && details.isNotEmpty) {
+      return details;
+    }
+
+    return [
+      for (final name in _serverSnapshotItem?.characters ?? const <String>[])
+        <String, dynamic>{'name': name}
+    ];
+  }
+
+  String _diffText(String? value) {
+    final normalized = value?.trim() ?? '';
+    return normalized.isEmpty ? '—' : normalized;
+  }
+
+  String _diffDate(DateTime? value) {
+    return value == null ? '—' : formatDate(value);
+  }
+
+  String _diffList(Iterable<String>? values) {
+    if (values == null) {
+      return '—';
+    }
+    final normalized = values
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+    if (normalized.isEmpty) {
+      return '—';
+    }
+    return normalized.join(', ');
+  }
+
+  List<MetadataDiffEntry> _comicMetadataDiffEntries(CatalogItem serverItem) {
+    return [
+      MetadataDiffEntry(
+        label: 'Title',
+        localValue: _diffText(titleCtl.text),
+        serverValue: _diffText(serverItem.title),
+      ),
+      MetadataDiffEntry(
+        label: 'Series',
+        localValue: _diffText(seriesCtl.text),
+        serverValue: _diffText(serverItem.series?.seriesTitle),
+      ),
+      MetadataDiffEntry(
+        label: 'Issue number',
+        localValue: _diffText(issueNumberCtl.text),
+        serverValue: _diffText(serverItem.itemNumber),
+      ),
+      MetadataDiffEntry(
+        label: 'Variant',
+        localValue: _diffText(variantCtl.text),
+        serverValue: _diffText(serverItem.variant),
+      ),
+      MetadataDiffEntry(
+        label: 'Edition / variant title',
+        localValue: _diffText(variantDescCtl.text),
+        serverValue: _diffText(serverItem.editionTitle),
+      ),
+      MetadataDiffEntry(
+        label: 'Format',
+        localValue: _diffText(formatCtl.text),
+        serverValue: _diffText(serverItem.physicalFormatLabel),
+      ),
+      MetadataDiffEntry(
+        label: 'Publisher',
+        localValue: _diffText(publisherCtl.text),
+        serverValue: _diffText(serverItem.publisher),
+      ),
+      MetadataDiffEntry(
+        label: 'Imprint',
+        localValue: _diffText(imprintCtl.text),
+        serverValue: _diffText(serverItem.publishing?.imprint),
+      ),
+      MetadataDiffEntry(
+        label: 'Cover date',
+        localValue: _diffText(coverDateCtl.text),
+        serverValue: _diffDate(serverItem.coverDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Release date',
+        localValue: _diffText(releaseDateCtl.text),
+        serverValue: _diffDate(serverItem.releaseDate),
+      ),
+      MetadataDiffEntry(
+        label: 'Country',
+        localValue: _diffText(countryCtl.text),
+        serverValue: _diffText(serverItem.country),
+      ),
+      MetadataDiffEntry(
+        label: 'Language',
+        localValue: _diffText(languageCtl.text),
+        serverValue: _diffText(serverItem.language),
+      ),
+      MetadataDiffEntry(
+        label: 'Age rating',
+        localValue: _diffText(ageCtl.text),
+        serverValue: _diffText(serverItem.ageRating),
+      ),
+      MetadataDiffEntry(
+        label: 'Page count',
+        localValue: _diffText(pagesCtl.text),
+        serverValue: _diffText(serverItem.publishing?.pageCount?.toString()),
+      ),
+      MetadataDiffEntry(
+        label: 'Genres',
+        localValue: _diffText(genresCtl.text),
+        serverValue: _diffList(serverItem.genres),
+      ),
+      MetadataDiffEntry(
+        label: 'Story arcs',
+        localValue: _diffText(storyArcsCtl.text),
+        serverValue: _diffList(serverItem.storyArcs),
+      ),
+      MetadataDiffEntry(
+        label: 'Crossover',
+        localValue: _diffText(crossoverCtl.text),
+        serverValue: _diffText(serverItem.crossover),
+      ),
+      MetadataDiffEntry(
+        label: 'Barcode',
+        localValue: _diffText(barcodeCtl.text),
+        serverValue: _diffText(serverItem.barcode),
+      ),
+      MetadataDiffEntry(
+        label: 'Plot summary',
+        localValue: _diffText(summaryCtl.text),
+        serverValue: _diffText(serverItem.plotSummary),
+      ),
+    ];
+  }
+
+  Widget _buildServerSnapshotDiffSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_serverSnapshotError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _serverSnapshotError!,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.redAccent),
+          ),
+        ],
+        if (_serverSnapshotItem != null) ...[
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Metadata fields diff (Local vs Server)',
+            entries: _comicMetadataDiffEntries(_serverSnapshotItem!),
+            emptyText: 'No field-level differences found.',
+          ),
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Creators diff (Local vs Server)',
+            entries: [
+              for (var index = 0;
+                  index <
+                      (_creators.length > _serverCreators.length
+                          ? _creators.length
+                          : _serverCreators.length);
+                  index++)
+                MetadataDiffEntry(
+                  label: 'Creator #${index + 1}',
+                  localValue: _creatorText(
+                    index < _creators.length ? _creators[index].toMap() : null,
+                  ),
+                  serverValue: _creatorText(
+                    index < _serverCreators.length
+                        ? _serverCreators[index]
+                        : null,
+                  ),
+                  onAccept: index < _serverCreators.length
+                      ? () => _applyServerCreatorAt(index)
+                      : null,
+                ),
+            ],
+            onAcceptAll:
+                _serverCreators.isEmpty ? null : _applyAllServerCreators,
+          ),
+          const SizedBox(height: 8),
+          MetadataDiffPanel(
+            title: 'Characters diff (Local vs Server)',
+            entries: [
+              for (var index = 0;
+                  index <
+                      (_characters.length > _serverCharacters.length
+                          ? _characters.length
+                          : _serverCharacters.length);
+                  index++)
+                MetadataDiffEntry(
+                  label: 'Character #${index + 1}',
+                  localValue: _characterText(
+                    index < _characters.length
+                        ? _characters[index].toMap()
+                        : null,
+                  ),
+                  serverValue: _characterText(
+                    index < _serverCharacters.length
+                        ? _serverCharacters[index]
+                        : null,
+                  ),
+                  onAccept: index < _serverCharacters.length
+                      ? () => _applyServerCharacterAt(index)
+                      : null,
+                ),
+            ],
+            onAcceptAll:
+                _serverCharacters.isEmpty ? null : _applyAllServerCharacters,
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _creatorText(Map<String, dynamic>? value) {
+    if (value == null) {
+      return '';
+    }
+    final role = value['role']?.toString().trim();
+    final name = value['name']?.toString().trim();
+    if (name == null || name.isEmpty) {
+      return role ?? '';
+    }
+    if (role == null || role.isEmpty) {
+      return name;
+    }
+    return '$role - $name';
+  }
+
+  String _characterText(Map<String, dynamic>? value) {
+    if (value == null) {
+      return '';
+    }
+    final name = value['name']?.toString().trim();
+    final realName = value['real_name']?.toString().trim();
+    if (name == null || name.isEmpty) {
+      return realName ?? '';
+    }
+    if (realName == null || realName.isEmpty) {
+      return name;
+    }
+    return '$name ($realName)';
+  }
+
+  void _applyServerCreatorAt(int index) {
+    if (index < 0 || index >= _serverCreators.length) {
+      return;
+    }
+    final next = _EditableComicCreator.fromMetadata(
+      Map<String, dynamic>.from(_serverCreators[index])
+        ..['source_type'] = 'core',
+    );
+    _trackCreatorControllers(next);
+    setState(() {
+      if (index < _creators.length) {
+        final existing = _creators[index];
+        _creators[index] = next;
+        _disposeCreator(existing);
+      } else {
+        _creators.add(next);
+      }
+    });
+  }
+
+  void _applyAllServerCreators() {
+    final incoming = [
+      for (final creator in _serverCreators)
+        _EditableComicCreator.fromMetadata(
+          Map<String, dynamic>.from(creator)..['source_type'] = 'core',
+        ),
+    ];
+    for (final creator in incoming) {
+      _trackCreatorControllers(creator);
+    }
+    setState(() {
+      for (final creator in _creators) {
+        _disposeCreator(creator);
+      }
+      _creators
+        ..clear()
+        ..addAll(incoming);
+    });
+  }
+
+  void _applyServerCharacterAt(int index) {
+    if (index < 0 || index >= _serverCharacters.length) {
+      return;
+    }
+    final next = _EditableComicCharacter.fromMetadata(
+      Map<String, dynamic>.from(_serverCharacters[index])
+        ..['source_type'] = 'core',
+    );
+    _trackCharacterControllers(next);
+    setState(() {
+      if (index < _characters.length) {
+        final existing = _characters[index];
+        _characters[index] = next;
+        _disposeCharacter(existing);
+      } else {
+        _characters.add(next);
+      }
+    });
+  }
+
+  void _applyAllServerCharacters() {
+    final incoming = [
+      for (final character in _serverCharacters)
+        _EditableComicCharacter.fromMetadata(
+          Map<String, dynamic>.from(character)..['source_type'] = 'core',
+        ),
+    ];
+    for (final character in incoming) {
+      _trackCharacterControllers(character);
+    }
+    setState(() {
+      for (final character in _characters) {
+        _disposeCharacter(character);
+      }
+      _characters
+        ..clear()
+        ..addAll(incoming);
+    });
   }
 
   Widget _labelledField(
@@ -2137,414 +2578,273 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   }
 
   Widget _buildCreatorsTab() {
-    final coreCreators = widget.request.item.creators ?? const [];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Core / Custom toggle
-          Center(
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Core Creators')),
-                ButtonSegment(value: true, label: Text('Custom Creators')),
-              ],
-              selected: {_useCustomCreators},
-              onSelectionChanged: (sel) {
-                setState(() => _useCustomCreators = sel.first);
-              },
-            ),
+          Row(
+            children: [
+              FilledButton.icon(
+                onPressed: _addCreator,
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add'),
+              ),
+              const SizedBox(width: 6),
+              OutlinedButton.icon(
+                onPressed: _addCatalogCreator,
+                icon: const Icon(Icons.person_search_outlined, size: 16),
+                label: const Text('Find in Catalog'),
+              ),
+              const Spacer(),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.add_circle_outline, size: 20),
+                tooltip: 'Add by role',
+                itemBuilder: (_) => [
+                  for (final role in _commonCreatorRoles)
+                    PopupMenuItem(
+                      value: role,
+                      height: kLibraryToolbarPopupItemHeight,
+                      child: Text(role),
+                    ),
+                ],
+                onSelected: _addCreatorWithRole,
+              ),
+            ],
           ),
-          const Divider(height: 20),
-
-          // Core mode — read-only
-          if (!_useCustomCreators) ...[
-            if (coreCreators.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    'Creators not available',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Theme.of(context).hintColor),
-                  ),
+          const SizedBox(height: 8),
+          _buildServerSnapshotDiffSection(),
+          if (_creators.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'Creators is empty',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Theme.of(context).hintColor),
                 ),
-              )
-            else
-              for (final creator in coreCreators)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Theme.of(context).dividerColor),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          creator['role']?.toString() ?? '',
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          creator['name']?.toString() ?? '',
-                          style:
-                              const TextStyle(fontSize: 13, color: Colors.grey),
-                        ),
-                      ),
-                      const Icon(Icons.lock_outline,
-                          size: 16, color: Colors.grey),
-                    ],
-                  ),
-                ),
-          ],
-
-          // Custom mode — editable
-          if (_useCustomCreators) ...[
-            Row(
-              children: [
-                FilledButton.icon(
-                  onPressed: _addCreator,
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add'),
-                ),
-                const SizedBox(width: 6),
-                OutlinedButton.icon(
-                  onPressed: _addCatalogCreator,
-                  icon: const Icon(Icons.person_search_outlined, size: 16),
-                  label: const Text('Find in Catalog'),
-                ),
-                const Spacer(),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.add_circle_outline, size: 20),
-                  tooltip: 'Add by role',
-                  itemBuilder: (_) => [
-                    for (final role in _commonCreatorRoles)
-                      PopupMenuItem(
-                        value: role,
-                        height: kLibraryToolbarPopupItemHeight,
-                        child: Text(role),
-                      ),
-                  ],
-                  onSelected: _addCreatorWithRole,
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 8),
-            if (_creators.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    'Creators is empty',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Theme.of(context).hintColor),
+          if (_creators.isNotEmpty)
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              onReorderItem: _reorderCreator,
+              itemCount: _creators.length,
+              buildDefaultDragHandles: false,
+              proxyDecorator: (child, _, __) => Material(
+                elevation: 2,
+                child: child,
+              ),
+              itemBuilder: (context, i) => Container(
+                key: ValueKey(_creators[i]),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Theme.of(context).dividerColor),
                   ),
                 ),
-              ),
-            if (_creators.isNotEmpty)
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                onReorderItem: _reorderCreator,
-                itemCount: _creators.length,
-                buildDefaultDragHandles: false,
-                proxyDecorator: (child, _, __) => Material(
-                  elevation: 2,
-                  child: child,
-                ),
-                itemBuilder: (context, i) => Container(
-                  key: ValueKey(_creators[i]),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Theme.of(context).dividerColor),
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    ReorderableDragStartListener(
+                      index: i,
+                      child: Icon(Icons.drag_handle,
+                          size: 20, color: Theme.of(context).hintColor),
                     ),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      ReorderableDragStartListener(
-                        index: i,
-                        child: Icon(Icons.drag_handle,
-                            size: 20, color: Theme.of(context).hintColor),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 140,
-                        child: Builder(
-                          builder: (context) {
-                            final currentRole =
-                                _creators[i].roleController.text.trim();
-                            final roles = <String>[
-                              if (currentRole.isNotEmpty &&
-                                  !_commonCreatorRoles.contains(currentRole))
-                                currentRole,
-                              ..._commonCreatorRoles,
-                            ];
-                            return DropdownButtonFormField<String>(
-                              initialValue:
-                                  currentRole.isEmpty ? null : currentRole,
-                              isDense: true,
-                              isExpanded: true,
-                              decoration: const InputDecoration(
-                                hintText: 'Job',
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 8),
-                                border: OutlineInputBorder(),
-                                isDense: true,
-                              ),
-                              style: const TextStyle(fontSize: 12),
-                              items: [
-                                for (final role in roles)
-                                  DropdownMenuItem(
-                                      value: role, child: Text(role)),
-                              ],
-                              onChanged: (v) {
-                                if (v != null) {
-                                  _creators[i].roleController.text = v;
-                                }
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _creators[i].nameController,
-                          style: const TextStyle(fontSize: 13),
-                          decoration: const InputDecoration(
-                            hintText: 'Name',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
-                            border: OutlineInputBorder(),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 140,
+                      child: Builder(
+                        builder: (context) {
+                          final currentRole =
+                              _creators[i].roleController.text.trim();
+                          final roles = <String>[
+                            if (currentRole.isNotEmpty &&
+                                !_commonCreatorRoles.contains(currentRole))
+                              currentRole,
+                            ..._commonCreatorRoles,
+                          ];
+                          return DropdownButtonFormField<String>(
+                            initialValue:
+                                currentRole.isEmpty ? null : currentRole,
                             isDense: true,
-                          ),
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              hintText: 'Job',
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            style: const TextStyle(fontSize: 12),
+                            items: [
+                              for (final role in roles)
+                                DropdownMenuItem(
+                                    value: role, child: Text(role)),
+                            ],
+                            onChanged: (v) {
+                              if (v != null) {
+                                _creators[i].roleController.text = v;
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _creators[i].nameController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Name',
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.person_search, size: 18),
-                        onPressed: () => _lookupCreatorForRow(i),
-                        tooltip: 'Lookup',
-                        visualDensity: VisualDensity.compact,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, size: 18),
-                        onPressed: () => _removeCreator(i),
-                        tooltip: 'Remove',
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ],
-                  ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.person_search, size: 18),
+                      onPressed: () => _lookupCreatorForRow(i),
+                      tooltip: 'Lookup',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => _removeCreator(i),
+                      tooltip: 'Remove',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
                 ),
               ),
-          ],
+            ),
         ],
       ),
     );
   }
 
   Widget _buildCharactersTab() {
-    final coreCharacters = widget.request.item.characters ?? const [];
-    final coreDetails = widget.request.item.characterDetails ?? const [];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Core / Custom toggle
-          Center(
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Core Characters')),
-                ButtonSegment(value: true, label: Text('Custom Characters')),
-              ],
-              selected: {_useCustomCharacters},
-              onSelectionChanged: (sel) {
-                setState(() => _useCustomCharacters = sel.first);
-              },
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: characterDraftCtl,
+                  style: const TextStyle(fontSize: 13),
+                  decoration: const InputDecoration(
+                    hintText: 'Character name',
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onSubmitted: (_) => _addCharacter(),
+                ),
+              ),
+              const SizedBox(width: 6),
+              FilledButton.icon(
+                onPressed: _addCharacter,
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add'),
+              ),
+              const SizedBox(width: 6),
+              OutlinedButton.icon(
+                onPressed: _addCatalogCharacter,
+                icon: const Icon(Icons.person_search_outlined, size: 16),
+                label: const Text('Find in Catalog'),
+              ),
+            ],
           ),
-          const Divider(height: 20),
-
-          // Core mode — read-only
-          if (!_useCustomCharacters) ...[
-            if (coreCharacters.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    'Characters not available',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Theme.of(context).hintColor),
-                  ),
+          const SizedBox(height: 8),
+          _buildServerSnapshotDiffSection(),
+          if (_characters.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'Characters is empty',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Theme.of(context).hintColor),
                 ),
-              )
-            else
-              for (var i = 0; i < coreCharacters.length; i++)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Theme.of(context).dividerColor),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: Text(
-                          coreCharacters[i],
-                          style:
-                              const TextStyle(fontSize: 13, color: Colors.grey),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          (i < coreDetails.length
-                                  ? coreDetails[i]['real_name']?.toString()
-                                  : null) ??
-                              '',
-                          style:
-                              const TextStyle(fontSize: 13, color: Colors.grey),
-                        ),
-                      ),
-                      const Icon(Icons.lock_outline,
-                          size: 16, color: Colors.grey),
-                    ],
-                  ),
-                ),
-          ],
-
-          // Custom mode — editable
-          if (_useCustomCharacters) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: characterDraftCtl,
-                    style: const TextStyle(fontSize: 13),
-                    decoration: const InputDecoration(
-                      hintText: 'Character name',
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                    onSubmitted: (_) => _addCharacter(),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                FilledButton.icon(
-                  onPressed: _addCharacter,
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add'),
-                ),
-                const SizedBox(width: 6),
-                OutlinedButton.icon(
-                  onPressed: _addCatalogCharacter,
-                  icon: const Icon(Icons.person_search_outlined, size: 16),
-                  label: const Text('Find in Catalog'),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 8),
-            if (_characters.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    'Characters is empty',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Theme.of(context).hintColor),
+          if (_characters.isNotEmpty)
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              onReorderItem: _reorderCharacter,
+              itemCount: _characters.length,
+              buildDefaultDragHandles: false,
+              proxyDecorator: (child, _, __) => Material(
+                elevation: 2,
+                child: child,
+              ),
+              itemBuilder: (context, i) => Container(
+                key: ValueKey(_characters[i]),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Theme.of(context).dividerColor),
                   ),
                 ),
-              ),
-            if (_characters.isNotEmpty)
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                onReorderItem: _reorderCharacter,
-                itemCount: _characters.length,
-                buildDefaultDragHandles: false,
-                proxyDecorator: (child, _, __) => Material(
-                  elevation: 2,
-                  child: child,
-                ),
-                itemBuilder: (context, i) => Container(
-                  key: ValueKey(_characters[i]),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Theme.of(context).dividerColor),
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    ReorderableDragStartListener(
+                      index: i,
+                      child: Icon(Icons.drag_handle,
+                          size: 20, color: Theme.of(context).hintColor),
                     ),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      ReorderableDragStartListener(
-                        index: i,
-                        child: Icon(Icons.drag_handle,
-                            size: 20, color: Theme.of(context).hintColor),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 4,
-                        child: TextField(
-                          controller: _characters[i].nameController,
-                          style: const TextStyle(fontSize: 13),
-                          decoration: const InputDecoration(
-                            hintText: 'Character name',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                          ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 4,
+                      child: TextField(
+                        controller: _characters[i].nameController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Character name',
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 3,
-                        child: TextField(
-                          controller: _characters[i].realNameController,
-                          style: const TextStyle(fontSize: 13),
-                          decoration: const InputDecoration(
-                            hintText: 'Real name',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                          ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: _characters[i].realNameController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Real name',
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                          isDense: true,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close, size: 18),
-                        onPressed: () => _removeCharacter(i),
-                        tooltip: 'Remove',
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ],
-                  ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => _removeCharacter(i),
+                      tooltip: 'Remove',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
                 ),
               ),
-          ],
+            ),
         ],
       ),
     );

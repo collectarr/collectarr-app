@@ -190,8 +190,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
               final isExpanded = _expandedId == id;
               return InkWell(
                 onTap: e.detail != null
-                    ? () => setState(() =>
-                        _expandedId = isExpanded ? null : id)
+                    ? () => setState(() => _expandedId = isExpanded ? null : id)
                     : null,
                 child: Padding(
                   padding:
@@ -208,7 +207,8 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
-                                ?.copyWith(color: appPalette(context).textMuted),
+                                ?.copyWith(
+                                    color: appPalette(context).textMuted),
                           ),
                           const SizedBox(width: 8),
                           DecoratedBox(
@@ -264,7 +264,8 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                               e.detail!,
                               style: TextStyle(
                                 fontSize: 11,
-                                fontFamily: 'monospace',
+                                fontFamily: kClzMonospaceFontFamily,
+                                fontFamilyFallback: kClzMonospaceFontFallback,
                                 color: appPalette(context).textMuted,
                               ),
                             ),

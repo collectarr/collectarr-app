@@ -10,6 +10,7 @@ class LibraryItemContextMenuResult {
 
 enum LibraryItemContextAction {
   edit,
+  compareMetadataWithServer,
   duplicate,
   addToOwned,
   removeFromOwned,
@@ -26,6 +27,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   required LibraryWorkspaceEntry entry,
   required Color accent,
   int selectedCount = 1,
+  bool supportsMetadataCompare = false,
 }) {
   final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
   if (overlay == null) {
@@ -90,6 +92,13 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               Icons.edit_outlined,
               'Edit item...',
             ),
+            if (supportsMetadataCompare)
+              _item(
+                context,
+                LibraryItemContextAction.compareMetadataWithServer,
+                Icons.compare_arrows,
+                'Compare metadata with server...',
+              ),
             if (entry.isOwned)
               _item(
                 context,

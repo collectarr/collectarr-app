@@ -825,7 +825,9 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
   }
 
   Widget _linksTab() {
-    final trailers = widget.item.trailerUrls;
+    final trailers = widget.item.trailerUrls
+        .where((link) => link.isTrailerLink)
+        .toList(growable: false);
     return EditTabShell(
       children: [
         if (trailers.isNotEmpty)

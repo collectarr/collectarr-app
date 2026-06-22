@@ -13,7 +13,7 @@ class MovieLibraryEditPresentationBuilder
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: const [
-            LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Main'),
+            LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Media'),
             LibraryEditTabSpec(
                 id: 'edition', icon: Icons.info_outline, label: 'Edition'),
             LibraryEditTabSpec(
@@ -37,7 +37,7 @@ class MovieLibraryEditPresentationBuilder
                 id: 'specs', icon: Icons.info_outline, label: 'Edition Specs'),
           ],
           trackedTabs: const [
-            LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Main'),
+            LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Media'),
             LibraryEditTabSpec(
                 id: 'edition', icon: Icons.info_outline, label: 'Edition'),
             LibraryEditTabSpec(
@@ -59,7 +59,7 @@ class MovieLibraryEditPresentationBuilder
                 id: 'specs', icon: Icons.info_outline, label: 'Edition Specs'),
           ],
           catalogTabs: const [
-            LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Main'),
+            LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Media'),
             LibraryEditTabSpec(
                 id: 'edition', icon: Icons.info_outline, label: 'Edition'),
             LibraryEditTabSpec(

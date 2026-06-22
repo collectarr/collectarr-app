@@ -1,7 +1,20 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
 
 import '../config/library_workspace_tokens.dart';
+
+class LibraryToolbarSearchSuggestion {
+  const LibraryToolbarSearchSuggestion({
+    required this.id,
+    required this.title,
+    this.subtitle,
+  });
+
+  final String id;
+  final String title;
+  final String? subtitle;
+}
 
 class LibraryToolbarSearch extends StatelessWidget {
   const LibraryToolbarSearch({
@@ -16,6 +29,13 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.onClearFilter,
     this.onChanged,
     this.maxWidth = 300,
+    this.searchTarget = LibrarySearchTarget.all,
+    this.searchTargetOptions = const <LibrarySearchTarget>[],
+    this.onSearchTargetChanged,
+    this.onClearSearch,
+    this.searchActive = false,
+    this.suggestions = const <LibraryToolbarSearchSuggestion>[],
+    this.onSuggestionSelected,
   });
 
   final TextEditingController controller;
@@ -28,14 +48,24 @@ class LibraryToolbarSearch extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final Color selectionColor;
   final double maxWidth;
+  final LibrarySearchTarget searchTarget;
+  final List<LibrarySearchTarget> searchTargetOptions;
+  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
+  final VoidCallback? onClearSearch;
+  final bool searchActive;
+  final List<LibraryToolbarSearchSuggestion> suggestions;
+  final ValueChanged<LibraryToolbarSearchSuggestion>? onSuggestionSelected;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     const inputHeight = 34.0;
+    final showSearchScope =
+        searchTargetOptions.isNotEmpty && onSearchTargetChanged != null;
     final inlineActionCount =
         1 + (onScanBarcode != null ? 1 : 0) + (onScanCover != null ? 1 : 0);
     final inlineActionsWidth = inlineActionCount * 28.0 + 8;
+    const searchScopeWidth = 110.0;
     final inputBackground = Color.alphaBlend(
       (palette.isDark ? Colors.white : palette.accent).withValues(
         alpha: palette.isDark ? 0.045 : 0.03,
@@ -55,78 +85,185 @@ class LibraryToolbarSearch extends StatelessWidget {
                 ? constraints.maxWidth
                 : maxWidth)
             : maxWidth;
+        final canShowSuggestions =
+            suggestions.isNotEmpty && onSuggestionSelected != null;
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: availableWidth),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: inputBackground,
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: SizedBox(
-                      height: inputHeight,
-                      child: TextField(
-                        controller: controller,
-                        onChanged: onChanged,
-                        onSubmitted: onSearch,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 12.5,
-                              height: 1.05,
-                            ),
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: hintText,
-                          hintStyle:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: palette.textMuted,
-                                    fontSize: 12,
-                                    height: 1.05,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: inputBackground,
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: SizedBox(
+                          height: inputHeight,
+                          child: Row(
+                            children: [
+                              if (showSearchScope)
+                                SizedBox(
+                                  width: searchScopeWidth,
+                                  child: _ToolbarSearchScopeButton(
+                                    selected: searchTarget,
+                                    options: searchTargetOptions,
+                                    onSelected: onSearchTargetChanged!,
                                   ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          suffixIconConstraints: BoxConstraints(
-                            minWidth: inlineActionsWidth,
-                            maxWidth: inlineActionsWidth,
-                            minHeight: inputHeight,
-                            maxHeight: inputHeight,
-                          ),
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _ToolbarSearchInlineAction(
-                                  tooltip: 'Search',
-                                  icon: Icons.search,
-                                  onPressed: () => onSearch(controller.text),
                                 ),
-                                if (onScanBarcode != null)
-                                  _ToolbarSearchInlineAction(
-                                    tooltip: 'Scan barcode',
-                                    icon: Icons.qr_code_2,
-                                    onPressed: onScanBarcode!,
+                              if (showSearchScope)
+                                VerticalDivider(
+                                  width: 1,
+                                  thickness: 1,
+                                  color: borderColor,
+                                ),
+                              Expanded(
+                                child: TextField(
+                                  controller: controller,
+                                  onChanged: onChanged,
+                                  onSubmitted: onSearch,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontSize: 12.5,
+                                        height: 1.05,
+                                      ),
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    hintText: hintText,
+                                    hintStyle: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: palette.textMuted,
+                                          fontSize: 12,
+                                          height: 1.05,
+                                        ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    suffixIconConstraints: BoxConstraints(
+                                      minWidth: inlineActionsWidth,
+                                      maxWidth: inlineActionsWidth,
+                                      minHeight: inputHeight,
+                                      maxHeight: inputHeight,
+                                    ),
+                                    suffixIcon: Padding(
+                                      padding: const EdgeInsets.only(right: 4),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _ToolbarSearchInlineAction(
+                                            tooltip: searchActive
+                                                ? 'Clear search'
+                                                : 'Search',
+                                            icon: searchActive
+                                                ? Icons.close
+                                                : Icons.search,
+                                            onPressed: searchActive
+                                                ? () {
+                                                    onClearSearch?.call();
+                                                  }
+                                                : () =>
+                                                    onSearch(controller.text),
+                                          ),
+                                          if (onScanBarcode != null)
+                                            _ToolbarSearchInlineAction(
+                                              tooltip: 'Scan barcode',
+                                              icon: Icons.qr_code_2,
+                                              onPressed: onScanBarcode!,
+                                            ),
+                                          if (onScanCover != null)
+                                            _ToolbarSearchInlineAction(
+                                              tooltip: 'Search by cover',
+                                              icon: Icons.image_search,
+                                              onPressed: onScanCover!,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                if (onScanCover != null)
-                                  _ToolbarSearchInlineAction(
-                                    tooltip: 'Search by cover',
-                                    icon: Icons.image_search,
-                                    onPressed: onScanCover!,
-                                  ),
-                              ],
-                            ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ),
+                    if (canShowSuggestions) ...[
+                      const SizedBox(height: 4),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: palette.panel,
+                          border: Border.all(color: borderColor),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 260),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            itemCount: suggestions.length,
+                            itemBuilder: (context, index) {
+                              final suggestion = suggestions[index];
+                              return InkWell(
+                                key: ValueKey(
+                                  'library-search-suggestion-${suggestion.id}',
+                                ),
+                                onTap: () => onSuggestionSelected!(suggestion),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 8,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        suggestion.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                      if ((suggestion.subtitle ?? '')
+                                          .trim()
+                                          .isNotEmpty)
+                                        Text(
+                                          suggestion.subtitle!,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: palette.textMuted,
+                                              ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
@@ -214,4 +351,64 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ToolbarSearchScopeButton extends StatelessWidget {
+  const _ToolbarSearchScopeButton({
+    required this.selected,
+    required this.options,
+    required this.onSelected,
+  });
+
+  final LibrarySearchTarget selected;
+  final List<LibrarySearchTarget> options;
+  final ValueChanged<LibrarySearchTarget> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return PopupMenuButton<LibrarySearchTarget>(
+      key: const ValueKey('library-search-target-button'),
+      tooltip: 'Search scope',
+      initialValue: selected,
+      onSelected: onSelected,
+      padding: EdgeInsets.zero,
+      position: PopupMenuPosition.under,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            Icon(Icons.album_outlined, size: 16, color: palette.textPrimary),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                _librarySearchTargetLabel(selected),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, size: 18, color: palette.textMuted),
+          ],
+        ),
+      ),
+      itemBuilder: (context) => [
+        for (final option in options)
+          PopupMenuItem<LibrarySearchTarget>(
+            value: option,
+            child: Text(_librarySearchTargetLabel(option)),
+          ),
+      ],
+    );
+  }
+}
+
+String _librarySearchTargetLabel(LibrarySearchTarget target) {
+  return switch (target) {
+    LibrarySearchTarget.all => 'Albums & Tracks',
+    LibrarySearchTarget.mediaOnly => 'Albums',
+    LibrarySearchTarget.tracksOnly => 'Tracks',
+  };
 }

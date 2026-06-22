@@ -35,6 +35,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onClearFilters,
     this.onCollectionStatusScopeChanged,
     this.groupLoading = false,
+    this.availableGroupModes,
     this.onClearFilter,
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
@@ -68,6 +69,7 @@ class LibrarySidebarHeader extends StatelessWidget {
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
   final bool groupLoading;
+  final List<LibraryGroupMode>? availableGroupModes;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
@@ -109,6 +111,7 @@ class LibrarySidebarHeader extends StatelessWidget {
                     type: type,
                     folderPreset:
                         folderPreset ?? LibraryFolderPreset.single(groupMode),
+                    availableModes: availableGroupModes,
                     accent: accent,
                     icon: icon,
                     onChanged: onChanged,
@@ -137,7 +140,8 @@ class LibrarySidebarHeader extends StatelessWidget {
                   final updated = await showLibraryFolderFavoritesDialog(
                     context: context,
                     type: type,
-                    availableModes: libraryGroupModesForType(type),
+                    availableModes:
+                        availableGroupModes ?? libraryGroupModesForType(type),
                     initialFavorites: pinnedFolderPresets,
                   );
                   if (updated != null && context.mounted) {

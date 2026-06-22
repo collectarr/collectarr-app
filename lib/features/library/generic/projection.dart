@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
@@ -103,9 +104,8 @@ LibraryFolderPreset? sanitizeLibraryFolderPreset(
   if (preset == null) {
     return null;
   }
-  final allowed = allowedModes == null
-      ? null
-      : Set<LibraryGroupMode>.from(allowedModes);
+  final allowed =
+      allowedModes == null ? null : Set<LibraryGroupMode>.from(allowedModes);
   if (allowed != null && preset.modes.any((mode) => !allowed.contains(mode))) {
     return null;
   }
@@ -139,7 +139,8 @@ LibraryGroupModeDefinition? libraryGroupModeDefinitionOrNull(
       }
     }
   }
-  for (final definition in genericLibraryMediaPresentation.groupModeDefinitions) {
+  for (final definition
+      in genericLibraryMediaPresentation.groupModeDefinitions) {
     if (definition.mode == mode) {
       return definition;
     }
@@ -229,8 +230,7 @@ class LibraryProjection {
     required LibraryTypeConfig type,
     required LibraryMediaAdapter adapter,
     required LibraryWorkspaceViewState viewState,
-    LibraryWorkspaceBrowserMode browserMode =
-        LibraryWorkspaceBrowserMode.media,
+    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
@@ -248,6 +248,7 @@ class LibraryProjection {
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
     Set<String> activeLoanOwnedItemIds = const {},
+    LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final allItems = libraryItemsForShelf(
       shelf,
@@ -281,6 +282,7 @@ class LibraryProjection {
               item,
               normalizedQuery,
               customFieldValuesByItem,
+              searchTarget,
             ))
           item,
     ]..sort((a, b) => adapter.compareEntriesByRules(
@@ -295,9 +297,8 @@ class LibraryProjection {
     return LibraryProjection(
       allItems: allItems,
       filteredItems: filteredItems,
-      buckets:
-          overrideBuckets ??
-              libraryBucketsForItems(scopedBucketItems, type, groupMode),
+      buckets: overrideBuckets ??
+          libraryBucketsForItems(scopedBucketItems, type, groupMode),
       selectedItem: librarySelectedItem(filteredItems, selectedItemId),
       counts: counts,
     );
@@ -458,7 +459,8 @@ bool _matchesBucketScopeFilters(
   List<LibraryBucketScopeFilter> filters,
 ) {
   for (final filter in filters) {
-    if (genericBucketForItemMode(item, type, filter.groupMode) != filter.bucket) {
+    if (genericBucketForItemMode(item, type, filter.groupMode) !=
+        filter.bucket) {
       return false;
     }
   }
@@ -671,39 +673,76 @@ bool _matchesQuery(
   LibraryProjectionItem item,
   String query,
   Map<String, List<String>> customFieldValuesByItem,
+  LibrarySearchTarget searchTarget,
 ) {
   if (query.isEmpty) {
     return true;
   }
   final entry = item.entry;
-  if (_containsQuery(entry.resolvedTitle, query) ||
-      _containsQuery(entry.title, query) ||
-      _containsQuery(entry.localizedTitle, query) ||
-      _containsQuery(entry.originalTitle, query) ||
-      _containsQuery(entry.itemNumber, query) ||
-      _containsQuery(entry.publisher, query) ||
-      _containsQuery(entry.variant, query) ||
-      _containsQuery(entry.barcode, query) ||
-      _containsQuery(entry.releaseYear?.toString(), query) ||
-      _containsQuery(entry.condition, query) ||
-      _containsQuery(entry.grade, query) ||
-      _containsQuery(entry.locationPath, query)) {
+  if (searchTarget.includesMedia &&
+      (_containsQuery(entry.resolvedTitle, query) ||
+          _containsQuery(entry.title, query) ||
+          _containsQuery(entry.localizedTitle, query) ||
+          _containsQuery(entry.originalTitle, query) ||
+          _containsQuery(entry.itemNumber, query) ||
+          _containsQuery(entry.publisher, query) ||
+          _containsQuery(entry.variant, query) ||
+          _containsQuery(entry.barcode, query) ||
+          _containsQuery(entry.releaseYear?.toString(), query) ||
+          _containsQuery(entry.condition, query) ||
+          _containsQuery(entry.grade, query) ||
+          _containsQuery(entry.locationPath, query))) {
     return true;
   }
-  if (entry.searchAliases case final aliases?) {
-    for (final alias in aliases) {
-      if (_containsQuery(alias, query)) {
-        return true;
+  if (searchTarget.includesMedia) {
+    if (entry.searchAliases case final aliases?) {
+      for (final alias in aliases) {
+        if (_containsQuery(alias, query)) {
+          return true;
+        }
+      }
+    }
+    final ownedId = item.source.ownedItem?.id;
+    if (ownedId != null) {
+      final cfValues = customFieldValuesByItem[ownedId];
+      if (cfValues != null) {
+        for (final v in cfValues) {
+          if (_containsQuery(v, query)) return true;
+        }
       }
     }
   }
-  final ownedId = item.source.ownedItem?.id;
-  if (ownedId != null) {
-    final cfValues = customFieldValuesByItem[ownedId];
-    if (cfValues != null) {
-      for (final v in cfValues) {
-        if (_containsQuery(v, query)) return true;
-      }
+  if (searchTarget.includesTracks && _matchesTrackQuery(entry, query)) {
+    return true;
+  }
+  return false;
+}
+
+bool _matchesTrackQuery(
+  LibraryWorkspaceEntry entry,
+  String query,
+) {
+  final tracks = entry.music?.tracks;
+  if (tracks == null || tracks.isEmpty) {
+    return false;
+  }
+  final terms = query
+      .split(RegExp(r'\s+'))
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+  if (terms.isEmpty) {
+    return false;
+  }
+  for (final track in tracks) {
+    final searchableParts = <String>[
+      track.title,
+      if (track.artist?.trim().isNotEmpty == true) track.artist!.trim(),
+      if (track.position != null) track.position!.toString(),
+    ];
+    final searchable = searchableParts.join(' ').toLowerCase();
+    if (terms.every(searchable.contains)) {
+      return true;
     }
   }
   return false;

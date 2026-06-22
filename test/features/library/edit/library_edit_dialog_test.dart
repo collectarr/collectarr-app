@@ -297,7 +297,7 @@ void main() {
         kind: 'movie',
         title: 'Session 9',
         releaseYear: 2001,
-        publishing: const CatalogPublishingDetails(
+        publishing: CatalogPublishingDetails(
           pageCount: 123,
           imprint: 'Should stay hidden',
           seriesGroup: 'Noisy field',
@@ -387,7 +387,7 @@ void main() {
         country: 'USA',
         language: 'English',
         ageRating: 'Modern Age',
-        publishing: const CatalogPublishingDetails(
+        publishing: CatalogPublishingDetails(
           pageCount: 128,
           imprint: 'KaBOOM!',
           seriesGroup: 'Miniseries',
@@ -600,6 +600,221 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.item.sortKey, 'lord-of-the-rings-001');
+  });
+
+  testWidgets(
+      'book edit dialog preserves publishing and personal parity fields',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('book')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'book-preserve-1',
+        kind: 'book',
+        title: 'Foundation',
+        publishing: CatalogPublishingDetails(
+          pageCount: 320,
+          subtitle: 'The Foundation Trilogy, Part 1',
+          publicationPlace: 'New York',
+          originalCountry: 'United States',
+          originalLanguage: 'English',
+          originalPublicationDate: DateTime.utc(1951, 6, 1),
+          originalPublicationPlace: 'New York',
+          originalPublisher: 'Gnome Press',
+          paperType: 'Pulp',
+          printedBy: 'Offset House',
+          subjects: ['Sci-Fi', 'Galactic Empire'],
+          dustJacketCondition: 'Very Good',
+          dustJacket: true,
+          audiobookAbridged: false,
+          firstEdition: true,
+        ),
+        creators: const [
+          {'name': 'Isaac Asimov', 'role': 'Author'},
+          {'name': 'Random Contributor', 'role': 'Consultant'},
+        ],
+        trailerUrls: const [
+          TrailerLink(
+            url: 'https://www.goodreads.com/book/show/29579.Foundation',
+            title: 'Goodreads',
+            description: 'Goodreads',
+            source: 'External Link',
+            isAutomatic: false,
+            kind: 'external',
+          ),
+        ],
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-book-preserve-1',
+      itemId: 'book-preserve-1',
+      quantity: 1,
+      signedBy: 'Isaac Asimov',
+      ownerLabel: 'Andrei',
+      purchaseStore: 'Vintage Store',
+      marketValueCents: 2599,
+      collectionStatus: 'for_sale',
+      updatedAt: DateTime.utc(2026, 6, 1),
+    );
+    final trackingEntry = TrackingEntry(
+      id: 'tracking-book-preserve-1',
+      itemId: 'book-preserve-1',
+      sourceType: 'physical',
+      status: 'Reading',
+      progressCurrent: 120,
+      progressTotal: 320,
+      timesCompleted: 2,
+      updatedAt: DateTime.utc(2026, 6, 1),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showLibraryEditDialog(
+                    context: context,
+                    request: LibraryEditDialogRequest(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      trackingEntry: trackingEntry,
+                      accent: Colors.orange,
+                    ),
+                  );
+                },
+                child: const Text('Open book preserve'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open book preserve'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Save').last);
+    await pumpUntilSettled(tester);
+
+    expect(selection?.personal?.signedBy, 'Isaac Asimov');
+    expect(selection?.personal?.ownerLabel, 'Andrei');
+    expect(selection?.personal?.purchaseStore, 'Vintage Store');
+    expect(selection?.personal?.collectionStatus, 'for_sale');
+    expect(selection?.personal?.marketValueCents, 2599);
+
+    expect(selection?.item.publishing?.publicationPlace, 'New York');
+    expect(selection?.item.publishing?.originalPublisher, 'Gnome Press');
+    expect(selection?.item.publishing?.originalPublicationPlace, 'New York');
+    expect(selection?.item.publishing?.paperType, 'Pulp');
+    expect(selection?.item.publishing?.printedBy, 'Offset House');
+    expect(selection?.item.publishing?.subjects, ['Sci-Fi', 'Galactic Empire']);
+    expect(selection?.item.publishing?.firstEdition, isTrue);
+    expect(selection?.item.publishing?.dustJacket, isTrue);
+    expect(selection?.item.trailerUrls, hasLength(1));
+    expect(selection?.item.trailerUrls.first.kind, 'external');
+    expect(selection?.item.trailerUrls.first.url,
+        'https://www.goodreads.com/book/show/29579.Foundation');
+
+    final creators = selection?.item.creators ?? const <Map<String, dynamic>>[];
+    expect(
+      creators.any(
+        (entry) =>
+            entry['name'] == 'Random Contributor' &&
+            entry['role'] == 'Consultant',
+      ),
+      isTrue,
+    );
+    expect(
+      creators.any(
+        (entry) => entry['name'] == 'Isaac Asimov' && entry['role'] == 'Author',
+      ),
+      isTrue,
+    );
+  });
+
+  testWidgets('book edit dialog saves external links from links tab',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('book')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'book-links-1',
+        kind: 'book',
+        title: 'Dune',
+      ),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showLibraryEditDialog(
+                    context: context,
+                    request: LibraryEditDialogRequest(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.orange,
+                    ),
+                  );
+                },
+                child: const Text('Open book links'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open book links'));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Links').last);
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Add Link'));
+    await pumpUntilSettled(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('bookExternalLinkUrlField_0')),
+      'https://en.wikipedia.org/wiki/Dune_(novel)',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('bookExternalLinkDescriptionField_0')),
+      'Wikipedia',
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
+    await pumpUntilSettled(tester);
+
+    expect(selection, isNotNull);
+    expect(selection!.item.trailerUrls, hasLength(1));
+    expect(selection!.item.trailerUrls.first.kind, 'external');
+    expect(selection!.item.trailerUrls.first.url,
+        'https://en.wikipedia.org/wiki/Dune_(novel)');
+    expect(selection!.item.trailerUrls.first.title, 'Wikipedia');
   });
 
   testWidgets(
@@ -1130,7 +1345,7 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Classical'), findsOneWidget);
+    expect(find.text('Classical'), findsWidgets);
     expect(find.text('Tracks'), findsWidgets);
     expect(find.text('Details'), findsOneWidget);
     expect(find.text('People'), findsOneWidget);
@@ -1142,8 +1357,6 @@ void main() {
 
     await tester.enterText(
         find.widgetWithText(TextField, 'Artist').first, 'cAd');
-    await tester.tap(find.text('Details'));
-    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Catalog number').first,
       'KDCD 1022-R',
@@ -1151,17 +1364,94 @@ void main() {
     await tester.tap(find.text('People'));
     await pumpUntilSettled(tester);
     await tester.enterText(
-      find.widgetWithText(TextField, 'Credits').first,
-      'Artist: cAd\nVocals: Melissa Bonny',
+      find.widgetWithText(TextField, 'Add songwriter').first,
+      'Melissa Bonny',
     );
+    await tester.tap(find.widgetWithText(FilledButton, 'Add').first);
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
     expect(selection?.item.series?.seriesTitle, 'cAd');
     expect(selection?.item.music?.catalogNumber, 'KDCD 1022-R');
     expect(selection?.item.creators, [
-      {'role': 'Artist', 'name': 'cAd'},
-      {'role': 'Vocals', 'name': 'Melissa Bonny'},
+      {'name': 'Ad Infinitum', 'role': 'Artist'},
+      {'name': 'Melissa Bonny', 'role': 'Vocals'},
+      {'role': 'Songwriter', 'name': 'Melissa Bonny'},
     ]);
+  });
+
+  testWidgets('game kind saves platforms via main tab chips', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('game')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'game-1',
+        kind: 'game',
+        title: 'LEGO Batman',
+        sortKey: 'lego-batman',
+        releaseDate: DateTime.utc(2026, 5, 19),
+        publisher: 'Warner Bros Interactive',
+        creators: const [
+          {'name': 'Travellers Tales', 'role': 'Developer'},
+        ],
+        genres: const ['Action', 'Adventure'],
+        game: const GameCatalogDetails(
+          platforms: ['PlayStation 5'],
+        ),
+      ),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showLibraryEditDialog(
+                    context: context,
+                    request: LibraryEditDialogRequest(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.red,
+                    ),
+                  );
+                },
+                child: const Text('Open game'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open game'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
+    expect(find.text('Links'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Sort title'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Platform'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Platform').first,
+      'PlayStation 5, Nintendo Switch',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(
+        selection?.item.game?.platforms, ['PlayStation 5', 'Nintendo Switch']);
   });
 }
