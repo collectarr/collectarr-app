@@ -10,11 +10,12 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/text_controller_group.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_tabs/comic_characters_tab.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_tabs/comic_creators_tab.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_tabs/comic_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_tabs/comic_plot_tab.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
@@ -2580,275 +2581,38 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   }
 
   Widget _buildCreatorsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              FilledButton.icon(
-                onPressed: _addCreator,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add'),
-              ),
-              const SizedBox(width: 6),
-              OutlinedButton.icon(
-                onPressed: _addCatalogCreator,
-                icon: const Icon(Icons.person_search_outlined, size: 16),
-                label: const Text('Find in Catalog'),
-              ),
-              const Spacer(),
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.add_circle_outline, size: 20),
-                tooltip: 'Add by role',
-                itemBuilder: (_) => [
-                  for (final role in _commonCreatorRoles)
-                    PopupMenuItem(
-                      value: role,
-                      height: kLibraryToolbarPopupItemHeight,
-                      child: Text(role),
-                    ),
-                ],
-                onSelected: _addCreatorWithRole,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _buildServerSnapshotDiffSection(),
-          if (_creators.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  'Creators is empty',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).hintColor),
-                ),
-              ),
-            ),
-          if (_creators.isNotEmpty)
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              onReorderItem: _reorderCreator,
-              itemCount: _creators.length,
-              buildDefaultDragHandles: false,
-              proxyDecorator: (child, _, __) => Material(
-                elevation: 2,
-                child: child,
-              ),
-              itemBuilder: (context, i) => Container(
-                key: ValueKey(_creators[i]),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    ReorderableDragStartListener(
-                      index: i,
-                      child: Icon(Icons.drag_handle,
-                          size: 20, color: Theme.of(context).hintColor),
-                    ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 140,
-                      child: Builder(
-                        builder: (context) {
-                          final currentRole =
-                              _creators[i].roleController.text.trim();
-                          final roles = <String>[
-                            if (currentRole.isNotEmpty &&
-                                !_commonCreatorRoles.contains(currentRole))
-                              currentRole,
-                            ..._commonCreatorRoles,
-                          ];
-                          return DropdownButtonFormField<String>(
-                            initialValue:
-                                currentRole.isEmpty ? null : currentRole,
-                            isDense: true,
-                            isExpanded: true,
-                            decoration: const InputDecoration(
-                              hintText: 'Job',
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 8),
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            style: const TextStyle(fontSize: 12),
-                            items: [
-                              for (final role in roles)
-                                DropdownMenuItem(
-                                    value: role, child: Text(role)),
-                            ],
-                            onChanged: (v) {
-                              if (v != null) {
-                                _creators[i].roleController.text = v;
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _creators[i].nameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Name',
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.person_search, size: 18),
-                      onPressed: () => _lookupCreatorForRow(i),
-                      tooltip: 'Lookup',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: () => _removeCreator(i),
-                      tooltip: 'Remove',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
+    return ComicCreatorsTab(
+      creators: _creators,
+      commonCreatorRoles: _commonCreatorRoles,
+      serverSnapshotDiffSection: _buildServerSnapshotDiffSection(),
+      onAddCreator: _addCreator,
+      onAddCatalogCreator: _addCatalogCreator,
+      onAddCreatorWithRole: _addCreatorWithRole,
+      onReorderItem: _reorderCreator,
+      onLookupCreatorForRow: _lookupCreatorForRow,
+      onRemoveCreator: _removeCreator,
+      nameControllerOf: (creator) =>
+          (creator as _EditableComicCreator).nameController,
+      roleOf: (creator) =>
+          (creator as _EditableComicCreator).roleController.text,
+      setRole: (creator, role) =>
+          (creator as _EditableComicCreator).roleController.text = role,
     );
   }
 
   Widget _buildCharactersTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: characterDraftCtl,
-                  style: const TextStyle(fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: 'Character name',
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onSubmitted: (_) => _addCharacter(),
-                ),
-              ),
-              const SizedBox(width: 6),
-              FilledButton.icon(
-                onPressed: _addCharacter,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add'),
-              ),
-              const SizedBox(width: 6),
-              OutlinedButton.icon(
-                onPressed: _addCatalogCharacter,
-                icon: const Icon(Icons.person_search_outlined, size: 16),
-                label: const Text('Find in Catalog'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _buildServerSnapshotDiffSection(),
-          if (_characters.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  'Characters is empty',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).hintColor),
-                ),
-              ),
-            ),
-          if (_characters.isNotEmpty)
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              onReorderItem: _reorderCharacter,
-              itemCount: _characters.length,
-              buildDefaultDragHandles: false,
-              proxyDecorator: (child, _, __) => Material(
-                elevation: 2,
-                child: child,
-              ),
-              itemBuilder: (context, i) => Container(
-                key: ValueKey(_characters[i]),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    ReorderableDragStartListener(
-                      index: i,
-                      child: Icon(Icons.drag_handle,
-                          size: 20, color: Theme.of(context).hintColor),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 4,
-                      child: TextField(
-                        controller: _characters[i].nameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Character name',
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 3,
-                      child: TextField(
-                        controller: _characters[i].realNameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Real name',
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: () => _removeCharacter(i),
-                      tooltip: 'Remove',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
+    return ComicCharactersTab(
+      characterDraftController: characterDraftCtl,
+      characters: _characters,
+      serverSnapshotDiffSection: _buildServerSnapshotDiffSection(),
+      onAddCharacter: _addCharacter,
+      onAddCatalogCharacter: _addCatalogCharacter,
+      onReorderItem: _reorderCharacter,
+      onRemoveCharacter: _removeCharacter,
+      nameControllerOf: (character) =>
+          (character as _EditableComicCharacter).nameController,
+      realNameControllerOf: (character) =>
+          (character as _EditableComicCharacter).realNameController,
     );
   }
 
