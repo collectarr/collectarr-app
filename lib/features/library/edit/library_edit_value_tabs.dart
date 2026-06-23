@@ -160,8 +160,7 @@ class LibraryEditValueTab extends StatelessWidget {
                       value: gameHasBox,
                       onChanged: onGameHasBoxChanged == null
                           ? null
-                          : (value) =>
-                              onGameHasBoxChanged!(value ?? false),
+                          : (value) => onGameHasBoxChanged!(value ?? false),
                       dense: true,
                       title: const Text('Has box'),
                       contentPadding: EdgeInsets.zero,
@@ -174,8 +173,7 @@ class LibraryEditValueTab extends StatelessWidget {
                       value: gameHasManual,
                       onChanged: onGameHasManualChanged == null
                           ? null
-                          : (value) =>
-                              onGameHasManualChanged!(value ?? false),
+                          : (value) => onGameHasManualChanged!(value ?? false),
                       dense: true,
                       title: const Text('Has manual'),
                       contentPadding: EdgeInsets.zero,
@@ -286,17 +284,20 @@ Widget buildLibraryEditSoldTab({
         accent: accent,
         child: Column(
           children: [
-            SwitchListTile(
-              value: soldAt != null,
-              onChanged: onSoldChanged,
-              title: const Text('Mark as sold'),
-              subtitle: soldAt != null
-                  ? Text(
-                      'Sold on ${formatDate(soldAt)}',
-                      style: TextStyle(color: appPalette(context).textMuted),
-                    )
-                  : null,
-              contentPadding: EdgeInsets.zero,
+            Material(
+              type: MaterialType.transparency,
+              child: SwitchListTile(
+                value: soldAt != null,
+                onChanged: onSoldChanged,
+                title: const Text('Mark as sold'),
+                subtitle: soldAt != null
+                    ? Text(
+                        'Sold on ${formatDate(soldAt)}',
+                        style: TextStyle(color: appPalette(context).textMuted),
+                      )
+                    : null,
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
             if (soldAt != null) ...[
               const SizedBox(height: 12),

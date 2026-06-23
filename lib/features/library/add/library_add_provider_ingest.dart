@@ -494,8 +494,7 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
               'source': link.source!.trim(),
             if (link.title != null && link.title!.trim().isNotEmpty)
               'title': link.title!.trim(),
-            if (link.kind != null && link.kind!.trim().isNotEmpty)
-              'kind': link.kind!.trim(),
+            if (link.kind.trim().isNotEmpty) 'kind': link.kind.trim(),
             if (link.description != null && link.description!.trim().isNotEmpty)
               'description': link.description!.trim(),
           },

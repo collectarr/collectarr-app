@@ -357,9 +357,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _physicalFormatOptions = const [];
   List<String> _ownerOptions = const [];
   List<String> _countryOptions = const [];
-  List<String> _languageOptions = const [];
-  List<String> _ageOptions = const [];
-  List<String> _genreOptions = const [];
   List<String> _crossoverOptions = const [];
   List<String> _storyArcOptions = const [];
   List<String> _pageQualityOptions = const [];
@@ -1987,24 +1984,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       ),
       loadSingleValuePickListOptions(
         db,
-        listName: kLanguagePickListName,
-        mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _languageController.text,
-      ),
-      loadSingleValuePickListOptions(
-        db,
-        listName: kAgeRatingPickListName,
-        mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _ageRatingController.text,
-      ),
-      loadMultiValuePickListOptions(
-        db,
-        listName: kGenrePickListName,
-        mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValues: _splitPickList(_genresEditController.text),
-      ),
-      loadSingleValuePickListOptions(
-        db,
         listName: kCrossoverPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
         selectedValue: _crossoverController.text,
@@ -2065,19 +2044,16 @@ ORDER BY owner_label COLLATE NOCASE
       _seriesGroupOptions = List<String>.from(results[2] as List<String>);
       _physicalFormatOptions = List<String>.from(results[3] as List<String>);
       _countryOptions = List<String>.from(results[4] as List<String>);
-      _languageOptions = List<String>.from(results[5] as List<String>);
-      _ageOptions = List<String>.from(results[6] as List<String>);
-      _genreOptions = List<String>.from(results[7] as List<String>);
-      _crossoverOptions = List<String>.from(results[8] as List<String>);
-      _storyArcOptions = List<String>.from(results[9] as List<String>);
-      _pageQualityOptions = List<String>.from(results[10] as List<String>);
-      _keyCategoryOptions = List<String>.from(results[11] as List<String>);
+      _crossoverOptions = List<String>.from(results[5] as List<String>);
+      _storyArcOptions = List<String>.from(results[6] as List<String>);
+      _pageQualityOptions = List<String>.from(results[7] as List<String>);
+      _keyCategoryOptions = List<String>.from(results[8] as List<String>);
       _ownerOptions = [
-        for (final row in (results[12] as List<QueryRow>))
+        for (final row in (results[9] as List<QueryRow>))
           row.read<String>('owner_label'),
       ];
       _seriesEntries = List<SeriesRegistryEntry>.from(
-        results[13] as List<SeriesRegistryEntry>,
+        results[10] as List<SeriesRegistryEntry>,
       );
     });
   }

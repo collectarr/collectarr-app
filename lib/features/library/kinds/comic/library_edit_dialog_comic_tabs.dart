@@ -99,11 +99,8 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                 ReorderableListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  onReorder: (oldIndex, newIndex) {
+                  onReorderItem: (oldIndex, newIndex) {
                     _mutateDialogState(() {
-                      if (newIndex > oldIndex) {
-                        newIndex -= 1;
-                      }
                       final item = _comicCreators.removeAt(oldIndex);
                       _comicCreators.insert(newIndex, item);
                     });
@@ -229,11 +226,8 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                 ReorderableListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  onReorder: (oldIndex, newIndex) {
+                  onReorderItem: (oldIndex, newIndex) {
                     _mutateDialogState(() {
-                      if (newIndex > oldIndex) {
-                        newIndex -= 1;
-                      }
                       final item = _comicCharacters.removeAt(oldIndex);
                       _comicCharacters.insert(newIndex, item);
                     });
@@ -354,11 +348,8 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                       ReorderableListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        onReorder: (oldIndex, newIndex) {
+                        onReorderItem: (oldIndex, newIndex) {
                           _mutateDialogState(() {
-                            if (newIndex > oldIndex) {
-                              newIndex -= 1;
-                            }
                             final item = _comicLinks.removeAt(oldIndex);
                             _comicLinks.insert(newIndex, item);
                           });
@@ -993,83 +984,6 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
 
   Widget _comicFormatField() {
     return _physicalFormatField(label: 'Format');
-  }
-
-  Widget _readOnlyField({
-    required String label,
-    required String value,
-  }) {
-    return InputDecorator(
-      decoration: InputDecoration(labelText: label),
-      child: Text(
-        value,
-        style: Theme.of(context).textTheme.bodyLarge,
-      ),
-    );
-  }
-
-  String _formatTimestamp(DateTime? value) {
-    if (value == null) {
-      return '—';
-    }
-    final local = value.toLocal();
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final hour = local.hour.toString().padLeft(2, '0');
-    final minute = local.minute.toString().padLeft(2, '0');
-    return '${months[local.month - 1]} ${local.day}, ${local.year} $hour:$minute';
-  }
-
-  Widget _comicCoverPreview() {
-    final coverUrl = widget.item.displayCoverUrl ??
-        emptyToNull(_thumbnailController.text) ??
-        emptyToNull(_coverController.text);
-    if (coverUrl == null) {
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          color: appPalette(context).field,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.auto_stories,
-            color: appPalette(context).textMuted,
-            size: 42,
-          ),
-        ),
-      );
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: Image.network(
-        coverUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return DecoratedBox(
-            decoration: BoxDecoration(color: appPalette(context).field),
-            child: Center(
-              child: Icon(
-                Icons.broken_image_outlined,
-                color: appPalette(context).textMuted,
-                size: 42,
-              ),
-            ),
-          );
-        },
-      ),
-    );
   }
 
   Widget _coverDatePartsField() {

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Widget buildResponsiveFields(List<Widget> children) => Wrap(children: children);
+  Widget buildResponsiveFields(List<Widget> children) =>
+      Wrap(children: children);
 
   Widget buildField({
     required TextEditingController controller,
@@ -50,29 +51,27 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryEditValueTab(
-              accent: Colors.blue,
-              buildResponsiveFields: buildResponsiveFields,
-              buildField: buildField,
-              buildDatePickerField: buildDatePickerField,
-              priceController: priceController,
-              currencyController: currencyController,
-              purchaseDateController: purchaseDateController,
-              purchaseStoreController: purchaseStoreController,
-              marketValueController: marketValueController,
-              sellPriceController: sellPriceController,
-              onPickPurchaseDate: () {},
-              collectionStatus: null,
-              onCollectionStatusChanged: (_) {},
-              lastBagBoardDate: null,
-              onLastBagBoardDateChanged: (_) {},
+            accent: Colors.blue,
+            buildResponsiveFields: buildResponsiveFields,
+            buildField: buildField,
+            buildDatePickerField: buildDatePickerField,
+            priceController: priceController,
+            currencyController: currencyController,
+            purchaseDateController: purchaseDateController,
+            purchaseStoreController: purchaseStoreController,
+            marketValueController: marketValueController,
+            sellPriceController: sellPriceController,
+            onPickPurchaseDate: () {},
+            lastBagBoardDate: null,
+            onLastBagBoardDateChanged: (_) {},
           ),
         ),
       ),
     );
 
-    expect(find.text('Purchase'), findsOneWidget);
-    expect(find.text('Collection status'), findsOneWidget);
-    expect(find.text('Value summary'), findsOneWidget);
+    expect(find.text('Price paid'), findsOneWidget);
+    expect(find.text('Last bag & board date'), findsOneWidget);
+    expect(find.text('Market value: '), findsOneWidget);
     expect(find.text('Purchase date: 2024-01-02'), findsOneWidget);
     expect(find.text('\$12.50'), findsOneWidget);
     expect(find.text('\$25.00'), findsOneWidget);
@@ -114,8 +113,10 @@ void main() {
       ),
     );
 
-    expect(find.text('Sold Status'), findsOneWidget);
-    expect(find.text('Profit / Loss'), findsOneWidget);
+    expect(find.text('Mark as sold'), findsOneWidget);
+    expect(find.text('Paid: '), findsOneWidget);
+    expect(find.text('Sold for: '), findsOneWidget);
+    expect(find.text('+\$12.50'), findsOneWidget);
     expect(find.textContaining('Sold on 2024-01-02'), findsOneWidget);
   });
 }
