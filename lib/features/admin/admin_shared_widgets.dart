@@ -17,6 +17,7 @@ class _MetadataProposalPanel extends StatelessWidget {
     required this.onStatusChanged,
     required this.onProviderChanged,
     required this.onReview,
+    required this.onEdit,
     required this.onApprove,
     required this.onApproveLinked,
     required this.onReject,
@@ -37,6 +38,7 @@ class _MetadataProposalPanel extends StatelessWidget {
   final ValueChanged<String?> onStatusChanged;
   final ValueChanged<String?> onProviderChanged;
   final ValueChanged<AdminMetadataProposal> onReview;
+  final ValueChanged<AdminMetadataProposal> onEdit;
   final ValueChanged<AdminMetadataProposal> onApprove;
   final ValueChanged<AdminMetadataProposal> onApproveLinked;
   final ValueChanged<AdminMetadataProposal> onReject;
@@ -177,6 +179,7 @@ class _MetadataProposalPanel extends StatelessWidget {
                     canApproveLinkedItem:
                         canApproveLinkedItem(proposal.provider),
                     onReview: () => onReview(proposal),
+                    onEdit: () => onEdit(proposal),
                     onApprove: () => onApprove(proposal),
                     onApproveLinked: () => onApproveLinked(proposal),
                     onReject: () => onReject(proposal),
@@ -195,6 +198,7 @@ class _MetadataProposalTile extends StatelessWidget {
     required this.isActing,
     required this.canApproveLinkedItem,
     required this.onReview,
+    required this.onEdit,
     required this.onApprove,
     required this.onApproveLinked,
     required this.onReject,
@@ -204,6 +208,7 @@ class _MetadataProposalTile extends StatelessWidget {
   final bool isActing;
   final bool canApproveLinkedItem;
   final VoidCallback onReview;
+  final VoidCallback onEdit;
   final VoidCallback onApprove;
   final VoidCallback onApproveLinked;
   final VoidCallback onReject;
@@ -266,6 +271,11 @@ class _MetadataProposalTile extends StatelessWidget {
                     icon: const Icon(Icons.travel_explore_outlined),
                     label: const Text('Review in search'),
                   ),
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onEdit,
+                    icon: const Icon(Icons.edit_note_outlined),
+                    label: const Text('Edit metadata'),
+                  ),
                   if ((proposal.providerItemId?.isNotEmpty ?? false) &&
                       canApproveLinkedItem)
                     FilledButton.tonalIcon(
@@ -301,6 +311,194 @@ class _MetadataProposalTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ProposalMetadataEditDialog extends StatelessWidget {
+  const _ProposalMetadataEditDialog({required this.proposal});
+
+  final AdminMetadataProposal proposal;
+
+  @override
+  Widget build(BuildContext context) {
+    final payload = proposal.metadataPayload ?? const <String, dynamic>{};
+    final formattedPayload = const JsonEncoder.withIndent('  ').convert(payload);
+    final entries = _proposalMetadataEntries(payload, proposal: proposal);
+    return AccentAlertDialog(
+      title: Text('Edit proposal metadata - ${proposal.displayTitle}'),
+      content: SizedBox(
+        width: 980,
+        height: 640,
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const TabBar(
+                tabs: [
+                  Tab(text: 'Fields'),
+                  Tab(text: 'Raw JSON'),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _ProposalMetadataFieldsList(entries: entries),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant),
+                        borderRadius: BorderRadius.circular(8),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest
+                            .withValues(alpha: 0.35),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: SelectableText(
+                          formattedPayload,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontFamily: 'Consolas',
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProposalMetadataFieldsList extends StatelessWidget {
+  const _ProposalMetadataFieldsList({required this.entries});
+
+  final List<_ProposalMetadataEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    if (entries.isEmpty) {
+      return const _MessageRow(
+        message: 'No metadata payload fields were provided with this proposal.',
+        isError: false,
+      );
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListView.separated(
+        itemCount: entries.length,
+        separatorBuilder: (_, __) => Divider(
+          height: 1,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+        itemBuilder: (context, index) {
+          final entry = entries[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  entry.path,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                SelectableText(
+                  entry.value,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ProposalMetadataEntry {
+  const _ProposalMetadataEntry({
+    required this.path,
+    required this.value,
+  });
+
+  final String path;
+  final String value;
+}
+
+List<_ProposalMetadataEntry> _proposalMetadataEntries(
+  Map<String, dynamic> payload, {
+  required AdminMetadataProposal proposal,
+}) {
+  final entries = <_ProposalMetadataEntry>[
+    _ProposalMetadataEntry(path: 'proposal.id', value: proposal.id),
+    _ProposalMetadataEntry(path: 'proposal.provider', value: proposal.provider),
+    _ProposalMetadataEntry(path: 'proposal.query', value: proposal.query),
+    _ProposalMetadataEntry(path: 'proposal.status', value: proposal.status),
+    if (proposal.providerItemId?.trim().isNotEmpty ?? false)
+      _ProposalMetadataEntry(
+        path: 'proposal.provider_item_id',
+        value: proposal.providerItemId!.trim(),
+      ),
+    if (proposal.title?.trim().isNotEmpty ?? false)
+      _ProposalMetadataEntry(path: 'proposal.title', value: proposal.title!.trim()),
+    if (proposal.summary?.trim().isNotEmpty ?? false)
+      _ProposalMetadataEntry(
+          path: 'proposal.summary', value: proposal.summary!.trim()),
+  ];
+  _appendFlattenedProposalEntries(payload, entries, 'metadata_payload');
+  return entries;
+}
+
+void _appendFlattenedProposalEntries(
+  dynamic value,
+  List<_ProposalMetadataEntry> entries,
+  String path,
+) {
+  if (value == null) {
+    return;
+  }
+  if (value is Map<String, dynamic>) {
+    final keys = value.keys.toList(growable: false)..sort();
+    for (final key in keys) {
+      _appendFlattenedProposalEntries(value[key], entries, '$path.$key');
+    }
+    return;
+  }
+  if (value is List) {
+    for (var index = 0; index < value.length; index += 1) {
+      _appendFlattenedProposalEntries(value[index], entries, '$path[$index]');
+    }
+    return;
+  }
+  if (value is String) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+    entries.add(_ProposalMetadataEntry(path: path, value: trimmed));
+    return;
+  }
+  entries.add(_ProposalMetadataEntry(path: path, value: value.toString()));
 }
 
 enum _ProviderAddMode { search, direct }

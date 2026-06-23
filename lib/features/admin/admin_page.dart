@@ -727,6 +727,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             onStatusChanged: _changeProposalStatusFilter,
             onProviderChanged: _changeProposalProviderFilter,
             onReview: _reviewProposal,
+            onEdit: _editProposalMetadata,
             onApprove: _approveProposal,
             onApproveLinked: _approveProposalWithLinkedItem,
             onReject: _rejectProposal,
@@ -2426,6 +2427,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   int _configuredProviderCount() {
     return _providers.where((provider) => provider.isConfigured).length;
+  }
+
+  void _editProposalMetadata(AdminMetadataProposal proposal) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => _ProposalMetadataEditDialog(proposal: proposal),
+    );
   }
 
   void _reviewProposal(AdminMetadataProposal proposal) {
