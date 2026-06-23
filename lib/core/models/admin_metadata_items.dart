@@ -89,8 +89,15 @@ class AdminMetadataItem {
     required this.id,
     required this.kind,
     required this.title,
+    this.originalTitle,
+    this.localizedTitle,
+    this.sortKey,
+    this.searchAliases = const [],
     this.itemNumber,
     this.synopsis,
+    this.crossover,
+    this.plotSummary,
+    this.plotDescription,
     this.publisher,
     this.barcode,
     this.series,
@@ -100,6 +107,7 @@ class AdminMetadataItem {
     this.video,
     this.music,
     this.genres = const [],
+    this.platforms = const [],
     this.country,
     this.language,
     this.ageRating,
@@ -109,6 +117,7 @@ class AdminMetadataItem {
     this.characters = const [],
     this.storyArcs = const [],
     this.trailerUrls = const [],
+    this.externalLinks = const [],
     this.providerLinks = const [],
     this.editions = const [],
   });
@@ -116,8 +125,15 @@ class AdminMetadataItem {
   final String id;
   final String kind;
   final String title;
+  final String? originalTitle;
+  final String? localizedTitle;
+  final String? sortKey;
+  final List<String> searchAliases;
   final String? itemNumber;
   final String? synopsis;
+  final String? crossover;
+  final String? plotSummary;
+  final String? plotDescription;
   final String? titleExtension;
   final String? publisher;
   final String? barcode;
@@ -128,6 +144,7 @@ class AdminMetadataItem {
   final VideoCatalogDetails? video;
   final MusicCatalogDetails? music;
   final List<String> genres;
+  final List<String> platforms;
   final String? country;
   final String? language;
   final String? ageRating;
@@ -136,6 +153,7 @@ class AdminMetadataItem {
   final List<Map<String, dynamic>> characters;
   final List<Map<String, dynamic>> storyArcs;
   final List<TrailerLink> trailerUrls;
+  final List<TrailerLink> externalLinks;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
 
@@ -189,6 +207,12 @@ class AdminMetadataItem {
     );
     final video = VideoCatalogDetails(
       runtimeMinutes: json['runtime_minutes'] as int?,
+      color: json['color'] as String?,
+      nrDiscs: json['nr_discs'] as int?,
+      screenRatio: json['screen_ratio'] as String?,
+      audioTracks: json['audio_tracks'] as String?,
+      subtitles: json['subtitles'] as String?,
+      layers: json['layers'] as String?,
     );
     final music = MusicCatalogDetails(
       trackCount: json['track_count'] as int?,
@@ -204,8 +228,17 @@ class AdminMetadataItem {
       id: json['id']?.toString() ?? '',
       kind: json['kind'] as String? ?? '',
       title: json['title'] as String? ?? '',
+      originalTitle: json['original_title'] as String?,
+      localizedTitle: json['localized_title'] as String?,
+      sortKey: json['sort_key'] as String?,
+      searchAliases: (json['search_aliases'] as List<dynamic>? ?? const [])
+          .whereType<String>()
+          .toList(growable: false),
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
+      crossover: json['crossover'] as String?,
+      plotSummary: json['plot_summary'] as String?,
+      plotDescription: json['plot_description'] as String?,
       titleExtension: json['title_extension'] as String?,
       publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,
@@ -216,6 +249,10 @@ class AdminMetadataItem {
       video: video.hasData ? video : null,
       music: music.hasData ? music : null,
       genres: (json['genres'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      platforms: (json['platforms'] as List<dynamic>?)
               ?.whereType<String>()
               .toList(growable: false) ??
           const <String>[],
@@ -232,14 +269,14 @@ class AdminMetadataItem {
       storyArcs: (json['story_arcs'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .toList(growable: false),
-      trailerUrls: [
-        ...((json['trailer_urls'] as List<dynamic>? ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .map(TrailerLink.fromJson)),
-        ...((json['external_links'] as List<dynamic>? ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .map(TrailerLink.fromJson)),
-      ].toList(growable: false),
+      trailerUrls: ((json['trailer_urls'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(TrailerLink.fromJson)
+          .toList(growable: false)),
+      externalLinks: ((json['external_links'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(TrailerLink.fromJson)
+          .toList(growable: false)),
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))
           AdminProviderLink.fromJson(link as Map<String, dynamic>),

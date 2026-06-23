@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:collection';
+import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
@@ -1392,11 +1395,33 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               kind: item.kind,
               id: item.id,
               title: correction.title,
+              originalTitle: correction.originalTitle,
+              localizedTitle: correction.localizedTitle,
+              sortKey: correction.sortKey,
+              searchAliases: correction.searchAliases,
+              titleExtension: correction.titleExtension,
               itemNumber: correction.itemNumber,
               synopsis: correction.synopsis,
+              genres: correction.genres,
+              platforms: correction.platforms,
+              characters: correction.characters,
+              storyArcs: correction.storyArcs,
+              creators: correction.creators,
+              tracks: correction.tracks,
+              trailerUrls: correction.trailerUrls,
+              externalLinks: correction.externalLinks,
+              crossover: correction.crossover,
+              plotSummary: correction.plotSummary,
+              plotDescription: correction.plotDescription,
               editionTitle: correction.editionTitle,
               pageCount: correction.pageCount,
               runtimeMinutes: correction.runtimeMinutes,
+              color: correction.color,
+              nrDiscs: correction.nrDiscs,
+              screenRatio: correction.screenRatio,
+              audioTracks: correction.audioTracks,
+              subtitles: correction.subtitles,
+              layers: correction.layers,
               publisher: correction.publisher,
               releaseDate: correction.releaseDate,
               imprint: correction.imprint,
@@ -1405,6 +1430,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               country: correction.country,
               language: correction.language,
               ageRating: correction.ageRating,
+              audienceRating: correction.audienceRating,
               catalogNumber: correction.catalogNumber,
               releaseStatus: correction.releaseStatus,
               physicalFormat: correction.physicalFormat,
@@ -1466,13 +1492,92 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
     }
 
+    void addListField(String key, List<String>? before, List<String>? after) {
+      if (!listEquals(before, after)) {
+        fields.add(key);
+      }
+    }
+
+    void addMapListField(
+      String key,
+      List<Map<String, dynamic>>? before,
+      List<Map<String, dynamic>>? after,
+    ) {
+      final normalizedBefore = _normalizedMapListForCompare(before);
+      final normalizedAfter = _normalizedMapListForCompare(after);
+      if (!listEquals(normalizedBefore, normalizedAfter)) {
+        fields.add(key);
+      }
+    }
+
+    void addTrackListField(
+      String key,
+      List<CatalogTrack>? before,
+      List<CatalogTrack>? after,
+    ) {
+      final normalizedBefore = _normalizedTracksForCompare(before);
+      final normalizedAfter = _normalizedTracksForCompare(after);
+      if (!listEquals(normalizedBefore, normalizedAfter)) {
+        fields.add(key);
+      }
+    }
+
+    void addTrailerListField(
+      String key,
+      List<TrailerLink>? before,
+      List<TrailerLink>? after,
+    ) {
+      final normalizedBefore = _normalizedLinksForCompare(before);
+      final normalizedAfter = _normalizedLinksForCompare(after);
+      if (!listEquals(normalizedBefore, normalizedAfter)) {
+        fields.add(key);
+      }
+    }
+
     addField('title', item.title, correction.title);
+    addField('original_title', item.originalTitle, correction.originalTitle);
+    addField('localized_title', item.localizedTitle, correction.localizedTitle);
+    addField('sort_key', item.sortKey, correction.sortKey);
+    addListField(
+        'search_aliases', item.searchAliases, correction.searchAliases);
+    addField('title_extension', item.titleExtension, correction.titleExtension);
     addField('item_number', item.itemNumber, correction.itemNumber);
     addField('synopsis', item.synopsis, correction.synopsis);
+    addListField('genres', item.genres, correction.genres);
+    addListField('platforms', item.platforms, correction.platforms);
+    addListField(
+      'characters',
+      _relationNameList(item.characters),
+      correction.characters,
+    );
+    addListField(
+      'story_arcs',
+      _relationNameList(item.storyArcs),
+      correction.storyArcs,
+    );
+    addMapListField('creators', item.creators, correction.creators);
+    addTrackListField('tracks', item.music?.tracks, correction.tracks);
+    addTrailerListField(
+        'trailer_urls', item.trailerUrls, correction.trailerUrls);
+    addTrailerListField(
+      'external_links',
+      item.externalLinks,
+      correction.externalLinks,
+    );
+    addField('crossover', item.crossover, correction.crossover);
+    addField('plot_summary', item.plotSummary, correction.plotSummary);
+    addField(
+        'plot_description', item.plotDescription, correction.plotDescription);
     addField('edition_title', edition?.title, correction.editionTitle);
     addField('page_count', item.publishing?.pageCount, correction.pageCount);
     addField('runtime_minutes', item.video?.runtimeMinutes,
         correction.runtimeMinutes);
+    addField('color', item.video?.color, correction.color);
+    addField('nr_discs', item.video?.nrDiscs, correction.nrDiscs);
+    addField('screen_ratio', item.video?.screenRatio, correction.screenRatio);
+    addField('audio_tracks', item.video?.audioTracks, correction.audioTracks);
+    addField('subtitles', item.video?.subtitles, correction.subtitles);
+    addField('layers', item.video?.layers, correction.layers);
     addField(
       'publisher',
       edition?.publisher ?? item.publisher,
@@ -1487,6 +1592,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     addField('country', item.country, correction.country);
     addField('language', item.language, correction.language);
     addField('age_rating', item.ageRating, correction.ageRating);
+    addField('audience_rating', item.audienceRating, correction.audienceRating);
     addField(
         'catalog_number', item.music?.catalogNumber, correction.catalogNumber);
     addField(
@@ -1505,6 +1611,48 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       correction.thumbnailImageUrl,
     );
     return fields;
+  }
+
+  List<String> _relationNameList(List<Map<String, dynamic>> entries) {
+    return entries
+        .map(_relationNameFromMap)
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  String _relationNameFromMap(Map<String, dynamic> entry) {
+    for (final key in const ['name', 'title', 'label', 'value']) {
+      final value = entry[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    for (final value in entry.values) {
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    return '';
+  }
+
+  List<String> _normalizedMapListForCompare(
+    List<Map<String, dynamic>>? values,
+  ) {
+    return (values ?? const <Map<String, dynamic>>[])
+        .map((entry) => jsonEncode(SplayTreeMap<String, dynamic>.from(entry)))
+        .toList(growable: false);
+  }
+
+  List<String> _normalizedTracksForCompare(List<CatalogTrack>? tracks) {
+    return (tracks ?? const <CatalogTrack>[])
+        .map((track) => jsonEncode(track.toJson()))
+        .toList(growable: false);
+  }
+
+  List<String> _normalizedLinksForCompare(List<TrailerLink>? links) {
+    return (links ?? const <TrailerLink>[])
+        .map((link) => jsonEncode(link.toJson()))
+        .toList(growable: false);
   }
 
   List<String> _normalizedAdminTags(List<String>? tags) {
