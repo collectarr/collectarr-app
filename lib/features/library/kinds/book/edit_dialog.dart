@@ -8,6 +8,7 @@ import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_section_tab.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -465,43 +466,48 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _mainTab() {
     final sections = _tabSectionIds('main');
-    return EditTabShell(
+    return BookSectionTab(
       cover: _coverPreview(),
-      children: [
+      sections: sections,
+      sectionBuilder: _sectionFor,
+      header: [
         _bookMainOverviewCard(),
         const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            EditSummaryPill(
-              label: 'Series',
-              value: _seriesTitleController.text,
-              icon: Icons.collections_bookmark_outlined,
-              width: 190,
-            ),
-            EditSummaryPill(
-              label: 'Volume',
-              value: _volumeNumberController.text,
-              icon: Icons.filter_1_outlined,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Pages',
-              value: _pageCountController.text,
-              icon: Icons.auto_stories_outlined,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Language',
-              value: _languageController.text,
-              icon: Icons.language_outlined,
-              width: 120,
-            ),
-          ],
-        ),
+        _bookSummaryPills(),
         const SizedBox(height: 12),
-        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _bookSummaryPills() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        EditSummaryPill(
+          label: 'Series',
+          value: _seriesTitleController.text,
+          icon: Icons.collections_bookmark_outlined,
+          width: 190,
+        ),
+        EditSummaryPill(
+          label: 'Volume',
+          value: _volumeNumberController.text,
+          icon: Icons.filter_1_outlined,
+          width: 96,
+        ),
+        EditSummaryPill(
+          label: 'Pages',
+          value: _pageCountController.text,
+          icon: Icons.auto_stories_outlined,
+          width: 96,
+        ),
+        EditSummaryPill(
+          label: 'Language',
+          value: _languageController.text,
+          icon: Icons.language_outlined,
+          width: 120,
+        ),
       ],
     );
   }
@@ -587,69 +593,38 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _detailsTab() {
     final sections = _tabSectionIds('details');
-    return EditTabShell(
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            EditSummaryPill(
-              label: 'Series',
-              value: _seriesTitleController.text,
-              icon: Icons.collections_bookmark_outlined,
-              width: 190,
-            ),
-            EditSummaryPill(
-              label: 'Volume',
-              value: _volumeNumberController.text,
-              icon: Icons.filter_1_outlined,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Pages',
-              value: _pageCountController.text,
-              icon: Icons.auto_stories_outlined,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Language',
-              value: _languageController.text,
-              icon: Icons.language_outlined,
-              width: 120,
-            ),
-          ],
-        ),
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
+      header: [
+        _bookSummaryPills(),
         const SizedBox(height: 12),
-        for (final sectionId in sections) _sectionFor(sectionId),
       ],
     );
   }
 
   Widget _creditsTab() {
     final sections = _tabSectionIds('credits');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _plotTab() {
     final sections = _tabSectionIds('plot');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _coversTab() {
     final sections = _tabSectionIds('covers');
-    return EditTabShell(
+    return BookSectionTab(
       cover: _coverPreview(),
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
@@ -663,46 +638,41 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _customTab() {
     final sections = _tabSectionIds('custom');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _readHistoryTab() {
     final sections = _tabSectionIds('read_history');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _valueTab() {
     final sections = _tabSectionIds('value');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _personalTab() {
     final sections = _tabSectionIds('personal');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _photosTab() {
     final sections = _tabSectionIds('photos');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 

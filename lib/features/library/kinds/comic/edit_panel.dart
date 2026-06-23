@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/edit/text_controller_group.dart'
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_tabs/comic_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_tabs/comic_plot_tab.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -2852,30 +2853,7 @@ class ComicEditPanelState extends ConsumerState<ComicEditPanel>
   }
 
   Widget _buildPlotTab() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: summaryCtl,
-              maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
-              style: const TextStyle(fontSize: 13),
-              decoration: const InputDecoration(
-                hintText: 'Plot / Synopsis',
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                border: OutlineInputBorder(),
-              ),
-              key: const ValueKey('edit-plot'),
-            ),
-          ),
-        ],
-      ),
-    );
+    return ComicPlotTab(summaryController: summaryCtl);
   }
 
   Widget _buildLinksTab() {

@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_section_tab.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -437,83 +438,74 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   Widget _mainTab() {
     final sections = _tabSectionIds('main');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _classicalTab() {
     final sections = _tabSectionIds('classical');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _tracksTab() {
     final sections = _tabSectionIds('tracks');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _detailsTab() {
     final sections = _tabSectionIds('details');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _peopleTab() {
     final sections = _tabSectionIds('people');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _personalTab() {
     final sections = _tabSectionIds('personal');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _customTab() {
     final sections = _tabSectionIds('custom');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
   Widget _coversTab() {
     final sections = _tabSectionIds('covers');
-    return EditTabShell(
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
       cover: _coverPreview(),
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
     );
   }
 
   Widget _photosTab() {
     final sections = _tabSectionIds('photos');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicSectionTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
