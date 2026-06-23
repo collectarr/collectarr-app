@@ -14,10 +14,10 @@ class LibraryEditTabStripFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Container(
+      width: double.infinity,
       height: kLibraryEditTabStripContainerHeight,
       decoration: BoxDecoration(
-        color: palette.toolbar,
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        color: palette.panel,
       ),
       child: child,
     );
@@ -44,15 +44,18 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
     final foreground = selected ? palette.textPrimary : palette.textMuted;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      margin: EdgeInsets.fromLTRB(2, 2, 2, selected ? 0 : 2),
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: selected
-            ? palette.surface.withValues(alpha: palette.isDark ? 0.6 : 0.98)
+            ? palette.panelRaised
             : highlighted
                 ? palette.surfaceSubtle.withValues(alpha: 0.72)
                 : palette.surfaceSubtle.withValues(alpha: 0.42),
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.vertical(
+          top: const Radius.circular(3),
+          bottom: Radius.circular(selected ? 0 : 3),
+        ),
         border: Border.all(
           color: selected ? accent.withValues(alpha: 0.92) : palette.divider,
           width: selected ? 1.1 : 1,

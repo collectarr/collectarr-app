@@ -153,8 +153,12 @@ class EditTabShell extends StatelessWidget {
         final scrollContent = DecoratedBox(
           decoration: BoxDecoration(
             color: palette.panelRaised,
-            border: Border.all(color: palette.divider),
-            borderRadius: BorderRadius.circular(3),
+            border: Border(
+              top: const BorderSide(color: Colors.transparent),
+              left: BorderSide(color: palette.divider),
+              right: BorderSide(color: palette.divider),
+              bottom: BorderSide(color: palette.divider),
+            ),
           ),
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),

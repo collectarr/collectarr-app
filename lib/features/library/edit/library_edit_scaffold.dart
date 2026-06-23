@@ -290,11 +290,12 @@ class _ReorderableTabStrip extends StatelessWidget {
       animation: tabController,
       builder: (context, _) {
         return SizedBox(
+          width: double.infinity,
           height: kLibraryEditTabStripHeight,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < tabs.length; i++)
                   allowReorder
@@ -478,40 +479,55 @@ class _LibraryEditFooter extends StatelessWidget {
           const SizedBox(width: 8),
           SizedBox(
             width: 112,
-            child: OutlinedButton.icon(
+            child: OutlinedButton(
               style: navButtonStyle,
               onPressed: onNext,
-              icon: const Icon(Icons.chevron_right),
-              label: const Text('Next'),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Next'),
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right),
+                ],
+              ),
             ),
           ),
           const Spacer(),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              shape: kLibraryDialogFooterButtonShape,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
-              visualDensity: VisualDensity.compact,
+          SizedBox(
+            width: 112,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                shape: kLibraryDialogFooterButtonShape,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: onCancel,
+              child: const Text('Cancel'),
             ),
-            onPressed: onCancel,
-            child: const Text('Cancel'),
           ),
           const SizedBox(width: 8),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor: isMovieDesktop
-                  ? Color.alphaBlend(
-                      accent.withValues(alpha: 0.18), Colors.white)
-                  : accent,
-              foregroundColor: isMovieDesktop ? Colors.black87 : null,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              shape: kLibraryDialogFooterButtonShape,
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
-              visualDensity: VisualDensity.compact,
+          SizedBox(
+            width: 112,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: isMovieDesktop
+                    ? Color.alphaBlend(
+                        accent.withValues(alpha: 0.18), Colors.white)
+                    : accent,
+                foregroundColor: isMovieDesktop ? Colors.black87 : null,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
+                shape: kLibraryDialogFooterButtonShape,
+                textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: onSave,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Save'),
             ),
-            onPressed: onSave,
-            icon: const Icon(Icons.save_outlined),
-            label: const Text('Save'),
           ),
         ],
       ),
