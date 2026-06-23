@@ -1,6 +1,7 @@
 class Episode {
   final int episodeNumber;
   final String title;
+  final String? providerItemId;
   final String? overview;
   final String? airDate;
   final int? runtimeMinutes;
@@ -9,6 +10,7 @@ class Episode {
   Episode({
     required this.episodeNumber,
     required this.title,
+    this.providerItemId,
     this.overview,
     this.airDate,
     this.runtimeMinutes,
@@ -19,6 +21,7 @@ class Episode {
     return Episode(
       episodeNumber: json['episode_number'] as int,
       title: json['title'] as String,
+      providerItemId: json['provider_item_id'] as String?,
       overview: json['overview'] as String?,
       airDate: json['air_date'] as String?,
       runtimeMinutes: json['runtime_minutes'] as int?,
@@ -30,6 +33,7 @@ class Episode {
 class Season {
   final int seasonNumber;
   final String title;
+  final String? providerItemId;
   final String? overview;
   final String? airDate;
   final int? episodeCount;
@@ -39,6 +43,7 @@ class Season {
   Season({
     required this.seasonNumber,
     required this.title,
+    this.providerItemId,
     this.overview,
     this.airDate,
     this.episodeCount,
@@ -50,6 +55,7 @@ class Season {
     return Season(
       seasonNumber: json['season_number'] as int,
       title: json['title'] as String,
+      providerItemId: json['provider_item_id'] as String?,
       overview: json['overview'] as String?,
       airDate: json['air_date'] as String?,
       episodeCount: json['episode_count'] as int?,
