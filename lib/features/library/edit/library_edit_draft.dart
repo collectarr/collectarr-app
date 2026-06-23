@@ -76,6 +76,7 @@ class LibraryEditDraft {
     required this.priceController,
     required this.currencyController,
     required this.quantityController,
+    required this.indexNumberController,
     required this.notesController,
     required this.wishlistPriceController,
     required this.wishlistCurrencyController,
@@ -283,6 +284,8 @@ class LibraryEditDraft {
     );
     final currencyController = create(ownedItem?.currency ?? '');
     final quantityController = create((ownedItem?.quantity ?? 1).toString());
+    final indexNumberController =
+        create(ownedItem?.indexNumber?.toString() ?? '');
     final notesController = create(ownedItem?.personalNotes ?? '');
     final wishlistPriceController = create(
       wishlistItem?.targetPriceCents == null
@@ -432,6 +435,7 @@ class LibraryEditDraft {
       priceController: priceController,
       currencyController: currencyController,
       quantityController: quantityController,
+      indexNumberController: indexNumberController,
       notesController: notesController,
       wishlistPriceController: wishlistPriceController,
       wishlistCurrencyController: wishlistCurrencyController,
@@ -570,6 +574,7 @@ class LibraryEditDraft {
   final TextEditingController priceController;
   final TextEditingController currencyController;
   final TextEditingController quantityController;
+  final TextEditingController indexNumberController;
   final TextEditingController notesController;
   final TextEditingController wishlistPriceController;
   final TextEditingController wishlistCurrencyController;
@@ -806,6 +811,7 @@ class LibraryEditDraft {
               currency: emptyToNull(currencyController.text),
               personalNotes: emptyToNull(notesController.text),
               quantity: parseInt(quantityController.text) ?? 1,
+              indexNumber: parseInt(indexNumberController.text),
               locationId: showPhysicalOwnedFields ? selectedLocationId : null,
               locationChanged:
                   showPhysicalOwnedFields ? locationChanged : false,

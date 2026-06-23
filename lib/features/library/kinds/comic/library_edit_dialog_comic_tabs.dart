@@ -34,26 +34,65 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                 ),
               ]),
               const SizedBox(height: 10),
-              _flexResponsiveFields([
-                _field(
-                  controller: _ageRatingController,
-                  label: 'Age',
-                ),
-                _field(
-                  controller: _pageCountController,
-                  label: 'No. of Pages',
-                  validator: optionalIntValidator,
-                ),
-                _field(
-                  controller: _genresEditController,
-                  label: 'Genre',
-                  hint: 'Comma-separated',
-                ),
-              ], flexes: const [
-                3,
-                3,
-                6
-              ]),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < 620) {
+                    return Column(
+                      children: [
+                        _field(
+                          controller: _ageRatingController,
+                          label: 'Age',
+                        ),
+                        const SizedBox(height: 10),
+                        _field(
+                          controller: _pageCountController,
+                          label: 'No. of Pages',
+                          validator: optionalIntValidator,
+                        ),
+                        const SizedBox(height: 10),
+                        _field(
+                          controller: _genresEditController,
+                          label: 'Genre',
+                          hint: 'Comma-separated',
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _field(
+                                controller: _ageRatingController,
+                                label: 'Age',
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _field(
+                                controller: _pageCountController,
+                                label: 'No. of Pages',
+                                validator: optionalIntValidator,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _field(
+                          controller: _genresEditController,
+                          label: 'Genre',
+                          hint: 'Comma-separated',
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),

@@ -104,6 +104,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _priceController;
   late final TextEditingController _currencyController;
   late final TextEditingController _quantityController;
+  late final TextEditingController _indexNumberController;
   late final TextEditingController _ratingController;
   late final TextEditingController _trackingController;
   late final TextEditingController _tagsController;
@@ -272,6 +273,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _priceController = _draft.priceController;
     _currencyController = _draft.currencyController;
     _quantityController = _draft.quantityController;
+    _indexNumberController = TextEditingController(
+      text: widget.request.ownedItem?.indexNumber?.toString() ?? '',
+    );
     _ratingController = _draft.ratingController;
     _trackingController = _draft.trackingController;
     _trackingController.text =
@@ -366,6 +370,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _sparsController.dispose();
     _instrumentController.dispose();
     _compositionController.dispose();
+    _indexNumberController.dispose();
     _collectionStatusController.dispose();
     _genresController.dispose();
     _disposeTrackEditingState();
@@ -1298,48 +1303,96 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   Widget _ownedSharedFooterRow() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 280,
-            child: SingleValuePickField(
-              controller: _collectionStatusController,
-              options: const ['In collection', 'For sale', 'On order'],
-              label: 'Collection status',
-              showPickerListAction: true,
-              onChanged: (selectedLabel) {
-                _collectionStatusController.text = _collectionStatusToLabel(
-                    _collectionStatusFromLabel(selectedLabel));
-              },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 980) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 280,
+                  child: SingleValuePickField(
+                    controller: _collectionStatusController,
+                    options: const ['In collection', 'For sale', 'On order'],
+                    label: 'Collection status',
+                    showPickerListAction: true,
+                    onChanged: (selectedLabel) {
+                      _collectionStatusController.text =
+                          _collectionStatusToLabel(
+                              _collectionStatusFromLabel(selectedLabel));
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 140,
+                  child: _field(
+                    controller: _indexNumberController,
+                    label: 'Index',
+                    validator: optionalIntValidator,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 140,
+                  child: _field(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 360,
+                  child: _locationField(labelText: 'Location'),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 140,
-            child: InputDecorator(
-              decoration: const InputDecoration(labelText: 'Index'),
-              child: Text(
-                  widget.request.ownedItem?.indexNumber?.toString() ?? '—'),
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 4,
+              child: SingleValuePickField(
+                controller: _collectionStatusController,
+                options: const ['In collection', 'For sale', 'On order'],
+                label: 'Collection status',
+                showPickerListAction: true,
+                onChanged: (selectedLabel) {
+                  _collectionStatusController.text = _collectionStatusToLabel(
+                      _collectionStatusFromLabel(selectedLabel));
+                },
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 140,
-            child: _field(
-              controller: _quantityController,
-              label: 'Quantity',
-              validator: positiveIntValidator,
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: _field(
+                controller: _indexNumberController,
+                label: 'Index',
+                validator: optionalIntValidator,
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 360,
-            child: _locationField(labelText: 'Location'),
-          ),
-        ],
-      ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: _field(
+                controller: _quantityController,
+                label: 'Quantity',
+                validator: positiveIntValidator,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 4,
+              child: _locationField(labelText: 'Location'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -2231,6 +2284,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 currency: emptyToNull(_currencyController.text),
                 personalNotes: emptyToNull(_notesController.text),
                 quantity: parseInt(_quantityController.text) ?? 1,
+                indexNumber: parseInt(_indexNumberController.text),
                 locationId: _selectedLocationId,
                 locationChanged: _locationChanged,
                 tags: emptyToNull(_tagsController.text),

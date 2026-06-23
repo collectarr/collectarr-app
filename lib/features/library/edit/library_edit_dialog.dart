@@ -327,6 +327,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _priceController => _draft.priceController;
   TextEditingController get _currencyController => _draft.currencyController;
   TextEditingController get _quantityController => _draft.quantityController;
+  TextEditingController get _indexNumberController =>
+      _draft.indexNumberController;
   TextEditingController get _notesController => _draft.notesController;
   TextEditingController get _wishlistPriceController =>
       _draft.wishlistPriceController;
@@ -1876,6 +1878,24 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
+  Widget _footerField({
+    required TextEditingController controller,
+    required String label,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      decoration: const InputDecoration(
+        suffixIcon: SizedBox.shrink(),
+        suffixIconConstraints: BoxConstraints(
+          minWidth: 0,
+          minHeight: 40,
+        ),
+      ).copyWith(labelText: label),
+    );
+  }
+
   Widget _locationField({String label = 'Location'}) {
     final selectedLabel = _selectedLocationLabel;
     return InkWell(
@@ -2428,39 +2448,78 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _ownedSharedFooterRow() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 280,
-            child: _collectionStatusField(label: 'Collection Status'),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 140,
-            child: InputDecorator(
-              decoration: const InputDecoration(labelText: 'Index'),
-              child: Text(widget.ownedItem?.indexNumber?.toString() ?? '—'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 980) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 280,
+                  child: _collectionStatusField(label: 'Collection Status'),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 140,
+                  child: _footerField(
+                    label: 'Index',
+                    controller: _indexNumberController,
+                    validator: optionalIntValidator,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 140,
+                  child: _footerField(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 360,
+                  child: _locationField(label: 'Location'),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 140,
-            child: _field(
-              controller: _quantityController,
-              label: 'Quantity',
-              validator: positiveIntValidator,
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 4,
+              child: _collectionStatusField(label: 'Collection Status'),
             ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 360,
-            child: _locationField(label: 'Location'),
-          ),
-        ],
-      ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: _footerField(
+                label: 'Index',
+                controller: _indexNumberController,
+                validator: optionalIntValidator,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: _footerField(
+                controller: _quantityController,
+                label: 'Quantity',
+                validator: positiveIntValidator,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 4,
+              child: _locationField(label: 'Location'),
+            ),
+          ],
+        );
+      },
     );
   }
 

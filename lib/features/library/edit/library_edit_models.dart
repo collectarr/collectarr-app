@@ -36,6 +36,7 @@ class LibraryPersonalEditSelection {
     required this.currency,
     required this.personalNotes,
     required this.quantity,
+    required this.indexNumber,
     required this.locationId,
     required this.locationChanged,
     required this.tags,
@@ -93,6 +94,7 @@ class LibraryPersonalEditSelection {
   final String? currency;
   final String? personalNotes;
   final int quantity;
+  final int? indexNumber;
   final String? locationId;
   final bool locationChanged;
   final String? tags;

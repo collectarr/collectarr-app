@@ -271,7 +271,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         quantity: personal.quantity,
         locationId:
             personal.locationChanged ? personal.locationId : owned.locationId,
-        indexNumber: owned.indexNumber,
+        indexNumber: personal.indexNumber,
         coverPriceCents: personal.coverPriceCents,
         rawOrSlabbed: personal.rawOrSlabbed,
         gradingCompany: personal.gradingCompany,
