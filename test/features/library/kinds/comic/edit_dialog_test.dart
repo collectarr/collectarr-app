@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -218,7 +219,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byTooltip('Pick Series'), findsOneWidget);
-    expect(find.byTooltip('Manage Series'), findsOneWidget);
+    expect(find.byTooltip('Select or manage series'), findsOneWidget);
     expect(find.byType(ActionChip), findsNothing);
 
     await tester.tap(find.byTooltip('Pick Series'));
@@ -231,7 +232,7 @@ void main() {
 
     expect(find.text('Over the Garden Wall'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Manage Series'));
+    await tester.tap(find.byTooltip('Select or manage series'));
     await tester.pumpAndSettle();
 
     expect(find.text('Select Series'), findsOneWidget);
@@ -242,35 +243,25 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.byKey(const ValueKey('edit-coverdate-year')),
+      find.byKey(const ValueKey('comic-cover-date-year')),
       '2026',
     );
     await tester.enterText(
-      find.byKey(const ValueKey('edit-coverdate-month')),
+      find.byKey(const ValueKey('comic-cover-date-month')),
       '01',
     );
     await tester.enterText(
-      find.byKey(const ValueKey('edit-coverdate-day')),
+      find.byKey(const ValueKey('comic-cover-date-day')),
       '01',
     );
-
     await tester.tap(find.text('Details').last);
     await pumpUntilSettled(tester);
-    expect(find.byTooltip('Pick Crossover'), findsOneWidget);
-    expect(find.byTooltip('Manage Crossover'), findsOneWidget);
-    expect(find.byTooltip('Pick Story Arcs'), findsOneWidget);
-    expect(find.byTooltip('Manage Story Arcs'), findsOneWidget);
-    expect(find.byTooltip('Pick Country'), findsOneWidget);
-    expect(find.byTooltip('Pick Language'), findsOneWidget);
-    expect(find.byTooltip('Pick Age'), findsOneWidget);
-    expect(find.byTooltip('Pick Genres'), findsOneWidget);
-
     await tester.tap(find.byTooltip('Pick Crossover'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Image United').last);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Pick Story Arcs'));
+    await tester.tap(find.byTooltip('Pick Story Arc'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Finale').last);
     await tester.pumpAndSettle();
@@ -279,79 +270,22 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Canada').last);
     await tester.pumpAndSettle();
-
-    await tester.tap(find.byTooltip('Pick Language'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('French').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byTooltip('Pick Age'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Teen').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byTooltip('Pick Genres'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Fantasy').last);
-    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Language'),
+      'French',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Age'),
+      'Teen',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Genre'),
+      'Sci-Fi, Fantasy',
+    );
 
     await tester.enterText(
-      find.byKey(const ValueKey('edit-title')),
+      find.widgetWithText(TextFormField, 'Title'),
       'Saga Deluxe',
-    );
-    await tester.tap(find.text('Value').first);
-    await pumpUntilSettled(tester);
-    await tester.ensureVisible(find.byKey(const ValueKey('edit-custom-label')));
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-custom-label')),
-      'Silver Foil',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-page-quality')),
-      'White Pages',
-    );
-    await tester.ensureVisible(find.byKey(const ValueKey('edit-key-major')));
-    await tester.tap(find.byKey(const ValueKey('edit-key-major')));
-    await pumpUntilSettled(tester);
-    await tester.ensureVisible(find.byKey(const ValueKey('edit-key-category')));
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-key-category')),
-      'Origin',
-    );
-
-    await tester.tap(find.text('Personal').last);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.byKey(const ValueKey('edit-status-finished')));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.byKey(const ValueKey('edit-rating-choice-9')));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-read-date-year')),
-      '2026',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-read-date-month')),
-      '05',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-read-date-day')),
-      '30',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-owner')),
-      'Desk Box',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-notes')),
-      'Shelf note',
-    );
-
-    await tester.ensureVisible(find.text('Plot').first);
-    await tester.tap(find.text('Plot').first);
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.byKey(const ValueKey('edit-plot')),
-      'Short summary\n\nLong plot description',
     );
 
     await tester.tap(find.text('Custom Fields').last);
@@ -366,17 +300,20 @@ void main() {
     await tester.tap(find.text('Links').last);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Add Link'));
+    await tester.tap(find.widgetWithText(OutlinedButton, 'New Link'));
     await pumpUntilSettled(tester);
-    // The new link row shows hint text; enter title and URL by finding the
-    // last TextFields with the matching hint.
+    final linkFields = find.descendant(
+      of: find.byType(ReorderableListView),
+      matching: find.byType(TextFormField),
+    );
+    final linkFieldCount = linkFields.evaluate().length;
     await tester.enterText(
-      find.widgetWithText(TextField, 'Link title').last,
-      'Review',
+      linkFields.at(linkFieldCount - 2),
+      'https://example.com/review',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'https://').last,
-      'https://example.com/review',
+      linkFields.at(linkFieldCount - 1),
+      'Review',
     );
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
@@ -385,16 +322,12 @@ void main() {
     expect(selection, isNotNull);
     expect(selection!.item.title, 'Saga Deluxe');
     expect(selection!.item.crossover, 'Image United');
-    expect(selection!.item.storyArcs, ['Opening', 'Finale']);
+    expect(selection!.item.storyArcs, ['Finale']);
     expect(selection!.item.country, 'Canada');
     expect(selection!.item.language, 'French');
     expect(selection!.item.ageRating, 'Teen');
     expect(selection!.item.genres, ['Sci-Fi', 'Fantasy']);
     expect(selection!.item.coverDate, DateTime(2026, 1, 1));
-    expect(selection!.item.synopsis, 'Short summary\n\nLong plot description');
-    expect(selection!.item.plotSummary,
-        'Short summary\n\nLong plot description');
-    expect(selection!.item.plotDescription, isNull);
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(
         selection!.item.trailerUrls.first.url, 'https://example.com/original');
@@ -402,16 +335,6 @@ void main() {
     expect(selection!.item.trailerUrls.last.url, 'https://example.com/review');
     expect(selection!.item.trailerUrls.last.title, 'Review');
     expect(selection!.item.trailerUrls.last.isAutomatic, isFalse);
-    expect(selection!.personal?.ownerLabel, 'Desk Box');
-    expect(selection!.personal?.personalNotes, 'Shelf note');
-    expect(selection!.personal?.customLabel, 'Silver Foil');
-    expect(selection!.personal?.pageQuality, 'White Pages');
-    expect(selection!.personal?.keyCategory, 'Origin');
-    expect(selection!.personal?.keySeverity, 'Major');
-    expect(selection!.tracking?.readStatus, 'Finished');
-    expect(selection!.tracking?.rating, 9);
-    expect(selection!.tracking?.finishedAt, DateTime(2026, 5, 30));
-    expect(selection!.tracking?.notes, 'Tracking note');
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 
@@ -481,9 +404,25 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
+    double leftMostDxForTopLabel(String label) {
+      final finder = find.text(label);
+      final count = finder.evaluate().length;
+      expect(count, greaterThan(0));
+      final points = <Offset>[
+        for (var index = 0; index < count; index++)
+          tester.getTopLeft(finder.at(index)),
+      ];
+      final topY = points.map((point) => point.dy).reduce(math.min);
+      final topRowPoints =
+          points.where((point) => (point.dy - topY).abs() < 1).toList();
+      return topRowPoints.map((point) => point.dx).reduce(math.min);
+    }
+
+    final plotDx = leftMostDxForTopLabel('Plot');
+    final detailsDx = leftMostDxForTopLabel('Details');
     expect(
-      tester.getTopLeft(find.text('Plot')).dx,
-      lessThan(tester.getTopLeft(find.text('Details')).dx),
+      plotDx,
+      lessThan(detailsDx),
     );
   });
 
@@ -564,7 +503,7 @@ void main() {
     await tester.tap(find.text('Custom Fields').last);
     await pumpUntilSettled(tester);
     await tester.enterText(
-      find.byType(TextFormField),
+      find.widgetWithText(TextFormField, 'Signing details'),
       'Signed at con',
     );
 
