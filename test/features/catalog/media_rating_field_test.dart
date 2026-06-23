@@ -19,7 +19,7 @@ void main() {
     );
 
     expect(find.byType(MediaRatingField), findsOneWidget);
-    expect(find.text('Rating'), findsOneWidget);
+    expect(find.text('My Rating'), findsOneWidget);
     expect(find.text('8/100'), findsOneWidget);
   });
 }
