@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
@@ -172,7 +173,8 @@ class _InspectorPersonalDetailsEditorState
       title: 'Personal details',
       accentColor: accent,
       children: [
-        const LibraryInspectorFact('Mode', 'Draft edits. Apply changes to save.'),
+        const LibraryInspectorFact(
+            'Mode', 'Draft edits. Apply changes to save.'),
         _InspectorEditorRow(
           label: 'Purchased',
           child: Row(
@@ -184,7 +186,7 @@ class _InspectorPersonalDetailsEditorState
                   label: Text(
                     _purchaseDate == null
                         ? 'Set purchase date'
-                        : _formatDate(_purchaseDate!),
+                        : formatDate(_purchaseDate!),
                   ),
                 ),
               ),
@@ -405,8 +407,9 @@ class _InspectorPersonalDetailsEditorState
           purchaseStore: _emptyToNull(_purchaseStoreController.text),
           boxSetName: _emptyToNull(_boxSetNameController.text),
           quantity: widget.ownedItem.quantity,
-          locationId:
-              _locationChanged ? _selectedLocationId : widget.ownedItem.locationId,
+          locationId: _locationChanged
+              ? _selectedLocationId
+              : widget.ownedItem.locationId,
           indexNumber: widget.ownedItem.indexNumber,
           coverPriceCents: widget.ownedItem.coverPriceCents,
           rawOrSlabbed: widget.ownedItem.rawOrSlabbed,
@@ -439,11 +442,6 @@ class _InspectorPersonalDetailsEditorState
   String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
-  }
-
-  String _formatDate(DateTime value) {
-    final local = value.toLocal();
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
   }
 }
 
@@ -557,7 +555,8 @@ class _InspectorTrackingDetailsEditorState
                     ).edition;
                     setState(() {
                       _selectedEditionId = edition?.id;
-                      _selectedVariantId = resolveVariantForEdition(edition)?.id;
+                      _selectedVariantId =
+                          resolveVariantForEdition(edition)?.id;
                     });
                   },
                   onVariantSelected: (variantId) {
@@ -803,7 +802,7 @@ class _InspectorTrackingDetailsEditorState
               : const Icon(Icons.calendar_today, size: 18),
         ),
         child: Text(
-          value != null ? _formatDate(value) : '',
+          value != null ? formatDate(value) : '',
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ),
@@ -941,11 +940,6 @@ class _InspectorTrackingDetailsEditorState
   String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
-  }
-
-  String _formatDate(DateTime value) {
-    final local = value.toLocal();
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
   }
 }
 
@@ -1157,7 +1151,8 @@ class _EditionCard extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(9)),
               child: coverUrl != null
                   ? Image.network(
                       coverUrl!,
@@ -1232,7 +1227,8 @@ class _VariantCard extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(9)),
               child: variant.coverImageUrl != null
                   ? Image.network(
                       variant.thumbnailImageUrl ?? variant.coverImageUrl!,
@@ -1315,9 +1311,8 @@ class _TrackingBrowserCardFrame extends StatelessWidget {
                 : palette.surfaceSubtle.withValues(alpha: 0.82),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected
-                  ? accent.withValues(alpha: 0.85)
-                  : palette.divider,
+              color:
+                  isSelected ? accent.withValues(alpha: 0.85) : palette.divider,
               width: isSelected ? 1.4 : 1,
             ),
             boxShadow: [

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -323,7 +324,18 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final ebayUri = _inspectorEbayUri(entry);
+    final ebayQuery = <String>[
+      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
+      if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
+        entry.series!.seriesTitle!.trim(),
+      entry.resolvedTitle,
+      if (entry.releaseYear != null) entry.releaseYear.toString(),
+    ].join(' ');
+    final ebayUri = buildEbaySearchUri(
+      query: ebayQuery,
+      categoryPath: '/sch/11233/i.html',
+      soldOnly: true,
+    );
     final content = LayoutBuilder(
       builder: (context, constraints) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -467,26 +479,4 @@ class InspectorUnifiedToolbar extends StatelessWidget {
       child: content,
     );
   }
-}
-
-Uri? _inspectorEbayUri(LibraryWorkspaceEntry entry) {
-  final barcode = entry.barcode?.trim();
-  if (barcode == null || barcode.isEmpty) {
-    return null;
-  }
-  final query = <String>[
-    barcode,
-    if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
-      entry.series!.seriesTitle!.trim(),
-    entry.resolvedTitle,
-    if (entry.releaseYear != null) entry.releaseYear.toString(),
-  ].join(' ');
-  return Uri.https(
-    'www.ebay.com',
-    '/sch/11233/i.html',
-    <String, String>{
-      '_nkw': query,
-      'LH_Sold': '1',
-    },
-  );
 }

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -500,12 +501,9 @@ Uri? _ebayUri(LibraryWorkspaceEntry entry) {
   if (query.trim().isEmpty) {
     return null;
   }
-  return Uri.https(
-    'www.ebay.com',
-    '/sch/139973/i.html',
-    <String, String>{
-      '_nkw': query,
-      'LH_Sold': '1',
-    },
+  return buildEbaySearchUri(
+    query: query,
+    categoryPath: '/sch/139973/i.html',
+    soldOnly: true,
   );
 }

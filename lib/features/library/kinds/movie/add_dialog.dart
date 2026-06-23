@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dar
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
@@ -133,7 +134,7 @@ class _MovieManualPane extends StatelessWidget {
                   ),
                 if (request.defaultPurchaseDate != null)
                   libraryAddManualIntroBadge(
-                    _formatDate(request.defaultPurchaseDate!),
+                    formatDate(request.defaultPurchaseDate!),
                     accent: request.accent,
                   ),
                 if (copyTypeLabel != null)
@@ -333,10 +334,4 @@ class _MovieManualPane extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatDate(DateTime value) {
-  final month = value.month.toString().padLeft(2, '0');
-  final day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
 }

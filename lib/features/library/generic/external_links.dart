@@ -1,13 +1,29 @@
 import 'package:url_launcher/url_launcher.dart';
 
-Future<void> launchEbaySearch(String query) async {
+Uri? buildEbaySearchUri({
+  required String query,
+  String categoryPath = '/sch/i.html',
+  bool soldOnly = false,
+}) {
   final normalizedQuery = query.trim();
   if (normalizedQuery.isEmpty) {
+    return null;
+  }
+  return Uri.https(
+    'www.ebay.com',
+    categoryPath,
+    <String, String>{
+      '_nkw': normalizedQuery,
+      if (soldOnly) 'LH_Sold': '1',
+    },
+  );
+}
+
+Future<void> launchEbaySearch(String query) async {
+  final url = buildEbaySearchUri(query: query);
+  if (url == null) {
     return;
   }
-
-  final encodedQuery = Uri.encodeComponent(normalizedQuery);
-  final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encodedQuery');
   try {
     await launchUrl(url, mode: LaunchMode.externalApplication);
   } catch (_) {

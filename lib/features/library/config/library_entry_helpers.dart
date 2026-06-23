@@ -583,3 +583,33 @@ String formatDate(DateTime value) {
 String? formatNullableDate(DateTime? value) {
   return value == null ? null : formatDate(value);
 }
+
+String formatLibraryTimestamp(
+  DateTime? value, {
+  String nullLabel = '-',
+  bool includeSeconds = true,
+}) {
+  if (value == null) {
+    return nullLabel;
+  }
+  final local = value.toLocal();
+  const months = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  String twoDigits(int number) => number.toString().padLeft(2, '0');
+  final time = includeSeconds
+      ? '${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}'
+      : '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
+  return '${months[local.month - 1]} ${local.day}, ${local.year} $time';
+}

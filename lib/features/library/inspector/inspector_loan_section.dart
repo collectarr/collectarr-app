@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -140,16 +141,18 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
                       children: [
                         Text(
                           'Not currently lent out.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: palette.textMuted,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: palette.textMuted,
+                                  ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Use the add action to record a new loan for this item.',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                         ),
                       ],
                     ),
@@ -290,18 +293,14 @@ class _LoanTile extends StatelessWidget {
   }
 
   String get _subtitle {
-    final lent = _formatDate(loan.lentDate);
+    final lent = formatDate(loan.lentDate);
     if (loan.returnedDate != null) {
-      return 'Lent $lent · returned ${_formatDate(loan.returnedDate!)}';
+      return 'Lent $lent · returned ${formatDate(loan.returnedDate!)}';
     }
     if (loan.dueDate != null) {
-      return 'Lent $lent · due ${_formatDate(loan.dueDate!)}';
+      return 'Lent $lent · due ${formatDate(loan.dueDate!)}';
     }
     return 'Lent $lent';
-  }
-
-  static String _formatDate(DateTime d) {
-    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
 }
 

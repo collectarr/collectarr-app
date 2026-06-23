@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/add/library_add_manual_intro_car
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
@@ -413,7 +414,7 @@ class _ComicManualPane extends StatelessWidget {
                       if (request.defaultLocationLabel != null)
                         request.defaultLocationLabel!,
                       if (request.defaultPurchaseDate != null)
-                        _formatDate(request.defaultPurchaseDate!),
+                        formatDate(request.defaultPurchaseDate!),
                       if (request.defaultTags?.trim().isNotEmpty == true)
                         'Tags: ${request.defaultTags!}',
                     ],
@@ -650,10 +651,4 @@ class _ManualActionBar extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatDate(DateTime value) {
-  final month = value.month.toString().padLeft(2, '0');
-  final day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
 }

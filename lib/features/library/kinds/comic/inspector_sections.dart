@@ -202,13 +202,13 @@ List<LibraryInspectorFactData> _personalFacts(
   rows.add(
     LibraryInspectorFactData(
       'Added',
-      _formatTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
+      formatLibraryTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
     ),
   );
   rows.add(
     LibraryInspectorFactData(
       'Modified',
-      _formatTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
+      formatLibraryTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
     ),
   );
   return rows;
@@ -338,32 +338,6 @@ String _readLabel(String? status) {
     'reading' => 'Reading',
     String value => value.replaceAll('_', ' '),
   };
-}
-
-String _formatTimestamp(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-
-  final local = value.toLocal();
-  final month = switch (local.month) {
-    1 => 'Jan',
-    2 => 'Feb',
-    3 => 'Mar',
-    4 => 'Apr',
-    5 => 'May',
-    6 => 'Jun',
-    7 => 'Jul',
-    8 => 'Aug',
-    9 => 'Sep',
-    10 => 'Oct',
-    11 => 'Nov',
-    _ => 'Dec',
-  };
-
-  String twoDigits(int number) => number.toString().padLeft(2, '0');
-
-  return '$month ${local.day}, ${local.year} ${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}';
 }
 
 Future<void> _launchUrl(String value) async {
