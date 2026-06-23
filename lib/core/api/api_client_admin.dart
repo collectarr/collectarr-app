@@ -662,6 +662,35 @@ class _AdminApiClient {
     return AdminProviderIngestResult.fromJson(data);
   }
 
+  Future<AdminMetadataProposal> adminUpdateMetadataProposal({
+    required String proposalId,
+    String? query,
+    String? providerItemId,
+    String? title,
+    String? summary,
+    String? imageUrl,
+    Map<String, dynamic>? metadataPayload,
+  }) async {
+    final response = await _client._dio.patch<Map<String, dynamic>>(
+      '/admin/metadata/proposals/$proposalId',
+      data: {
+        if (query != null) 'query': query,
+        if (providerItemId != null) 'provider_item_id': providerItemId,
+        if (title != null) 'title': title,
+        if (summary != null) 'summary': summary,
+        if (imageUrl != null) 'image_url': imageUrl,
+        if (metadataPayload != null) 'metadata_payload': metadataPayload,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/admin/metadata/proposals/$proposalId returned an empty response body',
+      );
+    }
+    return AdminMetadataProposal.fromJson(_client._resolveImageUrls(data));
+  }
+
   Future<AdminProviderIngestResult>
       adminApproveMetadataProposalWithProviderItem({
     required String proposalId,

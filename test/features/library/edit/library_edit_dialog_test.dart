@@ -559,7 +559,8 @@ void main() {
     expect(find.text('Jim Campbell'), findsOneWidget);
     expect(find.text('Danielle Burgos'), findsOneWidget);
 
-    await tester.ensureVisible(find.text('Characters', skipOffstage: false).last);
+    await tester
+        .ensureVisible(find.text('Characters', skipOffstage: false).last);
     await tester.tap(find.text('Characters', skipOffstage: false).last);
     await pumpUntilSettled(tester);
     expect(find.text('Wirt'), findsOneWidget);
@@ -649,7 +650,8 @@ void main() {
     expect(find.text('Manage My Images'), findsOneWidget);
     expect(find.text('Find Better Cover'), findsOneWidget);
 
-    await tester.ensureVisible(find.text('My Images', skipOffstage: false).last);
+    await tester
+        .ensureVisible(find.text('My Images', skipOffstage: false).last);
     await tester.tap(find.text('My Images', skipOffstage: false).last);
     await pumpUntilSettled(tester);
 
@@ -1574,6 +1576,11 @@ void main() {
     expect(find.text('Links'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Sort title'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Platform'), findsOneWidget);
+    await tester.tap(find.text('Links'));
+    await pumpUntilSettled(tester);
+    expect(find.textContaining('Read-only: external links'), findsOneWidget);
+    await tester.tap(find.text('Main'));
+    await pumpUntilSettled(tester);
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Platform').first,

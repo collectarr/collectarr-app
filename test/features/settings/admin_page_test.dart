@@ -90,7 +90,7 @@ void main() {
     expect(find.text('admin@example.com'), findsOneWidget);
 
     // ─── Providers tab ───
-    await tester.tap(find.text('Providers'));
+    await tester.tap(find.widgetWithText(Tab, 'Providers'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Metadata proposals'), findsOneWidget);
@@ -104,6 +104,50 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.textContaining('Reviewing proposal:'), findsOneWidget);
+    await tester
+        .tap(find.widgetWithText(OutlinedButton, 'Edit metadata').first);
+    await pumpUntilSettled(tester);
+    expect(find.textContaining('Edit proposal metadata -'), findsOneWidget);
+    expect(find.widgetWithText(Chip, 'Game'), findsWidgets);
+    expect(
+      find.widgetWithText(TextFormField, 'Platforms (comma separated)'),
+      findsOneWidget,
+    );
+    await tester.enterText(find.widgetWithText(TextFormField, 'Title').first,
+        'Manual GCD correction updated');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Platforms (comma separated)').first,
+      'PlayStation 5, Nintendo Switch',
+    );
+    await tester.enterText(
+      find
+          .widgetWithText(TextFormField,
+              'External links (label | url | kind | description)')
+          .first,
+      'Official site | https://example.com/official | official | Main website',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save changes').first);
+    await pumpUntilSettled(tester);
+    expect(api.lastUpdatedProposalId, 'proposal-1');
+    expect(api.lastUpdatedProposalTitle, 'Manual GCD correction updated');
+    expect(
+      api.lastUpdatedProposalMetadataPayload?['platforms'],
+      ['PlayStation 5', 'Nintendo Switch'],
+    );
+    expect(
+      api.lastUpdatedProposalMetadataPayload?['external_links'],
+      [
+        {
+          'label': 'Official site',
+          'url': 'https://example.com/official',
+          'kind': 'official',
+          'description': 'Main website',
+        },
+      ],
+    );
+    expect(find.text('Proposal metadata updated.'), findsOneWidget);
+    expect(find.text('Manual GCD correction updated'), findsWidgets);
+
     await _scrollUntilVisible(
       tester,
       find.widgetWithText(FilledButton, 'Approve proposal').first,
@@ -111,6 +155,18 @@ void main() {
     );
     await tester
         .tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
+    await pumpUntilSettled(tester);
+    expect(find.text('Approve linked proposal?'), findsOneWidget);
+    final approveDialog = find.ancestor(
+      of: find.text('Approve linked proposal?'),
+      matching: find.byType(AlertDialog),
+    );
+    await tester.tap(
+      find.descendant(
+        of: approveDialog,
+        matching: find.widgetWithText(FilledButton, 'Approve'),
+      ),
+    );
     await pumpUntilSettled(tester);
 
     expect(api.lastApprovedProposalId, 'proposal-1');
@@ -412,6 +468,53 @@ void main() {
     expect(api.lastCatalogUpdatePlotDescription,
         'The fellowship forms and departs from Rivendell.');
   });
+
+  testWidgets('proposal editor validates malformed external links',
+      (tester) async {
+    final api = _FakeAdminApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    tester.view.physicalSize = const Size(1200, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
+        ],
+        child: const MaterialApp(home: AdminPage()),
+      ),
+    );
+
+    await pumpUntilSettled(tester);
+    await tester.tap(find.widgetWithText(Tab, 'Providers'));
+    await pumpUntilSettled(tester);
+    await tester
+        .tap(find.widgetWithText(OutlinedButton, 'Edit metadata').first);
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find
+          .widgetWithText(TextFormField,
+              'External links (label | url | kind | description)')
+          .first,
+      'Bad link | not-a-url',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save changes').first);
+    await pumpUntilSettled(tester);
+
+    expect(
+      find.textContaining('invalid URL "not-a-url"'),
+      findsOneWidget,
+    );
+    expect(api.lastUpdatedProposalId, isNull);
+    await tester.pump(const Duration(seconds: 4));
+  });
 }
 
 Future<void> _scrollUntilVisible(
@@ -477,6 +580,9 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastSearchKind;
   String? lastApprovedProposalId;
   String? lastApprovedProposalProviderItemId;
+  String? lastUpdatedProposalId;
+  String? lastUpdatedProposalTitle;
+  Map<String, dynamic>? lastUpdatedProposalMetadataPayload;
   String? lastRejectedProposalId;
   String? lastUpdatedUserId;
   String? lastUpdatedUserDisplayName;
@@ -559,6 +665,14 @@ class _FakeAdminApiClient extends ApiClient {
       query: 'Absolute Batman manual correction',
       title: 'Manual GCD correction',
       summary: 'Needs a provider-backed match before ingest.',
+      metadataPayload: {
+        'kind': 'game',
+        'genres': ['Action'],
+        'platforms': ['PlayStation 5'],
+        'external_links': [
+          {'label': 'Store', 'url': 'https://example.com/store'},
+        ],
+      },
       status: 'pending',
     ),
     const AdminMetadataProposal(
@@ -981,6 +1095,40 @@ class _FakeAdminApiClient extends ApiClient {
         title: 'Absolute Batman',
       ),
     );
+  }
+
+  @override
+  Future<AdminMetadataProposal> adminUpdateMetadataProposal({
+    required String proposalId,
+    String? query,
+    String? providerItemId,
+    String? title,
+    String? summary,
+    String? imageUrl,
+    Map<String, dynamic>? metadataPayload,
+  }) async {
+    final index =
+        _pendingProposals.indexWhere((proposal) => proposal.id == proposalId);
+    if (index < 0) {
+      throw StateError('Unknown proposal: $proposalId');
+    }
+    final current = _pendingProposals[index];
+    final updated = AdminMetadataProposal(
+      id: current.id,
+      provider: current.provider,
+      query: query ?? current.query,
+      status: current.status,
+      providerItemId: providerItemId ?? current.providerItemId,
+      title: title ?? current.title,
+      summary: summary ?? current.summary,
+      imageUrl: imageUrl ?? current.imageUrl,
+      metadataPayload: metadataPayload ?? current.metadataPayload,
+    );
+    _pendingProposals[index] = updated;
+    lastUpdatedProposalId = proposalId;
+    lastUpdatedProposalTitle = updated.title;
+    lastUpdatedProposalMetadataPayload = updated.metadataPayload;
+    return updated;
   }
 
   @override

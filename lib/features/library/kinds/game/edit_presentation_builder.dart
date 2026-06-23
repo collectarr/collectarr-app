@@ -137,6 +137,7 @@ class GameLibraryEditPresentationBuilder
       'photos' => ['photos'],
       'cover' => ['cover_images'],
       'synopsis' => ['synopsis'],
+      'links' => ['external_links'],
       _ => const <String>[],
     };
     return List<String>.unmodifiable(sections);

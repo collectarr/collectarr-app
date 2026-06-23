@@ -2163,6 +2163,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _approveProposal(AdminMetadataProposal proposal) async {
+    final confirmed = await _confirmProposalApproval(
+      proposal,
+      linked: false,
+    );
+    if (!confirmed || !mounted) {
+      return;
+    }
     setState(() {
       _proposalActionId = proposal.id;
       _proposalErrorMessage = null;
@@ -2203,6 +2210,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   ) async {
     final providerItemId = proposal.providerItemId?.trim();
     if (providerItemId == null || providerItemId.isEmpty) {
+      setState(() {
+        _proposalErrorMessage =
+            'Linked approval requires a provider item id on the proposal.';
+      });
+      return;
+    }
+    final confirmed = await _confirmProposalApproval(
+      proposal,
+      linked: true,
+      providerItemId: providerItemId,
+    );
+    if (!confirmed || !mounted) {
       return;
     }
     await _approveProposalWithProviderItem(
@@ -2213,10 +2232,75 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     );
   }
 
+  Future<bool> _confirmProposalApproval(
+    AdminMetadataProposal proposal, {
+    required bool linked,
+    String? providerItemId,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AccentAlertDialog(
+        title: Text(linked ? 'Approve linked proposal?' : 'Approve proposal?'),
+        content: SizedBox(
+          width: 560,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                proposal.displayTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              Text('Provider: ${proposal.provider}'),
+              if (providerItemId != null && providerItemId.isNotEmpty)
+                Text('Provider item id: $providerItemId'),
+              const SizedBox(height: 10),
+              Text(
+                linked
+                    ? 'This will ingest the linked provider item and mark the proposal as approved.'
+                    : 'This will ingest provider metadata and mark the proposal as approved.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.task_alt_outlined),
+            label: const Text('Approve'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   Future<void> _approveProposalWithCandidate(
       ProviderCandidate candidate) async {
     final proposalId = _activeProposalId;
     if (proposalId == null || proposalId.isEmpty) {
+      return;
+    }
+    final proposal =
+        _proposals.where((row) => row.id == proposalId).firstOrNull;
+    final confirmed = await _confirmProposalApproval(
+      proposal ??
+          AdminMetadataProposal(
+            id: proposalId,
+            provider: candidate.provider,
+            query: _queryController.text.trim(),
+            title: _activeProposalTitle,
+            status: 'pending',
+          ),
+      linked: true,
+      providerItemId: candidate.providerItemId,
+    );
+    if (!confirmed || !mounted) {
       return;
     }
     await _approveProposalWithProviderItem(
@@ -2430,10 +2514,60 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   void _editProposalMetadata(AdminMetadataProposal proposal) {
-    showDialog<void>(
+    unawaited(_editProposalMetadataAsync(proposal));
+  }
+
+  Future<void> _editProposalMetadataAsync(
+      AdminMetadataProposal proposal) async {
+    final result = await showDialog<_ProposalMetadataEditResult>(
       context: context,
       builder: (context) => _ProposalMetadataEditDialog(proposal: proposal),
     );
+    if (result == null || !mounted) {
+      return;
+    }
+    setState(() {
+      _proposalActionId = proposal.id;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      final updated =
+          await ref.read(apiClientProvider).adminUpdateMetadataProposal(
+                proposalId: proposal.id,
+                query: result.query,
+                providerItemId: result.providerItemId,
+                title: result.title,
+                summary: result.summary,
+                imageUrl: result.imageUrl,
+                metadataPayload: result.metadataPayload,
+              );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalStatusMessage = 'Proposal metadata updated.';
+        _proposals = [
+          for (final row in _proposals) row.id == updated.id ? updated : row,
+        ];
+        if (_activeProposalId == updated.id) {
+          _activeProposalTitle = updated.displayTitle;
+          _providerItemIdController.text = updated.providerItemId ?? '';
+          _queryController.text = updated.query.trim().isEmpty
+              ? updated.displayTitle
+              : updated.query;
+        }
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
   }
 
   void _reviewProposal(AdminMetadataProposal proposal) {

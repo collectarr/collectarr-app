@@ -561,6 +561,26 @@ class ApiClient {
     return _adminApi.adminApproveMetadataProposal(proposalId: proposalId);
   }
 
+  Future<AdminMetadataProposal> adminUpdateMetadataProposal({
+    required String proposalId,
+    String? query,
+    String? providerItemId,
+    String? title,
+    String? summary,
+    String? imageUrl,
+    Map<String, dynamic>? metadataPayload,
+  }) async {
+    return _adminApi.adminUpdateMetadataProposal(
+      proposalId: proposalId,
+      query: query,
+      providerItemId: providerItemId,
+      title: title,
+      summary: summary,
+      imageUrl: imageUrl,
+      metadataPayload: metadataPayload,
+    );
+  }
+
   Future<AdminProviderIngestResult>
       adminApproveMetadataProposalWithProviderItem({
     required String proposalId,
