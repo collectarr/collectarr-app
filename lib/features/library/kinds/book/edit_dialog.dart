@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -654,10 +655,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _linksTab() {
     final sections = _tabSectionIds('links');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return BookLinksTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 

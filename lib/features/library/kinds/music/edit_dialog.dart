@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -518,10 +519,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   Widget _linksTab() {
     final sections = _tabSectionIds('links');
-    return EditTabShell(
-      children: [
-        for (final sectionId in sections) _sectionFor(sectionId),
-      ],
+    return MusicLinksTab(
+      sections: sections,
+      sectionBuilder: _sectionFor,
     );
   }
 
