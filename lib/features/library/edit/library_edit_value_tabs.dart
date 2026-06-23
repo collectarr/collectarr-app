@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart'
+    show formatMoney;
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -233,14 +235,20 @@ class LibraryEditValueTab extends StatelessWidget {
                 label: 'Paid',
                 value: priceController.text.isEmpty
                     ? '—'
-                    : '\$${priceController.text}',
+                    : formatMoney(
+                        parseMoneyCents(priceController.text),
+                        currencyController.text,
+                      ),
               ),
               ValueContextChip(
                 icon: Icons.sell_outlined,
                 label: 'Sell',
                 value: sellPriceController.text.isEmpty
                     ? '—'
-                    : '\$${sellPriceController.text}',
+                    : formatMoney(
+                        parseMoneyCents(sellPriceController.text),
+                        currencyController.text,
+                      ),
               ),
               ValueContextChip(
                 icon: Icons.calendar_month_outlined,
@@ -254,7 +262,10 @@ class LibraryEditValueTab extends StatelessWidget {
                 label: 'Market value',
                 value: marketValueController.text.isEmpty
                     ? '—'
-                    : '\$${marketValueController.text}',
+                    : formatMoney(
+                        parseMoneyCents(marketValueController.text),
+                        currencyController.text,
+                      ),
               ),
             ],
           ),

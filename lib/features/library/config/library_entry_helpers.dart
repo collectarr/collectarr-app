@@ -35,8 +35,7 @@ class LibraryOwnedItemResolution {
 }
 
 bool itemHasMissingCover(CatalogItem item) {
-  return item.displayCoverUrl == null ||
-      item.displayCoverUrl!.trim().isEmpty;
+  return item.displayCoverUrl == null || item.displayCoverUrl!.trim().isEmpty;
 }
 
 bool itemHasMissingDetails(CatalogItem item) {
@@ -170,7 +169,7 @@ List<String> libraryReferenceHierarchySegments({
 }
 
 ({CatalogEdition? edition, CatalogVariant? variant})
-resolveLibraryReferenceRelease({
+    resolveLibraryReferenceRelease({
   required String? editionId,
   required String? variantId,
   required List<CatalogEdition> editions,
@@ -183,7 +182,7 @@ resolveLibraryReferenceRelease({
 }
 
 ({CatalogEdition? edition, CatalogVariant? variant})
-resolveLibraryEntryReferenceRelease(
+    resolveLibraryEntryReferenceRelease(
   LibraryWorkspaceEntry entry,
 ) {
   return resolveLibraryReferenceRelease(
@@ -229,10 +228,14 @@ String? resolveLibraryOwnedItemId(
   WishlistItem? wishlistItem,
 }) {
   final editionId = _normalizedEntryAnchorId(
-    ownedItem?.editionId ?? wishlistItem?.editionId ?? entry?.referenceEditionId,
+    ownedItem?.editionId ??
+        wishlistItem?.editionId ??
+        entry?.referenceEditionId,
   );
   final variantId = _normalizedEntryAnchorId(
-    ownedItem?.variantId ?? wishlistItem?.variantId ?? entry?.referenceVariantId,
+    ownedItem?.variantId ??
+        wishlistItem?.variantId ??
+        entry?.referenceVariantId,
   );
   final bundleReleaseId = _normalizedEntryAnchorId(
     ownedItem?.bundleReleaseId ??
@@ -311,8 +314,7 @@ LibraryOwnedItemResolution resolveActiveOwnedItem(
 }
 
 String? _libraryReferenceLabel(
-  PersonalItemAnchorType? anchor,
-  {
+  PersonalItemAnchorType? anchor, {
   required String itemLabel,
   required String editionLabel,
   required String variantLabel,
@@ -342,7 +344,10 @@ String? _referenceScopeLabelForAnchor(
 }
 
 LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
-  return collectarrLibraryTypes.byKind(mediaType)?.presentation.referenceLabels ??
+  return collectarrLibraryTypes
+          .byKind(mediaType)
+          ?.presentation
+          .referenceLabels ??
       const LibraryReferenceLabels();
 }
 
@@ -468,7 +473,8 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
   );
 }
 
-({CatalogEdition? edition, CatalogVariant? variant}) _resolveLibraryReferenceRelease({
+({CatalogEdition? edition, CatalogVariant? variant})
+    _resolveLibraryReferenceRelease({
   required String? editionId,
   required String? variantId,
   required List<CatalogEdition> editions,
@@ -519,6 +525,54 @@ String formatMoney(int? cents, String? currency) {
   final fraction = (absolute % 100).toString().padLeft(2, '0');
   final prefix = currency == null || currency.isEmpty ? '' : '$currency ';
   return '$prefix$sign$whole.$fraction';
+}
+
+List<String> libraryCreatorNameList(List<Map<String, dynamic>>? creators) {
+  if (creators == null || creators.isEmpty) {
+    return const <String>[];
+  }
+  final seen = <String>{};
+  final values = <String>[];
+  for (final creator in creators) {
+    final name = creator['name']?.toString().trim();
+    if (name == null || name.isEmpty) {
+      continue;
+    }
+    final key = name.toLowerCase();
+    if (seen.add(key)) {
+      values.add(name);
+    }
+  }
+  return values;
+}
+
+List<(String, String)> libraryCreatorsGroupedByRole(
+  List<Map<String, dynamic>>? creators,
+) {
+  if (creators == null || creators.isEmpty) {
+    return const <(String, String)>[];
+  }
+  final grouped = <String, List<String>>{};
+  for (final creator in creators) {
+    final role = (creator['role']?.toString().trim().isNotEmpty == true)
+        ? creator['role']!.toString().trim()
+        : 'Credit';
+    final name = creator['name']?.toString().trim();
+    if (name == null || name.isEmpty) {
+      continue;
+    }
+    grouped.putIfAbsent(role, () => <String>[]).add(name);
+  }
+  if (grouped.isEmpty) {
+    return const <(String, String)>[];
+  }
+  final rows = <(String, String)>[];
+  final sortedRoles = grouped.keys.toList(growable: false)..sort();
+  for (final role in sortedRoles) {
+    final names = grouped[role]!..sort();
+    rows.add((role, names.join(', ')));
+  }
+  return rows;
 }
 
 String formatDate(DateTime value) {

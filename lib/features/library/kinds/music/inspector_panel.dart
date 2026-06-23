@@ -404,6 +404,11 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       ('Modified', formatNullableDate(owned?.updatedAt) ?? '-'),
     ];
     final creditRows = _buildCreditsRows(entry.creators);
+    List<LibraryInspectorFactData> asFacts(List<(String, String)> rows) {
+      return [
+        for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
+      ];
+    }
 
     return Column(
       children: [
@@ -411,21 +416,30 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
           title: 'Info',
           accentColor: inspector.accent,
           children: [
-            _MusicInspectorFactRows(rows: detailRows),
+            LibraryInspectorFactGrid(facts: asFacts(detailRows)),
           ],
         ),
         LibraryInspectorSection(
           title: 'Personal',
           accentColor: inspector.accent,
           children: [
-            _MusicInspectorFactRows(rows: personalRows),
+            LibraryInspectorFactGrid(facts: asFacts(personalRows)),
           ],
         ),
         LibraryInspectorSection(
           title: 'Credits',
           accentColor: inspector.accent,
           children: [
-            _MusicInspectorFactRows(rows: creditRows),
+            if (creditRows.isEmpty)
+              Text(
+                '-',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: appPalette(context).textMuted,
+                      fontWeight: FontWeight.w600,
+                    ),
+              )
+            else
+              LibraryInspectorFactGrid(facts: asFacts(creditRows)),
           ],
         ),
       ],
@@ -563,61 +577,6 @@ class _MusicTrackRow extends StatelessWidget {
   }
 }
 
-class _MusicInspectorFactRows extends StatelessWidget {
-  const _MusicInspectorFactRows({
-    required this.rows,
-  });
-
-  final List<(String label, String value)> rows;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (rows.isEmpty)
-          Text(
-            '-',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: palette.textMuted,
-                  fontWeight: FontWeight.w600,
-                ),
-          )
-        else
-          for (final row in rows)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      row.$1,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      row.$2,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-      ],
-    );
-  }
-}
-
 class _MusicInspectorInfoLine extends StatelessWidget {
   const _MusicInspectorInfoLine({
     required this.icon,
@@ -729,30 +688,7 @@ bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
 }
 
 List<(String, String)> _buildCreditsRows(List<Map<String, dynamic>>? creators) {
-  if (creators == null || creators.isEmpty) {
-    return const <(String, String)>[];
-  }
-  final grouped = <String, List<String>>{};
-  for (final entry in creators) {
-    final role = (entry['role']?.toString().trim().isNotEmpty == true)
-        ? entry['role']!.toString().trim()
-        : 'Credit';
-    final name = entry['name']?.toString().trim();
-    if (name == null || name.isEmpty) {
-      continue;
-    }
-    grouped.putIfAbsent(role, () => <String>[]).add(name);
-  }
-  if (grouped.isEmpty) {
-    return const <(String, String)>[];
-  }
-  final rows = <(String, String)>[];
-  final sortedRoles = grouped.keys.toList(growable: false)..sort();
-  for (final role in sortedRoles) {
-    final names = grouped[role]!..sort();
-    rows.add((role, names.join(', ')));
-  }
-  return rows;
+  return libraryCreatorsGroupedByRole(creators);
 }
 
 Uri? _ebayUri(LibraryWorkspaceEntry entry) {

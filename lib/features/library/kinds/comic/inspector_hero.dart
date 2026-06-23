@@ -211,8 +211,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
           );
         }
 
-        final coverWidth = stacked ? 112.0 : 122.0;
-        final splitCoverWidth = stacked ? 112.0 : 106.0;
+        final coverWidth = stacked ? 120.0 : 140.0;
+        final splitCoverWidth = stacked ? 120.0 : 116.0;
         final showBackInSingle = hasBackCover && _showBackCover;
 
         final cover = Column(
@@ -360,13 +360,10 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             ),
             const SizedBox(height: 6),
             Text(
-              'PLOT',
+              'Plot',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: muted,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.18,
-                    height: 1,
-                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
                   ),
             ),
             const SizedBox(height: 3),
@@ -375,10 +372,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 synopsis!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: ink,
-                      height: 1.25,
+                      height: 1.4,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: 0,
-                      fontSize: 10,
                     ),
                 textAlign: TextAlign.start,
               ),
@@ -390,10 +385,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 plotDescription!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: ink.withValues(alpha: 0.85),
-                      height: 1.2,
+                      height: 1.4,
                       fontWeight: FontWeight.w400,
-                      letterSpacing: 0,
-                      fontSize: 10,
                     ),
                 textAlign: TextAlign.start,
               ),
@@ -402,10 +395,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 'No plot available.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: muted,
-                      height: 1.18,
+                      height: 1.4,
                       fontWeight: FontWeight.w400,
-                      letterSpacing: 0,
-                      fontSize: 10,
                     ),
                 textAlign: TextAlign.start,
               ),
@@ -476,7 +467,7 @@ class _ComicHeroBlock extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -485,11 +476,9 @@ class _ComicHeroBlock extends StatelessWidget {
                 overline!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: appPalette(context).textMuted,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: accent,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 0.16,
-                      fontSize: 10,
                     ),
               ),
               const SizedBox(height: 4),
@@ -502,12 +491,9 @@ class _ComicHeroBlock extends StatelessWidget {
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: appPalette(context).textPrimary,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: -0.1,
-                          height: 1,
-                          fontSize: 13,
                         ),
                   ),
                 ),
@@ -538,6 +524,7 @@ class _ComicIssueBadge extends StatelessWidget {
           palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
           palette.surface,
         ),
+        borderRadius: BorderRadius.circular(3),
       ),
       child: Text(
         referenceLabel,
@@ -583,6 +570,7 @@ class _ComicMetaBadge extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
         color: palette.surface,
+        borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -801,40 +789,28 @@ class _ComicEbayCard extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(color: palette.divider),
           color: palette.surface,
+          borderRadius: BorderRadius.circular(3),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.storefront_outlined, size: 13, color: accent),
-                const SizedBox(width: 4),
-                Text(
-                  'eBay',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w900,
-                      ),
-                ),
-              ],
+            Icon(Icons.storefront_outlined, size: 13, color: accent),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Find sold listings on eBay',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: palette.textPrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Find sold listings',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 10,
-                  ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'CLZ-style quick jump for market comps',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                    fontSize: 10,
-                    height: 1.2,
-                  ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.open_in_new,
+              size: 12,
+              color: palette.textMuted,
             ),
           ],
         ),
@@ -890,7 +866,7 @@ class _ComicDetailLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 38,
+            width: 60,
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -898,7 +874,6 @@ class _ComicDetailLine extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.16,
                     height: 1,
-                    fontSize: 10,
                   ),
             ),
           ),
@@ -909,8 +884,7 @@ class _ComicDetailLine extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
-                    height: 1.08,
-                    fontSize: 10,
+                    height: 1.2,
                   ),
             ),
           ),

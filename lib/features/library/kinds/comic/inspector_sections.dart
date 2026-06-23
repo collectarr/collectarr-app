@@ -17,7 +17,7 @@ List<Widget> buildComicInspectorSections(
 
   final sections = <Widget>[];
 
-  final creatorNames = _creatorNames(entry.creators);
+  final creatorNames = libraryCreatorNameList(entry.creators);
   if (creatorNames.isNotEmpty) {
     sections.add(
       LibraryInspectorChipSection(
@@ -125,25 +125,6 @@ List<Widget> buildComicInspectorSections(
   }
 
   return sections;
-}
-
-List<String> _creatorNames(List<Map<String, dynamic>>? creators) {
-  if (creators == null || creators.isEmpty) {
-    return const [];
-  }
-  final seen = <String>{};
-  final values = <String>[];
-  for (final creator in creators) {
-    final name = creator['name']?.toString().trim();
-    if (name == null || name.isEmpty) {
-      continue;
-    }
-    final key = name.toLowerCase();
-    if (seen.add(key)) {
-      values.add(name);
-    }
-  }
-  return values;
 }
 
 List<LibraryInspectorFactData> _detailFacts(LibraryWorkspaceEntry entry) {
