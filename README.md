@@ -81,8 +81,8 @@ See [docs/implementation-plan.md](docs/implementation-plan.md).
 
 Current active tracks:
 
-- single-edit-place rollout on top of the shared metadata contract and controller map
-- final library de-generalization cleanup in `lib/features/library/generic`
+- continued migration of book/music/comic edit surfaces onto shared metadata contract primitives
+- final de-generalization cleanup in `lib/features/library/generic` via extracted kind hooks
 - admin UX consistency with Core contracts (proposal/editor + stats surfaces)
 
 ## 🔒 Release policy

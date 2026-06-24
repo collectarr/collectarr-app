@@ -37,6 +37,8 @@ class AdminDuplicateCandidate {
     this.hasCoverConflicts = false,
     this.duplicateScore = 0,
     this.recommendedTargetItemId,
+    this.confidenceFactors = const <String>[],
+    this.mergeWarnings = const <String>[],
   });
 
   final String kind;
@@ -49,6 +51,8 @@ class AdminDuplicateCandidate {
   final bool hasCoverConflicts;
   final int duplicateScore;
   final String? recommendedTargetItemId;
+  final List<String> confidenceFactors;
+  final List<String> mergeWarnings;
 
   String? get preferredTargetItemId {
     final recommended = recommendedTargetItemId;
@@ -80,6 +84,15 @@ class AdminDuplicateCandidate {
       hasCoverConflicts: json['has_cover_conflicts'] as bool? ?? false,
       duplicateScore: json['duplicate_score'] as int? ?? 0,
       recommendedTargetItemId: json['recommended_target_item_id'] as String?,
+      confidenceFactors: [
+        for (final value
+            in (json['confidence_factors'] as List<dynamic>? ?? []))
+          value.toString(),
+      ],
+      mergeWarnings: [
+        for (final value in (json['merge_warnings'] as List<dynamic>? ?? []))
+          value.toString(),
+      ],
     );
   }
 }

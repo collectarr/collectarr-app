@@ -96,6 +96,7 @@ import 'package:uuid/uuid.dart';
 part 'page_edit_handler.dart';
 part 'page_dialogs.dart';
 part 'page_collection_actions.dart';
+part 'page/hooks/page_kind_hooks.dart';
 part 'page/controllers/page_facet_controller.dart';
 part 'page/controllers/page_scope_controller.dart';
 part 'page/controllers/page_view_state_controller.dart';
@@ -182,20 +183,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _cachedCustomFieldValuesByDefinitionForSignature;
   int? _cachedCustomFieldValuesByDefinitionSignature;
 
-  LibraryMediaAdapter get _adapter =>
-      collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
-      plannedMediaAdapter(widget.type);
-
   LibrarySearchTarget _searchTarget = LibrarySearchTarget.all;
-
-  bool get _supportsMusicTrackSearch =>
-      widget.type.workspace.kind == CatalogMediaKind.music;
-
-  LibrarySearchTarget get _effectiveSearchTarget =>
-      _supportsMusicTrackSearch ? _searchTarget : LibrarySearchTarget.all;
-
-  LibraryViewPreferenceStore get _viewPrefs =>
-      LibraryViewPreferenceStore(widget.type.workspace.kind);
 
   @override
   void initState() {

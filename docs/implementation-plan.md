@@ -91,17 +91,16 @@
 ## 🎯 Active Roadmap
 
 ### 🧩 Shared Metadata Editing Contract (Admin + App)
-- [ ] Complete "single edit place" migration for remaining kind-specific editors
-	- Keep the shared field/controller contract as the default path for both admin and item-edit flows.
-	- Limit per-kind custom UI to presentation-only extensions on top of the shared payload contract.
-- [ ] Harden runtime drift diagnostics as a regression gate
-	- Keep admin dashboard contract/drift status visible and fail tests when client↔core normalized field keys diverge.
+- [ ] Continue migration of heavy custom kind editors onto shared contract primitives
+	- Default-kind dialogs now share one common renderer path; proposal/admin correction surfaces use controller maps driven by shared field registry.
+	- Remaining work is incremental extraction from book/music/comic custom tabs without regressing UX.
+- [ ] Keep runtime drift diagnostics as a hard regression gate
+	- Dashboard now shows explicit release-gate pass/fail + contract drift; maintain strict tests for client↔core key/type parity.
 
 ### 🧱 Library De-Generalization (final cleanup)
-- [ ] Split remaining generic shell decisions into explicit hooks
-	- Workspace override, detail/drilldown routing, sidebar scope behavior, and any remaining kind-specific toolbar behavior.
+- [ ] Continue split of remaining generic shell decisions into explicit hooks
+	- Extracted kind-aware hook layer from `generic/page.dart`; continue moving drilldown/sidebar/toolbar branches out of the main page state.
 - [ ] Remove dead generic shell branches once concrete kind states own behavior.
-- [ ] Split `generic/page.dart` into smaller fallback-shell utilities once hook extraction is complete.
 
 ### 🧭 Admin UX Consistency
 - [ ] Align app-side admin proposal/editor UX with shared-field architecture

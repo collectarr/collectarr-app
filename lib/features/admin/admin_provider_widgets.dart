@@ -1274,6 +1274,10 @@ class _DuplicateCandidateTile extends StatelessWidget {
               const _MiniChip(label: 'provider conflict'),
             if (candidate.hasCoverConflicts)
               const _MiniChip(label: 'cover conflict'),
+            for (final factor in candidate.confidenceFactors.take(3))
+              _MiniChip(label: _duplicateSignalLabel(factor)),
+            for (final warning in candidate.mergeWarnings.take(2))
+              _MiniChip(label: _duplicateSignalLabel(warning)),
             if (candidate.preferredTargetItemId != null)
               _MiniChip(
                 label: 'Target ${_shortId(candidate.preferredTargetItemId!)}',
@@ -1312,6 +1316,20 @@ class _DuplicateCandidateTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String _duplicateSignalLabel(String signal) {
+  return switch (signal) {
+    'provider_ids_consistent' => 'provider IDs aligned',
+    'cover_images_consistent' => 'cover assets aligned',
+    'provider_links_present' => 'provider links present',
+    'provider_links_present_for_all_items' => 'all items linked',
+    'publisher_aligned' => 'publisher aligned',
+    'release_markers_aligned' => 'release markers aligned',
+    'provider_id_conflict' => 'warning: provider conflict',
+    'cover_asset_conflict' => 'warning: cover conflict',
+    _ => signal.replaceAll('_', ' '),
+  };
 }
 
 class _ProviderStatusList extends StatelessWidget {
