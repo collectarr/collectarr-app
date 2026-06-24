@@ -401,6 +401,52 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     };
   }
 
+  Map<String, Object?>? _parseScalarFieldValues() {
+    final values = <String, Object?>{};
+    for (final field in kAdminMetadataScalarFields) {
+      final raw = _controllerForFieldKey(field.key).text.trim();
+      switch (field.valueType) {
+        case SharedMetadataFieldValueType.text:
+          values[field.key] = raw.isEmpty ? null : raw;
+          break;
+        case SharedMetadataFieldValueType.integer:
+          if (raw.isEmpty) {
+            values[field.key] = null;
+            break;
+          }
+          final parsed = int.tryParse(raw);
+          if (parsed == null) {
+            setState(() {
+              _error = '${field.label} must be a number.';
+            });
+            return null;
+          }
+          values[field.key] = parsed;
+          break;
+        case SharedMetadataFieldValueType.date:
+          if (raw.isEmpty) {
+            values[field.key] = null;
+            break;
+          }
+          final parsed = DateTime.tryParse(raw);
+          if (parsed == null) {
+            setState(() {
+              _error = '${field.label} must use YYYY-MM-DD.';
+            });
+            return null;
+          }
+          values[field.key] = parsed;
+          break;
+        case SharedMetadataFieldValueType.stringList:
+          values[field.key] = _normalizedAdminTags(
+            raw.split(',').map((value) => value.trim()).toList(),
+          );
+          break;
+      }
+    }
+    return values;
+  }
+
   Widget _stringListEditor({
     required String label,
     required List<String> values,
@@ -792,53 +838,23 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   Future<void> _submit() async {
-    if (_titleController.text.trim().isEmpty) {
+    final scalarValues = _parseScalarFieldValues();
+    if (scalarValues == null) {
+      return;
+    }
+    if ((scalarValues['title'] as String?) == null) {
       setState(() {
         _error = 'Title is required.';
       });
       return;
     }
     final currentVariantName = widget.item.primaryVariant?.name.trim();
+    final nextVariantName = scalarValues['variant_name'] as String?;
     if (currentVariantName != null &&
         currentVariantName.isNotEmpty &&
-        _variantController.text.trim().isEmpty) {
+        nextVariantName == null) {
       setState(() {
         _error = 'Primary variant cannot be cleared yet.';
-      });
-      return;
-    }
-    final pageCountText = _pageCountController.text.trim();
-    final pageCount =
-        pageCountText.isEmpty ? null : int.tryParse(pageCountText);
-    if (pageCountText.isNotEmpty && pageCount == null) {
-      setState(() {
-        _error = 'Page count must be a number.';
-      });
-      return;
-    }
-    final runtimeText = _runtimeMinutesController.text.trim();
-    final runtimeMinutes =
-        runtimeText.isEmpty ? null : int.tryParse(runtimeText);
-    if (runtimeText.isNotEmpty && runtimeMinutes == null) {
-      setState(() {
-        _error = 'Runtime minutes must be a number.';
-      });
-      return;
-    }
-    final nrDiscsText = _nrDiscsController.text.trim();
-    final nrDiscs = nrDiscsText.isEmpty ? null : int.tryParse(nrDiscsText);
-    if (nrDiscsText.isNotEmpty && nrDiscs == null) {
-      setState(() {
-        _error = 'Number of discs must be a number.';
-      });
-      return;
-    }
-    final releaseDateText = _releaseDateController.text.trim();
-    final releaseDate =
-        releaseDateText.isEmpty ? null : DateTime.tryParse(releaseDateText);
-    if (releaseDateText.isNotEmpty && releaseDate == null) {
-      setState(() {
-        _error = 'Release date must use YYYY-MM-DD.';
       });
       return;
     }
@@ -863,70 +879,53 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       return;
     }
     final correction = _CatalogCorrection(
-      title: _emptyToNull(_titleController.text),
-      originalTitle: _emptyToNull(_originalTitleController.text),
-      localizedTitle: _emptyToNull(_localizedTitleController.text),
-      sortKey: _emptyToNull(_sortKeyController.text),
-      searchAliases: _normalizedAdminTags(
-        _searchAliasesController.text
-            .split(',')
-            .map((value) => value.trim())
-            .toList(),
-      ),
-      titleExtension: _emptyToNull(_titleExtensionController.text),
-      itemNumber: _emptyToNull(_itemNumberController.text),
-      editionTitle: _emptyToNull(_editionTitleController.text),
-      genres: _normalizedAdminTags(
-        _genresController.text.split(',').map((value) => value.trim()).toList(),
-      ),
-      platforms: _normalizedAdminTags(
-        _platformsController.text
-            .split(',')
-            .map((value) => value.trim())
-            .toList(),
-      ),
+      title: scalarValues['title'] as String?,
+      originalTitle: scalarValues['original_title'] as String?,
+      localizedTitle: scalarValues['localized_title'] as String?,
+      sortKey: scalarValues['sort_key'] as String?,
+      searchAliases: scalarValues['search_aliases'] as List<String>?,
+      titleExtension: scalarValues['title_extension'] as String?,
+      itemNumber: scalarValues['item_number'] as String?,
+      editionTitle: scalarValues['edition_title'] as String?,
+      genres: scalarValues['genres'] as List<String>?,
+      platforms: scalarValues['platforms'] as List<String>?,
       characters: _normalizedAdminTags(_characters),
       storyArcs: _normalizedAdminTags(_storyArcs),
       creators: creators,
       tracks: tracks,
       trailerUrls: trailerUrls,
       externalLinks: externalLinks,
-      crossover: _emptyToNull(_crossoverController.text),
-      plotSummary: _emptyToNull(_plotSummaryController.text),
-      plotDescription: _emptyToNull(_plotDescriptionController.text),
-      publisher: _emptyToNull(_publisherController.text),
-      imprint: _emptyToNull(_imprintController.text),
-      subtitle: _emptyToNull(_subtitleController.text),
-      seriesGroup: _emptyToNull(_seriesGroupController.text),
-      barcode: _emptyToNull(_barcodeController.text),
-      country: _emptyToNull(_countryController.text),
-      language: _emptyToNull(_languageController.text),
-      ageRating: _emptyToNull(_ageRatingController.text),
-      audienceRating: _emptyToNull(_audienceRatingController.text),
+      crossover: scalarValues['crossover'] as String?,
+      plotSummary: scalarValues['plot_summary'] as String?,
+      plotDescription: scalarValues['plot_description'] as String?,
+      publisher: scalarValues['publisher'] as String?,
+      imprint: scalarValues['imprint'] as String?,
+      subtitle: scalarValues['subtitle'] as String?,
+      seriesGroup: scalarValues['series_group'] as String?,
+      barcode: scalarValues['barcode'] as String?,
+      country: scalarValues['country'] as String?,
+      language: scalarValues['language'] as String?,
+      ageRating: scalarValues['age_rating'] as String?,
+      audienceRating: scalarValues['audience_rating'] as String?,
       physicalFormat: widget.physicalFormats.isNotEmpty
           ? _emptyToNull(_physicalFormatId)
           : null,
-      variantName: _emptyToNull(_variantController.text),
-      pageCount: pageCount,
-      runtimeMinutes: runtimeMinutes,
-      color: _emptyToNull(_colorController.text),
-      nrDiscs: nrDiscs,
-      screenRatio: _emptyToNull(_screenRatioController.text),
-      audioTracks: _emptyToNull(_audioTracksController.text),
-      subtitles: _emptyToNull(_subtitlesController.text),
-      layers: _emptyToNull(_layersController.text),
-      releaseDate: releaseDate,
-      catalogNumber: _emptyToNull(_catalogNumberController.text),
-      releaseStatus: _emptyToNull(_releaseStatusController.text),
-      seriesTags: _normalizedAdminTags(
-        _seriesTagsController.text
-            .split(',')
-            .map((value) => value.trim())
-            .toList(),
-      ),
-      coverImageUrl: _emptyToNull(_coverController.text),
-      thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
-      synopsis: _emptyToNull(_synopsisController.text),
+      variantName: scalarValues['variant_name'] as String?,
+      pageCount: scalarValues['page_count'] as int?,
+      runtimeMinutes: scalarValues['runtime_minutes'] as int?,
+      color: scalarValues['color'] as String?,
+      nrDiscs: scalarValues['nr_discs'] as int?,
+      screenRatio: scalarValues['screen_ratio'] as String?,
+      audioTracks: scalarValues['audio_tracks'] as String?,
+      subtitles: scalarValues['subtitles'] as String?,
+      layers: scalarValues['layers'] as String?,
+      releaseDate: scalarValues['release_date'] as DateTime?,
+      catalogNumber: scalarValues['catalog_number'] as String?,
+      releaseStatus: scalarValues['release_status'] as String?,
+      seriesTags: scalarValues['series_tags'] as List<String>?,
+      coverImageUrl: scalarValues['cover_image_url'] as String?,
+      thumbnailImageUrl: scalarValues['thumbnail_image_url'] as String?,
+      synopsis: scalarValues['synopsis'] as String?,
     );
     final changes = _correctionPreview(correction);
     if (changes.isEmpty) {

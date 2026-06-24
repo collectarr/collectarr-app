@@ -28,4 +28,30 @@ void main() {
     final tabs = kAdminMetadataScalarFields.map((field) => field.tab).toSet();
     expect(tabs, containsAll(SharedMetadataEditTab.values));
   });
+
+  test('typed admin fields keep expected value types', () {
+    SharedMetadataFieldDescriptor byKey(String key) =>
+        kAdminMetadataScalarFields.firstWhere((field) => field.key == key);
+
+    expect(
+      byKey('page_count').valueType,
+      SharedMetadataFieldValueType.integer,
+    );
+    expect(
+      byKey('runtime_minutes').valueType,
+      SharedMetadataFieldValueType.integer,
+    );
+    expect(
+      byKey('release_date').valueType,
+      SharedMetadataFieldValueType.date,
+    );
+    expect(
+      byKey('genres').valueType,
+      SharedMetadataFieldValueType.stringList,
+    );
+    expect(
+      byKey('title').valueType,
+      SharedMetadataFieldValueType.text,
+    );
+  });
 }

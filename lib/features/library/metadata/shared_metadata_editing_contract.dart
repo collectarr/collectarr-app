@@ -15,6 +15,13 @@ enum SharedMetadataEditTab {
 
 enum SharedMetadataFieldInputType { text, number, multiline }
 
+enum SharedMetadataFieldValueType {
+  text,
+  integer,
+  date,
+  stringList,
+}
+
 @immutable
 class SharedMetadataFieldDescriptor {
   const SharedMetadataFieldDescriptor({
@@ -22,6 +29,7 @@ class SharedMetadataFieldDescriptor {
     required this.label,
     required this.tab,
     this.inputType = SharedMetadataFieldInputType.text,
+    this.valueType = SharedMetadataFieldValueType.text,
     this.hintText,
     this.minLines = 1,
     this.maxLines = 1,
@@ -32,6 +40,7 @@ class SharedMetadataFieldDescriptor {
   final String label;
   final SharedMetadataEditTab tab;
   final SharedMetadataFieldInputType inputType;
+  final SharedMetadataFieldValueType valueType;
   final String? hintText;
   final int minLines;
   final int maxLines;
@@ -68,6 +77,7 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     key: 'search_aliases',
     label: 'Search aliases',
     tab: SharedMetadataEditTab.item,
+    valueType: SharedMetadataFieldValueType.stringList,
   ),
   SharedMetadataFieldDescriptor(
     key: 'item_number',
@@ -83,6 +93,7 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     key: 'release_date',
     label: 'Release date',
     tab: SharedMetadataEditTab.item,
+    valueType: SharedMetadataFieldValueType.date,
     hintText: 'YYYY-MM-DD',
   ),
   SharedMetadataFieldDescriptor(
@@ -120,12 +131,14 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     label: 'Page count',
     tab: SharedMetadataEditTab.publishing,
     inputType: SharedMetadataFieldInputType.number,
+    valueType: SharedMetadataFieldValueType.integer,
   ),
   SharedMetadataFieldDescriptor(
     key: 'runtime_minutes',
     label: 'Runtime minutes',
     tab: SharedMetadataEditTab.publishing,
     inputType: SharedMetadataFieldInputType.number,
+    valueType: SharedMetadataFieldValueType.integer,
   ),
   SharedMetadataFieldDescriptor(
     key: 'color',
@@ -137,6 +150,7 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     label: 'Number of discs',
     tab: SharedMetadataEditTab.technical,
     inputType: SharedMetadataFieldInputType.number,
+    valueType: SharedMetadataFieldValueType.integer,
   ),
   SharedMetadataFieldDescriptor(
     key: 'screen_ratio',
@@ -192,6 +206,7 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     key: 'series_tags',
     label: 'Series tags',
     tab: SharedMetadataEditTab.regional,
+    valueType: SharedMetadataFieldValueType.stringList,
   ),
   SharedMetadataFieldDescriptor(
     key: 'cover_image_url',
@@ -236,11 +251,13 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     key: 'genres',
     label: 'Genres',
     tab: SharedMetadataEditTab.relations,
+    valueType: SharedMetadataFieldValueType.stringList,
   ),
   SharedMetadataFieldDescriptor(
     key: 'platforms',
     label: 'Platforms',
     tab: SharedMetadataEditTab.relations,
+    valueType: SharedMetadataFieldValueType.stringList,
   ),
   SharedMetadataFieldDescriptor(
     key: 'trailer_urls',
