@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -78,10 +79,10 @@ Future<void> showInsuranceValueDialog({
   final summary = await repo.getSummary();
   if (!context.mounted) return;
 
-  showDialog<void>(
+  unawaited(showDialog<void>(
     context: context,
     builder: (_) => _InsuranceValueDialog(summary: summary),
-  );
+  ));
 }
 
 class _InsuranceValueDialog extends StatelessWidget {

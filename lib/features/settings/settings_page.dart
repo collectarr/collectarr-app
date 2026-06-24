@@ -248,9 +248,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             if (!mounted) {
                               return;
                             }
-                            ref
+                            unawaited(ref
                                 .read(syncControllerProvider.notifier)
-                                .refreshPendingCount();
+                                .refreshPendingCount());
                             if (value) {
                               unawaited(ref
                                   .read(syncControllerProvider.notifier)
@@ -902,7 +902,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           syncBaseUrl: _syncController.text,
           syncKey: _syncKeyController.text,
         );
-    ref.read(syncControllerProvider.notifier).refreshPendingCount();
+    unawaited(ref.read(syncControllerProvider.notifier).refreshPendingCount());
     if (mounted && notify != null) {
       _showToast(notify, tone: AppToastTone.success);
     }
@@ -1001,7 +1001,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _syncStatusDetails = null;
         _syncDevices = const [];
       });
-      ref.read(syncControllerProvider.notifier).refreshPendingCount();
+      unawaited(ref.read(syncControllerProvider.notifier).refreshPendingCount());
       _showToast('Pairing settings applied', tone: AppToastTone.success);
     } catch (error) {
       if (mounted) {
@@ -1021,7 +1021,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _syncStatusDetails = null;
       _syncDevices = const [];
     });
-    ref.read(syncControllerProvider.notifier).refreshPendingCount();
+    unawaited(ref.read(syncControllerProvider.notifier).refreshPendingCount());
     if (mounted) {
       _showToast('Connection defaults restored', tone: AppToastTone.success);
     }

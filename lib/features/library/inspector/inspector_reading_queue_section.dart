@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -30,7 +31,7 @@ class _InspectorReadingQueueSectionState
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _load() async {
@@ -53,13 +54,13 @@ class _InspectorReadingQueueSectionState
     } else {
       await repo.addToQueue(widget.ownedItemId);
     }
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _moveToTop() async {
     final repo = ReadingQueueRepository(widget.db);
     await repo.moveToTop(widget.ownedItemId);
-    _load();
+    unawaited(_load());
   }
 
   @override

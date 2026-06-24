@@ -2577,7 +2577,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             ? 'Metadata item ingested.'
             : 'Metadata item already exists.';
       });
-      _loadDashboard();
+      unawaited(_loadDashboard());
     } catch (error) {
       if (!mounted) {
         return;

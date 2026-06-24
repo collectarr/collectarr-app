@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -53,7 +54,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   @override
@@ -82,14 +83,14 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
         mediaKind: widget.mediaKind);
     if (added) {
       _addCtrl.clear();
-      _load();
+      unawaited(_load());
     }
   }
 
   Future<void> _removeValue(String value) async {
     final repo = PickListRepository(widget.db);
     await repo.removeValue(widget.listName, value);
-    _load();
+    unawaited(_load());
   }
 
   @override

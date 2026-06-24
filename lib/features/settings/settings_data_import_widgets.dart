@@ -256,7 +256,7 @@ class _TmdbImportInlineCardState
       return;
     }
     await _saveCredentials();
-    ref.read(importJobsProvider.notifier).startTmdbAccountImport(
+    unawaited(ref.read(importJobsProvider.notifier).startTmdbAccountImport(
           credentials: TmdbImportCredentials(
             apiKey: apiKey,
             accountId: accountId,
@@ -264,7 +264,7 @@ class _TmdbImportInlineCardState
           ),
           collection: _collection,
           keepUnmatchedLocally: _keepUnmatchedLocally,
-        );
+        ));
     if (!mounted) return;
     showAppToast(
       context,
@@ -284,7 +284,7 @@ class _TmdbImportInlineCardState
     );
     if (file == null) return;
     final bytes = await file.readAsBytes();
-    ref.read(importJobsProvider.notifier).startTmdbFileImport(
+    unawaited(ref.read(importJobsProvider.notifier).startTmdbFileImport(
           bytes: bytes,
           fileName: file.name,
           collection: _collection,
@@ -292,7 +292,7 @@ class _TmdbImportInlineCardState
           apiKey: _apiKeyCtrl.text.trim().isNotEmpty
               ? _apiKeyCtrl.text.trim()
               : null,
-        );
+        ));
     if (!mounted) return;
     showAppToast(
       context,

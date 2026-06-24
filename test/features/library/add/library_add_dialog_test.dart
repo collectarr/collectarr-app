@@ -93,6 +93,7 @@ Future<void> tapGestureByKey(WidgetTester tester, String keyName) async {
   await tester.ensureVisible(anyByKey(keyName));
   await tester.pumpAndSettle();
   final dynamic keyedWidget = tester.widget(anyByKey(keyName));
+  // ignore: avoid_dynamic_calls
   (keyedWidget.onTap as void Function()?)?.call();
   await tester.pumpAndSettle();
 }

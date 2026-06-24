@@ -400,10 +400,12 @@ class _LibraryMetadataCompareDialogState
 
   List<MetadataDiffEntry> _discEntries(CatalogItem local, CatalogItem server) {
     final localDiscs = {
-      for (final disc in local.music?.discs ?? []) disc.discNumber: disc
+      for (final disc in local.music?.discs ?? const <CatalogDisc>[])
+        disc.discNumber: disc
     };
     final serverDiscs = {
-      for (final disc in server.music?.discs ?? []) disc.discNumber: disc
+      for (final disc in server.music?.discs ?? const <CatalogDisc>[])
+        disc.discNumber: disc
     };
     final all = <int>{...localDiscs.keys, ...serverDiscs.keys}.toList()..sort();
     return [

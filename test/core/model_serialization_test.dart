@@ -149,8 +149,8 @@ void main() {
 
     expect(payload['catalog_number'], 'DISC-2001');
     expect(payload['track_count'], 2);
-    expect((payload['tracks'] as List).first['title'], 'One More Time');
-    expect((payload['editions'] as List).single['title'], 'Deluxe CD');
+    expect(((payload['tracks'] as List).first as Map)['title'], 'One More Time');
+    expect(((payload['editions'] as List).single as Map)['title'], 'Deluxe CD');
     expect(payload['platforms'], ['CD', 'Digital']);
     expect(payload['release_status'], 'Official');
     expect(payload['release_date'], '2001-03-12T00:00:00.000Z');

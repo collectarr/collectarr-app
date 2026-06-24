@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
@@ -30,7 +31,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _load() async {
@@ -61,14 +62,14 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
     );
     if (result != null && result.isNotEmpty) {
       await repo.addItemToFolder(result, widget.ownedItemId);
-      _load();
+      unawaited(_load());
     }
   }
 
   Future<void> _removeFromFolder(String folderId) async {
     final repo = UserFolderRepository(widget.db);
     await repo.removeItemFromFolder(folderId, widget.ownedItemId);
-    _load();
+    unawaited(_load());
   }
 
   @override

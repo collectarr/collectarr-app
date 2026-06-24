@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -31,7 +32,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
   @override
   void initState() {
     super.initState();
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _load() async {
@@ -66,7 +67,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
       return;
     }
     await repo.assignItemToLocation(widget.ownedItemId, newId);
-    _load();
+    unawaited(_load());
   }
 
   @override

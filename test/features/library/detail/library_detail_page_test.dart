@@ -156,6 +156,7 @@ void main() {
       (entry) => !entry.label.startsWith('Viewing '),
     );
     final dynamic dynamicCopyMenu = copyMenu;
+    // ignore: avoid_dynamic_calls
     dynamicCopyMenu.onSelected(alternateCopyEntry.value);
     await pumpUntilSettled(tester);
 

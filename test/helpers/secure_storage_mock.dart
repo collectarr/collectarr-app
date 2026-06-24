@@ -26,24 +26,24 @@ void setUpSecureStorageMock() {
           if (_hangReads) {
             final completer = Completer<String?>();
             _pendingReadCompleters.add(completer);
-            completer.future.whenComplete(() {
+            unawaited(completer.future.whenComplete(() {
               _pendingReadCompleters.remove(completer);
-            });
+            }));
             return completer.future;
           }
-          final key = call.arguments['key'] as String;
+          final key = (call.arguments as Map)['key'] as String;
           return _store[key];
         case 'write':
           final failure = _writeFailure;
           if (failure != null) {
             throw failure;
           }
-          final key = call.arguments['key'] as String;
-          final value = call.arguments['value'] as String;
+          final key = (call.arguments as Map)['key'] as String;
+          final value = (call.arguments as Map)['value'] as String;
           _store[key] = value;
           return null;
         case 'delete':
-          final key = call.arguments['key'] as String;
+          final key = (call.arguments as Map)['key'] as String;
           _store.remove(key);
           return null;
         case 'deleteAll':
