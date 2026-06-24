@@ -140,7 +140,7 @@ class BundleReleaseMember {
   final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
-  final int? volumeNumber;
+  final double? volumeNumber;
 
   factory BundleReleaseMember.fromJson(Map<String, dynamic> json) {
     return BundleReleaseMember(
@@ -158,11 +158,10 @@ class BundleReleaseMember {
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
-      volumeNumber: json['volume_number'] as int?,
+      volumeNumber: (json['volume_number'] as num?)?.toDouble(),
     );
   }
 }
-
 
 class AdminBundleReleaseMemberUpdate {
   const AdminBundleReleaseMemberUpdate({
@@ -198,7 +197,6 @@ class AdminBundleReleaseMemberUpdate {
     };
   }
 }
-
 
 class AdminBundleReleaseCorrection {
   const AdminBundleReleaseCorrection({
@@ -251,7 +249,8 @@ class AdminBundleReleaseCorrection {
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
       if (members != null)
-        'members': members!.map((member) => member.toJson()).toList(growable: false),
+        'members':
+            members!.map((member) => member.toJson()).toList(growable: false),
     };
   }
 }
@@ -319,7 +318,7 @@ class BundleReleaseDetail extends BundleReleaseSummary {
       franchiseId: json['franchise_id'] as String?,
       metadataJson: (json['metadata_json'] as Map<String, dynamic>?)
           ?.cast<String, dynamic>(),
-        providerLinks: (json['provider_links'] as List<dynamic>? ?? const [])
+      providerLinks: (json['provider_links'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(ComicProviderLink.fromJson)
           .toList(growable: false),

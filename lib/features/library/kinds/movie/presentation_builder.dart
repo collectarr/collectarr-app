@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -8,7 +9,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 class VideoLibraryMediaPresentationBuilder
-  extends LibraryMediaPresentationBuilder {
+    extends LibraryMediaPresentationBuilder {
   const VideoLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
@@ -58,7 +59,7 @@ class VideoLibraryMediaPresentationBuilder
         if (hasVolume && !hasSeason)
           LibraryInspectorFactData(
             'Volume',
-            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
+            series!.volumeName ?? libraryVolumeLabel(series.volumeNumber),
           ),
         if (entry.browseScope != LibraryBrowserScope.title &&
             entry.variant != null)
@@ -97,7 +98,8 @@ class VideoLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         if (publishing?.subtitle != null)
           LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
-        LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryInspectorFactData(
+            'Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
@@ -116,7 +118,9 @@ class VideoLibraryMediaPresentationBuilder
     required LibraryWorkspaceEntry entry,
     required Color accent,
   }) {
-    if (!showSummary || entry.synopsis == null || entry.synopsis!.trim().isEmpty) {
+    if (!showSummary ||
+        entry.synopsis == null ||
+        entry.synopsis!.trim().isEmpty) {
       return const [];
     }
     return [

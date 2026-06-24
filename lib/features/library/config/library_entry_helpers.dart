@@ -65,6 +65,20 @@ bool libraryShowsReadingQueue(Object? mediaType) {
   return type.trackingProfile.name == readingTrackingProfile.name;
 }
 
+String libraryVolumeDisplayValue(double? volumeNumber) {
+  if (volumeNumber == null) {
+    return '-';
+  }
+  final rounded = volumeNumber.roundToDouble();
+  if ((volumeNumber - rounded).abs() < 1e-9) {
+    return rounded.toInt().toString();
+  }
+  return volumeNumber.toString();
+}
+
+String libraryVolumeLabel(double? volumeNumber) =>
+    'Vol. ${libraryVolumeDisplayValue(volumeNumber)}';
+
 String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(

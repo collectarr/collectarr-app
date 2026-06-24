@@ -1287,7 +1287,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       seriesId: widget.request.item.series?.seriesId,
       seriesTitle: emptyToNull(_seriesTitleController.text),
       volumeName: emptyToNull(_volumeNameController.text),
-      volumeNumber: parseInt(_volumeNumberController.text),
+      volumeNumber: parseDouble(_volumeNumberController.text),
       volumeStartYear: widget.request.item.series?.volumeStartYear,
       seasonNumber: widget.request.item.series?.seasonNumber,
       episodeNumber: widget.request.item.series?.episodeNumber,

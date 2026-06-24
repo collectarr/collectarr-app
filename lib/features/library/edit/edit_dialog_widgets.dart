@@ -908,6 +908,11 @@ int? parseInt(String value) {
   return normalized == null ? null : int.tryParse(normalized);
 }
 
+double? parseDouble(String value) {
+  final normalized = emptyToNull(value)?.replaceAll(',', '.');
+  return normalized == null ? null : double.tryParse(normalized);
+}
+
 int? parseMoneyCents(String value, {int? fallback}) {
   final normalized = emptyToNull(value)?.replaceAll(',', '.');
   if (normalized == null) {
@@ -931,6 +936,12 @@ String? optionalDateValidator(String? value) {
 String? optionalIntValidator(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   return int.tryParse(value.trim()) == null ? 'Enter a number' : null;
+}
+
+String? optionalNumberValidator(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final normalized = value.trim().replaceAll(',', '.');
+  return double.tryParse(normalized) == null ? 'Enter a number' : null;
 }
 
 String? positiveIntValidator(String? value) {

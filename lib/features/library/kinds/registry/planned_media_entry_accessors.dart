@@ -26,7 +26,8 @@ class PlannedMediaEntryAccessors {
   final int? Function(LibraryWorkspaceEntry entry) pageCount;
   final String? Function(LibraryWorkspaceEntry entry) ageRating;
   final String? Function(LibraryWorkspaceEntry entry) imprint;
-  final List<Map<String, dynamic>>? Function(LibraryWorkspaceEntry entry) creators;
+  final List<Map<String, dynamic>>? Function(LibraryWorkspaceEntry entry)
+      creators;
   final List<String>? Function(LibraryWorkspaceEntry entry) characters;
   final List<String>? Function(LibraryWorkspaceEntry entry) storyArcs;
   final List<String>? Function(LibraryWorkspaceEntry entry) genres;
@@ -142,7 +143,7 @@ String? plannedMediaSubgroupKeyForEntry(
     return series.volumeName!.trim();
   }
   if (series?.volumeNumber != null) {
-    return 'Vol. ${series!.volumeNumber}';
+    return libraryVolumeLabel(series!.volumeNumber);
   }
   return null;
 }

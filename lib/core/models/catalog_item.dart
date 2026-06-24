@@ -376,7 +376,7 @@ class CatalogSeriesDetails {
   final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
-  final int? volumeNumber;
+  final double? volumeNumber;
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
@@ -776,7 +776,7 @@ sealed class CatalogItem {
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
-      volumeNumber: json['volume_number'] as int?,
+      volumeNumber: (json['volume_number'] as num?)?.toDouble(),
       volumeStartYear: json['volume_start_year'] as int?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
@@ -1076,11 +1076,10 @@ sealed class CatalogItem {
       'age_rating': ageRating,
       'audience_rating': audienceRating,
       if (trailerUrls.any((link) => link.isTrailerLink))
-        'trailer_urls':
-            trailerUrls
-                .where((link) => link.isTrailerLink)
-                .map((t) => t.toJson())
-                .toList(growable: false),
+        'trailer_urls': trailerUrls
+            .where((link) => link.isTrailerLink)
+            .map((t) => t.toJson())
+            .toList(growable: false),
       if (trailerUrls.any((link) => link.isExternalLink))
         'external_links': trailerUrls
             .where((link) => link.isExternalLink)

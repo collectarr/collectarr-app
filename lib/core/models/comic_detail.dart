@@ -34,7 +34,7 @@ class ComicDetail {
   final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
-  final int? volumeNumber;
+  final double? volumeNumber;
   final int? volumeStartYear;
   final String? publisher;
   final String? barcode;
@@ -75,7 +75,7 @@ class ComicDetail {
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
-      volumeNumber: json['volume_number'] as int?,
+      volumeNumber: (json['volume_number'] as num?)?.toDouble(),
       volumeStartYear: json['volume_start_year'] as int?,
       publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,

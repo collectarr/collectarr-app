@@ -49,7 +49,7 @@ class GenericLibraryMediaPresentationBuilder
         if (hasVolume && !hasSeason)
           LibraryInspectorFactData(
             'Volume',
-            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
+            series!.volumeName ?? libraryVolumeLabel(series.volumeNumber),
           ),
         if (hasSeason && hasEpisode)
           LibraryInspectorFactData(

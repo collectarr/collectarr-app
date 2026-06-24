@@ -15,7 +15,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class BookLibraryMediaPresentationBuilder
-  extends LibraryMediaPresentationBuilder {
+    extends LibraryMediaPresentationBuilder {
   const BookLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.showVolumeHierarchy = false,
@@ -61,7 +61,7 @@ class BookLibraryMediaPresentationBuilder
         if (hasVolume && !hasSeason)
           LibraryInspectorFactData(
             'Volume',
-            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
+            series!.volumeName ?? libraryVolumeLabel(series.volumeNumber),
           ),
         if (hasSeason && hasEpisode)
           LibraryInspectorFactData(
@@ -173,7 +173,9 @@ class BookLibraryMediaPresentationBuilder
     if (showVolumeHierarchy) {
       sections.add(VolumesSection(itemId: resolvedItemId));
     }
-    if (showSummary && entry.synopsis != null && entry.synopsis!.trim().isNotEmpty) {
+    if (showSummary &&
+        entry.synopsis != null &&
+        entry.synopsis!.trim().isNotEmpty) {
       sections.add(
         LibraryInspectorSection(
           title: 'Summary',
@@ -239,7 +241,8 @@ class BookLibraryMediaPresentationBuilder
       if (entry.ageRating?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
       if (entry.publishing?.pageCount != null)
-        LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()),
+        LibraryInspectorFactData(
+            'Pages', entry.publishing!.pageCount.toString()),
     ];
     if (detailFacts.isNotEmpty) {
       sections.add(
@@ -275,8 +278,10 @@ class BookLibraryMediaPresentationBuilder
       return null;
     }
     final synopsis = item?.synopsis ?? preview?.synopsis ?? candidate?.summary;
-    final coverUrl = item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
-    final itemNumber = item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
+    final coverUrl =
+        item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
+    final itemNumber =
+        item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
     return _BookAddPreviewPane(
       accent: accent,
       title: title,
@@ -394,7 +399,8 @@ class _BookAddPreviewPane extends StatelessWidget {
                           ),
                         ),
                       ],
-                      if (creatorLine != null && creatorLine!.trim().isNotEmpty) ...[
+                      if (creatorLine != null &&
+                          creatorLine!.trim().isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           creatorLine!,
@@ -426,7 +432,8 @@ class _BookAddPreviewPane extends StatelessWidget {
                   Expanded(
                     child: ListView(
                       children: [
-                        if (synopsis != null && synopsis!.trim().isNotEmpty) ...[
+                        if (synopsis != null &&
+                            synopsis!.trim().isNotEmpty) ...[
                           Text('Plot', style: TextStyle(color: accent)),
                           const SizedBox(height: 6),
                           Text(synopsis!),
@@ -449,7 +456,8 @@ class _BookAddPreviewPane extends StatelessWidget {
                             children: [
                               const SizedBox.square(
                                 dimension: 14,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -473,9 +481,10 @@ class _BookAddPreviewPane extends StatelessWidget {
                         Expanded(
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              color: appPalette(context).surfaceSubtle.withValues(
-                                alpha: 0.82,
-                              ),
+                              color:
+                                  appPalette(context).surfaceSubtle.withValues(
+                                        alpha: 0.82,
+                                      ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Padding(
@@ -547,8 +556,7 @@ class _BookAddPreviewTopFacts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasFacts =
-        (publisherYearLine?.trim().isNotEmpty ?? false) ||
+    final hasFacts = (publisherYearLine?.trim().isNotEmpty ?? false) ||
         (formatLanguageLine?.trim().isNotEmpty ?? false) ||
         (isbn?.trim().isNotEmpty ?? false);
     if (!hasFacts) {
@@ -561,7 +569,8 @@ class _BookAddPreviewTopFacts extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (publisherYearLine != null && publisherYearLine!.trim().isNotEmpty)
+              if (publisherYearLine != null &&
+                  publisherYearLine!.trim().isNotEmpty)
                 Text(
                   publisherYearLine!,
                   style: const TextStyle(
@@ -615,11 +624,11 @@ String? _bookSubtitleForSelection({
     return subtitle.trim();
   }
 
-  final seriesTitle =
-      item?.series?.seriesTitle ??
+  final seriesTitle = item?.series?.seriesTitle ??
       preview?.series?.seriesTitle ??
       candidate?.series?.seriesTitle;
-  final number = item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
+  final number =
+      item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
   if (seriesTitle != null &&
       seriesTitle.trim().isNotEmpty &&
       seriesTitle.trim() != title.trim()) {
@@ -629,8 +638,9 @@ String? _bookSubtitleForSelection({
     return seriesTitle.trim();
   }
 
-  final edition =
-      item?.displayEditionLabel ?? preview?.physicalFormatLabel ?? preview?.editionTitle;
+  final edition = item?.displayEditionLabel ??
+      preview?.physicalFormatLabel ??
+      preview?.editionTitle;
   return edition?.trim().isEmpty ?? true ? null : edition!.trim();
 }
 
@@ -687,7 +697,8 @@ String? _bookPublisherYearLineForSelection({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final publisher = item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher =
+      item?.publisher ?? preview?.publisher ?? candidate?.publisher;
   final year = item?.releaseDate?.year ??
       preview?.releaseDate?.year ??
       item?.releaseYear ??
@@ -704,7 +715,8 @@ String? _bookFormatLanguageLineForSelection({
   required AdminProviderPreview? preview,
 }) {
   final values = <String>[
-    if (item?.displayEditionLabel != null && item!.displayEditionLabel!.trim().isNotEmpty)
+    if (item?.displayEditionLabel != null &&
+        item!.displayEditionLabel!.trim().isNotEmpty)
       item.displayEditionLabel!.trim()
     else if (preview?.physicalFormatLabel != null &&
         preview!.physicalFormatLabel!.trim().isNotEmpty)

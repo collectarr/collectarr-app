@@ -149,7 +149,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                 _field(
                   controller: _volumeNumberController,
                   label: 'Volume number',
-                  validator: optionalIntValidator,
+                  validator: optionalNumberValidator,
                 ),
                 _field(
                   controller: _pageCountController,

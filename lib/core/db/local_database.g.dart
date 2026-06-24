@@ -183,9 +183,9 @@ class $CatalogCacheTable extends CatalogCache
   static const VerificationMeta _volumeNumberMeta =
       const VerificationMeta('volumeNumber');
   @override
-  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
+  late final GeneratedColumn<double> volumeNumber = GeneratedColumn<double>(
       'volume_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _volumeStartYearMeta =
       const VerificationMeta('volumeStartYear');
   @override
@@ -893,7 +893,7 @@ class $CatalogCacheTable extends CatalogCache
       volumeName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}volume_name']),
       volumeNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
+          .read(DriftSqlType.double, data['${effectivePrefix}volume_number']),
       volumeStartYear: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}volume_start_year']),
       seasonNumber: attachedDatabase.typeMapping
@@ -1005,7 +1005,7 @@ class CatalogCacheData extends DataClass
   final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
-  final int? volumeNumber;
+  final double? volumeNumber;
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
@@ -1192,7 +1192,7 @@ class CatalogCacheData extends DataClass
       map['volume_name'] = Variable<String>(volumeName);
     }
     if (!nullToAbsent || volumeNumber != null) {
-      map['volume_number'] = Variable<int>(volumeNumber);
+      map['volume_number'] = Variable<double>(volumeNumber);
     }
     if (!nullToAbsent || volumeStartYear != null) {
       map['volume_start_year'] = Variable<int>(volumeStartYear);
@@ -1526,7 +1526,7 @@ class CatalogCacheData extends DataClass
       seriesId: serializer.fromJson<String?>(json['seriesId']),
       seriesTitle: serializer.fromJson<String?>(json['seriesTitle']),
       volumeName: serializer.fromJson<String?>(json['volumeName']),
-      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
+      volumeNumber: serializer.fromJson<double?>(json['volumeNumber']),
       volumeStartYear: serializer.fromJson<int?>(json['volumeStartYear']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
@@ -1598,7 +1598,7 @@ class CatalogCacheData extends DataClass
       'seriesId': serializer.toJson<String?>(seriesId),
       'seriesTitle': serializer.toJson<String?>(seriesTitle),
       'volumeName': serializer.toJson<String?>(volumeName),
-      'volumeNumber': serializer.toJson<int?>(volumeNumber),
+      'volumeNumber': serializer.toJson<double?>(volumeNumber),
       'volumeStartYear': serializer.toJson<int?>(volumeStartYear),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
@@ -1667,7 +1667,7 @@ class CatalogCacheData extends DataClass
           Value<String?> seriesId = const Value.absent(),
           Value<String?> seriesTitle = const Value.absent(),
           Value<String?> volumeName = const Value.absent(),
-          Value<int?> volumeNumber = const Value.absent(),
+          Value<double?> volumeNumber = const Value.absent(),
           Value<int?> volumeStartYear = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
@@ -2198,7 +2198,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> seriesId;
   final Value<String?> seriesTitle;
   final Value<String?> volumeName;
-  final Value<int?> volumeNumber;
+  final Value<double?> volumeNumber;
   final Value<int?> volumeStartYear;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
@@ -2404,7 +2404,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? seriesId,
     Expression<String>? seriesTitle,
     Expression<String>? volumeName,
-    Expression<int>? volumeNumber,
+    Expression<double>? volumeNumber,
     Expression<int>? volumeStartYear,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
@@ -2544,7 +2544,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? seriesId,
       Value<String?>? seriesTitle,
       Value<String?>? volumeName,
-      Value<int?>? volumeNumber,
+      Value<double?>? volumeNumber,
       Value<int?>? volumeStartYear,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
@@ -2743,7 +2743,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       map['volume_name'] = Variable<String>(volumeName.value);
     }
     if (volumeNumber.present) {
-      map['volume_number'] = Variable<int>(volumeNumber.value);
+      map['volume_number'] = Variable<double>(volumeNumber.value);
     }
     if (volumeStartYear.present) {
       map['volume_start_year'] = Variable<int>(volumeStartYear.value);
@@ -13880,7 +13880,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> seriesId,
   Value<String?> seriesTitle,
   Value<String?> volumeName,
-  Value<int?> volumeNumber,
+  Value<double?> volumeNumber,
   Value<int?> volumeStartYear,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
@@ -13949,7 +13949,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> seriesId,
   Value<String?> seriesTitle,
   Value<String?> volumeName,
-  Value<int?> volumeNumber,
+  Value<double?> volumeNumber,
   Value<int?> volumeStartYear,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
@@ -14092,7 +14092,7 @@ class $$CatalogCacheTableFilterComposer
   ColumnFilters<String> get volumeName => $composableBuilder(
       column: $table.volumeName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get volumeNumber => $composableBuilder(
+  ColumnFilters<double> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get volumeStartYear => $composableBuilder(
@@ -14319,7 +14319,7 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get volumeName => $composableBuilder(
       column: $table.volumeName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get volumeNumber => $composableBuilder(
+  ColumnOrderings<double> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber,
       builder: (column) => ColumnOrderings(column));
 
@@ -14544,7 +14544,7 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get volumeName => $composableBuilder(
       column: $table.volumeName, builder: (column) => column);
 
-  GeneratedColumn<int> get volumeNumber => $composableBuilder(
+  GeneratedColumn<double> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber, builder: (column) => column);
 
   GeneratedColumn<int> get volumeStartYear => $composableBuilder(
@@ -14708,7 +14708,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> seriesId = const Value.absent(),
             Value<String?> seriesTitle = const Value.absent(),
             Value<String?> volumeName = const Value.absent(),
-            Value<int?> volumeNumber = const Value.absent(),
+            Value<double?> volumeNumber = const Value.absent(),
             Value<int?> volumeStartYear = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
@@ -14844,7 +14844,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> seriesId = const Value.absent(),
             Value<String?> seriesTitle = const Value.absent(),
             Value<String?> volumeName = const Value.absent(),
-            Value<int?> volumeNumber = const Value.absent(),
+            Value<double?> volumeNumber = const Value.absent(),
             Value<int?> volumeStartYear = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),

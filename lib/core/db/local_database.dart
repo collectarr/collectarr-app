@@ -33,7 +33,7 @@ class CatalogCache extends Table {
   TextColumn get seriesId => text().nullable()();
   TextColumn get seriesTitle => text().nullable()();
   TextColumn get volumeName => text().nullable()();
-  IntColumn get volumeNumber => integer().nullable()();
+  RealColumn get volumeNumber => real().nullable()();
   IntColumn get volumeStartYear => integer().nullable()();
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();

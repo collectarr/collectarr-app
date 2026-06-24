@@ -52,7 +52,7 @@ class ComicLibraryMediaPresentationBuilder
         if (hasVolume && !hasSeason)
           LibraryInspectorFactData(
             'Volume',
-            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
+            series!.volumeName ?? libraryVolumeLabel(series.volumeNumber),
           ),
         if (hasSeason && hasEpisode)
           LibraryInspectorFactData(
@@ -159,7 +159,9 @@ class ComicLibraryMediaPresentationBuilder
     required LibraryWorkspaceEntry entry,
     required Color accent,
   }) {
-    if (!showSummary || entry.synopsis == null || entry.synopsis!.trim().isEmpty) {
+    if (!showSummary ||
+        entry.synopsis == null ||
+        entry.synopsis!.trim().isEmpty) {
       return const [];
     }
     return [
