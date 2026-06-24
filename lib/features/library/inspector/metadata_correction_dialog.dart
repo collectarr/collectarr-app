@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
+import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -131,49 +132,14 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _CorrectionField(
-                width: 340,
-                controller: _titleController,
-                label: 'Series / title',
-              ),
-              _CorrectionField(
-                width: 120,
-                controller: _issueController,
-                label: 'Issue #',
-              ),
-              _CorrectionField(
-                width: 220,
-                controller: _publisherController,
-                label: 'Publisher',
-              ),
-              _CorrectionField(
-                width: 100,
-                controller: _yearController,
-                label: 'Year',
-                keyboardType: TextInputType.number,
-              ),
-              _CorrectionField(
-                width: 220,
-                controller: _barcodeController,
-                label: 'Barcode / UPC',
-                keyboardType: TextInputType.number,
-              ),
-              _CorrectionField(
-                width: 220,
-                controller: _variantController,
-                label: 'Variant',
-              ),
-              _CorrectionField(
-                width: 540,
-                controller: _sourceController,
-                label: 'Source URL',
-              ),
-              _CorrectionField(
-                width: 540,
-                controller: _notesController,
-                label: 'What should change?',
-                maxLines: 5,
-              ),
+              for (final field in kProposalCorrectionFields)
+                _CorrectionField(
+                  width: field.compactWidth ?? 220,
+                  controller: _controllerForFieldKey(field.key),
+                  label: field.label,
+                  keyboardType: sharedFieldKeyboardType(field),
+                  maxLines: field.maxLines,
+                ),
             ],
           ),
         ),
@@ -202,6 +168,20 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
         ),
       ],
     );
+  }
+
+  TextEditingController _controllerForFieldKey(String key) {
+    return switch (key) {
+      'title' => _titleController,
+      'item_number' => _issueController,
+      'publisher' => _publisherController,
+      'release_year' => _yearController,
+      'barcode' => _barcodeController,
+      'variant' => _variantController,
+      'source_url' => _sourceController,
+      'notes' => _notesController,
+      _ => throw StateError('Unsupported proposal metadata field key: $key'),
+    };
   }
 }
 

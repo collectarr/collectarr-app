@@ -258,82 +258,14 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
                 _MessageRow(message: _error!, isError: true),
                 const SizedBox(height: 12),
               ],
-              _sectionLabel('Item'),
-              _correctionField(_titleController, 'Title'),
-              _correctionField(_originalTitleController, 'Original title'),
-              _correctionField(_localizedTitleController, 'Localized title'),
-              _correctionField(_titleExtensionController, 'Title extension'),
-              _correctionField(_sortKeyController, 'Sort key'),
-              _correctionField(_searchAliasesController, 'Search aliases'),
-              _correctionField(_itemNumberController, 'Item number'),
-              _correctionField(_editionTitleController, 'Edition title'),
-              _correctionField(
-                _releaseDateController,
-                'Release date',
-                hintText: 'YYYY-MM-DD',
-              ),
-              _sectionLabel('Publishing'),
-              _correctionField(_publisherController, 'Publisher'),
-              _correctionField(_imprintController, 'Imprint'),
-              _correctionField(_subtitleController, 'Subtitle'),
-              _correctionField(_seriesGroupController, 'Series group'),
-              _correctionField(_barcodeController, 'Barcode'),
-              _correctionField(_variantController, 'Primary variant'),
-              _correctionField(
-                _pageCountController,
-                'Page count',
-                keyboardType: TextInputType.number,
-              ),
-              _correctionField(
-                _runtimeMinutesController,
-                'Runtime minutes',
-                keyboardType: TextInputType.number,
-              ),
-              _sectionLabel('Video technical'),
-              _correctionField(_colorController, 'Color'),
-              _correctionField(
-                _nrDiscsController,
-                'Number of discs',
-                keyboardType: TextInputType.number,
-              ),
-              _correctionField(_screenRatioController, 'Screen ratio'),
-              _correctionField(_audioTracksController, 'Audio tracks'),
-              _correctionField(_subtitlesController, 'Subtitles'),
-              _correctionField(_layersController, 'Layers'),
-              _correctionField(_catalogNumberController, 'Catalog number'),
-              _correctionField(_releaseStatusController, 'Release status'),
-              _sectionLabel('Regional metadata'),
-              _correctionField(_countryController, 'Country'),
-              _correctionField(_languageController, 'Language'),
-              _correctionField(_ageRatingController, 'Age rating'),
-              _correctionField(_audienceRatingController, 'Audience rating'),
+              _renderAdminScalarSection(SharedMetadataEditTab.item),
+              _renderAdminScalarSection(SharedMetadataEditTab.publishing),
+              _renderAdminScalarSection(SharedMetadataEditTab.technical),
+              _renderAdminScalarSection(SharedMetadataEditTab.regional),
               if (widget.physicalFormats.isNotEmpty) _physicalFormatField(),
-              _correctionField(_seriesTagsController, 'Series tags'),
-              _sectionLabel('Artwork and copy'),
-              _correctionField(_coverController, 'Cover URL'),
-              _correctionField(_thumbnailController, 'Thumbnail URL'),
-              _correctionField(
-                _synopsisController,
-                'Synopsis',
-                minLines: 3,
-                maxLines: 5,
-              ),
-              _correctionField(_crossoverController, 'Crossover'),
-              _correctionField(
-                _plotSummaryController,
-                'Plot summary',
-                minLines: 2,
-                maxLines: 4,
-              ),
-              _correctionField(
-                _plotDescriptionController,
-                'Plot description',
-                minLines: 3,
-                maxLines: 5,
-              ),
-              _sectionLabel('Relations and lists'),
-              _correctionField(_genresController, 'Genres'),
-              _correctionField(_platformsController, 'Platforms'),
+              _renderAdminScalarSection(SharedMetadataEditTab.artwork),
+              _sectionLabel(SharedMetadataEditTab.relations.label),
+              ..._adminScalarFieldsForTab(SharedMetadataEditTab.relations),
               _stringListEditor(
                 label: 'Characters',
                 values: _characters,
@@ -350,18 +282,6 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
               ),
               _creatorEditor(),
               _trackEditor(),
-              _correctionField(
-                _trailerUrlsController,
-                'Trailer URLs',
-                minLines: 2,
-                maxLines: 6,
-              ),
-              _correctionField(
-                _externalLinksController,
-                'External links',
-                minLines: 2,
-                maxLines: 6,
-              ),
             ],
           ),
         ),
@@ -405,6 +325,80 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       padding: const EdgeInsets.only(bottom: 12),
       child: MetadataCorrectionSectionLabel(label: label),
     );
+  }
+
+  Widget _renderAdminScalarSection(SharedMetadataEditTab tab) {
+    final fields = _adminScalarFieldsForTab(tab);
+    if (fields.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _sectionLabel(tab.label),
+        ...fields,
+      ],
+    );
+  }
+
+  List<Widget> _adminScalarFieldsForTab(SharedMetadataEditTab tab) {
+    return [
+      for (final field in kAdminMetadataScalarFields.where((f) => f.tab == tab))
+        _correctionField(
+          _controllerForFieldKey(field.key),
+          field.label,
+          keyboardType: sharedFieldKeyboardType(field),
+          hintText: field.hintText,
+          minLines: field.minLines,
+          maxLines: field.maxLines,
+        ),
+    ];
+  }
+
+  TextEditingController _controllerForFieldKey(String key) {
+    return switch (key) {
+      'title' => _titleController,
+      'original_title' => _originalTitleController,
+      'localized_title' => _localizedTitleController,
+      'title_extension' => _titleExtensionController,
+      'sort_key' => _sortKeyController,
+      'search_aliases' => _searchAliasesController,
+      'item_number' => _itemNumberController,
+      'edition_title' => _editionTitleController,
+      'release_date' => _releaseDateController,
+      'publisher' => _publisherController,
+      'imprint' => _imprintController,
+      'subtitle' => _subtitleController,
+      'series_group' => _seriesGroupController,
+      'barcode' => _barcodeController,
+      'variant_name' => _variantController,
+      'page_count' => _pageCountController,
+      'runtime_minutes' => _runtimeMinutesController,
+      'color' => _colorController,
+      'nr_discs' => _nrDiscsController,
+      'screen_ratio' => _screenRatioController,
+      'audio_tracks' => _audioTracksController,
+      'subtitles' => _subtitlesController,
+      'layers' => _layersController,
+      'catalog_number' => _catalogNumberController,
+      'release_status' => _releaseStatusController,
+      'country' => _countryController,
+      'language' => _languageController,
+      'age_rating' => _ageRatingController,
+      'audience_rating' => _audienceRatingController,
+      'series_tags' => _seriesTagsController,
+      'cover_image_url' => _coverController,
+      'thumbnail_image_url' => _thumbnailController,
+      'synopsis' => _synopsisController,
+      'crossover' => _crossoverController,
+      'plot_summary' => _plotSummaryController,
+      'plot_description' => _plotDescriptionController,
+      'genres' => _genresController,
+      'platforms' => _platformsController,
+      'trailer_urls' => _trailerUrlsController,
+      'external_links' => _externalLinksController,
+      _ => throw StateError('Unsupported admin metadata field key: $key'),
+    };
   }
 
   Widget _stringListEditor({
