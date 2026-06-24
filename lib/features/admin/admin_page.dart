@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
+import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
@@ -1014,6 +1015,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           icon: Icons.image_outlined,
           title: 'Image cache',
           child: const AdminImageCachePanel(),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.monitor_heart_outlined,
+          title: 'Diagnostics',
+          child: const AdminDiagnosticsPanel(),
         ),
       ],
     );
