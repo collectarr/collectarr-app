@@ -1,22 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/default_kind_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
-
-Widget buildMusicDefaultKindEditDialog(
-  BuildContext context,
-  LibraryEditDialogRequest request,
-) {
-  return buildDefaultKindEditDialog(request: request);
-}
 
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.music,
@@ -51,7 +44,7 @@ const musicLibraryConfig = LibraryTypeConfig(
     musicBrainzMetadataProvider,
   ],
   trackingProfile: listeningTrackingProfile,
-  editDialogBuilder: buildMusicDefaultKindEditDialog,
+  editDialogBuilder: buildMusicLibraryEditDialog,
   inspectorPanelBuilder: buildMusicInspectorPanel,
   showsDefaultInspectorPersonalSection: false,
   presentation: musicLibraryMediaPresentation,
