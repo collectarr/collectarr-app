@@ -846,6 +846,7 @@ class _FakeAdminApiClient extends ApiClient {
       driftedEntities: 0,
       typedScannedItems: 8,
       typedDriftedItems: 0,
+      releaseGateOk: true,
       issueCounts: {},
     );
   }

@@ -236,9 +236,21 @@ class _DashboardSummary extends StatelessWidget {
             _StatusChip(
               icon: normalizedMetadataDrift == null
                   ? Icons.hourglass_empty
+                  : normalizedMetadataDrift!.releaseGateOk
+                      ? Icons.verified_outlined
+                      : Icons.warning_amber_outlined,
+              label: normalizedMetadataDrift == null
+                  ? 'Release gate loading…'
+                  : normalizedMetadataDrift!.releaseGateOk
+                      ? 'Release gate: pass'
+                      : 'Release gate: fail (${normalizedMetadataDrift!.driftedEntities + normalizedMetadataDrift!.typedDriftedItems})',
+            ),
+            _StatusChip(
+              icon: normalizedMetadataDrift == null
+                  ? Icons.hourglass_empty
                   : normalizedMetadataDrift!.hasDrift
                       ? Icons.warning_amber_outlined
-                      : Icons.verified_outlined,
+                      : Icons.check_circle_outline,
               label: normalizedMetadataDrift == null
                   ? 'Normalized drift loading…'
                   : normalizedMetadataDrift!.hasDrift

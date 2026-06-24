@@ -89,4 +89,23 @@ void main() {
     expect(drift.isInSync, isTrue);
     expect(drift.mismatchCount, 0);
   });
+
+  test('normalized contract comparator reports extra core keys', () {
+    final manifest = const MetadataNormalizedManifest(
+      schemaVersion: 1,
+      commonFields: ['audience_rating', 'unknown_new_field'],
+      kindFields: {
+        'comic': ['genres'],
+      },
+      valueTypes: {
+        'audience_rating': 'string',
+        'genres': 'string_list',
+        'unknown_new_field': 'string',
+      },
+    );
+
+    final drift = compareSharedContractWithManifest(manifest);
+    expect(drift.isInSync, isFalse);
+    expect(drift.extraInCore, contains('unknown_new_field'));
+  });
 }

@@ -385,7 +385,7 @@ SharedMetadataContractDrift compareSharedContractWithManifest(
     ...manifest.kindFields.values.expand((fields) => fields),
   };
   final missingInCore = expectedKeys.difference(manifestKeys);
-  const extraInCore = <String>{};
+  final extraInCore = manifest.valueTypes.keys.toSet().difference(expectedKeys);
   final typeMismatches = <String>{};
   for (final entry in expectedTypes.entries) {
     final actual = manifest.valueTypes[entry.key];

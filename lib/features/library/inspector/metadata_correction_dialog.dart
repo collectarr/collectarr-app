@@ -90,30 +90,22 @@ class _MetadataCorrectionDialog extends StatefulWidget {
 }
 
 class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
-  late final _titleController = TextEditingController(text: widget.item.title);
-  late final _issueController =
-      TextEditingController(text: widget.item.itemNumber ?? '');
-  late final _publisherController =
-      TextEditingController(text: widget.item.publisher ?? '');
-  late final _yearController =
-      TextEditingController(text: widget.item.releaseYear?.toString() ?? '');
-  late final _barcodeController =
-      TextEditingController(text: widget.item.barcode ?? '');
-  late final _variantController =
-      TextEditingController(text: widget.item.variant ?? '');
-  final _notesController = TextEditingController();
-  final _sourceController = TextEditingController();
+  late final Map<String, TextEditingController> _fieldControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _fieldControllers = {
+      for (final field in kProposalCorrectionFields)
+        field.key: TextEditingController(text: _initialFieldText(field.key)),
+    };
+  }
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _issueController.dispose();
-    _publisherController.dispose();
-    _yearController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _notesController.dispose();
-    _sourceController.dispose();
+    for (final controller in _fieldControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -153,14 +145,14 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
           onPressed: () {
             Navigator.of(context).pop(
               _MetadataCorrectionDraft(
-                title: _titleController.text,
-                issueNumber: _issueController.text,
-                publisher: _publisherController.text,
-                releaseYear: _yearController.text,
-                barcode: _barcodeController.text,
-                variant: _variantController.text,
-                sourceUrl: _sourceController.text,
-                notes: _notesController.text,
+                title: _controllerForFieldKey('title').text,
+                issueNumber: _controllerForFieldKey('item_number').text,
+                publisher: _controllerForFieldKey('publisher').text,
+                releaseYear: _controllerForFieldKey('release_year').text,
+                barcode: _controllerForFieldKey('barcode').text,
+                variant: _controllerForFieldKey('variant').text,
+                sourceUrl: _controllerForFieldKey('source_url').text,
+                notes: _controllerForFieldKey('notes').text,
               ),
             );
           },
@@ -171,16 +163,24 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   TextEditingController _controllerForFieldKey(String key) {
+    final controller = _fieldControllers[key];
+    if (controller == null) {
+      throw StateError('Unsupported proposal metadata field key: $key');
+    }
+    return controller;
+  }
+
+  String _initialFieldText(String key) {
     return switch (key) {
-      'title' => _titleController,
-      'item_number' => _issueController,
-      'publisher' => _publisherController,
-      'release_year' => _yearController,
-      'barcode' => _barcodeController,
-      'variant' => _variantController,
-      'source_url' => _sourceController,
-      'notes' => _notesController,
-      _ => throw StateError('Unsupported proposal metadata field key: $key'),
+      'title' => widget.item.title,
+      'item_number' => widget.item.itemNumber ?? '',
+      'publisher' => widget.item.publisher ?? '',
+      'release_year' => widget.item.releaseYear?.toString() ?? '',
+      'barcode' => widget.item.barcode ?? '',
+      'variant' => widget.item.variant ?? '',
+      'source_url' => '',
+      'notes' => '',
+      _ => '',
     };
   }
 }
