@@ -135,7 +135,7 @@
 | Tracking history / activity timeline | ✅ | ❌ | Yamtrack records add/start/restart/progress history per media item |
 | Custom manual entries for unsupported media | ✅ | 🟡 | Collectarr has manual add for supported kinds, not true arbitrary unsupported media |
 | Personal + collaborative lists | ✅ | ❌ | Useful for curated shortlists beyond owned/wishlist |
-| Calendar / ICS feed for upcoming releases | ✅ | ❌ | Relevant if wishlist / pull-list / release workflows expand |
+| Calendar / ICS feed for upcoming releases | ✅ | ✅ | In-app calendar aggregates release/owned/loan/watch dates and exports to a standard `.ics` file |
 | Notifications via Apprise | ✅ | ❌ | Lower priority unless release tracking becomes a first-class workflow |
 | Direct imports from Trakt / Simkl / MAL / AniList / Kitsu | ✅ | ❌ | This is one of Yamtrack's strongest onboarding advantages |
 | Jellyfin / Plex / Emby integrations | ✅ | ❌ | Important only if Collectarr pivots toward tracker automation |

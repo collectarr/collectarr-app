@@ -1,7 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:collectarr_app/features/calendar/calendar_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,6 +73,40 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     });
   }
 
+  Future<void> _exportIcs() async {
+    final events = ref.read(calendarEventsProvider).asData?.value ??
+        const <CalendarEvent>[];
+    if (events.isEmpty) {
+      if (mounted) {
+        showAppToast(context, 'No calendar events to export.',
+            tone: AppToastTone.info);
+      }
+      return;
+    }
+    final ics = buildCalendarIcs(events);
+    const typeGroup = XTypeGroup(label: 'iCalendar', extensions: ['ics']);
+    final location = await getSaveLocation(
+      acceptedTypeGroups: const [typeGroup],
+      suggestedName: 'collectarr-calendar.ics',
+    );
+    if (location == null) {
+      return;
+    }
+    final file = XFile.fromData(
+      Uint8List.fromList(utf8.encode(ics)),
+      name: 'collectarr-calendar.ics',
+      mimeType: 'text/calendar',
+    );
+    await file.saveTo(location.path);
+    if (mounted) {
+      showAppToast(
+        context,
+        'Exported ${events.length} event${events.length == 1 ? '' : 's'} to ICS.',
+        tone: AppToastTone.success,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
@@ -82,6 +123,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           animationDuration: animationDuration,
         ),
         actions: [
+          IconButton(
+            tooltip: 'Export to calendar (.ics)',
+            onPressed: () => unawaited(_exportIcs()),
+            icon: const Icon(Icons.ios_share_outlined),
+          ),
           IconButton(
             tooltip: 'Today',
             onPressed: _goToToday,
