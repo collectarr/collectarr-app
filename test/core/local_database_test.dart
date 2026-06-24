@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -47,6 +49,43 @@ void main() {
     expect(catalog.releaseYear, 2016);
     expect(catalog.barcode, '76194134192700811');
     expect(catalog.variant, 'Regular Cover');
+  });
+
+  test('reports the reset v1 schema version', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    expect(db.schemaVersion, 1);
+  });
+
+  test('destructively rebuilds a higher-versioned cache to the v1 schema',
+      () async {
+    final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    // Simulate a cache created by an older build: a populated table plus a
+    // higher on-disk schema version that Drift will not run onUpgrade for.
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.into(old.catalogCache).insert(
+          CatalogCacheCompanion.insert(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Stale Cached Title',
+            cachedAt: DateTime.utc(2026, 5, 11),
+          ),
+        );
+    await old.customStatement('PRAGMA user_version = 13');
+    await old.close();
+
+    // Reopening with the reset schema version must wipe and recreate the cache.
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+
+    final rows = await db.select(db.catalogCache).get();
+    expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
+
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 1);
   });
 
   test('stores personal collection and wishlist data locally', () async {

@@ -424,7 +424,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration {
@@ -434,14 +434,27 @@ class LocalDatabase extends _$LocalDatabase {
       // the server on next sync.  A destructive migration is intentional:
       // it avoids carrying forward every historical ALTER TABLE step while
       // remaining safe because no user-authored data lives here.
-      onUpgrade: (m, from, to) async {
-        for (final table in allTables) {
-          await customStatement(
-            'DROP TABLE IF EXISTS ${table.actualTableName}',
-          );
+      onUpgrade: (m, from, to) => _destructiveRebuild(m),
+      beforeOpen: (details) async {
+        // The schema was reset to version 1. An existing local cache created by
+        // an older build can carry a higher on-disk version, for which Drift
+        // does not call onUpgrade. Force the same destructive rebuild so the
+        // local cache always matches the current schema.
+        if (!details.wasCreated &&
+            details.versionBefore != null &&
+            details.versionBefore != details.versionNow) {
+          await _destructiveRebuild(createMigrator());
         }
-        await m.createAll();
       },
     );
+  }
+
+  Future<void> _destructiveRebuild(Migrator m) async {
+    for (final table in allTables) {
+      await customStatement(
+        'DROP TABLE IF EXISTS ${table.actualTableName}',
+      );
+    }
+    await m.createAll();
   }
 }
