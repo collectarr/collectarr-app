@@ -106,6 +106,19 @@ class _CatalogApiClient {
         .toList(growable: false);
   }
 
+  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
+    final response = await _client._dio.get<Map<String, dynamic>>(
+      '/metadata/normalized-manifest',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/metadata/normalized-manifest returned an empty response body',
+      );
+    }
+    return MetadataNormalizedManifest.fromJson(data);
+  }
+
   Future<Map<String, dynamic>> createMetadataProposal({
     required String provider,
     required String query,

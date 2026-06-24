@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -53,5 +54,39 @@ void main() {
       byKey('title').valueType,
       SharedMetadataFieldValueType.text,
     );
+  });
+
+  test('normalized contract comparator reports in-sync manifest', () {
+    final manifest = const MetadataNormalizedManifest(
+      schemaVersion: 1,
+      commonFields: ['audience_rating'],
+      kindFields: {
+        'comic': ['genres'],
+        'game': ['platforms'],
+        'movie': [
+          'color',
+          'nr_discs',
+          'screen_ratio',
+          'audio_tracks',
+          'subtitles',
+          'layers'
+        ],
+      },
+      valueTypes: {
+        'audience_rating': 'string',
+        'genres': 'string_list',
+        'platforms': 'string_list',
+        'color': 'string',
+        'nr_discs': 'integer',
+        'screen_ratio': 'string',
+        'audio_tracks': 'string',
+        'subtitles': 'string',
+        'layers': 'string',
+      },
+    );
+
+    final drift = compareSharedContractWithManifest(manifest);
+    expect(drift.isInSync, isTrue);
+    expect(drift.mismatchCount, 0);
   });
 }

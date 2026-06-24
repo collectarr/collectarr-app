@@ -143,6 +143,10 @@ class ApiClient {
     return _catalogApi.metadataMediaTypes();
   }
 
+  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
+    return _catalogApi.metadataNormalizedManifest();
+  }
+
   Future<List<Map<String, dynamic>>> searchProvider({
     String? provider,
     required String query,

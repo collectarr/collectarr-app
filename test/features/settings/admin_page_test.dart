@@ -65,6 +65,7 @@ void main() {
     expect(find.text('1 failures'), findsOneWidget);
     expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
+    expect(find.text('Shared contract in sync'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
     expect(find.text('Metadata proposal activity'), findsOneWidget);
     expect(find.text('1 recent approve'), findsOneWidget);
@@ -723,6 +724,37 @@ class _FakeAdminApiClient extends ApiClient {
         providers: ['anilist', 'tmdb'],
       ),
     ];
+  }
+
+  @override
+  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
+    return const MetadataNormalizedManifest(
+      schemaVersion: 1,
+      commonFields: ['audience_rating'],
+      kindFields: {
+        'comic': ['genres'],
+        'game': ['platforms'],
+        'movie': [
+          'color',
+          'nr_discs',
+          'screen_ratio',
+          'audio_tracks',
+          'subtitles',
+          'layers'
+        ],
+      },
+      valueTypes: {
+        'audience_rating': 'string',
+        'genres': 'string_list',
+        'platforms': 'string_list',
+        'color': 'string',
+        'nr_discs': 'integer',
+        'screen_ratio': 'string',
+        'audio_tracks': 'string',
+        'subtitles': 'string',
+        'layers': 'string',
+      },
+    );
   }
 
   @override

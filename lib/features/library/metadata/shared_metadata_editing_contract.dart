@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 
 enum SharedMetadataEditTab {
   item('Item'),
@@ -34,6 +35,7 @@ class SharedMetadataFieldDescriptor {
     this.minLines = 1,
     this.maxLines = 1,
     this.compactWidth,
+    this.normalizedValueType,
   });
 
   final String key;
@@ -45,6 +47,7 @@ class SharedMetadataFieldDescriptor {
   final int minLines;
   final int maxLines;
   final double? compactWidth;
+  final String? normalizedValueType;
 }
 
 const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
@@ -144,6 +147,7 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     key: 'color',
     label: 'Color',
     tab: SharedMetadataEditTab.technical,
+    normalizedValueType: 'string',
   ),
   SharedMetadataFieldDescriptor(
     key: 'nr_discs',
@@ -151,26 +155,31 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     tab: SharedMetadataEditTab.technical,
     inputType: SharedMetadataFieldInputType.number,
     valueType: SharedMetadataFieldValueType.integer,
+    normalizedValueType: 'integer',
   ),
   SharedMetadataFieldDescriptor(
     key: 'screen_ratio',
     label: 'Screen ratio',
     tab: SharedMetadataEditTab.technical,
+    normalizedValueType: 'string',
   ),
   SharedMetadataFieldDescriptor(
     key: 'audio_tracks',
     label: 'Audio tracks',
     tab: SharedMetadataEditTab.technical,
+    normalizedValueType: 'string',
   ),
   SharedMetadataFieldDescriptor(
     key: 'subtitles',
     label: 'Subtitles',
     tab: SharedMetadataEditTab.technical,
+    normalizedValueType: 'string',
   ),
   SharedMetadataFieldDescriptor(
     key: 'layers',
     label: 'Layers',
     tab: SharedMetadataEditTab.technical,
+    normalizedValueType: 'string',
   ),
   SharedMetadataFieldDescriptor(
     key: 'catalog_number',
@@ -201,6 +210,7 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     key: 'audience_rating',
     label: 'Audience rating',
     tab: SharedMetadataEditTab.regional,
+    normalizedValueType: 'string',
   ),
   SharedMetadataFieldDescriptor(
     key: 'series_tags',
@@ -252,12 +262,14 @@ const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     label: 'Genres',
     tab: SharedMetadataEditTab.relations,
     valueType: SharedMetadataFieldValueType.stringList,
+    normalizedValueType: 'string_list',
   ),
   SharedMetadataFieldDescriptor(
     key: 'platforms',
     label: 'Platforms',
     tab: SharedMetadataEditTab.relations,
     valueType: SharedMetadataFieldValueType.stringList,
+    normalizedValueType: 'string_list',
   ),
   SharedMetadataFieldDescriptor(
     key: 'trailer_urls',
@@ -338,4 +350,52 @@ TextInputType? sharedFieldKeyboardType(SharedMetadataFieldDescriptor field) {
     SharedMetadataFieldInputType.number => TextInputType.number,
     _ => null,
   };
+}
+
+@immutable
+class SharedMetadataContractDrift {
+  const SharedMetadataContractDrift({
+    required this.missingInCore,
+    required this.extraInCore,
+    required this.typeMismatches,
+  });
+
+  final Set<String> missingInCore;
+  final Set<String> extraInCore;
+  final Set<String> typeMismatches;
+
+  bool get isInSync =>
+      missingInCore.isEmpty && extraInCore.isEmpty && typeMismatches.isEmpty;
+
+  int get mismatchCount =>
+      missingInCore.length + extraInCore.length + typeMismatches.length;
+}
+
+SharedMetadataContractDrift compareSharedContractWithManifest(
+  MetadataNormalizedManifest manifest,
+) {
+  final expectedTypes = <String, String>{
+    for (final field in kAdminMetadataScalarFields)
+      if (field.normalizedValueType != null)
+        field.key: field.normalizedValueType!,
+  };
+  final expectedKeys = expectedTypes.keys.toSet();
+  final manifestKeys = <String>{
+    ...manifest.commonFields,
+    ...manifest.kindFields.values.expand((fields) => fields),
+  };
+  final missingInCore = expectedKeys.difference(manifestKeys);
+  const extraInCore = <String>{};
+  final typeMismatches = <String>{};
+  for (final entry in expectedTypes.entries) {
+    final actual = manifest.valueTypes[entry.key];
+    if (actual != null && actual != entry.value) {
+      typeMismatches.add(entry.key);
+    }
+  }
+  return SharedMetadataContractDrift(
+    missingInCore: missingInCore,
+    extraInCore: extraInCore,
+    typeMismatches: typeMismatches,
+  );
 }

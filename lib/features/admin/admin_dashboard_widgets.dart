@@ -60,6 +60,7 @@ class _DashboardSummary extends StatelessWidget {
     required this.registeredProviders,
     required this.selectedProviderLabel,
     required this.lastIngest,
+    required this.metadataContractDrift,
     required this.errorMessage,
   });
 
@@ -70,6 +71,7 @@ class _DashboardSummary extends StatelessWidget {
   final int registeredProviders;
   final String selectedProviderLabel;
   final AdminProviderIngestResult? lastIngest;
+  final SharedMetadataContractDrift? metadataContractDrift;
   final String? errorMessage;
 
   @override
@@ -211,6 +213,24 @@ class _DashboardSummary extends StatelessWidget {
                     ? 'Reindexed ${lastReindex!.indexedDocuments}'
                     : 'Reindex failed',
               ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _DashboardSection(
+          title: 'Metadata contract',
+          children: [
+            _StatusChip(
+              icon: metadataContractDrift == null
+                  ? Icons.hourglass_empty
+                  : metadataContractDrift!.isInSync
+                      ? Icons.check_circle_outline
+                      : Icons.warning_amber_outlined,
+              label: metadataContractDrift == null
+                  ? 'Loading…'
+                  : metadataContractDrift!.isInSync
+                      ? 'Shared contract in sync'
+                      : 'Drift: ${metadataContractDrift!.mismatchCount}',
+            ),
           ],
         ),
         if (errorMessage != null) ...[

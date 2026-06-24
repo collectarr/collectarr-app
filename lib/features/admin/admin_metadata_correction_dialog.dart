@@ -15,48 +15,9 @@ class _MetadataCorrectionDialog extends StatefulWidget {
 }
 
 class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
-  late final TextEditingController _titleController;
-  late final TextEditingController _originalTitleController;
-  late final TextEditingController _localizedTitleController;
-  late final TextEditingController _sortKeyController;
-  late final TextEditingController _searchAliasesController;
-  late final TextEditingController _titleExtensionController;
-  late final TextEditingController _itemNumberController;
-  late final TextEditingController _editionTitleController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _barcodeController;
-  late final TextEditingController _variantController;
-  late final TextEditingController _pageCountController;
-  late final TextEditingController _runtimeMinutesController;
-  late final TextEditingController _colorController;
-  late final TextEditingController _nrDiscsController;
-  late final TextEditingController _screenRatioController;
-  late final TextEditingController _audioTracksController;
-  late final TextEditingController _subtitlesController;
-  late final TextEditingController _layersController;
-  late final TextEditingController _releaseDateController;
-  late final TextEditingController _imprintController;
-  late final TextEditingController _subtitleController;
-  late final TextEditingController _seriesGroupController;
-  late final TextEditingController _countryController;
-  late final TextEditingController _languageController;
-  late final TextEditingController _ageRatingController;
-  late final TextEditingController _audienceRatingController;
-  late final TextEditingController _catalogNumberController;
-  late final TextEditingController _releaseStatusController;
-  late final TextEditingController _seriesTagsController;
-  late final TextEditingController _coverController;
-  late final TextEditingController _thumbnailController;
-  late final TextEditingController _synopsisController;
-  late final TextEditingController _crossoverController;
-  late final TextEditingController _plotSummaryController;
-  late final TextEditingController _plotDescriptionController;
-  late final TextEditingController _genresController;
-  late final TextEditingController _platformsController;
+  late final Map<String, TextEditingController> _scalarControllers;
   late final TextEditingController _characterInputController;
   late final TextEditingController _storyArcInputController;
-  late final TextEditingController _trailerUrlsController;
-  late final TextEditingController _externalLinksController;
   late final List<String> _characters;
   late final List<String> _storyArcs;
   late final List<_EditableCreator> _creators;
@@ -67,103 +28,11 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   @override
   void initState() {
     super.initState();
-    final variant = widget.item.primaryVariant;
     final edition = widget.item.primaryEdition;
-    _titleController = TextEditingController(text: widget.item.title);
-    _originalTitleController = TextEditingController(
-      text: widget.item.originalTitle ?? '',
-    );
-    _localizedTitleController = TextEditingController(
-      text: widget.item.localizedTitle ?? '',
-    );
-    _sortKeyController = TextEditingController(text: widget.item.sortKey ?? '');
-    _searchAliasesController = TextEditingController(
-      text: widget.item.searchAliases.join(', '),
-    );
-    _titleExtensionController = TextEditingController(
-      text: widget.item.titleExtension ?? '',
-    );
-    _itemNumberController =
-        TextEditingController(text: widget.item.itemNumber ?? '');
-    _editionTitleController = TextEditingController(text: edition?.title ?? '');
-    _publisherController = TextEditingController(
-        text: edition?.publisher ?? widget.item.publisher ?? '');
-    _barcodeController = TextEditingController(
-      text: widget.item.barcode ?? variant?.barcode ?? '',
-    );
-    _variantController = TextEditingController(text: variant?.name ?? '');
-    _pageCountController = TextEditingController(
-      text: widget.item.publishing?.pageCount?.toString() ?? '',
-    );
-    _runtimeMinutesController = TextEditingController(
-      text: widget.item.video?.runtimeMinutes?.toString() ?? '',
-    );
-    _colorController =
-        TextEditingController(text: widget.item.video?.color ?? '');
-    _nrDiscsController = TextEditingController(
-      text: widget.item.video?.nrDiscs?.toString() ?? '',
-    );
-    _screenRatioController = TextEditingController(
-      text: widget.item.video?.screenRatio ?? '',
-    );
-    _audioTracksController = TextEditingController(
-      text: widget.item.video?.audioTracks ?? '',
-    );
-    _subtitlesController = TextEditingController(
-      text: widget.item.video?.subtitles ?? '',
-    );
-    _layersController = TextEditingController(
-      text: widget.item.video?.layers ?? '',
-    );
-    _releaseDateController = TextEditingController(
-      text: edition?.releaseDate == null
-          ? ''
-          : _formatDate(edition!.releaseDate!),
-    );
-    _imprintController = TextEditingController(
-      text: widget.item.publishing?.imprint ?? '',
-    );
-    _subtitleController = TextEditingController(
-      text: widget.item.publishing?.subtitle ?? '',
-    );
-    _seriesGroupController = TextEditingController(
-      text: widget.item.publishing?.seriesGroup ?? '',
-    );
-    _countryController = TextEditingController(text: widget.item.country ?? '');
-    _languageController =
-        TextEditingController(text: widget.item.language ?? '');
-    _ageRatingController =
-        TextEditingController(text: widget.item.ageRating ?? '');
-    _audienceRatingController = TextEditingController(
-      text: widget.item.audienceRating ?? '',
-    );
-    _catalogNumberController = TextEditingController(
-      text: widget.item.music?.catalogNumber ?? '',
-    );
-    _releaseStatusController = TextEditingController(
-      text: widget.item.music?.releaseStatus ?? '',
-    );
-    _seriesTagsController = TextEditingController(
-      text: _normalizedAdminTags(widget.item.series?.tags).join(', '),
-    );
-    _coverController =
-        TextEditingController(text: variant?.coverImageUrl ?? '');
-    _thumbnailController = TextEditingController(
-      text: variant?.thumbnailImageUrl ?? '',
-    );
-    _synopsisController =
-        TextEditingController(text: widget.item.synopsis ?? '');
-    _crossoverController =
-        TextEditingController(text: widget.item.crossover ?? '');
-    _plotSummaryController =
-        TextEditingController(text: widget.item.plotSummary ?? '');
-    _plotDescriptionController =
-        TextEditingController(text: widget.item.plotDescription ?? '');
-    _genresController =
-        TextEditingController(text: widget.item.genres.join(', '));
-    _platformsController = TextEditingController(
-      text: widget.item.platforms.join(', '),
-    );
+    _scalarControllers = {
+      for (final field in kAdminMetadataScalarFields)
+        field.key: TextEditingController(text: _initialScalarText(field.key)),
+    };
     _characterInputController = TextEditingController();
     _storyArcInputController = TextEditingController();
     _characters = List<String>.from(_relationNameList(widget.item.characters));
@@ -176,12 +45,6 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       for (final track in (widget.item.music?.tracks ?? const <CatalogTrack>[]))
         _EditableTrack.fromTrack(track),
     ];
-    _trailerUrlsController = TextEditingController(
-      text: widget.item.trailerUrls.map((link) => link.url).join('\n'),
-    );
-    _externalLinksController = TextEditingController(
-      text: widget.item.externalLinks.map((link) => link.url).join('\n'),
-    );
     _physicalFormatId = edition?.physicalFormat ??
         physicalMediaFormatById(
           edition?.physicalFormatLabel ?? '',
@@ -192,48 +55,11 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _originalTitleController.dispose();
-    _localizedTitleController.dispose();
-    _sortKeyController.dispose();
-    _searchAliasesController.dispose();
-    _titleExtensionController.dispose();
-    _itemNumberController.dispose();
-    _editionTitleController.dispose();
-    _publisherController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _pageCountController.dispose();
-    _runtimeMinutesController.dispose();
-    _colorController.dispose();
-    _nrDiscsController.dispose();
-    _screenRatioController.dispose();
-    _audioTracksController.dispose();
-    _subtitlesController.dispose();
-    _layersController.dispose();
-    _releaseDateController.dispose();
-    _imprintController.dispose();
-    _subtitleController.dispose();
-    _seriesGroupController.dispose();
-    _countryController.dispose();
-    _languageController.dispose();
-    _ageRatingController.dispose();
-    _audienceRatingController.dispose();
-    _catalogNumberController.dispose();
-    _releaseStatusController.dispose();
-    _seriesTagsController.dispose();
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    _synopsisController.dispose();
-    _crossoverController.dispose();
-    _plotSummaryController.dispose();
-    _plotDescriptionController.dispose();
-    _genresController.dispose();
-    _platformsController.dispose();
+    for (final controller in _scalarControllers.values) {
+      controller.dispose();
+    }
     _characterInputController.dispose();
     _storyArcInputController.dispose();
-    _trailerUrlsController.dispose();
-    _externalLinksController.dispose();
     for (final creator in _creators) {
       creator.dispose();
     }
@@ -356,49 +182,28 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   TextEditingController _controllerForFieldKey(String key) {
-    return switch (key) {
-      'title' => _titleController,
-      'original_title' => _originalTitleController,
-      'localized_title' => _localizedTitleController,
-      'title_extension' => _titleExtensionController,
-      'sort_key' => _sortKeyController,
-      'search_aliases' => _searchAliasesController,
-      'item_number' => _itemNumberController,
-      'edition_title' => _editionTitleController,
-      'release_date' => _releaseDateController,
-      'publisher' => _publisherController,
-      'imprint' => _imprintController,
-      'subtitle' => _subtitleController,
-      'series_group' => _seriesGroupController,
-      'barcode' => _barcodeController,
-      'variant_name' => _variantController,
-      'page_count' => _pageCountController,
-      'runtime_minutes' => _runtimeMinutesController,
-      'color' => _colorController,
-      'nr_discs' => _nrDiscsController,
-      'screen_ratio' => _screenRatioController,
-      'audio_tracks' => _audioTracksController,
-      'subtitles' => _subtitlesController,
-      'layers' => _layersController,
-      'catalog_number' => _catalogNumberController,
-      'release_status' => _releaseStatusController,
-      'country' => _countryController,
-      'language' => _languageController,
-      'age_rating' => _ageRatingController,
-      'audience_rating' => _audienceRatingController,
-      'series_tags' => _seriesTagsController,
-      'cover_image_url' => _coverController,
-      'thumbnail_image_url' => _thumbnailController,
-      'synopsis' => _synopsisController,
-      'crossover' => _crossoverController,
-      'plot_summary' => _plotSummaryController,
-      'plot_description' => _plotDescriptionController,
-      'genres' => _genresController,
-      'platforms' => _platformsController,
-      'trailer_urls' => _trailerUrlsController,
-      'external_links' => _externalLinksController,
-      _ => throw StateError('Unsupported admin metadata field key: $key'),
-    };
+    final controller = _scalarControllers[key];
+    if (controller == null) {
+      throw StateError('Unsupported admin metadata field key: $key');
+    }
+    return controller;
+  }
+
+  String _initialScalarText(String key) {
+    final value = _previewScalarBeforeValue(widget.item, key);
+    if (value == null) {
+      return '';
+    }
+    if (value is DateTime) {
+      return _formatDate(value);
+    }
+    if (value is List<TrailerLink>) {
+      return value.map((link) => link.url).join('\n');
+    }
+    if (value is List<String>) {
+      return value.join(', ');
+    }
+    return value.toString();
   }
 
   Map<String, Object?>? _parseScalarFieldValues() {
@@ -869,9 +674,10 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     List<TrailerLink> trailerUrls;
     List<TrailerLink> externalLinks;
     try {
-      trailerUrls = _parseLinks(_trailerUrlsController.text, kind: 'trailer');
-      externalLinks =
-          _parseLinks(_externalLinksController.text, kind: 'external');
+      trailerUrls = _parseLinks(_controllerForFieldKey('trailer_urls').text,
+          kind: 'trailer');
+      externalLinks = _parseLinks(_controllerForFieldKey('external_links').text,
+          kind: 'external');
     } on FormatException catch (error) {
       setState(() {
         _error = error.message;
@@ -1103,6 +909,8 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       'plot_description' => item.plotDescription,
       'genres' => item.genres,
       'platforms' => item.platforms,
+      'trailer_urls' => item.trailerUrls,
+      'external_links' => item.externalLinks,
       _ => null,
     };
   }

@@ -74,3 +74,45 @@ class CatalogMediaType {
     );
   }
 }
+
+class MetadataNormalizedManifest {
+  const MetadataNormalizedManifest({
+    required this.schemaVersion,
+    required this.commonFields,
+    required this.kindFields,
+    required this.valueTypes,
+  });
+
+  final int schemaVersion;
+  final List<String> commonFields;
+  final Map<String, List<String>> kindFields;
+  final Map<String, String> valueTypes;
+
+  factory MetadataNormalizedManifest.fromJson(Map<String, dynamic> json) {
+    final rawKindFields =
+        json['kind_fields'] as Map<String, dynamic>? ?? const {};
+    final kindFields = <String, List<String>>{
+      for (final entry in rawKindFields.entries)
+        entry.key: [
+          for (final value in (entry.value as List<dynamic>? ?? const []))
+            value.toString(),
+        ],
+    };
+    final rawValueTypes =
+        json['value_types'] as Map<String, dynamic>? ?? const {};
+    final valueTypes = <String, String>{
+      for (final entry in rawValueTypes.entries)
+        entry.key: entry.value.toString(),
+    };
+    return MetadataNormalizedManifest(
+      schemaVersion: json['schema_version'] as int? ?? 0,
+      commonFields: [
+        for (final value
+            in (json['common_fields'] as List<dynamic>? ?? const []))
+          value.toString(),
+      ],
+      kindFields: kindFields,
+      valueTypes: valueTypes,
+    );
+  }
+}
