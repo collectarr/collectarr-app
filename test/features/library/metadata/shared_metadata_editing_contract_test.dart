@@ -76,6 +76,8 @@ void main() {
         'audience_rating': 'string',
         'genres': 'string_list',
         'platforms': 'string_list',
+        'track_count': 'integer',
+        'tracks': 'track_list',
         'color': 'string',
         'nr_discs': 'integer',
         'screen_ratio': 'string',

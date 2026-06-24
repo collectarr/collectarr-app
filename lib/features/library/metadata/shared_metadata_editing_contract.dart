@@ -371,6 +371,11 @@ class SharedMetadataContractDrift {
       missingInCore.length + extraInCore.length + typeMismatches.length;
 }
 
+const Set<String> kSharedMetadataManifestCoreOnlyKeys = {
+  'track_count',
+  'tracks',
+};
+
 SharedMetadataContractDrift compareSharedContractWithManifest(
   MetadataNormalizedManifest manifest,
 ) {
@@ -385,7 +390,10 @@ SharedMetadataContractDrift compareSharedContractWithManifest(
     ...manifest.kindFields.values.expand((fields) => fields),
   };
   final missingInCore = expectedKeys.difference(manifestKeys);
-  final extraInCore = manifest.valueTypes.keys.toSet().difference(expectedKeys);
+  final extraInCore = manifest.valueTypes.keys
+      .toSet()
+      .difference(expectedKeys)
+      .difference(kSharedMetadataManifestCoreOnlyKeys);
   final typeMismatches = <String>{};
   for (final entry in expectedTypes.entries) {
     final actual = manifest.valueTypes[entry.key];

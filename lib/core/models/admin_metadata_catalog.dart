@@ -86,6 +86,8 @@ class AdminNormalizedMetadataDriftReport {
     required this.driftedEntities,
     required this.typedScannedItems,
     required this.typedDriftedItems,
+    this.schemaIssueCount = 0,
+    this.blockingIssueCount = 0,
     required this.releaseGateOk,
     this.issueCounts = const <String, int>{},
   });
@@ -96,6 +98,8 @@ class AdminNormalizedMetadataDriftReport {
   final int driftedEntities;
   final int typedScannedItems;
   final int typedDriftedItems;
+  final int schemaIssueCount;
+  final int blockingIssueCount;
   final bool releaseGateOk;
   final Map<String, int> issueCounts;
 
@@ -126,8 +130,10 @@ class AdminNormalizedMetadataDriftReport {
       driftedEntities: json['drifted_entities'] as int? ?? 0,
       typedScannedItems: json['typed_scanned_items'] as int? ?? 0,
       typedDriftedItems: json['typed_drifted_items'] as int? ?? 0,
+      schemaIssueCount: json['schema_issue_count'] as int? ?? 0,
+      blockingIssueCount: json['blocking_issue_count'] as int? ?? 0,
       releaseGateOk: json['release_gate_ok'] as bool? ??
-          ((json['drifted_entities'] as int? ?? 0) == 0 &&
+          ((json['blocking_issue_count'] as int? ?? 0) == 0 &&
               (json['typed_drifted_items'] as int? ?? 0) == 0),
       issueCounts: issueCounts is Map<String, dynamic>
           ? issueCounts.map(
