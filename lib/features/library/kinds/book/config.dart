@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/default_kind_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
@@ -10,6 +10,13 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+Widget buildBookDefaultKindEditDialog(
+  BuildContext context,
+  LibraryEditDialogRequest request,
+) {
+  return buildDefaultKindEditDialog(request: request);
+}
 
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.book,
@@ -49,7 +56,7 @@ const booksLibraryConfig = LibraryTypeConfig(
   editPresentation: LibraryEditPresentation(
     builder: BookLibraryEditPresentationBuilder(),
   ),
-  editDialogBuilder: buildBookLibraryEditDialog,
+  editDialogBuilder: buildBookDefaultKindEditDialog,
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
   ),
