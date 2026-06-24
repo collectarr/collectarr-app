@@ -34,7 +34,7 @@
 |---------|-----|------------|-------|
 | ISBN barcode scanning | ✅ | ✅ | |
 | 40M+ ISBN database (97% hit rate) | ✅ | 🟡 | Collectarr uses OpenLibrary — decent but smaller |
-| Reading history tracking | ✅ | ❌ | Start/end dates, progress, multiple reads per book |
+| Reading history tracking | ✅ | ✅ | Per-book read sessions (multiple reads, dates, ratings) via the read-history section, backed by the session store |
 | Reader field (per-person tracking) | ✅ | ❌ | Track different readers on same book |
 | Custom user-defined fields | ✅ | ✅ | Per-media-type text fields, searchable |
 | Multiple images per item | ✅ | ✅ | Local photos with captions |

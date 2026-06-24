@@ -5,15 +5,90 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Kind-appropriate labels for the per-item session history section. The same
+/// underlying watch_session store backs reads, watches, listens and plays.
+class SessionHistoryLabels {
+  const SessionHistoryLabels({
+    required this.title,
+    required this.nounSingular,
+    required this.nounPlural,
+    required this.addTooltip,
+    required this.emptyText,
+    required this.icon,
+  });
+
+  final String title;
+  final String nounSingular;
+  final String nounPlural;
+  final String addTooltip;
+  final String emptyText;
+  final IconData icon;
+
+  static const watch = SessionHistoryLabels(
+    title: 'Watch history',
+    nounSingular: 'watch',
+    nounPlural: 'watches',
+    addTooltip: 'Log a watch',
+    emptyText: 'No watches logged yet.',
+    icon: Icons.visibility,
+  );
+
+  static const read = SessionHistoryLabels(
+    title: 'Read history',
+    nounSingular: 'read',
+    nounPlural: 'reads',
+    addTooltip: 'Log a read',
+    emptyText: 'No reads logged yet.',
+    icon: Icons.menu_book_outlined,
+  );
+
+  static const listen = SessionHistoryLabels(
+    title: 'Listen history',
+    nounSingular: 'listen',
+    nounPlural: 'listens',
+    addTooltip: 'Log a listen',
+    emptyText: 'No listens logged yet.',
+    icon: Icons.headphones_outlined,
+  );
+
+  static const play = SessionHistoryLabels(
+    title: 'Play history',
+    nounSingular: 'play',
+    nounPlural: 'plays',
+    addTooltip: 'Log a play',
+    emptyText: 'No plays logged yet.',
+    icon: Icons.sports_esports_outlined,
+  );
+}
+
+/// Maps a media kind's apiValue to its session-history labels.
+SessionHistoryLabels sessionHistoryLabelsForKind(String apiValue) {
+  switch (apiValue) {
+    case 'comic':
+    case 'manga':
+    case 'book':
+      return SessionHistoryLabels.read;
+    case 'music':
+      return SessionHistoryLabels.listen;
+    case 'game':
+    case 'boardgame':
+      return SessionHistoryLabels.play;
+    default:
+      return SessionHistoryLabels.watch;
+  }
+}
+
 class WatchHistorySection extends ConsumerWidget {
   const WatchHistorySection({
     super.key,
     required this.itemId,
     required this.accent,
+    this.labels = SessionHistoryLabels.watch,
   });
 
   final String itemId;
   final Color accent;
+  final SessionHistoryLabels labels;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +110,7 @@ class WatchHistorySection extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Watch history',
+                    labels.title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w900,
@@ -46,6 +121,7 @@ class WatchHistorySection extends ConsumerWidget {
                 _AddWatchSessionButton(
                   itemId: itemId,
                   accent: accent,
+                  labels: labels,
                 ),
               ],
             ),
@@ -53,14 +129,15 @@ class WatchHistorySection extends ConsumerWidget {
               Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
-                  'No watches logged yet.',
+                  labels.emptyText,
                   style: TextStyle(color: palette.textMuted, fontSize: 12),
                 ),
               )
             else ...[
               const SizedBox(height: 4),
               Text(
-                '${sessions.length} ${sessions.length == 1 ? 'watch' : 'watches'}',
+                '${sessions.length} '
+                '${sessions.length == 1 ? labels.nounSingular : labels.nounPlural}',
                 style: TextStyle(color: palette.textMuted, fontSize: 12),
               ),
               const SizedBox(height: 8),
@@ -68,6 +145,7 @@ class WatchHistorySection extends ConsumerWidget {
                 _WatchSessionTile(
                   session: session,
                   accent: accent,
+                  labels: labels,
                 ),
             ],
           ],
@@ -81,16 +159,18 @@ class _AddWatchSessionButton extends ConsumerWidget {
   const _AddWatchSessionButton({
     required this.itemId,
     required this.accent,
+    required this.labels,
   });
 
   final String itemId;
   final Color accent;
+  final SessionHistoryLabels labels;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
       icon: Icon(Icons.add_circle_outline, color: accent, size: 22),
-      tooltip: 'Log a watch',
+      tooltip: labels.addTooltip,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
       onPressed: () => _showAddDialog(context, ref),
@@ -125,10 +205,12 @@ class _WatchSessionTile extends ConsumerWidget {
   const _WatchSessionTile({
     required this.session,
     required this.accent,
+    required this.labels,
   });
 
   final WatchSession session;
   final Color accent;
+  final SessionHistoryLabels labels;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -140,7 +222,7 @@ class _WatchSessionTile extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
-          Icon(Icons.visibility, color: accent.withValues(alpha: 0.7), size: 16),
+          Icon(labels.icon, color: accent.withValues(alpha: 0.7), size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

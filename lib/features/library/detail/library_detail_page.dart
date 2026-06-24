@@ -238,6 +238,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   WatchHistorySection(
                     itemId: widget.entry.id,
                     accent: widget.accent,
+                    labels: sessionHistoryLabelsForKind(
+                      widget.type.workspace.kind.apiValue,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ActivityTimelineSection(
