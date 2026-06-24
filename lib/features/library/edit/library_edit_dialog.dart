@@ -511,11 +511,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   bool get _isGameKind {
-    return widget.type.workspace.kind.apiValue == 'game';
+    return widget.type.capabilities.usesGameCompletenessFields;
   }
 
   bool get _isComicKind {
-    return widget.type.workspace.kind.apiValue == 'comic';
+    return widget.type.capabilities.usesComicCollectorFields;
   }
 
   bool get _hasReleaseAnchor {
@@ -1298,7 +1298,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       lastBagBoardDate: _lastBagBoardDate,
       onLastBagBoardDateChanged: (value) =>
           setState(() => _lastBagBoardDate = value),
-      isGameKind: widget.type.workspace.kind.apiValue == 'game',
+      isGameKind: _isGameKind,
       gameCompleteness: _gameCompleteness,
       onGameCompletenessChanged: (value) =>
           setState(() => _gameCompleteness = value),

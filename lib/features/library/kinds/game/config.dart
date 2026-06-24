@@ -57,6 +57,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     supportsMediaReleaseSplit: true,
+    usesGameCompletenessFields: true,
   ),
   showsDefaultInspectorPersonalSection: false,
 );

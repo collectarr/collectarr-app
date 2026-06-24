@@ -310,6 +310,8 @@ class LibraryTypeCapabilities {
     this.releaseScopeSortColumns,
     this.supportsMetadataCompare = false,
     this.prefersSquareCovers = false,
+    this.usesGameCompletenessFields = false,
+    this.usesComicCollectorFields = false,
   });
 
   final bool showsSynopsis;
@@ -342,6 +344,13 @@ class LibraryTypeCapabilities {
   /// Whether this type's covers are square (e.g. music albums) and the grid
   /// should use square-tile sizing.
   final bool prefersSquareCovers;
+
+  /// Whether the edit dialog shows game completeness (loose/CIB/new) fields.
+  final bool usesGameCompletenessFields;
+
+  /// Whether the edit dialog shows comic collector fields (grading, key issue,
+  /// bag/board date).
+  final bool usesComicCollectorFields;
 
   /// Whether this type narrows group modes / sort columns by browser mode
   /// (media vs releases). Driven entirely by the scoped sets above.

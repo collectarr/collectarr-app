@@ -91,6 +91,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
+    usesComicCollectorFields: true,
   ),
   conditions: kComicConditions,
   grades: kComicGrades,
