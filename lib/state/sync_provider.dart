@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/collection/repositories/wishlist_items_c
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncLogEntry {
@@ -95,14 +94,15 @@ class SyncState {
 }
 
 final syncControllerProvider =
-    StateNotifierProvider<SyncController, SyncState>((ref) {
-  return SyncController(ref)..refreshPendingCount();
-});
+    NotifierProvider<SyncController, SyncState>(SyncController.new);
 
-class SyncController extends StateNotifier<SyncState> {
-  SyncController(this.ref) : super(const SyncState());
+class SyncController extends Notifier<SyncState> {
+  @override
+  SyncState build() {
+    refreshPendingCount();
+    return const SyncState();
+  }
 
-  final Ref ref;
   bool _onlineFirstSyncQueued = false;
 
   Future<void> refreshPendingCount() async {
