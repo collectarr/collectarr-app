@@ -19,7 +19,6 @@ import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart'
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
 enum ImportJobPhase { fetching, matching, importing, done, failed }
 
@@ -120,11 +119,11 @@ class ImportJobState {
   }
 }
 
-class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
-  ImportJobsNotifier(this._ref) : super(const []);
+class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
+  @override
+  List<ImportJobState> build() => const [];
 
   static const _unmatchedConcurrency = 4;
-  final Ref _ref;
   final TmdbImportService _service = TmdbImportService();
   final TmdbPendingImportStore _pendingStore = const TmdbPendingImportStore();
   final ProviderImportHistoryStore _historyStore =
@@ -250,7 +249,7 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
     required bool keepUnmatchedLocally,
     String? apiKey,
   }) async {
-    final api = _ref.read(apiClientProvider);
+    final api = ref.read(apiClientProvider);
 
     // Phase 2: Match against catalog
     final preview = await _service.previewImport(
@@ -299,7 +298,7 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
       );
     }
 
-    final mutations = _ref.read(collectionMutationsProvider);
+    final mutations = ref.read(collectionMutationsProvider);
     var importedCount = 0;
     var proposedCount = 0;
     var keptLocalCount = 0;
@@ -496,7 +495,7 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
             TmdbMediaType.movie => moviesLibraryConfig,
             TmdbMediaType.tv => moviesLibraryConfig,
           };
-    return _ref.read(resolvedLibraryTypeProvider(config));
+    return ref.read(resolvedLibraryTypeProvider(config));
   }
 
   int? _normalizedRating(num? value) {
@@ -552,6 +551,6 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
 }
 
 final importJobsProvider =
-    StateNotifierProvider<ImportJobsNotifier, List<ImportJobState>>((ref) {
-  return ImportJobsNotifier(ref);
-});
+    NotifierProvider<ImportJobsNotifier, List<ImportJobState>>(
+  ImportJobsNotifier.new,
+);
