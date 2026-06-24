@@ -147,6 +147,12 @@ class ApiClient {
     return _catalogApi.metadataNormalizedManifest();
   }
 
+  Future<MetadataFieldSchema> metadataFieldSchema({
+    bool editableOnly = true,
+  }) async {
+    return _catalogApi.metadataFieldSchema(editableOnly: editableOnly);
+  }
+
   Future<List<Map<String, dynamic>>> searchProvider({
     String? provider,
     required String query,

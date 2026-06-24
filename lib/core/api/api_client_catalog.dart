@@ -119,6 +119,22 @@ class _CatalogApiClient {
     return MetadataNormalizedManifest.fromJson(data);
   }
 
+  Future<MetadataFieldSchema> metadataFieldSchema({
+    bool editableOnly = true,
+  }) async {
+    final response = await _client._dio.get<Map<String, dynamic>>(
+      '/metadata/field-schema',
+      queryParameters: {'editable_only': editableOnly},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/metadata/field-schema returned an empty response body',
+      );
+    }
+    return MetadataFieldSchema.fromJson(data);
+  }
+
   Future<Map<String, dynamic>> createMetadataProposal({
     required String provider,
     required String query,
