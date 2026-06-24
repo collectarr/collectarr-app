@@ -7,7 +7,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';
@@ -68,12 +67,12 @@ class AuthState {
   }
 }
 
-class AuthController extends StateNotifier<AuthState> {
-  AuthController(this.ref) : super(const AuthState(isRestoring: true)) {
+class AuthController extends Notifier<AuthState> {
+  @override
+  AuthState build() {
     _startRestoreSession();
+    return const AuthState(isRestoring: true);
   }
-
-  final Ref ref;
 
   Future<void> _startRestoreSession() async {
     try {
@@ -452,6 +451,4 @@ String _cleanError(String? message) {
 }
 
 final authControllerProvider =
-    StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController(ref);
-});
+    NotifierProvider<AuthController, AuthState>(AuthController.new);
