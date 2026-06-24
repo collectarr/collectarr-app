@@ -134,7 +134,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
-    final isMusicLibrary = type.workspace.kind.apiValue == 'music';
+    final isMusicLibrary = type.capabilities.prefersSquareCovers;
     final cardScale = defaultCoverSize > 0
         ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
         : 1.0;

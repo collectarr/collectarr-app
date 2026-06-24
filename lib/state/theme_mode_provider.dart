@@ -1,19 +1,18 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _kThemeModeKey = 'app.themeMode';
 
 final appThemeModeProvider =
-    StateNotifierProvider<AppThemeModeNotifier, ThemeMode>((ref) {
-  return AppThemeModeNotifier();
-});
+    NotifierProvider<AppThemeModeNotifier, ThemeMode>(AppThemeModeNotifier.new);
 
-class AppThemeModeNotifier extends StateNotifier<ThemeMode> {
-  AppThemeModeNotifier() : super(ThemeMode.dark) {
+class AppThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() {
     _load();
+    return ThemeMode.dark;
   }
 
   Future<void> _load() async {

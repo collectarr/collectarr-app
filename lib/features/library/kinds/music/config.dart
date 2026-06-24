@@ -71,5 +71,7 @@ const musicLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,
     supportsMediaReleaseSplit: true,
+    supportsMetadataCompare: true,
+    prefersSquareCovers: true,
   ),
 );

@@ -48,8 +48,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   }
 
   bool supportsMetadataCompareWithServer() {
-    final kind = widget.type.workspace.kind.apiValue;
-    return kind == 'comic' || kind == 'music';
+    return widget.type.capabilities.supportsMetadataCompare;
   }
 
   LibraryProjectionItem? selectedProjectionItemFor(

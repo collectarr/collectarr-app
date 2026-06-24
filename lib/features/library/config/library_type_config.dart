@@ -308,6 +308,8 @@ class LibraryTypeCapabilities {
     this.releaseScopeGroupModes,
     this.mediaScopeSortColumns,
     this.releaseScopeSortColumns,
+    this.supportsMetadataCompare = false,
+    this.prefersSquareCovers = false,
   });
 
   final bool showsSynopsis;
@@ -332,6 +334,14 @@ class LibraryTypeCapabilities {
   final Set<LibraryGroupMode>? releaseScopeGroupModes;
   final Set<LibrarySortColumn>? mediaScopeSortColumns;
   final Set<LibrarySortColumn>? releaseScopeSortColumns;
+
+  /// Whether this type can compare its local metadata against the canonical
+  /// server record (e.g. comics and music).
+  final bool supportsMetadataCompare;
+
+  /// Whether this type's covers are square (e.g. music albums) and the grid
+  /// should use square-tile sizing.
+  final bool prefersSquareCovers;
 
   /// Whether this type narrows group modes / sort columns by browser mode
   /// (media vs releases). Driven entirely by the scoped sets above.
