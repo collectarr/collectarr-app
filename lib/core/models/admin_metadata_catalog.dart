@@ -5,6 +5,7 @@ part of 'admin_metadata.dart';
 class AdminCatalogSummary {
   const AdminCatalogSummary({
     required this.items,
+    this.itemsByKind = const <String, int>{},
     required this.series,
     required this.volumes,
     required this.editions,
@@ -21,6 +22,7 @@ class AdminCatalogSummary {
   });
 
   final int items;
+  final Map<String, int> itemsByKind;
   final int series;
   final int volumes;
   final int editions;
@@ -47,8 +49,17 @@ class AdminCatalogSummary {
   String get providerCoverageLabel => '$providerCoveragePercent% provider IDs';
 
   factory AdminCatalogSummary.fromJson(Map<String, dynamic> json) {
+    final byKind = json['items_by_kind'];
     return AdminCatalogSummary(
       items: json['items'] as int? ?? 0,
+      itemsByKind: byKind is Map<String, dynamic>
+          ? byKind.map(
+              (key, value) => MapEntry(
+                key,
+                (value as num?)?.toInt() ?? 0,
+              ),
+            )
+          : const <String, int>{},
       series: json['series'] as int? ?? 0,
       volumes: json['volumes'] as int? ?? 0,
       editions: json['editions'] as int? ?? 0,
@@ -364,4 +375,3 @@ DateTime _adminDateTimeFromJson(Object? value) {
   }
   return DateTime.fromMillisecondsSinceEpoch(0);
 }
-

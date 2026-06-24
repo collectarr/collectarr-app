@@ -79,6 +79,12 @@ See [docs/library-parity-contract.md](docs/library-parity-contract.md).
 
 See [docs/implementation-plan.md](docs/implementation-plan.md).
 
+Current active tracks:
+
+- shared metadata field registry for admin/app edit flows (no more field copy/paste)
+- final library de-generalization cleanup in `lib/features/library/generic`
+- admin UX consistency with Core contracts (proposal/editor + stats surfaces)
+
 ## 🔒 Release policy
 
 Releases are manual (`workflow_dispatch`). Pushes to `main` run CI only.

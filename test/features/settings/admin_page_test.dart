@@ -78,6 +78,16 @@ void main() {
     expect(api.reindexCount, 1);
     expect(find.text('Reindexed 12'), findsOneWidget);
 
+    // ─── Stats tab ───
+    await tester.tap(find.widgetWithText(Tab, 'Stats'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Catalog stats'), findsOneWidget);
+    expect(find.text('Comics: 7'), findsOneWidget);
+    expect(find.text('Books: 3'), findsOneWidget);
+    expect(find.text('Music: 2'), findsOneWidget);
+    expect(find.textContaining('cache usage'), findsOneWidget);
+    expect(find.textContaining('Mirroring enabled'), findsOneWidget);
+
     // ─── Logs tab ───
     await tester.tap(find.text('Logs'));
     await pumpUntilSettled(tester);
@@ -772,6 +782,11 @@ class _FakeAdminApiClient extends ApiClient {
   Future<AdminCatalogSummary> adminCatalogSummary() async {
     return AdminCatalogSummary(
       items: 12,
+      itemsByKind: const {
+        'comic': 7,
+        'book': 3,
+        'music': 2,
+      },
       series: 4,
       volumes: 4,
       editions: 12,

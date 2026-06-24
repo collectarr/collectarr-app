@@ -251,6 +251,102 @@ class _DashboardSection extends StatelessWidget {
   }
 }
 
+class _DashboardStatsOverview extends StatelessWidget {
+  const _DashboardStatsOverview({
+    required this.summary,
+    required this.imageCacheStats,
+    required this.errorMessage,
+  });
+
+  final AdminCatalogSummary? summary;
+  final AdminImageCacheStats? imageCacheStats;
+  final String? errorMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    if (summary == null && imageCacheStats == null) {
+      if (errorMessage != null) {
+        return _MessageRow(message: errorMessage!, isError: true);
+      }
+      return const _StatusChip(
+        icon: Icons.hourglass_empty,
+        label: 'Stats loading',
+      );
+    }
+    final byKind = (summary?.itemsByKind ?? const <String, int>{})
+        .entries
+        .where((entry) => entry.value > 0)
+        .toList(growable: false)
+      ..sort((left, right) {
+        final byCount = right.value.compareTo(left.value);
+        if (byCount != 0) {
+          return byCount;
+        }
+        return left.key.compareTo(right.key);
+      });
+    final cache = imageCacheStats;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _DashboardSection(
+          title: 'Items by kind',
+          children: byKind.isEmpty
+              ? const [
+                  _StatusChip(
+                    icon: Icons.category_outlined,
+                    label: 'No kind stats yet',
+                  ),
+                ]
+              : [
+                  for (final row in byKind)
+                    _StatusChip(
+                      icon: Icons.category_outlined,
+                      label: '${_statsKindLabel(row.key)}: ${row.value}',
+                    ),
+                ],
+        ),
+        const SizedBox(height: 12),
+        _DashboardSection(
+          title: 'Storage',
+          children: [
+            _StatusChip(
+              icon: Icons.image_outlined,
+              label: '${summary?.imageAssets ?? 0} image assets',
+            ),
+            _StatusChip(
+              icon: Icons.storage_outlined,
+              label: '${summary?.imageCacheEntries ?? 0} cache entries',
+            ),
+            if (cache != null) ...[
+              _StatusChip(
+                icon: Icons.data_usage_outlined,
+                label: '${cache.usagePercent.toStringAsFixed(1)}% cache usage',
+              ),
+              _StatusChip(
+                icon: Icons.sd_storage_outlined,
+                label:
+                    '${_statsFormatBytes(cache.totalSizeBytes)} / ${_statsFormatBytes(cache.maxSizeBytes)}',
+              ),
+              _StatusChip(
+                icon: cache.mirroringEnabled
+                    ? Icons.check_circle_outline
+                    : Icons.block_outlined,
+                label: cache.mirroringEnabled
+                    ? 'Mirroring enabled'
+                    : 'Mirroring disabled',
+              ),
+            ],
+          ],
+        ),
+        if (errorMessage != null) ...[
+          const SizedBox(height: 12),
+          _MessageRow(message: errorMessage!, isError: true),
+        ],
+      ],
+    );
+  }
+}
+
 class _DashboardProposalActivity extends StatelessWidget {
   const _DashboardProposalActivity({
     required this.summary,
@@ -267,6 +363,7 @@ class _DashboardProposalActivity extends StatelessWidget {
     if (errorMessage != null && summary == null && history.isEmpty) {
       return _MessageRow(message: errorMessage!, isError: true);
     }
+
     final recentApprovals = history
         .where((entry) => entry.action.contains('metadata_proposal.approve'))
         .length;
@@ -367,3 +464,30 @@ class _DashboardProposalActivity extends StatelessWidget {
   }
 }
 
+String _statsKindLabel(String kind) {
+  return switch (kind) {
+    'boardgame' => 'Board games',
+    'tv' => 'TV',
+    'anime' => 'Anime',
+    'manga' => 'Manga',
+    'comic' => 'Comics',
+    'book' => 'Books',
+    'game' => 'Games',
+    'movie' => 'Movies',
+    'music' => 'Music',
+    _ => kind.isEmpty ? 'Unknown' : kind,
+  };
+}
+
+String _statsFormatBytes(int bytes) {
+  if (bytes < 1024) {
+    return '$bytes B';
+  }
+  if (bytes < 1024 * 1024) {
+    return '${(bytes / 1024).toStringAsFixed(1)} KB';
+  }
+  if (bytes < 1024 * 1024 * 1024) {
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+  return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+}

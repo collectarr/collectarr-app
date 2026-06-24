@@ -55,6 +55,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _mediaTypes = const <CatalogMediaType>[];
   var _providers = const <AdminProviderStatus>[];
   AdminCatalogSummary? _summary;
+  AdminImageCacheStats? _dashboardImageCacheStats;
   AdminSearchStatus? _searchStatus;
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
@@ -433,6 +434,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     final tabs = <Tab>[
       if (isAdmin)
         const Tab(icon: Icon(Icons.dashboard_outlined), text: 'Dashboard'),
+      if (isAdmin)
+        const Tab(icon: Icon(Icons.bar_chart_outlined), text: 'Stats'),
       const Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Catalog'),
       const Tab(icon: Icon(Icons.hub_outlined), text: 'Providers'),
       if (isAdmin) const Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
@@ -442,6 +445,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
     final tabViews = <Widget>[
       if (isAdmin) _buildDashboardTab(),
+      if (isAdmin) _buildStatsTab(),
       _buildCatalogTab(context),
       _buildProvidersTab(context, isAdmin: isAdmin),
       if (isAdmin) _buildLogsTab(),
@@ -517,6 +521,33 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           child: _DashboardProposalActivity(
             summary: _dashboardProposalSummary,
             history: _proposalHistory,
+            errorMessage: _dashboardErrorMessage,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _AdminPanel(
+          icon: Icons.bar_chart_outlined,
+          title: 'Catalog stats',
+          trailing: IconButton(
+            tooltip: 'Refresh stats',
+            onPressed: _isLoadingDashboard ? null : _loadDashboard,
+            icon: _isLoadingDashboard
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+          ),
+          child: _DashboardStatsOverview(
+            summary: _summary,
+            imageCacheStats: _dashboardImageCacheStats,
             errorMessage: _dashboardErrorMessage,
           ),
         ),
@@ -993,6 +1024,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final ingestJobQuery = _ingestJobQueryController.text.trim();
       final results = await Future.wait<Object>([
         api.adminCatalogSummary(),
+        api.adminImageCacheStats(),
         api.adminSearchStatus(),
         api.adminSearchHistory(),
         api.adminAuditLogs(limit: 8),
@@ -1009,20 +1041,22 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         api.adminDuplicateCandidates(limit: 5),
       ]);
       final summary = results[0] as AdminCatalogSummary;
-      final searchStatus = results[1] as AdminSearchStatus;
-      final searchHistory = results[2] as List<AdminSearchHistoryEntry>;
-      final auditLogs = results[3] as List<AdminAuditLogEntry>;
-      final proposalSummary = results[4] as AdminMetadataProposalSummary;
-      final proposalHistory = results[5] as List<AdminAuditLogEntry>;
-      final ingestHistory = results[6] as List<AdminProviderIngestHistoryEntry>;
-      final ingestJobSummary = results[7] as AdminProviderIngestJobSummary;
-      final ingestJobs = results[8] as List<AdminProviderIngestJob>;
-      final duplicates = results[9] as List<AdminDuplicateCandidate>;
+      final imageCacheStats = results[1] as AdminImageCacheStats;
+      final searchStatus = results[2] as AdminSearchStatus;
+      final searchHistory = results[3] as List<AdminSearchHistoryEntry>;
+      final auditLogs = results[4] as List<AdminAuditLogEntry>;
+      final proposalSummary = results[5] as AdminMetadataProposalSummary;
+      final proposalHistory = results[6] as List<AdminAuditLogEntry>;
+      final ingestHistory = results[7] as List<AdminProviderIngestHistoryEntry>;
+      final ingestJobSummary = results[8] as AdminProviderIngestJobSummary;
+      final ingestJobs = results[9] as List<AdminProviderIngestJob>;
+      final duplicates = results[10] as List<AdminDuplicateCandidate>;
       if (!mounted) {
         return;
       }
       setState(() {
         _summary = summary;
+        _dashboardImageCacheStats = imageCacheStats;
         _searchStatus = searchStatus;
         _searchHistory = searchHistory;
         _auditLogs = auditLogs;
