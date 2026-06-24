@@ -60,6 +60,7 @@ class _DashboardSummary extends StatelessWidget {
     required this.registeredProviders,
     required this.selectedProviderLabel,
     required this.lastIngest,
+    required this.normalizedMetadataDrift,
     required this.metadataContractDrift,
     required this.errorMessage,
   });
@@ -71,6 +72,7 @@ class _DashboardSummary extends StatelessWidget {
   final int registeredProviders;
   final String selectedProviderLabel;
   final AdminProviderIngestResult? lastIngest;
+  final AdminNormalizedMetadataDriftReport? normalizedMetadataDrift;
   final SharedMetadataContractDrift? metadataContractDrift;
   final String? errorMessage;
 
@@ -231,6 +233,23 @@ class _DashboardSummary extends StatelessWidget {
                       ? 'Shared contract in sync'
                       : 'Drift: ${metadataContractDrift!.mismatchCount}',
             ),
+            _StatusChip(
+              icon: normalizedMetadataDrift == null
+                  ? Icons.hourglass_empty
+                  : normalizedMetadataDrift!.hasDrift
+                      ? Icons.warning_amber_outlined
+                      : Icons.verified_outlined,
+              label: normalizedMetadataDrift == null
+                  ? 'Normalized drift loading…'
+                  : normalizedMetadataDrift!.hasDrift
+                      ? 'Normalized drift: ${normalizedMetadataDrift!.driftedEntities + normalizedMetadataDrift!.typedDriftedItems}'
+                      : 'Normalized drift clear',
+            ),
+            if (normalizedMetadataDrift?.topIssue != null)
+              _StatusChip(
+                icon: Icons.rule_folder_outlined,
+                label: 'Top issue: ${normalizedMetadataDrift!.topIssue}',
+              ),
           ],
         ),
         if (errorMessage != null) ...[

@@ -173,6 +173,11 @@ class ApiClient {
     return _adminApi.adminCatalogSummary();
   }
 
+  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
+      {int sampleLimit = 100}) async {
+    return _adminApi.adminNormalizedMetadataDrift(sampleLimit: sampleLimit);
+  }
+
   Future<List<AdminMetadataItem>> adminCatalogItems({
     String? query,
     String? kind,

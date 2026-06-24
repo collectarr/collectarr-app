@@ -66,6 +66,7 @@ void main() {
     expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('Shared contract in sync'), findsOneWidget);
+    expect(find.text('Normalized drift clear'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
     expect(find.text('Metadata proposal activity'), findsOneWidget);
     expect(find.text('1 recent approve'), findsOneWidget);
@@ -832,6 +833,20 @@ class _FakeAdminApiClient extends ApiClient {
       duplicateCandidateGroups: duplicateResolved ? 0 : 1,
       providerIngestSuccesses: retryResolved ? 6 : 5,
       providerIngestFailures: retryResolved ? 0 : 1,
+    );
+  }
+
+  @override
+  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
+      {int sampleLimit = 100}) async {
+    return const AdminNormalizedMetadataDriftReport(
+      expectedSchemaVersion: 1,
+      scannedEntities: 12,
+      entitiesWithNormalized: 10,
+      driftedEntities: 0,
+      typedScannedItems: 8,
+      typedDriftedItems: 0,
+      issueCounts: {},
     );
   }
 

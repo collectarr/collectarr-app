@@ -56,6 +56,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _mediaTypes = const <CatalogMediaType>[];
   var _providers = const <AdminProviderStatus>[];
   AdminCatalogSummary? _summary;
+  AdminNormalizedMetadataDriftReport? _normalizedMetadataDrift;
   SharedMetadataContractDrift? _metadataContractDrift;
   AdminImageCacheStats? _dashboardImageCacheStats;
   AdminSearchStatus? _searchStatus;
@@ -513,6 +514,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             registeredProviders: _providers.length,
             selectedProviderLabel: _selectedProviderLabel(),
             lastIngest: _lastIngest,
+            normalizedMetadataDrift: _normalizedMetadataDrift,
             metadataContractDrift: _metadataContractDrift,
             errorMessage: _dashboardErrorMessage,
           ),
@@ -1027,6 +1029,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final ingestJobQuery = _ingestJobQueryController.text.trim();
       final results = await Future.wait<Object>([
         api.adminCatalogSummary(),
+        api.adminNormalizedMetadataDrift(),
         api.metadataNormalizedManifest(),
         api.adminImageCacheStats(),
         api.adminSearchStatus(),
@@ -1045,17 +1048,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         api.adminDuplicateCandidates(limit: 5),
       ]);
       final summary = results[0] as AdminCatalogSummary;
-      final normalizedManifest = results[1] as MetadataNormalizedManifest;
-      final imageCacheStats = results[2] as AdminImageCacheStats;
-      final searchStatus = results[3] as AdminSearchStatus;
-      final searchHistory = results[4] as List<AdminSearchHistoryEntry>;
-      final auditLogs = results[5] as List<AdminAuditLogEntry>;
-      final proposalSummary = results[6] as AdminMetadataProposalSummary;
-      final proposalHistory = results[7] as List<AdminAuditLogEntry>;
-      final ingestHistory = results[8] as List<AdminProviderIngestHistoryEntry>;
-      final ingestJobSummary = results[9] as AdminProviderIngestJobSummary;
-      final ingestJobs = results[10] as List<AdminProviderIngestJob>;
-      final duplicates = results[11] as List<AdminDuplicateCandidate>;
+      final normalizedDrift = results[1] as AdminNormalizedMetadataDriftReport;
+      final normalizedManifest = results[2] as MetadataNormalizedManifest;
+      final imageCacheStats = results[3] as AdminImageCacheStats;
+      final searchStatus = results[4] as AdminSearchStatus;
+      final searchHistory = results[5] as List<AdminSearchHistoryEntry>;
+      final auditLogs = results[6] as List<AdminAuditLogEntry>;
+      final proposalSummary = results[7] as AdminMetadataProposalSummary;
+      final proposalHistory = results[8] as List<AdminAuditLogEntry>;
+      final ingestHistory = results[9] as List<AdminProviderIngestHistoryEntry>;
+      final ingestJobSummary = results[10] as AdminProviderIngestJobSummary;
+      final ingestJobs = results[11] as List<AdminProviderIngestJob>;
+      final duplicates = results[12] as List<AdminDuplicateCandidate>;
       final contractDrift =
           compareSharedContractWithManifest(normalizedManifest);
       if (!mounted) {
@@ -1063,6 +1067,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _summary = summary;
+        _normalizedMetadataDrift = normalizedDrift;
         _metadataContractDrift = contractDrift;
         _dashboardImageCacheStats = imageCacheStats;
         _searchStatus = searchStatus;

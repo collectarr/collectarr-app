@@ -78,6 +78,61 @@ class AdminCatalogSummary {
   }
 }
 
+class AdminNormalizedMetadataDriftReport {
+  const AdminNormalizedMetadataDriftReport({
+    required this.expectedSchemaVersion,
+    required this.scannedEntities,
+    required this.entitiesWithNormalized,
+    required this.driftedEntities,
+    required this.typedScannedItems,
+    required this.typedDriftedItems,
+    this.issueCounts = const <String, int>{},
+  });
+
+  final int expectedSchemaVersion;
+  final int scannedEntities;
+  final int entitiesWithNormalized;
+  final int driftedEntities;
+  final int typedScannedItems;
+  final int typedDriftedItems;
+  final Map<String, int> issueCounts;
+
+  bool get hasDrift => driftedEntities > 0 || typedDriftedItems > 0;
+
+  String? get topIssue {
+    if (issueCounts.isEmpty) {
+      return null;
+    }
+    final entries = issueCounts.entries.toList(growable: false)
+      ..sort((left, right) {
+        final byCount = right.value.compareTo(left.value);
+        if (byCount != 0) {
+          return byCount;
+        }
+        return left.key.compareTo(right.key);
+      });
+    return entries.first.key;
+  }
+
+  factory AdminNormalizedMetadataDriftReport.fromJson(
+      Map<String, dynamic> json) {
+    final issueCounts = json['issue_counts'];
+    return AdminNormalizedMetadataDriftReport(
+      expectedSchemaVersion: json['expected_schema_version'] as int? ?? 0,
+      scannedEntities: json['scanned_entities'] as int? ?? 0,
+      entitiesWithNormalized: json['entities_with_normalized'] as int? ?? 0,
+      driftedEntities: json['drifted_entities'] as int? ?? 0,
+      typedScannedItems: json['typed_scanned_items'] as int? ?? 0,
+      typedDriftedItems: json['typed_drifted_items'] as int? ?? 0,
+      issueCounts: issueCounts is Map<String, dynamic>
+          ? issueCounts.map(
+              (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
+            )
+          : const <String, int>{},
+    );
+  }
+}
+
 class AdminProviderIngestHistoryEntry {
   const AdminProviderIngestHistoryEntry({
     required this.id,

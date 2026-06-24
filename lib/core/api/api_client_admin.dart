@@ -34,6 +34,20 @@ class _AdminApiClient {
     return AdminCatalogSummary.fromJson(data);
   }
 
+  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
+      {int sampleLimit = 100}) async {
+    final response = await _client._dio.get<Map<String, dynamic>>(
+      '/admin/catalog/normalized-metadata-drift',
+      queryParameters: {'sample_limit': sampleLimit},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/catalog/normalized-metadata-drift returned an empty response body');
+    }
+    return AdminNormalizedMetadataDriftReport.fromJson(data);
+  }
+
   Future<List<AdminMetadataItem>> adminCatalogItems({
     String? query,
     String? kind,
