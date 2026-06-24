@@ -81,7 +81,7 @@ See [docs/implementation-plan.md](docs/implementation-plan.md).
 
 Current active tracks:
 
-- shared metadata field registry for admin/app edit flows (no more field copy/paste)
+- single-edit-place rollout on top of the shared metadata contract and controller map
 - final library de-generalization cleanup in `lib/features/library/generic`
 - admin UX consistency with Core contracts (proposal/editor + stats surfaces)
 

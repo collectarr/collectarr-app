@@ -91,14 +91,11 @@
 ## 🎯 Active Roadmap
 
 ### 🧩 Shared Metadata Editing Contract (Admin + App)
-- [ ] Introduce a centralized field registry for canonical metadata editing
-	- One source for field key, label, type, kind visibility, and tab grouping.
-	- Reuse registry-driven parsing/serialization so adding a field does not require copy/paste across dialogs.
-- [ ] Align admin and app edit surfaces on shared metadata primitives
-	- Reuse controller lifecycle + value adapters across dialogs.
-	- Keep kind-specific widget differences where needed, but share field contract + payload mapping.
-- [ ] Add contract tests against Core metadata schema
-	- Fail fast when app field keys drift from Core-allowed normalized metadata keys.
+- [ ] Complete "single edit place" migration for remaining kind-specific editors
+	- Keep the shared field/controller contract as the default path for both admin and item-edit flows.
+	- Limit per-kind custom UI to presentation-only extensions on top of the shared payload contract.
+- [ ] Harden runtime drift diagnostics as a regression gate
+	- Keep admin dashboard contract/drift status visible and fail tests when client↔core normalized field keys diverge.
 
 ### 🧱 Library De-Generalization (final cleanup)
 - [ ] Split remaining generic shell decisions into explicit hooks
