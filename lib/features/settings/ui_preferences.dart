@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UiPreferences {
@@ -97,17 +97,18 @@ class UiPreferencesStore {
 }
 
 final uiPreferencesProvider =
-    StateNotifierProvider<UiPreferencesController, UiPreferences>(
-  (ref) => UiPreferencesController()..load(),
+    NotifierProvider<UiPreferencesController, UiPreferences>(
+  UiPreferencesController.new,
 );
 
-class UiPreferencesController extends StateNotifier<UiPreferences> {
-  UiPreferencesController({
-    UiPreferencesStore store = const UiPreferencesStore(),
-  })  : _store = store,
-        super(const UiPreferences());
+class UiPreferencesController extends Notifier<UiPreferences> {
+  final UiPreferencesStore _store = const UiPreferencesStore();
 
-  final UiPreferencesStore _store;
+  @override
+  UiPreferences build() {
+    load();
+    return const UiPreferences();
+  }
 
   Future<void> load() async {
     state = await _store.read();

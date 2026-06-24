@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -170,8 +170,16 @@ class AppUpdateState {
 // Controller
 // ---------------------------------------------------------------------------
 
-class AppUpdateController extends StateNotifier<AppUpdateState> {
-  AppUpdateController() : super(const AppUpdateState());
+class AppUpdateController extends Notifier<AppUpdateState> {
+  @override
+  AppUpdateState build() {
+    ref.onDispose(() {
+      _cancelToken?.cancel();
+      _dio.close();
+    });
+    init();
+    return const AppUpdateState();
+  }
 
   final _dio = Dio(BaseOptions(
     connectTimeout: const Duration(seconds: 15),
@@ -322,13 +330,6 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
       );
     }
   }
-
-  @override
-  void dispose() {
-    _cancelToken?.cancel();
-    _dio.close();
-    super.dispose();
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -336,6 +337,6 @@ class AppUpdateController extends StateNotifier<AppUpdateState> {
 // ---------------------------------------------------------------------------
 
 final appUpdateProvider =
-    StateNotifierProvider<AppUpdateController, AppUpdateState>(
-  (ref) => AppUpdateController()..init(),
+    NotifierProvider<AppUpdateController, AppUpdateState>(
+  AppUpdateController.new,
 );
