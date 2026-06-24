@@ -988,7 +988,6 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     _CatalogCorrection correction,
   ) {
     final item = widget.item;
-    final variant = item.primaryVariant;
     final changes = <_CorrectionPreviewEntry>[];
     void add(String label, Object? before, Object? after) {
       final beforeText = _previewValue(before);
@@ -1005,59 +1004,18 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       );
     }
 
-    add('Title', item.title, correction.title);
-    add('Original title', item.originalTitle, correction.originalTitle);
-    add('Localized title', item.localizedTitle, correction.localizedTitle);
-    add('Sort key', item.sortKey, correction.sortKey);
-    add(
-      'Search aliases',
-      item.searchAliases.join(', '),
-      _normalizedAdminTags(correction.searchAliases).join(', '),
-    );
-    add('Title extension', item.titleExtension, correction.titleExtension);
-    add('Item number', item.itemNumber, correction.itemNumber);
-    add('Edition title', item.primaryEdition?.title, correction.editionTitle);
-    add('Publisher', item.primaryEdition?.publisher ?? item.publisher,
-        correction.publisher);
-    add('Imprint', item.publishing?.imprint, correction.imprint);
-    add('Subtitle', item.publishing?.subtitle, correction.subtitle);
-    add('Series group', item.publishing?.seriesGroup, correction.seriesGroup);
-    add('Barcode', item.barcode ?? variant?.barcode, correction.barcode);
-    add('Primary variant', variant?.name, correction.variantName);
-    add('Page count', item.publishing?.pageCount, correction.pageCount);
-    add('Runtime', item.video?.runtimeMinutes, correction.runtimeMinutes);
-    add('Color', item.video?.color, correction.color);
-    add('Number of discs', item.video?.nrDiscs, correction.nrDiscs);
-    add('Screen ratio', item.video?.screenRatio, correction.screenRatio);
-    add('Audio tracks', item.video?.audioTracks, correction.audioTracks);
-    add('Subtitles', item.video?.subtitles, correction.subtitles);
-    add('Layers', item.video?.layers, correction.layers);
-    add('Release date', item.primaryEdition?.releaseDate,
-        correction.releaseDate);
-    add('Catalog number', item.music?.catalogNumber, correction.catalogNumber);
-    add('Release status', item.music?.releaseStatus, correction.releaseStatus);
-    add('Country', item.country, correction.country);
-    add('Language', item.language, correction.language);
-    add('Age rating', item.ageRating, correction.ageRating);
-    add('Audience rating', item.audienceRating, correction.audienceRating);
-    if (widget.physicalFormats.isNotEmpty) {
-      add('Physical format', item.primaryEdition?.physicalFormat,
-          correction.physicalFormat);
+    for (final field in kAdminMetadataScalarFields) {
+      if (_isComplexPreviewField(field.key)) {
+        continue;
+      }
+      final before = _previewScalarBeforeValue(item, field.key);
+      final after = _previewScalarAfterValue(correction, field.key);
+      add(
+        field.label,
+        _previewComparableValue(before, field.valueType),
+        _previewComparableValue(after, field.valueType),
+      );
     }
-    add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
-    add(
-      'Thumbnail URL',
-      variant?.thumbnailImageUrl,
-      correction.thumbnailImageUrl,
-    );
-    add('Synopsis', item.synopsis, correction.synopsis);
-    add('Crossover', item.crossover, correction.crossover);
-    add('Plot summary', item.plotSummary, correction.plotSummary);
-    add('Plot description', item.plotDescription, correction.plotDescription);
-    add('Genres', item.genres.join(', '),
-        _normalizedAdminTags(correction.genres).join(', '));
-    add('Platforms', item.platforms.join(', '),
-        _normalizedAdminTags(correction.platforms).join(', '));
     add(
       'Characters',
       _relationNameList(item.characters).join(', '),
@@ -1094,6 +1052,114 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       _normalizedAdminTags(correction.seriesTags).join(', '),
     );
     return changes;
+  }
+
+  bool _isComplexPreviewField(String key) {
+    return switch (key) {
+      'trailer_urls' || 'external_links' || 'genres' || 'platforms' => true,
+      _ => false,
+    };
+  }
+
+  Object? _previewScalarBeforeValue(AdminMetadataItem item, String key) {
+    final edition = item.primaryEdition;
+    final variant = item.primaryVariant;
+    return switch (key) {
+      'title' => item.title,
+      'original_title' => item.originalTitle,
+      'localized_title' => item.localizedTitle,
+      'sort_key' => item.sortKey,
+      'search_aliases' => item.searchAliases,
+      'title_extension' => item.titleExtension,
+      'item_number' => item.itemNumber,
+      'edition_title' => edition?.title,
+      'release_date' => edition?.releaseDate,
+      'publisher' => edition?.publisher ?? item.publisher,
+      'imprint' => item.publishing?.imprint,
+      'subtitle' => item.publishing?.subtitle,
+      'series_group' => item.publishing?.seriesGroup,
+      'barcode' => item.barcode ?? variant?.barcode,
+      'variant_name' => variant?.name,
+      'page_count' => item.publishing?.pageCount,
+      'runtime_minutes' => item.video?.runtimeMinutes,
+      'color' => item.video?.color,
+      'nr_discs' => item.video?.nrDiscs,
+      'screen_ratio' => item.video?.screenRatio,
+      'audio_tracks' => item.video?.audioTracks,
+      'subtitles' => item.video?.subtitles,
+      'layers' => item.video?.layers,
+      'catalog_number' => item.music?.catalogNumber,
+      'release_status' => item.music?.releaseStatus,
+      'country' => item.country,
+      'language' => item.language,
+      'age_rating' => item.ageRating,
+      'audience_rating' => item.audienceRating,
+      'series_tags' => _normalizedAdminTags(item.series?.tags),
+      'cover_image_url' => variant?.coverImageUrl,
+      'thumbnail_image_url' => variant?.thumbnailImageUrl,
+      'synopsis' => item.synopsis,
+      'crossover' => item.crossover,
+      'plot_summary' => item.plotSummary,
+      'plot_description' => item.plotDescription,
+      'genres' => item.genres,
+      'platforms' => item.platforms,
+      _ => null,
+    };
+  }
+
+  Object? _previewScalarAfterValue(_CatalogCorrection correction, String key) {
+    return switch (key) {
+      'title' => correction.title,
+      'original_title' => correction.originalTitle,
+      'localized_title' => correction.localizedTitle,
+      'sort_key' => correction.sortKey,
+      'search_aliases' => correction.searchAliases,
+      'title_extension' => correction.titleExtension,
+      'item_number' => correction.itemNumber,
+      'edition_title' => correction.editionTitle,
+      'release_date' => correction.releaseDate,
+      'publisher' => correction.publisher,
+      'imprint' => correction.imprint,
+      'subtitle' => correction.subtitle,
+      'series_group' => correction.seriesGroup,
+      'barcode' => correction.barcode,
+      'variant_name' => correction.variantName,
+      'page_count' => correction.pageCount,
+      'runtime_minutes' => correction.runtimeMinutes,
+      'color' => correction.color,
+      'nr_discs' => correction.nrDiscs,
+      'screen_ratio' => correction.screenRatio,
+      'audio_tracks' => correction.audioTracks,
+      'subtitles' => correction.subtitles,
+      'layers' => correction.layers,
+      'catalog_number' => correction.catalogNumber,
+      'release_status' => correction.releaseStatus,
+      'country' => correction.country,
+      'language' => correction.language,
+      'age_rating' => correction.ageRating,
+      'audience_rating' => correction.audienceRating,
+      'series_tags' => correction.seriesTags,
+      'cover_image_url' => correction.coverImageUrl,
+      'thumbnail_image_url' => correction.thumbnailImageUrl,
+      'synopsis' => correction.synopsis,
+      'crossover' => correction.crossover,
+      'plot_summary' => correction.plotSummary,
+      'plot_description' => correction.plotDescription,
+      'genres' => correction.genres,
+      'platforms' => correction.platforms,
+      _ => null,
+    };
+  }
+
+  Object? _previewComparableValue(
+    Object? value,
+    SharedMetadataFieldValueType type,
+  ) {
+    return switch (type) {
+      SharedMetadataFieldValueType.stringList =>
+        _normalizedAdminTags((value as List<String>?) ?? const []).join(', '),
+      _ => value,
+    };
   }
 
   String _previewValue(Object? value) {
