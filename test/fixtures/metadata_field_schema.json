@@ -2,18 +2,6 @@
   "schema_version": 1,
   "fields": [
     {
-      "key": "audience_rating",
-      "value_type": "string",
-      "label": "Audience rating",
-      "common": true,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "regional",
-      "input": "text",
-      "kinds": []
-    },
-    {
       "key": "physical_format",
       "value_type": "string",
       "label": "Physical format",
@@ -692,6 +680,18 @@
       ]
     },
     {
+      "key": "audience_rating",
+      "value_type": "string",
+      "label": "Audience rating",
+      "common": true,
+      "typed": true,
+      "normalized": true,
+      "editable": true,
+      "section": "regional",
+      "input": "text",
+      "kinds": []
+    },
+    {
       "key": "series_tags",
       "value_type": "string_list",
       "label": "Series tags",
@@ -895,7 +895,6 @@
   ],
   "kind_fields": {
     "anime": [
-      "audience_rating",
       "physical_format",
       "genres",
       "color",
@@ -923,6 +922,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -933,7 +933,6 @@
       "external_links"
     ],
     "boardgame": [
-      "audience_rating",
       "physical_format",
       "genres",
       "platforms",
@@ -955,6 +954,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -964,7 +964,6 @@
       "external_links"
     ],
     "book": [
-      "audience_rating",
       "physical_format",
       "genres",
       "title",
@@ -988,6 +987,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -997,7 +997,6 @@
       "external_links"
     ],
     "bluray": [
-      "audience_rating",
       "physical_format",
       "genres",
       "color",
@@ -1025,6 +1024,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1035,7 +1035,6 @@
       "external_links"
     ],
     "collection": [
-      "audience_rating",
       "physical_format",
       "genres",
       "title",
@@ -1056,6 +1055,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1065,7 +1065,6 @@
       "external_links"
     ],
     "comic": [
-      "audience_rating",
       "physical_format",
       "genres",
       "title",
@@ -1089,6 +1088,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1099,7 +1099,6 @@
       "external_links"
     ],
     "game": [
-      "audience_rating",
       "physical_format",
       "genres",
       "platforms",
@@ -1121,6 +1120,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1131,7 +1131,6 @@
       "external_links"
     ],
     "manga": [
-      "audience_rating",
       "physical_format",
       "genres",
       "title",
@@ -1155,6 +1154,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1165,7 +1165,6 @@
       "external_links"
     ],
     "movie": [
-      "audience_rating",
       "physical_format",
       "genres",
       "color",
@@ -1193,6 +1192,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1203,7 +1203,6 @@
       "external_links"
     ],
     "music": [
-      "audience_rating",
       "physical_format",
       "genres",
       "track_count",
@@ -1226,6 +1225,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1235,7 +1235,6 @@
       "external_links"
     ],
     "tv": [
-      "audience_rating",
       "physical_format",
       "genres",
       "color",
@@ -1263,6 +1262,7 @@
       "country",
       "language",
       "age_rating",
+      "audience_rating",
       "series_tags",
       "cover_image_url",
       "thumbnail_image_url",
@@ -1274,11 +1274,11 @@
     ]
   },
   "sections": [
-    "regional",
     "publishing",
     "relations",
     "technical",
     "item",
+    "regional",
     "artwork"
   ]
 }

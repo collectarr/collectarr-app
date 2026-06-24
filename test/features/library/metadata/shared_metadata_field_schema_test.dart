@@ -100,4 +100,52 @@ void main() {
       );
     }
   });
+
+  test('generated edit fields preserve the exact per-tab display order', () {
+    // Locks the rendered layout so the projection from core can never silently
+    // reorder the admin/edit panel.
+    const expectedOrder = <SharedMetadataEditTab, List<String>>{
+      SharedMetadataEditTab.item: [
+        'title', 'original_title', 'localized_title', 'title_extension',
+        'sort_key', 'search_aliases', 'item_number', 'edition_title',
+        'release_date',
+      ],
+      SharedMetadataEditTab.publishing: [
+        'publisher', 'imprint', 'subtitle', 'series_group', 'barcode',
+        'variant_name', 'page_count', 'runtime_minutes',
+      ],
+      SharedMetadataEditTab.technical: [
+        'color', 'nr_discs', 'screen_ratio', 'audio_tracks', 'subtitles',
+        'layers', 'catalog_number', 'release_status',
+      ],
+      SharedMetadataEditTab.regional: [
+        'country', 'language', 'age_rating', 'audience_rating', 'series_tags',
+      ],
+      SharedMetadataEditTab.artwork: [
+        'cover_image_url', 'thumbnail_image_url', 'synopsis', 'crossover',
+        'plot_summary', 'plot_description',
+      ],
+      SharedMetadataEditTab.relations: [
+        'genres', 'platforms', 'trailer_urls', 'external_links',
+      ],
+    };
+    for (final entry in expectedOrder.entries) {
+      final actual = kAdminMetadataScalarFields
+          .where((f) => f.tab == entry.key)
+          .map((f) => f.key)
+          .toList();
+      expect(actual, entry.value, reason: 'Order drift in ${entry.key.label}');
+    }
+  });
+
+  test('presentation overlay survives the projection', () {
+    SharedMetadataFieldDescriptor byKey(String key) =>
+        kAdminMetadataScalarFields.firstWhere((f) => f.key == key);
+    expect(byKey('release_date').hintText, 'YYYY-MM-DD');
+    expect(byKey('synopsis').inputType, SharedMetadataFieldInputType.multiline);
+    expect(byKey('synopsis').minLines, 3);
+    expect(byKey('synopsis').maxLines, 5);
+    expect(byKey('external_links').maxLines, 6);
+    expect(byKey('title').minLines, 1);
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_fields.g.dart';
 
 enum SharedMetadataEditTab {
   item('Item'),
@@ -50,243 +51,64 @@ class SharedMetadataFieldDescriptor {
   final String? normalizedValueType;
 }
 
-const List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
-  SharedMetadataFieldDescriptor(
-    key: 'title',
-    label: 'Title',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'original_title',
-    label: 'Original title',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'localized_title',
-    label: 'Localized title',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'title_extension',
-    label: 'Title extension',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'sort_key',
-    label: 'Sort key',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'search_aliases',
-    label: 'Search aliases',
-    tab: SharedMetadataEditTab.item,
-    valueType: SharedMetadataFieldValueType.stringList,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'item_number',
-    label: 'Item number',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'edition_title',
-    label: 'Edition title',
-    tab: SharedMetadataEditTab.item,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'release_date',
-    label: 'Release date',
-    tab: SharedMetadataEditTab.item,
-    valueType: SharedMetadataFieldValueType.date,
-    hintText: 'YYYY-MM-DD',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'publisher',
-    label: 'Publisher',
-    tab: SharedMetadataEditTab.publishing,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'imprint',
-    label: 'Imprint',
-    tab: SharedMetadataEditTab.publishing,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'subtitle',
-    label: 'Subtitle',
-    tab: SharedMetadataEditTab.publishing,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'series_group',
-    label: 'Series group',
-    tab: SharedMetadataEditTab.publishing,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'barcode',
-    label: 'Barcode',
-    tab: SharedMetadataEditTab.publishing,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'variant_name',
-    label: 'Primary variant',
-    tab: SharedMetadataEditTab.publishing,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'page_count',
-    label: 'Page count',
-    tab: SharedMetadataEditTab.publishing,
-    inputType: SharedMetadataFieldInputType.number,
-    valueType: SharedMetadataFieldValueType.integer,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'runtime_minutes',
-    label: 'Runtime minutes',
-    tab: SharedMetadataEditTab.publishing,
-    inputType: SharedMetadataFieldInputType.number,
-    valueType: SharedMetadataFieldValueType.integer,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'color',
-    label: 'Color',
-    tab: SharedMetadataEditTab.technical,
-    normalizedValueType: 'string',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'nr_discs',
-    label: 'Number of discs',
-    tab: SharedMetadataEditTab.technical,
-    inputType: SharedMetadataFieldInputType.number,
-    valueType: SharedMetadataFieldValueType.integer,
-    normalizedValueType: 'integer',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'screen_ratio',
-    label: 'Screen ratio',
-    tab: SharedMetadataEditTab.technical,
-    normalizedValueType: 'string',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'audio_tracks',
-    label: 'Audio tracks',
-    tab: SharedMetadataEditTab.technical,
-    normalizedValueType: 'string',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'subtitles',
-    label: 'Subtitles',
-    tab: SharedMetadataEditTab.technical,
-    normalizedValueType: 'string',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'layers',
-    label: 'Layers',
-    tab: SharedMetadataEditTab.technical,
-    normalizedValueType: 'string',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'catalog_number',
-    label: 'Catalog number',
-    tab: SharedMetadataEditTab.technical,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'release_status',
-    label: 'Release status',
-    tab: SharedMetadataEditTab.technical,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'country',
-    label: 'Country',
-    tab: SharedMetadataEditTab.regional,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'language',
-    label: 'Language',
-    tab: SharedMetadataEditTab.regional,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'age_rating',
-    label: 'Age rating',
-    tab: SharedMetadataEditTab.regional,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'audience_rating',
-    label: 'Audience rating',
-    tab: SharedMetadataEditTab.regional,
-    normalizedValueType: 'string',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'series_tags',
-    label: 'Series tags',
-    tab: SharedMetadataEditTab.regional,
-    valueType: SharedMetadataFieldValueType.stringList,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'cover_image_url',
-    label: 'Cover URL',
-    tab: SharedMetadataEditTab.artwork,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'thumbnail_image_url',
-    label: 'Thumbnail URL',
-    tab: SharedMetadataEditTab.artwork,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'synopsis',
-    label: 'Synopsis',
-    tab: SharedMetadataEditTab.artwork,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 3,
-    maxLines: 5,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'crossover',
-    label: 'Crossover',
-    tab: SharedMetadataEditTab.artwork,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'plot_summary',
-    label: 'Plot summary',
-    tab: SharedMetadataEditTab.artwork,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 2,
-    maxLines: 4,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'plot_description',
-    label: 'Plot description',
-    tab: SharedMetadataEditTab.artwork,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 3,
-    maxLines: 5,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'genres',
-    label: 'Genres',
-    tab: SharedMetadataEditTab.relations,
-    valueType: SharedMetadataFieldValueType.stringList,
-    normalizedValueType: 'string_list',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'platforms',
-    label: 'Platforms',
-    tab: SharedMetadataEditTab.relations,
-    valueType: SharedMetadataFieldValueType.stringList,
-    normalizedValueType: 'string_list',
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'trailer_urls',
-    label: 'Trailer URLs',
-    tab: SharedMetadataEditTab.relations,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 2,
-    maxLines: 6,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'external_links',
-    label: 'External links',
-    tab: SharedMetadataEditTab.relations,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 2,
-    maxLines: 6,
-  ),
+SharedMetadataEditTab _tabFromSection(String section) {
+  return switch (section) {
+    'publishing' => SharedMetadataEditTab.publishing,
+    'technical' => SharedMetadataEditTab.technical,
+    'regional' => SharedMetadataEditTab.regional,
+    'artwork' => SharedMetadataEditTab.artwork,
+    'relations' => SharedMetadataEditTab.relations,
+    _ => SharedMetadataEditTab.item,
+  };
+}
+
+SharedMetadataFieldValueType _valueTypeFromName(String name) {
+  return switch (name) {
+    'integer' => SharedMetadataFieldValueType.integer,
+    'date' => SharedMetadataFieldValueType.date,
+    'stringList' => SharedMetadataFieldValueType.stringList,
+    _ => SharedMetadataFieldValueType.text,
+  };
+}
+
+SharedMetadataFieldInputType _inputTypeFromName(String name) {
+  return switch (name) {
+    'number' => SharedMetadataFieldInputType.number,
+    'multiline' => SharedMetadataFieldInputType.multiline,
+    _ => SharedMetadataFieldInputType.text,
+  };
+}
+
+/// App-owned presentation nuances overlaid on the generated field set. Keyed by
+/// field key; fields not listed render as single-line inputs with no hint.
+const Map<String, ({String? hint, int minLines, int maxLines})>
+    _kFieldPresentation = {
+  'release_date': (hint: 'YYYY-MM-DD', minLines: 1, maxLines: 1),
+  'synopsis': (hint: null, minLines: 3, maxLines: 5),
+  'plot_summary': (hint: null, minLines: 2, maxLines: 4),
+  'plot_description': (hint: null, minLines: 3, maxLines: 5),
+  'trailer_urls': (hint: null, minLines: 2, maxLines: 6),
+  'external_links': (hint: null, minLines: 2, maxLines: 6),
+};
+
+/// The admin/edit scalar fields, projected from the core registry
+/// ([kGeneratedMetadataFields]) plus the app-owned presentation overlay above.
+/// This is the single source of truth shared by the app edit dialog and the
+/// admin metadata correction panel; re-run
+/// `python -m scripts.export_app_edit_fields` in collectarr-core to refresh.
+final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
+  for (final field in kGeneratedMetadataFields)
+    SharedMetadataFieldDescriptor(
+      key: field.key,
+      label: field.label,
+      tab: _tabFromSection(field.section),
+      inputType: _inputTypeFromName(field.inputType),
+      valueType: _valueTypeFromName(field.valueType),
+      normalizedValueType: field.normalizedValueType,
+      hintText: _kFieldPresentation[field.key]?.hint,
+      minLines: _kFieldPresentation[field.key]?.minLines ?? 1,
+      maxLines: _kFieldPresentation[field.key]?.maxLines ?? 1,
+    ),
 ];
 
 const List<SharedMetadataFieldDescriptor> kProposalCorrectionFields = [
