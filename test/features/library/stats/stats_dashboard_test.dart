@@ -229,7 +229,7 @@ void main() {
               title: 'Vinland Saga',
               series: CatalogSeriesDetails(
                 seriesTitle: 'Vinland Saga',
-                volumeNumber: volume,
+                volumeNumber: volume.toDouble(),
               ),
             ),
             ownedItem: OwnedItem(

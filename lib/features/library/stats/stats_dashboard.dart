@@ -59,7 +59,13 @@ class _GenericStatsDashboard extends StatelessWidget {
       _seriesGapSummary(state.entries, type.workspace.kind.apiValue);
     final volumeGapSummary = _numberedGapSummary(
       state.entries,
-      (entry) => entry.catalogItem?.series?.volumeNumber,
+      (entry) {
+        final volume = entry.catalogItem?.series?.volumeNumber;
+        if (volume == null || volume % 1 != 0) {
+          return null;
+        }
+        return volume.toInt();
+      },
     );
     final seasonGapSummary = _numberedGapSummary(
       state.entries,
