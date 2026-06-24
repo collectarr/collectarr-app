@@ -304,6 +304,10 @@ class LibraryTypeCapabilities {
     this.wideDialog = false,
     this.videoSeriesEntryTypes = const {},
     this.videoShelfDrilldownEntryTypes = const {},
+    this.mediaScopeGroupModes,
+    this.releaseScopeGroupModes,
+    this.mediaScopeSortColumns,
+    this.releaseScopeSortColumns,
   });
 
   final bool showsSynopsis;
@@ -319,6 +323,23 @@ class LibraryTypeCapabilities {
   final bool wideDialog;
   final Set<String> videoSeriesEntryTypes;
   final Set<String> videoShelfDrilldownEntryTypes;
+
+  /// Group modes and sort columns available when a media/release split library
+  /// is showing the media scope vs the releases scope. When provided, the
+  /// generic page narrows the available options per browser mode instead of
+  /// hardcoding a per-kind rule.
+  final Set<LibraryGroupMode>? mediaScopeGroupModes;
+  final Set<LibraryGroupMode>? releaseScopeGroupModes;
+  final Set<LibrarySortColumn>? mediaScopeSortColumns;
+  final Set<LibrarySortColumn>? releaseScopeSortColumns;
+
+  /// Whether this type narrows group modes / sort columns by browser mode
+  /// (media vs releases). Driven entirely by the scoped sets above.
+  bool get scopesOptionsByBrowserMode =>
+      mediaScopeGroupModes != null ||
+      releaseScopeGroupModes != null ||
+      mediaScopeSortColumns != null ||
+      releaseScopeSortColumns != null;
 
   bool get usesSeasonHierarchy =>
       contentHierarchy == LibraryContentHierarchy.seasons;

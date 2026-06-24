@@ -1313,7 +1313,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   LibraryGroupMode get _projectionGroupMode =>
       _activeBrowserMode == LibraryWorkspaceBrowserMode.releases &&
-              !_isMovieMediaEditionScope
+              !_isScopedMediaReleaseSplit
           ? LibraryGroupMode.title
           : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
 
