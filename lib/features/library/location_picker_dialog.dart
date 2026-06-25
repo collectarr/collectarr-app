@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -115,7 +116,8 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final roots = _locations.where((location) => location.parentId == null).toList();
+    final roots =
+        _locations.where((location) => location.parentId == null).toList();
     return AccentAlertDialog(
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
@@ -153,20 +155,19 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                   ),
       ),
       actions: [
-        TextButton(
+        DialogActionButtons.cancel(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
         ),
-        FilledButton(
+        DialogActionButtons.save(
           onPressed: () => Navigator.pop(context, _selectedId ?? ''),
-          child: const Text('Save'),
         ),
       ],
     );
   }
 
   Widget _buildLocationTile(StorageLocation location, {required int depth}) {
-    final children = _locations.where((entry) => entry.parentId == location.id).toList();
+    final children =
+        _locations.where((entry) => entry.parentId == location.id).toList();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -174,8 +175,9 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
           padding: EdgeInsets.only(left: depth * 16.0),
           child: RadioListTile<String?>(
             title: Text(location.name),
-            subtitle:
-                location.description != null ? Text(location.description!) : null,
+            subtitle: location.description != null
+                ? Text(location.description!)
+                : null,
             value: location.id,
             dense: true,
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 class LibraryEditPresentationContext {
   const LibraryEditPresentationContext({
@@ -11,6 +12,7 @@ class LibraryEditPresentationContext {
     required this.hasEditionAnchors,
     required this.hasBundleReleaseAnchors,
     required this.hasCustomFields,
+    this.scope = LibraryEditScope.all,
   });
 
   final bool isOwned;
@@ -22,6 +24,7 @@ class LibraryEditPresentationContext {
   final bool hasEditionAnchors;
   final bool hasBundleReleaseAnchors;
   final bool hasCustomFields;
+  final LibraryEditScope scope;
 }
 
 class LibraryEditTabSpec {

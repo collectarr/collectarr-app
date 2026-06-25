@@ -501,11 +501,12 @@ class _RefreshTargetList extends StatelessWidget {
         text: 'No items match this scope.',
       );
     }
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border.all(color: palette.divider),
+    return Material(
+      color: palette.panel,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: palette.divider),
       ),
+      clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 280),
         child: ListView.separated(

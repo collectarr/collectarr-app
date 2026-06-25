@@ -109,7 +109,8 @@ void main() {
           authControllerProvider.overrideWith(
             (ref) => _AuthenticatedAuthController(ref),
           ),
-          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('comic')),
+          selectedLibraryKindProvider
+              .overrideWith(() => _FixedLibraryKind('comic')),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(
@@ -187,7 +188,7 @@ void main() {
   });
 
   testWidgets(
-      'desktop library workspace hides bottom nav and shows workspace switcher',
+      'desktop library workspace keeps bottom nav visible and shows workspace switcher',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       'collectarr.auth.token': _jwtExpiringAt(
@@ -210,7 +211,7 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(AppShell), findsOneWidget);
     expect(find.byKey(const ValueKey('library-kind-comic')), findsWidgets);
   });

@@ -7,54 +7,124 @@ extension _BookSections on _BookLibraryEditDialogState {
         return EditSection(
           title: 'Book details',
           accent: _accent,
-          child: Column(
-            children: [
-              _denseFields([
-                _field(
-                  controller: _titleController,
-                  label: 'Title',
-                  validator: (value) =>
-                      emptyToNull(value ?? '') == null ? 'Enter a title' : null,
-                ),
-                _field(controller: _sortKeyController, label: 'Title sort'),
-                _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(
-                    controller: _numberController,
-                    label: _type.mediaFields.numberLabel),
-                _field(
-                    controller: _publisherController,
-                    label: _type.mediaFields.publisherLabel),
-                _field(
-                    controller: _editionTitleController,
-                    label: _type.releaseFields.editionTitleLabel),
-                _field(
-                    controller: _barcodeController,
-                    label: _type.releaseFields.barcodeLabel),
-                _field(
-                    controller: _variantController,
-                    label: _type.releaseFields.variantLabel),
-                _field(controller: _countryController, label: 'Country'),
-                _field(controller: _languageController, label: 'Language'),
-                _field(controller: _imprintController, label: 'Imprint'),
-                _field(
-                    controller: _seriesGroupController, label: 'Series group'),
-                _field(
-                    controller: _publicationPlaceController,
-                    label: 'Publication place'),
-              ], wideColumns: 2, ultraWideColumns: 4),
-              const SizedBox(height: 10),
-              EditTokenListField(
-                controller: _genresController,
-                label: 'Genres',
-                hint: 'Add genre',
-              ),
-              const SizedBox(height: 10),
-              EditTokenListField(
-                controller: _subjectsController,
-                label: 'Subjects',
-                hint: 'Add subject',
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 960;
+              if (stacked) {
+                return Column(
+                  children: [
+                    _field(
+                      controller: _titleController,
+                      label: 'Title',
+                      validator: (value) => emptyToNull(value ?? '') == null
+                          ? 'Enter a title'
+                          : null,
+                    ),
+                    const SizedBox(height: 10),
+                    _field(controller: _sortKeyController, label: 'Sort title'),
+                    const SizedBox(height: 10),
+                    _field(controller: _subtitleController, label: 'Subtitle'),
+                    const SizedBox(height: 10),
+                    EditTokenListField(
+                      controller: _authorController,
+                      label: 'Author',
+                      hint: 'Add author',
+                    ),
+                    const SizedBox(height: 10),
+                    _responsiveFields([
+                      _field(
+                          controller: _seriesTitleController, label: 'Series'),
+                      _field(controller: _numberController, label: 'Issue'),
+                      _field(
+                        controller: _volumeNumberController,
+                        label: 'Volume',
+                        validator: optionalNumberValidator,
+                      ),
+                    ]),
+                    const SizedBox(height: 10),
+                    EditTokenListField(
+                      controller: _genresController,
+                      label: 'Genre',
+                      hint: 'Add genre',
+                    ),
+                    const SizedBox(height: 10),
+                    EditTokenListField(
+                      controller: _subjectsController,
+                      label: 'Subject',
+                      hint: 'Add subject',
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _field(
+                          controller: _titleController,
+                          label: 'Title',
+                          validator: (value) => emptyToNull(value ?? '') == null
+                              ? 'Enter a title'
+                              : null,
+                        ),
+                        const SizedBox(height: 10),
+                        _field(
+                          controller: _sortKeyController,
+                          label: 'Sort title',
+                        ),
+                        const SizedBox(height: 10),
+                        _field(
+                            controller: _subtitleController, label: 'Subtitle'),
+                        const SizedBox(height: 10),
+                        _responsiveFields([
+                          _field(
+                            controller: _seriesTitleController,
+                            label: 'Series',
+                          ),
+                          _field(controller: _numberController, label: 'Issue'),
+                          _field(
+                            controller: _volumeNumberController,
+                            label: 'Volume',
+                            validator: optionalNumberValidator,
+                          ),
+                        ]),
+                        const SizedBox(height: 10),
+                        _field(
+                          controller: _editionTitleController,
+                          label: 'Box set',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        EditTokenListField(
+                          controller: _authorController,
+                          label: 'Author',
+                          hint: 'Add author',
+                        ),
+                        const SizedBox(height: 10),
+                        EditTokenListField(
+                          controller: _genresController,
+                          label: 'Genre',
+                          hint: 'Add genre',
+                        ),
+                        const SizedBox(height: 10),
+                        EditTokenListField(
+                          controller: _subjectsController,
+                          label: 'Subject',
+                          hint: 'Add subject',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         );
       case 'book_credits':
@@ -152,6 +222,16 @@ extension _BookSections on _BookLibraryEditDialogState {
                   validator: optionalNumberValidator,
                 ),
                 _field(
+                  controller: _editionTitleController,
+                  label: 'Box set / edition title',
+                ),
+                _field(controller: _barcodeController, label: 'ISBN'),
+                _field(controller: _variantController, label: 'Format'),
+                _field(
+                  controller: _publisherController,
+                  label: _type.mediaFields.publisherLabel,
+                ),
+                _field(
                   controller: _pageCountController,
                   label: 'Page count',
                   validator: optionalIntValidator,
@@ -166,6 +246,12 @@ extension _BookSections on _BookLibraryEditDialogState {
                   controller: _releaseYearController,
                   label: 'Release year',
                   validator: optionalIntValidator,
+                ),
+                _field(controller: _countryController, label: 'Country'),
+                _field(controller: _languageController, label: 'Language'),
+                _field(
+                  controller: _publicationPlaceController,
+                  label: 'Publication place',
                 ),
                 _field(controller: _paperTypeController, label: 'Paper type'),
                 _field(controller: _printedByController, label: 'Printed by'),
@@ -491,9 +577,6 @@ extension _BookSections on _BookLibraryEditDialogState {
                     controller: _signedByController,
                     label: 'Signed by',
                   ),
-                SizedBox(
-                    width: 120,
-                    child: MediaRatingField(controller: _ratingController)),
               ]),
               if (_isOwned) ...[
                 const SizedBox(height: 10),
@@ -503,24 +586,6 @@ extension _BookSections on _BookLibraryEditDialogState {
                   label: 'Tags',
                   hint: 'Comma-separated tags',
                 ),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                    controller: _priceController,
-                    label: 'Price paid',
-                    validator: optionalMoneyValidator,
-                  ),
-                  _field(controller: _currencyController, label: 'Currency'),
-                ]),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                    controller: _sellPriceController,
-                    label: 'Sell price',
-                    validator: optionalMoneyValidator,
-                  ),
-                  _field(controller: _soldToController, label: 'Sold to'),
-                ]),
               ],
             ],
           ),
@@ -536,45 +601,6 @@ extension _BookSections on _BookLibraryEditDialogState {
                 _field(controller: _conditionController, label: 'Condition'),
                 _field(controller: _gradeController, label: 'Grade'),
               ]),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: _pickPurchaseDate,
-                icon: const Icon(Icons.event),
-                label: Text(
-                  _purchaseDateController.text.isEmpty
-                      ? 'Set purchase date'
-                      : 'Purchase date: ${_purchaseDateController.text}',
-                ),
-              ),
-              const SizedBox(height: 10),
-              Material(
-                type: MaterialType.transparency,
-                child: SwitchListTile(
-                  value: _soldAt != null,
-                  onChanged: (value) {
-                    _updateState(() {
-                      _soldAt = value ? DateTime.now() : null;
-                    });
-                  },
-                  title: const Text('Mark as sold'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                ),
-              ),
-              if (_soldAt != null) ...[
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: _pickSoldDate,
-                  icon: const Icon(Icons.event),
-                  label: Text('Sold date: ${formatDate(_soldAt!)}'),
-                ),
-                const SizedBox(height: 12),
-                SoldSummaryPanel(
-                  pricePaidCents: parseMoneyCents(_priceController.text),
-                  sellPriceCents: parseMoneyCents(_sellPriceController.text),
-                  currency: _currencyController.text,
-                ),
-              ],
             ],
           ),
         );

@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -89,6 +90,7 @@ class LibraryEditDialogRequest {
     required this.item,
     required this.ownedItem,
     required this.accent,
+    this.scope = LibraryEditScope.all,
     this.wishlistItem,
     this.trackingEntry,
     this.availableBundleReleases = const [],
@@ -105,6 +107,7 @@ class LibraryEditDialogRequest {
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
+  final LibraryEditScope scope;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
   final List<BundleReleaseSummary> availableBundleReleases;
@@ -115,6 +118,45 @@ class LibraryEditDialogRequest {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final bool openMetadataCompareOnOpen;
+
+  LibraryEditDialogRequest copyWith({
+    LibraryTypeConfig? type,
+    LibraryMetadataItem? item,
+    OwnedItem? ownedItem,
+    Color? accent,
+    LibraryEditScope? scope,
+    WishlistItem? wishlistItem,
+    TrackingEntry? trackingEntry,
+    List<BundleReleaseSummary>? availableBundleReleases,
+    List<PhysicalMediaFormat>? physicalFormats,
+    List<CustomFieldDefinition>? customFieldDefinitions,
+    List<CustomFieldValue>? customFieldValues,
+    List<ItemImage>? itemImages,
+    VoidCallback? onPrevious,
+    VoidCallback? onNext,
+    bool? openMetadataCompareOnOpen,
+  }) {
+    return LibraryEditDialogRequest(
+      type: type ?? this.type,
+      item: item ?? this.item,
+      ownedItem: ownedItem ?? this.ownedItem,
+      accent: accent ?? this.accent,
+      scope: scope ?? this.scope,
+      wishlistItem: wishlistItem ?? this.wishlistItem,
+      trackingEntry: trackingEntry ?? this.trackingEntry,
+      availableBundleReleases:
+          availableBundleReleases ?? this.availableBundleReleases,
+      physicalFormats: physicalFormats ?? this.physicalFormats,
+      customFieldDefinitions:
+          customFieldDefinitions ?? this.customFieldDefinitions,
+      customFieldValues: customFieldValues ?? this.customFieldValues,
+      itemImages: itemImages ?? this.itemImages,
+      onPrevious: onPrevious ?? this.onPrevious,
+      onNext: onNext ?? this.onNext,
+      openMetadataCompareOnOpen:
+          openMetadataCompareOnOpen ?? this.openMetadataCompareOnOpen,
+    );
+  }
 }
 
 typedef LibraryEditDialogBuilder = Widget Function(
@@ -449,6 +491,8 @@ class LibraryTypeConfig {
     this.transferableFieldKeys = kDefaultTransferableFieldKeys,
     this.addDialogLauncher,
     this.editDialogBuilder,
+    this.mediaEditDialogBuilder,
+    this.releaseEditDialogBuilder,
     this.detailPageBuilder,
     this.inspectorPanelBuilder,
     this.inspectorHeroBuilder,
@@ -480,6 +524,8 @@ class LibraryTypeConfig {
   final List<String> transferableFieldKeys;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
+  final LibraryEditDialogBuilder? mediaEditDialogBuilder;
+  final LibraryEditDialogBuilder? releaseEditDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
   final LibraryInspectorPanelBuilder? inspectorPanelBuilder;
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;

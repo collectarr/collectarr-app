@@ -177,6 +177,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
+      scope: widget.request.scope,
     );
   }
 
@@ -474,15 +475,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   Widget _mainTab() {
     final sections = _tabSectionIds('main');
     return BookSectionTab(
-      cover: _coverPreview(),
       sections: sections,
       sectionBuilder: _sectionFor,
-      header: [
-        _bookMainOverviewCard(),
-        const SizedBox(height: 10),
-        _bookSummaryPills(),
-        const SizedBox(height: 12),
-      ],
     );
   }
 
@@ -758,6 +752,24 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
+  Widget _footerField({
+    required TextEditingController controller,
+    required String label,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      decoration: const InputDecoration(
+        suffixIcon: SizedBox.shrink(),
+        suffixIconConstraints: BoxConstraints(
+          minWidth: 0,
+          minHeight: 40,
+        ),
+      ).copyWith(labelText: label),
+    );
+  }
+
   Widget _coverPreview() {
     return LibraryInteractiveCover(
       title: _bookTitleLabel,
@@ -833,7 +845,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 const SizedBox(width: 10),
                 SizedBox(
                   width: 140,
-                  child: _field(
+                  child: _footerField(
                     controller: _indexNumberController,
                     label: 'Index',
                     validator: optionalIntValidator,
@@ -842,7 +854,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 const SizedBox(width: 10),
                 SizedBox(
                   width: 140,
-                  child: _field(
+                  child: _footerField(
                     controller: _quantityController,
                     label: 'Quantity',
                     validator: positiveIntValidator,
@@ -875,7 +887,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
             const SizedBox(width: 10),
             Expanded(
               flex: 2,
-              child: _field(
+              child: _footerField(
                 controller: _indexNumberController,
                 label: 'Index',
                 validator: optionalIntValidator,
@@ -884,7 +896,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
             const SizedBox(width: 10),
             Expanded(
               flex: 2,
-              child: _field(
+              child: _footerField(
                 controller: _quantityController,
                 label: 'Quantity',
                 validator: positiveIntValidator,
@@ -1319,6 +1331,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
     Navigator.of(context).pop(
       LibraryEditSelection(
+        scope: widget.request.scope,
         item: widget.request.item.copyWith(
           title: _titleController.text.trim(),
           sortKey: emptyToNull(_sortKeyController.text),

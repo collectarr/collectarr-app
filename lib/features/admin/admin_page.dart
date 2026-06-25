@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/settings/collection_schema_management_pa
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -97,23 +98,28 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
               decoration: BoxDecoration(
                 color: palette.surfaceSubtle.withValues(alpha: 0.74),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
+                border:
+                    Border.all(color: palette.divider.withValues(alpha: 0.8)),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: (current != null ? widget.accent : palette.textMuted)
+                        color: (current != null
+                                ? widget.accent
+                                : palette.textMuted)
                             .withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Icon(
                         Icons.place,
                         size: 16,
-                        color: current != null ? widget.accent : palette.textMuted,
+                        color:
+                            current != null ? widget.accent : palette.textMuted,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -125,9 +131,15 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                             current != null
                                 ? current.fullPath(_allLocations)
                                 : 'No location assigned',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: current != null ? null : palette.textMuted,
-                                  fontWeight: current != null ? FontWeight.w600 : null,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: current != null
+                                      ? null
+                                      : palette.textMuted,
+                                  fontWeight:
+                                      current != null ? FontWeight.w600 : null,
                                 ),
                           ),
                           const SizedBox(height: 2),
@@ -135,9 +147,10 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                             current != null
                                 ? 'Tap to change or clear this assignment'
                                 : 'Tap to assign a storage location',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
                           ),
                         ],
                       ),
@@ -225,8 +238,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     // Build tree structure: roots then children
-    final roots =
-        _locations.where((l) => l.parentId == null).toList();
+    final roots = _locations.where((l) => l.parentId == null).toList();
 
     return AccentAlertDialog(
       backgroundColor: palette.panel,
@@ -265,7 +277,8 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                               color: kAppAccent.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Icon(Icons.place_outlined, color: kAppAccent),
+                            child: const Icon(Icons.place_outlined,
+                                color: kAppAccent),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -322,22 +335,18 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
               ),
       ),
       actions: [
-        TextButton(
+        DialogActionButtons.cancel(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: () =>
-              Navigator.pop(context, _selectedId ?? ''),
-          child: const Text('Save'),
+        DialogActionButtons.save(
+          onPressed: () => Navigator.pop(context, _selectedId ?? ''),
         ),
       ],
     );
   }
 
   Widget _buildLocationTile(StorageLocation loc, int depth) {
-    final children =
-        _locations.where((l) => l.parentId == loc.id).toList();
+    final children = _locations.where((l) => l.parentId == loc.id).toList();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -345,8 +354,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
           padding: EdgeInsets.only(left: depth * 16.0),
           child: RadioListTile<String?>(
             title: Text(loc.name),
-            subtitle:
-                loc.description != null ? Text(loc.description!) : null,
+            subtitle: loc.description != null ? Text(loc.description!) : null,
             value: loc.id,
             dense: true,
             secondary: depth == 0

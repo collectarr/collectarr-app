@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +90,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           onTogglePassword: () => setState(
                             () => obscurePassword = !obscurePassword,
                           ),
-                          onFillDevCredentials: _fillDevCredentials,
+                          onUseDevCredentials: _useDevCredentials,
                           onSubmit: _submit,
                         );
                         return ConstrainedBox(
@@ -141,9 +143,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     ref.read(authControllerProvider.notifier).login(email, password);
   }
 
-  void _fillDevCredentials() {
+  void _useDevCredentials() {
     emailController.text = 'user@example.com';
     passwordController.text = 'password123';
+    unawaited(
+      ref.read(authControllerProvider.notifier).loginWithDevCredentials(),
+    );
   }
 }
 
@@ -177,7 +182,6 @@ class _AuthTopBar extends StatelessWidget {
     );
   }
 }
-
 
 class _AuthBrandPanel extends StatelessWidget {
   const _AuthBrandPanel();
@@ -215,7 +219,7 @@ class _AuthBrandPanel extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Comics, manga, movies, games, music, books — all in one place. '  
+              'Comics, manga, movies, games, music, books — all in one place. '
               'Your data stays on your server.',
               style: TextStyle(color: _authMuted, height: 1.35),
             ),
@@ -225,7 +229,8 @@ class _AuthBrandPanel extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _AuthFeatureChip(icon: Icons.storage, label: 'Self-hosted'),
-                _AuthFeatureChip(icon: Icons.qr_code_scanner, label: 'Barcode scan'),
+                _AuthFeatureChip(
+                    icon: Icons.qr_code_scanner, label: 'Barcode scan'),
                 _AuthFeatureChip(icon: Icons.sync, label: 'Multi-device sync'),
               ],
             ),
@@ -243,7 +248,7 @@ class _AuthFormPanel extends StatelessWidget {
     required this.passwordController,
     required this.obscurePassword,
     required this.onTogglePassword,
-    required this.onFillDevCredentials,
+    required this.onUseDevCredentials,
     required this.onSubmit,
   });
 
@@ -252,7 +257,7 @@ class _AuthFormPanel extends StatelessWidget {
   final TextEditingController passwordController;
   final bool obscurePassword;
   final VoidCallback onTogglePassword;
-  final VoidCallback onFillDevCredentials;
+  final VoidCallback onUseDevCredentials;
   final VoidCallback onSubmit;
 
   @override
@@ -279,16 +284,12 @@ class _AuthFormPanel extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  auth.isRestoring
-                      ? Icons.hourglass_top
-                      : Icons.login,
+                  auth.isRestoring ? Icons.hourglass_top : Icons.login,
                   color: _authYellow,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  auth.isRestoring
-                      ? 'Restoring session'
-                      : 'Login',
+                  auth.isRestoring ? 'Restoring session' : 'Login',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -348,17 +349,15 @@ class _AuthFormPanel extends StatelessWidget {
                       )
                     : const Icon(Icons.login),
                 label: Text(
-                  auth.isRestoring
-                      ? 'Restoring...'
-                      : 'Login',
+                  auth.isRestoring ? 'Restoring...' : 'Login',
                 ),
               ),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: isBusy ? null : onFillDevCredentials,
+              onPressed: isBusy ? null : onUseDevCredentials,
               icon: const Icon(Icons.science_outlined, size: 18),
-              label: const Text('Fill dev credentials'),
+              label: const Text('Use dev credentials'),
             ),
             const Divider(height: 24),
             const Text(
@@ -545,7 +544,8 @@ class _PreviewSeriesList extends StatelessWidget {
                         width: 24,
                         alignment: Alignment.center,
                         color: kAppSurface,
-                        child: Text(row.$2, style: const TextStyle(fontSize: 11)),
+                        child:
+                            Text(row.$2, style: const TextStyle(fontSize: 11)),
                       ),
                     ],
                   ),

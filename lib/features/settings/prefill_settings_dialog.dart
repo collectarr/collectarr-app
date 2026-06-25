@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -378,16 +379,12 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          TextButton(
+          DialogActionButtons.cancel(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
           ),
           const SizedBox(width: 8),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: widget.accent,
-              foregroundColor: Colors.white,
-            ),
+          DialogActionButtons.save(
+            accent: widget.accent,
             onPressed: () async {
               final defaults = PrefillDefaults(
                 condition: _conditionController.text.isEmpty
@@ -404,7 +401,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               await defaults.save();
               if (mounted) Navigator.of(context).pop(defaults);
             },
-            child: const Text('Save'),
           ),
         ],
       ),

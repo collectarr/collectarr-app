@@ -209,28 +209,26 @@ Widget buildComicAddModeBar(
             const SizedBox(height: 8),
             Material(
               color: palette.panel,
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: palette.divider),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      for (final suggestion in request.suggestions)
-                        ListTile(
-                          dense: true,
-                          title: Text(suggestion.title),
-                          subtitle: suggestion.itemNumber?.trim().isNotEmpty == true
-                              ? Text('Issue ${suggestion.itemNumber}')
-                              : null,
-                          onTap: () => request.onSelectSuggestion(suggestion),
-                        ),
-                    ],
-                  ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(color: palette.divider),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 180),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final suggestion in request.suggestions)
+                      ListTile(
+                        dense: true,
+                        title: Text(suggestion.title),
+                        subtitle: suggestion.itemNumber?.trim().isNotEmpty == true
+                            ? Text('Issue ${suggestion.itemNumber}')
+                            : null,
+                        onTap: () => request.onSelectSuggestion(suggestion),
+                      ),
+                  ],
                 ),
               ),
             ),

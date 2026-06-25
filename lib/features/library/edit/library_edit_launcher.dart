@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
@@ -11,7 +12,13 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
-  final builder = request.type.editDialogBuilder;
+  final builder = switch (request.scope) {
+    LibraryEditScope.media =>
+      request.type.mediaEditDialogBuilder ?? request.type.editDialogBuilder,
+    LibraryEditScope.release =>
+      request.type.releaseEditDialogBuilder ?? request.type.editDialogBuilder,
+    LibraryEditScope.all => request.type.editDialogBuilder,
+  };
   if (builder == null) {
     throw StateError(
       'No edit dialog builder registered for ${request.type.workspace.kind.apiValue}.',
@@ -45,7 +52,8 @@ class _DeferredLibraryEditDialog extends StatefulWidget {
       _DeferredLibraryEditDialogState();
 }
 
-class _DeferredLibraryEditDialogState extends State<_DeferredLibraryEditDialog> {
+class _DeferredLibraryEditDialogState
+    extends State<_DeferredLibraryEditDialog> {
   late final Future<LibraryEditDialogRequest> _requestFuture;
 
   @override

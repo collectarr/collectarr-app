@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -596,18 +597,16 @@ class _SortFavoritesManagerDialogState
                     ),
                   ),
                   const SizedBox(width: 12),
-                  TextButton(
+                  DialogActionButtons.cancel(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
                   ),
                   const Spacer(),
-                  FilledButton(
+                  DialogActionButtons.save(
                     onPressed: () => Navigator.of(context).pop(
                       LinkedHashSet<String>.from(
                         _pinnedFavorites.map((favorite) => favorite.id),
                       ),
                     ),
-                    child: const Text('Save'),
                   ),
                 ],
               ),

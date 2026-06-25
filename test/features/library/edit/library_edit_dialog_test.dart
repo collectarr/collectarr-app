@@ -723,16 +723,16 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Release'), findsOneWidget);
 
     await tester.enterText(
-      find.widgetWithText(TextField, 'Title sort').first,
-      'lord-of-the-rings-001',
+      find.widgetWithText(TextFormField, 'Title').first,
+      'The Fellowship of the Ring',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.item.sortKey, 'lord-of-the-rings-001');
+    expect(selection?.item.title, 'The Fellowship of the Ring');
   });
 
   testWidgets(

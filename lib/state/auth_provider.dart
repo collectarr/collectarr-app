@@ -17,8 +17,10 @@ const _authIsAdminKey = 'collectarr.auth.is_admin';
 const _authSecureStorage = FlutterSecureStorage();
 const _authRestoreTimeout = Duration(seconds: 3);
 const _secureStorageReadTimeout = Duration(seconds: 2);
+const _devAuthEmail = 'user@example.com';
+const _devAuthPassword = 'password123';
 const _debugWebPreviewToken =
-  'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjQxMDI0NDQ4MDB9.';
+    'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjQxMDI0NDQ4MDB9.';
 
 class AuthState {
   const AuthState({
@@ -129,6 +131,72 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> loginWithDevCredentials() async {
+    state = state.copyWith(isLoading: true, error: null, email: _devAuthEmail);
+    final client = ref.read(apiClientProvider);
+    try {
+      final result = await client.login(
+        email: _devAuthEmail,
+        password: _devAuthPassword,
+      );
+      await _persistSession(
+        token: result['access_token'] as String,
+        fallbackEmail: _devAuthEmail,
+        user: _asJsonMap(result['user']),
+      );
+      return;
+    } catch (error) {
+      if (error is DioException) {
+        final status = error.response?.statusCode;
+        if (status == 401 || status == 403) {
+          try {
+            final result = await client.register(
+              email: _devAuthEmail,
+              password: _devAuthPassword,
+            );
+            await _persistSession(
+              token: result['access_token'] as String,
+              fallbackEmail: _devAuthEmail,
+              user: _asJsonMap(result['user']),
+            );
+            return;
+          } catch (registerError) {
+            if (registerError is DioException &&
+                registerError.response?.statusCode == 409) {
+              try {
+                final retry = await client.login(
+                  email: _devAuthEmail,
+                  password: _devAuthPassword,
+                );
+                await _persistSession(
+                  token: retry['access_token'] as String,
+                  fallbackEmail: _devAuthEmail,
+                  user: _asJsonMap(retry['user']),
+                );
+                return;
+              } catch (retryError) {
+                state = AuthState(
+                  email: _devAuthEmail,
+                  error: _authErrorMessage(retryError, isRegister: false),
+                );
+                return;
+              }
+            }
+            state = AuthState(
+              email: _devAuthEmail,
+              error: _authErrorMessage(registerError, isRegister: true),
+            );
+            return;
+          }
+        }
+      }
+      state = AuthState(
+        email: _devAuthEmail,
+        error: _authErrorMessage(error, isRegister: false),
+      );
+    }
+  }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await _clearStoredSession(prefs);
@@ -202,7 +270,7 @@ class AuthController extends StateNotifier<AuthState> {
         );
       } else {
         if (kDebugMode && kIsWeb) {
-          final debugEmail = email ?? 'user@example.com';
+          final debugEmail = email ?? _devAuthEmail;
           final debugExpiresAt = _jwtExpiresAt(_debugWebPreviewToken);
           ref.read(apiAuthTokenProvider.notifier).set(_debugWebPreviewToken);
           ref.read(apiClientProvider).setToken(_debugWebPreviewToken);

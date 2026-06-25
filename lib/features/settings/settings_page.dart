@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -431,6 +432,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onReset: () => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .reset(),
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.keyboard_command_key,
+                    title: 'Keyboard shortcuts',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Review current shortcuts and manage key bindings. Shortcut remapping will be configurable here.',
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: () =>
+                                showKeyboardShortcutsDialog(context),
+                            icon: const Icon(Icons.keyboard_outlined),
+                            label: const Text('View shortcuts'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   _SettingsPanel(
@@ -1001,7 +1024,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _syncStatusDetails = null;
         _syncDevices = const [];
       });
-      unawaited(ref.read(syncControllerProvider.notifier).refreshPendingCount());
+      unawaited(
+          ref.read(syncControllerProvider.notifier).refreshPendingCount());
       _showToast('Pairing settings applied', tone: AppToastTone.success);
     } catch (error) {
       if (mounted) {

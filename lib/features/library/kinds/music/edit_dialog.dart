@@ -179,6 +179,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
+      scope: widget.request.scope,
     );
   }
 

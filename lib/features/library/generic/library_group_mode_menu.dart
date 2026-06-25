@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -1634,21 +1635,16 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                         ),
                         if (_isEditorVisible) ...[
                           const SizedBox(width: 8),
-                          TextButton(
+                          DialogActionButtons.cancel(
                             onPressed: _cancelEditor,
-                            child: const Text('Cancel'),
                           ),
                           const SizedBox(width: 8),
-                          FilledButton(
+                          DialogActionButtons.save(
                             key: const ValueKey(
                                 'folderFavoritesDraftSaveButton'),
                             onPressed: _hasDraft && !_hasDuplicateDraft
                                 ? _saveDraft
                                 : null,
-                            style: FilledButton.styleFrom(
-                              shape: const RoundedRectangleBorder(),
-                            ),
-                            child: const Text('Save'),
                           ),
                         ],
                       ],

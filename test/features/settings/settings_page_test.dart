@@ -68,6 +68,9 @@ void main() {
 
     await _openSettingsTab(tester, 'Libraries');
     expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Keyboard shortcuts'), findsOneWidget);
+    expect(find.text('View shortcuts'), findsOneWidget);
+    await _scrollToText(tester, 'Collection schema');
     expect(find.text('Collection schema'), findsOneWidget);
     expect(find.text('New root location'), findsOneWidget);
     expect(find.text('Manage locations'), findsOneWidget);

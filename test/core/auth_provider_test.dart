@@ -182,7 +182,8 @@ void main() {
     expect(auth.isAuthenticated, isTrue);
     expect(auth.email, 'fallback@example.com');
     expect(container.read(apiAuthTokenProvider), token);
-    expect(container.read(apiClientProvider).authorizationHeader, 'Bearer $token');
+    expect(
+        container.read(apiClientProvider).authorizationHeader, 'Bearer $token');
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('collectarr.auth.token'), token);
@@ -190,7 +191,8 @@ void main() {
     expect(prefs.getBool('collectarr.auth.is_admin'), isTrue);
   });
 
-  test('restore falls back to shared preferences when secure storage read hangs',
+  test(
+      'restore falls back to shared preferences when secure storage read hangs',
       () async {
     final token = _jwtExpiringAt(DateTime.now().toUtc().add(
           const Duration(hours: 1),
@@ -237,6 +239,47 @@ void main() {
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
     expect(auth.error, contains('Invalid'));
+  });
+
+  test('dev credentials auto-register when missing and authenticate', () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer(
+      overrides: [apiClientProvider.overrideWithValue(_DevBootstrapClient())],
+    );
+    addTearDown(container.dispose);
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(container);
+
+    await container
+        .read(authControllerProvider.notifier)
+        .loginWithDevCredentials();
+
+    final auth = container.read(authControllerProvider);
+    expect(auth.isAuthenticated, isTrue);
+    expect(auth.email, 'user@example.com');
+  });
+
+  test('dev credentials retry login after register conflict and authenticate',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer(
+      overrides: [
+        apiClientProvider.overrideWithValue(_DevConflictBootstrapClient()),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(container);
+
+    await container
+        .read(authControllerProvider.notifier)
+        .loginWithDevCredentials();
+
+    final auth = container.read(authControllerProvider);
+    expect(auth.isAuthenticated, isTrue);
+    expect(auth.email, 'user@example.com');
   });
 }
 
@@ -336,5 +379,113 @@ class _AdminLoginClient extends ApiClient {
         'is_admin': true,
       },
     };
+  }
+}
+
+class _DevBootstrapClient extends ApiClient {
+  _DevBootstrapClient() : super(baseUrl: 'http://metadata.local');
+
+  bool _loggedInAfterBootstrap = false;
+
+  @override
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+  }) async {
+    if (!_loggedInAfterBootstrap) {
+      final requestOptions = RequestOptions(path: '/auth/login');
+      throw DioException(
+        requestOptions: requestOptions,
+        response: Response<void>(
+          requestOptions: requestOptions,
+          statusCode: 401,
+        ),
+      );
+    }
+    return {
+      'access_token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'token_type': 'bearer',
+      'user': {
+        'id': '00000000-0000-0000-0000-000000000111',
+        'email': email,
+        'display_name': null,
+        'is_admin': false,
+      },
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    String? displayName,
+  }) async {
+    _loggedInAfterBootstrap = true;
+    return {
+      'access_token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'token_type': 'bearer',
+      'user': {
+        'id': '00000000-0000-0000-0000-000000000111',
+        'email': email,
+        'display_name': null,
+        'is_admin': false,
+      },
+    };
+  }
+}
+
+class _DevConflictBootstrapClient extends ApiClient {
+  _DevConflictBootstrapClient() : super(baseUrl: 'http://metadata.local');
+
+  int _loginCalls = 0;
+
+  @override
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+  }) async {
+    _loginCalls += 1;
+    if (_loginCalls == 1) {
+      final requestOptions = RequestOptions(path: '/auth/login');
+      throw DioException(
+        requestOptions: requestOptions,
+        response: Response<void>(
+          requestOptions: requestOptions,
+          statusCode: 401,
+        ),
+      );
+    }
+    return {
+      'access_token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'token_type': 'bearer',
+      'user': {
+        'id': '00000000-0000-0000-0000-000000000222',
+        'email': email,
+        'display_name': null,
+        'is_admin': false,
+      },
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    String? displayName,
+  }) async {
+    final requestOptions = RequestOptions(path: '/auth/register');
+    throw DioException(
+      requestOptions: requestOptions,
+      response: Response<void>(
+        requestOptions: requestOptions,
+        statusCode: 409,
+      ),
+    );
   }
 }

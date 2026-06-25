@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -250,7 +251,8 @@ class _AdminUsersPanelState extends ConsumerState<AdminUsersPanel> {
     );
   }
 
-  Widget _buildMessage(BuildContext context, String message, {required bool error}) {
+  Widget _buildMessage(BuildContext context, String message,
+      {required bool error}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(10),
@@ -382,8 +384,10 @@ class _UserRow extends StatelessWidget {
                 Chip(label: Text(user.role)),
                 Chip(label: Text(user.isActive ? 'active' : 'inactive')),
                 if (user.isAdmin) const Chip(label: Text('admin access')),
-                Chip(label: Text('Created ${_formatShortDate(user.createdAt)}')),
-                Chip(label: Text('Updated ${_formatShortDate(user.updatedAt)}')),
+                Chip(
+                    label: Text('Created ${_formatShortDate(user.createdAt)}')),
+                Chip(
+                    label: Text('Updated ${_formatShortDate(user.updatedAt)}')),
               ],
             ),
             const SizedBox(height: 10),
@@ -529,11 +533,10 @@ class _AdminUserEditorDialogState extends State<_AdminUserEditorDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        DialogActionButtons.cancel(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
         ),
-        FilledButton(
+        DialogActionButtons.save(
           onPressed: () {
             Navigator.of(context).pop(
               _AdminUserDraft(
@@ -543,7 +546,6 @@ class _AdminUserEditorDialogState extends State<_AdminUserEditorDialog> {
               ),
             );
           },
-          child: const Text('Save'),
         ),
       ],
     );

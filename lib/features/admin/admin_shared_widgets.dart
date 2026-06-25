@@ -1307,13 +1307,11 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        DialogActionButtons.cancel(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
         ),
-        FilledButton(
+        DialogActionButtons.save(
           onPressed: _submit,
-          child: const Text('Save'),
         ),
       ],
     );

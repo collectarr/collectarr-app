@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -387,13 +388,11 @@ class _LibraryBucketManagerDialogState
           ),
         ),
         actions: [
-          TextButton(
+          DialogActionButtons.cancel(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
           ),
-          FilledButton(
+          DialogActionButtons.save(
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Save'),
           ),
         ],
       ),
@@ -713,8 +712,8 @@ CatalogItem? _rebuildCatalogItem(
     barcode: item.barcode,
     variant: item.variant,
     crossover: identical(crossover, _bucketManagerUnset)
-      ? item.crossover
-      : crossover as String?,
+        ? item.crossover
+        : crossover as String?,
     series: item.series,
     video: item.video,
     music: item.music,
@@ -898,7 +897,8 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, LibraryGroupMode mode) {
     LibraryGroupMode.penciller => role.contains('pencil'),
     LibraryGroupMode.inker => role.contains('ink') && !role.contains('cover'),
     LibraryGroupMode.colorist => role.contains('color'),
-    LibraryGroupMode.painter => role.contains('paint') && !role.contains('cover'),
+    LibraryGroupMode.painter =>
+      role.contains('paint') && !role.contains('cover'),
     LibraryGroupMode.letterer => role.contains('letter'),
     LibraryGroupMode.separator => role.contains('separator'),
     LibraryGroupMode.layouts => role.contains('layout'),
@@ -906,8 +906,8 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, LibraryGroupMode mode) {
     LibraryGroupMode.plotter => role.contains('plotter'),
     LibraryGroupMode.scripter => role.contains('script'),
     LibraryGroupMode.coverArtist => role.contains('cover'),
-    LibraryGroupMode.coverPenciller =>
-      role.contains('cover') && (role.contains('pencil') || role.contains('penciller')),
+    LibraryGroupMode.coverPenciller => role.contains('cover') &&
+        (role.contains('pencil') || role.contains('penciller')),
     LibraryGroupMode.coverPainter =>
       role.contains('cover') && role.contains('paint'),
     LibraryGroupMode.coverInker =>

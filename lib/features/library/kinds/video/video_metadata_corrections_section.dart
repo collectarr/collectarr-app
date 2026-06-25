@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -334,11 +335,10 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        DialogActionButtons.cancel(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
         ),
-        TextButton(
+        DialogActionButtons.save(
           onPressed: _isValid
               ? () => Navigator.pop(
                     context,
@@ -351,7 +351,6 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
                     ),
                   )
               : null,
-          child: const Text('Save'),
         ),
       ],
     );

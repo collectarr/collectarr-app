@@ -50,6 +50,8 @@ const booksLibraryConfig = LibraryTypeConfig(
     builder: BookLibraryEditPresentationBuilder(),
   ),
   editDialogBuilder: buildBookLibraryEditDialog,
+  mediaEditDialogBuilder: buildBookLibraryEditDialog,
+  releaseEditDialogBuilder: buildBookLibraryEditDialog,
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
   ),

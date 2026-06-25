@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 // ---------------------------------------------------------------------------
@@ -9,6 +10,7 @@ class LibraryEditSelection {
   const LibraryEditSelection({
     required this.item,
     required this.personal,
+    this.scope = LibraryEditScope.all,
     this.wishlist,
     this.tracking,
     this.customFieldEdits = const {},
@@ -17,6 +19,7 @@ class LibraryEditSelection {
 
   final LibraryMetadataItem item;
   final LibraryPersonalEditSelection? personal;
+  final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final Map<String, String?> customFieldEdits;

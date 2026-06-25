@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -331,16 +332,14 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           ),
         ),
         actions: [
-          TextButton(
+          DialogActionButtons.cancel(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
           ),
-          FilledButton(
+          DialogActionButtons.save(
             onPressed: () => Navigator.of(context).pop((
               caption: controller.text.trim(),
               imageType: selectedType,
             )),
-            child: const Text('Save'),
           ),
         ],
       ),
@@ -460,7 +459,8 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
 
   Future<void> _cropImage(_EditableImage image) async {
     try {
-      final aspectRatio = await compute(_decodeImageAspectRatio, image.imageData);
+      final aspectRatio =
+          await compute(_decodeImageAspectRatio, image.imageData);
       if (!mounted) {
         return;
       }

@@ -10,5 +10,6 @@ Widget buildDefaultKindEditDialog({
     draft: LibraryEditDraft.fromRequest(request),
     onPrevious: request.onPrevious,
     onNext: request.onNext,
+    scope: request.scope,
   );
 }

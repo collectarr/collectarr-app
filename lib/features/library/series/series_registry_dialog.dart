@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -206,7 +207,8 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
                                     ),
                                     itemBuilder: (context, index) {
                                       final entry = _entries[index];
-                                      final selected = _selectedEntryId == entry.id;
+                                      final selected =
+                                          _selectedEntryId == entry.id;
                                       return _SeriesPickerRow(
                                         entry: entry,
                                         selected: selected,
@@ -323,7 +325,8 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
                 initialValue: null,
                 decoration: const InputDecoration(labelText: 'Target series'),
                 items: [
-                  for (final entry in _entries.where((entry) => entry.id != source.id))
+                  for (final entry
+                      in _entries.where((entry) => entry.id != source.id))
                     DropdownMenuItem<String>(
                       value: entry.id,
                       child: Text(entry.title),
@@ -541,11 +544,10 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        DialogActionButtons.cancel(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
         ),
-        FilledButton(
+        DialogActionButtons.save(
           onPressed: () {
             final title = _titleController.text.trim();
             if (title.isEmpty) {
@@ -560,7 +562,6 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
               ),
             );
           },
-          child: const Text('Save'),
         ),
       ],
     );
@@ -653,7 +654,8 @@ class _SeriesPickerRow extends StatelessWidget {
     final palette = appPalette(context);
     final selectedColor = Theme.of(context).colorScheme.primary;
     return Material(
-      color: selected ? selectedColor.withValues(alpha: 0.10) : Colors.transparent,
+      color:
+          selected ? selectedColor.withValues(alpha: 0.10) : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -679,7 +681,8 @@ class _SeriesPickerRow extends StatelessWidget {
                 flex: 4,
                 child: _SeriesRowText(
                   text: entry.sortTitle ?? entry.title,
-                  muted: entry.sortTitle == null || entry.sortTitle == entry.title,
+                  muted:
+                      entry.sortTitle == null || entry.sortTitle == entry.title,
                 ),
               ),
               SizedBox(
@@ -716,7 +719,8 @@ class _SeriesManagerRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Row(
         children: [
-          const SizedBox(width: 28, child: Icon(Icons.drag_indicator, size: 18)),
+          const SizedBox(
+              width: 28, child: Icon(Icons.drag_indicator, size: 18)),
           Expanded(
             flex: 4,
             child: _SeriesRowText(
@@ -804,12 +808,12 @@ class _SeriesCountChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final color = emphasized
-        ? Theme.of(context).colorScheme.primary
-        : palette.textMuted;
+    final color =
+        emphasized ? Theme.of(context).colorScheme.primary : palette.textMuted;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: backgroundColor ?? color.withValues(alpha: emphasized ? 0.14 : 0.10),
+        color: backgroundColor ??
+            color.withValues(alpha: emphasized ? 0.14 : 0.10),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Padding(

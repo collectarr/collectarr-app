@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 
 class DefaultLibraryEditPresentationBuilder
@@ -30,7 +31,8 @@ class DefaultLibraryEditPresentationBuilder
       LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
       LibraryEditTabSpec(id: 'sold', icon: Icons.sell, label: 'Sold'),
       LibraryEditTabSpec(id: 'custom', icon: Icons.tune, label: 'Custom'),
-      LibraryEditTabSpec(id: 'photos', icon: Icons.photo_library, label: 'Photos'),
+      LibraryEditTabSpec(
+          id: 'photos', icon: Icons.photo_library, label: 'Photos'),
       LibraryEditTabSpec(id: 'cover', icon: Icons.image, label: 'Cover'),
       LibraryEditTabSpec(id: 'synopsis', icon: Icons.notes, label: 'Synopsis'),
     ],
@@ -73,13 +75,27 @@ class DefaultLibraryEditPresentationBuilder
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    if (context.isOwned) {
-      return ownedTabs;
+    final tabs = context.isOwned
+        ? ownedTabs
+        : context.isTrackingOnly || context.hasWishlistContext
+            ? trackedTabs
+            : catalogTabs;
+    if (context.scope == LibraryEditScope.media) {
+      const mediaTabs = {'main', 'cover', 'synopsis', 'custom'};
+      return tabs.where((tab) => mediaTabs.contains(tab.id)).toList();
     }
-    if (context.isTrackingOnly || context.hasWishlistContext) {
-      return trackedTabs;
+    if (context.scope == LibraryEditScope.release) {
+      const releaseTabs = {
+        'details',
+        'value',
+        'personal',
+        'sold',
+        'custom',
+        'photos'
+      };
+      return tabs.where((tab) => releaseTabs.contains(tab.id)).toList();
     }
-    return catalogTabs;
+    return tabs;
   }
 
   @override
@@ -89,9 +105,19 @@ class DefaultLibraryEditPresentationBuilder
   }) {
     final sections = switch (tabId) {
       'details' => ['catalog_details'],
-      'main' => ['catalog_snapshot', 'tracking_context', 'ownership_reference', 'owned_grading'],
+      'main' => [
+          'catalog_snapshot',
+          'tracking_context',
+          'ownership_reference',
+          'owned_grading'
+        ],
       'value' => ['purchase', 'value_summary'],
-      'personal' => ['tracking_personal', 'wishlist_reference', 'owned_notes', 'collection_fields_info'],
+      'personal' => [
+          'tracking_personal',
+          'wishlist_reference',
+          'owned_notes',
+          'collection_fields_info'
+        ],
       'sold' => ['sold_status', 'profit_loss'],
       'custom' => ['custom_fields'],
       'photos' => ['photos'],
@@ -123,8 +149,7 @@ class DefaultLibraryEditPresentationBuilder
     required LibraryEditPresentationContext context,
   }) {
     return LibraryEditPresentationState(
-      showsOwnershipReferenceSection:
-          showOwnershipReferenceSection &&
+      showsOwnershipReferenceSection: showOwnershipReferenceSection &&
           context.isOwned &&
           (context.hasEditionAnchors || context.hasBundleReleaseAnchors),
       showsOwnedGradingSection: showOwnedGradingSection && context.isOwned,
@@ -146,9 +171,8 @@ class DefaultLibraryEditPresentationBuilder
       ownedGradingSectionTitle: context.isDigitalFormat
           ? ownedDigitalGradingSectionTitle
           : ownedPhysicalGradingSectionTitle,
-      ownedGradingSectionHint: context.isDigitalFormat
-          ? ownedDigitalGradingHint
-          : null,
+      ownedGradingSectionHint:
+          context.isDigitalFormat ? ownedDigitalGradingHint : null,
       keyToggleLabel: keyToggleLabel,
       keyReasonLabel: keyReasonLabel,
     );

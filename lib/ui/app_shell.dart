@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:collectarr_app/ui/mobile_ux.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +24,7 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   bool _didRequestInitialOnlineFirstSync = false;
+  bool _bottomNavCollapsed = false;
 
   @override
   void initState() {
@@ -58,9 +58,6 @@ class _AppShellState extends ConsumerState<AppShell> {
 
     // Map GoRouter branch index to visible nav destinations.
     final currentBranch = widget.navigationShell.currentIndex;
-    final showBottomNavigationBar =
-      !ResponsiveLayout.isDesktop(context) ||
-      currentBranch != _branchLibraries;
     final visibleBranches = [
       _branchLibraries,
       _branchShelf,
@@ -68,7 +65,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       if (isAdmin) _branchAdmin,
       _branchSettings,
     ];
-    final selectedVisualIndex = visibleBranches.indexOf(currentBranch).clamp(0, visibleBranches.length - 1);
+    final selectedVisualIndex = visibleBranches
+        .indexOf(currentBranch)
+        .clamp(0, visibleBranches.length - 1);
 
     final pages = [
       const _ShellPage(label: 'Libraries', icon: Icons.apps_outlined),
@@ -89,19 +88,32 @@ class _AppShellState extends ConsumerState<AppShell> {
         animationsEnabled: uiPreferences.animationsEnabled,
         child: AnimatedTheme(
           data: accentTheme,
-          duration: uiPreferences.animationsEnabled
-              ? kAppAnimNormal
-              : Duration.zero,
+          duration:
+              uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
           curve: Curves.easeOutCubic,
           child: widget.navigationShell,
         ),
       ),
-      bottomNavigationBar: showBottomNavigationBar
-          ? _LibraryAwareNavigationBar(
+      bottomNavigationBar: _bottomNavCollapsed
+          ? _BottomNavCollapsedStrip(
+              accent: accent,
+              animationsEnabled: uiPreferences.animationsEnabled,
+              onExpand: () {
+                setState(() {
+                  _bottomNavCollapsed = false;
+                });
+              },
+            )
+          : _LibraryAwareNavigationBar(
               pages: pages,
               selectedIndex: selectedVisualIndex,
               accent: accent,
               animationsEnabled: uiPreferences.animationsEnabled,
+              onToggleCollapsed: () {
+                setState(() {
+                  _bottomNavCollapsed = true;
+                });
+              },
               onDestinationSelected: (visualIndex) {
                 final branchIndex = visibleBranches[visualIndex];
                 widget.navigationShell.goBranch(
@@ -110,8 +122,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                       branchIndex == widget.navigationShell.currentIndex,
                 );
               },
-            )
-          : null,
+            ),
     );
     if (mediaQuery == null) {
       return shell;
@@ -159,6 +170,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
     required this.selectedIndex,
     required this.accent,
     required this.animationsEnabled,
+    required this.onToggleCollapsed,
     required this.onDestinationSelected,
   });
 
@@ -166,12 +178,12 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
   final int selectedIndex;
   final Color accent;
   final bool animationsEnabled;
+  final VoidCallback onToggleCollapsed;
   final ValueChanged<int> onDestinationSelected;
 
   @override
   Widget build(BuildContext context) {
-    final duration =
-        animationsEnabled ? kAppAnimNormal : Duration.zero;
+    final duration = animationsEnabled ? kAppAnimNormal : Duration.zero;
     final palette = appPalette(context);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
@@ -220,34 +232,138 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                 IconThemeData(color: chromeTextColor, size: 20),
               ),
             ),
-            child: NavigationBar(
-              backgroundColor: Colors.transparent,
-              indicatorColor: indicatorColor,
-              selectedIndex: selectedIndex,
-              onDestinationSelected: onDestinationSelected,
-              destinations: [
-                for (final page in pages)
-                  NavigationDestination(
-                    icon: page.adminOnly
-                        ? Badge(
-                            label: const Text(
-                              'ADMIN',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            backgroundColor: Colors.deepOrange.shade700,
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(page.icon),
-                          )
-                        : Icon(page.icon),
-                    label: page.label,
+            child: Row(
+              children: [
+                Expanded(
+                  child: NavigationBar(
+                    backgroundColor: Colors.transparent,
+                    indicatorColor: indicatorColor,
+                    selectedIndex: selectedIndex,
+                    onDestinationSelected: onDestinationSelected,
+                    destinations: [
+                      for (final page in pages)
+                        NavigationDestination(
+                          icon: page.adminOnly
+                              ? Badge(
+                                  label: const Text(
+                                    'ADMIN',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.deepOrange.shade700,
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Icon(page.icon),
+                                )
+                              : Icon(page.icon),
+                          label: page.label,
+                        ),
+                    ],
                   ),
+                ),
+                Tooltip(
+                  message: 'Hide bottom navigation',
+                  child: InkWell(
+                    onTap: onToggleCollapsed,
+                    child: SizedBox(
+                      width: 44,
+                      height: 58,
+                      child: Icon(
+                        Icons.expand_less,
+                        color: chromeTextColor,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BottomNavCollapsedStrip extends StatelessWidget {
+  const _BottomNavCollapsedStrip({
+    required this.accent,
+    required this.animationsEnabled,
+    required this.onExpand,
+  });
+
+  final Color accent;
+  final bool animationsEnabled;
+  final VoidCallback onExpand;
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = animationsEnabled ? kAppAnimNormal : Duration.zero;
+    final palette = appPalette(context);
+    const collapsedBarHeight = 36.0;
+    return TweenAnimationBuilder<Color?>(
+      tween: ColorTween(end: accent),
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      builder: (context, color, child) {
+        final animatedAccent = color ?? accent;
+        final foregroundColor =
+            palette.isDark ? Colors.white : palette.textPrimary;
+        final handleBackground = Color.alphaBlend(
+          animatedAccent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+          palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+        );
+        return Container(
+          height: collapsedBarHeight,
+          decoration: BoxDecoration(
+            gradient: libraryChromeGradient(
+              animatedAccent,
+              brightness: palette.brightness,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border(
+              top: BorderSide(
+                color: libraryChromeBorderColor(
+                  animatedAccent,
+                  brightness: palette.brightness,
+                ),
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Spacer(),
+              Tooltip(
+                message: 'Show bottom navigation',
+                child: InkWell(
+                  onTap: onExpand,
+                  child: SizedBox(
+                    width: 44,
+                    height: collapsedBarHeight,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 2,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: handleBackground,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Icon(
+                        Icons.expand_more,
+                        size: 20,
+                        color: foregroundColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

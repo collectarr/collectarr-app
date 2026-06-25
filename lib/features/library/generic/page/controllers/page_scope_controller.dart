@@ -49,10 +49,12 @@ abstract final class _LibraryScopeControllerOps {
   }
 
   static void setSelectedBucket(GenericLibraryPageState state, String? bucket) {
+    final currentMode = state._activeGroupMode;
     final childMode = bucket == null
         ? null
-        : state._activeFolderPreset.nextModeAfter(state._activeGroupMode);
-    if (childMode != null) {
+        : state._activeFolderPreset.nextModeAfter(currentMode);
+    final canDrilldown = childMode != null && childMode != currentMode;
+    if (canDrilldown) {
       final previous = captureSidebarScope(state);
       final drilldownSource = LibrarySidebarScopeSnapshot(
         groupMode: previous.groupMode,
@@ -67,7 +69,7 @@ abstract final class _LibraryScopeControllerOps {
         searchQuery: previous.searchQuery,
       );
       final next = LibrarySidebarScopeSnapshot(
-        groupMode: childMode,
+        groupMode: childMode!,
         collectionStatusScope: previous.collectionStatusScope,
         quickView: previous.quickView,
         filterSelection: previous.filterSelection,

@@ -51,8 +51,10 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       transferableFieldKeys: transferableFieldKeys,
       addDialogLauncher: addDialogLauncher,
       editDialogBuilder: editDialogBuilder,
+      mediaEditDialogBuilder: mediaEditDialogBuilder,
+      releaseEditDialogBuilder: releaseEditDialogBuilder,
       detailPageBuilder: detailPageBuilder,
-        inspectorPanelBuilder: inspectorPanelBuilder,
+      inspectorPanelBuilder: inspectorPanelBuilder,
       inspectorHeroBuilder: inspectorHeroBuilder,
       inspectorSectionsBuilder: inspectorSectionsBuilder,
       showsDefaultInspectorPersonalSection:

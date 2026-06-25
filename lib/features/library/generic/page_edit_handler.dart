@@ -47,6 +47,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
     LibraryProjectionItem item,
     OwnedItem? ownedItemOverride, {
     bool openMetadataCompareOnOpen = false,
+    LibraryEditScope? scope,
   }) async {
     if (_isEditDialogInFlight) {
       return;
@@ -153,6 +154,8 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
       type: widget.type,
       item: LibraryMetadataItem.fromCatalogItem(freshCatalogItem),
       ownedItem: owned,
+      scope: scope ??
+          (owned == null ? LibraryEditScope.media : LibraryEditScope.release),
       wishlistItem: wishlist,
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,
@@ -185,20 +188,10 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
           final cfValues = await cfValuesFuture;
           final images = await imagesFuture;
 
-          return LibraryEditDialogRequest(
-            type: baseRequest.type,
-            item: baseRequest.item,
-            ownedItem: baseRequest.ownedItem,
-            wishlistItem: baseRequest.wishlistItem,
-            trackingEntry: baseRequest.trackingEntry,
-            accent: baseRequest.accent,
-            physicalFormats: baseRequest.physicalFormats,
+          return baseRequest.copyWith(
             customFieldDefinitions: definitions,
             customFieldValues: cfValues,
             itemImages: images,
-            onPrevious: baseRequest.onPrevious,
-            onNext: baseRequest.onNext,
-            openMetadataCompareOnOpen: baseRequest.openMetadataCompareOnOpen,
           );
         },
       );

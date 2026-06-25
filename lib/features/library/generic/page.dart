@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_launcher.d
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';

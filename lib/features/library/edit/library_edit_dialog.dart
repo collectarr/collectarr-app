@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
@@ -90,6 +91,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
+    this.scope = LibraryEditScope.all,
   }) : draft = null;
 
   LibraryEditRenderer.fromDraft({
@@ -97,6 +99,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required LibraryEditDraft draft,
     this.onPrevious,
     this.onNext,
+    this.scope = LibraryEditScope.all,
   })  : draft = draft,
         type = draft.type,
         item = draft.item,
@@ -123,6 +126,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<ItemImage> itemImages;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final LibraryEditScope scope;
   final LibraryEditDraft? draft;
 
   @override
@@ -420,6 +424,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       hasEditionAnchors: widget.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: _hasBundleAnchorContext,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+      scope: widget.scope,
     );
   }
 
@@ -436,6 +441,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           widget.ownedItem?.bundleReleaseId != null ||
           widget.wishlistItem?.bundleReleaseId != null,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+      scope: widget.scope,
     );
   }
 
@@ -2501,6 +2507,17 @@ ORDER BY owner_label COLLATE NOCASE
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     var selection = _draft.buildSelection();
+    if (selection.scope != widget.scope) {
+      selection = LibraryEditSelection(
+        scope: widget.scope,
+        item: selection.item,
+        personal: selection.personal,
+        wishlist: selection.wishlist,
+        tracking: selection.tracking,
+        customFieldEdits: selection.customFieldEdits,
+        itemImageEdits: selection.itemImageEdits,
+      );
+    }
     if (_isGameKind) {
       final currentGame = selection.item.game;
       final updatedGame = GameCatalogDetails(
@@ -2509,6 +2526,7 @@ ORDER BY owner_label COLLATE NOCASE
         toyType: currentGame?.toyType,
       );
       selection = LibraryEditSelection(
+        scope: selection.scope,
         item: selection.item.copyWith(
           game: updatedGame.hasData ? updatedGame : null,
         ),
@@ -2554,6 +2572,7 @@ ORDER BY owner_label COLLATE NOCASE
         );
       }
       selection = LibraryEditSelection(
+        scope: selection.scope,
         item: selection.item.copyWith(
           creators: creators.isEmpty ? null : creators,
           characterDetails: characterDetails.isEmpty ? null : characterDetails,

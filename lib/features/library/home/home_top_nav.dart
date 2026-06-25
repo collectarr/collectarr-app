@@ -6,10 +6,8 @@ import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
-import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
@@ -102,9 +100,7 @@ class MediaLibraryNav extends ConsumerWidget {
               children: [
                 const _LibraryTopNavSyncButton(),
                 const SizedBox(width: 4),
-                const _LibraryTopNavMenuButton(),
-                const SizedBox(width: 4),
-                _LibraryNavCollapseButton(accent: accent),
+                const _LibraryNavCollapseButton(),
               ],
             ),
           ),
@@ -201,9 +197,7 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                     const SizedBox(width: 6),
                     const _LibraryTopNavSyncButton(),
                     const SizedBox(width: 4),
-                    const _LibraryTopNavMenuButton(),
-                    const SizedBox(width: 4),
-                    _LibraryNavCollapseButton(accent: accent),
+                    const _LibraryNavCollapseButton(),
                   ],
                 ),
               ],
@@ -291,124 +285,29 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
 }
 
 class _LibraryNavCollapseButton extends ConsumerWidget {
-  const _LibraryNavCollapseButton({required this.accent});
-
-  final Color accent;
+  const _LibraryNavCollapseButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final navPrefs = ref.watch(libraryNavPreferencesProvider);
-    return _HeaderActionButton(
-      tooltip: navPrefs.collapsed
+    final palette = appPalette(context);
+    final iconColor = palette.isDark ? Colors.white : palette.textPrimary;
+    return Tooltip(
+      message: navPrefs.collapsed
           ? 'Show library selector'
           : 'Hide library selector',
-      label: '',
-      icon: navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
-      onPressed: () =>
-          ref.read(libraryNavPreferencesProvider.notifier).toggleCollapsed(),
-    );
-  }
-}
-
-enum _LibraryTopNavDestination {
-  shelf,
-  calendar,
-  admin,
-  settings,
-  shortcuts,
-}
-
-extension on _LibraryTopNavDestination {
-  String get label {
-    switch (this) {
-      case _LibraryTopNavDestination.shelf:
-        return 'Shelf';
-      case _LibraryTopNavDestination.calendar:
-        return 'Calendar';
-      case _LibraryTopNavDestination.admin:
-        return 'Admin';
-      case _LibraryTopNavDestination.settings:
-        return 'Settings';
-      case _LibraryTopNavDestination.shortcuts:
-        return 'Keyboard shortcuts';
-    }
-  }
-
-  IconData get icon {
-    switch (this) {
-      case _LibraryTopNavDestination.shelf:
-        return Icons.inventory_2_outlined;
-      case _LibraryTopNavDestination.calendar:
-        return Icons.calendar_month_outlined;
-      case _LibraryTopNavDestination.admin:
-        return Icons.admin_panel_settings_outlined;
-      case _LibraryTopNavDestination.settings:
-        return Icons.settings_outlined;
-      case _LibraryTopNavDestination.shortcuts:
-        return Icons.keyboard_command_key;
-    }
-  }
-
-  String? get route {
-    switch (this) {
-      case _LibraryTopNavDestination.shelf:
-        return AppRoutes.shelf;
-      case _LibraryTopNavDestination.calendar:
-        return AppRoutes.calendar;
-      case _LibraryTopNavDestination.admin:
-        return AppRoutes.admin;
-      case _LibraryTopNavDestination.settings:
-        return AppRoutes.settings;
-      case _LibraryTopNavDestination.shortcuts:
-        return null;
-    }
-  }
-}
-
-class _LibraryTopNavMenuButton extends ConsumerWidget {
-  const _LibraryTopNavMenuButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isAdmin = ref.watch(authControllerProvider).isAdmin;
-    final destinations = [
-      _LibraryTopNavDestination.shelf,
-      _LibraryTopNavDestination.calendar,
-      if (isAdmin) _LibraryTopNavDestination.admin,
-      _LibraryTopNavDestination.settings,
-      _LibraryTopNavDestination.shortcuts,
-    ];
-    return PopupMenuButton<_LibraryTopNavDestination>(
-      tooltip: 'Workspace menu',
-      position: PopupMenuPosition.under,
-      onSelected: (destination) {
-        final route = destination.route;
-        if (route != null) {
-          context.go(route);
-          return;
-        }
-        showKeyboardShortcutsDialog(context);
-      },
-      itemBuilder: (context) => [
-        for (final destination in destinations)
-          PopupMenuItem<_LibraryTopNavDestination>(
-            value: destination,
-            height: kLibraryToolbarPopupItemHeight,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(destination.icon, size: 16),
-                const SizedBox(width: 8),
-                Text(destination.label),
-              ],
-            ),
+      child: InkWell(
+        onTap: () =>
+            ref.read(libraryNavPreferencesProvider.notifier).toggleCollapsed(),
+        child: SizedBox(
+          width: 44,
+          height: 36,
+          child: Icon(
+            navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
+            color: iconColor,
+            size: 20,
           ),
-      ],
-      child: _HeaderActionButton(
-        tooltip: 'Workspace menu',
-        label: 'Menu',
-        icon: Icons.menu,
-        onPressed: null,
+        ),
       ),
     );
   }
