@@ -184,7 +184,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return widget.request.type.editPresentation.builder.buildTabs(
+    return widget.request.type.editPresentation
+        .builderForScope(widget.request.scope)
+        .buildTabs(
       context: _editPresentationContext,
     );
   }
@@ -411,7 +413,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<String> _tabSectionIds(String tabId) {
-    return widget.request.type.editPresentation.builder.buildTabSectionIds(
+    return widget.request.type.editPresentation
+        .builderForScope(widget.request.scope)
+        .buildTabSectionIds(
       context: _editPresentationContext,
       tabId: tabId,
     );

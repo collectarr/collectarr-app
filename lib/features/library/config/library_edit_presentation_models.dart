@@ -107,7 +107,21 @@ abstract class LibraryEditPresentationBuilder {
 }
 
 class LibraryEditPresentation {
-  const LibraryEditPresentation({required this.builder});
+  const LibraryEditPresentation({
+    required this.builder,
+    this.mediaBuilder,
+    this.releaseBuilder,
+  });
 
   final LibraryEditPresentationBuilder builder;
+  final LibraryEditPresentationBuilder? mediaBuilder;
+  final LibraryEditPresentationBuilder? releaseBuilder;
+
+  LibraryEditPresentationBuilder builderForScope(LibraryEditScope scope) {
+    return switch (scope) {
+      LibraryEditScope.media => mediaBuilder ?? builder,
+      LibraryEditScope.release => releaseBuilder ?? builder,
+      LibraryEditScope.all => builder,
+    };
+  }
 }

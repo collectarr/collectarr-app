@@ -446,13 +446,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return widget.type.editPresentation.builder.buildTabs(
+    return widget.type.editPresentation
+        .builderForScope(widget.scope)
+        .buildTabs(
       context: _editPresentationContext,
     );
   }
 
   LibraryEditPresentationState get _editPresentation {
-    return widget.type.editPresentation.builder.build(
+    return widget.type.editPresentation
+        .builderForScope(widget.scope)
+        .build(
       context: _editPresentationContext,
     );
   }

@@ -4,7 +4,13 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const builder = BookLibraryEditPresentationBuilder();
+  const mediaBuilder = BookLibraryMediaEditPresentationBuilder();
+  const releaseBuilder = BookLibraryReleaseEditPresentationBuilder();
+  const presentation = LibraryEditPresentation(
+    builder: mediaBuilder,
+    mediaBuilder: mediaBuilder,
+    releaseBuilder: releaseBuilder,
+  );
 
   LibraryEditPresentationContext contextFor(LibraryEditScope scope) {
     return LibraryEditPresentationContext(
@@ -21,25 +27,43 @@ void main() {
     );
   }
 
-  test('shows read history in media and release scopes', () {
-    final mediaTabs = builder.buildTabs(context: contextFor(LibraryEditScope.media));
-    final releaseTabs =
-        builder.buildTabs(context: contextFor(LibraryEditScope.release));
+  test('uses separate builders for media and release', () {
+    final mediaTabs = mediaBuilder.buildTabs(
+      context: contextFor(LibraryEditScope.media),
+    );
+    final releaseTabs = releaseBuilder.buildTabs(
+      context: contextFor(LibraryEditScope.release),
+    );
 
-    expect(mediaTabs.map((tab) => tab.id), contains('read_history'));
-    expect(releaseTabs.map((tab) => tab.id), contains('read_history'));
+    expect(mediaTabs.map((tab) => tab.id).toList(), [
+      'main',
+      'credits',
+      'custom',
+      'read_history',
+      'covers',
+      'plot',
+      'links',
+    ]);
+    expect(releaseTabs.map((tab) => tab.id).toList(), [
+      'details',
+      'personal',
+      'custom',
+      'read_history',
+      'value',
+      'photos',
+    ]);
   });
 
-  test('uses the same read history section in media and release scopes', () {
+  test('maps read history to different builders through scope selection', () {
     expect(
-      builder.buildTabSectionIds(
+      presentation.builderForScope(LibraryEditScope.media).buildTabSectionIds(
         context: contextFor(LibraryEditScope.media),
         tabId: 'read_history',
       ),
       ['book_read_history'],
     );
     expect(
-      builder.buildTabSectionIds(
+      presentation.builderForScope(LibraryEditScope.release).buildTabSectionIds(
         context: contextFor(LibraryEditScope.release),
         tabId: 'read_history',
       ),

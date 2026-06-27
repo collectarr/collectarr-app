@@ -182,7 +182,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return _type.editPresentation.builder.buildTabs(
+    return _type.editPresentation
+        .builderForScope(widget.request.scope)
+        .buildTabs(
       context: _tabPresentationContext,
     );
   }
@@ -437,7 +439,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   }
 
   List<String> _tabSectionIds(String tabId) {
-    return _type.editPresentation.builder.buildTabSectionIds(
+    return _type.editPresentation
+        .builderForScope(widget.request.scope)
+        .buildTabSectionIds(
       context: _tabPresentationContext,
       tabId: tabId,
     );

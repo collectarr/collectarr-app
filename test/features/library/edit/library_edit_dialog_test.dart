@@ -723,7 +723,8 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Release'), findsOneWidget);
+    expect(find.text('Media'), findsOneWidget);
+    expect(find.text('Release'), findsNothing);
 
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Title').first,

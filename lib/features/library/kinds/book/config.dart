@@ -47,7 +47,9 @@ const booksLibraryConfig = LibraryTypeConfig(
   trackingProfile: readingTrackingProfile,
   presentation: booksLibraryMediaPresentation,
   editPresentation: LibraryEditPresentation(
-    builder: BookLibraryEditPresentationBuilder(),
+    builder: BookLibraryMediaEditPresentationBuilder(),
+    mediaBuilder: BookLibraryMediaEditPresentationBuilder(),
+    releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
   editDialogBuilder: buildBookLibraryEditDialog,
   mediaEditDialogBuilder: buildBookLibraryEditDialog,
