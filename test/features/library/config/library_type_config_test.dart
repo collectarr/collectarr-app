@@ -27,6 +27,7 @@ import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -104,6 +105,26 @@ void main() {
     expect(comicsLibraryConfig.mediaReleaseScopeLabel, 'Series');
     expect(musicLibraryConfig.mediaReleaseScopeLabel, 'Media');
     expect(booksLibraryConfig.mediaReleaseScopeLabel, 'Media');
+  });
+
+  test('books do not create series subgroups for volume metadata', () {
+    final entry = LibraryWorkspaceEntry(
+      id: 'book-1',
+      mediaType: 'book',
+      title: 'Dune',
+      series: const CatalogSeriesDetails(
+        seriesId: 'seed-series-dune',
+        seriesTitle: 'Dune',
+        volumeName: 'Dune',
+        volumeNumber: 1,
+      ),
+      updatedAt: DateTime.utc(2026, 6, 27),
+    );
+
+    expect(
+      booksMediaAdapter.subgroupKeyForEntry(entry, LibraryGroupMode.series),
+      isNull,
+    );
   });
 
   test('anime and tv library configs are first-class video kinds', () {

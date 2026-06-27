@@ -255,12 +255,9 @@ class BookLibraryMediaPresentationBuilder
     ];
     if (detailFacts.isNotEmpty) {
       sections.add(
-        LibraryInspectorSection(
-          title: 'Info',
-          accentColor: accent,
-          children: [
-            LibraryInspectorFactGrid(facts: detailFacts),
-          ],
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: LibraryInspectorFactGrid(facts: detailFacts),
         ),
       );
     }

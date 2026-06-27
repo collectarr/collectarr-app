@@ -135,6 +135,9 @@ String? plannedMediaSubgroupKeyForEntry(
   if (groupMode != LibraryGroupMode.series) {
     return null;
   }
+  if (entry.mediaType.trim().toLowerCase() == 'book') {
+    return null;
+  }
   final series = entry.series;
   if (series?.seasonNumber != null) {
     return 'Season ${series!.seasonNumber}';

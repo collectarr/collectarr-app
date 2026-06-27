@@ -535,6 +535,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.byType(InspectorItemImagesSection), findsNothing);
+    expect(find.text('Quick actions'), findsNothing);
+    expect(find.text('Details'), findsNothing);
+    expect(find.text('Info'), findsNothing);
   });
 
   testWidgets('item images section hides front cover thumbnails', (
@@ -645,7 +648,7 @@ void main() {
     expect(find.text('Active copy'), findsOneWidget);
   });
 
-  testWidgets('inspector edit uses the selected copy', (tester) async {
+  testWidgets('book inspector hides the edit quick action', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind('book')!;
@@ -708,10 +711,9 @@ void main() {
     await tester.tap(find.textContaining('Very Fine').last);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byTooltip('Edit metadata and collection fields'));
-    await tester.pump();
-
-    expect(editedOwnedItem?.id, 'owned-2');
+    expect(find.text('Quick actions'), findsNothing);
+    expect(find.byTooltip('Edit metadata and collection fields'), findsNothing);
+    expect(editedOwnedItem, isNull);
   });
 
   testWidgets(
