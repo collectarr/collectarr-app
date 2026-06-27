@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -48,9 +47,7 @@ const musicLibraryConfig = LibraryTypeConfig(
   inspectorPanelBuilder: buildMusicInspectorPanel,
   showsDefaultInspectorPersonalSection: false,
   presentation: musicLibraryMediaPresentation,
-  editPresentation: LibraryEditPresentation(
-    builder: MusicLibraryEditPresentationBuilder(),
-  ),
+  editPresentation: musicLibraryEditPresentation,
   addChrome: LibraryAddChromeConfig(
     mediaReferenceLabel: 'Album',
     trackScopeSummary:

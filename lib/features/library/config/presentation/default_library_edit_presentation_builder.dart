@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 
 class DefaultLibraryEditPresentationBuilder
@@ -80,28 +79,6 @@ class DefaultLibraryEditPresentationBuilder
         : context.isTrackingOnly || context.hasWishlistContext
             ? trackedTabs
             : catalogTabs;
-    if (context.scope == LibraryEditScope.media) {
-      const mediaTabs = {
-        'main',
-        'cover',
-        'synopsis',
-        'custom',
-        'read_history',
-      };
-      return tabs.where((tab) => mediaTabs.contains(tab.id)).toList();
-    }
-    if (context.scope == LibraryEditScope.release) {
-      const releaseTabs = {
-        'details',
-        'value',
-        'personal',
-        'sold',
-        'custom',
-        'read_history',
-        'photos'
-      };
-      return tabs.where((tab) => releaseTabs.contains(tab.id)).toList();
-    }
     return tabs;
   }
 

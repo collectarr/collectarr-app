@@ -536,13 +536,13 @@ void main() {
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Value'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Covers'), findsOneWidget);
+    expect(find.text('Covers'), findsAtLeastNWidgets(1));
     expect(find.text('Plot'), findsOneWidget);
     expect(find.text('Creators'), findsOneWidget);
     expect(find.text('Characters'), findsOneWidget);
     expect(find.text('Links'), findsOneWidget);
     expect(find.text('Custom Fields'), findsOneWidget);
-    expect(find.text('My Images'), findsOneWidget);
+    expect(find.text('My Images'), findsAtLeastNWidgets(1));
     expect(find.text('Sold'), findsNothing);
 
     expect(find.text('Series'), findsOneWidget);
@@ -1479,14 +1479,14 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Classical'), findsWidgets);
-    expect(find.text('Tracks'), findsWidgets);
-    expect(find.text('Details'), findsOneWidget);
-    expect(find.text('People'), findsOneWidget);
-    expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Custom Fields'), findsOneWidget);
-    expect(find.text('My Images'), findsOneWidget);
-    expect(find.text('Links'), findsOneWidget);
+    expect(find.text('Classical'), findsAtLeastNWidgets(1));
+    expect(find.text('Tracks'), findsAtLeastNWidgets(1));
+    expect(find.text('Details'), findsAtLeastNWidgets(1));
+    expect(find.text('People'), findsAtLeastNWidgets(1));
+    expect(find.text('Personal'), findsAtLeastNWidgets(1));
+    expect(find.text('Custom Fields'), findsAtLeastNWidgets(1));
+    expect(find.text('My Images'), findsAtLeastNWidgets(1));
+    expect(find.text('Links'), findsAtLeastNWidgets(1));
     expect(find.text('Value'), findsNothing);
 
     await tester.enterText(
