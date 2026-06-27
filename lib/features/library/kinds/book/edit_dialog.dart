@@ -513,85 +513,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  Widget _bookMainOverviewCard() {
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: kEditTextMuted,
-          fontWeight: FontWeight.w700,
-        );
-    final valueStyle = Theme.of(context).textTheme.bodyMedium;
-
-    Widget line(String label, String? value) {
-      final normalized = (value ?? '').trim();
-      return Row(
-        children: [
-          SizedBox(width: 108, child: Text(label, style: style)),
-          Expanded(
-            child: Text(
-              normalized.isEmpty ? '—' : normalized,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: valueStyle,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Material(
-      color: kEditPanelRaised,
-      shape: Border(
-        left: BorderSide(color: _accent, width: 2),
-        top: BorderSide(color: kEditDivider),
-        right: BorderSide(color: kEditDivider),
-        bottom: BorderSide(color: kEditDivider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final stacked = constraints.maxWidth < 820;
-            final left = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                line('Series', _seriesTitleController.text),
-                const SizedBox(height: 8),
-                line('Volume', _volumeNumberController.text),
-                const SizedBox(height: 8),
-                line('Publisher', _publisherController.text),
-              ],
-            );
-            final right = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                line('Release date', _releaseDateController.text),
-                const SizedBox(height: 8),
-                line('Page count', _pageCountController.text),
-                const SizedBox(height: 8),
-                line('Language', _languageController.text),
-              ],
-            );
-            if (stacked) {
-              return Column(
-                children: [
-                  left,
-                  const SizedBox(height: 10),
-                  right,
-                ],
-              );
-            }
-            return Row(
-              children: [
-                Expanded(child: left),
-                const SizedBox(width: 12),
-                Expanded(child: right),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   Widget _detailsTab() {
     final sections = _tabSectionIds('details');
     return BookSectionTab(
@@ -979,34 +900,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  Future<void> _pickPurchaseDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: parseDate(_purchaseDateController.text) ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 10),
-    );
-    if (picked != null && mounted) {
-      setState(() {
-        _purchaseDateController.text = formatDate(picked);
-      });
-    }
-  }
-
-  Future<void> _pickSoldDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _soldAt ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 10),
-    );
-    if (picked != null && mounted) {
-      setState(() => _soldAt = picked);
-    }
   }
 
   Widget _datePickerField({

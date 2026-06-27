@@ -69,7 +69,7 @@ abstract final class _LibraryScopeControllerOps {
         searchQuery: previous.searchQuery,
       );
       final next = LibrarySidebarScopeSnapshot(
-        groupMode: childMode!,
+        groupMode: childMode,
         collectionStatusScope: previous.collectionStatusScope,
         quickView: previous.quickView,
         filterSelection: previous.filterSelection,
