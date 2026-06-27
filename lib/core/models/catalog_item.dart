@@ -223,6 +223,7 @@ class CatalogEdition {
     required this.title,
     this.format,
     this.publisher,
+    this.distributor,
     this.isbn,
     this.upc,
     this.language,
@@ -239,6 +240,7 @@ class CatalogEdition {
   final String title;
   final String? format;
   final String? publisher;
+  final String? distributor;
   final String? isbn;
   final String? upc;
   final String? language;
@@ -256,6 +258,7 @@ class CatalogEdition {
       title: json['title'] as String? ?? 'Edition',
       format: json['format'] as String?,
       publisher: json['publisher'] as String?,
+      distributor: json['distributor'] as String?,
       isbn: json['isbn'] as String?,
       upc: json['upc'] as String?,
       language: json['language'] as String?,
@@ -284,6 +287,7 @@ class CatalogEdition {
       'title': title,
       if (format != null) 'format': format,
       if (publisher != null) 'publisher': publisher,
+      if (distributor != null) 'distributor': distributor,
       if (isbn != null) 'isbn': isbn,
       if (upc != null) 'upc': upc,
       if (language != null) 'language': language,
@@ -471,6 +475,8 @@ class VideoCatalogDetails {
     this.audioTracks,
     this.subtitles,
     this.layers,
+    this.ageRating,
+    this.audienceRating,
   });
 
   final int? runtimeMinutes;
@@ -480,6 +486,8 @@ class VideoCatalogDetails {
   final String? audioTracks;
   final String? subtitles;
   final String? layers;
+  final String? ageRating;
+  final String? audienceRating;
 
   bool get hasData =>
       runtimeMinutes != null ||
@@ -488,7 +496,9 @@ class VideoCatalogDetails {
       screenRatio != null ||
       audioTracks != null ||
       subtitles != null ||
-      layers != null;
+      layers != null ||
+      ageRating != null ||
+      audienceRating != null;
 }
 
 class GameCatalogDetails {
@@ -793,6 +803,8 @@ sealed class CatalogItem {
       audioTracks: json['audio_tracks'] as String?,
       subtitles: json['subtitles'] as String?,
       layers: json['layers'] as String?,
+      ageRating: json['age_rating'] as String?,
+      audienceRating: json['audience_rating'] as String?,
     );
     final tracks = (json['tracks'] as List<dynamic>?)
         ?.map((track) => CatalogTrack.fromJson(track as Map<String, dynamic>))
