@@ -67,6 +67,10 @@ class BookLibraryEditPresentationBuilder
             LibraryEditTabSpec(
                 id: 'custom', icon: Icons.edit_note, label: 'Custom Fields'),
             LibraryEditTabSpec(
+                id: 'read_history',
+                icon: Icons.auto_stories_outlined,
+                label: 'Tracking'),
+            LibraryEditTabSpec(
                 id: 'covers',
                 icon: Icons.photo_camera_outlined,
                 label: 'Covers'),
@@ -86,6 +90,7 @@ class BookLibraryEditPresentationBuilder
         'main',
         'credits',
         'custom',
+        'read_history',
         'covers',
         'plot',
         'links',
@@ -123,6 +128,7 @@ class BookLibraryEditPresentationBuilder
         'covers' => ['book_cover_sources'],
         'links' => ['book_identifiers_links'],
         'custom' => ['book_custom_fields'],
+        'read_history' => ['book_read_history'],
         _ => const <String>[],
       };
       return List<String>.unmodifiable(sections);

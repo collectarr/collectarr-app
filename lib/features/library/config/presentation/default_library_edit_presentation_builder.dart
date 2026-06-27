@@ -81,7 +81,13 @@ class DefaultLibraryEditPresentationBuilder
             ? trackedTabs
             : catalogTabs;
     if (context.scope == LibraryEditScope.media) {
-      const mediaTabs = {'main', 'cover', 'synopsis', 'custom'};
+      const mediaTabs = {
+        'main',
+        'cover',
+        'synopsis',
+        'custom',
+        'read_history',
+      };
       return tabs.where((tab) => mediaTabs.contains(tab.id)).toList();
     }
     if (context.scope == LibraryEditScope.release) {
@@ -91,6 +97,7 @@ class DefaultLibraryEditPresentationBuilder
         'personal',
         'sold',
         'custom',
+        'read_history',
         'photos'
       };
       return tabs.where((tab) => releaseTabs.contains(tab.id)).toList();
