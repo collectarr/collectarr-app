@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -42,6 +43,7 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildBoardGameLibraryEditDialog,
+  inspectorPanelBuilder: buildGameInspectorPanel,
   presentation: boardGamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Edition',
@@ -51,4 +53,5 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
     variantLabel: 'Expansion / Edition',
     barcodeLabel: 'Barcode',
   ),
+  showsDefaultInspectorPersonalSection: false,
 );

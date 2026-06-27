@@ -127,6 +127,22 @@ void main() {
     );
   });
 
+  test('all active kinds declare an inspector panel builder', () {
+    for (final config in [
+      comicsLibraryConfig,
+      mangaLibraryConfig,
+      booksLibraryConfig,
+      gamesLibraryConfig,
+      boardGamesLibraryConfig,
+      moviesLibraryConfig,
+      tvLibraryConfig,
+      animeLibraryConfig,
+      musicLibraryConfig,
+    ]) {
+      expect(config.inspectorPanelBuilder, isNotNull);
+    }
+  });
+
   test('anime and tv library configs are first-class video kinds', () {
     expect(animeLibraryConfig.workspace.kind, CatalogMediaKind.anime);
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');

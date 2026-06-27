@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
@@ -63,6 +64,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
     defaultVideoKindFilters: {'movie'},
   ),
   editPresentation: movieLibraryEditPresentation,
+  inspectorPanelBuilder: buildVideoInspectorPanel,
   inspectorSectionsBuilder: buildVideoInspectorSections,
   mediaFields: MediaEditFields(
     numberLabel: 'Edition no.',
@@ -84,6 +86,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
     mediaScopeSortColumns: _movieMediaSortColumns,
     releaseScopeSortColumns: _movieEditionSortColumns,
   ),
+  showsDefaultInspectorPersonalSection: false,
 );
 
 const Set<LibraryGroupMode> _movieMediaGroupModes = {

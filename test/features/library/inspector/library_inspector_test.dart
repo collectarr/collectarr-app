@@ -512,6 +512,9 @@ void main() {
                 mediaType: 'book',
                 title: 'The Two Towers',
                 ownedItemId: 'owned-1',
+                creators: const [
+                  {'name': 'J.R.R. Tolkien', 'role': 'Author'},
+                ],
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: OwnedItem(
@@ -535,9 +538,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.byType(InspectorItemImagesSection), findsNothing);
-    expect(find.text('Quick actions'), findsNothing);
+    expect(find.text('Author view'), findsOneWidget);
+    expect(find.text('J.R.R. Tolkien'), findsWidgets);
     expect(find.text('Details'), findsNothing);
-    expect(find.text('Info'), findsNothing);
   });
 
   testWidgets('item images section hides front cover thumbnails', (
@@ -648,7 +651,7 @@ void main() {
     expect(find.text('Active copy'), findsOneWidget);
   });
 
-  testWidgets('book inspector hides the edit quick action', (tester) async {
+  testWidgets('inspector edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind('book')!;
@@ -711,9 +714,10 @@ void main() {
     await tester.tap(find.textContaining('Very Fine').last);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Quick actions'), findsNothing);
-    expect(find.byTooltip('Edit metadata and collection fields'), findsNothing);
-    expect(editedOwnedItem, isNull);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit'));
+    await tester.pump();
+
+    expect(editedOwnedItem?.id, 'owned-2');
   });
 
   testWidgets(

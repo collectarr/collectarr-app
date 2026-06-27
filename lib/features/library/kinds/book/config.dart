@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -52,6 +53,7 @@ const booksLibraryConfig = LibraryTypeConfig(
     releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
   editDialogBuilder: buildBookLibraryEditDialog,
+  inspectorPanelBuilder: buildBookInspectorPanel,
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
   ),
@@ -67,5 +69,6 @@ const booksLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsReadingQueue: true,
   ),
+  showsDefaultInspectorPersonalSection: false,
   conditions: kBookConditions,
 );

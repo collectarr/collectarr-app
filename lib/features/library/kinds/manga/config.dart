@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -48,6 +49,7 @@ const mangaLibraryConfig = LibraryTypeConfig(
   trackingProfile: comicTrackingProfile,
   presentation: comicsLibraryMediaPresentation,
   editDialogBuilder: buildComicLibraryEditDialog,
+  inspectorPanelBuilder: buildComicInspectorPanel,
   editChrome: LibraryEditChromeConfig(
     titleUsesItemTitle: true,
     synopsisLabel: 'Plot',
@@ -72,4 +74,5 @@ const mangaLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
   ),
+  showsDefaultInspectorPersonalSection: false,
 );
