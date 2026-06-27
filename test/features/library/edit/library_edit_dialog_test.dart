@@ -533,7 +533,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Details'), findsWidgets);
-    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Main'), findsAtLeastNWidgets(1));
     expect(find.text('Value'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Covers'), findsAtLeastNWidgets(1));
@@ -685,6 +685,9 @@ void main() {
         id: 'book-1',
         kind: 'book',
         title: 'The Fellowship of the Ring',
+        creators: const [
+          {'name': 'J.R.R. Tolkien', 'role': 'Author'},
+        ],
         series: const CatalogSeriesDetails(
           seriesId: 'series-1',
           seriesTitle: 'The Lord of the Rings',
@@ -723,7 +726,9 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Media'), findsOneWidget);
+    expect(find.text('The Fellowship of the Ring / J.R.R. Tolkien'),
+        findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
     expect(find.text('Release'), findsNothing);
 
     await tester.enterText(

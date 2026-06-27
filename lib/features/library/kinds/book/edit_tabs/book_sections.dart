@@ -5,7 +5,7 @@ extension _BookSections on _BookLibraryEditDialogState {
     switch (id) {
       case 'book_details':
         return EditSection(
-          title: 'Book details',
+          title: 'Main',
           accent: _accent,
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -41,6 +41,11 @@ extension _BookSections on _BookLibraryEditDialogState {
                         validator: optionalNumberValidator,
                       ),
                     ]),
+                    const SizedBox(height: 10),
+                    _field(
+                      controller: _editionTitleController,
+                      label: 'Box set',
+                    ),
                     const SizedBox(height: 10),
                     EditTokenListField(
                       controller: _genresController,

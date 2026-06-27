@@ -193,6 +193,15 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       ? widget.request.item.title
       : _titleController.text.trim();
 
+  String get _bookHeaderTitle {
+    final title = _bookTitleLabel;
+    final author = _authorController.text.trim();
+    if (author.isEmpty) {
+      return title;
+    }
+    return '$title / $author';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -352,6 +361,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
     for (final controller in [
       _titleController,
+      _authorController,
       _seriesTitleController,
       _volumeNumberController,
       _pageCountController,
@@ -417,7 +427,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       formKey: _formKey,
       accent: _accent,
       icon: _type.workspace.icon,
-      title: widget.request.item.title,
+      title: _bookHeaderTitle,
       badges: const <Widget>[],
       tabController: _tabController,
       tabs: [

@@ -10,7 +10,7 @@ class BookLibraryMediaEditPresentationBuilder
             LibraryEditTabSpec(
               id: 'main',
               icon: Icons.menu_book,
-              label: 'Media',
+              label: 'Main',
             ),
             LibraryEditTabSpec(
               id: 'credits',
@@ -47,7 +47,7 @@ class BookLibraryMediaEditPresentationBuilder
             LibraryEditTabSpec(
               id: 'main',
               icon: Icons.menu_book,
-              label: 'Media',
+              label: 'Main',
             ),
             LibraryEditTabSpec(
               id: 'credits',
@@ -84,7 +84,7 @@ class BookLibraryMediaEditPresentationBuilder
             LibraryEditTabSpec(
               id: 'main',
               icon: Icons.menu_book,
-              label: 'Media',
+              label: 'Main',
             ),
             LibraryEditTabSpec(
               id: 'credits',
@@ -124,7 +124,7 @@ class BookLibraryMediaEditPresentationBuilder
     required LibraryEditPresentationContext context,
   }) {
     return const [
-      LibraryEditTabSpec(id: 'main', icon: Icons.menu_book, label: 'Media'),
+      LibraryEditTabSpec(id: 'main', icon: Icons.menu_book, label: 'Main'),
       LibraryEditTabSpec(
         id: 'credits',
         icon: Icons.groups_2,
