@@ -557,16 +557,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               children: [
                 hero,
                 const SizedBox(height: 6),
-                InspectorActionBar(
-                  type: widget.type,
-                  entry: selected,
-                  onToggleOwned: onToggleOwned,
-                  onToggleWishlist: onToggleWishlist,
-                  onEdit: onEdit,
-                  onCorrectMetadata: onCorrectMetadata,
-                  extraActions: extraActions,
-                  onOpenDetails: onOpenDetails,
-                ),
+                if (widget.type.workspace.kind != CatalogMediaKind.book)
+                  InspectorActionBar(
+                    type: widget.type,
+                    entry: selected,
+                    onToggleOwned: onToggleOwned,
+                    onToggleWishlist: onToggleWishlist,
+                    onEdit: onEdit,
+                    onCorrectMetadata: onCorrectMetadata,
+                    extraActions: extraActions,
+                    onOpenDetails: onOpenDetails,
+                  ),
               ],
             ),
           ),

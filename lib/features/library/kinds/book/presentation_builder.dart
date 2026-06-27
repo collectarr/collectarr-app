@@ -256,7 +256,7 @@ class BookLibraryMediaPresentationBuilder
     if (detailFacts.isNotEmpty) {
       sections.add(
         LibraryInspectorSection(
-          title: 'Details',
+          title: 'Info',
           accentColor: accent,
           children: [
             LibraryInspectorFactGrid(facts: detailFacts),
