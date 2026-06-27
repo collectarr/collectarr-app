@@ -106,10 +106,28 @@ String _simpleLibraryBucketLabel(
 }
 
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
+  final seriesId = entry.series?.seriesId?.trim();
   final seriesTitle = entry.series?.seriesTitle?.trim();
+  
+  // If we have a seriesId, use it as a unique identifier
+  // to prevent different series with the same title from being grouped together
+  if (seriesId != null && seriesId.isNotEmpty) {
+    // Create a composite key: use seriesId as the unique key
+    // If seriesTitle is available, prepend it for readability
+    // Format: "SeriesTitle (id:seriesId)" or just "id:seriesId" if no title
+    if (seriesTitle != null && seriesTitle.isNotEmpty) {
+      // Include both title and ID to ensure uniqueness while being readable
+      return '$seriesTitle|$seriesId';
+    }
+    // If only seriesId exists, use it as-is
+    return 'id:$seriesId';
+  }
+  
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
+  
+  // For v1 items without series information, fall back to resolvedTitle
   final title = entry.resolvedTitle.trim();
   return title.isEmpty ? unknownLabel : title;
 }
