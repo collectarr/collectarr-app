@@ -155,7 +155,9 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
       item: LibraryMetadataItem.fromCatalogItem(freshCatalogItem),
       ownedItem: owned,
       scope: scope ??
-          (owned == null ? LibraryEditScope.media : LibraryEditScope.release),
+          (_activeBrowserMode == LibraryWorkspaceBrowserMode.releases
+              ? LibraryEditScope.release
+              : LibraryEditScope.media),
       wishlistItem: wishlist,
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,

@@ -163,11 +163,6 @@ class GameLibraryReleaseEditPresentationBuilder
   }
 }
 
-class GameLibraryEditPresentationBuilder
-    extends GameLibraryCombinedEditPresentationBuilder {
-  const GameLibraryEditPresentationBuilder();
-}
-
 const gameLibraryEditPresentation = LibraryEditPresentation(
   builder: GameLibraryCombinedEditPresentationBuilder(),
   mediaBuilder: GameLibraryMediaEditPresentationBuilder(),

@@ -503,7 +503,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
     _tabController = TabController(
-      length: widget.type.editPresentation.builder
+      length: widget.type.editPresentation
+          .builderForScope(widget.scope)
           .buildTabs(context: _initialEditPresentationContext)
           .length,
       vsync: this,

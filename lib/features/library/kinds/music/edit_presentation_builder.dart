@@ -209,11 +209,6 @@ class MusicLibraryMediaEditPresentationBuilder
   }
 }
 
-class MusicLibraryEditPresentationBuilder
-    extends MusicLibraryCombinedEditPresentationBuilder {
-  const MusicLibraryEditPresentationBuilder();
-}
-
 const musicLibraryEditPresentation = LibraryEditPresentation(
   builder: MusicLibraryCombinedEditPresentationBuilder(),
   mediaBuilder: MusicLibraryMediaEditPresentationBuilder(),

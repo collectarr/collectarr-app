@@ -145,11 +145,6 @@ class MovieLibraryReleaseEditPresentationBuilder
   }
 }
 
-class MovieLibraryEditPresentationBuilder
-    extends MovieLibraryCombinedEditPresentationBuilder {
-  const MovieLibraryEditPresentationBuilder();
-}
-
 const movieLibraryEditPresentation = LibraryEditPresentation(
   builder: MovieLibraryCombinedEditPresentationBuilder(),
   mediaBuilder: MovieLibraryMediaEditPresentationBuilder(),

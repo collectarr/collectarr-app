@@ -147,11 +147,6 @@ class ComicLibraryReleaseEditPresentationBuilder
   }
 }
 
-class ComicLibraryEditPresentationBuilder
-    extends ComicLibraryCombinedEditPresentationBuilder {
-  const ComicLibraryEditPresentationBuilder();
-}
-
 const comicsLibraryEditPresentation = LibraryEditPresentation(
   builder: ComicLibraryCombinedEditPresentationBuilder(),
   mediaBuilder: ComicLibraryMediaEditPresentationBuilder(),

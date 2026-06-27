@@ -371,8 +371,3 @@ class BookLibraryReleaseEditPresentationBuilder
     );
   }
 }
-
-class BookLibraryEditPresentationBuilder
-    extends BookLibraryMediaEditPresentationBuilder {
-  const BookLibraryEditPresentationBuilder();
-}
