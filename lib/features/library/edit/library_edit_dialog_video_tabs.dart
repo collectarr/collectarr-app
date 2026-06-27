@@ -66,6 +66,12 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                   validator: optionalIntValidator,
                 ),
                 _field(
+                    controller: _ageRatingController,
+                    label: 'Age rating'),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
                     controller: _audienceRatingController,
                     label: 'Audience rating'),
               ]),
