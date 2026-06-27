@@ -41,6 +41,10 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
         ? const <WishlistItem>[]
         : [source.wishlistItem!],
   );
+  final primaryRelease = _resolvePrimaryBookRelease(resolvedEditions);
+  final primaryReleaseCoverUrl = _primaryBookReleaseCover(primaryRelease.edition) ??
+      primaryRelease.variant?.thumbnailImageUrl ??
+      primaryRelease.variant?.coverImageUrl;
   return LibraryWorkspaceEntryData(
     id: item.id,
     browseScope: LibraryBrowserScope.title,
@@ -56,8 +60,9 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
     searchAliases: _copyStringList(item.searchAliases),
     itemNumber: item.itemNumber,
     synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
+    coverImageUrl: item.coverImageUrl ?? primaryReleaseCoverUrl,
+    thumbnailImageUrl:
+        item.thumbnailImageUrl ?? primaryReleaseCoverUrl ?? item.coverImageUrl,
     publisher: item.publisher,
     coverDate: item.coverDate,
     releaseDate: item.releaseDate,
@@ -89,9 +94,13 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
       fallbackFormatLabel: item.physicalFormatLabel,
     ),
     referenceEditionId:
-        source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
+        source.ownedItem?.editionId ??
+            source.wishlistItem?.editionId ??
+            primaryRelease.edition?.id,
     referenceVariantId:
-        source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
+        source.ownedItem?.variantId ??
+            source.wishlistItem?.variantId ??
+            primaryRelease.variant?.id,
     referenceBundleReleaseId:
         source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
     notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
@@ -117,6 +126,56 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
     audienceRating: item.audienceRating,
     rawPlatforms: _copyStringList(item.game?.platforms),
   );
+}
+
+({CatalogEdition? edition, CatalogVariant? variant})
+    _resolvePrimaryBookRelease(List<CatalogEdition> editions) {
+  for (final edition in editions) {
+    for (final variant in edition.variants) {
+      if (variant.isPrimary) {
+        return (edition: edition, variant: variant);
+      }
+    }
+  }
+  for (final edition in editions) {
+    if (edition.variants.isNotEmpty) {
+      return (edition: edition, variant: edition.variants.first);
+    }
+  }
+  return (
+    edition: editions.isEmpty ? null : editions.first,
+    variant: null,
+  );
+}
+
+String? _primaryBookReleaseCover(CatalogEdition? edition) {
+  if (edition == null) {
+    return null;
+  }
+  for (final variant in edition.variants) {
+    if (!variant.isPrimary) {
+      continue;
+    }
+    final thumbnail = variant.thumbnailImageUrl?.trim();
+    if (thumbnail != null && thumbnail.isNotEmpty) {
+      return thumbnail;
+    }
+    final cover = variant.coverImageUrl?.trim();
+    if (cover != null && cover.isNotEmpty) {
+      return cover;
+    }
+  }
+  for (final variant in edition.variants) {
+    final thumbnail = variant.thumbnailImageUrl?.trim();
+    if (thumbnail != null && thumbnail.isNotEmpty) {
+      return thumbnail;
+    }
+    final cover = variant.coverImageUrl?.trim();
+    if (cover != null && cover.isNotEmpty) {
+      return cover;
+    }
+  }
+  return null;
 }
 
 LibraryWorkspaceEntryData _buildReleaseEntryData(

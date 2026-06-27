@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -78,6 +80,37 @@ void main() {
     );
 
     expect(item.displayCoverUrl, 'https://example.test/thumb.jpg');
+  });
+
+  test('book media falls back to primary release cover and reference ids', () {
+    final item = CatalogItem(
+      id: 'book-1',
+      kind: 'book',
+      title: 'Example Book',
+      editions: [
+        CatalogEdition(
+          id: 'edition-1',
+          title: 'Hardcover',
+          variants: [
+            CatalogVariant(
+              id: 'variant-1',
+              name: 'Hardcover',
+              coverImageUrl: 'https://example.test/release-cover.jpg',
+              thumbnailImageUrl: 'https://example.test/release-thumb.jpg',
+              isPrimary: true,
+            ),
+          ],
+        ),
+      ],
+    );
+
+    final entry = buildBooksLibraryWorkspaceEntryFromShelf(
+      ShelfEntry(itemId: 'book-1', catalogItem: item),
+    );
+
+    expect(entry.displayCoverUrl, 'https://example.test/release-thumb.jpg');
+    expect(entry.referenceEditionId, 'edition-1');
+    expect(entry.referenceVariantId, 'variant-1');
   });
 
   test('builds media-specific workspace entry subtypes', () {

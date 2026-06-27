@@ -141,6 +141,15 @@ class BookLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Variant Type', variantType.trim()),
         if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
           LibraryInspectorFactData('SKU', sku.trim()),
+        if (referenceRelease.edition != null)
+          LibraryInspectorFactData(
+            'Primary release',
+            [
+              referenceRelease.edition!.title,
+              if (referenceVariant?.name.trim().isNotEmpty == true)
+                referenceVariant!.name.trim(),
+            ].join(' · '),
+          ),
         if (referencePlatforms.isNotEmpty)
           LibraryInspectorFactData(
             referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
