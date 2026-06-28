@@ -133,6 +133,10 @@ class AdminMetadataItem {
     this.externalLinks = const [],
     this.providerLinks = const [],
     this.editions = const [],
+    this.coverStatus = 'missing',
+    this.coverStorage,
+    this.coverPolicy,
+    this.coverSourceUrl,
   });
 
   final String id;
@@ -169,6 +173,10 @@ class AdminMetadataItem {
   final List<TrailerLink> externalLinks;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
+  final String coverStatus;
+  final String? coverStorage;
+  final String? coverPolicy;
+  final String? coverSourceUrl;
 
   String get displayTitle {
     if (itemNumber == null || itemNumber!.isEmpty) {
@@ -298,8 +306,30 @@ class AdminMetadataItem {
         for (final edition in (json['editions'] as List<dynamic>? ?? []))
           AdminEdition.fromJson(edition as Map<String, dynamic>),
       ],
+      coverStatus: _adminCoverValue(json, 'cover_status') ??
+          (json['cover_image_url'] != null || json['thumbnail_image_url'] != null
+              ? 'external_url'
+              : 'missing'),
+      coverStorage: _adminCoverValue(json, 'cover_storage'),
+      coverPolicy: _adminCoverValue(json, 'cover_policy'),
+      coverSourceUrl: _adminCoverValue(json, 'cover_source_url'),
     );
   }
+}
+
+String? _adminCoverValue(Map<String, dynamic> json, String key) {
+  final direct = json[key];
+  if (direct != null && direct.toString().trim().isNotEmpty) {
+    return direct.toString();
+  }
+  final normalized = json['normalized'];
+  if (normalized is Map) {
+    final value = normalized[key];
+    if (value != null && value.toString().trim().isNotEmpty) {
+      return value.toString();
+    }
+  }
+  return null;
 }
 
 class AdminEdition {
@@ -350,7 +380,6 @@ class AdminVariant {
     this.thumbnailImageUrl,
     this.physicalFormat,
     this.physicalFormatLabel,
-    this.metadataJson = const {},
   });
 
   final String id;
@@ -364,29 +393,17 @@ class AdminVariant {
   final String? thumbnailImageUrl;
   final String? physicalFormat;
   final String? physicalFormatLabel;
-  final Map<String, dynamic> metadataJson;
-
-  Map<String, dynamic> get normalizedMetadata {
-    final normalized = metadataJson['normalized'];
-    return normalized is Map
-        ? normalized.cast<String, dynamic>()
-        : const <String, dynamic>{};
-  }
 
   String get coverStatus {
-    final status = normalizedMetadata['cover_status'];
-    if (status != null && status.toString().trim().isNotEmpty) {
-      return status.toString();
+    if (coverImageUrl == null && thumbnailImageUrl == null) {
+      return 'missing';
     }
-    return coverImageUrl == null && thumbnailImageUrl == null
-        ? 'missing'
-        : 'external_url';
+    return 'external_url';
   }
 
-  String? get coverStorage => normalizedMetadata['cover_storage']?.toString();
-  String? get coverPolicy => normalizedMetadata['cover_policy']?.toString();
-  String? get coverSourceUrl =>
-      normalizedMetadata['cover_source_url']?.toString();
+  String? get coverStorage => null;
+  String? get coverPolicy => null;
+  String? get coverSourceUrl => null;
 
   factory AdminVariant.fromJson(Map<String, dynamic> json) {
     return AdminVariant(
@@ -401,8 +418,6 @@ class AdminVariant {
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      metadataJson: (json['metadata_json'] as Map?)?.cast<String, dynamic>() ??
-          const <String, dynamic>{},
     );
   }
 }

@@ -187,8 +187,7 @@ class CatalogVariant {
       description: json['description'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      metadata: (json['metadata_json'] as Map<String, dynamic>?)
-          ?.cast<String, dynamic>(),
+      metadata: const <String, dynamic>{},
       isPrimary: json['is_primary'] as bool? ?? false,
     );
   }
@@ -265,8 +264,7 @@ class CatalogEdition {
       releaseDate: CatalogItem._parseDate(json['release_date'] as String?),
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      metadata: (json['metadata_json'] as Map<String, dynamic>?)
-          ?.cast<String, dynamic>(),
+      metadata: const <String, dynamic>{},
       variants: (json['variants'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map(CatalogVariant.fromJson)
