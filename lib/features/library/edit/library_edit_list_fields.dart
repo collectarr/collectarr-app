@@ -338,3 +338,62 @@ class MusicCreditEntry {
       ? name
       : '$name (${instrument!.trim()})';
 }
+
+class EditablePersonCreditRow extends StatelessWidget {
+  const EditablePersonCreditRow({
+    super.key,
+    required this.dragHandle,
+    required this.primaryField,
+    this.avatar = const Icon(Icons.person, size: 18),
+    this.secondaryField,
+    this.trailingActions = const [],
+    this.stacked = false,
+  });
+
+  final Widget dragHandle;
+  final Widget avatar;
+  final Widget primaryField;
+  final Widget? secondaryField;
+  final List<Widget> trailingActions;
+  final bool stacked;
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = const SizedBox(width: 8);
+    if (stacked) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              dragHandle,
+              gap,
+              SizedBox(width: 28, child: Center(child: avatar)),
+              gap,
+              Expanded(child: primaryField),
+              ...trailingActions,
+            ],
+          ),
+          if (secondaryField != null) ...[
+            const SizedBox(height: 8),
+            secondaryField!,
+          ],
+        ],
+      );
+    }
+    return Row(
+      children: [
+        dragHandle,
+        gap,
+        SizedBox(width: 28, child: Center(child: avatar)),
+        gap,
+        SizedBox(width: 180, child: primaryField),
+        if (secondaryField != null) ...[
+          gap,
+          Expanded(child: secondaryField!),
+        ],
+        ...trailingActions,
+      ],
+    );
+  }
+}

@@ -688,6 +688,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
     required List<String> roleOptions,
     required VoidCallback addCredit,
   }) {
+    final stacked = MediaQuery.sizeOf(context).width < 760;
     return EditTabShell(
       children: [
         EditSection(
@@ -742,76 +743,53 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                     return Padding(
                       key: ValueKey(credit),
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final stacked = constraints.maxWidth < 760;
-                          final roleField = DropdownButtonFormField<String>(
-                            initialValue: selectedRole,
-                            isExpanded: true,
-                            items: [
-                              for (final role in options)
-                                DropdownMenuItem<String>(
-                                  value: role,
-                                  child: Text(role),
-                                ),
-                            ],
-                            onChanged: (value) {
-                              if (value == null) return;
-                              credit.roleController.text = value;
-                            },
-                            decoration: const InputDecoration(
-                              hintText: 'Role',
-                              isDense: true,
-                            ),
-                          );
-                          final nameField = TextFormField(
-                            controller: credit.nameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Name',
-                            ),
-                          );
-                          final removeButton = IconButton(
+                      child: EditablePersonCreditRow(
+                        stacked: stacked,
+                        dragHandle: ReorderableDragStartListener(
+                          index: index,
+                          child: Icon(
+                            Icons.drag_handle,
+                            color: appPalette(context).textMuted,
+                          ),
+                        ),
+                        avatar: const CircleAvatar(
+                          radius: 14,
+                          child: Icon(Icons.person, size: 16),
+                        ),
+                        primaryField: DropdownButtonFormField<String>(
+                          initialValue: selectedRole,
+                          isExpanded: true,
+                          items: [
+                            for (final role in options)
+                              DropdownMenuItem<String>(
+                                value: role,
+                                child: Text(role),
+                              ),
+                          ],
+                          onChanged: (value) {
+                            if (value == null) return;
+                            credit.roleController.text = value;
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Role',
+                            isDense: true,
+                          ),
+                        ),
+                        secondaryField: TextFormField(
+                          controller: credit.nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Name',
+                          ),
+                        ),
+                        trailingActions: [
+                          IconButton(
                             onPressed: () => _mutateDialogState(
                               () => credits.removeAt(index).dispose(),
                             ),
                             icon: const Icon(Icons.close, size: 18),
                             tooltip: 'Remove',
-                          );
-                          final dragHandle = ReorderableDragStartListener(
-                            index: index,
-                            child: Icon(
-                              Icons.drag_handle,
-                              color: appPalette(context).textMuted,
-                            ),
-                          );
-                          if (stacked) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  children: [
-                                    dragHandle,
-                                    const SizedBox(width: 8),
-                                    Expanded(child: roleField),
-                                    removeButton,
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                nameField,
-                              ],
-                            );
-                          }
-                          return Row(
-                            children: [
-                              dragHandle,
-                              const SizedBox(width: 8),
-                              SizedBox(width: 180, child: roleField),
-                              const SizedBox(width: 8),
-                              Expanded(child: nameField),
-                              removeButton,
-                            ],
-                          );
-                        },
+                          ),
+                        ],
                       ),
                     );
                   },
