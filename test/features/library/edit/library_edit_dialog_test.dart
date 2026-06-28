@@ -137,6 +137,8 @@ void main() {
 
     // Verify the dialog opened with an edit heading
     expect(find.textContaining('Edit'), findsWidgets);
+    expect(find.text('Blade Runner (1982)'), findsOneWidget);
+    expect(find.text('Tracking'), findsWidgets);
 
     // Edit the title
     await tester.enterText(
@@ -404,14 +406,16 @@ void main() {
     if (castTab.evaluate().isNotEmpty) {
       await tester.tap(castTab.first);
       await pumpUntilSettled(tester);
-      expect(find.textContaining('Read-only: cast credits'), findsOneWidget);
+      expect(find.text('Add Cast'), findsOneWidget);
+      expect(find.text('Harrison Ford'), findsOneWidget);
     }
 
     final crewTab = find.text('Crew', skipOffstage: false);
     if (crewTab.evaluate().isNotEmpty) {
       await tester.tap(crewTab.first);
       await pumpUntilSettled(tester);
-      expect(find.textContaining('Read-only: crew credits'), findsOneWidget);
+      expect(find.text('Add Crew'), findsOneWidget);
+      expect(find.text('Ridley Scott'), findsOneWidget);
     }
 
     final discsTab = find.text('Discs', skipOffstage: false);
@@ -1030,12 +1034,12 @@ void main() {
     await tester.tap(find.text('Open tracked'));
     await pumpUntilSettled(tester);
 
-    // Tracking fields now live under the Personal tab for video kinds.
-    await tester.tap(find.text('Personal'));
+    // Tracking fields now live under the dedicated Tracking tab.
+    await tester.tap(find.text('Tracking').first);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Tracking edition'), findsAtLeastNWidgets(1));
+    expect(find.text('Tracking'), findsWidgets);
+    expect(find.text('Tracking status'), findsOneWidget);
     expect(find.text('Value'), findsNothing);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);

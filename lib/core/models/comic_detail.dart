@@ -122,7 +122,6 @@ class ComicEdition {
     this.releaseDate,
     this.physicalFormat,
     this.physicalFormatLabel,
-    this.metadataJson,
   });
 
   final String id;
@@ -136,13 +135,7 @@ class ComicEdition {
   final DateTime? releaseDate;
   final String? physicalFormat;
   final String? physicalFormatLabel;
-  final Map<String, dynamic>? metadataJson;
   final List<ComicVariant> variants;
-
-  Map<String, dynamic>? get sourceMetadata {
-    final source = metadataJson?['source'];
-    return source is Map<String, dynamic> ? source : null;
-  }
 
   ComicVariant? get primaryVariant {
     for (final variant in variants) {
@@ -166,7 +159,6 @@ class ComicEdition {
       releaseDate: parseDate(json['release_date'] as String?),
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      metadataJson: json['metadata_json'] as Map<String, dynamic>?,
       variants: [
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
           ComicVariant.fromJson(variant as Map<String, dynamic>),

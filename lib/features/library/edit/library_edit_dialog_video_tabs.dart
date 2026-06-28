@@ -1,13 +1,28 @@
 part of 'library_edit_dialog.dart';
 
-const _libraryEditCastRoles = {
-  'actor',
-  'voice',
-  'voice actor',
-  'guest star',
-  'cameo',
-  'narrator',
-};
+const _castRoleOptions = <String>[
+  'Actor',
+  'Voice',
+  'Voice Actor',
+  'Guest Star',
+  'Cameo',
+  'Narrator',
+];
+
+const _crewRoleOptions = <String>[
+  'Director',
+  'Writer',
+  'Producer',
+  'Executive Producer',
+  'Composer',
+  'Cinematographer',
+  'Editor',
+  'Production Designer',
+  'Musician',
+  'Screenplay',
+  'Story',
+  'Casting',
+];
 
 extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
   Widget _videoMediaTab() {
@@ -95,142 +110,31 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
   }
 
   Widget _castTab() {
-    final creators = widget.item.creators;
-    final castEntries = creators?.where((c) {
-      final role = c['role']?.toString().trim().toLowerCase() ?? '';
-      return role.isEmpty ||
-          _libraryEditCastRoles.any((tag) => role.contains(tag));
-    }).toList();
-    final hasCast = castEntries != null && castEntries.isNotEmpty;
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Cast',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const EditSectionStateMessage(
-                message:
-                    'Read-only: cast credits are synced from provider/Core metadata.',
-                icon: Icons.lock_outline,
-              ),
-              const SizedBox(height: 10),
-              if (hasCast)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final credit in castEntries)
-                      if (credit['name']?.toString().trim().isNotEmpty == true)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            children: [
-                              Icon(Icons.person,
-                                  size: 16,
-                                  color: appPalette(context).textMuted),
-                              const SizedBox(width: 8),
-                              Text(
-                                credit['name'].toString().trim(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              if (credit['role']
-                                      ?.toString()
-                                      .trim()
-                                      .isNotEmpty ==
-                                  true) ...[
-                                const SizedBox(width: 6),
-                                Text(
-                                  '— ${credit['role']}',
-                                  style: TextStyle(
-                                      color: appPalette(context).textMuted),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                  ],
-                )
-              else
-                const EditSectionStateMessage(
-                  message: 'No cast data available.',
-                  icon: Icons.people_outline,
-                ),
-            ],
-          ),
-        ),
-      ],
+    return _buildCreditsTab(
+      title: 'Cast',
+      emptyMessage: 'No cast data yet.',
+      addLabel: 'Add Cast',
+      credits: _videoCastCredits,
+      defaultRole: 'Actor',
+      roleOptions: _castRoleOptions,
+      addCredit: () => _mutateDialogState(
+        () => _videoCastCredits.add(EditableVideoCredit.custom(role: 'Actor')),
+      ),
     );
   }
 
   Widget _crewTab() {
-    final creators = widget.item.creators;
-    final crewEntries = creators?.where((c) {
-      final role = c['role']?.toString().trim().toLowerCase() ?? '';
-      return role.isNotEmpty &&
-          !_libraryEditCastRoles.any((tag) => role.contains(tag));
-    }).toList();
-    final hasCrew = crewEntries != null && crewEntries.isNotEmpty;
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Crew',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const EditSectionStateMessage(
-                message:
-                    'Read-only: crew credits are synced from provider/Core metadata.',
-                icon: Icons.lock_outline,
-              ),
-              const SizedBox(height: 10),
-              if (hasCrew)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final credit in crewEntries)
-                      if (credit['name']?.toString().trim().isNotEmpty == true)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            children: [
-                              Icon(Icons.person,
-                                  size: 16,
-                                  color: appPalette(context).textMuted),
-                              const SizedBox(width: 8),
-                              Text(
-                                credit['name'].toString().trim(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              if (credit['role']
-                                      ?.toString()
-                                      .trim()
-                                      .isNotEmpty ==
-                                  true) ...[
-                                const SizedBox(width: 6),
-                                Text(
-                                  '— ${credit['role']}',
-                                  style: TextStyle(
-                                      color: appPalette(context).textMuted),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                  ],
-                )
-              else
-                const EditSectionStateMessage(
-                  message: 'No crew data available.',
-                  icon: Icons.badge_outlined,
-                ),
-            ],
-          ),
-        ),
-      ],
+    return _buildCreditsTab(
+      title: 'Crew',
+      emptyMessage: 'No crew data yet.',
+      addLabel: 'Add Crew',
+      credits: _videoCrewCredits,
+      defaultRole: 'Director',
+      roleOptions: _crewRoleOptions,
+      addCredit: () => _mutateDialogState(
+        () =>
+            _videoCrewCredits.add(EditableVideoCredit.custom(role: 'Director')),
+      ),
     );
   }
 
@@ -486,7 +390,6 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
             children: [
               if (_showPhysicalOwnedFields) ...[
                 _responsiveFields([
-                  _locationField(),
                   _field(
                     controller: _ownerLabelController,
                     label: 'Owner',
@@ -544,107 +447,6 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
             ],
           ),
         ),
-        EditSection(
-          title: 'Watch history',
-          accent: widget.accent,
-          child: Column(
-            children: [
-              if (_isTrackingOnly && widget.item.editions.isNotEmpty) ...[
-                _responsiveFields([
-                  _trackingEditionSelectionField(),
-                  _trackingVariantSelectionField(),
-                ]),
-                const SizedBox(height: 10),
-              ],
-              _responsiveFields([
-                SizedBox(
-                  width: 120,
-                  child: MediaRatingField(controller: _ratingController),
-                ),
-                SizedBox(
-                  width: 180,
-                  child: MediaTrackingStatusField(
-                    profile: widget.type.trackingProfile,
-                    value: _trackingController.text,
-                    label: 'Tracking status',
-                    onChanged: (value) {
-                      _trackingController.text = value ?? '';
-                    },
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields(
-                buildTrackingProgressFieldWidgets(
-                  progressCurrentController: _progressCurrentController,
-                  progressTotalController: _progressTotalController,
-                  timesCompletedController: _timesCompletedController,
-                  buildField: (controller, label) => _field(
-                    controller: controller,
-                    label: label,
-                    validator: optionalIntValidator,
-                  ),
-                ),
-              ),
-              if (_showsEpisodeTrackingFields) ...[
-                const SizedBox(height: 10),
-                _responsiveFields(
-                  buildTrackingEpisodeFieldWidgets(
-                    seasonNumberController: _seasonNumberController,
-                    episodeNumberController: _episodeNumberController,
-                    buildField: (controller, label) => _field(
-                      controller: controller,
-                      label: label,
-                      validator: optionalIntValidator,
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _datePickerField(
-                  label: 'Started',
-                  value: _startedAt,
-                  onChanged: (v) => _mutateDialogState(() => _startedAt = v),
-                ),
-                _datePickerField(
-                  label: 'Finished',
-                  value: _finishedAt,
-                  onChanged: (v) => _mutateDialogState(() => _finishedAt = v),
-                ),
-              ]),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _trackingNotesController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking notes',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (_showsEpisodeTrackingFields)
-          VideoSeasonTrackingSection(
-            itemId: widget.item.id,
-            accent: widget.accent,
-          ),
-        if (_showsEpisodeTrackingFields)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: VideoEpisodeRatingSection(
-              itemId: widget.item.id,
-              accent: widget.accent,
-              trackingEntry: widget.trackingEntry?.copyWith(
-                episodeRatings: _episodeRatings,
-              ),
-              onEpisodeRatingsChanged: (updated) {
-                _mutateDialogState(() => _episodeRatings = updated);
-              },
-            ),
-          ),
         if (_hasWishlistContext)
           EditSection(
             title: 'Wishlist reference',
@@ -765,6 +567,258 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               style: TextStyle(color: appPalette(context).textMuted),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _readHistoryTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Watch history',
+          accent: widget.accent,
+          child: Column(
+            children: [
+              if (_isTrackingOnly && widget.item.editions.isNotEmpty) ...[
+                _responsiveFields([
+                  _trackingEditionSelectionField(),
+                  _trackingVariantSelectionField(),
+                ]),
+                const SizedBox(height: 10),
+              ],
+              _responsiveFields([
+                SizedBox(
+                  width: 120,
+                  child: MediaRatingField(controller: _ratingController),
+                ),
+                SizedBox(
+                  width: 180,
+                  child: MediaTrackingStatusField(
+                    profile: widget.type.trackingProfile,
+                    value: _trackingController.text,
+                    label: 'Tracking status',
+                    onChanged: (value) {
+                      _trackingController.text = value ?? '';
+                    },
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields(
+                buildTrackingProgressFieldWidgets(
+                  progressCurrentController: _progressCurrentController,
+                  progressTotalController: _progressTotalController,
+                  timesCompletedController: _timesCompletedController,
+                  buildField: (controller, label) => _field(
+                    controller: controller,
+                    label: label,
+                    validator: optionalIntValidator,
+                  ),
+                ),
+              ),
+              if (_showsEpisodeTrackingFields) ...[
+                const SizedBox(height: 10),
+                _responsiveFields(
+                  buildTrackingEpisodeFieldWidgets(
+                    seasonNumberController: _seasonNumberController,
+                    episodeNumberController: _episodeNumberController,
+                    buildField: (controller, label) => _field(
+                      controller: controller,
+                      label: label,
+                      validator: optionalIntValidator,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _datePickerField(
+                  label: 'Started',
+                  value: _startedAt,
+                  onChanged: (v) => _mutateDialogState(() => _startedAt = v),
+                ),
+                _datePickerField(
+                  label: 'Finished',
+                  value: _finishedAt,
+                  onChanged: (v) => _mutateDialogState(() => _finishedAt = v),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _trackingNotesController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Tracking notes',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_showsEpisodeTrackingFields)
+          VideoSeasonTrackingSection(
+            itemId: widget.item.id,
+            accent: widget.accent,
+          ),
+        if (_showsEpisodeTrackingFields)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: VideoEpisodeRatingSection(
+              itemId: widget.item.id,
+              accent: widget.accent,
+              trackingEntry: widget.trackingEntry?.copyWith(
+                episodeRatings: _episodeRatings,
+              ),
+              onEpisodeRatingsChanged: (updated) {
+                _mutateDialogState(() => _episodeRatings = updated);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCreditsTab({
+    required String title,
+    required String emptyMessage,
+    required String addLabel,
+    required List<EditableVideoCredit> credits,
+    required String defaultRole,
+    required List<String> roleOptions,
+    required VoidCallback addCredit,
+  }) {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: title,
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  FilledButton.icon(
+                    onPressed: addCredit,
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text(addLabel),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (credits.isEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    emptyMessage,
+                    style: TextStyle(color: appPalette(context).textMuted),
+                  ),
+                )
+              else
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onReorderItem: (oldIndex, newIndex) {
+                    _mutateDialogState(() {
+                      final item = credits.removeAt(oldIndex);
+                      credits.insert(newIndex, item);
+                    });
+                  },
+                  itemCount: credits.length,
+                  itemBuilder: (context, index) {
+                    final credit = credits[index];
+                    final currentRole = credit.roleController.text.trim();
+                    final selectedRole = roleOptions.firstWhere(
+                      (option) => option.toLowerCase() == currentRole.toLowerCase(),
+                      orElse: () => currentRole.isEmpty ? defaultRole : currentRole,
+                    );
+                    final options = <String>[
+                      selectedRole,
+                      ...roleOptions.where(
+                        (option) =>
+                            option.toLowerCase() != selectedRole.toLowerCase(),
+                      ),
+                    ];
+                    return Padding(
+                      key: ValueKey(credit),
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final stacked = constraints.maxWidth < 760;
+                          final roleField = DropdownButtonFormField<String>(
+                            initialValue: selectedRole,
+                            isExpanded: true,
+                            items: [
+                              for (final role in options)
+                                DropdownMenuItem<String>(
+                                  value: role,
+                                  child: Text(role),
+                                ),
+                            ],
+                            onChanged: (value) {
+                              if (value == null) return;
+                              credit.roleController.text = value;
+                            },
+                            decoration: const InputDecoration(
+                              hintText: 'Role',
+                              isDense: true,
+                            ),
+                          );
+                          final nameField = TextFormField(
+                            controller: credit.nameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Name',
+                            ),
+                          );
+                          final removeButton = IconButton(
+                            onPressed: () => _mutateDialogState(
+                              () => credits.removeAt(index).dispose(),
+                            ),
+                            icon: const Icon(Icons.close, size: 18),
+                            tooltip: 'Remove',
+                          );
+                          final dragHandle = ReorderableDragStartListener(
+                            index: index,
+                            child: Icon(
+                              Icons.drag_handle,
+                              color: appPalette(context).textMuted,
+                            ),
+                          );
+                          if (stacked) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    dragHandle,
+                                    const SizedBox(width: 8),
+                                    Expanded(child: roleField),
+                                    removeButton,
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                nameField,
+                              ],
+                            );
+                          }
+                          return Row(
+                            children: [
+                              dragHandle,
+                              const SizedBox(width: 8),
+                              SizedBox(width: 180, child: roleField),
+                              const SizedBox(width: 8),
+                              Expanded(child: nameField),
+                              removeButton,
+                            ],
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }

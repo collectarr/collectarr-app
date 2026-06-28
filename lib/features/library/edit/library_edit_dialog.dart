@@ -48,6 +48,7 @@ import 'package:drift/drift.dart' show QueryRow;
 import 'package:url_launcher/url_launcher.dart';
 
 part 'library_edit_dialog_anchor_widgets.dart';
+part 'library_edit_dialog_video_models.dart';
 part 'library_edit_dialog_video_tabs.dart';
 part '../kinds/comic/library_edit_dialog_comic_tabs.dart';
 part 'library_edit_dialog_comic_models.dart';
@@ -247,6 +248,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   final List<_EditableComicCreator> _comicCreators = [];
   final List<_EditableComicCharacter> _comicCharacters = [];
   final List<Map<String, TextEditingController>> _comicLinks = [];
+  final List<EditableVideoCredit> _videoCastCredits = [];
+  final List<EditableVideoCredit> _videoCrewCredits = [];
   final TextEditingController _comicCharacterDraftController =
       TextEditingController();
   List<StorageLocation> get _availableLocations => _draft.availableLocations;
@@ -385,6 +388,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return widget.item.mediaKind.isVideoLibraryKind;
   }
 
+  bool get _isMovieKind => widget.type.workspace.kind.apiValue == 'movie';
+
   bool get _isGameKind {
     return widget.type.capabilities.usesGameCompletenessFields;
   }
@@ -518,8 +523,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _gamePlatformsController = TextEditingController(
       text: (widget.item.game?.platforms ?? const <String>[]).join(', '),
     );
-    _initializeGameChipEditors();
-    _initializeComicEditors();
+    _initializeKindSpecificEditors();
 
     unawaited(_loadCatalogVocabularyOptions());
 
@@ -542,6 +546,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     for (final link in _comicLinks) {
       link['title']?.dispose();
       link['url']?.dispose();
+    }
+    for (final credit in _videoCastCredits) {
+      credit.dispose();
+    }
+    for (final credit in _videoCrewCredits) {
+      credit.dispose();
     }
     _gamePlatformsController.dispose();
     _tabController.dispose();
@@ -574,30 +584,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   void _initializeComicEditors() {
-    if (!_isComicKind) {
-      return;
-    }
-    for (final creator
-        in widget.item.creators ?? const <Map<String, dynamic>>[]) {
-      _comicCreators.add(_EditableComicCreator.fromMetadata(creator));
-    }
-    if (widget.item.characterDetails != null &&
-        widget.item.characterDetails!.isNotEmpty) {
-      for (final character in widget.item.characterDetails!) {
-        _comicCharacters.add(_EditableComicCharacter.fromMetadata(character));
-      }
-    } else {
-      for (final characterName in widget.item.characters ?? const <String>[]) {
-        _comicCharacters.add(_EditableComicCharacter.custom(characterName));
-      }
-    }
-    for (final link
-        in widget.item.trailerUrls.where((entry) => entry.isExternalLink)) {
-      _comicLinks.add(_createComicLinkControllers(
-        title: link.title ?? link.description ?? '',
-        url: link.url,
-      ));
-    }
+    _initializeComicEditorsForState();
+  }
+
+  void _initializeVideoEditors() {
+    _initializeVideoEditorsForState();
+  }
+
+  void _initializeKindSpecificEditors() {
+    _initializeGameChipEditors();
+    _initializeComicEditors();
+    _initializeVideoEditors();
   }
 
   Map<String, TextEditingController> _createComicLinkControllers({
@@ -640,7 +637,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final dialogTitle = widget.item.title;
+    final dialogTitle = _isMovieKind
+        ? (() {
+            final year = widget.item.releaseYear ?? widget.item.releaseDate?.year;
+            return year == null ? widget.item.title : '${widget.item.title} ($year)';
+          })()
+        : widget.item.title;
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
@@ -674,24 +676,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _mainTab();
       case 'media':
         return _mediaTab();
-      case 'edition':
-        return _LibraryEditRendererVideoTabs(this)._editionTab();
-      case 'specs':
-        return _LibraryEditRendererVideoTabs(this)._specsTab();
-      case 'cast':
-        return _LibraryEditRendererVideoTabs(this)._castTab();
-      case 'crew':
-        return _LibraryEditRendererVideoTabs(this)._crewTab();
       case 'value':
-        if (_isComicKind) {
-          return _ownedComicValueTab();
-        }
-        return _valueTab();
+        return _valueTabForKind();
       case 'personal':
-        if (_isComicKind) {
-          return _ownedComicPersonalTab();
-        }
-        return _personalTab();
+        return _personalTabForKind();
+      case 'read_history':
+        return _readHistoryTab();
       case 'sold':
         return _soldTab();
       case 'custom':
@@ -702,6 +692,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _coverTab();
       case 'synopsis':
         return _synopsisTab();
+      case 'edition':
+        return _LibraryEditRendererVideoTabs(this)._editionTab();
+      case 'specs':
+        return _LibraryEditRendererVideoTabs(this)._specsTab();
+      case 'cast':
+        return _LibraryEditRendererVideoTabs(this)._castTab();
+      case 'crew':
+        return _LibraryEditRendererVideoTabs(this)._crewTab();
       case 'creators':
         return _comicCreatorsTab();
       case 'characters':
@@ -709,18 +707,32 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       case 'discs':
         return _LibraryEditRendererVideoTabs(this)._discsTab();
       case 'links':
-        if (_isComicKind) {
-          return _comicLinksTab();
-        }
-        return _LibraryEditRendererVideoTabs(this)._linksTab();
+        return _linksTabForKind();
       default:
         throw StateError('Unsupported generic edit tab: $id');
     }
   }
 
-  // -------------------------------------------------------------------------
-  // Tab: Media (catalog snapshot — work-level fields only)
-  // -------------------------------------------------------------------------
+  Widget _valueTabForKind() {
+    if (_isComicKind) {
+      return _ownedComicValueTab();
+    }
+    return _valueTab();
+  }
+
+  Widget _personalTabForKind() {
+    if (_isComicKind) {
+      return _ownedComicPersonalTab();
+    }
+    return _personalTab();
+  }
+
+  Widget _linksTabForKind() {
+    if (_isComicKind) {
+      return _comicLinksTab();
+    }
+    return _LibraryEditRendererVideoTabs(this)._linksTab();
+  }
 
   Widget _mediaTab() {
     if (_isVideoKind) {
@@ -729,144 +741,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return _genericMediaTab();
   }
 
-  /// Default media tab for non-video kinds (comics, books, etc.).
   Widget _genericMediaTab() {
-    final mediaFields = widget.type.mediaFields;
-    final releaseFields = widget.type.releaseFields;
     return EditTabShell(
       children: [
-        EditSection(
-          title: 'Media',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _responsiveFields([
-                _field(
-                  controller: _titleController,
-                  label: 'Title',
-                  validator: (value) =>
-                      emptyToNull(value ?? '') == null ? 'Enter a title' : null,
-                ),
-                if (_isGameKind)
-                  _field(controller: _sortKeyController, label: 'Sort title')
-                else
-                  _field(
-                    controller: _numberController,
-                    label: mediaFields.numberLabel,
-                  ),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _publisherField(label: mediaFields.publisherLabel),
-              ]),
-              if (_isGameKind) ...[
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(controller: _seriesTitleController, label: 'Series'),
-                  TagPickListField(
-                    controller: _developersController,
-                    options: _gameDeveloperOptions,
-                    label: 'Developer',
-                    hint: 'Comma-separated developers',
-                  ),
-                ]),
-              ],
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
-                  controller: _releaseDateController,
-                  label: 'Release date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
-                ),
-                _field(
-                  controller: _releaseYearController,
-                  label: 'Release year',
-                  validator: optionalIntValidator,
-                ),
-              ]),
-              if (_isGameKind) ...[
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  TagPickListField(
-                    controller: _gamePlatformsController,
-                    options: _gamePlatformOptions,
-                    label: 'Platform',
-                    hint: 'Comma-separated platforms',
-                  ),
-                  _field(
-                    controller: _audienceRatingController,
-                    label: 'Audience rating',
-                  ),
-                  TagPickListField(
-                    controller: _genresEditController,
-                    options: _gameGenreOptions,
-                    label: 'Genre',
-                    hint: 'Comma-separated genres',
-                  ),
-                ]),
-              ],
-              if (mediaFields.showPageCount ||
-                  mediaFields.showImprint ||
-                  mediaFields.showSeriesGroup) ...[
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  if (mediaFields.showPageCount)
-                    _field(
-                      controller: _pageCountController,
-                      label: 'Page count',
-                      validator: optionalIntValidator,
-                    ),
-                  if (mediaFields.showImprint) _imprintField(),
-                  if (mediaFields.showSeriesGroup)
-                    _seriesGroupField(label: 'Series group'),
-                ]),
-              ],
-            ],
-          ),
-        ),
-        if (_showsReleaseSection)
-          EditSection(
-            title: 'Release details',
-            accent: widget.accent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _responsiveFields([
-                  _field(
-                      controller: _editionTitleController,
-                      label: releaseFields.editionTitleLabel),
-                  _field(
-                      controller: _variantController,
-                      label: releaseFields.variantLabel),
-                  _field(
-                      controller: _barcodeController,
-                      label: releaseFields.barcodeLabel),
-                ]),
-                if (releaseFields.showPhysicalFormat &&
-                    (_effectivePhysicalFormats.isNotEmpty ||
-                        _physicalFormatOptions.isNotEmpty ||
-                        _physicalFormatLabelController.text
-                            .trim()
-                            .isNotEmpty)) ...[
-                  const SizedBox(height: 10),
-                  _physicalFormatField(label: 'Physical format'),
-                ],
-              ],
-            ),
-          ),
+        _buildMediaSection(),
+        if (_showsReleaseSection) _buildReleaseDetailsSection(),
       ],
     );
   }
-
-  // -------------------------------------------------------------------------
-  // Tab: Cast (read-only cast display — actors)
-  // -------------------------------------------------------------------------
-
-  // -------------------------------------------------------------------------
-  // Tab: Main (catalog snapshot + condition/grade)
-  // -------------------------------------------------------------------------
 
   bool get _hasMediaTab => _tabSpecs.any((t) => t.id == 'media');
   bool get _hasEditionTab => _tabSpecs.any((t) => t.id == 'edition');
@@ -878,137 +760,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (_editPresentation.usesOwnedMainArtworkLayout) {
       return _ownedComicMainTab();
     }
-    final mediaFields = widget.type.mediaFields;
-    final releaseFields = widget.type.releaseFields;
     final editPresentation = _editPresentation;
     return EditTabShell(
       children: [
         if (!_hasMediaTab) ...[
-          // ---- Media-level fields (the abstract work) ----
-          EditSection(
-            title: 'Media',
-            accent: widget.accent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _responsiveFields([
-                  _field(
-                    controller: _titleController,
-                    label: 'Title',
-                    validator: (value) => emptyToNull(value ?? '') == null
-                        ? 'Enter a title'
-                        : null,
-                  ),
-                  if (_isGameKind)
-                    _field(controller: _sortKeyController, label: 'Sort title')
-                  else
-                    _field(
-                      controller: _numberController,
-                      label: mediaFields.numberLabel,
-                    ),
-                ]),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _publisherField(label: mediaFields.publisherLabel),
-                ]),
-                if (_isGameKind) ...[
-                  const SizedBox(height: 10),
-                  _responsiveFields([
-                    _field(controller: _seriesTitleController, label: 'Series'),
-                    TagPickListField(
-                      controller: _developersController,
-                      options: _gameDeveloperOptions,
-                      label: 'Developer',
-                      hint: 'Comma-separated developers',
-                    ),
-                  ]),
-                ],
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                    controller: _releaseDateController,
-                    label: 'Release date',
-                    hint: 'YYYY-MM-DD',
-                    validator: optionalDateValidator,
-                  ),
-                  _field(
-                    controller: _releaseYearController,
-                    label: 'Release year',
-                    validator: optionalIntValidator,
-                  ),
-                ]),
-                if (_isGameKind) ...[
-                  const SizedBox(height: 10),
-                  _responsiveFields([
-                    TagPickListField(
-                      controller: _gamePlatformsController,
-                      options: _gamePlatformOptions,
-                      label: 'Platform',
-                      hint: 'Comma-separated platforms',
-                    ),
-                    _field(
-                      controller: _audienceRatingController,
-                      label: 'Audience rating',
-                    ),
-                    TagPickListField(
-                      controller: _genresEditController,
-                      options: _gameGenreOptions,
-                      label: 'Genre',
-                      hint: 'Comma-separated genres',
-                    ),
-                  ]),
-                ],
-                if (mediaFields.showPageCount ||
-                    mediaFields.showImprint ||
-                    mediaFields.showSeriesGroup) ...[
-                  const SizedBox(height: 10),
-                  _responsiveFields([
-                    if (mediaFields.showPageCount)
-                      _field(
-                        controller: _pageCountController,
-                        label: 'Page count',
-                        validator: optionalIntValidator,
-                      ),
-                    if (mediaFields.showImprint) _imprintField(),
-                    if (mediaFields.showSeriesGroup)
-                      _seriesGroupField(label: 'Series group'),
-                  ]),
-                ],
-              ],
-            ),
-          ),
-          // ---- Release-level fields (specific edition/variant) ----
-          if (_showsReleaseSection)
-            EditSection(
-              title: 'Release details',
-              accent: widget.accent,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _responsiveFields([
-                    _field(
-                        controller: _editionTitleController,
-                        label: releaseFields.editionTitleLabel),
-                    _field(
-                        controller: _variantController,
-                        label: releaseFields.variantLabel),
-                    _field(
-                        controller: _barcodeController,
-                        label: releaseFields.barcodeLabel),
-                  ]),
-                  if (releaseFields.showPhysicalFormat &&
-                      (_effectivePhysicalFormats.isNotEmpty ||
-                          _physicalFormatOptions.isNotEmpty ||
-                          _physicalFormatLabelController.text
-                              .trim()
-                              .isNotEmpty)) ...[
-                    const SizedBox(height: 10),
-                    _physicalFormatField(label: 'Physical format'),
-                  ],
-                ],
-              ),
-            ),
-        ], // end if (!_hasMediaTab)
+          _buildMediaSection(),
+          if (_showsReleaseSection) _buildReleaseDetailsSection(),
+        ],
         if (_hasTrackingContext)
           EditSection(
             title: editPresentation.trackingSectionTitle,
@@ -1156,13 +914,129 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return const SizedBox.shrink();
   }
 
-  // -------------------------------------------------------------------------
-  // Tab: Edition (release-level fields — video types)
-  // -------------------------------------------------------------------------
+  Widget _buildMediaSection() {
+    final mediaFields = widget.type.mediaFields;
+    return EditSection(
+      title: 'Media',
+      accent: widget.accent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _responsiveFields([
+            _field(
+              controller: _titleController,
+              label: 'Title',
+              validator: (value) =>
+                  emptyToNull(value ?? '') == null ? 'Enter a title' : null,
+            ),
+            if (_isGameKind)
+              _field(controller: _sortKeyController, label: 'Sort title')
+            else
+              _field(
+                controller: _numberController,
+                label: mediaFields.numberLabel,
+              ),
+          ]),
+          const SizedBox(height: 10),
+          _responsiveFields([
+            _publisherField(label: mediaFields.publisherLabel),
+          ]),
+          if (_isGameKind) ...[
+            const SizedBox(height: 10),
+            _responsiveFields([
+              _field(controller: _seriesTitleController, label: 'Series'),
+              TagPickListField(
+                controller: _developersController,
+                options: _gameDeveloperOptions,
+                label: 'Developer',
+                hint: 'Comma-separated developers',
+              ),
+            ]),
+            const SizedBox(height: 10),
+            _responsiveFields([
+              TagPickListField(
+                controller: _gamePlatformsController,
+                options: _gamePlatformOptions,
+                label: 'Platform',
+                hint: 'Comma-separated platforms',
+              ),
+              _field(
+                controller: _audienceRatingController,
+                label: 'Audience rating',
+              ),
+              TagPickListField(
+                controller: _genresEditController,
+                options: _gameGenreOptions,
+                label: 'Genre',
+                hint: 'Comma-separated genres',
+              ),
+            ]),
+          ],
+          const SizedBox(height: 10),
+          _responsiveFields([
+            _field(
+              controller: _releaseDateController,
+              label: 'Release date',
+              hint: 'YYYY-MM-DD',
+              validator: optionalDateValidator,
+            ),
+            _field(
+              controller: _releaseYearController,
+              label: 'Release year',
+              validator: optionalIntValidator,
+            ),
+          ]),
+          if (mediaFields.showPageCount ||
+              mediaFields.showImprint ||
+              mediaFields.showSeriesGroup) ...[
+            const SizedBox(height: 10),
+            _responsiveFields([
+              if (mediaFields.showPageCount)
+                _field(
+                  controller: _pageCountController,
+                  label: 'Page count',
+                  validator: optionalIntValidator,
+                ),
+              if (mediaFields.showImprint) _imprintField(),
+              if (mediaFields.showSeriesGroup)
+                _seriesGroupField(label: 'Series group'),
+            ]),
+          ],
+        ],
+      ),
+    );
+  }
 
-  // -------------------------------------------------------------------------
-  // Tab: Value
-  // -------------------------------------------------------------------------
+  Widget _buildReleaseDetailsSection() {
+    final releaseFields = widget.type.releaseFields;
+    return EditSection(
+      title: 'Release details',
+      accent: widget.accent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _responsiveFields([
+            _field(
+                controller: _editionTitleController,
+                label: releaseFields.editionTitleLabel),
+            _field(
+                controller: _variantController,
+                label: releaseFields.variantLabel),
+            _field(
+                controller: _barcodeController,
+                label: releaseFields.barcodeLabel),
+          ]),
+          if (releaseFields.showPhysicalFormat &&
+              (_effectivePhysicalFormats.isNotEmpty ||
+                  _physicalFormatOptions.isNotEmpty ||
+                  _physicalFormatLabelController.text.trim().isNotEmpty)) ...[
+            const SizedBox(height: 10),
+            _physicalFormatField(label: 'Physical format'),
+          ],
+        ],
+      ),
+    );
+  }
 
   Widget _valueTab() {
     return LibraryEditValueTab(
@@ -1234,356 +1108,379 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     }
     return EditTabShell(
       children: [
-        EditSection(
-          title: _isOwned
-              ? 'Storage & Tracking'
-              : _hasWishlistContext
-                  ? 'Personal'
-                  : 'Tracking',
-          accent: widget.accent,
-          child: Column(
-            children: [
-              if (_isTrackingOnly && widget.item.editions.isNotEmpty) ...[
-                _responsiveFields([
-                  _trackingEditionSelectionField(),
-                  _trackingVariantSelectionField(),
-                ]),
-                const SizedBox(height: 10),
-              ],
-              _responsiveFields([
-                SizedBox(
-                  width: 120,
-                  child: MediaRatingField(controller: _ratingController),
-                ),
-                SizedBox(
-                  width: 180,
-                  child: MediaTrackingStatusField(
-                    profile: widget.type.trackingProfile,
-                    value: _trackingController.text,
-                    label: 'Tracking status',
-                    onChanged: (value) {
-                      _trackingController.text = value ?? '';
-                    },
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields(
-                buildTrackingProgressFieldWidgets(
-                  progressCurrentController: _progressCurrentController,
-                  progressTotalController: _progressTotalController,
-                  timesCompletedController: _timesCompletedController,
-                  buildField: (controller, label) => _field(
-                    controller: controller,
-                    label: label,
-                    validator: optionalIntValidator,
-                  ),
+        _personalTrackingSection(),
+        if (_showsEpisodeTrackingFields) _videoEpisodeSections(),
+        if (_hasWishlistContext) _wishlistReferenceSection(),
+        if (_isOwned) _ownedNotesSection() else if (!_hasWishlistContext)
+          _collectionFieldsInfoSection(),
+        if (_showPhysicalOwnedFields && !_hasSpecsTab)
+          _physicalMediaSection(),
+        if (_isOwned && !_hasMainTab) _ownershipSection(),
+        if (_isOwned && !_hasValueTab) _purchaseValueSection(),
+      ],
+    );
+  }
+
+  Widget _personalTrackingSection() {
+    return EditSection(
+      title: _isOwned
+          ? 'Storage & Tracking'
+          : _hasWishlistContext
+              ? 'Personal'
+              : 'Tracking',
+      accent: widget.accent,
+      child: Column(
+        children: [
+          if (_isTrackingOnly && widget.item.editions.isNotEmpty) ...[
+            _responsiveFields([
+              _trackingEditionSelectionField(),
+              _trackingVariantSelectionField(),
+            ]),
+            const SizedBox(height: 10),
+          ],
+          _responsiveFields([
+            SizedBox(
+              width: 120,
+              child: MediaRatingField(controller: _ratingController),
+            ),
+            SizedBox(
+              width: 180,
+              child: MediaTrackingStatusField(
+                profile: widget.type.trackingProfile,
+                value: _trackingController.text,
+                label: 'Tracking status',
+                onChanged: (value) {
+                  _trackingController.text = value ?? '';
+                },
+              ),
+            ),
+          ]),
+          const SizedBox(height: 10),
+          _responsiveFields(
+            buildTrackingProgressFieldWidgets(
+              progressCurrentController: _progressCurrentController,
+              progressTotalController: _progressTotalController,
+              timesCompletedController: _timesCompletedController,
+              buildField: (controller, label) => _field(
+                controller: controller,
+                label: label,
+                validator: optionalIntValidator,
+              ),
+            ),
+          ),
+          if (_showsEpisodeTrackingFields) ...[
+            const SizedBox(height: 10),
+            _responsiveFields(
+              buildTrackingEpisodeFieldWidgets(
+                seasonNumberController: _seasonNumberController,
+                episodeNumberController: _episodeNumberController,
+                buildField: (controller, label) => _field(
+                  controller: controller,
+                  label: label,
+                  validator: optionalIntValidator,
                 ),
               ),
-              if (_showsEpisodeTrackingFields) ...[
-                const SizedBox(height: 10),
-                _responsiveFields(
-                  buildTrackingEpisodeFieldWidgets(
-                    seasonNumberController: _seasonNumberController,
-                    episodeNumberController: _episodeNumberController,
-                    buildField: (controller, label) => _field(
-                      controller: controller,
-                      label: label,
-                      validator: optionalIntValidator,
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 10),
+            ),
+          ],
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: _trackingNotesController,
+            minLines: 2,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Tracking notes',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          if (_isOwned && _isDigitalFormat) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Wishlist-only and digital copies do not expose storage location fields.',
+                style: TextStyle(color: appPalette(context).textMuted),
+              ),
+            ),
+          ],
+          if (_isOwned) ...[
+            const SizedBox(height: 10),
+            TagPickListField(
+              controller: _tagsController,
+              options: _tagOptions,
+              label: 'Tags',
+              hint: 'Comma-separated tags',
+            ),
+            const SizedBox(height: 10),
+            _responsiveFields([
+              _field(
+                controller: _ownerLabelController,
+                label: 'Owner',
+                hint: 'Name of the owner',
+              ),
+            ]),
+            const SizedBox(height: 10),
+          ],
+          if (_showPhysicalOwnedFields) ...[
+            _responsiveFields([
               TextFormField(
-                controller: _trackingNotesController,
-                minLines: 2,
-                maxLines: 4,
+                controller: _storageDeviceController,
                 decoration: const InputDecoration(
-                  labelText: 'Tracking notes',
+                  labelText: 'Storage Device',
+                  hintText: 'e.g. DVD Shelf, Blu-ray Cabinet',
                   border: OutlineInputBorder(),
                 ),
               ),
-              if (_isOwned && _isDigitalFormat) ...[
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Wishlist-only and digital copies do not expose storage location fields.',
-                    style: TextStyle(color: appPalette(context).textMuted),
-                  ),
+              TextFormField(
+                controller: _storageSlotController,
+                decoration: const InputDecoration(
+                  labelText: 'Storage Slot',
+                  hintText: 'e.g. Row 3, Slot 5',
+                  border: OutlineInputBorder(),
                 ),
-              ],
-              if (_isOwned) ...[
-                const SizedBox(height: 10),
-                TagPickListField(
-                  controller: _tagsController,
-                  options: _tagOptions,
-                  label: 'Tags',
-                  hint: 'Comma-separated tags',
-                ),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                    controller: _ownerLabelController,
-                    label: 'Owner',
-                    hint: 'Name of the owner',
-                  ),
-                ]),
-                const SizedBox(height: 10),
-              ],
-              if (_showPhysicalOwnedFields) ...[
-                _responsiveFields([
-                  TextFormField(
-                    controller: _storageDeviceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Storage Device',
-                      hintText: 'e.g. DVD Shelf, Blu-ray Cabinet',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  TextFormField(
-                    controller: _storageSlotController,
-                    decoration: const InputDecoration(
-                      labelText: 'Storage Slot',
-                      hintText: 'e.g. Row 3, Slot 5',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 10),
-              ],
-              _responsiveFields([
-                _datePickerField(
-                  label: 'Started',
-                  value: _startedAt,
-                  onChanged: (v) => setState(() => _startedAt = v),
-                ),
-                _datePickerField(
-                  label: 'Finished',
-                  value: _finishedAt,
-                  onChanged: (v) => setState(() => _finishedAt = v),
-                ),
-              ]),
-            ],
-          ),
+              ),
+            ]),
+            const SizedBox(height: 10),
+          ],
+          _responsiveFields([
+            _datePickerField(
+              label: 'Started',
+              value: _startedAt,
+              onChanged: (v) => setState(() => _startedAt = v),
+            ),
+            _datePickerField(
+              label: 'Finished',
+              value: _finishedAt,
+              onChanged: (v) => setState(() => _finishedAt = v),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _videoEpisodeSections() {
+    return Column(
+      children: [
+        VideoSeasonTrackingSection(
+          itemId: widget.item.id,
+          accent: widget.accent,
         ),
-        if (_showsEpisodeTrackingFields)
-          VideoSeasonTrackingSection(
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: VideoEpisodeRatingSection(
             itemId: widget.item.id,
             accent: widget.accent,
+            trackingEntry: widget.trackingEntry?.copyWith(
+              episodeRatings: _episodeRatings,
+            ),
+            onEpisodeRatingsChanged: (updated) {
+              setState(() => _episodeRatings = updated);
+            },
           ),
-        if (_showsEpisodeTrackingFields)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: VideoEpisodeRatingSection(
-              itemId: widget.item.id,
-              accent: widget.accent,
-              trackingEntry: widget.trackingEntry?.copyWith(
-                episodeRatings: _episodeRatings,
-              ),
-              onEpisodeRatingsChanged: (updated) {
-                setState(() => _episodeRatings = updated);
+        ),
+      ],
+    );
+  }
+
+  Widget _wishlistReferenceSection() {
+    return EditSection(
+      title: 'Wishlist reference',
+      accent: widget.accent,
+      child: Column(
+        children: [
+          _wishlistAnchorSelectionField(),
+          if (_selectedWishlistAnchorType ==
+                  PersonalItemAnchorType.edition.apiValue ||
+              _selectedWishlistAnchorType ==
+                  PersonalItemAnchorType.variant.apiValue) ...[
+            const SizedBox(height: 10),
+            _responsiveFields([
+              _wishlistEditionSelectionField(),
+              if (_selectedWishlistAnchorType ==
+                  PersonalItemAnchorType.variant.apiValue)
+                _wishlistVariantSelectionField(),
+            ]),
+          ],
+          if (_selectedWishlistAnchorType ==
+              PersonalItemAnchorType.bundleRelease.apiValue) ...[
+            const SizedBox(height: 10),
+            _bundleReleaseSelectionField(
+              fieldKey: const Key('library-edit-wishlist-bundle-field'),
+              label: 'Wishlist bundle',
+              selectedBundleReleaseId: _selectedWishlistBundleReleaseId,
+              onChanged: (value) {
+                setState(() {
+                  _selectedWishlistBundleReleaseId =
+                      normalizeLibrarySelectionId(value);
+                });
               },
             ),
+          ],
+          const SizedBox(height: 10),
+          _responsiveFields([
+            _field(
+              controller: _wishlistPriceController,
+              label: 'Target price',
+              validator: optionalMoneyValidator,
+            ),
+            _field(
+              controller: _wishlistCurrencyController,
+              label: 'Currency',
+            ),
+          ]),
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: _wishlistNotesController,
+            minLines: 3,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              labelText: 'Wishlist notes',
+              alignLabelWithHint: true,
+            ),
           ),
-        if (_hasWishlistContext)
-          EditSection(
-            title: 'Wishlist reference',
-            accent: widget.accent,
-            child: Column(
-              children: [
-                _wishlistAnchorSelectionField(),
-                if (_selectedWishlistAnchorType ==
-                        PersonalItemAnchorType.edition.apiValue ||
-                    _selectedWishlistAnchorType ==
-                        PersonalItemAnchorType.variant.apiValue) ...[
-                  const SizedBox(height: 10),
-                  _responsiveFields([
-                    _wishlistEditionSelectionField(),
-                    if (_selectedWishlistAnchorType ==
-                        PersonalItemAnchorType.variant.apiValue)
-                      _wishlistVariantSelectionField(),
-                  ]),
-                ],
-                if (_selectedWishlistAnchorType ==
-                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
-                  const SizedBox(height: 10),
-                  _bundleReleaseSelectionField(
-                    fieldKey: const Key('library-edit-wishlist-bundle-field'),
-                    label: 'Wishlist bundle',
-                    selectedBundleReleaseId: _selectedWishlistBundleReleaseId,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedWishlistBundleReleaseId =
-                            normalizeLibrarySelectionId(value);
-                      });
-                    },
-                  ),
-                ],
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                    controller: _wishlistPriceController,
-                    label: 'Target price',
-                    validator: optionalMoneyValidator,
-                  ),
-                  _field(
-                    controller: _wishlistCurrencyController,
-                    label: 'Currency',
-                  ),
-                ]),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _wishlistNotesController,
-                  minLines: 3,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    labelText: 'Wishlist notes',
-                    alignLabelWithHint: true,
-                  ),
+        ],
+      ),
+    );
+  }
+
+  Widget _ownedNotesSection() {
+    return EditSection(
+      title: 'Notes',
+      accent: widget.accent,
+      child: TextFormField(
+        controller: _notesController,
+        minLines: 5,
+        maxLines: 8,
+        decoration: const InputDecoration(
+          labelText: 'Personal notes',
+          alignLabelWithHint: true,
+        ),
+      ),
+    );
+  }
+
+  Widget _collectionFieldsInfoSection() {
+    return EditSection(
+      title: 'Collection fields',
+      accent: widget.accent,
+      child: Text(
+        'Storage, value, quantity and personal notes are only available once the item has an owned copy. Tracking progress stays editable here.',
+        style: TextStyle(color: appPalette(context).textMuted),
+      ),
+    );
+  }
+
+  Widget _physicalMediaSection() {
+    return EditSection(
+      title: 'Physical media',
+      accent: widget.accent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'HDR formats',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              for (final format in const [
+                'HDR10',
+                'HDR10+',
+                'Dolby Vision',
+                'HLG',
+              ])
+                FilterChip(
+                  label: Text(format),
+                  selected: _hdrFormats.contains(format),
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _hdrFormats.add(format);
+                      } else {
+                        _hdrFormats.remove(format);
+                      }
+                    });
+                  },
                 ),
-              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _featuresController,
+            minLines: 3,
+            maxLines: 6,
+            decoration: const InputDecoration(
+              labelText: 'Features',
+              hintText: 'Disc features, special editions, bonus content...',
+              alignLabelWithHint: true,
+              border: OutlineInputBorder(),
             ),
           ),
-        if (_isOwned)
-          EditSection(
-            title: 'Notes',
-            accent: widget.accent,
-            child: TextFormField(
-              controller: _notesController,
-              minLines: 5,
-              maxLines: 8,
-              decoration: const InputDecoration(
-                labelText: 'Personal notes',
-                alignLabelWithHint: true,
-              ),
-            ),
-          )
-        else if (!_hasWishlistContext)
-          EditSection(
-            title: 'Collection fields',
-            accent: widget.accent,
-            child: Text(
-              'Storage, value, quantity and personal notes are only available once the item has an owned copy. Tracking progress stays editable here.',
-              style: TextStyle(color: appPalette(context).textMuted),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _boxSetNameController,
+            decoration: const InputDecoration(
+              labelText: 'Box Set Name',
+              hintText: 'Name of the box set this disc belongs to',
+              border: OutlineInputBorder(),
             ),
           ),
-        if (_showPhysicalOwnedFields && !_hasSpecsTab)
-          EditSection(
-            title: 'Physical media',
-            accent: widget.accent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'HDR formats',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: [
-                    for (final format in const [
-                      'HDR10',
-                      'HDR10+',
-                      'Dolby Vision',
-                      'HLG',
-                    ])
-                      FilterChip(
-                        label: Text(format),
-                        selected: _hdrFormats.contains(format),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _hdrFormats.add(format);
-                            } else {
-                              _hdrFormats.remove(format);
-                            }
-                          });
-                        },
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _featuresController,
-                  minLines: 3,
-                  maxLines: 6,
-                  decoration: const InputDecoration(
-                    labelText: 'Features',
-                    hintText:
-                        'Disc features, special editions, bonus content...',
-                    alignLabelWithHint: true,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _boxSetNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Box Set Name',
-                    hintText: 'Name of the box set this disc belongs to',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
+        ],
+      ),
+    );
+  }
+
+  Widget _ownershipSection() {
+    return EditSection(
+      title: 'Ownership',
+      accent: widget.accent,
+      child: Column(
+        children: [
+          _responsiveFields([
+            if (_showPhysicalOwnedFields) ...[
+              _field(controller: _conditionController, label: 'Condition'),
+              _field(controller: _gradeController, label: 'Grade'),
+            ],
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _purchaseValueSection() {
+    return EditSection(
+      title: 'Purchase & Value',
+      accent: widget.accent,
+      child: Column(
+        children: [
+          _responsiveFields([
+            _field(controller: _priceController, label: 'Purchase price'),
+            _field(controller: _currencyController, label: 'Currency'),
+          ]),
+          const SizedBox(height: 10),
+          _responsiveFields([
+            _field(
+              controller: _purchaseDateController,
+              label: 'Purchase date',
+              hint: 'YYYY-MM-DD',
+              validator: optionalDateValidator,
             ),
-          ),
-        // Ownership fields merged into Personal when no standalone tab.
-        if (_isOwned && !_hasMainTab)
-          EditSection(
-            title: 'Ownership',
-            accent: widget.accent,
-            child: Column(
-              children: [
-                _responsiveFields([
-                  if (_showPhysicalOwnedFields) ...[
-                    _field(
-                        controller: _conditionController, label: 'Condition'),
-                    _field(controller: _gradeController, label: 'Grade'),
-                  ],
-                ]),
-              ],
-            ),
-          ),
-        // Value fields merged into Personal when no standalone tab.
-        if (_isOwned && !_hasValueTab)
-          EditSection(
-            title: 'Purchase & Value',
-            accent: widget.accent,
-            child: Column(
-              children: [
-                _responsiveFields([
-                  _field(controller: _priceController, label: 'Purchase price'),
-                  _field(controller: _currencyController, label: 'Currency'),
-                ]),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                    controller: _purchaseDateController,
-                    label: 'Purchase date',
-                    hint: 'YYYY-MM-DD',
-                    validator: optionalDateValidator,
-                  ),
-                  _field(
-                      controller: _purchaseStoreController,
-                      label: 'Purchase store'),
-                ]),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(
-                      controller: _marketValueController,
-                      label: 'Current value'),
-                ]),
-              ],
-            ),
-          ),
-      ],
+            _field(
+                controller: _purchaseStoreController,
+                label: 'Purchase store'),
+          ]),
+          const SizedBox(height: 10),
+          _responsiveFields([
+            _field(controller: _marketValueController, label: 'Current value'),
+          ]),
+        ],
+      ),
     );
   }
 
@@ -2512,86 +2409,46 @@ ORDER BY owner_label COLLATE NOCASE
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     var selection = _draft.buildSelection();
-    if (selection.scope != widget.scope) {
-      selection = LibraryEditSelection(
-        scope: widget.scope,
-        item: selection.item,
-        personal: selection.personal,
-        wishlist: selection.wishlist,
-        tracking: selection.tracking,
-        customFieldEdits: selection.customFieldEdits,
-        itemImageEdits: selection.itemImageEdits,
-      );
-    }
-    if (_isGameKind) {
-      final currentGame = selection.item.game;
-      final updatedGame = GameCatalogDetails(
-        platforms: _splitPickList(_gamePlatformsController.text),
-        toySubtype: currentGame?.toySubtype,
-        toyType: currentGame?.toyType,
-      );
-      selection = LibraryEditSelection(
-        scope: selection.scope,
-        item: selection.item.copyWith(
-          game: updatedGame.hasData ? updatedGame : null,
-        ),
-        personal: selection.personal,
-        wishlist: selection.wishlist,
-        tracking: selection.tracking,
-        customFieldEdits: selection.customFieldEdits,
-        itemImageEdits: selection.itemImageEdits,
-      );
-    }
-    if (_isComicKind) {
-      final creators = _comicCreators
-          .map((creator) => creator.toMap())
-          .where((creator) =>
-              (creator['name']?.toString().trim().isNotEmpty ?? false))
-          .toList(growable: false);
-      final characterDetails = _comicCharacters
-          .map((character) => character.toMap())
-          .where((character) =>
-              (character['name']?.toString().trim().isNotEmpty ?? false))
-          .toList(growable: false);
-      final characters = characterDetails
-          .map((character) => character['name']!.toString())
-          .toList(growable: false);
-      final trailerLinks = selection.item.trailerUrls
-          .where((link) => link.isTrailerLink)
-          .toList(growable: true);
-      for (final link in _comicLinks) {
-        final title = link['title']?.text.trim() ?? '';
-        final url = link['url']?.text.trim() ?? '';
-        if (url.isEmpty) {
-          continue;
-        }
-        trailerLinks.add(
-          TrailerLink(
-            url: url,
-            title: emptyToNull(title),
-            description: emptyToNull(title),
-            source: 'manual',
-            isAutomatic: false,
-            kind: 'external',
-          ),
-        );
-      }
-      selection = LibraryEditSelection(
-        scope: selection.scope,
-        item: selection.item.copyWith(
-          creators: creators.isEmpty ? null : creators,
-          characterDetails: characterDetails.isEmpty ? null : characterDetails,
-          characters: characters.isEmpty ? null : characters,
-          trailerUrls: trailerLinks,
-        ),
-        personal: selection.personal,
-        wishlist: selection.wishlist,
-        tracking: selection.tracking,
-        customFieldEdits: selection.customFieldEdits,
-        itemImageEdits: selection.itemImageEdits,
-      );
-    }
+    selection = _applyVideoSelectionEdits(selection);
+    selection = _applyComicSelectionEdits(selection);
+    selection = _applyGameSelection(selection);
+    selection = _normalizeSelectionScope(selection);
     Navigator.of(context).pop(selection);
+  }
+
+  LibraryEditSelection _normalizeSelectionScope(LibraryEditSelection selection) {
+    if (selection.scope == widget.scope) {
+      return selection;
+    }
+    return LibraryEditSelection(
+      scope: widget.scope,
+      item: selection.item,
+      personal: selection.personal,
+      wishlist: selection.wishlist,
+      tracking: selection.tracking,
+      customFieldEdits: selection.customFieldEdits,
+      itemImageEdits: selection.itemImageEdits,
+    );
+  }
+
+  LibraryEditSelection _applyGameSelection(LibraryEditSelection selection) {
+    final currentGame = selection.item.game;
+    final updatedGame = GameCatalogDetails(
+      platforms: _splitPickList(_gamePlatformsController.text),
+      toySubtype: currentGame?.toySubtype,
+      toyType: currentGame?.toyType,
+    );
+    return LibraryEditSelection(
+      scope: selection.scope,
+      item: selection.item.copyWith(
+        game: updatedGame.hasData ? updatedGame : null,
+      ),
+      personal: selection.personal,
+      wishlist: selection.wishlist,
+      tracking: selection.tracking,
+      customFieldEdits: selection.customFieldEdits,
+      itemImageEdits: selection.itemImageEdits,
+    );
   }
 
   PhysicalMediaFormat? _physicalFormatForId(String? id) {

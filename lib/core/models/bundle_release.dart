@@ -264,7 +264,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     required this.members,
     required this.providerLinks,
     this.franchiseId,
-    this.metadataJson,
     super.bundleType,
     super.format,
     super.variantType,
@@ -284,9 +283,7 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     super.volumeId,
     super.volumeName,
   });
-
   final String? franchiseId;
-  final Map<String, dynamic>? metadataJson;
   final List<ComicProviderLink> providerLinks;
   final List<BundleReleaseMember> members;
 
@@ -316,8 +313,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
       volumeId: summary.volumeId,
       volumeName: summary.volumeName,
       franchiseId: json['franchise_id'] as String?,
-      metadataJson: (json['metadata_json'] as Map<String, dynamic>?)
-          ?.cast<String, dynamic>(),
       providerLinks: (json['provider_links'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(ComicProviderLink.fromJson)

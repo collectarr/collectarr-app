@@ -211,7 +211,6 @@ class CatalogVariant {
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
-      if (metadata != null) 'metadata_json': metadata,
       'is_primary': isPrimary,
     };
   }
@@ -297,7 +296,6 @@ class CatalogEdition {
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
-      if (metadata != null) 'metadata_json': metadata,
       'variants':
           variants.map((variant) => variant.toJson()).toList(growable: false),
       if (discs.isNotEmpty)

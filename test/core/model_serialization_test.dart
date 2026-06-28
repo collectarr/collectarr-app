@@ -118,6 +118,9 @@ void main() {
           'publisher': 'Daft Life',
           'physical_format': 'cd',
           'physical_format_label': 'CD',
+          'metadata_json': {
+            'legacy_hint': 'keep-for-read-only',
+          },
           'variants': [
             {
               'id': 'variant-1',
@@ -125,6 +128,9 @@ void main() {
               'variant_type': 'physical',
               'barcode': '123456789012',
               'is_primary': true,
+              'metadata_json': {
+                'legacy_hint': 'keep-for-read-only',
+              },
             }
           ],
         }
@@ -150,7 +156,11 @@ void main() {
     expect(payload['catalog_number'], 'DISC-2001');
     expect(payload['track_count'], 2);
     expect(((payload['tracks'] as List).first as Map)['title'], 'One More Time');
-    expect(((payload['editions'] as List).single as Map)['title'], 'Deluxe CD');
+    final editionPayload = (payload['editions'] as List).single as Map;
+    expect(editionPayload['title'], 'Deluxe CD');
+    expect(editionPayload.containsKey('metadata_json'), isFalse);
+    final variantPayload = (editionPayload['variants'] as List).single as Map;
+    expect(variantPayload.containsKey('metadata_json'), isFalse);
     expect(payload['platforms'], ['CD', 'Digital']);
     expect(payload['release_status'], 'Official');
     expect(payload['release_date'], '2001-03-12T00:00:00.000Z');
@@ -339,14 +349,6 @@ void main() {
           'language': 'en',
           'region': 'US',
           'release_date': '2026-05-11',
-          'metadata_json': {
-            'source': {
-              'site_detail_url': 'https://comicvine.example/issue',
-              'person_credits': [
-                {'name': 'Stan Lee'}
-              ],
-            },
-          },
           'variants': [
             {
               'id': 'variant-1',
@@ -406,10 +408,6 @@ void main() {
     expect(detail.primaryVariant?.barcode, '75960604716100111');
     expect(detail.primaryVariant?.physicalFormatLabel, 'Blu-ray');
     expect(detail.primaryVariant?.coverPriceCents, 399);
-    expect(
-      detail.primaryEdition?.sourceMetadata?['site_detail_url'],
-      'https://comicvine.example/issue',
-    );
   });
 
   test('owned item builds sync payload', () {

@@ -133,3 +133,88 @@ class _EditableComicCharacter {
     realNameController.dispose();
   }
 }
+
+extension _LibraryEditRendererComicHelpers on _LibraryEditRendererState {
+  void _initializeComicEditorsForState() {
+    if (!_isComicKind) {
+      return;
+    }
+    for (final creator in widget.item.creators ?? const <Map<String, dynamic>>[]) {
+      _comicCreators.add(_EditableComicCreator.fromMetadata(creator));
+    }
+    if (widget.item.characterDetails != null &&
+        widget.item.characterDetails!.isNotEmpty) {
+      for (final character in widget.item.characterDetails!) {
+        _comicCharacters.add(_EditableComicCharacter.fromMetadata(character));
+      }
+    } else {
+      for (final characterName in widget.item.characters ?? const <String>[]) {
+        _comicCharacters.add(_EditableComicCharacter.custom(characterName));
+      }
+    }
+    for (final link in widget.item.trailerUrls.where((entry) => entry.isExternalLink)) {
+      _comicLinks.add(_createComicLinkControllers(
+        title: link.title ?? link.description ?? '',
+        url: link.url,
+      ));
+    }
+  }
+
+  LibraryEditSelection _applyComicSelectionEdits(
+    LibraryEditSelection selection,
+  ) {
+    if (!_isComicKind) {
+      return selection;
+    }
+    final creators = _comicCreators
+        .map((creator) => creator.toMap())
+        .where(
+          (creator) => (creator['name']?.toString().trim().isNotEmpty ?? false),
+        )
+        .toList(growable: false);
+    final characterDetails = _comicCharacters
+        .map((character) => character.toMap())
+        .where(
+          (character) =>
+              (character['name']?.toString().trim().isNotEmpty ?? false),
+        )
+        .toList(growable: false);
+    final characters = characterDetails
+        .map((character) => character['name']!.toString())
+        .toList(growable: false);
+    final trailerLinks = selection.item.trailerUrls
+        .where((link) => link.isTrailerLink)
+        .toList(growable: true);
+    for (final link in _comicLinks) {
+      final title = link['title']?.text.trim() ?? '';
+      final url = link['url']?.text.trim() ?? '';
+      if (url.isEmpty) {
+        continue;
+      }
+      trailerLinks.add(
+        TrailerLink(
+          url: url,
+          title: emptyToNull(title),
+          description: emptyToNull(title),
+          source: 'manual',
+          isAutomatic: false,
+          kind: 'external',
+        ),
+      );
+    }
+    return LibraryEditSelection(
+      scope: selection.scope,
+      item: selection.item.copyWith(
+        creators: creators.isEmpty ? null : creators,
+        characterDetails: characterDetails.isEmpty ? null : characterDetails,
+        characters: characters.isEmpty ? null : characters,
+        trailerUrls: trailerLinks,
+      ),
+      personal: selection.personal,
+      wishlist: selection.wishlist,
+      tracking: selection.tracking,
+      customFieldEdits: selection.customFieldEdits,
+      itemImageEdits: selection.itemImageEdits,
+    );
+  }
+}
