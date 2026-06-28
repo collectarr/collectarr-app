@@ -7,18 +7,16 @@ const _comicMediaTabs = [
   LibraryEditTabSpec(id: 'details', icon: Icons.search, label: 'Details'),
   LibraryEditTabSpec(id: 'creators', icon: Icons.group, label: 'Creators'),
   LibraryEditTabSpec(id: 'characters', icon: Icons.face, label: 'Characters'),
-  LibraryEditTabSpec(id: 'synopsis', icon: Icons.notes, label: 'Plot'),
   LibraryEditTabSpec(id: 'links', icon: Icons.link, label: 'Links'),
   LibraryEditTabSpec(id: 'cover', icon: Icons.image, label: 'Covers'),
   LibraryEditTabSpec(id: 'photos', icon: Icons.photo_library, label: 'My Images'),
 ];
 
 const _comicReleaseTabs = [
-  LibraryEditTabSpec(id: 'value', icon: Icons.attach_money, label: 'Value'),
-  LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
   LibraryEditTabSpec(id: 'custom', icon: Icons.tune, label: 'Custom Fields'),
-  LibraryEditTabSpec(id: 'cover', icon: Icons.image, label: 'Covers'),
-  LibraryEditTabSpec(id: 'photos', icon: Icons.photo_library, label: 'My Images'),
+  LibraryEditTabSpec(id: 'value', icon: Icons.attach_money, label: 'Value'),
+  LibraryEditTabSpec(id: 'synopsis', icon: Icons.notes, label: 'Plot'),
+  LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
 ];
 
 const _comicCombinedTabs = [

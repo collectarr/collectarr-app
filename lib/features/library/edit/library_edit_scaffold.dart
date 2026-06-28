@@ -83,6 +83,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final key = widget.tabOrderKey;
     if (key == null) return;
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final saved = prefs.getStringList(key);
     if (saved != null && saved.length == widget.tabs.length) {
       final parsed = saved.map(int.tryParse).toList();
