@@ -178,6 +178,10 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         requestLoader: () async {
           final definitionsFuture = customFieldRepo.listDefinitions(
             mediaKind: widget.type.workspace.kind.apiValue,
+            editScope:
+                baseRequest.scope == LibraryEditScope.all
+                    ? null
+                    : baseRequest.scope.name,
           );
           final cfValuesFuture = owned != null
               ? customFieldRepo.listValuesForItem(owned.id)

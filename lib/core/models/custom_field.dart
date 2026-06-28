@@ -4,6 +4,7 @@ class CustomFieldDefinition {
     required this.name,
     required this.fieldType,
     this.mediaKind,
+    this.editScope,
     this.sortOrder = 0,
     this.options,
     required this.createdAt,
@@ -13,6 +14,7 @@ class CustomFieldDefinition {
   final String name;
   final String fieldType; // text, number, date, bool, select
   final String? mediaKind; // null = all media types
+  final String? editScope; // null = all edit scopes, otherwise media/release
   final int sortOrder;
   final String? options; // JSON array for select type
   final DateTime createdAt;
@@ -23,6 +25,7 @@ class CustomFieldDefinition {
       name: json['name'] as String,
       fieldType: json['field_type'] as String,
       mediaKind: json['media_kind'] as String?,
+      editScope: json['edit_scope'] as String?,
       sortOrder: json['sort_order'] as int? ?? 0,
       options: json['options'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -34,6 +37,7 @@ class CustomFieldDefinition {
       'name': name,
       'field_type': fieldType,
       'media_kind': mediaKind,
+      'edit_scope': editScope,
       'sort_order': sortOrder,
       'options': options,
     };
@@ -44,6 +48,7 @@ class CustomFieldDefinition {
     String? name,
     String? fieldType,
     String? mediaKind,
+    String? editScope,
     int? sortOrder,
     String? options,
     DateTime? createdAt,
@@ -53,6 +58,7 @@ class CustomFieldDefinition {
       name: name ?? this.name,
       fieldType: fieldType ?? this.fieldType,
       mediaKind: mediaKind ?? this.mediaKind,
+      editScope: editScope ?? this.editScope,
       sortOrder: sortOrder ?? this.sortOrder,
       options: options ?? this.options,
       createdAt: createdAt ?? this.createdAt,

@@ -10050,6 +10050,12 @@ class $CustomFieldDefinitionsCacheTable extends CustomFieldDefinitionsCache
   late final GeneratedColumn<String> mediaKind = GeneratedColumn<String>(
       'media_kind', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editScopeMeta =
+      const VerificationMeta('editScope');
+  @override
+  late final GeneratedColumn<String> editScope = GeneratedColumn<String>(
+      'edit_scope', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sortOrderMeta =
       const VerificationMeta('sortOrder');
   @override
@@ -10071,8 +10077,16 @@ class $CustomFieldDefinitionsCacheTable extends CustomFieldDefinitionsCache
       'created_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, fieldType, mediaKind, sortOrder, options, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        fieldType,
+        mediaKind,
+        editScope,
+        sortOrder,
+        options,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -10104,6 +10118,10 @@ class $CustomFieldDefinitionsCacheTable extends CustomFieldDefinitionsCache
     if (data.containsKey('media_kind')) {
       context.handle(_mediaKindMeta,
           mediaKind.isAcceptableOrUnknown(data['media_kind']!, _mediaKindMeta));
+    }
+    if (data.containsKey('edit_scope')) {
+      context.handle(_editScopeMeta,
+          editScope.isAcceptableOrUnknown(data['edit_scope']!, _editScopeMeta));
     }
     if (data.containsKey('sort_order')) {
       context.handle(_sortOrderMeta,
@@ -10137,6 +10155,8 @@ class $CustomFieldDefinitionsCacheTable extends CustomFieldDefinitionsCache
           .read(DriftSqlType.string, data['${effectivePrefix}field_type'])!,
       mediaKind: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}media_kind']),
+      editScope: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edit_scope']),
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
       options: attachedDatabase.typeMapping
@@ -10158,6 +10178,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
   final String name;
   final String fieldType;
   final String? mediaKind;
+  final String? editScope;
   final int sortOrder;
   final String? options;
   final DateTime createdAt;
@@ -10166,6 +10187,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
       required this.name,
       required this.fieldType,
       this.mediaKind,
+      this.editScope,
       required this.sortOrder,
       this.options,
       required this.createdAt});
@@ -10177,6 +10199,9 @@ class CustomFieldDefinitionsCacheData extends DataClass
     map['field_type'] = Variable<String>(fieldType);
     if (!nullToAbsent || mediaKind != null) {
       map['media_kind'] = Variable<String>(mediaKind);
+    }
+    if (!nullToAbsent || editScope != null) {
+      map['edit_scope'] = Variable<String>(editScope);
     }
     map['sort_order'] = Variable<int>(sortOrder);
     if (!nullToAbsent || options != null) {
@@ -10194,6 +10219,9 @@ class CustomFieldDefinitionsCacheData extends DataClass
       mediaKind: mediaKind == null && nullToAbsent
           ? const Value.absent()
           : Value(mediaKind),
+      editScope: editScope == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editScope),
       sortOrder: Value(sortOrder),
       options: options == null && nullToAbsent
           ? const Value.absent()
@@ -10210,6 +10238,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
       name: serializer.fromJson<String>(json['name']),
       fieldType: serializer.fromJson<String>(json['fieldType']),
       mediaKind: serializer.fromJson<String?>(json['mediaKind']),
+      editScope: serializer.fromJson<String?>(json['editScope']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       options: serializer.fromJson<String?>(json['options']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -10223,6 +10252,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
       'name': serializer.toJson<String>(name),
       'fieldType': serializer.toJson<String>(fieldType),
       'mediaKind': serializer.toJson<String?>(mediaKind),
+      'editScope': serializer.toJson<String?>(editScope),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'options': serializer.toJson<String?>(options),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -10234,6 +10264,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
           String? name,
           String? fieldType,
           Value<String?> mediaKind = const Value.absent(),
+          Value<String?> editScope = const Value.absent(),
           int? sortOrder,
           Value<String?> options = const Value.absent(),
           DateTime? createdAt}) =>
@@ -10242,6 +10273,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
         name: name ?? this.name,
         fieldType: fieldType ?? this.fieldType,
         mediaKind: mediaKind.present ? mediaKind.value : this.mediaKind,
+        editScope: editScope.present ? editScope.value : this.editScope,
         sortOrder: sortOrder ?? this.sortOrder,
         options: options.present ? options.value : this.options,
         createdAt: createdAt ?? this.createdAt,
@@ -10253,6 +10285,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
       name: data.name.present ? data.name.value : this.name,
       fieldType: data.fieldType.present ? data.fieldType.value : this.fieldType,
       mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
+      editScope: data.editScope.present ? data.editScope.value : this.editScope,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       options: data.options.present ? data.options.value : this.options,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -10266,6 +10299,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
           ..write('name: $name, ')
           ..write('fieldType: $fieldType, ')
           ..write('mediaKind: $mediaKind, ')
+          ..write('editScope: $editScope, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('options: $options, ')
           ..write('createdAt: $createdAt')
@@ -10275,7 +10309,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
 
   @override
   int get hashCode => Object.hash(
-      id, name, fieldType, mediaKind, sortOrder, options, createdAt);
+      id, name, fieldType, mediaKind, editScope, sortOrder, options, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10284,6 +10318,7 @@ class CustomFieldDefinitionsCacheData extends DataClass
           other.name == this.name &&
           other.fieldType == this.fieldType &&
           other.mediaKind == this.mediaKind &&
+          other.editScope == this.editScope &&
           other.sortOrder == this.sortOrder &&
           other.options == this.options &&
           other.createdAt == this.createdAt);
@@ -10295,6 +10330,7 @@ class CustomFieldDefinitionsCacheCompanion
   final Value<String> name;
   final Value<String> fieldType;
   final Value<String?> mediaKind;
+  final Value<String?> editScope;
   final Value<int> sortOrder;
   final Value<String?> options;
   final Value<DateTime> createdAt;
@@ -10304,6 +10340,7 @@ class CustomFieldDefinitionsCacheCompanion
     this.name = const Value.absent(),
     this.fieldType = const Value.absent(),
     this.mediaKind = const Value.absent(),
+    this.editScope = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.options = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -10314,6 +10351,7 @@ class CustomFieldDefinitionsCacheCompanion
     required String name,
     required String fieldType,
     this.mediaKind = const Value.absent(),
+    this.editScope = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.options = const Value.absent(),
     required DateTime createdAt,
@@ -10327,6 +10365,7 @@ class CustomFieldDefinitionsCacheCompanion
     Expression<String>? name,
     Expression<String>? fieldType,
     Expression<String>? mediaKind,
+    Expression<String>? editScope,
     Expression<int>? sortOrder,
     Expression<String>? options,
     Expression<DateTime>? createdAt,
@@ -10337,6 +10376,7 @@ class CustomFieldDefinitionsCacheCompanion
       if (name != null) 'name': name,
       if (fieldType != null) 'field_type': fieldType,
       if (mediaKind != null) 'media_kind': mediaKind,
+      if (editScope != null) 'edit_scope': editScope,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (options != null) 'options': options,
       if (createdAt != null) 'created_at': createdAt,
@@ -10349,6 +10389,7 @@ class CustomFieldDefinitionsCacheCompanion
       Value<String>? name,
       Value<String>? fieldType,
       Value<String?>? mediaKind,
+      Value<String?>? editScope,
       Value<int>? sortOrder,
       Value<String?>? options,
       Value<DateTime>? createdAt,
@@ -10358,6 +10399,7 @@ class CustomFieldDefinitionsCacheCompanion
       name: name ?? this.name,
       fieldType: fieldType ?? this.fieldType,
       mediaKind: mediaKind ?? this.mediaKind,
+      editScope: editScope ?? this.editScope,
       sortOrder: sortOrder ?? this.sortOrder,
       options: options ?? this.options,
       createdAt: createdAt ?? this.createdAt,
@@ -10379,6 +10421,9 @@ class CustomFieldDefinitionsCacheCompanion
     }
     if (mediaKind.present) {
       map['media_kind'] = Variable<String>(mediaKind.value);
+    }
+    if (editScope.present) {
+      map['edit_scope'] = Variable<String>(editScope.value);
     }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
@@ -10402,6 +10447,7 @@ class CustomFieldDefinitionsCacheCompanion
           ..write('name: $name, ')
           ..write('fieldType: $fieldType, ')
           ..write('mediaKind: $mediaKind, ')
+          ..write('editScope: $editScope, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('options: $options, ')
           ..write('createdAt: $createdAt, ')
@@ -18052,6 +18098,7 @@ typedef $$CustomFieldDefinitionsCacheTableCreateCompanionBuilder
   required String name,
   required String fieldType,
   Value<String?> mediaKind,
+  Value<String?> editScope,
   Value<int> sortOrder,
   Value<String?> options,
   required DateTime createdAt,
@@ -18063,6 +18110,7 @@ typedef $$CustomFieldDefinitionsCacheTableUpdateCompanionBuilder
   Value<String> name,
   Value<String> fieldType,
   Value<String?> mediaKind,
+  Value<String?> editScope,
   Value<int> sortOrder,
   Value<String?> options,
   Value<DateTime> createdAt,
@@ -18089,6 +18137,9 @@ class $$CustomFieldDefinitionsCacheTableFilterComposer
 
   ColumnFilters<String> get mediaKind => $composableBuilder(
       column: $table.mediaKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editScope => $composableBuilder(
+      column: $table.editScope, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
@@ -18121,6 +18172,9 @@ class $$CustomFieldDefinitionsCacheTableOrderingComposer
   ColumnOrderings<String> get mediaKind => $composableBuilder(
       column: $table.mediaKind, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get editScope => $composableBuilder(
+      column: $table.editScope, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
 
@@ -18151,6 +18205,9 @@ class $$CustomFieldDefinitionsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get mediaKind =>
       $composableBuilder(column: $table.mediaKind, builder: (column) => column);
+
+  GeneratedColumn<String> get editScope =>
+      $composableBuilder(column: $table.editScope, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -18197,6 +18254,7 @@ class $$CustomFieldDefinitionsCacheTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String> fieldType = const Value.absent(),
             Value<String?> mediaKind = const Value.absent(),
+            Value<String?> editScope = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<String?> options = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -18207,6 +18265,7 @@ class $$CustomFieldDefinitionsCacheTableTableManager extends RootTableManager<
             name: name,
             fieldType: fieldType,
             mediaKind: mediaKind,
+            editScope: editScope,
             sortOrder: sortOrder,
             options: options,
             createdAt: createdAt,
@@ -18217,6 +18276,7 @@ class $$CustomFieldDefinitionsCacheTableTableManager extends RootTableManager<
             required String name,
             required String fieldType,
             Value<String?> mediaKind = const Value.absent(),
+            Value<String?> editScope = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<String?> options = const Value.absent(),
             required DateTime createdAt,
@@ -18227,6 +18287,7 @@ class $$CustomFieldDefinitionsCacheTableTableManager extends RootTableManager<
             name: name,
             fieldType: fieldType,
             mediaKind: mediaKind,
+            editScope: editScope,
             sortOrder: sortOrder,
             options: options,
             createdAt: createdAt,

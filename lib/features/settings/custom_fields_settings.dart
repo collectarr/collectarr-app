@@ -199,32 +199,127 @@ class _DefinitionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: ReorderableDragStartListener(
-        index: index,
-        child: const Icon(Icons.drag_handle),
-      ),
-      title: Text(definition.name),
-      subtitle: Text(
-        [
-          _fieldTypeLabel(definition.fieldType),
-          if (definition.mediaKind != null) definition.mediaKind!,
-        ].join(' · '),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, size: 20),
-            onPressed: onEdit,
-            tooltip: 'Edit',
+    final palette = appPalette(context);
+    return Material(
+      color: palette.panelRaised,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 640;
+              final kindLabel = _mediaKindLabel(definition.mediaKind);
+              final scopeLabel = _editScopeLabel(definition.editScope);
+              final typeLabel = _fieldTypeLabel(definition.fieldType);
+              final rowChildren = <Widget>[
+                ReorderableDragStartListener(
+                  index: index,
+                  child: Icon(
+                    Icons.drag_handle,
+                    color: palette.textMuted,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        definition.name,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        kindLabel,
+                        style: TextStyle(color: palette.textMuted, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _DefinitionPill(label: scopeLabel),
+                const SizedBox(width: 8),
+                _DefinitionPill(label: typeLabel),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  onPressed: onEdit,
+                  tooltip: 'Edit',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 20),
+                  onPressed: onDelete,
+                  tooltip: 'Delete',
+                ),
+              ];
+              if (!stacked) {
+                return Row(children: rowChildren);
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: Icon(
+                          Icons.drag_handle,
+                          color: palette.textMuted,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              definition.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              kindLabel,
+                              style: TextStyle(
+                                color: palette.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _DefinitionPill(label: scopeLabel),
+                      _DefinitionPill(label: typeLabel),
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        onPressed: onEdit,
+                        tooltip: 'Edit',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, size: 20),
+                        onPressed: onDelete,
+                        tooltip: 'Delete',
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, size: 20),
-            onPressed: onDelete,
-            tooltip: 'Delete',
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -245,6 +340,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
   late final TextEditingController _optionsController;
   late String _fieldType;
   String? _mediaKind;
+  String? _editScope;
 
   static const _fieldTypes = ['text', 'number', 'date', 'bool', 'select'];
 
@@ -255,6 +351,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
     _nameController = TextEditingController(text: existing?.name ?? '');
     _fieldType = existing?.fieldType ?? 'text';
     _mediaKind = existing?.mediaKind;
+    _editScope = existing?.editScope;
     _optionsController = TextEditingController(
       text: _decodeOptions(existing?.options),
     );
@@ -351,6 +448,31 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                 ],
                 onChanged: (value) => setState(() => _mediaKind = value),
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String?>(
+                initialValue: _editScope,
+                dropdownColor: appPalette(context).panelRaised,
+                borderRadius: kAppMenuBorderRadius,
+                decoration: const InputDecoration(
+                  labelText: 'Applies in',
+                  hintText: 'All scopes',
+                ),
+                items: const [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text('All scopes'),
+                  ),
+                  DropdownMenuItem<String?>(
+                    value: 'media',
+                    child: Text('Media'),
+                  ),
+                  DropdownMenuItem<String?>(
+                    value: 'release',
+                    child: Text('Release'),
+                  ),
+                ],
+                onChanged: (value) => setState(() => _editScope = value),
+              ),
               if (_fieldType == 'select') ...[
                 const SizedBox(height: 12),
                 TextFormField(
@@ -386,11 +508,27 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
       name: _nameController.text.trim(),
       fieldType: _fieldType,
       mediaKind: _mediaKind,
+      editScope: _editScope,
       sortOrder: widget.existing?.sortOrder ?? 0,
       options: _encodeOptions(),
       createdAt: widget.existing?.createdAt ?? DateTime.now(),
     );
     Navigator.of(context).pop(def);
+  }
+}
+
+class _DefinitionPill extends StatelessWidget {
+  const _DefinitionPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Text(label),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
   }
 }
 
@@ -402,5 +540,27 @@ String _fieldTypeLabel(String type) {
     'bool' => 'Yes / No',
     'select' => 'Select',
     _ => type,
+  };
+}
+
+String _mediaKindLabel(String? kind) {
+  if (kind == null || kind.trim().isEmpty) {
+    return 'All libraries';
+  }
+  final normalized = kind.trim().toLowerCase();
+  for (final type in collectarrLibraryTypes.types) {
+    if (type.workspace.kind.apiValue == normalized) {
+      return type.singularLabel;
+    }
+  }
+  return kind.trim();
+}
+
+String _editScopeLabel(String? scope) {
+  return switch (scope) {
+    null => 'All scopes',
+    'media' => 'Media',
+    'release' => 'Release',
+    _ => scope,
   };
 }

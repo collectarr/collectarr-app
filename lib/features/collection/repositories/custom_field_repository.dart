@@ -11,12 +11,18 @@ class CustomFieldRepository {
 
   Future<List<CustomFieldDefinition>> listDefinitions({
     String? mediaKind,
+    String? editScope,
   }) async {
     final query = _db.select(_db.customFieldDefinitionsCache)
       ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]);
     if (mediaKind != null) {
       query.where(
         (row) => row.mediaKind.isNull() | row.mediaKind.equals(mediaKind),
+      );
+    }
+    if (editScope != null) {
+      query.where(
+        (row) => row.editScope.isNull() | row.editScope.equals(editScope),
       );
     }
     final rows = await query.get();
@@ -30,6 +36,7 @@ class CustomFieldRepository {
             name: def.name,
             fieldType: def.fieldType,
             mediaKind: Value(def.mediaKind),
+            editScope: Value(def.editScope),
             sortOrder: Value(def.sortOrder),
             options: Value(def.options),
             createdAt: def.createdAt,
@@ -111,6 +118,7 @@ class CustomFieldRepository {
       name: row.name,
       fieldType: row.fieldType,
       mediaKind: row.mediaKind,
+      editScope: row.editScope,
       sortOrder: row.sortOrder,
       options: row.options,
       createdAt: row.createdAt,

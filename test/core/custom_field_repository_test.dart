@@ -80,6 +80,43 @@ void main() {
       expect(gameDefs.map((d) => d.name), containsAll(['Platform', 'Favourite']));
     });
 
+    test('listDefinitions filters by editScope', () async {
+      await repo.upsertDefinition(CustomFieldDefinition(
+        id: 'def-1',
+        name: 'Release Notes',
+        fieldType: 'text',
+        editScope: 'release',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ));
+      await repo.upsertDefinition(CustomFieldDefinition(
+        id: 'def-2',
+        name: 'Shelf Note',
+        fieldType: 'text',
+        editScope: 'media',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ));
+      await repo.upsertDefinition(CustomFieldDefinition(
+        id: 'def-3',
+        name: 'Shared Note',
+        fieldType: 'text',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ));
+
+      final releaseDefs = await repo.listDefinitions(editScope: 'release');
+      expect(
+        releaseDefs.map((d) => d.name),
+        containsAll(['Release Notes', 'Shared Note']),
+      );
+      expect(releaseDefs.map((d) => d.name), isNot(contains('Shelf Note')));
+
+      final mediaDefs = await repo.listDefinitions(editScope: 'media');
+      expect(
+        mediaDefs.map((d) => d.name),
+        containsAll(['Shelf Note', 'Shared Note']),
+      );
+      expect(mediaDefs.map((d) => d.name), isNot(contains('Release Notes')));
+    });
+
     test('deleteDefinition removes definition', () async {
       await repo.upsertDefinition(CustomFieldDefinition(
         id: 'def-1',

@@ -146,6 +146,7 @@ class CustomFieldDefinitionsCache extends Table {
   TextColumn get name => text()();
   TextColumn get fieldType => text()(); // text, number, date, bool, select
   TextColumn get mediaKind => text().nullable()(); // null = all media types
+  TextColumn get editScope => text().nullable()(); // null = all edit scopes
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   TextColumn get options => text().nullable()(); // JSON array for select type
   DateTimeColumn get createdAt => dateTime()();
@@ -424,7 +425,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
