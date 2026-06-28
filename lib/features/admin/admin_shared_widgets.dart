@@ -58,24 +58,7 @@ class _MetadataProposalPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _StatusChip(
-              icon: Icons.pending_actions_outlined,
-              label: '${summary?.pending ?? 0} pending',
-            ),
-            _StatusChip(
-              icon: Icons.task_alt_outlined,
-              label: '${summary?.approved ?? 0} approved',
-            ),
-            _StatusChip(
-              icon: Icons.block_outlined,
-              label: '${summary?.rejected ?? 0} rejected',
-            ),
-          ],
-        ),
+        _ProposalSummaryChips(summary: summary),
         const SizedBox(height: 12),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -187,6 +170,38 @@ class _MetadataProposalPanel extends StatelessWidget {
                 ),
             ],
           ),
+      ],
+    );
+  }
+}
+
+class _ProposalSummaryChips extends StatelessWidget {
+  const _ProposalSummaryChips({required this.summary});
+
+  final AdminMetadataProposalSummary? summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _StatusChip(
+          icon: Icons.pending_actions_outlined,
+          label: '${summary?.pending ?? 0} pending',
+        ),
+        _StatusChip(
+          icon: Icons.task_alt_outlined,
+          label: '${summary?.approved ?? 0} approved',
+        ),
+        _StatusChip(
+          icon: Icons.block_outlined,
+          label: '${summary?.rejected ?? 0} rejected',
+        ),
+        _StatusChip(
+          icon: Icons.insights_outlined,
+          label: '${summary?.total ?? 0} total',
+        ),
       ],
     );
   }

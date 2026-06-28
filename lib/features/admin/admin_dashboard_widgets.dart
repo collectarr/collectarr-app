@@ -426,24 +426,7 @@ class _DashboardProposalActivity extends StatelessWidget {
       children: [
         _DashboardSection(
           title: 'Backlog',
-          children: [
-            _StatusChip(
-              icon: Icons.pending_actions_outlined,
-              label: '${summary?.pending ?? 0} pending',
-            ),
-            _StatusChip(
-              icon: Icons.task_alt_outlined,
-              label: '${summary?.approved ?? 0} approved',
-            ),
-            _StatusChip(
-              icon: Icons.block_outlined,
-              label: '${summary?.rejected ?? 0} rejected',
-            ),
-            _StatusChip(
-              icon: Icons.insights_outlined,
-              label: '${summary?.total ?? 0} total',
-            ),
-          ],
+          children: [_ProposalSummaryChips(summary: summary)],
         ),
         const SizedBox(height: 12),
         _DashboardSection(
