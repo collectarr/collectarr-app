@@ -92,20 +92,21 @@
 
 ### 🧩 Shared Metadata Editing Contract (Admin + App)
 - [ ] Continue migration of heavy custom kind editors onto shared contract primitives
-	- Default-kind dialogs now share one common renderer path; proposal/admin correction surfaces use controller maps driven by shared field registry.
-	- Remaining work is incremental extraction from book/music/comic custom tabs without regressing UX.
+	- Keep book/music/comic custom tabs on shared field primitives and trim the remaining custom adapters.
 - [ ] Keep runtime drift diagnostics as a hard regression gate
-	- Dashboard now shows explicit release-gate pass/fail + contract drift; maintain strict tests for client↔core key/type parity.
+	- Preserve the contract drift dashboard/tests as the client↔core key/type parity gate.
 
 ### 🧱 Library De-Generalization (final cleanup)
 - [ ] Continue split of remaining generic shell decisions into explicit hooks
-	- Extracted kind-aware hook layer from `generic/page.dart`; continue moving drilldown/sidebar/toolbar branches out of the main page state.
+	- Move the remaining drilldown/sidebar/toolbar branches out of `generic/page.dart`.
 - [ ] Remove dead generic shell branches once concrete kind states own behavior.
+	- Delete fallback branches after each kind-local hook lands.
 
 ### 🧭 Admin UX Consistency
 - [ ] Align app-side admin proposal/editor UX with shared-field architecture
-	- Keep proposal edit and item edit flows visually different where needed, but powered by the same field contract.
+	- Keep proposal/edit flows visually distinct while sharing the same field contract.
 - [ ] Keep Admin stats/dashboard wiring in parity with Core summary/image-cache contracts.
+	- Keep stats/dashboard surfaces aligned with Core summary and image-cache contracts.
 
 ### 🚫 Lower Priority Unless Product Direction Changes
-- [ ] Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity and metadata-contract work.
+- Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity and metadata-contract work.

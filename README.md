@@ -81,9 +81,9 @@ See [docs/implementation-plan.md](docs/implementation-plan.md).
 
 Current active tracks:
 
-- continued migration of book/music/comic edit surfaces onto shared metadata contract primitives
-- final de-generalization cleanup in `lib/features/library/generic` via extracted kind hooks
-- admin UX consistency with Core contracts (proposal/editor + stats surfaces)
+- finish moving the remaining heavy kind editors onto shared metadata contract primitives
+- complete the last generic shell de-generalization in `lib/features/library/generic`
+- keep admin proposal/editor UX and stats surfaces aligned with Core contracts
 
 ## 🔒 Release policy
 

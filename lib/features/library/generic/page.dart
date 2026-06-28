@@ -2204,10 +2204,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
   }
 
-  bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
-    return canOpenVideoShelfDrilldown(widget.type, item.entry);
-  }
-
   @protected
   bool showsReadingQueue() {
     return widget.type.capabilities.supportsReadingQueue;
@@ -2216,6 +2212,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @protected
   bool supportsBucketManagement(LibraryGroupMode mode) {
     return libraryGroupModeSupportsBucketManagement(widget.type, mode);
+  }
+
+  bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
+    return canOpenVideoShelfDrilldown(widget.type, item.entry);
   }
 
   @protected

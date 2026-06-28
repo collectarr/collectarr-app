@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_list_fields.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
@@ -147,7 +148,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late List<String> _songwriterCredits;
   late List<String> _producerCredits;
   late List<String> _engineerCredits;
-  late List<_MusicianCreditEntry> _musicianCredits;
+  late List<MusicCreditEntry> _musicianCredits;
   late List<String> _genreValues;
   late List<String> _soundValues;
   String _rpmSelection = '';
@@ -187,8 +188,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return widget.request.type.editPresentation
         .builderForScope(widget.request.scope)
         .buildTabs(
-      context: _editPresentationContext,
-    );
+          context: _editPresentationContext,
+        );
   }
 
   String get _musicTitleLabel {
@@ -416,9 +417,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return widget.request.type.editPresentation
         .builderForScope(widget.request.scope)
         .buildTabSectionIds(
-      context: _editPresentationContext,
-      tabId: tabId,
-    );
+          context: _editPresentationContext,
+          tabId: tabId,
+        );
   }
 
   Widget _tabViewFor(String id) {
@@ -1188,7 +1189,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return EditSection(
       title: title,
       accent: _accent,
-      child: _EditableNameListField(
+      child: EditableNameListField(
         key: ValueKey(title),
         values: values,
         onChanged: onChanged,
@@ -1199,15 +1200,15 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   Widget _editableMusicianRoleSection({
     required String title,
-    required List<_MusicianCreditEntry> values,
-    required ValueChanged<List<_MusicianCreditEntry>> onChanged,
+    required List<MusicCreditEntry> values,
+    required ValueChanged<List<MusicCreditEntry>> onChanged,
     required String hintName,
     required String hintInstrument,
   }) {
     return EditSection(
       title: title,
       accent: _accent,
-      child: _EditableMusicianListField(
+      child: EditableMusicianListField(
         key: ValueKey(title),
         values: values,
         onChanged: onChanged,
@@ -1576,10 +1577,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return values;
   }
 
-  List<_MusicianCreditEntry> _musicianEntriesFromSource(
+  List<MusicCreditEntry> _musicianEntriesFromSource(
     List<Map<String, dynamic>> source,
   ) {
-    final values = <_MusicianCreditEntry>[];
+    final values = <MusicCreditEntry>[];
     for (final creator in source) {
       final role = creator['role']?.toString().trim() ?? '';
       if (!_roleMatches(
@@ -1593,7 +1594,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         continue;
       }
       values.add(
-        _MusicianCreditEntry(
+        MusicCreditEntry(
           name: rawName,
           instrument: _extractInstrumentFromRole(role),
         ),
@@ -1602,12 +1603,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return values;
   }
 
-  List<_MusicianCreditEntry> _cloneMusicians(
-    List<_MusicianCreditEntry> values,
+  List<MusicCreditEntry> _cloneMusicians(
+    List<MusicCreditEntry> values,
   ) {
     return [
       for (final value in values)
-        _MusicianCreditEntry(name: value.name, instrument: value.instrument),
+        MusicCreditEntry(name: value.name, instrument: value.instrument),
     ];
   }
 
@@ -1619,7 +1620,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return normalized.isEmpty ? '—' : normalized.join('\n');
   }
 
-  String _formatMusicianList(List<_MusicianCreditEntry> values) {
+  String _formatMusicianList(List<MusicCreditEntry> values) {
     final normalized =
         values.where((value) => value.name.trim().isNotEmpty).map((value) {
       final instrument = value.instrument?.trim();
@@ -2037,8 +2038,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return values;
   }
 
-  List<_MusicianCreditEntry> _musicianEntriesForRole() {
-    final values = <_MusicianCreditEntry>[];
+  List<MusicCreditEntry> _musicianEntriesForRole() {
+    final values = <MusicCreditEntry>[];
     for (final creator in _item.creators ?? const <Map<String, dynamic>>[]) {
       final role = creator['role']?.toString().trim() ?? '';
       if (!_roleMatches(
@@ -2053,7 +2054,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       }
       final instrument = _extractInstrumentFromRole(role);
       values.add(
-        _MusicianCreditEntry(
+        MusicCreditEntry(
           name: rawName,
           instrument: instrument,
         ),
@@ -2134,7 +2135,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<Map<String, dynamic>> _musicianRoleEntries(
-    List<_MusicianCreditEntry> values,
+    List<MusicCreditEntry> values,
   ) {
     return [
       for (final value in values)
@@ -2435,345 +2436,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             formats: widget.request.physicalFormats,
           );
   }
-}
-
-class _EditableNameListField extends StatefulWidget {
-  const _EditableNameListField({
-    super.key,
-    required this.values,
-    required this.onChanged,
-    required this.hintText,
-  });
-
-  final List<String> values;
-  final ValueChanged<List<String>> onChanged;
-  final String hintText;
-
-  @override
-  State<_EditableNameListField> createState() => _EditableNameListFieldState();
-}
-
-class _EditableNameListFieldState extends State<_EditableNameListField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _addValue() {
-    final value = _controller.text.trim();
-    if (value.isEmpty) {
-      return;
-    }
-    final exists = widget.values.any(
-      (existing) => existing.toLowerCase() == value.toLowerCase(),
-    );
-    if (!exists) {
-      widget.onChanged([...widget.values, value]);
-    }
-    _controller.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final values = widget.values;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (values.isEmpty)
-          const Text('No entries', style: TextStyle(color: kEditTextMuted))
-        else
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (var index = 0; index < values.length; index++)
-                InputChip(
-                  label: Text(values[index]),
-                  onDeleted: () {
-                    final updated = List<String>.from(values)..removeAt(index);
-                    widget.onChanged(updated);
-                  },
-                ),
-            ],
-          ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                onSubmitted: (_) => _addValue(),
-                decoration: InputDecoration(
-                  labelText: widget.hintText,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: _addValue,
-              icon: const Icon(Icons.add),
-              label: const Text('Add'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _EditableChipField extends StatefulWidget {
-  const _EditableChipField({
-    super.key,
-    required this.label,
-    required this.values,
-    required this.suggestions,
-    required this.onChanged,
-  });
-
-  final String label;
-  final List<String> values;
-  final List<String> suggestions;
-  final ValueChanged<List<String>> onChanged;
-
-  @override
-  State<_EditableChipField> createState() => _EditableChipFieldState();
-}
-
-class _EditableChipFieldState extends State<_EditableChipField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _addValue([String? initial]) {
-    final raw = (initial ?? _controller.text).trim();
-    if (raw.isEmpty) {
-      return;
-    }
-    final exists = widget.values.any(
-      (value) => value.toLowerCase() == raw.toLowerCase(),
-    );
-    if (!exists) {
-      widget.onChanged([...widget.values, raw]);
-    }
-    _controller.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final values = widget.values;
-    final suggestions = widget.suggestions
-        .where(
-          (candidate) => !values.any(
-            (value) => value.toLowerCase() == candidate.toLowerCase(),
-          ),
-        )
-        .toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (values.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (var index = 0; index < values.length; index++)
-                InputChip(
-                  label: Text(values[index]),
-                  onDeleted: () {
-                    final updated = List<String>.from(values)..removeAt(index);
-                    widget.onChanged(updated);
-                  },
-                ),
-            ],
-          ),
-        if (values.isNotEmpty) const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                onSubmitted: (_) => _addValue(),
-                decoration: InputDecoration(
-                  labelText: 'Add ${widget.label}',
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: _addValue,
-              icon: const Icon(Icons.add),
-              label: const Text('Add'),
-            ),
-          ],
-        ),
-        if (suggestions.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final suggestion in suggestions)
-                ActionChip(
-                  label: Text(suggestion),
-                  onPressed: () => _addValue(suggestion),
-                ),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _EditableMusicianListField extends StatefulWidget {
-  const _EditableMusicianListField({
-    super.key,
-    required this.values,
-    required this.onChanged,
-    required this.hintName,
-    required this.hintInstrument,
-  });
-
-  final List<_MusicianCreditEntry> values;
-  final ValueChanged<List<_MusicianCreditEntry>> onChanged;
-  final String hintName;
-  final String hintInstrument;
-
-  @override
-  State<_EditableMusicianListField> createState() =>
-      _EditableMusicianListFieldState();
-}
-
-class _EditableMusicianListFieldState
-    extends State<_EditableMusicianListField> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _instrumentController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-    _instrumentController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _instrumentController.dispose();
-    super.dispose();
-  }
-
-  void _addValue() {
-    final name = _nameController.text.trim();
-    final instrument = emptyToNull(_instrumentController.text);
-    if (name.isEmpty) {
-      return;
-    }
-    final exists = widget.values.any(
-      (value) =>
-          value.name.toLowerCase() == name.toLowerCase() &&
-          (value.instrument ?? '').toLowerCase() ==
-              (instrument ?? '').toLowerCase(),
-    );
-    if (!exists) {
-      widget.onChanged([
-        ...widget.values,
-        _MusicianCreditEntry(
-          name: name,
-          instrument: instrument,
-        ),
-      ]);
-    }
-    _nameController.clear();
-    _instrumentController.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final values = widget.values;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (values.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (var index = 0; index < values.length; index++)
-                InputChip(
-                  label: Text(values[index].label),
-                  onDeleted: () {
-                    final updated = List<_MusicianCreditEntry>.from(values)
-                      ..removeAt(index);
-                    widget.onChanged(updated);
-                  },
-                ),
-            ],
-          ),
-        if (values.isNotEmpty) const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: widget.hintName),
-                onSubmitted: (_) => _addValue(),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: _instrumentController,
-                decoration: InputDecoration(labelText: widget.hintInstrument),
-                onSubmitted: (_) => _addValue(),
-              ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: _addValue,
-              icon: const Icon(Icons.add),
-              label: const Text('Add'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _MusicianCreditEntry {
-  const _MusicianCreditEntry({
-    required this.name,
-    this.instrument,
-  });
-
-  final String name;
-  final String? instrument;
-
-  String get label => instrument == null || instrument!.trim().isEmpty
-      ? name
-      : '$name (${instrument!.trim()})';
 }
 
 class _EditableMusicTrackRow {

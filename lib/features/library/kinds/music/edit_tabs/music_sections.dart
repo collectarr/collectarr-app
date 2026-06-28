@@ -120,7 +120,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
         return EditSection(
           title: 'Genres',
           accent: _accent,
-          child: _EditableChipField(
+          child: EditableChipField(
             key: const ValueKey('music-genres-chip-field'),
             label: 'Genres',
             values: _genreValues,
@@ -178,7 +178,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                 _field(controller: _extrasController, label: 'Extras'),
               ]),
               const SizedBox(height: 10),
-              _EditableChipField(
+              EditableChipField(
                 key: const ValueKey('music-sound-chip-field'),
                 label: 'Sound',
                 values: _soundValues,
@@ -223,7 +223,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                 showDiscsDiff: true,
               ),
               const SizedBox(height: 10),
-              _EditableNameListField(
+              EditableNameListField(
                 key: const ValueKey('music-composer-edit'),
                 values: _composerCredits,
                 onChanged: (values) =>
