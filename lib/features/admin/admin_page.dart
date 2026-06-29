@@ -34,6 +34,7 @@ part 'admin_metadata_correction_dialog.dart';
 part 'admin_duplicate_merge_dialog.dart';
 part 'admin_bundle_correction_dialog.dart';
 part 'admin_dashboard_widgets.dart';
+part 'admin_page_tabs.dart';
 part 'admin_provider_widgets.dart';
 part 'admin_shared_widgets.dart';
 
@@ -477,88 +478,33 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   // ─── Dashboard tab (admin only) ───
   Widget _buildDashboardTab() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _AdminPanel(
-          icon: Icons.dashboard_customize_outlined,
-          title: 'Metadata dashboard',
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: 'Reindex search',
-                onPressed: _isReindexing ? null : _reindexSearch,
-                icon: _isReindexing
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.manage_search_outlined),
-              ),
-              IconButton(
-                tooltip: 'Refresh dashboard',
-                onPressed: _isLoadingDashboard ? null : _loadDashboard,
-                icon: _isLoadingDashboard
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.refresh),
-              ),
-            ],
-          ),
-          child: _DashboardSummary(
-            summary: _summary,
-            searchStatus: _searchStatus,
-            lastReindex: _lastReindex,
-            configuredProviders: _configuredProviderCount(),
-            registeredProviders: _providers.length,
-            selectedProviderLabel: _selectedProviderLabel(),
-            lastIngest: _lastIngest,
-            normalizedMetadataDrift: _normalizedMetadataDrift,
-            metadataContractDrift: _metadataContractDrift,
-            errorMessage: _dashboardErrorMessage,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _AdminPanel(
-          icon: Icons.pending_actions_outlined,
-          title: 'Metadata proposal activity',
-          child: _DashboardProposalActivity(
-            summary: _dashboardProposalSummary,
-            history: _proposalHistory,
-            errorMessage: _dashboardErrorMessage,
-          ),
-        ),
-      ],
+    return AdminDashboardTab(
+      isReindexing: _isReindexing,
+      isLoadingDashboard: _isLoadingDashboard,
+      summary: _summary,
+      searchStatus: _searchStatus,
+      lastReindex: _lastReindex,
+      configuredProviders: _configuredProviderCount(),
+      registeredProviders: _providers.length,
+      selectedProviderLabel: _selectedProviderLabel(),
+      lastIngest: _lastIngest,
+      normalizedMetadataDrift: _normalizedMetadataDrift,
+      metadataContractDrift: _metadataContractDrift,
+      dashboardErrorMessage: _dashboardErrorMessage,
+      proposalSummary: _dashboardProposalSummary,
+      proposalHistory: _proposalHistory,
+      onReindexSearch: _reindexSearch,
+      onRefreshDashboard: _loadDashboard,
     );
   }
 
   Widget _buildStatsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _AdminPanel(
-          icon: Icons.bar_chart_outlined,
-          title: 'Catalog stats',
-          trailing: IconButton(
-            tooltip: 'Refresh stats',
-            onPressed: _isLoadingDashboard ? null : _loadDashboard,
-            icon: _isLoadingDashboard
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.refresh),
-          ),
-          child: _DashboardStatsOverview(
-            summary: _summary,
-            imageCacheStats: _dashboardImageCacheStats,
-            errorMessage: _dashboardErrorMessage,
-          ),
-        ),
-      ],
+    return AdminStatsTab(
+      isLoadingDashboard: _isLoadingDashboard,
+      summary: _summary,
+      imageCacheStats: _dashboardImageCacheStats,
+      dashboardErrorMessage: _dashboardErrorMessage,
+      onRefreshDashboard: _loadDashboard,
     );
   }
 
