@@ -263,7 +263,15 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
 
   void pickRandomItemFlow(LibraryProjection projection) {
     final items = projection.filteredItems;
-    if (items.isEmpty) return;
+    if (items.isEmpty) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No items available for random pick.')),
+      );
+      return;
+    }
     final random = items[_random.nextInt(items.length)];
     _selectItem(random.entry.id);
   }

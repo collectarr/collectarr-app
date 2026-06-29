@@ -724,10 +724,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     onClearFilters: _clearFilters,
                     onEditFilters: () => showFilterDialogFlow(projection),
                     activeFilterCount: _filterSelection.activeFilterCount,
-                    onRandomPick: projection != null &&
-                            projection.filteredItems.isNotEmpty
-                        ? () => pickRandomItemFlow(projection)
-                        : null,
+                    onRandomPick: projection == null
+                        ? null
+                        : () => pickRandomItemFlow(projection),
                     onScanCover: () => scanCoverFlow(),
                     onDownloadAllCovers: shelfState != null
                         ? () => downloadAllCoversFlow(shelfState)
