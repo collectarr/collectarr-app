@@ -503,8 +503,7 @@ class _SchemaExplorerCardState extends ConsumerState<_SchemaExplorerCard> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted ||
             _pathStartController.text.isNotEmpty ||
-            _pathEndController.text.isNotEmpty ||
-            selected == null) {
+            _pathEndController.text.isNotEmpty) {
           return;
         }
         setState(() {
@@ -890,7 +889,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: pathStartController.text.isEmpty
+              initialValue: pathStartController.text.isEmpty
                   ? current.name
                   : pathStartController.text,
               decoration: const InputDecoration(
@@ -912,7 +911,9 @@ class _SchemaTableDetailPane extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: pathEndController.text.isEmpty ? current.name : pathEndController.text,
+              initialValue: pathEndController.text.isEmpty
+                  ? current.name
+                  : pathEndController.text,
               decoration: const InputDecoration(
                 labelText: 'End table',
                 border: OutlineInputBorder(),

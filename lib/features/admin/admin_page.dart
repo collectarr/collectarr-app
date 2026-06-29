@@ -52,6 +52,8 @@ class AdminPage extends ConsumerStatefulWidget {
 }
 
 class _AdminPageState extends ConsumerState<AdminPage> {
+  void _refresh(VoidCallback fn) => setState(fn);
+
   final _catalogQueryController = TextEditingController();
   final _queryController = TextEditingController();
   final _providerItemIdController = TextEditingController();

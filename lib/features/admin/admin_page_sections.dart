@@ -29,7 +29,7 @@ extension _AdminPageSections on _AdminPageState {
                     kindLabels: _catalogKindLabels(),
                     isLoading: _isLoadingProviders,
                     onChanged: (value) {
-                      setState(() {
+                      _refresh(() {
                         _catalogKindFilter =
                             value == null || value.isEmpty ? null : value;
                       });
@@ -278,7 +278,7 @@ extension _AdminPageSections on _AdminPageState {
                     onPressed: _results.isEmpty
                         ? null
                         : () {
-                            setState(() {
+                            _refresh(() {
                               _results = const <ProviderCandidate>[];
                               _statusMessage = null;
                               _errorMessage = null;
@@ -304,7 +304,7 @@ extension _AdminPageSections on _AdminPageState {
                   if (!value && !_showProviderReleaseResults) {
                     return;
                   }
-                  setState(() {
+                  _refresh(() {
                     _showProviderMediaResults = value;
                   });
                 },
@@ -312,7 +312,7 @@ extension _AdminPageSections on _AdminPageState {
                   if (!value && !_showProviderMediaResults) {
                     return;
                   }
-                  setState(() {
+                  _refresh(() {
                     _showProviderReleaseResults = value;
                   });
                 },
