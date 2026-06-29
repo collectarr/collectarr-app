@@ -72,16 +72,15 @@ void main() {
     expect(find.text('View shortcuts'), findsOneWidget);
     await _scrollToText(tester, 'Collection schema');
     expect(find.text('Collection schema'), findsOneWidget);
+    expect(find.text('Schema explorer'), findsOneWidget);
+    expect(find.text('Search tables, columns, or relations'), findsOneWidget);
+    expect(find.text('Only connected tables'), findsOneWidget);
+    expect(find.text('Copy summary'), findsOneWidget);
     expect(find.text('New root location'), findsOneWidget);
     expect(find.text('Manage locations'), findsOneWidget);
     expect(find.text('New custom field'), findsOneWidget);
     expect(find.text('Manage custom fields'), findsOneWidget);
     expect(find.text('All libraries: 0'), findsOneWidget);
-    expect(find.text('Overflow uses More'), findsOneWidget);
-    expect(find.text('Position'), findsOneWidget);
-    expect(find.text('Top bar'), findsWidgets);
-    expect(find.text('Left rail'), findsWidgets);
-    expect(find.text('Reset library navigation'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Appearance');
     expect(find.text('Appearance'), findsWidgets);

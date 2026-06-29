@@ -24,7 +24,6 @@ dependencies:
   image_picker: ^1.1.2
   image: ^4.8.0
   google_mlkit_text_recognition: ^0.15.0
-  http: ^1.2.2
   csv: ^8.0.0
   archive: ^4.0.9
   file_selector: ^1.0.3

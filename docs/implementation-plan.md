@@ -42,8 +42,8 @@
 - Custom field columns (`cf_*`) in CSV export/import — definitions auto-matched on import
 
 ### 🏷️ Custom Fields & Item Images
-- User-defined custom fields per media type (text values, scoped to media kind)
-- Custom field management in settings panel with add/edit/delete
+- User-defined custom fields per media kind plus edit scope (`media` / `release`) with text values
+- Custom field management in settings panel with a table-like editor, add/edit/delete, and scope/type chips
 - Custom fields searchable/filterable in both comics and generic library shelves
 - Custom fields shown in inspector detail panels and edit dialogs
 - Multiple images per owned item with captions and sort order
