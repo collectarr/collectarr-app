@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.2
-  dio: ^5.7.0
+  dio: ^5.10.0
   drift: ^2.34.0
   path: ^1.9.1
   path_provider: ^2.1.6
