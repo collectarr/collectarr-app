@@ -176,6 +176,7 @@ class BookLibraryMediaPresentationBuilder
     required BuildContext context,
     required LibraryWorkspaceEntry entry,
     required Color accent,
+    ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
     final resolvedItemId = entry.titleItemId ?? entry.id;
@@ -209,6 +210,7 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorChipSection(
           title: 'Creators',
           values: creatorNames,
+          onValueTap: onFilterByValue,
         ),
       );
     }
@@ -218,6 +220,7 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorChipSection(
           title: 'Characters',
           values: entry.characters!,
+          onValueTap: onFilterByValue,
         ),
       );
     }
@@ -227,6 +230,7 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorChipSection(
           title: 'Story Arcs',
           values: entry.storyArcs!,
+          onValueTap: onFilterByValue,
         ),
       );
     }
@@ -236,6 +240,7 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorChipSection(
           title: 'Genres',
           values: entry.genres!,
+          onValueTap: onFilterByValue,
         ),
       );
     }

@@ -505,6 +505,7 @@ abstract class LibraryMediaPresentationBuilder {
     required BuildContext context,
     required LibraryWorkspaceEntry entry,
     required Color accent,
+    ValueChanged<String>? onFilterByValue,
   }) {
     return const [];
   }

@@ -203,6 +203,7 @@ class MusicLibraryMediaPresentationBuilder
     required BuildContext context,
     required LibraryWorkspaceEntry entry,
     required Color accent,
+    ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
     final music = entry.music;

@@ -34,10 +34,12 @@ List<Widget> buildLibraryInspectorKindSections({
   required LibraryTypeConfig type,
   required LibraryWorkspaceEntry entry,
   required Color accent,
+  ValueChanged<String>? onFilterByValue,
 }) {
   return type.presentation.builder.buildInspectorSections(
     context: context,
     entry: entry,
     accent: accent,
+    onFilterByValue: onFilterByValue,
   );
 }

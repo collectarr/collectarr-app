@@ -461,6 +461,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           ownedItem: activeOwnedItem,
           trackingEntry: activeTrackingEntry,
           accent: widget.accent,
+          onFilterByValue: widget.onFilterByValue,
         ),
       ...?(!usesCustomInspectorPanel
           ? buildLibraryInspectorEditorSections(
@@ -492,6 +493,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               type: widget.type,
               entry: selected,
               accent: widget.accent,
+              onFilterByValue: widget.onFilterByValue,
             )
           : null),
     ];

@@ -35,6 +35,46 @@ void main() {
       expect(find.text('Metadata'), findsWidgets);
     });
 
+    testWidgets('comic chip badges are clickable', (tester) async {
+      String? tappedValue;
+      final type = collectarrLibraryTypes.byKind('comic')!;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                final sections = buildComicInspectorSections(
+                  context,
+                  LibraryInspectorRequest(
+                    type: type,
+                    entry: LibraryWorkspaceEntry(
+                      id: 'comic-click-1',
+                      mediaType: 'comic',
+                      title: 'Saga #1',
+                      creators: const [
+                        {'name': 'Brian K. Vaughan', 'role': 'Writer'},
+                      ],
+                      updatedAt: DateTime.utc(2026, 5, 22),
+                    ),
+                    ownedItem: null,
+                    trackingEntry: null,
+                    accent: Colors.red,
+                    onFilterByValue: (value) => tappedValue = value,
+                  ),
+                );
+                return Column(children: sections);
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Brian K. Vaughan'));
+      await tester.pumpAndSettle();
+
+      expect(tappedValue, 'Brian K. Vaughan');
+    });
+
     testWidgets('triggers onFilterByValue callback', (tester) async {
       final type = collectarrLibraryTypes.byKind('comic')!;
       String? filteredValue;
@@ -162,6 +202,7 @@ void main() {
     });
 
     testWidgets('shows tags when present', (tester) async {
+      String? tappedValue;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -180,6 +221,7 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,
+              onFilterByValue: (value) => tappedValue = value,
             ),
           ),
         ),
@@ -187,6 +229,11 @@ void main() {
 
       expect(find.text('sci-fi'), findsOneWidget);
       expect(find.text('classic'), findsOneWidget);
+
+      await tester.tap(find.text('sci-fi'));
+      await tester.pumpAndSettle();
+
+      expect(tappedValue, 'sci-fi');
     });
 
     testWidgets('comic inspector builder renders comic-only collector facts',

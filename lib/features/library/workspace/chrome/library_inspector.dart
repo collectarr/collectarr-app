@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
 const Color _kDefaultAccent = kAppAccent;
@@ -255,6 +256,7 @@ class LibraryInspectorChipSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = LibraryAccentScope.accentOf(context);
     return LibraryInspectorSection(
       title: title,
       children: [
@@ -266,6 +268,7 @@ class LibraryInspectorChipSection extends StatelessWidget {
               LibraryInspectorChip(
                 value,
                 onTap: onValueTap == null ? null : () => onValueTap!(value),
+                accent: accent,
               ),
           ],
         ),
@@ -288,6 +291,7 @@ class LibraryInspectorChipWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = LibraryAccentScope.accentOf(context);
     final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,6 +316,7 @@ class LibraryInspectorChipWrap extends StatelessWidget {
               LibraryInspectorChip(
                 value,
                 onTap: onValueTap == null ? null : () => onValueTap!(value),
+                accent: accent,
               ),
           ],
         ),
@@ -321,10 +326,16 @@ class LibraryInspectorChipWrap extends StatelessWidget {
 }
 
 class LibraryInspectorChip extends StatefulWidget {
-  const LibraryInspectorChip(this.value, {super.key, this.onTap});
+  const LibraryInspectorChip(
+    this.value, {
+    super.key,
+    this.onTap,
+    this.accent,
+  });
 
   final String value;
   final VoidCallback? onTap;
+  final Color? accent;
 
   @override
   State<LibraryInspectorChip> createState() => _LibraryInspectorChipState();
@@ -335,8 +346,7 @@ class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final baseChipColor = palette.selection;
+    final baseChipColor = widget.accent ?? LibraryAccentScope.accentOf(context);
     final chipColor = _hovered
         ? Color.alphaBlend(
             (ThemeData.estimateBrightnessForColor(baseChipColor) ==
@@ -359,13 +369,13 @@ class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: _hovered
-              ? kAppAccent.withValues(alpha: 0.9)
-              : kAppAccent.withValues(alpha: 0.35),
+              ? baseChipColor.withValues(alpha: 0.9)
+              : baseChipColor.withValues(alpha: 0.35),
         ),
         boxShadow: _hovered
             ? [
                 BoxShadow(
-                  color: kAppAccent.withValues(alpha: 0.22),
+                  color: baseChipColor.withValues(alpha: 0.22),
                   blurRadius: 9,
                   spreadRadius: 0.6,
                   offset: const Offset(0, 1),

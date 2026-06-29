@@ -266,6 +266,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             LibraryDetailProviderSection(
               type: request.type,
               accent: request.accent,
+              onFilterByValue: request.onFilterByValue,
             ),
             const SizedBox(height: 16),
             WatchHistorySection(

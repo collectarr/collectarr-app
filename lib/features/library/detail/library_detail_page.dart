@@ -181,6 +181,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                       ownedCopies: ownedCopies,
                       trackingEntry: activeTrackingEntry,
                       accent: widget.accent,
+                      onFilterByValue: widget.onFilterByValue,
                     ),
                     ...buildLibraryInspectorEditorSections(
                       type: widget.type,
@@ -220,6 +221,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     type: widget.type,
                     entry: widget.entry,
                     accent: widget.accent,
+                    onFilterByValue: widget.onFilterByValue,
                   ),
                   LibraryDetailProvenanceSection(
                     type: widget.type,

@@ -77,20 +77,36 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
         _buildEditionFormatBadges(entry),
         if (metadataPresentation.genres case final genres when genres.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(label: 'Genres', values: genres),
+          LibraryInspectorChipWrap(
+            label: 'Genres',
+            values: genres,
+            onValueTap: onFilterByValue,
+          ),
         ],
         if (creatorNames.isNotEmpty && hasRoles) ...[
           for (final entry in creatorsByRole.entries) ...[
             const SizedBox(height: 8),
-            LibraryInspectorChipWrap(label: entry.key, values: entry.value),
+            LibraryInspectorChipWrap(
+              label: entry.key,
+              values: entry.value,
+              onValueTap: onFilterByValue,
+            ),
           ],
         ] else if (creatorNames.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(label: 'Cast / credits', values: creatorNames),
+          LibraryInspectorChipWrap(
+            label: 'Cast / credits',
+            values: creatorNames,
+            onValueTap: onFilterByValue,
+          ),
         ],
         if (aliasValues.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(label: 'Search aliases', values: aliasValues),
+          LibraryInspectorChipWrap(
+            label: 'Search aliases',
+            values: aliasValues,
+            onValueTap: onFilterByValue,
+          ),
         ],
       ],
     );

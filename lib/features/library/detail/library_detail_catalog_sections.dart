@@ -176,11 +176,13 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
     required this.type,
     required this.entry,
     required this.accent,
+    this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final Color accent;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +214,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
           LibraryInspectorChipWrap(
             label: 'Needs attention',
             values: health.missingSignals,
+            onValueTap: onFilterByValue,
           ),
         ],
       ],
@@ -277,10 +280,12 @@ class LibraryDetailProviderSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.accent,
+    this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
@@ -300,6 +305,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
                     ? '${provider.label} default'
                     : provider.label,
             ],
+            onValueTap: onFilterByValue,
           ),
           const SizedBox(height: 8),
           LibraryInspectorFactGrid(

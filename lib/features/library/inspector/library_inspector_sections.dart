@@ -42,12 +42,14 @@ class InspectorPersonalSection extends StatelessWidget {
     required this.ownedItem,
     this.trackingEntry,
     required this.accent,
+    this.onFilterByValue,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
@@ -163,6 +165,7 @@ class InspectorPersonalSection extends StatelessWidget {
         if (ownedItem?.tags != null && ownedItem!.tags!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(
+            onValueTap: onFilterByValue,
             values: [
               for (final tag in ownedItem!.tags!.split(','))
                 if (tag.trim().isNotEmpty) tag.trim(),

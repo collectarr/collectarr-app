@@ -158,6 +158,7 @@ class ComicLibraryMediaPresentationBuilder
     required BuildContext context,
     required LibraryWorkspaceEntry entry,
     required Color accent,
+    ValueChanged<String>? onFilterByValue,
   }) {
     if (!showSummary ||
         entry.synopsis == null ||
