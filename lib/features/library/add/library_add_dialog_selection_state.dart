@@ -98,4 +98,93 @@ extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
     });
     unawaited(_ensureBundleReleaseDetailLoaded(bundleReleaseId));
   }
+
+  String _canonicalVideoSearchKind(String kind) =>
+      catalogMediaKindFromValue(kind).apiValue;
+
+  bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
+
+  bool get _showsVideoKindFilters =>
+      _isVideoKind && widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
+
+  List<String> get _allVideoSearchKinds {
+    final configured = widget.type.addChrome.videoKindFilterOptions
+        .map((option) => _canonicalVideoSearchKind(option.kind))
+        .toSet()
+        .toList();
+    return configured.isEmpty
+        ? [_canonicalVideoSearchKind(widget.type.workspace.kind.apiValue)]
+        : configured;
+  }
+
+  bool get _isMovieDesktopChrome => widget.type.capabilities.wideDialog;
+
+  bool _isCoreReleaseResult(LibraryMetadataItem item) {
+    final itemNumber = item.itemNumber?.trim();
+    final editionTitle = item.editionTitle?.trim();
+    final physicalFormat = item.physicalFormat?.trim();
+    final physicalFormatLabel = item.physicalFormatLabel?.trim();
+    final barcode = item.barcode?.trim();
+    final variant = item.variant?.trim();
+    return (itemNumber != null && itemNumber.isNotEmpty) ||
+        (editionTitle != null && editionTitle.isNotEmpty) ||
+        (physicalFormat != null && physicalFormat.isNotEmpty) ||
+        (physicalFormatLabel != null && physicalFormatLabel.isNotEmpty) ||
+        (barcode != null && barcode.isNotEmpty) ||
+        (variant != null && variant.isNotEmpty);
+  }
+
+  bool _isProviderReleaseResult(ProviderCandidate candidate) =>
+      !_isSeriesCandidate(candidate);
+
+  bool _matchesEntityScopeForCore(LibraryMetadataItem item) {
+    if (_showMediaResults && _showReleaseResults) {
+      return true;
+    }
+    final isRelease = _isCoreReleaseResult(item);
+    return isRelease ? _showReleaseResults : _showMediaResults;
+  }
+
+  bool _matchesEntityScopeForProvider(ProviderCandidate candidate) {
+    if (_showMediaResults && _showReleaseResults) {
+      return true;
+    }
+    final isRelease = _isProviderReleaseResult(candidate);
+    return isRelease ? _showReleaseResults : _showMediaResults;
+  }
+
+  List<LibraryMetadataItem> _visibleCoreResults() {
+    if (!_showCoreResults) {
+      return const <LibraryMetadataItem>[];
+    }
+    return _results.where(_matchesEntityScopeForCore).toList(growable: false);
+  }
+
+  List<ProviderCandidate> _visibleProviderResults() {
+    if (!_showProviderResults) {
+      return const <ProviderCandidate>[];
+    }
+    return _providerResults
+        .where(_matchesEntityScopeForProvider)
+        .toList(growable: false);
+  }
+
+  void _pruneSelectionsForVisibility({
+    required List<LibraryMetadataItem> visibleResults,
+    required List<ProviderCandidate> visibleProviderResults,
+  }) {
+    final visibleResultIds = visibleResults.map((item) => item.id).toSet();
+    final visibleProviderIds =
+        visibleProviderResults.map((item) => item.localCatalogId).toSet();
+    if (_selectedResultId != null &&
+        !visibleResultIds.contains(_selectedResultId)) {
+      _selectedResultId = null;
+    }
+    if (_selectedProviderCandidateId != null &&
+        !visibleProviderIds.contains(_selectedProviderCandidateId)) {
+      _selectedProviderCandidateId = null;
+    }
+    _checkedResultIds.removeWhere((id) => !visibleResultIds.contains(id));
+    _checkedProviderIds.removeWhere((id) => !visibleProviderIds.contains(id));
+  }
 }
