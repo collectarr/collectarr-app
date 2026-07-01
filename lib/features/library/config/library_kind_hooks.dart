@@ -53,11 +53,7 @@ class LibraryEditKindHooks {
 }
 
 class LibraryStateKindHooks {
-  const LibraryStateKindHooks({
-    this.useConcretePageState = false,
-  });
-
-  final bool useConcretePageState;
+  const LibraryStateKindHooks();
 }
 
 class LibraryKindHooks {

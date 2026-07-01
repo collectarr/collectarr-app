@@ -142,10 +142,6 @@ void main() {
       isNotNull,
     );
     expect(
-      booksLibraryConfig.kindHooks.state.useConcretePageState,
-      isTrue,
-    );
-    expect(
         booksLibraryConfig.kindHooks.edit.defaultScope, LibraryEditScope.media);
   });
 
