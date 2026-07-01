@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_kind_hooks.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/page.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/page.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
@@ -137,10 +138,29 @@ void main() {
     expect(gamesLibraryConfig.capabilities.supportsReadingQueue, isFalse);
   });
 
-  test('books expose explicit kind hooks for page and inspector behavior', () {
-    expect(booksLibraryConfig.kindHooks.page, isA<LibraryPageKindHooks>());
-    expect(
-        booksLibraryConfig.kindHooks.edit.defaultScope, LibraryEditScope.media);
+  testWidgets('book edit dialog resolves all-scope requests to media scope',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+    final context = tester.element(find.byType(SizedBox));
+
+    final request = LibraryEditDialogRequest(
+      type: booksLibraryConfig,
+      item: LibraryMetadataItem(
+        id: 'book-1',
+        mediaKind: CatalogMediaKind.book,
+        title: 'Hyperion',
+      ),
+      ownedItem: null,
+      accent: Colors.blue,
+      scope: LibraryEditScope.all,
+    );
+
+    final dialog = buildBookLibraryEditDialog(
+      context,
+      request,
+    ) as BookLibraryEditDialog;
+
+    expect(dialog.request.scope, LibraryEditScope.media);
   });
 
   test(

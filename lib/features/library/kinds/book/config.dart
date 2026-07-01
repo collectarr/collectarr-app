@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/kinds/book/hooks.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
@@ -53,7 +52,6 @@ const booksLibraryConfig = LibraryTypeConfig(
     mediaBuilder: BookLibraryMediaEditPresentationBuilder(),
     releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
-  kindHooks: bookLibraryKindHooks,
   editDialogBuilder: buildBookLibraryEditDialog,
   inspectorPanelBuilder: buildBookInspectorPanel,
   mediaFields: MediaEditFields.print(
