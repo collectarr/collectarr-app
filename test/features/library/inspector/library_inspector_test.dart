@@ -9,9 +9,11 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
+import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -25,7 +27,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_constants.dart';
 
 void main() {
-  testWidgets('inspector hero shows a creator spotlight when the type enables it', (
+  testWidgets(
+      'inspector hero shows a creator spotlight when the type enables it', (
     tester,
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -82,7 +85,8 @@ void main() {
                   publisher: 'IDW Publishing',
                   releaseYear: 2020,
                   barcode: '82771402051700111',
-                  synopsis: 'The final turtle seeks justice in a ruined future.',
+                  synopsis:
+                      'The final turtle seeks justice in a ruined future.',
                   series: CatalogSeriesDetails(
                     seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
                   ),
@@ -117,10 +121,12 @@ void main() {
     expect(find.textContaining('Director Cut'), findsOneWidget);
     expect(find.text('82771402051700111'), findsOneWidget);
     expect(find.text('Plot'), findsOneWidget);
-    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsNothing);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')),
+        findsNothing);
   });
 
-  testWidgets('comic inspector hero lays out in a narrow scrollable inspector', (
+  testWidgets('comic inspector hero lays out in a narrow scrollable inspector',
+      (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -255,7 +261,8 @@ void main() {
 
     expect(find.byType(ComicInspectorPanel), findsOneWidget);
     expect(find.byType(ComicInspectorHero), findsOneWidget);
-    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')), findsOneWidget);
+    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')),
+        findsOneWidget);
     expect(find.text('Quick actions'), findsNothing);
     expect(find.text('Collect'), findsNothing);
     expect(find.text('Remove'), findsNothing);
@@ -328,6 +335,50 @@ void main() {
     expect(editedOwnedItem, isNull);
     expect(find.text('Active copy'), findsOneWidget);
     expect(find.textContaining('copies in collection'), findsOneWidget);
+  });
+
+  testWidgets('book inspector keeps shared action primitives visible', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: BookInspectorPanel(
+              request: LibraryInspectorPanelRequest(
+                inspector: LibraryInspectorRequest(
+                  type: booksLibraryConfig,
+                  entry: LibraryWorkspaceEntry(
+                    id: 'book-1',
+                    mediaType: 'book',
+                    title: 'Hyperion',
+                    updatedAt: DateTime.utc(2026, 5, 23),
+                  ),
+                  ownedItem: null,
+                  accent: Colors.blue,
+                  trackingEntry: null,
+                ),
+                hero: const SizedBox(height: 20),
+                primarySections: const [SizedBox.shrink()],
+                trailingSections: const [SizedBox.shrink()],
+                ownedCopies: const [],
+                selectedOwnedItemId: null,
+                extraActions: const [Text('Extra action')],
+                onAddCopy: () {},
+                onOpenDetails: () {},
+                onCorrectMetadata: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Correct'), findsOneWidget);
+    expect(find.text('Extra action'), findsOneWidget);
   });
 
   testWidgets('inspector section renders title and children', (tester) async {
@@ -540,7 +591,7 @@ void main() {
     expect(find.byType(InspectorItemImagesSection), findsNothing);
     expect(find.text('Author view'), findsOneWidget);
     expect(find.text('J.R.R. Tolkien'), findsWidgets);
-    expect(find.text('Details'), findsNothing);
+    expect(find.text('Details'), findsOneWidget);
   });
 
   testWidgets('item images section hides front cover thumbnails', (

@@ -66,6 +66,26 @@ class BookInspectorPanel extends StatelessWidget {
                 ownedItem: ownedItem,
                 accent: accent,
               ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: request.onOpenDetails,
+                    icon: const Icon(Icons.open_in_new, size: 16),
+                    label: const Text('Details'),
+                  ),
+                  if (request.onCorrectMetadata != null)
+                    OutlinedButton.icon(
+                      onPressed: request.onCorrectMetadata,
+                      icon: const Icon(Icons.fact_check_outlined, size: 16),
+                      label: const Text('Correct'),
+                    ),
+                  ...request.extraActions,
+                ],
+              ),
               if (request.ownedCopiesSection != null) ...[
                 const SizedBox(height: 8),
                 request.ownedCopiesSection!,
