@@ -11,9 +11,6 @@ const bookLibraryKindHooks = LibraryKindHooks(
   page: LibraryPageKindHooks(
     canOpenItemDetailDrilldown: _bookCanOpenItemDetailDrilldown,
   ),
-  inspector: LibraryInspectorKindHooks(
-    showActionBar: false,
-  ),
   edit: LibraryEditKindHooks(
     defaultScope: LibraryEditScope.media,
   ),

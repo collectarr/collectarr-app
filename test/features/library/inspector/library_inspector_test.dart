@@ -376,8 +376,15 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Details'), findsOneWidget);
-    expect(find.text('Correct'), findsOneWidget);
+    final actionBar = find.byType(InspectorActionBar);
+    expect(find.descendant(of: actionBar, matching: find.text('Quick actions')),
+        findsOneWidget);
+    expect(find.descendant(of: actionBar, matching: find.text('Open')),
+        findsOneWidget);
+    expect(find.descendant(of: actionBar, matching: find.text('Edit')),
+        findsOneWidget);
+    expect(find.descendant(of: actionBar, matching: find.byIcon(Icons.fact_check_outlined)),
+        findsOneWidget);
     expect(find.text('Extra action'), findsOneWidget);
   });
 
@@ -591,7 +598,8 @@ void main() {
     expect(find.byType(InspectorItemImagesSection), findsNothing);
     expect(find.text('Author view'), findsOneWidget);
     expect(find.text('J.R.R. Tolkien'), findsWidgets);
-    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Quick actions'), findsOneWidget);
+    expect(find.text('Open'), findsOneWidget);
   });
 
   testWidgets('item images section hides front cover thumbnails', (
@@ -765,7 +773,12 @@ void main() {
     await tester.tap(find.textContaining('Very Fine').last);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(InspectorActionBar),
+        matching: find.widgetWithText(OutlinedButton, 'Edit'),
+      ).first,
+    );
     await tester.pump();
 
     expect(editedOwnedItem?.id, 'owned-2');

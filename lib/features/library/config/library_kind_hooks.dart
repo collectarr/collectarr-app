@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -54,7 +53,11 @@ class LibraryEditKindHooks {
 }
 
 class LibraryStateKindHooks {
-  const LibraryStateKindHooks();
+  const LibraryStateKindHooks({
+    this.useConcretePageState = false,
+  });
+
+  final bool useConcretePageState;
 }
 
 class LibraryKindHooks {
