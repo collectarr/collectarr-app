@@ -52,20 +52,14 @@ class LibraryEditKindHooks {
   final LibraryEditScope? defaultScope;
 }
 
-class LibraryStateKindHooks {
-  const LibraryStateKindHooks();
-}
-
 class LibraryKindHooks {
   const LibraryKindHooks({
     this.page = const LibraryPageKindHooks(),
     this.inspector = const LibraryInspectorKindHooks(),
     this.edit = const LibraryEditKindHooks(),
-    this.state = const LibraryStateKindHooks(),
   });
 
   final LibraryPageKindHooks page;
   final LibraryInspectorKindHooks inspector;
   final LibraryEditKindHooks edit;
-  final LibraryStateKindHooks state;
 }
