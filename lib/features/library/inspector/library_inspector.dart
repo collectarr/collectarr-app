@@ -218,20 +218,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           icon: Icons.copy_all_outlined,
           onPressed: () => _addOwnedCopy(selected, ownedItem: activeOwnedItem),
         ),
-      if (widget.type.workspace.kind == CatalogMediaKind.book &&
-          activeOwnedItem != null &&
-          widget.onEdit != null) ...[
-        _InspectorDialogActionButton(
-          tooltip: 'Edit media fields',
-          icon: Icons.menu_book_outlined,
-          onPressed: () => widget.onEdit!(null),
-        ),
-        _InspectorDialogActionButton(
-          tooltip: 'Edit release fields',
-          icon: Icons.inventory_2_outlined,
-          onPressed: () => widget.onEdit!(activeOwnedItem),
-        ),
-      ],
       if (activeOwnedItem != null && widget.db != null)
         _InspectorDialogActionButton(
           tooltip: 'Manage location',
@@ -559,7 +545,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               children: [
                 hero,
                 const SizedBox(height: 6),
-                if (widget.type.workspace.kind != CatalogMediaKind.book)
+                if (widget.type.kindHooks.inspector.showActionBar)
                   InspectorActionBar(
                     type: widget.type,
                     entry: selected,

@@ -1298,7 +1298,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-
   Future<void> _loadColumnFavoritePresets() async {
     try {
       final loadToken = ++_columnFavoritesLoadToken;
@@ -1820,7 +1819,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     unawaited(_viewPrefs.writeQuickView(nextView));
   }
 
-
   Future<void> showAddDialogFlow({String? barcode}) async {
     final added = await showLibraryAddDialog(
       context: context,
@@ -1937,22 +1935,35 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool canOpenDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
+    final hook = widget.type.kindHooks.page.canOpenDefaultVideoShelfDrilldown;
+    if (hook != null) {
+      return hook(item);
+    }
     return _canOpenVideoShelfDrilldown(item);
   }
 
   @protected
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
-    return false;
+    final hook = widget.type.kindHooks.page.canOpenItemDetailDrilldown;
+    return hook?.call(item) ?? false;
   }
 
   @protected
   void openDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
+    final hook = widget.type.kindHooks.page.openDefaultVideoShelfDrilldown;
+    if (hook != null) {
+      hook(item);
+      return;
+    }
     _openVideoShelfDrilldown(item);
   }
 
   @protected
   void openItemDetailDrilldown(LibraryProjectionItem item) {
-    return;
+    final hook = widget.type.kindHooks.page.openItemDetailDrilldown;
+    if (hook != null) {
+      hook(item);
+    }
   }
 
   @protected
@@ -1977,7 +1988,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    return null;
+    return widget.type.kindHooks.page.buildWorkspaceOverride?.call(
+      projection,
+      viewState,
+      allOwnedCopies: allOwnedCopies,
+      allWishlistItems: allWishlistItems,
+    );
   }
 
   Future<void> _hydrateSelectedItem(String itemId) async {

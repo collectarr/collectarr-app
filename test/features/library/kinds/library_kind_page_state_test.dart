@@ -135,6 +135,17 @@ void main() {
     expect(gamesLibraryConfig.capabilities.supportsReadingQueue, isFalse);
   });
 
+  test('books expose explicit kind hooks for page and inspector behavior', () {
+    expect(
+      booksLibraryConfig.kindHooks.page.canOpenItemDetailDrilldown,
+      isNotNull,
+    );
+    expect(
+      booksLibraryConfig.kindHooks.inspector.showActionBar,
+      isFalse,
+    );
+  });
+
   test(
       'library kind page builder dispatches known kinds and falls back to generic',
       () {
