@@ -477,15 +477,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _syncRouteState();
   }
 
-  List<LibraryToolbarSearchSuggestion> _buildSearchSuggestions(
-    LibraryProjection projection,
-  ) {
-    return _LibraryToolbarControllerOps.buildSearchSuggestions(
-      projection,
-      _searchController.text,
-    );
-  }
-
   void _onSearchTargetChanged(LibrarySearchTarget target) {
     if (!_supportsMusicTrackSearch || _searchTarget == target) {
       return;
@@ -555,9 +546,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             shelfState,
             viewState,
           );
-    final searchSuggestions = projection == null
-        ? const <LibraryToolbarSearchSuggestion>[]
-        : _buildSearchSuggestions(projection);
+    final searchSuggestions = ref.watch(
+      libraryToolbarSearchSuggestionsProvider((
+        projection: projection,
+        query: _searchController.text,
+      )),
+    );
     final useFab =
         ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return LibraryKeyboardShortcuts(

@@ -59,3 +59,21 @@ abstract final class _LibraryToolbarControllerOps {
     return ranked.map((value) => value.$2).take(8).toList(growable: false);
   }
 }
+
+typedef LibraryToolbarSearchSuggestionsInput = ({
+  LibraryProjection? projection,
+  String query,
+});
+
+final libraryToolbarSearchSuggestionsProvider =
+    Provider.autoDispose.family<List<LibraryToolbarSearchSuggestion>,
+        LibraryToolbarSearchSuggestionsInput>((ref, input) {
+  final projection = input.projection;
+  if (projection == null) {
+    return const <LibraryToolbarSearchSuggestion>[];
+  }
+  return _LibraryToolbarControllerOps.buildSearchSuggestions(
+    projection,
+    input.query,
+  );
+});
