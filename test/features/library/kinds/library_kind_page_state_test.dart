@@ -145,10 +145,12 @@ void main() {
 
     final request = LibraryEditDialogRequest(
       type: booksLibraryConfig,
-      item: LibraryMetadataItem(
-        id: 'book-1',
-        mediaKind: CatalogMediaKind.book,
-        title: 'Hyperion',
+      item: LibraryMetadataItem.fromCatalogItem(
+        CatalogItem(
+          id: 'book-1',
+          mediaKind: CatalogMediaKind.book,
+          title: 'Hyperion',
+        ),
       ),
       ownedItem: null,
       accent: Colors.blue,

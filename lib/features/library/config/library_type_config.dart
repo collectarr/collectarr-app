@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_hooks.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -494,7 +493,6 @@ class LibraryTypeConfig {
     this.editDialogBuilder,
     this.mediaEditDialogBuilder,
     this.releaseEditDialogBuilder,
-    this.kindHooks = const LibraryKindHooks(),
     this.detailPageBuilder,
     this.inspectorPanelBuilder,
     this.inspectorHeroBuilder,
@@ -517,7 +515,6 @@ class LibraryTypeConfig {
   final LibraryEditPresentation editPresentation;
   final LibraryAddChromeConfig addChrome;
   final LibraryEditChromeConfig editChrome;
-  final LibraryKindHooks kindHooks;
   final MediaEditFields mediaFields;
   final ReleaseEditFields releaseFields;
   final String collectionExportTitleLabel;
