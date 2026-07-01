@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
@@ -36,7 +37,7 @@ void main() {
                 accent: Colors.blue,
                 routeUri: Uri(path: '/books'))
             .createState(),
-        isA<BookLibraryPageState>());
+        isA<GenericLibraryPageState>());
     expect(
         GameLibraryPage(
                 type: gamesLibraryConfig,
@@ -144,6 +145,8 @@ void main() {
       booksLibraryConfig.kindHooks.inspector.showActionBar,
       isFalse,
     );
+    expect(
+        booksLibraryConfig.kindHooks.edit.defaultScope, LibraryEditScope.media);
   });
 
   test(

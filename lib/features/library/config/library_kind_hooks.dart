@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +46,11 @@ class LibraryInspectorKindHooks {
 }
 
 class LibraryEditKindHooks {
-  const LibraryEditKindHooks();
+  const LibraryEditKindHooks({
+    this.defaultScope,
+  });
+
+  final LibraryEditScope? defaultScope;
 }
 
 class LibraryStateKindHooks {

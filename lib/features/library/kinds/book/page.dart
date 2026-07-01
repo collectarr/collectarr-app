@@ -11,7 +11,5 @@ class BookLibraryPage extends GenericLibraryPage {
   }) : super();
 
   @override
-  ConsumerState<GenericLibraryPage> createState() => BookLibraryPageState();
+  ConsumerState<GenericLibraryPage> createState() => GenericLibraryPageState();
 }
-
-class BookLibraryPageState extends GenericLibraryPageState {}

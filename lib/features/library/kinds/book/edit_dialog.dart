@@ -36,7 +36,10 @@ Widget buildBookLibraryEditDialog(
   LibraryEditDialogRequest request,
 ) {
   final resolvedRequest = request.scope == LibraryEditScope.all
-      ? request.copyWith(scope: LibraryEditScope.media)
+      ? request.copyWith(
+          scope: request.type.kindHooks.edit.defaultScope ??
+              LibraryEditScope.media,
+        )
       : request;
   return BookLibraryEditDialog(
     request: resolvedRequest,
