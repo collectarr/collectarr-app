@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/library_kind_hooks.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
@@ -137,10 +138,7 @@ void main() {
   });
 
   test('books expose explicit kind hooks for page and inspector behavior', () {
-    expect(
-      booksLibraryConfig.kindHooks.page.canOpenItemDetailDrilldown,
-      isNotNull,
-    );
+    expect(booksLibraryConfig.kindHooks.page, isA<LibraryPageKindHooks>());
     expect(
         booksLibraryConfig.kindHooks.edit.defaultScope, LibraryEditScope.media);
   });

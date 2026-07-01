@@ -1935,35 +1935,21 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool canOpenDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
-    final hook = widget.type.kindHooks.page.canOpenDefaultVideoShelfDrilldown;
-    if (hook != null) {
-      return hook(item);
-    }
     return _canOpenVideoShelfDrilldown(item);
   }
 
   @protected
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
-    final hook = widget.type.kindHooks.page.canOpenItemDetailDrilldown;
-    return hook?.call(item) ?? false;
+    return false;
   }
 
   @protected
   void openDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
-    final hook = widget.type.kindHooks.page.openDefaultVideoShelfDrilldown;
-    if (hook != null) {
-      hook(item);
-      return;
-    }
     _openVideoShelfDrilldown(item);
   }
 
   @protected
   void openItemDetailDrilldown(LibraryProjectionItem item) {
-    final hook = widget.type.kindHooks.page.openItemDetailDrilldown;
-    if (hook != null) {
-      hook(item);
-    }
   }
 
   @protected
@@ -1988,12 +1974,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    return widget.type.kindHooks.page.buildWorkspaceOverride?.call(
-      projection,
-      viewState,
-      allOwnedCopies: allOwnedCopies,
-      allWishlistItems: allWishlistItems,
-    );
+    return null;
   }
 
   Future<void> _hydrateSelectedItem(String itemId) async {

@@ -1,39 +1,7 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:flutter/material.dart';
-
-typedef LibraryItemDetailDrilldownPredicate = bool Function(
-  LibraryProjectionItem item,
-);
-
-typedef LibraryItemDetailDrilldownOp = void Function(
-  LibraryProjectionItem item,
-);
-
-typedef LibraryWorkspaceOverrideBuilder = Widget? Function(
-  LibraryProjection projection,
-  LibraryWorkspaceViewState viewState, {
-  required List<OwnedItem> allOwnedCopies,
-  required List<WishlistItem> allWishlistItems,
-});
 
 class LibraryPageKindHooks {
-  const LibraryPageKindHooks({
-    this.canOpenItemDetailDrilldown,
-    this.openItemDetailDrilldown,
-    this.canOpenDefaultVideoShelfDrilldown,
-    this.openDefaultVideoShelfDrilldown,
-    this.buildWorkspaceOverride,
-  });
-
-  final LibraryItemDetailDrilldownPredicate? canOpenItemDetailDrilldown;
-  final LibraryItemDetailDrilldownOp? openItemDetailDrilldown;
-  final LibraryItemDetailDrilldownPredicate? canOpenDefaultVideoShelfDrilldown;
-  final LibraryItemDetailDrilldownOp? openDefaultVideoShelfDrilldown;
-  final LibraryWorkspaceOverrideBuilder? buildWorkspaceOverride;
+  const LibraryPageKindHooks();
 }
 
 class LibraryInspectorKindHooks {
