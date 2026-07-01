@@ -37,7 +37,7 @@ void main() {
                 accent: Colors.blue,
                 routeUri: Uri(path: '/books'))
             .createState(),
-        isA<GenericLibraryPageState>());
+        isA<BookLibraryPageState>());
     expect(
         GameLibraryPage(
                 type: gamesLibraryConfig,
