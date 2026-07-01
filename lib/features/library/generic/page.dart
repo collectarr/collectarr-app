@@ -104,6 +104,7 @@ part 'page/controllers/page_facet_controller.dart';
 part 'page/controllers/page_scope_controller.dart';
 part 'page/controllers/page_view_state_controller.dart';
 part 'page/controllers/page_projection_controller.dart';
+part 'page/controllers/page_toolbar_controller.dart';
 part 'page/controllers/page_selection_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
@@ -479,58 +480,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   List<LibraryToolbarSearchSuggestion> _buildSearchSuggestions(
     LibraryProjection projection,
   ) {
-    final query = _searchController.text.trim().toLowerCase();
-    if (query.isEmpty) {
-      return const <LibraryToolbarSearchSuggestion>[];
-    }
-    final ranked = <(int, LibraryToolbarSearchSuggestion)>[];
-    for (final item in projection.allItems) {
-      final entry = item.entry;
-      final title = entry.resolvedTitle.trim().isEmpty
-          ? entry.title.trim()
-          : entry.resolvedTitle.trim();
-      if (title.isEmpty) {
-        continue;
-      }
-      final normalizedTitle = title.toLowerCase();
-      final itemNumber = entry.itemNumber?.trim();
-      final publisher = entry.publisher?.trim();
-      final subtitleParts = <String>[
-        if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
-        if (publisher != null && publisher.isNotEmpty) publisher,
-      ];
-      final subtitle = subtitleParts.isEmpty ? null : subtitleParts.join(' • ');
-      var score = 0;
-      if (normalizedTitle.startsWith(query)) {
-        score = 3;
-      } else if (normalizedTitle.contains(query)) {
-        score = 2;
-      } else if ((itemNumber?.toLowerCase().contains(query) ?? false) ||
-          (publisher?.toLowerCase().contains(query) ?? false)) {
-        score = 1;
-      }
-      if (score == 0) {
-        continue;
-      }
-      ranked.add((
-        score,
-        LibraryToolbarSearchSuggestion(
-          id: entry.id,
-          title: title,
-          subtitle: subtitle,
-        ),
-      ));
-    }
-    ranked.sort((left, right) {
-      final byScore = right.$1.compareTo(left.$1);
-      if (byScore != 0) {
-        return byScore;
-      }
-      return left.$2.title
-          .toLowerCase()
-          .compareTo(right.$2.title.toLowerCase());
-    });
-    return ranked.map((value) => value.$2).take(8).toList(growable: false);
+    return _LibraryToolbarControllerOps.buildSearchSuggestions(
+      projection,
+      _searchController.text,
+    );
   }
 
   void _onSearchTargetChanged(LibrarySearchTarget target) {
@@ -635,171 +588,179 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
               Column(
                 children: [
                   widget.topBar,
-                  LibraryToolbar(
-                    type: widget.type,
-                    searchController: _searchController,
-                    viewState: viewState,
-                    adapter: _adapter,
-                    onAdd: () => showAddDialogFlow(),
-                    onScan: scanBarcodeFlow,
-                    onSearchChanged: _onSearchChanged,
-                    onSearchInputChanged: _onSearchInputChanged,
-                    onClearSearch: _clearSearch,
-                    searchActive: _appliedSearchQuery.isNotEmpty ||
-                        _searchPinnedItemId != null,
-                    searchSuggestions: searchSuggestions,
-                    onSearchSuggestionSelected: _applySearchSuggestion,
-                    searchTarget: _effectiveSearchTarget,
-                    searchTargetOptions: _supportsMusicTrackSearch
-                        ? const <LibrarySearchTarget>[
-                            LibrarySearchTarget.all,
-                            LibrarySearchTarget.mediaOnly,
-                            LibrarySearchTarget.tracksOnly,
-                          ]
-                        : const <LibrarySearchTarget>[],
-                    onSearchTargetChanged: _supportsMusicTrackSearch
-                        ? _onSearchTargetChanged
-                        : null,
-                    onEditColumns: showColumnChooserFlow,
-                    onSortChanged: (column) => _updateViewState(
-                      (state) =>
-                          state.withSortColumn(column, _adapter.viewProfile),
+                  LibraryToolbar.grouped(
+                    config: LibraryToolbarConfig(
+                      type: widget.type,
+                      adapter: _adapter,
+                      browserMode: _activeBrowserMode,
+                      supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
+                      includeDesktopSecondaryBand: false,
                     ),
-                    onEditSort: showSortDialogFlow,
-                    onSidebarVisibilityChanged: _setGroupingPanelVisibility,
-                    onViewModeChanged: (mode) => _updateViewState(
-                      (state) => state.copyWith(viewMode: mode),
+                    state: LibraryToolbarState(
+                      searchController: _searchController,
+                      viewState: viewState,
+                      counts: projection?.counts ?? const LibraryToolbarCounts(),
+                      searchTarget: _effectiveSearchTarget,
+                      searchTargetOptions: _supportsMusicTrackSearch
+                          ? const <LibrarySearchTarget>[
+                              LibrarySearchTarget.all,
+                              LibrarySearchTarget.mediaOnly,
+                              LibrarySearchTarget.tracksOnly,
+                            ]
+                          : const <LibrarySearchTarget>[],
+                      searchActive: _appliedSearchQuery.isNotEmpty ||
+                          _searchPinnedItemId != null,
+                      searchSuggestions: searchSuggestions,
+                      selectedBucket:
+                          _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+                      collectionStatusScope: _collectionStatusScope,
+                      quickView: _quickView,
+                      availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
+                        (projection?.filteredItems ??
+                                const <LibraryProjectionItem>[])
+                            .map((i) => i.entry.resolvedTitle),
+                      ),
+                      selectedLetter: _selectedLetter,
+                      activeViewPreset: _activeViewPreset,
+                      pinnedViewPresets: _pinnedViewPresets,
+                      sortFavorites: _sortFavorites,
+                      activeSortFavoriteId: _activeSortFavorite?.id,
+                      pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
+                      columnFavoritePresets: _columnFavoritePresets,
+                      activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
+                      pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
+                      canJumpToIssue: _canJumpToIssue(projection),
+                      hasActiveFilters: _hasActiveFilter,
+                      activeFilterCount: _filterSelection.activeFilterCount,
+                      shelfState: shelfState,
+                      groupMode: _activeSidebarGroupMode,
+                      folderPreset: _activeFolderPreset,
+                      availableGroupModes: _scopeAvailableGroupModes,
+                      pinnedFolderPresets: _pinnedFolderPresets,
+                      selectionCallbacks:
+                          viewState.viewMode == LibraryViewMode.cardFlow
+                              ? null
+                              : _selectionCallbacksForProjection(projection),
+                      selectionEnabled: _selection.enabled &&
+                          viewState.viewMode != LibraryViewMode.cardFlow,
+                      selectedCount:
+                          viewState.viewMode == LibraryViewMode.cardFlow
+                              ? 0
+                              : _selection.selectedCount,
+                      totalSelectableCount:
+                          projection?.filteredItems.length ?? 0,
+                      showReleaseFolderBack: _shouldShowReleaseFolderBack,
+                      releaseFolderLabel:
+                          _releaseFolderLabelForProjection(projection),
                     ),
-                    browserMode: _activeBrowserMode,
-                    supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
-                    onBrowserModeChanged: _setBrowserMode,
-                    showReleaseFolderBack: _shouldShowReleaseFolderBack,
-                    releaseFolderLabel:
-                        _releaseFolderLabelForProjection(projection),
-                    onReleaseFolderBack:
-                        _shouldShowReleaseFolderBack ? _closeReleaseFolder : null,
-                    onDetailsLayoutChanged: (layout) => _updateViewState(
-                      (state) => state.copyWith(detailsLayout: layout),
-                    ),
-                    onCoverSizeChanged: (size) => _updateViewState(
-                      (state) => state.copyWith(coverSize: size),
-                    ),
-                    selectedBucket:
-                        _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
-                    onClearBucket: _clearToolbarSearchChip,
-                    onRefreshMetadata: () => showMetadataRefreshFlow(
-                      projection,
-                    ),
-                    collectionStatusScope: _collectionStatusScope,
-                    onCollectionStatusScopeChanged: _setCollectionStatusScope,
-                    quickView: _quickView,
-                    onQuickViewSelected: (view) =>
-                        _setQuickView(_quickView == view ? null : view),
-                    availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-                      (projection?.filteredItems ??
-                              const <LibraryProjectionItem>[])
-                          .map((i) => i.entry.resolvedTitle),
-                    ),
-                    selectedLetter: _selectedLetter,
-                    onLetterSelected: _setSelectedLetter,
-                    activeViewPreset: _activeViewPreset,
-                    onViewPresetSelected: _applyViewPreset,
-                    sortFavorites: _sortFavorites,
-                    activeSortFavoriteId: _activeSortFavorite?.id,
-                    onSortFavoriteSelected: _applySortFavorite,
-                    pinnedViewPresets: _pinnedViewPresets,
-                    onTogglePinnedViewPreset: _togglePinnedViewPreset,
-                    pinnedSortFavoriteIds: _pinnedSortFavoriteIds,
-                    onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
-                    onManageSortFavorites: showSortFavoritesManagerFlow,
-                    columnFavoritePresets: _columnFavoritePresets,
-                    activeColumnFavoriteLabel: _activeColumnFavoriteLabel,
-                    onColumnFavoriteSelected: _applyColumnFavorite,
-                    pinnedColumnFavoriteKeys: _pinnedColumnFavoriteKeys,
-                    onTogglePinnedColumnFavorite: _togglePinnedColumnFavorite,
-                    canJumpToIssue: _canJumpToIssue(projection),
-                    onJumpToIssueSubmitted: projection == null
-                        ? null
-                        : (value) => _jumpToIssue(projection, value),
-                    hasActiveFilters: _hasActiveFilter,
-                    onClearFilters: _clearFilters,
-                    onEditFilters: () => showFilterDialogFlow(projection),
-                    activeFilterCount: _filterSelection.activeFilterCount,
-                    onRandomPick: projection == null
-                        ? null
-                        : () => pickRandomItemFlow(projection),
-                    onScanCover: () => scanCoverFlow(),
-                    onDownloadAllCovers: shelfState != null
-                        ? () => downloadAllCoversFlow(shelfState)
-                        : null,
-                    counts: projection?.counts ?? const LibraryToolbarCounts(),
-                    shelfState: shelfState,
-                    onEditConditionPickList: widget.type.conditions.isNotEmpty
-                        ? showConditionPickListEditorFlow
-                        : null,
-                    onEditGradePickList: widget.type.grades.isNotEmpty
-                        ? showGradePickListEditorFlow
-                        : null,
-                    onEditTagPickList: showTagPickListEditorFlow,
-                    onSmartLists: () => showSmartListsFlow(shelfState),
-                    onFolders: showUserFoldersFlow,
-                    onReadingQueue:
-                        showsReadingQueue() ? showReadingQueueFlow : null,
-                    onTransferFieldData: projection != null &&
-                            _hasOwnedItemsInProjection(projection)
-                        ? () => showTransferFieldDataFlow(projection)
-                        : null,
-                    onReassignIndex: projection != null &&
-                            widget
-                                .type.capabilities.supportsIndexReassignment &&
-                            _hasOwnedItemsInProjection(projection)
-                        ? () => reassignIndexFlow(projection)
-                        : null,
-                    onPrintReport: projection != null &&
-                            projection.filteredItems.isNotEmpty
-                        ? () => printReportFlow(projection)
-                        : null,
-                    onShareCollection: projection != null &&
-                            projection.filteredItems.isNotEmpty
-                        ? () => shareCollectionFlow(projection)
-                        : null,
-                    onCompareMetadataWithServer: (() {
-                      if (projection == null ||
-                          !supportsMetadataCompareWithServer()) {
-                        return null;
-                      }
-                      final selected = selectedProjectionItemFor(projection);
-                      if (selected == null ||
-                          !canCompareMetadataWithServerItem(selected)) {
-                        return null;
-                      }
-                      return () => unawaited(
-                            compareMetadataWithServerFlow(
-                              projection,
-                              item: selected,
-                            ),
-                          );
-                    })(),
-                    selectionEnabled: _selection.enabled &&
-                        viewState.viewMode != LibraryViewMode.cardFlow,
-                    selectedCount:
-                        viewState.viewMode == LibraryViewMode.cardFlow
-                            ? 0
-                            : _selection.selectedCount,
-                    totalSelectableCount: projection?.filteredItems.length ?? 0,
-                    groupMode: _activeSidebarGroupMode,
-                    folderPreset: _activeFolderPreset,
-                    availableGroupModes: _scopeAvailableGroupModes,
-                    pinnedFolderPresets: _pinnedFolderPresets,
-                    onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
-                    onGroupModeChanged: _setFolderPreset,
-                    includeDesktopSecondaryBand: false,
-                    selectionCallbacks:
-                        viewState.viewMode == LibraryViewMode.cardFlow
-                            ? null
-                            : _selectionCallbacksForProjection(
+                    actions: LibraryToolbarActions(
+                      onAdd: () => showAddDialogFlow(),
+                      onScan: scanBarcodeFlow,
+                      onSearchChanged: _onSearchChanged,
+                      onSearchInputChanged: _onSearchInputChanged,
+                      onSearchTargetChanged: _supportsMusicTrackSearch
+                          ? _onSearchTargetChanged
+                          : null,
+                      onClearSearch: _clearSearch,
+                      onSearchSuggestionSelected: _applySearchSuggestion,
+                      onEditColumns: showColumnChooserFlow,
+                      onSortChanged: (column) => _updateViewState(
+                        (state) =>
+                            state.withSortColumn(column, _adapter.viewProfile),
+                      ),
+                      onEditSort: showSortDialogFlow,
+                      onSidebarVisibilityChanged: _setGroupingPanelVisibility,
+                      onViewModeChanged: (mode) => _updateViewState(
+                        (state) => state.copyWith(viewMode: mode),
+                      ),
+                      onBrowserModeChanged: _setBrowserMode,
+                      onReleaseFolderBack:
+                          _shouldShowReleaseFolderBack ? _closeReleaseFolder : null,
+                      onDetailsLayoutChanged: (layout) => _updateViewState(
+                        (state) => state.copyWith(detailsLayout: layout),
+                      ),
+                      onCoverSizeChanged: (size) => _updateViewState(
+                        (state) => state.copyWith(coverSize: size),
+                      ),
+                      onClearBucket: _clearToolbarSearchChip,
+                      onRefreshMetadata: () => showMetadataRefreshFlow(
+                        projection,
+                      ),
+                      onCollectionStatusScopeChanged:
+                          _setCollectionStatusScope,
+                      onQuickViewSelected: (view) =>
+                          _setQuickView(_quickView == view ? null : view),
+                      onLetterSelected: _setSelectedLetter,
+                      onViewPresetSelected: _applyViewPreset,
+                      onTogglePinnedViewPreset: _togglePinnedViewPreset,
+                      onSortFavoriteSelected: _applySortFavorite,
+                      onTogglePinnedSortFavorite: _togglePinnedSortFavorite,
+                      onManageSortFavorites: showSortFavoritesManagerFlow,
+                      onColumnFavoriteSelected: _applyColumnFavorite,
+                      onTogglePinnedColumnFavorite:
+                          _togglePinnedColumnFavorite,
+                      onJumpToIssueSubmitted: projection == null
+                          ? null
+                          : (value) => _jumpToIssue(projection, value),
+                      onClearFilters: _clearFilters,
+                      onEditFilters: () => showFilterDialogFlow(projection),
+                      onRandomPick: projection == null
+                          ? null
+                          : () => pickRandomItemFlow(projection),
+                      onScanCover: () => scanCoverFlow(),
+                      onDownloadAllCovers: shelfState != null
+                          ? () => downloadAllCoversFlow(shelfState)
+                          : null,
+                      onSmartLists: () => showSmartListsFlow(shelfState),
+                      onFolders: showUserFoldersFlow,
+                      onReadingQueue:
+                          showsReadingQueue() ? showReadingQueueFlow : null,
+                      onEditConditionPickList:
+                          widget.type.conditions.isNotEmpty
+                              ? showConditionPickListEditorFlow
+                              : null,
+                      onEditGradePickList: widget.type.grades.isNotEmpty
+                          ? showGradePickListEditorFlow
+                          : null,
+                      onEditTagPickList: showTagPickListEditorFlow,
+                      onTransferFieldData: projection != null &&
+                              _hasOwnedItemsInProjection(projection)
+                          ? () => showTransferFieldDataFlow(projection)
+                          : null,
+                      onReassignIndex: projection != null &&
+                              widget
+                                  .type.capabilities.supportsIndexReassignment &&
+                              _hasOwnedItemsInProjection(projection)
+                          ? () => reassignIndexFlow(projection)
+                          : null,
+                      onPrintReport: projection != null &&
+                              projection.filteredItems.isNotEmpty
+                          ? () => printReportFlow(projection)
+                          : null,
+                      onShareCollection: projection != null &&
+                              projection.filteredItems.isNotEmpty
+                          ? () => shareCollectionFlow(projection)
+                          : null,
+                      onCompareMetadataWithServer: (() {
+                        if (projection == null ||
+                            !supportsMetadataCompareWithServer()) {
+                          return null;
+                        }
+                        final selected = selectedProjectionItemFor(projection);
+                        if (selected == null ||
+                            !canCompareMetadataWithServerItem(selected)) {
+                          return null;
+                        }
+                        return () => unawaited(
+                              compareMetadataWithServerFlow(
                                 projection,
+                                item: selected,
                               ),
+                            );
+                      })(),
+                      onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
+                      onGroupModeChanged: _setFolderPreset,
+                    ),
                   ),
                   Expanded(
                     child: shelf.when(

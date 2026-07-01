@@ -1,6 +1,9 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -13,6 +16,9 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
+export 'toolbar/library_toolbar_actions.dart';
+export 'toolbar/library_toolbar_config.dart';
+export 'toolbar/library_toolbar_state.dart';
 export 'toolbar/toolbar_auxiliary_controls.dart';
 export 'toolbar/toolbar_sections.dart';
 
@@ -106,6 +112,100 @@ class LibraryToolbar extends StatelessWidget {
     this.onGroupModeChanged,
     this.includeDesktopSecondaryBand = true,
   });
+
+  LibraryToolbar.grouped({
+    super.key,
+    required LibraryToolbarConfig config,
+    required LibraryToolbarState state,
+    required LibraryToolbarActions actions,
+  })  : type = config.type,
+        searchController = state.searchController,
+        viewState = state.viewState,
+        adapter = config.adapter,
+        counts = state.counts,
+        onAdd = actions.onAdd,
+        onScan = actions.onScan,
+        onSearchChanged = actions.onSearchChanged,
+        onSearchInputChanged = actions.onSearchInputChanged,
+        searchTarget = state.searchTarget,
+        searchTargetOptions = state.searchTargetOptions,
+        onSearchTargetChanged = actions.onSearchTargetChanged,
+        onClearSearch = actions.onClearSearch,
+        searchActive = state.searchActive,
+        searchSuggestions = state.searchSuggestions,
+        onSearchSuggestionSelected = actions.onSearchSuggestionSelected,
+        onEditColumns = actions.onEditColumns,
+        onSortChanged = actions.onSortChanged,
+        onEditSort = actions.onEditSort,
+        onSidebarVisibilityChanged = actions.onSidebarVisibilityChanged,
+        onViewModeChanged = actions.onViewModeChanged,
+        browserMode = config.browserMode,
+        supportsMediaReleaseSplit = config.supportsMediaReleaseSplit,
+        onBrowserModeChanged = actions.onBrowserModeChanged,
+        showReleaseFolderBack = state.showReleaseFolderBack,
+        releaseFolderLabel = state.releaseFolderLabel,
+        onReleaseFolderBack = actions.onReleaseFolderBack,
+        onDetailsLayoutChanged = actions.onDetailsLayoutChanged,
+        onCoverSizeChanged = actions.onCoverSizeChanged,
+        selectedBucket = state.selectedBucket,
+        onClearBucket = actions.onClearBucket,
+        onRefreshMetadata = actions.onRefreshMetadata,
+        collectionStatusScope = state.collectionStatusScope,
+        onCollectionStatusScopeChanged =
+            actions.onCollectionStatusScopeChanged,
+        quickView = state.quickView,
+        onQuickViewSelected = actions.onQuickViewSelected,
+        availableLetters = state.availableLetters,
+        selectedLetter = state.selectedLetter,
+        onLetterSelected = actions.onLetterSelected,
+        activeViewPreset = state.activeViewPreset,
+        onViewPresetSelected = actions.onViewPresetSelected,
+        pinnedViewPresets = state.pinnedViewPresets,
+        onTogglePinnedViewPreset = actions.onTogglePinnedViewPreset,
+        sortFavorites = state.sortFavorites,
+        activeSortFavoriteId = state.activeSortFavoriteId,
+        onSortFavoriteSelected = actions.onSortFavoriteSelected,
+        pinnedSortFavoriteIds = state.pinnedSortFavoriteIds,
+        onTogglePinnedSortFavorite = actions.onTogglePinnedSortFavorite,
+        onManageSortFavorites = actions.onManageSortFavorites,
+        columnFavoritePresets = state.columnFavoritePresets,
+        activeColumnFavoriteLabel = state.activeColumnFavoriteLabel,
+        onColumnFavoriteSelected = actions.onColumnFavoriteSelected,
+        pinnedColumnFavoriteKeys = state.pinnedColumnFavoriteKeys,
+        onTogglePinnedColumnFavorite =
+            actions.onTogglePinnedColumnFavorite,
+        canJumpToIssue = state.canJumpToIssue,
+        onJumpToIssueSubmitted = actions.onJumpToIssueSubmitted,
+        hasActiveFilters = state.hasActiveFilters,
+        onClearFilters = actions.onClearFilters,
+        onEditFilters = actions.onEditFilters,
+        activeFilterCount = state.activeFilterCount,
+        onRandomPick = actions.onRandomPick,
+        onScanCover = actions.onScanCover,
+        onDownloadAllCovers = actions.onDownloadAllCovers,
+        selectionEnabled = state.selectionEnabled,
+        selectedCount = state.selectedCount,
+        totalSelectableCount = state.totalSelectableCount,
+        selectionCallbacks = state.selectionCallbacks,
+        shelfState = state.shelfState,
+        onSmartLists = actions.onSmartLists,
+        onFolders = actions.onFolders,
+        onReadingQueue = actions.onReadingQueue,
+        onEditConditionPickList = actions.onEditConditionPickList,
+        onEditGradePickList = actions.onEditGradePickList,
+        onEditTagPickList = actions.onEditTagPickList,
+        onTransferFieldData = actions.onTransferFieldData,
+        onReassignIndex = actions.onReassignIndex,
+        onPrintReport = actions.onPrintReport,
+        onShareCollection = actions.onShareCollection,
+        onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
+        groupMode = state.groupMode,
+        folderPreset = state.folderPreset,
+        availableGroupModes = state.availableGroupModes,
+        pinnedFolderPresets = state.pinnedFolderPresets,
+        onPinnedFolderPresetsChanged = actions.onPinnedFolderPresetsChanged,
+        onGroupModeChanged = actions.onGroupModeChanged,
+        includeDesktopSecondaryBand = config.includeDesktopSecondaryBand;
 
   final LibraryTypeConfig type;
   final TextEditingController searchController;
