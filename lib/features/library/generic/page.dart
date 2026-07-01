@@ -673,12 +673,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     browserMode: _activeBrowserMode,
                     supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
                     onBrowserModeChanged: _setBrowserMode,
-                    showReleaseFolderBack: _releaseFolderTitleItemId != null,
+                    showReleaseFolderBack: _shouldShowReleaseFolderBack,
                     releaseFolderLabel:
                         _releaseFolderLabelForProjection(projection),
-                    onReleaseFolderBack: _releaseFolderTitleItemId == null
-                        ? null
-                        : _closeReleaseFolder,
+                    onReleaseFolderBack:
+                        _shouldShowReleaseFolderBack ? _closeReleaseFolder : null,
                     onDetailsLayoutChanged: (layout) => _updateViewState(
                       (state) => state.copyWith(detailsLayout: layout),
                     ),
@@ -919,9 +918,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onOpenItem: (item) {
         final isMediaTitle =
             item.entry.browseScope == LibraryBrowserScope.title;
-        if (_supportsMediaReleaseSplit &&
-            _activeBrowserMode == LibraryWorkspaceBrowserMode.media &&
-            isMediaTitle) {
+        if (_shouldOpenReleaseFolder(item) && isMediaTitle) {
           _openReleaseFolder(item);
           return;
         }
@@ -1041,10 +1038,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         browserMode: _activeBrowserMode,
         supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
         onBrowserModeChanged: _setBrowserMode,
-        showReleaseFolderBack: _releaseFolderTitleItemId != null,
+        showReleaseFolderBack: _shouldShowReleaseFolderBack,
         releaseFolderLabel: _releaseFolderLabelForProjection(projection),
         onReleaseFolderBack:
-            _releaseFolderTitleItemId == null ? null : _closeReleaseFolder,
+            _shouldShowReleaseFolderBack ? _closeReleaseFolder : null,
         onDetailsLayoutChanged: (layout) => _updateViewState(
           (state) => state.copyWith(detailsLayout: layout),
         ),
@@ -1903,7 +1900,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _handleKeyboardEscape() {
-    if (_releaseFolderTitleItemId != null) {
+    if (_isReleaseFolderOpen) {
       _closeReleaseFolder();
       return;
     }

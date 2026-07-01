@@ -70,6 +70,20 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     return (_viewState ?? _adapter.viewProfile.defaults()).browserMode;
   }
 
+  bool get _isReleaseFolderOpen => _releaseFolderTitleItemId != null;
+
+  bool get _shouldShowReleaseFolderBack => _isReleaseFolderOpen;
+
+  bool get _shouldOpenReleaseFolderForMediaTitle {
+    return _supportsMediaReleaseSplit &&
+        _activeBrowserMode == LibraryWorkspaceBrowserMode.media;
+  }
+
+  bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
+    return _shouldOpenReleaseFolderForMediaTitle &&
+        item.entry.browseScope == LibraryBrowserScope.title;
+  }
+
   void _setBrowserMode(LibraryWorkspaceBrowserMode mode) {
     _updateViewState((state) => state.copyWith(browserMode: mode));
     setState(() {

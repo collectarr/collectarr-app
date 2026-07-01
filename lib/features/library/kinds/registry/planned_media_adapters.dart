@@ -21,53 +21,20 @@ import 'package:flutter/material.dart';
 
 part 'planned_media_entry_accessors.dart';
 part 'planned_media_table_columns.dart';
+part 'planned_media_books_adapter.dart';
+part 'planned_media_games_adapter.dart';
+part 'planned_media_boardgames_adapter.dart';
+part 'planned_media_manga_adapter.dart';
+part 'planned_media_movies_adapter.dart';
+part 'planned_media_tv_adapter.dart';
+part 'planned_media_anime_adapter.dart';
+part 'planned_media_music_adapter.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
 const double kPlannedMediaDefaultCoverSize = 128;
 const double kPlannedMediaMaxCoverSize = 188;
 const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
-
-final booksMediaAdapter = plannedMediaAdapter(
-  booksLibraryConfig,
-  entryAccessors: plannedBookEntryAccessors,
-  compareEntriesByColumn: compareBookEntriesByColumn,
-);
-final gamesMediaAdapter = plannedMediaAdapter(
-  gamesLibraryConfig,
-  entryAccessors: plannedGameEntryAccessors,
-  compareEntriesByColumn: compareGameEntriesByColumn,
-);
-final boardGamesMediaAdapter = plannedMediaAdapter(
-  boardGamesLibraryConfig,
-  entryAccessors: plannedBoardGameEntryAccessors,
-  compareEntriesByColumn: compareBoardGameEntriesByColumn,
-);
-final mangaMediaAdapter = plannedMediaAdapter(
-  mangaLibraryConfig,
-  entryAccessors: plannedBookEntryAccessors,
-  compareEntriesByColumn: compareBookEntriesByColumn,
-);
-final moviesMediaAdapter = plannedMediaAdapter(
-  moviesLibraryConfig,
-  entryAccessors: plannedMovieEntryAccessors,
-  compareEntriesByColumn: compareMovieEntriesByColumn,
-);
-final tvMediaAdapter = plannedMediaAdapter(
-  tvLibraryConfig,
-  entryAccessors: plannedMovieEntryAccessors,
-  compareEntriesByColumn: compareMovieEntriesByColumn,
-);
-final animeMediaAdapter = plannedMediaAdapter(
-  animeLibraryConfig,
-  entryAccessors: plannedMovieEntryAccessors,
-  compareEntriesByColumn: compareMovieEntriesByColumn,
-);
-final musicMediaAdapter = plannedMediaAdapter(
-  musicLibraryConfig,
-  entryAccessors: plannedMusicEntryAccessors,
-  compareEntriesByColumn: compareMusicEntriesByColumn,
-);
 
 final plannedMediaAdapters = LibraryMediaAdapterRegistry([
   booksMediaAdapter,
