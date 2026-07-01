@@ -452,19 +452,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return widget.type.editPresentation
-        .builderForScope(widget.scope)
-        .buildTabs(
-      context: _editPresentationContext,
-    );
+    return widget.type.editPresentation.builderForScope(widget.scope).buildTabs(
+          context: _editPresentationContext,
+        );
   }
 
   LibraryEditPresentationState get _editPresentation {
-    return widget.type.editPresentation
-        .builderForScope(widget.scope)
-        .build(
-      context: _editPresentationContext,
-    );
+    return widget.type.editPresentation.builderForScope(widget.scope).build(
+          context: _editPresentationContext,
+        );
   }
 
   bool get _isDigitalFormat {
@@ -640,8 +636,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget build(BuildContext context) {
     final dialogTitle = _isMovieKind
         ? (() {
-            final year = widget.item.releaseYear ?? widget.item.releaseDate?.year;
-            return year == null ? widget.item.title : '${widget.item.title} ($year)';
+            final year =
+                widget.item.releaseYear ?? widget.item.releaseDate?.year;
+            return year == null
+                ? widget.item.title
+                : '${widget.item.title} ($year)';
           })()
         : widget.item.title;
     return LibraryEditDialogScaffold(
@@ -1112,10 +1111,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         _personalTrackingSection(),
         if (_showsEpisodeTrackingFields) _videoEpisodeSections(),
         if (_hasWishlistContext) _wishlistReferenceSection(),
-        if (_isOwned) _ownedNotesSection() else if (!_hasWishlistContext)
+        if (_isOwned)
+          _ownedNotesSection()
+        else if (!_hasWishlistContext)
           _collectionFieldsInfoSection(),
-        if (_showPhysicalOwnedFields && !_hasSpecsTab)
-          _physicalMediaSection(),
+        if (_showPhysicalOwnedFields && !_hasSpecsTab) _physicalMediaSection(),
         if (_isOwned && !_hasMainTab) _ownershipSection(),
         if (_isOwned && !_hasValueTab) _purchaseValueSection(),
       ],
@@ -1473,8 +1473,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               validator: optionalDateValidator,
             ),
             _field(
-                controller: _purchaseStoreController,
-                label: 'Purchase store'),
+                controller: _purchaseStoreController, label: 'Purchase store'),
           ]),
           const SizedBox(height: 10),
           _responsiveFields([
@@ -2325,12 +2324,10 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Future<void> _pickPurchaseDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: parseDate(_purchaseDateController.text) ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 10),
+    final picked = await showLibraryDateEntryDialog(
+      context,
+      label: 'Purchase date',
+      initialDate: parseDate(_purchaseDateController.text),
     );
     if (picked != null && mounted) {
       setState(() {
@@ -2340,12 +2337,10 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Future<void> _pickSoldDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _soldAt ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 10),
+    final picked = await showLibraryDateEntryDialog(
+      context,
+      label: 'Sold date',
+      initialDate: _soldAt,
     );
     if (picked != null && mounted) {
       setState(() => _soldAt = picked);
@@ -2370,36 +2365,10 @@ ORDER BY owner_label COLLATE NOCASE
     required DateTime? value,
     required ValueChanged<DateTime?> onChanged,
   }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: () async {
-        final now = DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? now,
-          firstDate: DateTime(1900),
-          lastDate: DateTime(now.year + 10),
-        );
-        if (picked != null && mounted) {
-          onChanged(picked);
-        }
-      },
-      onLongPress: value != null ? () => onChanged(null) : null,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: value != null
-              ? IconButton(
-                  icon: const Icon(Icons.clear, size: 18),
-                  onPressed: () => onChanged(null),
-                )
-              : const Icon(Icons.calendar_today, size: 18),
-        ),
-        child: Text(
-          value != null ? formatDate(value) : '',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ),
+    return LibraryDateFieldButton(
+      label: label,
+      value: value,
+      onChanged: onChanged,
     );
   }
 
@@ -2417,7 +2386,8 @@ ORDER BY owner_label COLLATE NOCASE
     Navigator.of(context).pop(selection);
   }
 
-  LibraryEditSelection _normalizeSelectionScope(LibraryEditSelection selection) {
+  LibraryEditSelection _normalizeSelectionScope(
+      LibraryEditSelection selection) {
     if (selection.scope == widget.scope) {
       return selection;
     }

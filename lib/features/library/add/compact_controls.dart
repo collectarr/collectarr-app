@@ -1,3 +1,6 @@
+import 'package:collectarr_app/core/utils/text_utils.dart'
+    show formatCompactDate;
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
@@ -255,21 +258,32 @@ class CompactDateButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.accent,
-    required this.onPressed,
+    required this.value,
+    required this.onChanged,
   });
 
   final String label;
   final Color accent;
-  final VoidCallback onPressed;
+  final DateTime? value;
+  final ValueChanged<DateTime?> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onPressed,
+      onTap: () async {
+        final picked = await showLibraryDateEntryDialog(
+          context,
+          label: 'Purchase date',
+          initialDate: value,
+        );
+        if (picked != null) {
+          onChanged(picked);
+        }
+      },
       borderRadius: BorderRadius.circular(3),
       child: CompactMenuFrame(
         width: 150,
-        label: label,
+        label: value == null ? label : formatCompactDate(value!),
         accent: accent,
         leading: Icons.calendar_today,
       ),

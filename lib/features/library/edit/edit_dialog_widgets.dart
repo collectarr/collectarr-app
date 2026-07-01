@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // ---------------------------------------------------------------------------
 // Shared edit-dialog building blocks used by both the comics-specific and
@@ -470,6 +471,246 @@ class ValueContextChip extends StatelessWidget {
       ),
     );
   }
+}
+
+class LibraryDateFieldButton extends StatefulWidget {
+  const LibraryDateFieldButton({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final DateTime? value;
+  final ValueChanged<DateTime?> onChanged;
+
+  @override
+  State<LibraryDateFieldButton> createState() => _LibraryDateFieldButtonState();
+}
+
+class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
+  late final TextEditingController _yearController;
+  late final TextEditingController _monthController;
+  late final TextEditingController _dayController;
+  DateTime? _lastEmittedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.value?.toLocal();
+    _yearController = TextEditingController(
+      text: initial?.year.toString() ?? '',
+    );
+    _monthController = TextEditingController(
+      text: initial?.month.toString().padLeft(2, '0') ?? '',
+    );
+    _dayController = TextEditingController(
+      text: initial?.day.toString().padLeft(2, '0') ?? '',
+    );
+    _lastEmittedValue = widget.value;
+  }
+
+  @override
+  void dispose() {
+    _yearController.dispose();
+    _monthController.dispose();
+    _dayController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryDateFieldButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value == widget.value) {
+      return;
+    }
+    _syncFromValue(widget.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final labelStyle =
+        Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
+            TextStyle(
+              color: palette.accent,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.surface,
+                  border: Border.all(color: palette.divider),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: SizedBox(
+                  height: 38,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _datePartField(
+                          controller: _yearController,
+                          hintText: 'YYYY',
+                        ),
+                      ),
+                      _separator(palette),
+                      Expanded(
+                        child: _datePartField(
+                          controller: _monthController,
+                          hintText: 'MM',
+                        ),
+                      ),
+                      _separator(palette),
+                      Expanded(
+                        child: _datePartField(
+                          controller: _dayController,
+                          hintText: 'DD',
+                        ),
+                      ),
+                      _separator(palette),
+                      IconButton(
+                        tooltip: 'Pick with calendar',
+                        onPressed: _pickWithCalendar,
+                        icon: const Icon(Icons.calendar_today, size: 18),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 10,
+              top: 0,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.surface,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: Text(widget.label, style: labelStyle),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _datePartField({
+    required TextEditingController controller,
+    required String hintText,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+      decoration: InputDecoration(
+        hintText: hintText,
+        border: InputBorder.none,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      ),
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+      ],
+      onChanged: (_) {
+        _emitValueIfPossible();
+      },
+    );
+  }
+
+  Future<void> _pickWithCalendar() async {
+    final now = DateTime.now();
+    final initial = _selectedDate ?? widget.value ?? now;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(now.year + 10),
+    );
+    if (picked != null) {
+      _syncFromValue(picked);
+      widget.onChanged(picked);
+    }
+  }
+
+  DateTime? get _selectedDate {
+    final yearText = _yearController.text.trim();
+    final monthText = _monthController.text.trim();
+    final dayText = _dayController.text.trim();
+    if (yearText.isEmpty && monthText.isEmpty && dayText.isEmpty) {
+      return null;
+    }
+    final year = int.tryParse(yearText);
+    final month = int.tryParse(monthText);
+    final day = int.tryParse(dayText);
+    if (year == null || month == null || day == null) {
+      return null;
+    }
+    final picked = DateTime(year, month, day);
+    if (picked.year != year || picked.month != month || picked.day != day) {
+      return null;
+    }
+    return picked;
+  }
+
+  void _syncFromValue(DateTime? value) {
+    final local = value?.toLocal();
+    _yearController.text = local?.year.toString() ?? '';
+    _monthController.text = local?.month.toString().padLeft(2, '0') ?? '';
+    _dayController.text = local?.day.toString().padLeft(2, '0') ?? '';
+    _lastEmittedValue = value;
+  }
+
+  void _emitValueIfPossible() {
+    final rawYear = _yearController.text.trim();
+    final rawMonth = _monthController.text.trim();
+    final rawDay = _dayController.text.trim();
+    if (rawYear.isEmpty && rawMonth.isEmpty && rawDay.isEmpty) {
+      if (_lastEmittedValue != null) {
+        _lastEmittedValue = null;
+        widget.onChanged(null);
+      }
+      return;
+    }
+    final selected = _selectedDate;
+    if (selected != null && selected != _lastEmittedValue) {
+      _lastEmittedValue = selected;
+      widget.onChanged(selected);
+      return;
+    }
+    if (selected == null) {
+      return;
+    }
+  }
+
+  Widget _separator(AppThemePalette palette) {
+    return Container(width: 1, height: 26, color: palette.divider);
+  }
+}
+
+Future<DateTime?> showLibraryDateEntryDialog(
+  BuildContext context, {
+  required String label,
+  DateTime? initialDate,
+}) {
+  final now = DateTime.now();
+  return showDatePicker(
+    context: context,
+    initialDate: initialDate ?? now,
+    firstDate: DateTime(1900),
+    lastDate: DateTime(now.year + 10),
+  );
 }
 
 // ---------------------------------------------------------------------------

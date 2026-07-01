@@ -189,8 +189,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     return _type.editPresentation
         .builderForScope(widget.request.scope)
         .buildTabs(
-      context: _tabPresentationContext,
-    );
+          context: _tabPresentationContext,
+        );
   }
 
   String get _bookTitleLabel => _titleController.text.trim().isEmpty
@@ -456,9 +456,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     return _type.editPresentation
         .builderForScope(widget.request.scope)
         .buildTabSectionIds(
-      context: _tabPresentationContext,
-      tabId: tabId,
-    );
+          context: _tabPresentationContext,
+          tabId: tabId,
+        );
   }
 
   Widget _tabViewFor(String id) {
@@ -928,12 +928,10 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: () async {
-        final now = DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? now,
-          firstDate: DateTime(1900),
-          lastDate: DateTime(now.year + 10),
+        final picked = await showLibraryDateEntryDialog(
+          context,
+          label: label,
+          initialDate: value,
         );
         if (picked != null && mounted) {
           onChanged(picked);

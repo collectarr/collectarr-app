@@ -101,8 +101,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
       _ => TextFormField(
           initialValue: value ?? '',
           decoration: InputDecoration(labelText: def.name),
-          keyboardType:
-              def.fieldType == 'number' ? TextInputType.number : null,
+          keyboardType: def.fieldType == 'number' ? TextInputType.number : null,
           onChanged: (v) {
             final trimmed = v.trim();
             _update(def.id, trimmed.isEmpty ? null : trimmed);
@@ -140,24 +139,12 @@ class _DateCustomField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () async {
-        final now = DateTime.now();
-        final initial = value != null ? DateTime.tryParse(value!) : null;
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: initial ?? now,
-          firstDate: DateTime(1900),
-          lastDate: DateTime(now.year + 10),
-        );
-        if (picked != null) {
-          onChanged(formatDate(picked));
-        }
+    return LibraryDateFieldButton(
+      label: label,
+      value: value != null ? DateTime.tryParse(value!) : null,
+      onChanged: (picked) {
+        onChanged(picked == null ? null : formatDate(picked));
       },
-      icon: const Icon(Icons.event),
-      label: Text(
-        value == null || value!.isEmpty ? 'Set $label' : '$label: $value',
-      ),
     );
   }
 }

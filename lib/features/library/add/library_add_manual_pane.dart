@@ -204,19 +204,34 @@ class _ManualPaneState extends State<_ManualPane> {
                                 const SizedBox(height: 8),
                                 Row(children: [
                                   Expanded(
-                                      child: TextField(
-                                          controller: widget
-                                              .request.releaseDateController,
-                                          decoration: const InputDecoration(
-                                              labelText:
-                                                  'Release Date (YYYY-MM-DD)'))),
+                                    child: ValueListenableBuilder<
+                                        TextEditingValue>(
+                                      valueListenable:
+                                          widget.request.releaseDateController,
+                                      builder: (context, value, _) {
+                                        return LibraryDateFieldButton(
+                                          label: 'Release date',
+                                          value: parseDate(value.text),
+                                          onChanged: (picked) {
+                                            widget.request.releaseDateController
+                                                    .text =
+                                                picked == null
+                                                    ? ''
+                                                    : formatDate(picked);
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                      child: TextField(
-                                          controller: widget
-                                              .request.pageCountController,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Page Count'))),
+                                    child: TextField(
+                                      controller:
+                                          widget.request.pageCountController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Page Count'),
+                                    ),
+                                  ),
                                 ]),
                                 const SizedBox(height: 8),
                                 SingleValuePickField(

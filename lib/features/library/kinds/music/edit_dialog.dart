@@ -1466,12 +1466,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: () async {
-        final now = DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? now,
-          firstDate: DateTime(1900),
-          lastDate: DateTime(now.year + 10),
+        final picked = await showLibraryDateEntryDialog(
+          context,
+          label: label,
+          initialDate: value,
         );
         if (picked != null && mounted) {
           onChanged(picked);

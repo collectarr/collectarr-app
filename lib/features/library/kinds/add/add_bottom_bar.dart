@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
@@ -21,8 +22,10 @@ Widget buildKindAddBottomBar(
   LibraryAddBottomBarRequest request,
 ) {
   final palette = appPalette(context);
-  final hasSelection = request.selectedItem != null || request.selectedCandidate != null;
-  final effectiveCount = request.addCount > 0 ? request.addCount : (hasSelection ? 1 : 0);
+  final hasSelection =
+      request.selectedItem != null || request.selectedCandidate != null;
+  final effectiveCount =
+      request.addCount > 0 ? request.addCount : (hasSelection ? 1 : 0);
   final primaryLabel = _primaryAddLabel(request, effectiveCount);
   return DecoratedBox(
     decoration: BoxDecoration(
@@ -43,7 +46,8 @@ Widget buildKindAddBottomBar(
                     style: ButtonStyle(
                       visualDensity: VisualDensity.compact,
                       side: WidgetStatePropertyAll(
-                        BorderSide(color: request.accent.withValues(alpha: 0.32)),
+                        BorderSide(
+                            color: request.accent.withValues(alpha: 0.32)),
                       ),
                     ),
                     showSelectedIcon: false,
@@ -139,7 +143,9 @@ Widget buildKindAddBottomBar(
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed: request.isAdding ? null : request.onDefaultLocationPressed,
+                  onPressed: request.isAdding
+                      ? null
+                      : request.onDefaultLocationPressed,
                   style: _kindOutlinedButtonStyle(request.accent),
                   icon: const Icon(Icons.place_outlined, size: 16),
                   label: Text(request.defaultLocationLabel ?? 'Location'),
@@ -148,12 +154,10 @@ Widget buildKindAddBottomBar(
                   onPressed: request.isAdding
                       ? null
                       : () async {
-                          final now = DateTime.now();
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: request.defaultPurchaseDate ?? now,
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime(now.year + 3, 12, 31),
+                          final picked = await showLibraryDateEntryDialog(
+                            context,
+                            label: 'Purchase date',
+                            initialDate: request.defaultPurchaseDate,
                           );
                           if (picked != null) {
                             request.onDefaultPurchaseDateChanged(picked);
@@ -164,7 +168,9 @@ Widget buildKindAddBottomBar(
                   label: Text(_purchaseDateLabel(request.defaultPurchaseDate)),
                 ),
                 OutlinedButton.icon(
-                  onPressed: request.isAdding ? null : request.onEditDefaultTagsPressed,
+                  onPressed: request.isAdding
+                      ? null
+                      : request.onEditDefaultTagsPressed,
                   style: _kindOutlinedButtonStyle(request.accent),
                   icon: const Icon(Icons.sell_outlined, size: 16),
                   label: Text(
@@ -272,9 +278,12 @@ class _AdminOverflowMenu extends StatelessWidget {
       itemBuilder: (context) => [
         PopupMenuItem<_AdminAction>(
           value: _AdminAction.queueIngest,
-          enabled: request.selectedQueuedIngest == null && request.onQueueIngest != null,
+          enabled: request.selectedQueuedIngest == null &&
+              request.onQueueIngest != null,
           child: Text(
-            request.selectedQueuedIngest == null ? 'Queue ingest' : 'Ingest queued',
+            request.selectedQueuedIngest == null
+                ? 'Queue ingest'
+                : 'Ingest queued',
           ),
         ),
         PopupMenuItem<_AdminAction>(

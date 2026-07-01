@@ -339,19 +339,10 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           ),
         ),
         CompactDateButton(
-          label: purchaseDate == null
-              ? 'Purchase date'
-              : formatCompactDate(purchaseDate!),
+          label: 'Purchase date',
           accent: accent,
-          onPressed: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: purchaseDate ?? DateTime.now(),
-              firstDate: DateTime(1970),
-              lastDate: DateTime(2100),
-            );
-            onPurchaseDateChanged(picked);
-          },
+          value: purchaseDate,
+          onChanged: onPurchaseDateChanged,
         ),
         if (purchaseDate != null)
           IconButton(
