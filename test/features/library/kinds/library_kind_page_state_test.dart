@@ -106,6 +106,15 @@ void main() {
         isA<AnimeLibraryPageState>());
   });
 
+  test('book page state owns the book browse folder id', () {
+    final state = BookLibraryPageState();
+    expect(state.ownsKindReleaseFolderState, isTrue);
+    expect(state.kindReleaseFolderTitleItemId, isNull);
+
+    state.kindReleaseFolderTitleItemId = 'book-work-1';
+    expect(state.kindReleaseFolderTitleItemId, 'book-work-1');
+  });
+
   test('video-like kinds share the explicit video drilldown state base', () {
     expect(
         MovieLibraryPage(

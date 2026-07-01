@@ -35,7 +35,7 @@ abstract final class _LibraryProjectionControllerOps {
     final query = state._appliedSearchQuery;
     final searchTarget = state._effectiveSearchTarget;
     final browserMode = state._activeBrowserMode;
-    final releaseFolderTitleItemId = state._releaseFolderTitleItemId;
+    final releaseFolderTitleItemId = state.activeReleaseFolderTitleItemId;
     final signature = projectionSignature(
       state: state,
       shelf: shelf,

@@ -15,4 +15,16 @@ class BookLibraryPage extends GenericLibraryPage {
 }
 
 class BookLibraryPageState extends GenericLibraryPageState {
+  String? _bookWorkBrowseTitleItemId;
+
+  @override
+  bool get ownsKindReleaseFolderState => true;
+
+  @override
+  String? get kindReleaseFolderTitleItemId => _bookWorkBrowseTitleItemId;
+
+  @override
+  set kindReleaseFolderTitleItemId(String? value) {
+    _bookWorkBrowseTitleItemId = value;
+  }
 }

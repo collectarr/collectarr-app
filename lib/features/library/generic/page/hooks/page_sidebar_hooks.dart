@@ -64,13 +64,13 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     if (!_supportsMediaReleaseSplit) {
       return LibraryWorkspaceBrowserMode.media;
     }
-    if (_releaseFolderTitleItemId != null) {
+    if (activeReleaseFolderTitleItemId != null) {
       return LibraryWorkspaceBrowserMode.releases;
     }
     return (_viewState ?? _adapter.viewProfile.defaults()).browserMode;
   }
 
-  bool get _isReleaseFolderOpen => _releaseFolderTitleItemId != null;
+  bool get _isReleaseFolderOpen => activeReleaseFolderTitleItemId != null;
 
   bool get _shouldShowReleaseFolderBack => _isReleaseFolderOpen;
 
@@ -90,7 +90,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       _selectedBucket = null;
       _selectedLetter = null;
       if (mode != LibraryWorkspaceBrowserMode.releases) {
-        _releaseFolderTitleItemId = null;
+        setActiveReleaseFolderTitleItemId(null);
       }
       _sanitizeScopeDependentState();
     });
@@ -99,7 +99,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   void _openReleaseFolder(LibraryProjectionItem item) {
     final titleId = item.entry.titleItemId ?? item.entry.id;
     setState(() {
-      _releaseFolderTitleItemId = titleId;
+      setActiveReleaseFolderTitleItemId(titleId);
       _selectedBucket = null;
       _selectedLetter = null;
       _selectedId = item.entry.id;
@@ -108,11 +108,11 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   }
 
   void _closeReleaseFolder() {
-    setState(() => _releaseFolderTitleItemId = null);
+    setState(() => setActiveReleaseFolderTitleItemId(null));
   }
 
   String? _releaseFolderLabelForProjection(LibraryProjection? projection) {
-    final titleId = _releaseFolderTitleItemId;
+    final titleId = activeReleaseFolderTitleItemId;
     if (titleId == null || projection == null) {
       return null;
     }
@@ -125,7 +125,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   }
 
   String? _releasePositionLabelForProjection(LibraryProjection projection) {
-    if (_releaseFolderTitleItemId == null) {
+    if (activeReleaseFolderTitleItemId == null) {
       return null;
     }
     final items = projection.filteredItems;
@@ -152,7 +152,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       _collectionStatusScope != LibraryCollectionStatusScope.all ||
       _quickView != null ||
       _activeSmartListId != null ||
-      _releaseFolderTitleItemId != null ||
+      activeReleaseFolderTitleItemId != null ||
       _filterSelection.hasActiveFilters;
 
   void _setGroupMode(LibraryGroupMode mode) {

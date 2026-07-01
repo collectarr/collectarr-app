@@ -189,6 +189,23 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   LibrarySearchTarget _searchTarget = LibrarySearchTarget.all;
 
+  bool get ownsKindReleaseFolderState => false;
+
+  String? get kindReleaseFolderTitleItemId => null;
+
+  set kindReleaseFolderTitleItemId(String? value) {}
+
+  String? get activeReleaseFolderTitleItemId =>
+      kindReleaseFolderTitleItemId ?? _releaseFolderTitleItemId;
+
+  void setActiveReleaseFolderTitleItemId(String? value) {
+    if (ownsKindReleaseFolderState) {
+      kindReleaseFolderTitleItemId = value;
+      return;
+    }
+    _releaseFolderTitleItemId = value;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -356,7 +373,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _selectionAnchorId = null;
       _videoShelfDrilldownTitleItemId = null;
       _videoShelfDrilldownReleaseId = null;
-      _releaseFolderTitleItemId = null;
+      setActiveReleaseFolderTitleItemId(null);
       _searchTarget = LibrarySearchTarget.all;
       _appliedSearchQuery = '';
       _searchPinnedItemId = null;
@@ -809,7 +826,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       allWishlistItems: allWishlistItems,
     );
     final releasePositionLabel = _releasePositionLabelForProjection(projection);
-    if (_releaseFolderTitleItemId != null &&
+    if (activeReleaseFolderTitleItemId != null &&
         projection.filteredItems.isNotEmpty) {
       final hasSelection = projection.filteredItems.any(
         (item) => item.entry.id == _selectedId,
