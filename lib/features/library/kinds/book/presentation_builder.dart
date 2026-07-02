@@ -183,19 +183,57 @@ class BookLibraryMediaPresentationBuilder
     if (showVolumeHierarchy) {
       sections.add(VolumesSection(itemId: resolvedItemId));
     }
-    if (showSummary &&
-        entry.synopsis != null &&
-        entry.synopsis!.trim().isNotEmpty) {
+    final workFacts = <LibraryInspectorFactData>[
+      if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Series', entry.series!.seriesTitle!.trim()),
+      if (entry.synopsis != null && entry.synopsis!.trim().isNotEmpty)
+        LibraryInspectorFactData('Summary', entry.synopsis!.trim()),
+    ];
+    if (workFacts.isNotEmpty) {
       sections.add(
         LibraryInspectorSection(
-          title: 'Summary',
+          title: 'Work',
           accentColor: accent,
-          children: [
-            Text(
-              entry.synopsis!,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
+          children: [LibraryInspectorFactGrid(facts: workFacts)],
+        ),
+      );
+    }
+
+    final editionFacts = <LibraryInspectorFactData>[
+      if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()),
+      if (entry.publisher?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Publisher', entry.publisher!.trim()),
+      if (entry.country?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Country', entry.country!.trim()),
+      if (entry.language?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Language', entry.language!.trim()),
+      if (entry.ageRating?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
+    ];
+    if (editionFacts.isNotEmpty) {
+      sections.add(
+        LibraryInspectorSection(
+          title: 'Edition',
+          accentColor: accent,
+          children: [LibraryInspectorFactGrid(facts: editionFacts)],
+        ),
+      );
+    }
+
+    final printingFacts = <LibraryInspectorFactData>[
+      if (entry.publishing?.pageCount != null)
+        LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()),
+      LibraryInspectorFactData('Printings', entry.editions.length.toString()),
+      if (entry.barcode?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Identifier', entry.barcode!.trim()),
+    ];
+    if (printingFacts.any((fact) => fact.value.trim().isNotEmpty)) {
+      sections.add(
+        LibraryInspectorSection(
+          title: 'Printing',
+          accentColor: accent,
+          children: [LibraryInspectorFactGrid(facts: printingFacts)],
         ),
       );
     }
@@ -208,61 +246,54 @@ class BookLibraryMediaPresentationBuilder
     if (creatorNames.isNotEmpty) {
       sections.add(
         LibraryInspectorChipSection(
-          title: 'Creators',
+          title: 'Contributors',
           values: creatorNames,
           onValueTap: onFilterByValue,
         ),
       );
     }
 
-    if (entry.characters?.isNotEmpty == true) {
-      sections.add(
-        LibraryInspectorChipSection(
-          title: 'Characters',
-          values: entry.characters!,
-          onValueTap: onFilterByValue,
-        ),
-      );
-    }
-
-    if (entry.storyArcs?.isNotEmpty == true) {
-      sections.add(
-        LibraryInspectorChipSection(
-          title: 'Story Arcs',
-          values: entry.storyArcs!,
-          onValueTap: onFilterByValue,
-        ),
-      );
-    }
-
-    if (entry.genres?.isNotEmpty == true) {
-      sections.add(
-        LibraryInspectorChipSection(
-          title: 'Genres',
-          values: entry.genres!,
-          onValueTap: onFilterByValue,
-        ),
-      );
-    }
-
-    final detailFacts = <LibraryInspectorFactData>[
-      if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()),
-      if (entry.country?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Country', entry.country!.trim()),
-      if (entry.language?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Language', entry.language!.trim()),
-      if (entry.ageRating?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
-      if (entry.publishing?.pageCount != null)
-        LibraryInspectorFactData(
-            'Pages', entry.publishing!.pageCount.toString()),
+    final identifierValues = <String>[
+      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
+      if (entry.referenceEditionId?.trim().isNotEmpty == true)
+        'Edition: ${entry.referenceEditionId!.trim()}',
+      if (entry.referenceVariantId?.trim().isNotEmpty == true)
+        'Printing: ${entry.referenceVariantId!.trim()}',
+      if (entry.referenceBundleReleaseId?.trim().isNotEmpty == true)
+        'Bundle release: ${entry.referenceBundleReleaseId!.trim()}',
     ];
-    if (detailFacts.isNotEmpty) {
+    if (identifierValues.isNotEmpty) {
       sections.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: LibraryInspectorFactGrid(facts: detailFacts),
+        LibraryInspectorChipSection(
+          title: 'Identifiers',
+          values: identifierValues,
+          onValueTap: onFilterByValue,
+        ),
+      );
+    }
+
+    final personalFacts = <LibraryInspectorFactData>[
+      if (entry.condition?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Condition', entry.condition!.trim()),
+      if (entry.grade?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Grade', entry.grade!.trim()),
+      if (entry.collectionStatus?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Collection Status', entry.collectionStatus!.trim()),
+      if (entry.locationPath?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Location', entry.locationPath!.trim()),
+      if (entry.pricePaidCents != null)
+        LibraryInspectorFactData('Price Paid', entry.pricePaidCents!.toString()),
+      if (entry.notes?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Notes', entry.notes!.trim()),
+      if (entry.tags?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Tags', entry.tags!.trim()),
+    ];
+    if (personalFacts.isNotEmpty) {
+      sections.add(
+        LibraryInspectorSection(
+          title: 'Personal',
+          accentColor: accent,
+          children: [LibraryInspectorFactGrid(facts: personalFacts)],
         ),
       );
     }

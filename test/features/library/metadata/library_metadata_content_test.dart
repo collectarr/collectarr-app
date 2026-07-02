@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
@@ -75,6 +76,48 @@ void main() {
           .whereType<LibraryInspectorSection>()
           .map((section) => section.title),
       contains('Summary'),
+    );
+  });
+
+  testWidgets('book inspector sections are explicit about book slices', (
+    tester,
+  ) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (ctx) {
+            context = ctx;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+
+    final sections = booksLibraryConfig.presentation.builder.buildInspectorSections(
+      context: context,
+      entry: LibraryWorkspaceEntry(
+        id: 'book-1',
+        mediaType: 'book',
+        title: 'Hyperion',
+        series: const CatalogSeriesDetails(seriesTitle: 'Hyperion Cantos'),
+        publisher: 'Bantam',
+        barcode: '9780553283686',
+        condition: 'Fine',
+        grade: '9.0',
+        notes: 'Personal note',
+        updatedAt: DateTime(2026, 1, 1),
+      ),
+      accent: Colors.purple,
+    );
+
+    expect(
+      sections.whereType<LibraryInspectorSection>().map((section) => section.title),
+      containsAll(<String>['Work', 'Edition', 'Printing', 'Personal']),
+    );
+    expect(
+      sections.whereType<LibraryInspectorChipSection>().map((section) => section.title),
+      containsAll(<String>['Identifiers']),
     );
   });
 }
