@@ -95,6 +95,18 @@ LibraryMediaAdapter plannedMediaAdapter(
   );
 }
 
+LibraryMediaAdapter collectarrMediaAdapter(
+  LibraryTypeConfig type, {
+  PlannedMediaEntryAccessors? entryAccessors,
+  LibraryEntryColumnComparator? compareEntriesByColumn,
+}) {
+  return plannedMediaAdapter(
+    type,
+    entryAccessors: entryAccessors,
+    compareEntriesByColumn: compareEntriesByColumn,
+  );
+}
+
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   LibraryWorkspaceConfig config,
 ) {

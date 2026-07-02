@@ -229,6 +229,33 @@ const boardGamesLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
 
+const boardGamesLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.series,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.format,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.keyComic,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
+
 const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',

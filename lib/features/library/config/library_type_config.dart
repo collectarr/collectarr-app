@@ -18,7 +18,9 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -548,6 +550,91 @@ class LibraryTypeConfig {
 
   List<LibrarySortColumn> get availableSortColumns =>
       workspace.availableSortColumns;
+
+  bool get supportsMediaReleaseSplit =>
+      capabilities.supportsMediaReleaseSplit;
+
+  bool get supportsReadingQueue => capabilities.supportsReadingQueue;
+
+  bool get supportsIndexReassignment =>
+      capabilities.supportsIndexReassignment;
+
+  bool get supportsMetadataCompareWithServer =>
+      capabilities.supportsMetadataCompare;
+
+  bool get supportsSeriesIssueJump =>
+      presentation.supportsSeriesIssueJump;
+
+  bool get hasConditionPickList => conditions.isNotEmpty;
+
+  bool get hasGradePickList => grades.isNotEmpty;
+
+  List<LibraryGroupMode> availableGroupModesForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  ) {
+    if (!capabilities.scopesOptionsByBrowserMode) {
+      return availableGroupModes;
+    }
+    final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
+        ? capabilities.releaseScopeGroupModes
+        : capabilities.mediaScopeGroupModes;
+    if (scoped == null) {
+      return availableGroupModes;
+    }
+    return [
+      for (final mode in availableGroupModes)
+        if (scoped.contains(mode)) mode,
+    ];
+  }
+
+  List<LibrarySortColumn> availableSortColumnsForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  ) {
+    if (!capabilities.scopesOptionsByBrowserMode) {
+      return availableSortColumns;
+    }
+    final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
+        ? capabilities.releaseScopeSortColumns
+        : capabilities.mediaScopeSortColumns;
+    if (scoped == null) {
+      return availableSortColumns;
+    }
+    return [
+      for (final column in availableSortColumns)
+        if (scoped.contains(column)) column,
+    ];
+  }
+
+  LibraryWorkspaceBrowserMode browserModeForViewState(
+    LibraryWorkspaceViewState viewState, {
+    String? releaseFolderTitleItemId,
+  }) {
+    if (!supportsMediaReleaseSplit) {
+      return LibraryWorkspaceBrowserMode.media;
+    }
+    if (releaseFolderTitleItemId != null) {
+      return LibraryWorkspaceBrowserMode.releases;
+    }
+    return viewState.browserMode;
+  }
+
+  bool shouldOpenReleaseFolderOnOpen({
+    required LibraryWorkspaceBrowserMode browserMode,
+    required LibraryBrowserScope browseScope,
+  }) {
+    return supportsMediaReleaseSplit &&
+        browserMode == LibraryWorkspaceBrowserMode.media &&
+        browseScope == LibraryBrowserScope.title;
+  }
+
+  bool shouldShowReleaseFolderBack({
+    required LibraryWorkspaceBrowserMode browserMode,
+    String? releaseFolderTitleItemId,
+  }) {
+    return supportsMediaReleaseSplit &&
+        browserMode == LibraryWorkspaceBrowserMode.releases &&
+        releaseFolderTitleItemId != null;
+  }
 
   List<LibraryTableColumn> get availableTableColumns =>
       workspace.availableTableColumns;

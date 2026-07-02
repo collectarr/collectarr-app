@@ -1,7 +1,10 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+
 class Loan {
   const Loan({
     required this.id,
     required this.ownedItemId,
+    this.catalogRef,
     required this.borrowerName,
     required this.lentDate,
     this.dueDate,
@@ -11,6 +14,7 @@ class Loan {
 
   final String id;
   final String ownedItemId;
+  final CatalogEntityRef? catalogRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -27,6 +31,9 @@ class Loan {
     return Loan(
       id: _requiredString(json, 'id'),
       ownedItemId: _requiredString(json, 'owned_item_id'),
+      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+          : null,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -62,6 +69,7 @@ class Loan {
   Map<String, dynamic> toJson() {
     return {
       'owned_item_id': ownedItemId,
+      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
           '${lentDate.year}-${lentDate.month.toString().padLeft(2, '0')}-${lentDate.day.toString().padLeft(2, '0')}',
@@ -73,6 +81,7 @@ class Loan {
   }
 
   Loan copyWith({
+    CatalogEntityRef? catalogRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,
@@ -81,6 +90,7 @@ class Loan {
     return Loan(
       id: id,
       ownedItemId: ownedItemId,
+      catalogRef: catalogRef ?? this.catalogRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,
       dueDate: dueDate ?? this.dueDate,

@@ -1,3 +1,35 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+
+enum CustomFieldTargetScope {
+  work('work'),
+  edition('edition'),
+  release('release'),
+  issue('issue'),
+  episode('episode'),
+  track('track'),
+  ownedCopy('ownedCopy'),
+  trackingEntry('trackingEntry'),
+  media('media'),
+  all('all');
+
+  const CustomFieldTargetScope(this.apiValue);
+
+  final String apiValue;
+
+  static CustomFieldTargetScope fromApiValue(String? value) {
+    final normalized = value?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return CustomFieldTargetScope.media;
+    }
+    for (final scope in CustomFieldTargetScope.values) {
+      if (scope.apiValue == normalized) {
+        return scope;
+      }
+    }
+    return CustomFieldTargetScope.media;
+  }
+}
+
 class CustomFieldDefinition {
   const CustomFieldDefinition({
     required this.id,
@@ -14,10 +46,13 @@ class CustomFieldDefinition {
   final String name;
   final String fieldType; // text, number, date, bool, select
   final String? mediaKind; // null = all media types
-  final String? editScope; // null = all edit scopes, otherwise media/release
+  final String? editScope; // legacy column; now stores custom field target scope
   final int sortOrder;
   final String? options; // JSON array for select type
   final DateTime createdAt;
+
+  CustomFieldTargetScope get targetScope =>
+      CustomFieldTargetScope.fromApiValue(editScope);
 
   factory CustomFieldDefinition.fromJson(Map<String, dynamic> json) {
     return CustomFieldDefinition(
@@ -49,6 +84,7 @@ class CustomFieldDefinition {
     String? fieldType,
     String? mediaKind,
     String? editScope,
+    CustomFieldTargetScope? targetScope,
     int? sortOrder,
     String? options,
     DateTime? createdAt,
@@ -58,7 +94,7 @@ class CustomFieldDefinition {
       name: name ?? this.name,
       fieldType: fieldType ?? this.fieldType,
       mediaKind: mediaKind ?? this.mediaKind,
-      editScope: editScope ?? this.editScope,
+      editScope: editScope ?? targetScope?.apiValue ?? this.editScope,
       sortOrder: sortOrder ?? this.sortOrder,
       options: options ?? this.options,
       createdAt: createdAt ?? this.createdAt,
@@ -70,13 +106,20 @@ class CustomFieldValue {
   const CustomFieldValue({
     required this.id,
     required this.ownedItemId,
+    this.catalogRef,
+    String? targetId,
+    CustomFieldTargetScope? targetScope,
     required this.fieldDefinitionId,
     this.value,
     required this.updatedAt,
-  });
+  })  : targetId = targetId ?? ownedItemId,
+        targetScope = targetScope ?? CustomFieldTargetScope.ownedCopy;
 
   final String id;
   final String ownedItemId;
+  final CatalogEntityRef? catalogRef;
+  final String targetId;
+  final CustomFieldTargetScope targetScope;
   final String fieldDefinitionId;
   final String? value;
   final DateTime updatedAt;
@@ -85,6 +128,12 @@ class CustomFieldValue {
     return CustomFieldValue(
       id: json['id'] as String,
       ownedItemId: json['owned_item_id'] as String,
+      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+          : null,
+      targetId: json['target_id'] as String?,
+      targetScope:
+          CustomFieldTargetScope.fromApiValue(json['target_scope'] as String?),
       fieldDefinitionId: json['field_definition_id'] as String,
       value: json['value'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -94,6 +143,9 @@ class CustomFieldValue {
   Map<String, dynamic> toSyncPayload() {
     return {
       'owned_item_id': ownedItemId,
+      'target_id': targetId,
+      'target_scope': targetScope.apiValue,
+      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'field_definition_id': fieldDefinitionId,
       'value': value,
     };
@@ -102,6 +154,9 @@ class CustomFieldValue {
   CustomFieldValue copyWith({
     String? id,
     String? ownedItemId,
+    CatalogEntityRef? catalogRef,
+    String? targetId,
+    CustomFieldTargetScope? targetScope,
     String? fieldDefinitionId,
     String? value,
     DateTime? updatedAt,
@@ -109,6 +164,9 @@ class CustomFieldValue {
     return CustomFieldValue(
       id: id ?? this.id,
       ownedItemId: ownedItemId ?? this.ownedItemId,
+      catalogRef: catalogRef ?? this.catalogRef,
+      targetId: targetId ?? this.targetId,
+      targetScope: targetScope ?? this.targetScope,
       fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
       value: value ?? this.value,
       updatedAt: updatedAt ?? this.updatedAt,

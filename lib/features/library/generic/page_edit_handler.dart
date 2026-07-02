@@ -178,13 +178,12 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         requestLoader: () async {
           final definitionsFuture = customFieldRepo.listDefinitions(
             mediaKind: widget.type.workspace.kind.apiValue,
-            editScope:
-                baseRequest.scope == LibraryEditScope.all
-                    ? null
-                    : baseRequest.scope.name,
+            targetScope: owned != null
+                ? CustomFieldTargetScope.ownedCopy
+                : CustomFieldTargetScope.media,
           );
           final cfValuesFuture = owned != null
-              ? customFieldRepo.listValuesForItem(owned.id)
+              ? customFieldRepo.listValuesForTarget(owned.id)
               : Future.value(const <CustomFieldValue>[]);
           final imagesFuture = owned != null
               ? itemImageRepo.listForItem(owned.id)

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -96,6 +97,7 @@ class CollectionMutations {
   }) async {
     final now = DateTime.now().toUtc();
     final auth = ref.read(authControllerProvider);
+    final catalogItem = await _catalogCache().findById(itemId);
     final resolvedIsDigital =
         isDigital ?? await _resolveOwnedDigitalFlag(itemId: itemId);
     final normalizedAnchorType = _normalizedPersonalAnchorType(
@@ -107,6 +109,13 @@ class CollectionMutations {
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
       itemId: itemId,
+      catalogRef: _catalogRefForItem(
+        catalogItem,
+        anchorType: normalizedAnchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      ),
       createdAt: now,
       isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
@@ -597,6 +606,7 @@ class CollectionMutations {
       id: existingEntry?.id ??
           _trackingEntryIdForItem(item.id, sourceType: normalizedSourceType),
       itemId: item.id,
+      catalogRef: _catalogRefForItem(item),
       sourceType: normalizedSourceType,
       status: _normalizeTrackingStatusValue(status),
       rating: rating,
@@ -804,6 +814,7 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final catalogItem = await _catalogCache().findById(itemId);
     final existing = await _wishlistCache().findActiveByItemAnchor(
       itemId,
       anchorType: anchorType,
@@ -821,6 +832,13 @@ class CollectionMutations {
       final item = WishlistItem(
         id: _uuid.v4(),
         itemId: itemId,
+        catalogRef: _catalogRefForItem(
+          catalogItem,
+          anchorType: normalizedAnchorType,
+          editionId: editionId,
+          variantId: variantId,
+          bundleReleaseId: bundleReleaseId,
+        ),
         anchorType: normalizedAnchorType,
         editionId: editionId,
         variantId: variantId,
@@ -865,6 +883,13 @@ class CollectionMutations {
         WishlistItem(
           id: _uuid.v4(),
           itemId: item.id,
+          catalogRef: _catalogRefForItem(
+            item,
+            anchorType: normalizedAnchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+          ),
           anchorType: normalizedAnchorType,
           editionId: editionId,
           variantId: variantId,
@@ -1038,6 +1063,7 @@ class CollectionMutations {
     final updated = WishlistItem(
       id: item.id,
       itemId: item.itemId,
+      catalogRef: item.catalogRef,
       anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
@@ -1227,6 +1253,7 @@ class CollectionMutations {
         final wishlistItem = WishlistItem(
           id: _uuid.v4(),
           itemId: row.itemId,
+          catalogRef: _catalogRefForItem(catalogItems[row.itemId]),
           anchorType: PersonalItemAnchorType.item.apiValue,
           createdAt: now,
           updatedAt: now,
@@ -1273,6 +1300,7 @@ class CollectionMutations {
         cfValuesToSave.add(CustomFieldValue(
           id: _uuid.v4(),
           ownedItemId: ownedId,
+          catalogRef: _catalogRefForItem(catalogItems[row.itemId]),
           fieldDefinitionId: def.id,
           value: entry.value,
           updatedAt: now,
@@ -1372,6 +1400,7 @@ class CollectionMutations {
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
+      catalogRef: existing?.catalogRef,
       isDigital: _csvOwnedItemIsDigital(row, existing: existing),
       anchorType: existing?.anchorType,
       editionId: existing?.editionId,
@@ -1406,6 +1435,34 @@ class CollectionMutations {
       soldAt: row.soldAt ?? existing?.soldAt,
       sellPriceCents: row.sellPriceCents ?? existing?.sellPriceCents,
       soldTo: row.soldTo ?? existing?.soldTo,
+    );
+  }
+
+  CatalogEntityRef? _catalogRefForItem(
+    CatalogItem? item, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) {
+    if (item == null) {
+      return null;
+    }
+    final resolvedAnchorType = resolvePersonalItemAnchorType(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    final entityType = switch (resolvedAnchorType) {
+      'edition' => CatalogEntityType.edition,
+      'variant' || 'bundle_release' => CatalogEntityType.release,
+      _ => CatalogEntityType.work,
+    };
+    return CatalogEntityRef(
+      kind: item.kind,
+      entityType: entityType,
+      id: item.id,
     );
   }
 
@@ -1779,6 +1836,7 @@ class CollectionMutations {
     return TrackingEntry(
       id: _trackingEntryIdForOwnedItem(ownedItem.id),
       itemId: ownedItem.itemId,
+      catalogRef: ownedItem.catalogRef,
       ownedItemId: ownedItem.id,
       editionId: ownedItem.editionId,
       variantId: ownedItem.variantId,
@@ -1797,6 +1855,7 @@ class CollectionMutations {
     return TrackingEntry(
       id: entry.id,
       itemId: entry.itemId,
+      catalogRef: entry.catalogRef,
       ownedItemId: entry.ownedItemId,
       editionId: entry.editionId,
       variantId: entry.variantId,

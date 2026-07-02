@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 
 export 'toolbar/library_toolbar_actions.dart';
 export 'toolbar/library_toolbar_config.dart';
+export 'toolbar/library_toolbar_presentation.dart';
 export 'toolbar/library_toolbar_state.dart';
 export 'toolbar/toolbar_auxiliary_controls.dart';
 export 'toolbar/toolbar_sections.dart';

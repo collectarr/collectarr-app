@@ -20,6 +20,8 @@ export 'package:collectarr_app/features/library/workspace/config/library_workspa
 export 'projection_item.dart';
 export 'quick_view.dart';
 
+part 'projection_service.dart';
+
 class LibraryLinkedMetadataFilter {
   const LibraryLinkedMetadataFilter({required this.value});
 
@@ -250,57 +252,29 @@ class LibraryProjection {
     Set<String> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final allItems = libraryItemsForShelf(
-      shelf,
-      type,
+    return const LibraryProjectionService().build(
+      shelf: shelf,
+      type: type,
+      adapter: adapter,
+      viewState: viewState,
       browserMode: browserMode,
       releaseFolderTitleItemId: releaseFolderTitleItemId,
-    );
-    final scopedBucketItems = [
-      for (final item in allItems)
-        if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&
-            _matchesConstrainedItemIds(item, constrainedItemIds))
-          item,
-    ];
-    final normalizedQuery = query.trim().toLowerCase();
-    final filteredItems = [
-      for (final item in allItems)
-        if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&
-            _matchesBucket(item, type, groupMode, selectedBucket) &&
-            _matchesConstrainedItemIds(item, constrainedItemIds) &&
-            _matchesCollectionStatusScope(item, collectionStatusScope) &&
-            _matchesQuickView(item, quickView) &&
-            _matchesFilter(
-              item,
-              filterSelection,
-              adapter,
-              activeLoanOwnedItemIds,
-              customFieldValuesByDefinitionByItem,
-            ) &&
-            _matchesLinkedMetadataFilter(item, linkedMetadataFilter, adapter) &&
-            _matchesQuery(
-              item,
-              normalizedQuery,
-              customFieldValuesByItem,
-              searchTarget,
-            ))
-          item,
-    ]..sort((a, b) => adapter.compareEntriesByRules(
-          a.entry,
-          b.entry,
-          viewState.sortRules,
-        ));
-    final counts = _toolbarCountsForItems(
-      allItems: allItems,
-      shown: filteredItems.length,
-    );
-    return LibraryProjection(
-      allItems: allItems,
-      filteredItems: filteredItems,
-      buckets: overrideBuckets ??
-          libraryBucketsForItems(scopedBucketItems, type, groupMode),
-      selectedItem: librarySelectedItem(filteredItems, selectedItemId),
-      counts: counts,
+      query: query,
+      linkedMetadataFilter: linkedMetadataFilter,
+      selectedBucket: selectedBucket,
+      selectedItemId: selectedItemId,
+      quickView: quickView,
+      collectionStatusScope: collectionStatusScope,
+      groupMode: groupMode,
+      bucketScopeFilters: bucketScopeFilters,
+      overrideBuckets: overrideBuckets,
+      constrainedItemIds: constrainedItemIds,
+      filterSelection: filterSelection,
+      customFieldValuesByItem: customFieldValuesByItem,
+      customFieldValuesByDefinitionByItem:
+          customFieldValuesByDefinitionByItem,
+      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      searchTarget: searchTarget,
     );
   }
 

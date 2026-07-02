@@ -128,6 +128,51 @@ void main() {
     );
   });
 
+  test('projection service builds the same merged workspace projection', () {
+    final shelf = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'comic-1',
+          catalogItem: CatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Merged issue',
+            itemNumber: '1',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-1',
+            itemId: 'comic-1',
+            condition: 'Near Mint',
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+      ],
+      ownedCount: 1,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = const LibraryProjectionService().build(
+      shelf: shelf,
+      type: comicsLibraryConfig,
+      adapter: comicsMediaAdapter,
+      viewState: _defaultViewState,
+      query: '',
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      groupMode: LibraryGroupMode.series,
+    );
+
+    expect(projection.allItems, hasLength(1));
+    expect(projection.filteredItems.single.entry.title, 'Merged issue');
+    expect(projection.filteredItems.single.source.ownedItem?.condition, 'Near Mint');
+  });
+
   test('projection applies ancestor bucket scopes to current group buckets',
       () {
     final shelf = ShelfState(

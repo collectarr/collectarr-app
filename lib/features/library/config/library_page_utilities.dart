@@ -36,34 +36,15 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     String? mediaKind,
     bool Function()? canApply,
   }) async {
-    final db = ref.read(localDatabaseProvider);
-    final repo = CustomFieldRepository(db);
-    final allValues = await repo.listAllValues();
-    final definitions = await repo.listDefinitions(mediaKind: mediaKind);
-    final flat = <String, List<String>>{};
-    final structured = <String, Map<String, String>>{};
-    for (final entry in allValues.entries) {
-      final valuesByDefinition = <String, String>{};
-      flat[entry.key] = [
-        for (final v in entry.value)
-          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
-      ];
-      for (final value in entry.value) {
-        final normalized = value.value?.trim();
-        if (normalized == null || normalized.isEmpty) {
-          continue;
-        }
-        valuesByDefinition[value.fieldDefinitionId] = normalized;
-      }
-      if (valuesByDefinition.isNotEmpty) {
-        structured[entry.key] = valuesByDefinition;
-      }
-    }
+    final snapshot = await ref.read(
+      libraryCustomFieldCacheProvider(mediaKind).future,
+    );
     if (mounted && (canApply?.call() ?? true)) {
       setState(() {
-        customFieldValuesByItem = flat;
-        customFieldValuesByDefinitionByItem = structured;
-        customFieldDefinitions = definitions;
+        customFieldValuesByItem = snapshot.valuesByItem;
+        customFieldValuesByDefinitionByItem =
+            snapshot.valuesByDefinitionByItem;
+        customFieldDefinitions = snapshot.definitions;
       });
     }
   }
@@ -248,3 +229,47 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     );
   }
 }
+
+class LibraryCustomFieldCache {
+  const LibraryCustomFieldCache({
+    required this.valuesByItem,
+    required this.valuesByDefinitionByItem,
+    required this.definitions,
+  });
+
+  final Map<String, List<String>> valuesByItem;
+  final Map<String, Map<String, String>> valuesByDefinitionByItem;
+  final List<CustomFieldDefinition> definitions;
+}
+
+final libraryCustomFieldCacheProvider = FutureProvider.family<
+    LibraryCustomFieldCache, String?>((ref, mediaKind) async {
+  final db = ref.read(localDatabaseProvider);
+  final repo = CustomFieldRepository(db);
+  final allValues = await repo.listAllValues();
+  final definitions = await repo.listDefinitions(mediaKind: mediaKind);
+  final flat = <String, List<String>>{};
+  final structured = <String, Map<String, String>>{};
+  for (final entry in allValues.entries) {
+    final valuesByDefinition = <String, String>{};
+    flat[entry.key] = [
+      for (final v in entry.value)
+        if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
+    ];
+    for (final value in entry.value) {
+      final normalized = value.value?.trim();
+      if (normalized == null || normalized.isEmpty) {
+        continue;
+      }
+      valuesByDefinition[value.fieldDefinitionId] = normalized;
+    }
+    if (valuesByDefinition.isNotEmpty) {
+      structured[entry.key] = valuesByDefinition;
+    }
+  }
+  return LibraryCustomFieldCache(
+    valuesByItem: flat,
+    valuesByDefinitionByItem: structured,
+    definitions: definitions,
+  );
+});

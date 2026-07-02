@@ -823,10 +823,18 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         browserMode: _activeBrowserMode,
         supportsMediaReleaseSplit: _supportsMediaReleaseSplit,
         onBrowserModeChanged: _setBrowserMode,
-        showReleaseFolderBack: _shouldShowReleaseFolderBack,
+        showReleaseFolderBack: widget.type.shouldShowReleaseFolderBack(
+          browserMode: _activeBrowserMode,
+          releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+        ),
         releaseFolderLabel: _releaseFolderLabelForProjection(projection),
         onReleaseFolderBack:
-            _shouldShowReleaseFolderBack ? _closeReleaseFolder : null,
+            widget.type.shouldShowReleaseFolderBack(
+                  browserMode: _activeBrowserMode,
+                  releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+                )
+                ? _closeReleaseFolder
+                : null,
         onDetailsLayoutChanged: (layout) => _updateViewState(
           (state) => state.copyWith(detailsLayout: layout),
         ),
@@ -855,17 +863,17 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         shelfState: shelfState,
         onSmartLists: () => showSmartListsFlow(shelfState),
         onFolders: showUserFoldersFlow,
-        onReadingQueue: showsReadingQueue() ? showReadingQueueFlow : null,
-        onEditConditionPickList: widget.type.conditions.isNotEmpty
+        onReadingQueue: widget.type.supportsReadingQueue ? showReadingQueueFlow : null,
+        onEditConditionPickList: widget.type.hasConditionPickList
             ? showConditionPickListEditorFlow
             : null,
         onEditGradePickList:
-            widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
+            widget.type.hasGradePickList ? showGradePickListEditorFlow : null,
         onEditTagPickList: showTagPickListEditorFlow,
         onTransferFieldData: _hasOwnedItemsInProjection(projection)
             ? () => showTransferFieldDataFlow(projection)
             : null,
-        onReassignIndex: widget.type.capabilities.supportsIndexReassignment &&
+        onReassignIndex: widget.type.supportsIndexReassignment &&
                 _hasOwnedItemsInProjection(projection)
             ? () => reassignIndexFlow(projection)
             : null,
@@ -876,7 +884,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             ? () => shareCollectionFlow(projection)
             : null,
         onCompareMetadataWithServer: (() {
-          if (!supportsMetadataCompareWithServer()) {
+          if (!widget.type.supportsMetadataCompareWithServer) {
             return null;
           }
           final selected = selectedProjectionItemFor(projection);
@@ -1223,7 +1231,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   bool _canJumpToIssue(LibraryProjection? projection) {
     if (projection == null ||
-        !widget.type.presentation.supportsSeriesIssueJump ||
+        !widget.type.supportsSeriesIssueJump ||
         _activeGroupMode != LibraryGroupMode.series ||
         _selectedBucket == null) {
       return false;
@@ -1669,7 +1677,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _handleKeyboardEscape() {
-    if (_isReleaseFolderOpen) {
+    if (activeReleaseFolderTitleItemId != null) {
       _closeReleaseFolder();
       return;
     }
@@ -1687,11 +1695,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _selectedId = null;
       });
     }
-  }
-
-  @protected
-  bool showsReadingQueue() {
-    return widget.type.capabilities.supportsReadingQueue;
   }
 
   @protected

@@ -100,13 +100,31 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
         ),
       _ => TextFormField(
           initialValue: value ?? '',
-          decoration: InputDecoration(labelText: def.name),
+          decoration: InputDecoration(
+            labelText: def.name,
+            helperText: _scopeLabel(def.targetScope),
+          ),
           keyboardType: def.fieldType == 'number' ? TextInputType.number : null,
           onChanged: (v) {
             final trimmed = v.trim();
             _update(def.id, trimmed.isEmpty ? null : trimmed);
           },
         ),
+    };
+  }
+
+  String _scopeLabel(CustomFieldTargetScope scope) {
+    return switch (scope) {
+      CustomFieldTargetScope.work => 'Work',
+      CustomFieldTargetScope.edition => 'Edition',
+      CustomFieldTargetScope.release => 'Release',
+      CustomFieldTargetScope.issue => 'Issue',
+      CustomFieldTargetScope.episode => 'Episode',
+      CustomFieldTargetScope.track => 'Track',
+      CustomFieldTargetScope.ownedCopy => 'Owned copy',
+      CustomFieldTargetScope.trackingEntry => 'Tracking entry',
+      CustomFieldTargetScope.media => 'Media',
+      CustomFieldTargetScope.all => 'All',
     };
   }
 

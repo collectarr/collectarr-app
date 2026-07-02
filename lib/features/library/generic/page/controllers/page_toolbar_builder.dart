@@ -12,8 +12,12 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         query: _searchController.text,
       )),
     );
+    final showReleaseFolderBack = widget.type.shouldShowReleaseFolderBack(
+      browserMode: _activeBrowserMode,
+      releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+    );
 
-    return LibraryToolbar.grouped(
+    final toolbarPresentation = LibraryToolbarPresentation(
       config: LibraryToolbarConfig(
         type: widget.type,
         adapter: _adapter,
@@ -70,7 +74,7 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
             ? 0
             : _selection.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
-        showReleaseFolderBack: _shouldShowReleaseFolderBack,
+        showReleaseFolderBack: showReleaseFolderBack,
         releaseFolderLabel: _releaseFolderLabelForProjection(projection),
       ),
       actions: LibraryToolbarActions(
@@ -92,8 +96,7 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         onViewModeChanged: (mode) =>
             _updateViewState((state) => state.copyWith(viewMode: mode)),
         onBrowserModeChanged: _setBrowserMode,
-        onReleaseFolderBack:
-            _shouldShowReleaseFolderBack ? _closeReleaseFolder : null,
+        onReleaseFolderBack: showReleaseFolderBack ? _closeReleaseFolder : null,
         onDetailsLayoutChanged: (layout) => _updateViewState(
           (state) => state.copyWith(detailsLayout: layout),
         ),
@@ -170,6 +173,12 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
         onGroupModeChanged: _setFolderPreset,
       ),
+    );
+
+    return LibraryToolbar.grouped(
+      config: toolbarPresentation.config,
+      state: toolbarPresentation.state,
+      actions: toolbarPresentation.actions,
     );
   }
 }

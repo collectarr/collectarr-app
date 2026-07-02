@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
@@ -5,6 +6,7 @@ class TrackingEntry {
   TrackingEntry({
     required this.id,
     required this.itemId,
+    this.catalogRef,
     this.ownedItemId,
     this.editionId,
     this.variantId,
@@ -29,6 +31,7 @@ class TrackingEntry {
 
   final String id;
   final String itemId;
+  final CatalogEntityRef? catalogRef;
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
@@ -59,6 +62,7 @@ class TrackingEntry {
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
+      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'owned_item_id': ownedItemId,
       'edition_id': editionId,
       'variant_id': variantId,
@@ -82,6 +86,9 @@ class TrackingEntry {
     return TrackingEntry(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
+      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+          : null,
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
@@ -112,6 +119,7 @@ class TrackingEntry {
   TrackingEntry copyWith({
     String? id,
     String? itemId,
+    CatalogEntityRef? catalogRef,
     String? ownedItemId,
     String? editionId,
     String? variantId,
@@ -134,6 +142,7 @@ class TrackingEntry {
     return TrackingEntry(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      catalogRef: catalogRef ?? this.catalogRef,
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,

@@ -117,6 +117,22 @@ void main() {
       expect(mediaDefs.map((d) => d.name), isNot(contains('Release Notes')));
     });
 
+    test('target scope is derived from editScope', () async {
+      final def = CustomFieldDefinition(
+        id: 'def-1',
+        name: 'Storage Box',
+        fieldType: 'text',
+        editScope: CustomFieldTargetScope.ownedCopy.apiValue,
+        createdAt: DateTime.utc(2026, 1, 1),
+      );
+      await repo.upsertDefinition(def);
+      final defs = await repo.listDefinitions(
+        targetScope: CustomFieldTargetScope.ownedCopy,
+      );
+      expect(defs, hasLength(1));
+      expect(defs.single.targetScope, CustomFieldTargetScope.ownedCopy);
+    });
+
     test('deleteDefinition removes definition', () async {
       await repo.upsertDefinition(CustomFieldDefinition(
         id: 'def-1',
@@ -198,6 +214,23 @@ void main() {
       expect(all.keys, containsAll(['owned-1', 'owned-2']));
       expect(all['owned-1'], hasLength(2));
       expect(all['owned-2'], hasLength(1));
+    });
+
+    test('upsertValueForTarget preserves explicit target id', () async {
+      final value = CustomFieldValue(
+        id: 'val-1',
+        ownedItemId: 'owned-1',
+        targetId: 'target-99',
+        targetScope: CustomFieldTargetScope.trackingEntry,
+        fieldDefinitionId: 'def-1',
+        value: 'Shelf A',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      );
+      await repo.upsertValueForTarget(value);
+      final values = await repo.listValuesForTarget('target-99');
+      expect(values, hasLength(1));
+      expect(values.single.targetId, 'target-99');
+      expect(values.single.targetScope, CustomFieldTargetScope.ownedCopy);
     });
 
     test('deleteValuesForItem removes all values for item', () async {

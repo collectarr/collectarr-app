@@ -5,7 +5,7 @@ part of '../../page.dart';
 extension _PageKindHooks on GenericLibraryPageState {
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
-      plannedMediaAdapter(widget.type);
+      collectarrMediaAdapter(widget.type);
 
   bool get _supportsMusicTrackSearch =>
       widget.type.workspace.kind == CatalogMediaKind.music;
@@ -17,7 +17,7 @@ extension _PageKindHooks on GenericLibraryPageState {
       LibraryViewPreferenceStore(widget.type.workspace.kind);
 
   bool get _supportsMediaReleaseSplit {
-    return widget.type.capabilities.supportsMediaReleaseSplit;
+    return widget.type.supportsMediaReleaseSplit;
   }
 
   bool get _isScopedMediaReleaseSplit {
@@ -26,27 +26,17 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
-    if (!_supportsMediaReleaseSplit) {
-      return LibraryWorkspaceBrowserMode.media;
-    }
-    if (activeReleaseFolderTitleItemId != null) {
-      return LibraryWorkspaceBrowserMode.releases;
-    }
-    return (_viewState ?? _adapter.viewProfile.defaults()).browserMode;
-  }
-
-  bool get _isReleaseFolderOpen => activeReleaseFolderTitleItemId != null;
-
-  bool get _shouldShowReleaseFolderBack => _isReleaseFolderOpen;
-
-  bool get _shouldOpenReleaseFolderForMediaTitle {
-    return _supportsMediaReleaseSplit &&
-        _activeBrowserMode == LibraryWorkspaceBrowserMode.media;
+    return widget.type.browserModeForViewState(
+      _viewState ?? _adapter.viewProfile.defaults(),
+      releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+    );
   }
 
   bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
-    return _shouldOpenReleaseFolderForMediaTitle &&
-        item.entry.browseScope == LibraryBrowserScope.title;
+    return widget.type.shouldOpenReleaseFolderOnOpen(
+      browserMode: _activeBrowserMode,
+      browseScope: item.entry.browseScope,
+    );
   }
 
   void _setBrowserMode(LibraryWorkspaceBrowserMode mode) {
@@ -103,37 +93,11 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   List<LibraryGroupMode> get _scopeAvailableGroupModes {
-    final allowed = widget.type.availableGroupModes;
-    if (!_isScopedMediaReleaseSplit) {
-      return allowed;
-    }
-    final scoped = _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
-        ? widget.type.capabilities.releaseScopeGroupModes
-        : widget.type.capabilities.mediaScopeGroupModes;
-    if (scoped == null) {
-      return allowed;
-    }
-    return [
-      for (final mode in allowed)
-        if (scoped.contains(mode)) mode,
-    ];
+    return widget.type.availableGroupModesForBrowserMode(_activeBrowserMode);
   }
 
   List<LibrarySortColumn> get _scopeAvailableSortColumns {
-    final allowed = widget.type.availableSortColumns;
-    if (!_isScopedMediaReleaseSplit) {
-      return allowed;
-    }
-    final scoped = _activeBrowserMode == LibraryWorkspaceBrowserMode.releases
-        ? widget.type.capabilities.releaseScopeSortColumns
-        : widget.type.capabilities.mediaScopeSortColumns;
-    if (scoped == null) {
-      return allowed;
-    }
-    return [
-      for (final column in allowed)
-        if (scoped.contains(column)) column,
-    ];
+    return widget.type.availableSortColumnsForBrowserMode(_activeBrowserMode);
   }
 
 }

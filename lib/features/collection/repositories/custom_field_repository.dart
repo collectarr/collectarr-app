@@ -12,6 +12,7 @@ class CustomFieldRepository {
   Future<List<CustomFieldDefinition>> listDefinitions({
     String? mediaKind,
     String? editScope,
+    CustomFieldTargetScope? targetScope,
   }) async {
     final query = _db.select(_db.customFieldDefinitionsCache)
       ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]);
@@ -23,6 +24,12 @@ class CustomFieldRepository {
     if (editScope != null) {
       query.where(
         (row) => row.editScope.isNull() | row.editScope.equals(editScope),
+      );
+    }
+    if (targetScope != null && targetScope != CustomFieldTargetScope.all) {
+      query.where(
+        (row) => row.editScope.isNull() |
+            row.editScope.equals(targetScope.apiValue),
       );
     }
     final rows = await query.get();
@@ -57,8 +64,12 @@ class CustomFieldRepository {
   // --- Values ---
 
   Future<List<CustomFieldValue>> listValuesForItem(String ownedItemId) async {
+    return listValuesForTarget(ownedItemId);
+  }
+
+  Future<List<CustomFieldValue>> listValuesForTarget(String targetId) async {
     final rows = await (_db.select(_db.customFieldValuesCache)
-          ..where((row) => row.ownedItemId.equals(ownedItemId)))
+          ..where((row) => row.ownedItemId.equals(targetId)))
         .get();
     return rows.map(_valueFromRow).toList(growable: false);
   }
@@ -69,16 +80,20 @@ class CustomFieldRepository {
     final map = <String, List<CustomFieldValue>>{};
     for (final row in rows) {
       final value = _valueFromRow(row);
-      (map[value.ownedItemId] ??= []).add(value);
+      (map[value.targetId] ??= []).add(value);
     }
     return map;
   }
 
   Future<void> upsertValue(CustomFieldValue fieldValue) {
+    return upsertValueForTarget(fieldValue);
+  }
+
+  Future<void> upsertValueForTarget(CustomFieldValue fieldValue) {
     return _db.into(_db.customFieldValuesCache).insert(
           CustomFieldValuesCacheCompanion.insert(
             id: fieldValue.id,
-            ownedItemId: fieldValue.ownedItemId,
+            ownedItemId: fieldValue.targetId,
             fieldDefinitionId: fieldValue.fieldDefinitionId,
             value: Value(fieldValue.value),
             updatedAt: fieldValue.updatedAt,
@@ -95,7 +110,7 @@ class CustomFieldRepository {
         values.map(
           (v) => CustomFieldValuesCacheCompanion.insert(
             id: v.id,
-            ownedItemId: v.ownedItemId,
+            ownedItemId: v.targetId,
             fieldDefinitionId: v.fieldDefinitionId,
             value: Value(v.value),
             updatedAt: v.updatedAt,
@@ -107,8 +122,12 @@ class CustomFieldRepository {
   }
 
   Future<void> deleteValuesForItem(String ownedItemId) {
+    return deleteValuesForTarget(ownedItemId);
+  }
+
+  Future<void> deleteValuesForTarget(String targetId) {
     return (_db.delete(_db.customFieldValuesCache)
-          ..where((row) => row.ownedItemId.equals(ownedItemId)))
+          ..where((row) => row.ownedItemId.equals(targetId)))
         .go();
   }
 

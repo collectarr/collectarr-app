@@ -8,8 +8,7 @@ class BoardGameLibraryPage extends GenericLibraryPage {
     required super.topBar,
     required super.accent,
     required super.routeUri,
-  }) : super(
-        );
+  });
 
   @override
   ConsumerState<GenericLibraryPage> createState() =>

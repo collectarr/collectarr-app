@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
 const Object _wishlistItemUnset = Object();
@@ -6,6 +7,7 @@ class WishlistItem {
   WishlistItem({
     required this.id,
     required this.itemId,
+    this.catalogRef,
     PersonalItemAnchor? anchor,
     String? anchorType,
     String? editionId,
@@ -27,6 +29,7 @@ class WishlistItem {
 
   final String id;
   final String itemId;
+  final CatalogEntityRef? catalogRef;
   final PersonalItemAnchor? anchor;
   final int? targetPriceCents;
   final String? currency;
@@ -48,6 +51,7 @@ class WishlistItem {
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
+      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       ...?anchor?.toSyncPayload(),
       'target_price_cents': targetPriceCents,
       'currency': currency,
@@ -60,6 +64,9 @@ class WishlistItem {
     return WishlistItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
+      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+          : null,
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: json['anchor_type'] as String?,
         editionId: json['edition_id'] as String?,
@@ -80,6 +87,7 @@ class WishlistItem {
   WishlistItem copyWith({
     String? id,
     String? itemId,
+    CatalogEntityRef? catalogRef,
     Object? anchor = _wishlistItemUnset,
     String? anchorType,
     String? editionId,
@@ -104,6 +112,7 @@ class WishlistItem {
     return WishlistItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      catalogRef: catalogRef ?? this.catalogRef,
       anchor: resolvedAnchor,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,

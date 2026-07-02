@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
 const Object _ownedItemUnset = Object();
@@ -6,6 +7,7 @@ class OwnedItem {
   OwnedItem({
     required this.id,
     required this.itemId,
+    this.catalogRef,
     this.createdAt,
     this.isDigital,
     PersonalItemAnchor? anchor,
@@ -76,6 +78,7 @@ class OwnedItem {
 
   final String id;
   final String itemId;
+  final CatalogEntityRef? catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
   final PersonalItemAnchor? anchor;
@@ -146,6 +149,7 @@ class OwnedItem {
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
+      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (isDigital != null) 'is_digital': isDigital,
       ...?anchor?.toSyncPayload(),
@@ -210,6 +214,9 @@ class OwnedItem {
     return OwnedItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
+      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+          : null,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -294,6 +301,7 @@ class OwnedItem {
   OwnedItem copyWith({
     String? id,
     String? itemId,
+    CatalogEntityRef? catalogRef,
     DateTime? createdAt,
     bool? isDigital,
     Object? anchor = _ownedItemUnset,
@@ -367,6 +375,7 @@ class OwnedItem {
     return OwnedItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      catalogRef: catalogRef ?? this.catalogRef,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
       anchor: resolvedAnchor,

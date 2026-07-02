@@ -94,6 +94,41 @@ void main() {
     expect(syncController.onlineFirstRequests, 1);
   });
 
+  test('catalog refresh preserves personal collection data', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
+    ]);
+    await container.read(collectionMutationsProvider).addItem(
+          'comic-1',
+          condition: 'Near Mint',
+          rating: 8,
+        );
+
+    await container.read(collectionMutationsProvider).updateCatalogSnapshot(
+          CatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Updated',
+            synopsis: 'Refreshed metadata',
+          ),
+        );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final catalog = await db.select(db.catalogCache).getSingle();
+
+    expect(owned.condition, 'Near Mint');
+    expect(tracking.rating, 8);
+    expect(catalog.title, 'Updated');
+  });
+
   test('collection mutations mirror tracking into tracking entries', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

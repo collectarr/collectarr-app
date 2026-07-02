@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -195,6 +197,40 @@ void main() {
     expect(item.publishing!.pageCount, 220);
     expect(item.publishing!.imprint, 'Warner Archive');
     expect(item.game, isNull);
+  });
+
+  test('personal models preserve catalog entity refs in sync payloads', () {
+    final ref = CatalogEntityRef(
+      kind: 'book',
+      entityType: CatalogEntityType.edition,
+      id: 'edition-1',
+    );
+    final owned = OwnedItem(
+      id: 'owned-1',
+      itemId: 'book-1',
+      catalogRef: ref,
+      updatedAt: DateTime.utc(2026, 7, 2),
+    );
+    final customValue = CustomFieldValue(
+      id: 'cf-1',
+      ownedItemId: owned.id,
+      catalogRef: ref,
+      fieldDefinitionId: 'field-1',
+      value: 'Shelf A',
+      updatedAt: DateTime.utc(2026, 7, 2),
+    );
+
+    expect(owned.toSyncPayload()['catalog_ref'], ref.toJson());
+    expect(customValue.toSyncPayload()['catalog_ref'], ref.toJson());
+    expect(
+      OwnedItem.fromJson({
+        'id': 'owned-1',
+        'item_id': 'book-1',
+        'catalog_ref': ref.toJson(),
+        'updated_at': '2026-07-02T00:00:00.000Z',
+      }).catalogRef?.id,
+      'edition-1',
+    );
   });
 
   test('provider preview parses music tracks', () {

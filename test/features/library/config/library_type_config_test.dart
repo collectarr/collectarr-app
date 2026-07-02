@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
@@ -173,9 +174,34 @@ void main() {
   test('books library config enables creator spotlight in shared hero chrome',
       () {
     expect(booksLibraryConfig.capabilities.showsCreatorSpotlight, isTrue);
-    expect(booksLibraryConfig.capabilities.supportsReadingQueue, isTrue);
+    expect(booksLibraryConfig.supportsReadingQueue, isTrue);
+    expect(booksLibraryConfig.supportsMediaReleaseSplit, isTrue);
+    expect(booksLibraryConfig.supportsSeriesIssueJump, isFalse);
     expect(moviesLibraryConfig.capabilities.showsCreatorSpotlight, isFalse);
-    expect(moviesLibraryConfig.capabilities.supportsReadingQueue, isFalse);
+    expect(moviesLibraryConfig.supportsReadingQueue, isFalse);
+  });
+
+  test('book and boardgame configs own their scoped browser options', () {
+    expect(
+      booksLibraryConfig.availableGroupModesForBrowserMode(
+        LibraryWorkspaceBrowserMode.media,
+      ),
+      isNotEmpty,
+    );
+    expect(
+      booksLibraryConfig.availableGroupModesForBrowserMode(
+        LibraryWorkspaceBrowserMode.releases,
+      ),
+      isNotEmpty,
+    );
+    expect(
+      booksLibraryConfig.availableSortColumnsForBrowserMode(
+        LibraryWorkspaceBrowserMode.media,
+      ),
+      contains(LibrarySortColumn.title),
+    );
+    expect(boardGamesLibraryConfig.availableSortColumns,
+        boardGamesLibrarySortColumns);
   });
 
   test('library type config can carry an add dialog launcher override', () {
