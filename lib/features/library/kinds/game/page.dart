@@ -14,5 +14,17 @@ class GameLibraryPage extends GenericLibraryPage {
   @override
   ConsumerState<GenericLibraryPage> createState() => GameLibraryPageState();
 }
+class GameLibraryPageState extends GenericLibraryPageState {
+  String? _gameBrowseTitleItemId;
 
-class GameLibraryPageState extends GenericLibraryPageState {}
+  @override
+  bool get ownsKindReleaseFolderState => true;
+
+  @override
+  String? get kindReleaseFolderTitleItemId => _gameBrowseTitleItemId;
+
+  @override
+  set kindReleaseFolderTitleItemId(String? value) {
+    _gameBrowseTitleItemId = value;
+  }
+}

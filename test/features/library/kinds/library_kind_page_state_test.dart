@@ -115,6 +115,22 @@ void main() {
     expect(state.kindReleaseFolderTitleItemId, 'book-work-1');
   });
 
+  test('game page state owns the game browse folder id', () {
+    final state = GameLibraryPageState();
+    expect(state.ownsKindReleaseFolderState, isTrue);
+    expect(state.kindReleaseFolderTitleItemId, isNull);
+    state.kindReleaseFolderTitleItemId = 'game-work-1';
+    expect(state.kindReleaseFolderTitleItemId, 'game-work-1');
+  });
+
+  test('board game page state owns the board game browse folder id', () {
+    final state = BoardGameLibraryPageState();
+    expect(state.ownsKindReleaseFolderState, isTrue);
+    expect(state.kindReleaseFolderTitleItemId, isNull);
+    state.kindReleaseFolderTitleItemId = 'boardgame-work-1';
+    expect(state.kindReleaseFolderTitleItemId, 'boardgame-work-1');
+  });
+
   test('video-like kinds share the explicit video drilldown state base', () {
     expect(
         MovieLibraryPage(
