@@ -152,7 +152,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   List<LibraryFolderPreset> _pinnedFolderPresets = const [];
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
-  String? _releaseFolderTitleItemId;
   String? _activeSmartListId;
   String? _activeSmartListName;
   Set<LibraryWorkspacePreset> _pinnedViewPresets = const {};
@@ -173,8 +172,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   String? _lastFacetEnsureSignature;
   LibraryGroupMode? _lastFacetEnsureMode;
-  LibraryKindBrowserDelegate? _kindBrowserDelegate;
-  String? _fallbackReleaseFolderTitleItemId;
+  LibraryKindBrowserDelegate _kindBrowserDelegate =
+      LibraryNoopBrowserDelegate();
 
   String _appliedSearchQuery = '';
   String? _searchPinnedItemId;
@@ -184,33 +183,23 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool get ownsKindReleaseFolderState => true;
 
   String? get kindReleaseFolderTitleItemId =>
-      _kindBrowserDelegate?.releaseFolderTitleItemId ??
-      _fallbackReleaseFolderTitleItemId;
+      _kindBrowserDelegate.releaseFolderTitleItemId;
 
   set kindReleaseFolderTitleItemId(String? value) {
-    final delegate = _kindBrowserDelegate;
-    if (delegate != null) {
-      delegate.releaseFolderTitleItemId = value;
-      return;
-    }
-    _fallbackReleaseFolderTitleItemId = value;
+    _kindBrowserDelegate.releaseFolderTitleItemId = value;
   }
 
-  String? get activeReleaseFolderTitleItemId =>
-      kindReleaseFolderTitleItemId ?? _releaseFolderTitleItemId;
+  String? get activeReleaseFolderTitleItemId => kindReleaseFolderTitleItemId;
 
   void setActiveReleaseFolderTitleItemId(String? value) {
-    if (ownsKindReleaseFolderState) {
-      kindReleaseFolderTitleItemId = value;
-      return;
-    }
-    _releaseFolderTitleItemId = value;
+    kindReleaseFolderTitleItemId = value;
   }
 
   @override
   void initState() {
     super.initState();
-    _kindBrowserDelegate = widget.type.kindBrowserDelegateBuilder?.call();
+    _kindBrowserDelegate = widget.type.kindBrowserDelegateBuilder?.call() ??
+        LibraryNoopBrowserDelegate();
     _shelfSubscription = ref.listenManual<AsyncValue<ShelfState>>(
       shelfProvider,
       (_, next) {

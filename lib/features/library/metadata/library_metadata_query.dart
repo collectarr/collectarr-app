@@ -81,8 +81,8 @@ Future<CatalogTypedDto> lookupLibraryBarcodeTyped(
   String barcode,
 ) async {
   return api.getTypedMetadataItemDto(
-    barcode,
     kind: type.workspace.kind.apiValue,
+    id: barcode,
   );
 }
 

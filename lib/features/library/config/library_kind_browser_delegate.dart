@@ -4,6 +4,21 @@ abstract class LibraryKindBrowserDelegate {
   set releaseFolderTitleItemId(String? value);
 }
 
+class LibraryNoopBrowserDelegate implements LibraryKindBrowserDelegate {
+  LibraryNoopBrowserDelegate({String? initialReleaseFolderTitleItemId})
+      : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;
+
+  String? _releaseFolderTitleItemId;
+
+  @override
+  String? get releaseFolderTitleItemId => _releaseFolderTitleItemId;
+
+  @override
+  set releaseFolderTitleItemId(String? value) {
+    _releaseFolderTitleItemId = value;
+  }
+}
+
 class LibraryReleaseFolderBrowserDelegate
     implements LibraryKindBrowserDelegate {
   LibraryReleaseFolderBrowserDelegate({
