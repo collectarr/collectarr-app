@@ -14,17 +14,4 @@ class BookLibraryPage extends GenericLibraryPage {
   ConsumerState<GenericLibraryPage> createState() => BookLibraryPageState();
 }
 
-class BookLibraryPageState extends GenericLibraryPageState {
-  String? _bookWorkBrowseTitleItemId;
-
-  @override
-  bool get ownsKindReleaseFolderState => true;
-
-  @override
-  String? get kindReleaseFolderTitleItemId => _bookWorkBrowseTitleItemId;
-
-  @override
-  set kindReleaseFolderTitleItemId(String? value) {
-    _bookWorkBrowseTitleItemId = value;
-  }
-}
+class BookLibraryPageState extends GenericLibraryPageState {}

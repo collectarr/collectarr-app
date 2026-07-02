@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
@@ -500,6 +501,7 @@ class LibraryTypeConfig {
     this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
     this.showsDefaultInspectorPersonalSection = true,
+    this.kindBrowserDelegateBuilder,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -533,6 +535,7 @@ class LibraryTypeConfig {
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
   final bool showsDefaultInspectorPersonalSection;
+  final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
 
   List<TransferableField> transferableFieldsWithCustomFields(
     List<CustomFieldDefinition> definitions,
@@ -551,19 +554,16 @@ class LibraryTypeConfig {
   List<LibrarySortColumn> get availableSortColumns =>
       workspace.availableSortColumns;
 
-  bool get supportsMediaReleaseSplit =>
-      capabilities.supportsMediaReleaseSplit;
+  bool get supportsMediaReleaseSplit => capabilities.supportsMediaReleaseSplit;
 
   bool get supportsReadingQueue => capabilities.supportsReadingQueue;
 
-  bool get supportsIndexReassignment =>
-      capabilities.supportsIndexReassignment;
+  bool get supportsIndexReassignment => capabilities.supportsIndexReassignment;
 
   bool get supportsMetadataCompareWithServer =>
       capabilities.supportsMetadataCompare;
 
-  bool get supportsSeriesIssueJump =>
-      presentation.supportsSeriesIssueJump;
+  bool get supportsSeriesIssueJump => presentation.supportsSeriesIssueJump;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
 

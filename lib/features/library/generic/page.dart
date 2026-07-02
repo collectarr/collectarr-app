@@ -60,6 +60,7 @@ import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -171,17 +172,28 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   String? _lastFacetEnsureSignature;
   LibraryGroupMode? _lastFacetEnsureMode;
+  LibraryKindBrowserDelegate? _kindBrowserDelegate;
+  String? _fallbackReleaseFolderTitleItemId;
 
   String _appliedSearchQuery = '';
   String? _searchPinnedItemId;
 
   LibrarySearchTarget _searchTarget = LibrarySearchTarget.all;
 
-  bool get ownsKindReleaseFolderState => false;
+  bool get ownsKindReleaseFolderState => true;
 
-  String? get kindReleaseFolderTitleItemId => null;
+  String? get kindReleaseFolderTitleItemId =>
+      _kindBrowserDelegate?.releaseFolderTitleItemId ??
+      _fallbackReleaseFolderTitleItemId;
 
-  set kindReleaseFolderTitleItemId(String? value) {}
+  set kindReleaseFolderTitleItemId(String? value) {
+    final delegate = _kindBrowserDelegate;
+    if (delegate != null) {
+      delegate.releaseFolderTitleItemId = value;
+      return;
+    }
+    _fallbackReleaseFolderTitleItemId = value;
+  }
 
   String? get activeReleaseFolderTitleItemId =>
       kindReleaseFolderTitleItemId ?? _releaseFolderTitleItemId;
@@ -197,6 +209,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
+    _kindBrowserDelegate = widget.type.kindBrowserDelegateBuilder?.call();
     _shelfSubscription = ref.listenManual<AsyncValue<ShelfState>>(
       shelfProvider,
       (_, next) {
@@ -828,13 +841,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
         ),
         releaseFolderLabel: _releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack:
-            widget.type.shouldShowReleaseFolderBack(
-                  browserMode: _activeBrowserMode,
-                  releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
-                )
-                ? _closeReleaseFolder
-                : null,
+        onReleaseFolderBack: widget.type.shouldShowReleaseFolderBack(
+          browserMode: _activeBrowserMode,
+          releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+        )
+            ? _closeReleaseFolder
+            : null,
         onDetailsLayoutChanged: (layout) => _updateViewState(
           (state) => state.copyWith(detailsLayout: layout),
         ),
@@ -863,7 +875,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         shelfState: shelfState,
         onSmartLists: () => showSmartListsFlow(shelfState),
         onFolders: showUserFoldersFlow,
-        onReadingQueue: widget.type.supportsReadingQueue ? showReadingQueueFlow : null,
+        onReadingQueue:
+            widget.type.supportsReadingQueue ? showReadingQueueFlow : null,
         onEditConditionPickList: widget.type.hasConditionPickList
             ? showConditionPickListEditorFlow
             : null,
@@ -1718,8 +1731,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  void openItemDetailDrilldown(LibraryProjectionItem item) {
-  }
+  void openItemDetailDrilldown(LibraryProjectionItem item) {}
 
   @protected
   Widget? buildDefaultVideoShelfWorkspaceOverride(

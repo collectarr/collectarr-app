@@ -20,6 +20,10 @@ extension _PageKindHooks on GenericLibraryPageState {
     return widget.type.supportsMediaReleaseSplit;
   }
 
+  bool showsReadingQueue() {
+    return widget.type.capabilities.supportsReadingQueue;
+  }
+
   bool get _isScopedMediaReleaseSplit {
     return _supportsMediaReleaseSplit &&
         widget.type.capabilities.scopesOptionsByBrowserMode;
@@ -87,7 +91,8 @@ extension _PageKindHooks on GenericLibraryPageState {
     if (items.isEmpty) {
       return null;
     }
-    final selectedIndex = items.indexWhere((item) => item.entry.id == _selectedId);
+    final selectedIndex =
+        items.indexWhere((item) => item.entry.id == _selectedId);
     final index = selectedIndex < 0 ? 0 : selectedIndex;
     return 'Release ${index + 1}/${items.length}';
   }
@@ -99,5 +104,4 @@ extension _PageKindHooks on GenericLibraryPageState {
   List<LibrarySortColumn> get _scopeAvailableSortColumns {
     return widget.type.availableSortColumnsForBrowserMode(_activeBrowserMode);
   }
-
 }

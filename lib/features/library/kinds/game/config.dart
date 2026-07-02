@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
@@ -47,6 +48,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
   editPresentation: gameLibraryEditPresentation,
   inspectorPanelBuilder: buildGameInspectorPanel,
   inspectorSectionsBuilder: buildGameInspectorSections,
+  kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   presentation: gamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Version',
