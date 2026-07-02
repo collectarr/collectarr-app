@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -59,10 +60,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
               const SizedBox(height: 10),
               _BoardGameInspectorMain(inspector: request.inspector),
               const SizedBox(height: 10),
-              if (request.trailingSections.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                ...request.trailingSections,
-              ],
+              ...buildLibraryInspectorSectionList(request.trailingSections),
             ],
           ),
         ],

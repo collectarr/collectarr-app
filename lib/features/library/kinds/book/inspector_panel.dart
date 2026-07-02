@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -77,25 +78,13 @@ class BookInspectorPanel extends StatelessWidget {
                 extraActions: request.extraActions,
                 onOpenDetails: request.onOpenDetails,
               ),
-              if (request.ownedCopiesSection != null) ...[
-                const SizedBox(height: 8),
-                request.ownedCopiesSection!,
-              ],
-              if (request.bundleSection != null) ...[
-                const SizedBox(height: 8),
-                request.bundleSection!,
-              ],
-              if (request.conditionGradeSection != null) ...[
-                const SizedBox(height: 8),
-                request.conditionGradeSection!,
-              ],
-              if (sections.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                ...sections,
-              ],
-              if (request.trailingSections.isNotEmpty) ...[
-                ...request.trailingSections,
-              ],
+              ...buildLibraryInspectorSectionList([
+                request.ownedCopiesSection,
+                request.bundleSection,
+                request.conditionGradeSection,
+                if (sections.isNotEmpty) ...sections,
+                if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+              ]),
             ],
           ),
         ],

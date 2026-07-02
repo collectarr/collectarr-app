@@ -104,6 +104,7 @@ part 'page/controllers/page_facet_controller.dart';
 part 'page/controllers/page_scope_controller.dart';
 part 'page/controllers/page_view_state_controller.dart';
 part 'page/controllers/page_projection_controller.dart';
+part 'page/controllers/page_projection_provider.dart';
 part 'page/controllers/page_toolbar_controller.dart';
 part 'page/controllers/page_toolbar_builder.dart';
 part 'page/controllers/page_selection_controller.dart';
@@ -171,22 +172,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   String? _lastFacetEnsureSignature;
   LibraryGroupMode? _lastFacetEnsureMode;
 
-  String? _cachedProjectionSignature;
-  LibraryProjection? _cachedProjection;
-  ShelfState? _cachedSignatureShelf;
-  String? _cachedSignatureKind;
-  String? _cachedShelfSignature;
-  List<OwnedItem>? _cachedOwnedCopiesSource;
-  List<OwnedItem>? _cachedOwnedCopiesActive;
-  List<WishlistItem>? _cachedWishlistSource;
-  List<WishlistItem>? _cachedWishlistActive;
   String _appliedSearchQuery = '';
   String? _searchPinnedItemId;
-  Map<String, List<String>>? _cachedCustomFieldValuesForSignature;
-  int? _cachedCustomFieldValuesSignature;
-  Map<String, Map<String, String>>?
-      _cachedCustomFieldValuesByDefinitionForSignature;
-  int? _cachedCustomFieldValuesByDefinitionSignature;
 
   LibrarySearchTarget _searchTarget = LibrarySearchTarget.all;
 
@@ -974,15 +961,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (items == null) {
       return const <OwnedItem>[];
     }
-    if (identical(_cachedOwnedCopiesSource, items) &&
-        _cachedOwnedCopiesActive != null) {
-      return _cachedOwnedCopiesActive!;
-    }
-    final active =
-        items.where((item) => !item.isDeleted).toList(growable: false);
-    _cachedOwnedCopiesSource = items;
-    _cachedOwnedCopiesActive = active;
-    return active;
+    return items.where((item) => !item.isDeleted).toList(growable: false);
   }
 
   List<WishlistItem> _activeWishlistItems(
@@ -992,15 +971,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (items == null) {
       return const <WishlistItem>[];
     }
-    if (identical(_cachedWishlistSource, items) &&
-        _cachedWishlistActive != null) {
-      return _cachedWishlistActive!;
-    }
-    final active =
-        items.where((item) => !item.isDeleted).toList(growable: false);
-    _cachedWishlistSource = items;
-    _cachedWishlistActive = active;
-    return active;
+    return items.where((item) => !item.isDeleted).toList(growable: false);
   }
 
   Future<void> _showBucketManagerFlow(LibraryProjection projection) async {

@@ -177,19 +177,9 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     ShelfState shelf,
   ) {
-    final kind = state.widget.type.workspace.kind.apiValue;
-    if (identical(state._cachedSignatureShelf, shelf) &&
-        state._cachedSignatureKind == kind &&
-        state._cachedShelfSignature != null) {
-      return state._cachedShelfSignature!;
-    }
-    final signature = LibraryPageUtilities.shelfSignature([
+    return LibraryPageUtilities.shelfSignature([
       for (final item in libraryItemsForShelf(shelf, state.widget.type))
         item.entry.id,
     ]);
-    state._cachedSignatureShelf = shelf;
-    state._cachedSignatureKind = kind;
-    state._cachedShelfSignature = signature;
-    return signature;
   }
 }

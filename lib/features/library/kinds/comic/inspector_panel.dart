@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -35,25 +36,13 @@ class ComicInspectorPanel extends StatelessWidget {
       ),
       const SizedBox(height: 8),
       request.hero,
-      if (request.ownedCopiesSection != null) ...[
-        const SizedBox(height: 8),
-        request.ownedCopiesSection!,
-      ],
-      if (request.bundleSection != null) ...[
-        const SizedBox(height: 8),
-        request.bundleSection!,
-      ],
-      if (request.conditionGradeSection != null) ...[
-        const SizedBox(height: 8),
-        request.conditionGradeSection!,
-      ],
-      if (request.primarySections.isNotEmpty) ...[
-        const SizedBox(height: 8),
-        ...request.primarySections,
-      ],
-      if (request.trailingSections.isNotEmpty) ...[
-        ...request.trailingSections,
-      ],
+      ...buildLibraryInspectorSectionList([
+        request.ownedCopiesSection,
+        request.bundleSection,
+        request.conditionGradeSection,
+        if (request.primarySections.isNotEmpty) ...request.primarySections,
+        if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+      ]),
       const SizedBox(height: 6),
     ];
 

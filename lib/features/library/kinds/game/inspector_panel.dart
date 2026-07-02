@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -14,6 +15,25 @@ Widget buildGameInspectorPanel(
   LibraryInspectorPanelRequest request,
 ) {
   return GameInspectorPanel(request: request);
+}
+
+List<Widget> buildGameInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  final creditRows = _buildCreditsRows(inspector.entry.creators);
+  if (creditRows.isEmpty) {
+    return const <Widget>[];
+  }
+  return [
+    LibraryInspectorSection(
+      title: 'Credits',
+      accentColor: inspector.accent,
+      children: [
+        _GameInspectorFactRows(rows: creditRows),
+      ],
+    ),
+  ];
 }
 
 class GameInspectorPanel extends StatelessWidget {
@@ -62,10 +82,8 @@ class GameInspectorPanel extends StatelessWidget {
               _GameInspectorMain(inspector: request.inspector),
               const SizedBox(height: 10),
               _GameInspectorDetailsPersonal(inspector: request.inspector),
-              if (request.trailingSections.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                ...request.trailingSections,
-              ],
+              ...buildLibraryInspectorSectionList(request.primarySections),
+              ...buildLibraryInspectorSectionList(request.trailingSections),
             ],
           ),
         ],

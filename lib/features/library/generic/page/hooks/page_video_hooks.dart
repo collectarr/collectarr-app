@@ -144,28 +144,4 @@ extension _PageVideoHooks on GenericLibraryPageState {
     );
   }
 
-  @protected
-  Widget? buildDefaultVideoShelfWorkspaceOverride(
-    LibraryProjection projection,
-    LibraryWorkspaceViewState viewState, {
-    required List<OwnedItem> allOwnedCopies,
-    required List<WishlistItem> allWishlistItems,
-  }) {
-    return _buildVideoShelfDrilldown(
-      projection,
-      viewState,
-      allOwnedCopies: allOwnedCopies,
-      allWishlistItems: allWishlistItems,
-    );
-  }
-
-  @protected
-  Widget? buildWorkspaceOverride(
-    LibraryProjection projection,
-    LibraryWorkspaceViewState viewState, {
-    required List<OwnedItem> allOwnedCopies,
-    required List<WishlistItem> allWishlistItems,
-  }) {
-    return null;
-  }
 }

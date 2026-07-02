@@ -5,6 +5,23 @@ import 'package:collectarr_app/features/library/inspector/inspector_personal_det
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
+List<Widget> buildLibraryInspectorSectionList(
+  Iterable<Widget?> sections, {
+  double spacing = 8,
+}) {
+  final resolved = <Widget>[];
+  for (final section in sections) {
+    if (section == null) {
+      continue;
+    }
+    if (resolved.isNotEmpty) {
+      resolved.add(SizedBox(height: spacing));
+    }
+    resolved.add(section);
+  }
+  return resolved;
+}
+
 List<Widget> buildLibraryInspectorEditorSections({
   required LibraryTypeConfig type,
   required LibraryWorkspaceEntry entry,

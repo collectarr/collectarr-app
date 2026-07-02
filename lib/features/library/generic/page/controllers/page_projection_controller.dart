@@ -56,41 +56,34 @@ abstract final class _LibraryProjectionControllerOps {
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,
     );
-
-    final canReuseProjection = state._cachedProjection != null &&
-        state._cachedProjectionSignature == signature;
-
-    if (canReuseProjection) {
-      return state._cachedProjection!;
-    }
-
-    final projection = LibraryProjection.fromShelf(
-      shelf: shelf,
-      type: state.widget.type,
-      adapter: state._adapter,
-      viewState: viewState,
-      browserMode: browserMode,
-      releaseFolderTitleItemId: releaseFolderTitleItemId,
-      query: query,
-      linkedMetadataFilter: linkedMetadataFilter,
-      selectedBucket: selectedBucket,
-      selectedItemId: selectedItemId,
-      quickView: quickView,
-      collectionStatusScope: collectionStatusScope,
-      groupMode: mode,
-      bucketScopeFilters: bucketScopeFilters,
-      overrideBuckets: overrideBuckets,
-      constrainedItemIds: effectiveConstrainedItemIds,
-      filterSelection: filterSelection,
-      customFieldValuesByItem: customFieldValues,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
-      searchTarget: searchTarget,
+    return state.ref.watch(
+      libraryProjectionProvider(
+        LibraryProjectionRequest(
+          signature: signature,
+          shelf: shelf,
+          type: state.widget.type,
+          adapter: state._adapter,
+          viewState: viewState,
+          browserMode: browserMode,
+          releaseFolderTitleItemId: releaseFolderTitleItemId,
+          query: query,
+          linkedMetadataFilter: linkedMetadataFilter,
+          selectedBucket: selectedBucket,
+          selectedItemId: selectedItemId,
+          quickView: quickView,
+          collectionStatusScope: collectionStatusScope,
+          groupMode: mode,
+          bucketScopeFilters: bucketScopeFilters,
+          overrideBuckets: overrideBuckets,
+          constrainedItemIds: effectiveConstrainedItemIds,
+          filterSelection: filterSelection,
+          customFieldValuesByItem: customFieldValues,
+          customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
+          activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+          searchTarget: searchTarget,
+        ),
+      ),
     );
-
-    state._cachedProjectionSignature = signature;
-    state._cachedProjection = projection;
-    return projection;
   }
 
   static String projectionSignature({
@@ -146,24 +139,18 @@ abstract final class _LibraryProjectionControllerOps {
     GenericLibraryPageState state,
     Map<String, List<String>> values,
   ) {
-    if (identical(state._cachedCustomFieldValuesForSignature, values) &&
-        state._cachedCustomFieldValuesSignature != null) {
-      return state._cachedCustomFieldValuesSignature!;
-    }
     final sortedKeys = values.keys.toList(growable: false)..sort();
     var signature = values.length;
     for (final key in sortedKeys) {
       final entries = List<String>.from(values[key] ?? const <String>[])
         ..sort();
       signature = Object.hash(
-        signature,
-        key,
-        entries.length,
-        Object.hashAll(entries),
+      signature,
+      key,
+      entries.length,
+      Object.hashAll(entries),
       );
     }
-    state._cachedCustomFieldValuesForSignature = values;
-    state._cachedCustomFieldValuesSignature = signature;
     return signature;
   }
 
@@ -171,11 +158,6 @@ abstract final class _LibraryProjectionControllerOps {
     GenericLibraryPageState state,
     Map<String, Map<String, String>> values,
   ) {
-    if (identical(
-            state._cachedCustomFieldValuesByDefinitionForSignature, values) &&
-        state._cachedCustomFieldValuesByDefinitionSignature != null) {
-      return state._cachedCustomFieldValuesByDefinitionSignature!;
-    }
     final sortedOuterKeys = values.keys.toList(growable: false)..sort();
     var signature = values.length;
     for (final outerKey in sortedOuterKeys) {
@@ -187,8 +169,6 @@ abstract final class _LibraryProjectionControllerOps {
       }
       signature = Object.hash(signature, outerKey, innerSignature);
     }
-    state._cachedCustomFieldValuesByDefinitionForSignature = values;
-    state._cachedCustomFieldValuesByDefinitionSignature = signature;
     return signature;
   }
 

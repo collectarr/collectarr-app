@@ -46,6 +46,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildGameLibraryEditDialog,
   editPresentation: gameLibraryEditPresentation,
   inspectorPanelBuilder: buildGameInspectorPanel,
+  inspectorSectionsBuilder: buildGameInspectorSections,
   presentation: gamesLibraryMediaPresentation,
   mediaFields: MediaEditFields(
     numberLabel: 'Version',
