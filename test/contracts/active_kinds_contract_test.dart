@@ -9,6 +9,19 @@ void main() {
       File('tool/core_contracts/active-kinds.json').readAsStringSync(),
     ) as Map<String, dynamic>;
 
-    expect(body['kinds'], containsAll(['book', 'game', 'boardgame']));
+    expect(
+      Set<String>.from(body['kinds'] as List<dynamic>),
+      equals({
+        'comic',
+        'manga',
+        'anime',
+        'book',
+        'game',
+        'boardgame',
+        'movie',
+        'tv',
+        'music',
+      }),
+    );
   });
 }

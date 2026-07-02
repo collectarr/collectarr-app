@@ -175,6 +175,18 @@ class ApiClient {
     return _catalogApi.getBoardGameEditionDto(id);
   }
 
+  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
+    return _catalogApi.getMusicReleaseDto(id);
+  }
+
+  Future<MusicMediaDto> getMusicMediaDto(String id) {
+    return _catalogApi.getMusicMediaDto(id);
+  }
+
+  Future<MusicTrackDto> getMusicTrackDto(String id) {
+    return _catalogApi.getMusicTrackDto(id);
+  }
+
   Future<List<BundleReleaseSummary>> getItemBundleReleases(
       String itemId) async {
     return _catalogApi.getItemBundleReleases(itemId);

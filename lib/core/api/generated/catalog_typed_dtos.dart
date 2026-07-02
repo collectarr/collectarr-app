@@ -345,6 +345,186 @@ class BoardGameEditionDto extends CatalogTypedDto {
   }
 }
 
+class MusicReleaseDto extends CatalogTypedDto {
+  MusicReleaseDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.releaseType,
+    required this.releaseStatus,
+    required this.releaseDate,
+    required this.recordingDate,
+    required this.trackCount,
+    required this.publisher,
+    required this.studio,
+    required this.catalogNumber,
+    required this.barcode,
+    required this.countryCode,
+    required this.language,
+    required this.coverImageUrl,
+    required this.coverImageKey,
+    required this.extras,
+    required this.media,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = 'music';
+  @override
+  final DateTime? releaseDate;
+  @override
+  final String? coverImageUrl;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode;
+  final String? subtitle;
+  final String? releaseType;
+  final String? releaseStatus;
+  final DateTime? recordingDate;
+  final int? trackCount;
+  final String? publisher;
+  final String? studio;
+  final String? catalogNumber;
+  final String? countryCode;
+  final String? language;
+  final String? coverImageKey;
+  final String? extras;
+  final List<MusicMediaDto> media;
+
+  factory MusicReleaseDto.fromJson(Map<String, dynamic> json) {
+    return MusicReleaseDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Release',
+      subtitle: json['subtitle']?.toString(),
+      releaseType: json['release_type']?.toString(),
+      releaseStatus: json['release_status']?.toString(),
+      releaseDate: _parseDate(json['release_date'] ?? json['releaseDate']),
+      recordingDate: _parseDate(json['recording_date'] ?? json['recordingDate']),
+      trackCount: _intValue(json['track_count'] ?? json['trackCount']),
+      publisher: json['publisher']?.toString(),
+      studio: json['studio']?.toString(),
+      catalogNumber: json['catalog_number']?.toString(),
+      barcode: json['barcode']?.toString(),
+      countryCode: json['country_code']?.toString(),
+      language: json['language']?.toString(),
+      coverImageUrl: json['cover_image_url']?.toString(),
+      coverImageKey: json['cover_image_key']?.toString(),
+      extras: json['extras']?.toString(),
+      media: _musicMediaList(json['media']),
+    );
+  }
+}
+
+class MusicMediaDto extends CatalogTypedDto {
+  MusicMediaDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.mediaNumber,
+    required this.mediaType,
+    required this.trackCount,
+    required this.packaging,
+    required this.soundType,
+    required this.vinylColor,
+    required this.vinylWeight,
+    required this.rpm,
+    required this.spars,
+    required this.tracks,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = 'music';
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final int? mediaNumber;
+  final String? mediaType;
+  final int? trackCount;
+  final String? packaging;
+  final String? soundType;
+  final String? vinylColor;
+  final String? vinylWeight;
+  final int? rpm;
+  final String? spars;
+  final List<MusicTrackDto> tracks;
+
+  factory MusicMediaDto.fromJson(Map<String, dynamic> json) {
+    return MusicMediaDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Media',
+      mediaNumber: _intValue(json['media_number'] ?? json['mediaNumber']),
+      mediaType: json['media_type']?.toString(),
+      trackCount: _intValue(json['track_count'] ?? json['trackCount']),
+      packaging: json['packaging']?.toString(),
+      soundType: json['sound_type']?.toString(),
+      vinylColor: json['vinyl_color']?.toString(),
+      vinylWeight: json['vinyl_weight']?.toString(),
+      rpm: _intValue(json['rpm']),
+      spars: json['spars']?.toString(),
+      tracks: _musicTrackList(json['tracks']),
+    );
+  }
+}
+
+class MusicTrackDto extends CatalogTypedDto {
+  MusicTrackDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.position,
+    required this.durationMs,
+    required this.instrument,
+    required this.composition,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = 'music';
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final String? position;
+  final int? durationMs;
+  final String? instrument;
+  final String? composition;
+
+  factory MusicTrackDto.fromJson(Map<String, dynamic> json) {
+    return MusicTrackDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Track',
+      position: json['position']?.toString(),
+      durationMs: _intValue(json['duration_ms'] ?? json['durationMs']),
+      instrument: json['instrument']?.toString(),
+      composition: json['composition']?.toString(),
+    );
+  }
+}
+
 List<String> _stringList(Object? value) {
   if (value is! List<dynamic>) {
     return const [];
@@ -362,6 +542,26 @@ List<String> _stringList(Object? value) {
     }
   }
   return result;
+}
+
+List<MusicMediaDto> _musicMediaList(Object? value) {
+  if (value is! List<dynamic>) {
+    return const [];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) MusicMediaDto.fromJson(entry),
+  ];
+}
+
+List<MusicTrackDto> _musicTrackList(Object? value) {
+  if (value is! List<dynamic>) {
+    return const [];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) MusicTrackDto.fromJson(entry),
+  ];
 }
 
 DateTime? _parseDate(Object? value) {

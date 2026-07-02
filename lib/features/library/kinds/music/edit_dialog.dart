@@ -1505,7 +1505,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     });
     try {
       final api = ref.read(apiClientProvider);
-      final snapshot = await api.getMetadataItem(kind: 'music', id: _item.id);
+      final snapshot = (await api.getMusicReleaseDto(_item.id)).toCatalogItem();
       if (!mounted) {
         return;
       }

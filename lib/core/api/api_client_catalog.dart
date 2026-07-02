@@ -78,6 +78,8 @@ class _CatalogApiClient {
         return getGameWorkDto(id);
       case 'boardgame':
         return getBoardGameWorkDto(id);
+      case 'music':
+        return getMusicReleaseDto(id);
       default:
         final encodedKind = Uri.encodeComponent(kind);
         final response = await _client._dio.get<Map<String, dynamic>>(
@@ -144,12 +146,34 @@ class _CatalogApiClient {
     );
   }
 
+  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/music/releases/${Uri.encodeComponent(id)}',
+      MusicReleaseDto.fromJson,
+    );
+  }
+
+  Future<MusicMediaDto> getMusicMediaDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/music/media/${Uri.encodeComponent(id)}',
+      MusicMediaDto.fromJson,
+    );
+  }
+
+  Future<MusicTrackDto> getMusicTrackDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/music/tracks/${Uri.encodeComponent(id)}',
+      MusicTrackDto.fromJson,
+    );
+  }
+
   CatalogTypedDto _legacyTypedDtoFromJson(Map<String, dynamic> json) {
     final kind = json['kind']?.toString().toLowerCase();
     return switch (kind) {
       'book' => BookWorkDto.fromJson(json),
       'game' => GameWorkDto.fromJson(json),
       'boardgame' => BoardGameWorkDto.fromJson(json),
+      'music' => MusicReleaseDto.fromJson(json),
       _ => _FallbackTypedDto(json),
     };
   }
