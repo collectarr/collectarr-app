@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
-import 'package:collectarr_app/core/api/mappers/catalog_metadata_mapper.dart';
+import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -137,9 +137,8 @@ class ApiClient {
     required String kind,
     required String id,
   }) async {
-    return catalogItemFromDto(
-      await _catalogApi.getMetadataItemDto(kind: kind, id: id),
-    );
+    return (await _catalogApi.getTypedMetadataItemDto(kind: kind, id: id))
+        .toCatalogItem();
   }
 
   Future<CatalogMetadataDto> getMetadataItemDto({
@@ -147,6 +146,33 @@ class ApiClient {
     required String id,
   }) async {
     return _catalogApi.getMetadataItemDto(kind: kind, id: id);
+  }
+
+  Future<CatalogTypedDto> getTypedMetadataItemDto({
+    required String kind,
+    required String id,
+  }) async {
+    return _catalogApi.getTypedMetadataItemDto(kind: kind, id: id);
+  }
+
+  Future<BookWorkDto> getBookWorkDto(String id) {
+    return _catalogApi.getBookWorkDto(id);
+  }
+
+  Future<GameWorkDto> getGameWorkDto(String id) {
+    return _catalogApi.getGameWorkDto(id);
+  }
+
+  Future<GameReleaseDto> getGameReleaseDto(String id) {
+    return _catalogApi.getGameReleaseDto(id);
+  }
+
+  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
+    return _catalogApi.getBoardGameWorkDto(id);
+  }
+
+  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
+    return _catalogApi.getBoardGameEditionDto(id);
   }
 
   Future<List<BundleReleaseSummary>> getItemBundleReleases(

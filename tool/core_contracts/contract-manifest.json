@@ -1,10 +1,9 @@
 {
-  "source_repo": "collectarr-core",
-  "source_docs_dir": "docs",
-  "files": [
-    "openapi.json",
-    "field-schema.md",
-    "provider-support.md",
-    "implementation-plan.md"
-  ]
+  "activeKindsHash": "44bac6aedcab4afc35b4d1fd8d04176333f9cc79a583770ff0fa3a6adf091e56",
+  "contractVersion": "1.0.0",
+  "coreCommit": "39022890471b43b31fecc8de11deb34e3a0907a5",
+  "fieldSchemaHash": "695b9e54d845d572624190aa8b01c5c5ff210c0c0e61931e94c486dd6240195b",
+  "generatedAt": "2026-07-02T21:50:44.973053Z",
+  "openApiHash": "1ed5b688d71908f7d59594a6bed46d205aa55c5fe1d0f0492d7ea0735235bd4d",
+  "providerSupportHash": "5c3c92738d094cf159ac245b870fb9968b3fee288bfd3f978cccb8044f5c0806"
 }

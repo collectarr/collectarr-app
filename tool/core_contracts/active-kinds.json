@@ -1,13 +1,15 @@
 {
-  "active_kinds": [
+  "contractVersion": "1.0.0",
+  "generatedAt": "2026-07-02T21:50:44.973053Z",
+  "kinds": [
     "comic",
     "manga",
     "anime",
-    "book",
-    "game",
-    "boardgame",
     "movie",
     "tv",
+    "game",
+    "boardgame",
+    "book",
     "music"
   ]
 }

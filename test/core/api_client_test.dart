@@ -176,7 +176,7 @@ void main() {
     group('catalog transport dtos', () {
       test('returns typed metadata dto and preserves raw payload', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/metadata/book/item-1', {
+        interceptor.onGet('/metadata/books/works/item-1', {
           'id': 'item-1',
           'kind': 'book',
           'title': 'The Sample Book',
@@ -201,6 +201,33 @@ void main() {
 
         final item = await client.getMetadataItem(kind: 'book', id: 'item-1');
         expect(item, isA<CatalogItem>());
+        final typed =
+            await client.getTypedMetadataItemDto(kind: 'book', id: 'item-1');
+        expect(typed.kind, 'book');
+        expect(typed.title, 'The Sample Book');
+      });
+
+      test('returns kind-specific typed metadata dto helpers', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/metadata/games/works/game-1', {
+          'id': 'game-1',
+          'kind': 'game',
+          'title': 'Zelda',
+          'platforms': ['Switch', 'switch'],
+        });
+        interceptor.onGet('/metadata/boardgames/editions/bg-1', {
+          'id': 'bg-1',
+          'kind': 'boardgame',
+          'title': 'Catan',
+          'barcode': '123',
+        });
+        final client = _createTestClient(interceptor);
+
+        final game = await client.getGameWorkDto('game-1');
+        final boardgame = await client.getBoardGameEditionDto('bg-1');
+
+        expect(game.platforms, ['Switch']);
+        expect(boardgame.title, 'Catan');
       });
 
       test('returns typed search dtos', () async {

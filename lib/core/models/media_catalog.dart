@@ -30,7 +30,7 @@ enum MetadataFieldScope {
 
 enum MetadataWriteTarget {
   coreCanonical('core_canonical'),
-  coreProposal('core_proposal'),
+  coreAdminProposal('core_admin_proposal'),
   appPersonal('app_personal'),
   appCustom('app_custom'),
   legacyProjection('legacy_projection'),
@@ -44,6 +44,9 @@ enum MetadataWriteTarget {
     final normalized = value?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) {
       return MetadataWriteTarget.legacyProjection;
+    }
+    if (normalized == 'core_proposal') {
+      return MetadataWriteTarget.coreAdminProposal;
     }
     for (final target in MetadataWriteTarget.values) {
       if (target.apiValue == normalized) {
@@ -230,11 +233,16 @@ class MetadataFieldSpec {
           value.toString(),
       ],
       scope: MetadataFieldScope.fromApiValue(json['scope'] as String?),
-      writeTarget:
-          MetadataWriteTarget.fromApiValue(json['write_target'] as String?),
-      sourceEntityType: json['source_entity_type']?.toString(),
-      sourceTable: json['source_table']?.toString(),
-      isLegacyProjection: json['is_legacy_projection'] as bool? ?? false,
+      writeTarget: MetadataWriteTarget.fromApiValue(
+        json['write_target'] as String? ?? json['writeTarget'] as String?,
+      ),
+      sourceEntityType: json['source_entity_type']?.toString() ??
+          json['sourceEntityType']?.toString(),
+      sourceTable:
+          json['source_table']?.toString() ?? json['sourceTable']?.toString(),
+      isLegacyProjection: json['is_legacy_projection'] as bool? ??
+          json['isLegacyProjection'] as bool? ??
+          false,
     );
   }
 }

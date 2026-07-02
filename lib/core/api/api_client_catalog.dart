@@ -55,25 +55,103 @@ class _CatalogApiClient {
     required String kind,
     required String id,
   }) async {
-    return (await getMetadataItemDto(kind: kind, id: id)).toCatalogItem();
+    return (await getTypedMetadataItemDto(kind: kind, id: id)).toCatalogItem();
   }
 
   Future<CatalogMetadataDto> getMetadataItemDto({
     required String kind,
     required String id,
   }) async {
-    final encodedKind = Uri.encodeComponent(kind);
+    final typed = await getTypedMetadataItemDto(kind: kind, id: id);
+    return CatalogMetadataDto.fromJson(typed.raw);
+  }
+
+  Future<CatalogTypedDto> getTypedMetadataItemDto({
+    required String kind,
+    required String id,
+  }) async {
     final encodedId = Uri.encodeComponent(id);
+    switch (kind.trim().toLowerCase()) {
+      case 'book':
+        return getBookWorkDto(id);
+      case 'game':
+        return getGameWorkDto(id);
+      case 'boardgame':
+        return getBoardGameWorkDto(id);
+      default:
+        final encodedKind = Uri.encodeComponent(kind);
+        final response = await _client._dio.get<Map<String, dynamic>>(
+          '/metadata/$encodedKind/$encodedId',
+        );
+        final data = response.data;
+        if (data == null) {
+          throw StateError(
+            '/metadata/$encodedKind/$encodedId returned an empty response body',
+          );
+        }
+        return _legacyTypedDtoFromJson(
+          _client._resolveImageUrls(data),
+        );
+    }
+  }
+
+  Future<T> _fetchTypedMetadataItem<T extends CatalogTypedDto>(
+    String path,
+    T Function(Map<String, dynamic>) factory,
+  ) async {
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/metadata/$encodedKind/$encodedId',
+      path,
     );
     final data = response.data;
     if (data == null) {
-      throw StateError(
-        '/metadata/$encodedKind/$encodedId returned an empty response body',
-      );
+      throw StateError('$path returned an empty response body');
     }
-    return CatalogMetadataDto.fromJson(_client._resolveImageUrls(data));
+    return factory(_client._resolveImageUrls(data));
+  }
+
+  Future<BookWorkDto> getBookWorkDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/books/works/${Uri.encodeComponent(id)}',
+      BookWorkDto.fromJson,
+    );
+  }
+
+  Future<GameWorkDto> getGameWorkDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/games/works/${Uri.encodeComponent(id)}',
+      GameWorkDto.fromJson,
+    );
+  }
+
+  Future<GameReleaseDto> getGameReleaseDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/games/releases/${Uri.encodeComponent(id)}',
+      GameReleaseDto.fromJson,
+    );
+  }
+
+  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/boardgames/works/${Uri.encodeComponent(id)}',
+      BoardGameWorkDto.fromJson,
+    );
+  }
+
+  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/boardgames/editions/${Uri.encodeComponent(id)}',
+      BoardGameEditionDto.fromJson,
+    );
+  }
+
+  CatalogTypedDto _legacyTypedDtoFromJson(Map<String, dynamic> json) {
+    final kind = json['kind']?.toString().toLowerCase();
+    return switch (kind) {
+      'book' => BookWorkDto.fromJson(json),
+      'game' => GameWorkDto.fromJson(json),
+      'boardgame' => BoardGameWorkDto.fromJson(json),
+      _ => _FallbackTypedDto(json),
+    };
   }
 
   Future<List<BundleReleaseSummary>> getItemBundleReleases(
@@ -280,4 +358,30 @@ class _CatalogApiClient {
     }
     return CatalogMetadataDto.fromJson(_client._resolveImageUrls(data));
   }
+}
+
+class _FallbackTypedDto extends CatalogTypedDto {
+  _FallbackTypedDto(super.raw)
+      : id = raw['id']?.toString() ?? '',
+        title = raw['title']?.toString() ?? 'Untitled item',
+        kind = raw['kind']?.toString(),
+        releaseDate = null,
+        coverImageUrl = raw['cover_image_url']?.toString(),
+        thumbnailImageUrl = raw['thumbnail_image_url']?.toString(),
+        barcode = raw['barcode']?.toString();
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind;
+  @override
+  final DateTime? releaseDate;
+  @override
+  final String? coverImageUrl;
+  @override
+  final String? thumbnailImageUrl;
+  @override
+  final String? barcode;
 }
