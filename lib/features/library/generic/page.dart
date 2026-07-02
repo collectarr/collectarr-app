@@ -107,6 +107,7 @@ part 'page/controllers/page_view_state_controller.dart';
 part 'page/controllers/page_projection_controller.dart';
 part 'page/controllers/page_projection_provider.dart';
 part 'page/controllers/page_toolbar_controller.dart';
+part 'page/controllers/page_toolbar_presenter.dart';
 part 'page/controllers/page_toolbar_builder.dart';
 part 'page/controllers/page_selection_controller.dart';
 
