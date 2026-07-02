@@ -14,6 +14,9 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/generic/page.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -170,7 +173,8 @@ void main() {
 
     expect(projection.allItems, hasLength(1));
     expect(projection.filteredItems.single.entry.title, 'Merged issue');
-    expect(projection.filteredItems.single.source.ownedItem?.condition, 'Near Mint');
+    expect(projection.filteredItems.single.source.ownedItem?.condition,
+        'Near Mint');
   });
 
   test('projection applies ancestor bucket scopes to current group buckets',
@@ -871,6 +875,71 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  test('projection request equality ignores signature-only drift', () {
+    final shelf = ShelfState(
+      entries: const [],
+      ownedCount: 0,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final requestA = LibraryProjectionRequest(
+      signature: 'sig-a',
+      shelf: shelf,
+      type: comicsLibraryConfig,
+      adapter: comicsMediaAdapter,
+      viewState: _defaultViewState,
+      browserMode: LibraryWorkspaceBrowserMode.media,
+      releaseFolderTitleItemId: null,
+      query: '',
+      linkedMetadataFilter: null,
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      collectionStatusScope: LibraryCollectionStatusScope.all,
+      groupMode: LibraryGroupMode.series,
+      bucketScopeFilters: const [],
+      overrideBuckets: const [],
+      constrainedItemIds: const {},
+      filterSelection: LibraryFilterSelection.none,
+      customFieldValuesByItem: const {},
+      customFieldValuesByDefinitionByItem: const {},
+      activeLoanOwnedItemIds: const {},
+      searchTarget: LibrarySearchTarget.all,
+    );
+    final requestB = LibraryProjectionRequest(
+      signature: 'sig-b',
+      shelf: shelf,
+      type: comicsLibraryConfig,
+      adapter: comicsMediaAdapter,
+      viewState: _defaultViewState,
+      browserMode: LibraryWorkspaceBrowserMode.media,
+      releaseFolderTitleItemId: null,
+      query: '',
+      linkedMetadataFilter: null,
+      selectedBucket: null,
+      selectedItemId: null,
+      quickView: null,
+      collectionStatusScope: LibraryCollectionStatusScope.all,
+      groupMode: LibraryGroupMode.series,
+      bucketScopeFilters: const [],
+      overrideBuckets: const [],
+      constrainedItemIds: const {},
+      filterSelection: LibraryFilterSelection.none,
+      customFieldValuesByItem: const {},
+      customFieldValuesByDefinitionByItem: const {},
+      activeLoanOwnedItemIds: const {},
+      searchTarget: LibrarySearchTarget.all,
+    );
+
+    expect(requestA, equals(requestB));
+    expect(requestA.hashCode, requestB.hashCode);
   });
 
   test('linked metadata filter does not fall back to fuzzy matches', () {
