@@ -32,6 +32,14 @@ class _CatalogApiClient {
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
+    return (await searchMetadataDtos(query))
+        .map((dto) => dto.toJson())
+        .toList(growable: false);
+  }
+
+  Future<List<CatalogMetadataDto>> searchMetadataDtos(
+    MetadataSearchQuery query,
+  ) async {
     final response = await _client._dio.get<List<dynamic>>(
       '/search',
       queryParameters: query.toQueryParameters(),
@@ -39,10 +47,18 @@ class _CatalogApiClient {
     return response.data!
         .cast<Map<String, dynamic>>()
         .map(_client._resolveImageUrls)
+        .map(CatalogMetadataDto.fromJson)
         .toList(growable: false);
   }
 
   Future<CatalogItem> getMetadataItem({
+    required String kind,
+    required String id,
+  }) async {
+    return (await getMetadataItemDto(kind: kind, id: id)).toCatalogItem();
+  }
+
+  Future<CatalogMetadataDto> getMetadataItemDto({
     required String kind,
     required String id,
   }) async {
@@ -57,7 +73,7 @@ class _CatalogApiClient {
         '/metadata/$encodedKind/$encodedId returned an empty response body',
       );
     }
-    return CatalogItem.fromJson(_client._resolveImageUrls(data));
+    return CatalogMetadataDto.fromJson(_client._resolveImageUrls(data));
   }
 
   Future<List<BundleReleaseSummary>> getItemBundleReleases(

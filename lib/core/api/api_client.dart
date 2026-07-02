@@ -5,6 +5,8 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
+import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
+import 'package:collectarr_app/core/api/mappers/catalog_metadata_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -120,14 +122,31 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
-    return _catalogApi.searchMetadata(query);
+    return (await _catalogApi.searchMetadataDtos(query))
+        .map((dto) => dto.toJson())
+        .toList(growable: false);
+  }
+
+  Future<List<CatalogMetadataDto>> searchMetadataDtos(
+    MetadataSearchQuery query,
+  ) async {
+    return _catalogApi.searchMetadataDtos(query);
   }
 
   Future<CatalogItem> getMetadataItem({
     required String kind,
     required String id,
   }) async {
-    return _catalogApi.getMetadataItem(kind: kind, id: id);
+    return catalogItemFromDto(
+      await _catalogApi.getMetadataItemDto(kind: kind, id: id),
+    );
+  }
+
+  Future<CatalogMetadataDto> getMetadataItemDto({
+    required String kind,
+    required String id,
+  }) async {
+    return _catalogApi.getMetadataItemDto(kind: kind, id: id);
   }
 
   Future<List<BundleReleaseSummary>> getItemBundleReleases(

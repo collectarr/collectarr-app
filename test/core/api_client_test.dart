@@ -1,4 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -167,6 +170,54 @@ void main() {
         expect(results, hasLength(2));
         expect(results[0]['title'], 'Batman #1');
         expect(results[1]['title'], 'Batman #2');
+      });
+    });
+
+    group('catalog transport dtos', () {
+      test('returns typed metadata dto and preserves raw payload', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/metadata/book/item-1', {
+          'id': 'item-1',
+          'kind': 'book',
+          'title': 'The Sample Book',
+          'release_date': '2024-01-02T03:04:05Z',
+          'cover_image_url': 'https://example.com/cover.jpg',
+          'thumbnail_image_url': 'https://example.com/thumb.jpg',
+          'barcode': '1234567890',
+          'tracks': [
+            {'title': 'Track 1', 'position': 1, 'duration_seconds': 180},
+          ],
+        });
+        final client = _createTestClient(interceptor);
+
+        final dto = await client.getMetadataItemDto(kind: 'book', id: 'item-1');
+
+        expect(dto, isA<CatalogMetadataDto>());
+        expect(dto.id, 'item-1');
+        expect(dto.title, 'The Sample Book');
+        expect(dto.releaseDate, isNotNull);
+        expect(dto.tracks, hasLength(1));
+        expect(dto.raw['barcode'], '1234567890');
+
+        final item = await client.getMetadataItem(kind: 'book', id: 'item-1');
+        expect(item, isA<CatalogItem>());
+      });
+
+      test('returns typed search dtos', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/search', [
+          {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
+          {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
+        ]);
+        final client = _createTestClient(interceptor);
+
+        final results = await client.searchMetadataDtos(
+          const MetadataSearchQuery(query: 'Batman'),
+        );
+
+        expect(results, hasLength(2));
+        expect(results.first.kind, 'comic');
+        expect(results.first.title, 'Batman #1');
       });
     });
 
