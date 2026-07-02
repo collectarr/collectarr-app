@@ -756,7 +756,12 @@ class ApiClient {
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
-    return _catalogApi.lookupBarcode(barcode, kind: kind);
+    return (await lookupBarcodeDto(barcode, kind: kind)).toJson();
+  }
+
+  Future<CatalogMetadataDto> lookupBarcodeDto(String barcode,
+      {String? kind}) async {
+    return _catalogApi.lookupBarcodeDto(barcode, kind: kind);
   }
 
   Future<Map<String, dynamic>> health() async {

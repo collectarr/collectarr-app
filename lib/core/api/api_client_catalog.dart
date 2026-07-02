@@ -265,6 +265,11 @@ class _CatalogApiClient {
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
+    return (await lookupBarcodeDto(barcode, kind: kind)).toJson();
+  }
+
+  Future<CatalogMetadataDto> lookupBarcodeDto(String barcode,
+      {String? kind}) async {
     final response = await _client._dio.get<Map<String, dynamic>>(
       '/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
       queryParameters: {if (kind != null) 'kind': kind},
@@ -273,6 +278,6 @@ class _CatalogApiClient {
     if (data == null) {
       throw StateError('/barcode returned an empty response body');
     }
-    return _client._resolveImageUrls(data);
+    return CatalogMetadataDto.fromJson(_client._resolveImageUrls(data));
   }
 }

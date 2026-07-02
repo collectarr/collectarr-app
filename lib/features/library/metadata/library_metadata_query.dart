@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -37,7 +38,8 @@ Future<List<CatalogItem>> searchLibraryMetadata(
   String? barcode,
   int? limit,
 }) async {
-  final rows = await api.searchMetadata(
+  final rows = await searchLibraryMetadataDtos(
+    api,
     libraryMetadataSearchQuery(
       type,
       query: query,
@@ -49,7 +51,14 @@ Future<List<CatalogItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  return rows.map(CatalogItem.fromJson).toList(growable: false);
+  return rows.map((dto) => dto.toCatalogItem()).toList(growable: false);
+}
+
+Future<List<CatalogMetadataDto>> searchLibraryMetadataDtos(
+  ApiClient api,
+  MetadataSearchQuery query,
+) async {
+  return api.searchMetadataDtos(query);
 }
 
 Future<CatalogItem> lookupLibraryBarcode(
@@ -57,11 +66,23 @@ Future<CatalogItem> lookupLibraryBarcode(
   LibraryTypeConfig type,
   String barcode,
 ) async {
-  final row = await api.lookupBarcode(
+  final row = await lookupLibraryBarcodeDto(
+    api,
+    type,
+    barcode,
+  );
+  return row.toCatalogItem();
+}
+
+Future<CatalogMetadataDto> lookupLibraryBarcodeDto(
+  ApiClient api,
+  LibraryTypeConfig type,
+  String barcode,
+) async {
+  return api.lookupBarcodeDto(
     barcode,
     kind: type.workspace.kind.apiValue,
   );
-  return CatalogItem.fromJson(row);
 }
 
 Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
