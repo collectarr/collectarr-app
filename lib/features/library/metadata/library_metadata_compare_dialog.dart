@@ -55,10 +55,12 @@ class _LibraryMetadataCompareDialogState
     });
     try {
       final api = ref.read(apiClientProvider);
-      final item = await api.getMetadataItem(
-        kind: widget.localItem.kind,
-        id: widget.localItem.id,
-      );
+      final item = await api
+          .getTypedMetadataItemDto(
+            kind: widget.localItem.kind,
+            id: widget.localItem.id,
+          )
+          .then((dto) => dto.toCatalogItem());
       if (!mounted) {
         return;
       }

@@ -1952,10 +1952,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _pendingHydratedResultIds.add(itemId);
     });
     try {
-      final hydrated = await ref.read(apiClientProvider).getMetadataItem(
+      final hydrated = await ref
+          .read(apiClientProvider)
+          .getTypedMetadataItemDto(
             kind: selected.kind,
             id: itemId,
-          );
+          )
+          .then((dto) => dto.toCatalogItem());
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -2261,7 +2264,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           return item;
         }
         try {
-          final full = await api.getMetadataItem(kind: item.kind, id: item.id);
+          final full = await api
+              .getTypedMetadataItemDto(
+                kind: item.kind,
+                id: item.id,
+              )
+              .then((dto) => dto.toCatalogItem());
           final fullItem = LibraryMetadataItem.fromCatalogItem(full);
           final hasCover = fullItem.displayCoverUrl != null;
           return hasCover

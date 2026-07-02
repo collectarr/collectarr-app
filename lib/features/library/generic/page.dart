@@ -1753,10 +1753,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     try {
-      final item = await ref.read(apiClientProvider).getMetadataItem(
+      final item = await ref
+          .read(apiClientProvider)
+          .getTypedMetadataItemDto(
             kind: widget.type.workspace.kind.apiValue,
             id: itemId,
-          );
+          )
+          .then((dto) => dto.toCatalogItem());
       await CatalogCacheRepository(ref.read(localDatabaseProvider)).upsertAll([
         item,
       ]);
