@@ -1,0 +1,11 @@
+{
+  "book": ["openlibrary", "hardcover"],
+  "game": ["igdb"],
+  "boardgame": ["bgg"],
+  "music": ["musicbrainz"],
+  "comic": ["comicvine", "gcd"],
+  "manga": ["anilist", "comicvine"],
+  "anime": ["anilist", "tmdb"],
+  "movie": ["tmdb"],
+  "tv": ["tmdb"]
+}

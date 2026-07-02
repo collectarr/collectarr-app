@@ -197,7 +197,9 @@ sealed class LibraryWorkspaceEntry {
       language: language,
       ageRating: ageRating,
       audienceRating: audienceRating,
-      rawPlatforms: _copyStringList(game?.platforms),
+      rawPlatforms: normalizedMediaType == 'game'
+          ? _copyStringList(game?.platforms)
+          : null,
     );
     return _buildTypedWorkspaceEntry(
       mediaType: normalizedMediaType,
@@ -286,12 +288,12 @@ sealed class LibraryWorkspaceEntry {
           fallbackThumbnailImageUrl ??
           fallbackCoverImageUrl,
       publisher: edition.publisher ?? fallbackPublisher,
-        coverDate: fallbackCoverDate,
+      coverDate: fallbackCoverDate,
       releaseDate: edition.releaseDate,
       releaseYear: edition.releaseDate?.year ?? fallbackReleaseYear,
       barcode: primaryVariant?.barcode ?? edition.upc,
       variant: primaryVariant?.name ?? edition.title,
-        crossover: fallbackCrossover,
+      crossover: fallbackCrossover,
       isOwned: isOwned,
       isTracked: isTracked,
       isWishlisted: isWishlisted,
@@ -325,7 +327,9 @@ sealed class LibraryWorkspaceEntry {
       language: edition.language ?? fallbackLanguage,
       ageRating: fallbackAgeRating,
       audienceRating: fallbackAudienceRating,
-      rawPlatforms: _copyStringList(fallbackGame?.platforms),
+      rawPlatforms: normalizedMediaType == 'game'
+          ? _copyStringList(fallbackGame?.platforms)
+          : null,
     );
     return _buildTypedWorkspaceEntry(
       mediaType: normalizedMediaType,
@@ -427,7 +431,6 @@ sealed class LibraryWorkspaceEntry {
   VideoCatalogDetails? get video;
   MusicCatalogDetails? get music;
   GameCatalogDetails? get game;
-
 }
 
 class LibraryWorkspaceEntryData {
@@ -551,4 +554,3 @@ class LibraryWorkspaceEntryData {
   final String? audienceRating;
   final List<String>? rawPlatforms;
 }
-

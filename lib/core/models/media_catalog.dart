@@ -1,3 +1,59 @@
+enum MetadataFieldScope {
+  work('work'),
+  edition('edition'),
+  release('release'),
+  issue('issue'),
+  episode('episode'),
+  media('media'),
+  track('track'),
+  ownedCopy('owned_copy'),
+  trackingEntry('tracking_entry'),
+  legacyProjection('legacy_projection');
+
+  const MetadataFieldScope(this.apiValue);
+
+  final String apiValue;
+
+  static MetadataFieldScope fromApiValue(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    if (normalized == null || normalized.isEmpty) {
+      return MetadataFieldScope.legacyProjection;
+    }
+    for (final scope in MetadataFieldScope.values) {
+      if (scope.apiValue == normalized) {
+        return scope;
+      }
+    }
+    return MetadataFieldScope.legacyProjection;
+  }
+}
+
+enum MetadataWriteTarget {
+  coreCanonical('core_canonical'),
+  coreProposal('core_proposal'),
+  appPersonal('app_personal'),
+  appCustom('app_custom'),
+  legacyProjection('legacy_projection'),
+  readonlyComputed('readonly_computed');
+
+  const MetadataWriteTarget(this.apiValue);
+
+  final String apiValue;
+
+  static MetadataWriteTarget fromApiValue(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    if (normalized == null || normalized.isEmpty) {
+      return MetadataWriteTarget.legacyProjection;
+    }
+    for (final target in MetadataWriteTarget.values) {
+      if (target.apiValue == normalized) {
+        return target;
+      }
+    }
+    return MetadataWriteTarget.legacyProjection;
+  }
+}
+
 class CatalogPhysicalFormat {
   const CatalogPhysicalFormat({
     required this.id,
@@ -135,6 +191,11 @@ class MetadataFieldSpec {
     required this.section,
     required this.input,
     required this.kinds,
+    this.scope = MetadataFieldScope.legacyProjection,
+    this.writeTarget = MetadataWriteTarget.legacyProjection,
+    this.sourceEntityType,
+    this.sourceTable,
+    this.isLegacyProjection = false,
   });
 
   final String key;
@@ -147,6 +208,11 @@ class MetadataFieldSpec {
   final String section;
   final String input;
   final List<String> kinds;
+  final MetadataFieldScope scope;
+  final MetadataWriteTarget writeTarget;
+  final String? sourceEntityType;
+  final String? sourceTable;
+  final bool isLegacyProjection;
 
   factory MetadataFieldSpec.fromJson(Map<String, dynamic> json) {
     return MetadataFieldSpec(
@@ -163,6 +229,12 @@ class MetadataFieldSpec {
         for (final value in (json['kinds'] as List<dynamic>? ?? const []))
           value.toString(),
       ],
+      scope: MetadataFieldScope.fromApiValue(json['scope'] as String?),
+      writeTarget:
+          MetadataWriteTarget.fromApiValue(json['write_target'] as String?),
+      sourceEntityType: json['source_entity_type']?.toString(),
+      sourceTable: json['source_table']?.toString(),
+      isLegacyProjection: json['is_legacy_projection'] as bool? ?? false,
     );
   }
 }

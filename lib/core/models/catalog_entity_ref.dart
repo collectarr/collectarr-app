@@ -5,6 +5,9 @@ enum CatalogEntityType {
   issue('issue'),
   episode('episode'),
   track('track'),
+  bundleRelease('bundle_release'),
+  ownedCopy('owned_copy'),
+  trackingEntry('tracking_entry'),
   copy('copy'),
   unknown('unknown');
 
@@ -17,8 +20,19 @@ enum CatalogEntityType {
     if (normalized == null || normalized.isEmpty) {
       return CatalogEntityType.unknown;
     }
+    final alias = switch (normalized) {
+      'bundle-release' => 'bundle_release',
+      'owned-copy' => 'owned_copy',
+      'tracking-entry' => 'tracking_entry',
+      'bundle' => 'bundle_release',
+      'package' => 'bundle_release',
+      'box_set' => 'bundle_release',
+      'box-set' => 'bundle_release',
+      'media' => 'work',
+      _ => normalized,
+    };
     for (final type in CatalogEntityType.values) {
-      if (type.apiValue == normalized) {
+      if (type.apiValue == alias) {
         return type;
       }
     }
@@ -53,7 +67,8 @@ class CatalogEntityRef {
   factory CatalogEntityRef.fromJson(Map<String, dynamic> json) {
     return CatalogEntityRef(
       kind: json['kind'] as String? ?? 'unknown',
-      entityType: CatalogEntityType.fromApiValue(json['entity_type'] as String?),
+      entityType:
+          CatalogEntityType.fromApiValue(json['entity_type'] as String?),
       id: json['id'] as String? ?? '',
     );
   }

@@ -1,10 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -32,19 +29,12 @@ LibraryWorkspaceEntry buildBooksLibraryReleaseEntry(
 
 LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
   final item = source.catalogItem!;
-  final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
-    item,
-    ownedItems: source.ownedItem == null
-        ? const <OwnedItem>[]
-        : [source.ownedItem!],
-    wishlistItems: source.wishlistItem == null
-        ? const <WishlistItem>[]
-        : [source.wishlistItem!],
-  );
+  final resolvedEditions = item.editions;
   final primaryRelease = _resolvePrimaryBookRelease(resolvedEditions);
-  final primaryReleaseCoverUrl = _primaryBookReleaseCover(primaryRelease.edition) ??
-      primaryRelease.variant?.thumbnailImageUrl ??
-      primaryRelease.variant?.coverImageUrl;
+  final primaryReleaseCoverUrl =
+      _primaryBookReleaseCover(primaryRelease.edition) ??
+          primaryRelease.variant?.thumbnailImageUrl ??
+          primaryRelease.variant?.coverImageUrl;
   return LibraryWorkspaceEntryData(
     id: item.id,
     browseScope: LibraryBrowserScope.title,
@@ -93,16 +83,14 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
       editions: resolvedEditions,
       fallbackFormatLabel: item.physicalFormatLabel,
     ),
-    referenceEditionId:
-        source.ownedItem?.editionId ??
-            source.wishlistItem?.editionId ??
-            primaryRelease.edition?.id,
-    referenceVariantId:
-        source.ownedItem?.variantId ??
-            source.wishlistItem?.variantId ??
-            primaryRelease.variant?.id,
-    referenceBundleReleaseId:
-        source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
+    referenceEditionId: source.ownedItem?.editionId ??
+        source.wishlistItem?.editionId ??
+        primaryRelease.edition?.id,
+    referenceVariantId: source.ownedItem?.variantId ??
+        source.wishlistItem?.variantId ??
+        primaryRelease.variant?.id,
+    referenceBundleReleaseId: source.ownedItem?.bundleReleaseId ??
+        source.wishlistItem?.bundleReleaseId,
     notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
     tags: source.ownedItem?.tags,
     collectionStatus: source.ownedItem?.collectionStatus,
@@ -128,8 +116,8 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(ShelfEntry source) {
   );
 }
 
-({CatalogEdition? edition, CatalogVariant? variant})
-    _resolvePrimaryBookRelease(List<CatalogEdition> editions) {
+({CatalogEdition? edition, CatalogVariant? variant}) _resolvePrimaryBookRelease(
+    List<CatalogEdition> editions) {
   for (final edition in editions) {
     for (final variant in edition.variants) {
       if (variant.isPrimary) {
@@ -227,8 +215,8 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     grade: null,
     primaryReferenceLabel: null,
     referenceScopeLabel: null,
-    referenceFormatLabel:
-        primaryVariant?.physicalFormatLabel ?? request.edition.physicalFormatLabel,
+    referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
+        request.edition.physicalFormatLabel,
     referenceEditionId: request.referenceEditionId ?? request.edition.id,
     referenceVariantId: request.referenceVariantId ?? primaryVariant?.id,
     referenceBundleReleaseId: request.referenceBundleReleaseId,

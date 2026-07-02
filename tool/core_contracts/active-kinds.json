@@ -1,0 +1,13 @@
+{
+  "active_kinds": [
+    "comic",
+    "manga",
+    "anime",
+    "book",
+    "game",
+    "boardgame",
+    "movie",
+    "tv",
+    "music"
+  ]
+}

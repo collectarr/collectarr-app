@@ -157,7 +157,8 @@ void main() {
 
     expect(payload['catalog_number'], 'DISC-2001');
     expect(payload['track_count'], 2);
-    expect(((payload['tracks'] as List).first as Map)['title'], 'One More Time');
+    expect(
+        ((payload['tracks'] as List).first as Map)['title'], 'One More Time');
     final editionPayload = (payload['editions'] as List).single as Map;
     expect(editionPayload['title'], 'Deluxe CD');
     expect(editionPayload.containsKey('metadata_json'), isFalse);
@@ -294,7 +295,8 @@ void main() {
     expect(episode.runtimeMinutes, isNull);
   });
 
-  test('loan parses optional invalid dates as null and guards required fields', () {
+  test('loan parses optional invalid dates as null and guards required fields',
+      () {
     final loan = Loan.fromJson({
       'id': 'loan-1',
       'owned_item_id': 'owned-1',
@@ -327,7 +329,8 @@ void main() {
 
     expect(smartList.quickView, isNull);
     expect(smartList.sortColumn, isNull);
-    expect(smartList.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
+    expect(
+        smartList.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
   });
 
   test('comic detail parses editions and variants', () {
@@ -508,5 +511,43 @@ void main() {
     expect(payload['item_id'], 'comic-1');
     expect(payload['target_price_cents'], 999);
     expect(payload['created_at'], '2026-05-11T00:00:00.000Z');
+  });
+
+  test('catalog entity ref parses bundle release aliases', () {
+    final ref = CatalogEntityRef.fromJson({
+      'kind': 'book',
+      'entity_type': 'bundle-release',
+      'id': 'bundle-1',
+    });
+
+    expect(ref.entityType, CatalogEntityType.bundleRelease);
+    expect(ref.isKnown, isTrue);
+    expect(ref.toJson()['entity_type'], 'bundle_release');
+  });
+
+  test('metadata field spec captures routing metadata', () {
+    final spec = MetadataFieldSpec.fromJson({
+      'key': 'title',
+      'value_type': 'string',
+      'label': 'Title',
+      'common': true,
+      'typed': false,
+      'normalized': true,
+      'editable': true,
+      'section': 'item',
+      'input': 'text',
+      'kinds': ['book'],
+      'scope': 'work',
+      'write_target': 'core_canonical',
+      'source_entity_type': 'book_work',
+      'source_table': 'book_works',
+      'is_legacy_projection': false,
+    });
+
+    expect(spec.scope, MetadataFieldScope.work);
+    expect(spec.writeTarget, MetadataWriteTarget.coreCanonical);
+    expect(spec.sourceEntityType, 'book_work');
+    expect(spec.sourceTable, 'book_works');
+    expect(spec.isLegacyProjection, isFalse);
   });
 }

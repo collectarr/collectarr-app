@@ -1,0 +1,10 @@
+{
+  "source_repo": "collectarr-core",
+  "source_docs_dir": "docs",
+  "files": [
+    "openapi.json",
+    "field-schema.md",
+    "provider-support.md",
+    "implementation-plan.md"
+  ]
+}
