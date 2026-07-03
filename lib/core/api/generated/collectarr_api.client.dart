@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
+import 'collectarr_api.models.dart';
 import 'package:dio/dio.dart';
 
 class CollectarrApiClient {
@@ -60,7 +60,7 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<CatalogTypedDto> getTypedMetadataItemDto({
+  Future<TypedMetadataResponse> getTypedMetadataItemDto({
     required String kind,
     required String id,
   }) async {
@@ -99,7 +99,7 @@ class CollectarrApiClient {
     }
   }
 
-  Future<T> _fetchTypedMetadataItem<T extends CatalogTypedDto>(
+  Future<T> _fetchTypedMetadataItem<T extends TypedMetadataResponse>(
     String path,
     T Function(Map<String, dynamic>) factory,
   ) async {
@@ -111,105 +111,105 @@ class CollectarrApiClient {
     return factory(_resolveImageUrls(data));
   }
 
-  Future<BookWorkDto> getBookWorkDto(String id) {
+  Future<BookWorkV1Response> getBookWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/books/works/${Uri.encodeComponent(id)}',
-      BookWorkDto.fromJson,
+      BookWorkV1Response.fromJson,
     );
   }
 
-  Future<ComicWorkDto> getComicWorkDto(String id) {
+  Future<ComicWorkV1Response> getComicWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/comics/works/${Uri.encodeComponent(id)}',
-      ComicWorkDto.fromJson,
+      ComicWorkV1Response.fromJson,
     );
   }
 
-  Future<MangaWorkDto> getMangaWorkDto(String id) {
+  Future<MangaWorkV1Response> getMangaWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/manga/works/${Uri.encodeComponent(id)}',
-      MangaWorkDto.fromJson,
+      MangaWorkV1Response.fromJson,
     );
   }
 
-  Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
+  Future<AnimeSeriesV1Response> getAnimeSeriesDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/anime/series/${Uri.encodeComponent(id)}',
-      AnimeSeriesDto.fromJson,
+      AnimeSeriesV1Response.fromJson,
     );
   }
 
-  Future<MovieWorkDto> getMovieWorkDto(String id) {
+  Future<MovieWorkV1Response> getMovieWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/movies/works/${Uri.encodeComponent(id)}',
-      MovieWorkDto.fromJson,
+      MovieWorkV1Response.fromJson,
     );
   }
 
-  Future<TvSeriesDto> getTvSeriesDto(String id) {
+  Future<TVSeriesV1Response> getTvSeriesDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/tv/series/${Uri.encodeComponent(id)}',
-      TvSeriesDto.fromJson,
+      TVSeriesV1Response.fromJson,
     );
   }
 
-  Future<GameWorkDto> getGameWorkDto(String id) {
+  Future<GameWorkV1Response> getGameWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/games/works/${Uri.encodeComponent(id)}',
-      GameWorkDto.fromJson,
+      GameWorkV1Response.fromJson,
     );
   }
 
-  Future<GameReleaseDto> getGameReleaseDto(String id) {
+  Future<GameReleaseV1Response> getGameReleaseDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/games/releases/${Uri.encodeComponent(id)}',
-      GameReleaseDto.fromJson,
+      GameReleaseV1Response.fromJson,
     );
   }
 
-  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
+  Future<BoardGameWorkV1Response> getBoardGameWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/boardgames/works/${Uri.encodeComponent(id)}',
-      BoardGameWorkDto.fromJson,
+      BoardGameWorkV1Response.fromJson,
     );
   }
 
-  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
+  Future<BoardGameEditionV1Response> getBoardGameEditionDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/boardgames/editions/${Uri.encodeComponent(id)}',
-      BoardGameEditionDto.fromJson,
+      BoardGameEditionV1Response.fromJson,
     );
   }
 
-  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
+  Future<MusicReleaseV1Response> getMusicReleaseDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/releases/${Uri.encodeComponent(id)}',
-      MusicReleaseDto.fromJson,
+      MusicReleaseV1Response.fromJson,
     );
   }
 
-  Future<MusicMediaDto> getMusicMediaDto(String id) {
+  Future<MusicMediaV1Response> getMusicMediaDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/media/${Uri.encodeComponent(id)}',
-      MusicMediaDto.fromJson,
+      MusicMediaV1Response.fromJson,
     );
   }
 
-  Future<MusicTrackDto> getMusicTrackDto(String id) {
+  Future<MusicTrackV1Response> getMusicTrackDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/tracks/${Uri.encodeComponent(id)}',
-      MusicTrackDto.fromJson,
+      MusicTrackV1Response.fromJson,
     );
   }
 
-  CatalogTypedDto _legacyTypedDtoFromJson(Map<String, dynamic> json) {
+  TypedMetadataResponse _legacyTypedDtoFromJson(Map<String, dynamic> json) {
     final kind = json['kind']?.toString().toLowerCase();
     return switch (kind) {
-      'book' => BookWorkDto.fromJson(json),
-      'game' => GameWorkDto.fromJson(json),
-      'boardgame' => BoardGameWorkDto.fromJson(json),
-      'music' => MusicReleaseDto.fromJson(json),
-      _ => _FallbackTypedDto(json),
+      'book' => BookWorkV1Response.fromJson(json),
+      'game' => GameWorkV1Response.fromJson(json),
+      'boardgame' => BoardGameWorkV1Response.fromJson(json),
+      'music' => MusicReleaseV1Response.fromJson(json),
+      _ => _FallbackTypedResponse(json),
     };
   }
 
@@ -405,6 +405,7 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
+  @Deprecated('Use kind-specific typed edition creation endpoints when available.')
   Future<CatalogEdition> createEdition(
     String itemId, {
     required String title,
@@ -442,7 +443,7 @@ class CollectarrApiClient {
     return CatalogMetadataDto.fromJson(_resolveImageUrls(data));
   }
 
-  List<Season> _seasonsFromMangaChapters(MangaWorkDto dto) {
+  List<Season> _seasonsFromMangaChapters(MangaWorkV1Response dto) {
     if (dto.chapters.isEmpty) {
       return const [];
     }
@@ -466,7 +467,7 @@ class CollectarrApiClient {
     ];
   }
 
-  List<Season> _seasonsFromAnimeEpisodes(AnimeSeriesDto dto) {
+  List<Season> _seasonsFromAnimeEpisodes(AnimeSeriesV1Response dto) {
     if (dto.episodes.isEmpty) {
       return const [];
     }
@@ -491,8 +492,8 @@ class CollectarrApiClient {
   }
 }
 
-class _FallbackTypedDto extends CatalogTypedDto {
-  _FallbackTypedDto(super.raw)
+class _FallbackTypedResponse extends TypedMetadataResponse {
+  _FallbackTypedResponse(super.raw)
       : id = raw['id']?.toString() ?? '',
         title = raw['title']?.toString() ?? 'Untitled item',
         kind = raw['kind']?.toString(),
