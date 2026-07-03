@@ -104,7 +104,7 @@ void main() {
       ],
     );
 
-    final entry = buildBooksLibraryWorkspaceEntryFromShelf(
+    final entry = buildBookWorkspaceEntryFromShelf(
       ShelfEntry(itemId: 'book-1', catalogItem: item),
     );
 
@@ -137,7 +137,9 @@ void main() {
       entry(id: '2', title: 'Series', itemNumber: '10'),
       entry(id: '1', title: 'Series', itemNumber: '2'),
       entry(id: '3', title: 'Series', itemNumber: 'A'),
-    ], const [LibrarySortRule(column: LibrarySortColumn.issue, ascending: true)]);
+    ], const [
+      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true)
+    ]);
 
     expect(items.map((item) => item.itemNumber), ['2', '10', 'A']);
   });
@@ -146,7 +148,9 @@ void main() {
     final items = sortByRules([
       entry(id: '1', title: 'Missing'),
       entry(id: '2', title: 'Owned', isOwned: true),
-    ], const [LibrarySortRule(column: LibrarySortColumn.status, ascending: true)]);
+    ], const [
+      LibrarySortRule(column: LibrarySortColumn.status, ascending: true)
+    ]);
 
     expect(items.map((item) => item.title), ['Owned', 'Missing']);
   });
@@ -156,7 +160,9 @@ void main() {
       entry(id: '1', title: 'No price'),
       entry(id: '2', title: 'Low price', pricePaidCents: 100),
       entry(id: '3', title: 'High price', pricePaidCents: 500),
-    ], const [LibrarySortRule(column: LibrarySortColumn.price, ascending: true)]);
+    ], const [
+      LibrarySortRule(column: LibrarySortColumn.price, ascending: true)
+    ]);
 
     expect(
       items.map((item) => item.title),
@@ -169,7 +175,9 @@ void main() {
       entry(id: '2', title: 'Issue B', seriesTitle: 'Zoo Crew'),
       entry(id: '1', title: 'Issue A', seriesTitle: 'Alpha Flight'),
       entry(id: '3', title: 'Issue C'),
-    ], const [LibrarySortRule(column: LibrarySortColumn.series, ascending: true)]);
+    ], const [
+      LibrarySortRule(column: LibrarySortColumn.series, ascending: true)
+    ]);
 
     expect(items.map((item) => item.title), ['Issue A', 'Issue B', 'Issue C']);
   });
@@ -178,16 +186,23 @@ void main() {
     final items = sortByRules([
       entry(id: '1', title: 'Regular issue'),
       entry(id: '2', title: 'Key issue', keyComic: true),
-    ], const [LibrarySortRule(column: LibrarySortColumn.keyComic, ascending: true)]);
+    ], const [
+      LibrarySortRule(column: LibrarySortColumn.keyComic, ascending: true)
+    ]);
 
     expect(items.map((item) => item.title), ['Key issue', 'Regular issue']);
   });
 
   test('adapter applies secondary sort rules before title fallback', () {
     final items = sortByRules([
-      entry(id: '2', title: 'Owned later issue', isOwned: true, itemNumber: '10'),
+      entry(
+          id: '2', title: 'Owned later issue', isOwned: true, itemNumber: '10'),
       entry(id: '3', title: 'Missing issue', itemNumber: '1'),
-      entry(id: '1', title: 'Owned earlier issue', isOwned: true, itemNumber: '2'),
+      entry(
+          id: '1',
+          title: 'Owned earlier issue',
+          isOwned: true,
+          itemNumber: '2'),
     ], const [
       LibrarySortRule(column: LibrarySortColumn.status, ascending: true),
       LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
@@ -241,7 +256,8 @@ void main() {
         home: Material(
           child: Column(
             children: [
-              comicsMediaAdapter.buildTableCell(item, LibraryTableColumn.format),
+              comicsMediaAdapter.buildTableCell(
+                  item, LibraryTableColumn.format),
               comicsMediaAdapter.buildTableCell(item, LibraryTableColumn.added),
             ],
           ),

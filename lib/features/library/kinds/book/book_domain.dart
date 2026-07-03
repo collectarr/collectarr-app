@@ -1,7 +1,6 @@
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BookVariant {
   const BookVariant({
@@ -96,7 +95,8 @@ final class BookEdition {
       physicalFormat: edition.physicalFormat,
       physicalFormatLabel: edition.physicalFormatLabel,
       variants: [
-        for (final variant in edition.variants) BookVariant.fromCatalogVariant(variant),
+        for (final variant in edition.variants)
+          BookVariant.fromCatalogVariant(variant),
       ],
     );
   }
@@ -187,7 +187,8 @@ final class BookWork {
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
-  String? get displayEditionLabel => variant ?? (editions.isNotEmpty ? editions.first.title : null);
+  String? get displayEditionLabel =>
+      variant ?? (editions.isNotEmpty ? editions.first.title : null);
 
   bool get hasMissingCoreMetadata =>
       publisher == null &&
@@ -196,14 +197,15 @@ final class BookWork {
       displayCoverUrl == null &&
       displayEditionLabel == null;
 
-  factory BookWork.fromCatalogItem(CatalogItem item) {
+  factory BookWork.fromMetadataItem(LibraryMetadataItem item) {
     return BookWork(
       id: item.id,
       title: item.title,
       displayTitle: item.displayTitle,
       localizedTitle: item.localizedTitle,
       originalTitle: item.originalTitle,
-      searchAliases: List<String>.unmodifiable(item.searchAliases ?? const <String>[]),
+      searchAliases:
+          List<String>.unmodifiable(item.searchAliases ?? const <String>[]),
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
       coverImageUrl: item.coverImageUrl,
@@ -218,7 +220,8 @@ final class BookWork {
       series: item.series,
       publishing: item.publishing,
       editions: [
-        for (final edition in item.editions) BookEdition.fromCatalogEdition(edition),
+        for (final edition in item.editions)
+          BookEdition.fromCatalogEdition(edition),
       ],
       trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
       plotSummary: item.plotSummary,
@@ -226,9 +229,11 @@ final class BookWork {
       creators: item.creators == null
           ? null
           : List<Map<String, dynamic>>.unmodifiable(
-              item.creators!.map((value) => Map<String, dynamic>.unmodifiable(value)),
+              item.creators!
+                  .map((value) => Map<String, dynamic>.unmodifiable(value)),
             ),
-      characters: List<String>.unmodifiable(item.characters ?? const <String>[]),
+      characters:
+          List<String>.unmodifiable(item.characters ?? const <String>[]),
       storyArcs: List<String>.unmodifiable(item.storyArcs ?? const <String>[]),
       genres: List<String>.unmodifiable(item.genres ?? const <String>[]),
       country: item.country,
@@ -236,49 +241,6 @@ final class BookWork {
       ageRating: item.ageRating,
       audienceRating: item.audienceRating,
       physicalFormatLabel: item.physicalFormatLabel,
-    );
-  }
-
-  factory BookWork.fromWorkspaceEntry(LibraryWorkspaceEntry entry) {
-    return BookWork(
-      id: entry.id,
-      title: entry.title,
-      displayTitle: entry.displayTitle,
-      localizedTitle: entry.localizedTitle,
-      originalTitle: entry.originalTitle,
-      searchAliases: List<String>.unmodifiable(entry.searchAliases ?? const <String>[]),
-      itemNumber: entry.itemNumber,
-      synopsis: entry.synopsis,
-      coverImageUrl: entry.coverImageUrl,
-      thumbnailImageUrl: entry.thumbnailImageUrl,
-      publisher: entry.publisher,
-      coverDate: entry.coverDate,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-      barcode: entry.barcode,
-      variant: entry.variant,
-      crossover: entry.crossover,
-      series: entry.series,
-      publishing: entry.publishing,
-      editions: [
-        for (final edition in entry.editions) BookEdition.fromCatalogEdition(edition),
-      ],
-      trailerUrls: List<TrailerLink>.unmodifiable(entry.trailerUrls),
-      plotSummary: entry.plotSummary,
-      plotDescription: entry.plotDescription,
-      creators: entry.creators == null
-          ? null
-          : List<Map<String, dynamic>>.unmodifiable(
-              entry.creators!.map((value) => Map<String, dynamic>.unmodifiable(value)),
-            ),
-      characters: List<String>.unmodifiable(entry.characters ?? const <String>[]),
-      storyArcs: List<String>.unmodifiable(entry.storyArcs ?? const <String>[]),
-      genres: List<String>.unmodifiable(entry.genres ?? const <String>[]),
-      country: entry.country,
-      language: entry.language,
-      ageRating: entry.ageRating,
-      audienceRating: entry.audienceRating,
-      physicalFormatLabel: entry.referenceFormatLabel,
     );
   }
 
@@ -301,11 +263,14 @@ final class BookWork {
       crossover: dto.crossoverValue,
       searchAliases: List<String>.unmodifiable(dto.searchAliases),
       genres: List<String>.unmodifiable(dto.genres),
-      series: dto.series.isEmpty ? null : CatalogSeriesDetails(seriesTitle: dto.series.first),
+      series: dto.series.isEmpty
+          ? null
+          : CatalogSeriesDetails(seriesTitle: dto.series.first),
       publishing: editions.isEmpty && dto.physicalFormatLabelValue == null
           ? null
           : CatalogPublishingDetails(
-              pageCount: dto.editions.isEmpty ? null : dto.editions.first.pageCount,
+              pageCount:
+                  dto.editions.isEmpty ? null : dto.editions.first.pageCount,
               subtitle: dto.physicalFormatLabelValue,
               originalLanguage: dto.languageValue,
               originalPublicationDate: dto.releaseDate,
@@ -315,7 +280,9 @@ final class BookWork {
       editions: editions,
       plotSummary: dto.plotSummaryValue,
       plotDescription: dto.plotDescriptionValue,
-      creators: dto.creatorValues.isEmpty ? null : List<Map<String, dynamic>>.unmodifiable(dto.creatorValues),
+      creators: dto.creatorValues.isEmpty
+          ? null
+          : List<Map<String, dynamic>>.unmodifiable(dto.creatorValues),
       characters: List<String>.unmodifiable(dto.characterNames),
       storyArcs: List<String>.unmodifiable(dto.storyArcNames),
       country: dto.countryValue,
