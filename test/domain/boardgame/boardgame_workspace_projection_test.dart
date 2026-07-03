@@ -1,6 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,25 +6,26 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('boardgame workspace entry stays domain-first and avoids raw platforms',
       () {
-    final item = CatalogItem(
+    final work = BoardGameWork(
       id: 'boardgame-1',
-      kind: 'boardgame',
       title: 'Example Board Game',
+      contributors: const ['Klaus Teuber'],
+      categories: const ['strategy'],
+      mechanics: const ['dice rolling'],
       editions: [
-        CatalogEdition(
+        BoardGameEdition(
           id: 'edition-1',
           title: 'Core Box',
           format: 'Deluxe',
+          publisher: 'Kosmos',
+          releaseDate: DateTime.utc(1995, 1, 1),
         ),
       ],
-      genres: ['strategy'],
     );
 
     final entry = buildBoardGameWorkspaceEntry(
-      BoardGameWork.fromCatalogItem(item),
-      BoardGamePersonalOverlay.fromShelfEntry(
-        ShelfEntry(itemId: 'boardgame-1', catalogItem: item),
-      ),
+      work,
+      const BoardGamePersonalOverlay(),
     );
 
     expect(entry, isA<BoardGameWorkspaceEntry>());

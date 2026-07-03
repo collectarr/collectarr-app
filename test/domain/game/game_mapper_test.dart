@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 
 void main() {
   test('game work dto preserves typed collections', () {
