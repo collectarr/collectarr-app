@@ -735,7 +735,33 @@ class ApiClient {
     String itemId, {
     String? kind,
   }) async {
-    return _catalogApi.getItemVolumes(itemId, kind: kind);
+    final normalizedKind = kind?.trim().toLowerCase();
+    if (normalizedKind == 'manga') {
+      final dto = await getMangaWorkDto(itemId);
+      final chapters = dto.chapters.cast<Map<String, dynamic>>();
+      if (chapters.isEmpty) {
+        return const <Season>[];
+      }
+      return [
+        Season(
+          seasonNumber: 1,
+          title: dto.title,
+          episodeCount: chapters.length,
+          episodes: [
+            for (final chapter in chapters)
+              Episode(
+                episodeNumber: int.tryParse(chapter['chapter_number']?.toString() ?? '') ?? 0,
+                title: chapter['chapter_title']?.toString() ??
+                    chapter['title']?.toString() ??
+                    'Chapter',
+                airDate: chapter['publication_date']?.toString(),
+                pageCount: int.tryParse(chapter['page_count']?.toString() ?? ''),
+              ),
+          ],
+        ),
+      ];
+    }
+    return const <Season>[];
   }
 
   @Deprecated('Use kind-specific typed routes instead.')
@@ -743,7 +769,40 @@ class ApiClient {
     String itemId, {
     String? kind,
   }) async {
-    return _catalogApi.getItemSeasons(itemId, kind: kind);
+    final normalizedKind = kind?.trim().toLowerCase();
+    if (normalizedKind == 'anime') {
+      final dto = await getAnimeSeriesDto(itemId);
+      final episodes = dto.episodes.cast<Map<String, dynamic>>();
+      if (episodes.isEmpty) {
+        return const <Season>[];
+      }
+      return [
+        Season(
+          seasonNumber: 1,
+          title: dto.title,
+          episodeCount: episodes.length,
+          episodes: [
+            for (final episode in episodes)
+              Episode(
+                episodeNumber: int.tryParse(episode['episode_number']?.toString() ?? '') ?? 0,
+                title: episode['episode_title']?.toString() ??
+                    episode['title']?.toString() ??
+                    'Episode',
+                airDate: episode['air_date']?.toString(),
+                runtimeMinutes: int.tryParse(episode['runtime_minutes']?.toString() ?? ''),
+              ),
+          ],
+        ),
+      ];
+    }
+    if (normalizedKind == 'tv') {
+      final dto = await getTvSeriesDto(itemId);
+      final seasons = dto.seasons.cast<Map<String, dynamic>>();
+      return [
+        for (final season in seasons) Season.fromJson(season),
+      ];
+    }
+    return const <Season>[];
   }
 
   @Deprecated('Use kind-specific edition/release creation routes instead.')

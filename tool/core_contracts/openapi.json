@@ -12874,6 +12874,7 @@
         },
         "summary": "Get Anime Episode",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -12917,6 +12918,7 @@
         },
         "summary": "Get Anime Series",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -12964,6 +12966,7 @@
         },
         "summary": "Get Anime Series Episodes",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13007,6 +13010,7 @@
         },
         "summary": "Get Boardgame Edition",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13050,6 +13054,7 @@
         },
         "summary": "Get Boardgame Work",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13097,6 +13102,7 @@
         },
         "summary": "Get Boardgame Work Editions",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13140,6 +13146,7 @@
         },
         "summary": "Get Book Edition",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13183,6 +13190,7 @@
         },
         "summary": "Get Book Work",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13230,6 +13238,7 @@
         },
         "summary": "Get Book Work Editions",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13273,6 +13282,7 @@
         },
         "summary": "Get Comic Issue",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13316,6 +13326,7 @@
         },
         "summary": "Get Comic Work",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13363,6 +13374,7 @@
         },
         "summary": "Get Comic Work Issues",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13450,6 +13462,7 @@
         },
         "summary": "Get Game Release",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13493,6 +13506,7 @@
         },
         "summary": "Get Game Work",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13540,100 +13554,7 @@
         },
         "summary": "Get Game Work Releases",
         "tags": [
-          "metadata"
-        ]
-      }
-    },
-    "/metadata/items/{item_id}/seasons": {
-      "get": {
-        "operationId": "get_item_seasons_metadata_items__item_id__seasons_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "item_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Item Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/SeasonResponse"
-                  },
-                  "title": "Response Get Item Seasons Metadata Items  Item Id  Seasons Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Item Seasons",
-        "tags": [
-          "metadata"
-        ]
-      }
-    },
-    "/metadata/items/{item_id}/volumes": {
-      "get": {
-        "operationId": "get_item_volumes_metadata_items__item_id__volumes_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "item_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Item Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/SeasonResponse"
-                  },
-                  "title": "Response Get Item Volumes Metadata Items  Item Id  Volumes Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Item Volumes",
-        "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13677,6 +13598,7 @@
         },
         "summary": "Get Manga Chapter",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13720,6 +13642,7 @@
         },
         "summary": "Get Manga Work",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13767,6 +13690,7 @@
         },
         "summary": "Get Manga Work Chapters",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13831,6 +13755,7 @@
         },
         "summary": "Get Movie Release",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13874,6 +13799,7 @@
         },
         "summary": "Get Movie Work",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13921,6 +13847,7 @@
         },
         "summary": "Get Movie Work Releases",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -13964,6 +13891,7 @@
         },
         "summary": "Get Music Media",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14011,6 +13939,7 @@
         },
         "summary": "Get Music Media Tracks",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14054,6 +13983,7 @@
         },
         "summary": "Get Music Release",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14101,6 +14031,7 @@
         },
         "summary": "Get Music Release Media",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14144,6 +14075,7 @@
         },
         "summary": "Get Music Track",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14798,6 +14730,7 @@
         },
         "summary": "Get Tv Episode",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14841,6 +14774,7 @@
         },
         "summary": "Get Tv Series",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }
@@ -14888,6 +14822,7 @@
         },
         "summary": "Get Tv Series Seasons",
         "tags": [
+          "metadata",
           "metadata"
         ]
       }

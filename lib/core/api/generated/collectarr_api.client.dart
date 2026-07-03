@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/season.dart';
+
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
@@ -355,56 +355,6 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<List<Season>> getItemVolumes(
-    String itemId, {
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    if (normalizedKind == 'manga') {
-      final dto = await getMangaWorkDto(itemId);
-      return _seasonsFromMangaChapters(dto);
-    }
-    final response = await _dio.get<List<dynamic>>(
-      '/metadata/items/${Uri.encodeComponent(itemId)}/volumes',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(Season.fromJson)
-        .toList(growable: false);
-  }
-
-  Future<List<Season>> getItemSeasons(
-    String itemId, {
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    if (normalizedKind == 'anime') {
-      final dto = await getAnimeSeriesDto(itemId);
-      return _seasonsFromAnimeEpisodes(dto);
-    }
-    if (normalizedKind == 'tv') {
-      final dto = await getTvSeriesDto(itemId);
-      return [
-        for (final season in dto.seasons) Season.fromJson(season),
-      ];
-    }
-    final response = await _dio.get<List<dynamic>>(
-      '/metadata/items/${Uri.encodeComponent(itemId)}/seasons',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(Season.fromJson)
-        .toList(growable: false);
-  }
-
   Future<CatalogEdition> createBookEdition(
     String workId, {
     required String title,
@@ -485,53 +435,6 @@ class CollectarrApiClient {
     return CatalogMetadataDto.fromJson(_resolveImageUrls(data));
   }
 
-  List<Season> _seasonsFromMangaChapters(MangaWorkDto dto) {
-    if (dto.chapters.isEmpty) {
-      return const [];
-    }
-    return [
-      Season(
-        seasonNumber: 1,
-        title: dto.title,
-        episodeCount: dto.chapters.length,
-        episodes: [
-          for (final chapter in dto.chapters)
-            Episode(
-              episodeNumber: _intValue(chapter['chapter_number']) ?? 0,
-              title: chapter['chapter_title']?.toString() ??
-                  chapter['title']?.toString() ??
-                  'Chapter',
-              airDate: chapter['publication_date']?.toString(),
-              pageCount: _intValue(chapter['page_count']),
-            ),
-        ],
-      ),
-    ];
-  }
-
-  List<Season> _seasonsFromAnimeEpisodes(AnimeSeriesDto dto) {
-    if (dto.episodes.isEmpty) {
-      return const [];
-    }
-    return [
-      Season(
-        seasonNumber: 1,
-        title: dto.title,
-        episodeCount: dto.episodes.length,
-        episodes: [
-          for (final episode in dto.episodes)
-            Episode(
-              episodeNumber: _intValue(episode['episode_number']) ?? 0,
-              title: episode['episode_title']?.toString() ??
-                  episode['title']?.toString() ??
-                  'Episode',
-              airDate: episode['air_date']?.toString(),
-              runtimeMinutes: _intValue(episode['runtime_minutes']),
-            ),
-        ],
-      ),
-    ];
-  }
 }
 
 class _FallbackTypedResponse extends TypedMetadataResponse {
@@ -558,17 +461,4 @@ class _FallbackTypedResponse extends TypedMetadataResponse {
   final String? thumbnailImageUrl;
   @override
   final String? barcode;
-}
-
-int? _intValue(Object? value) {
-  if (value is int) {
-    return value;
-  }
-  if (value is num) {
-    return value.toInt();
-  }
-  if (value is String) {
-    return int.tryParse(value);
-  }
-  return null;
 }
