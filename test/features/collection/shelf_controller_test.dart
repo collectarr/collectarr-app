@@ -1,9 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -85,5 +87,60 @@ void main() {
     expect(state.entries.first.title, 'Saga #1');
     expect(state.entries.first.watchSessions.single.sourceType, TrackingSourceType.streaming);
     expect(state.entries.first.itemImages.single.imageType, 'back_cover');
+  });
+
+  test('shelf state keys records by catalog ref id', () {
+    final state = ShelfState.from(
+      ownedItems: [
+        OwnedItem(
+          id: 'owned-1',
+          itemId: 'legacy-owned-1',
+          catalogRef: const CatalogEntityRef(
+            kind: 'book',
+            entityType: CatalogEntityType.work,
+            id: 'book-1',
+          ),
+          updatedAt: DateTime.utc(2026, 5, 11),
+        ),
+      ],
+      wishlistItems: [
+        WishlistItem(
+          id: 'wish-1',
+          itemId: 'legacy-wish-1',
+          catalogRef: const CatalogEntityRef(
+            kind: 'book',
+            entityType: CatalogEntityType.work,
+            id: 'book-1',
+          ),
+          createdAt: DateTime.utc(2026, 5, 9),
+          updatedAt: DateTime.utc(2026, 5, 9),
+        ),
+      ],
+      trackingEntries: [
+        TrackingEntry(
+          id: 'track-1',
+          itemId: 'legacy-track-1',
+          catalogRef: const CatalogEntityRef(
+            kind: 'book',
+            entityType: CatalogEntityType.work,
+            id: 'book-1',
+          ),
+          updatedAt: DateTime.utc(2026, 5, 8),
+        ),
+      ],
+      catalogItems: {
+        'book-1': CatalogItem(
+          id: 'book-1',
+          kind: 'book',
+          title: 'Catalog keyed by ref',
+        ),
+      },
+    );
+
+    expect(state.entries, hasLength(1));
+    expect(state.entries.single.itemId, 'book-1');
+    expect(state.entries.single.title, 'Catalog keyed by ref');
+    expect(state.ownedCount, 1);
+    expect(state.wishlistCount, 1);
   });
 }

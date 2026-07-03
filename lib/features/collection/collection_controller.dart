@@ -25,7 +25,7 @@ final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
-        if (!item.isDeleted) item.itemId: item,
+        if (!item.isDeleted) item.catalogRef.id: item,
     },
     orElse: () => const {},
   );
@@ -46,7 +46,7 @@ final trackingEntriesByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.itemId, () => <TrackingEntry>[]).add(item);
+        grouped.putIfAbsent(item.catalogRef.id, () => <TrackingEntry>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -115,7 +115,7 @@ final wishlistByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.itemId, () => <WishlistItem>[]).add(item);
+        grouped.putIfAbsent(item.catalogRef.id, () => <WishlistItem>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -131,7 +131,7 @@ final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
   final items = await cache.listActive();
   return {
     for (final item in items)
-      if (!item.isDeleted) item.itemId,
+      if (!item.isDeleted) item.catalogRef.id,
   };
 });
 
@@ -140,7 +140,7 @@ final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   final cache = WatchSessionsCacheRepository(db);
   // Load all active watch sessions — lightweight enough for typical libraries.
   final allItems = await OwnedItemsCacheRepository(db).listActive();
-  final itemIds = allItems.map((e) => e.itemId).toSet();
+  final itemIds = allItems.map((e) => e.catalogRef.id).toSet();
   return cache.listActiveByItemIds(itemIds);
 });
 

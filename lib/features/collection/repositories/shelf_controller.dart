@@ -22,9 +22,9 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
   final ids = {
-    for (final item in owned) item.itemId,
-    for (final item in wishlist) item.itemId,
-    for (final item in trackingEntries) item.itemId,
+    for (final item in owned) item.catalogRef.id,
+    for (final item in wishlist) item.catalogRef.id,
+    for (final item in trackingEntries) item.catalogRef.id,
   };
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
   final locations = await LocationRepository(db).getAll();
@@ -88,18 +88,18 @@ class ShelfState {
     };
     final ownedByItemId = {
       for (final item in ownedItems)
-        if (!item.isDeleted) item.itemId: item,
+        if (!item.isDeleted) item.catalogRef.id: item,
     };
     final wishlistByItemId = {
       for (final item in wishlistItems)
-        if (!item.isDeleted) item.itemId: item,
+        if (!item.isDeleted) item.catalogRef.id: item,
     };
     final trackingByItemId = <String, TrackingEntry>{};
     for (final entry in trackingEntries) {
-      if (entry.isDeleted || trackingByItemId.containsKey(entry.itemId)) {
+      if (entry.isDeleted || trackingByItemId.containsKey(entry.catalogRef.id)) {
         continue;
       }
-      trackingByItemId[entry.itemId] = entry;
+      trackingByItemId[entry.catalogRef.id] = entry;
     }
     final watchSessionsByItemId = <String, List<WatchSession>>{};
     for (final session in watchSessions) {
