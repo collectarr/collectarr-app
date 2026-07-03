@@ -92,7 +92,7 @@ class BookWorkDto extends TypedMetadataResponse {
   final List<String> searchAliases;
   final List<String> genres;
   final List<dynamic> contributors;
-  final List<dynamic> editions;
+  final List<BookEditionDto> editions;
   final List<dynamic> series;
   final DateTime? firstPublicationDate;
   final DateTime? originalPublicationDate;
@@ -105,11 +105,28 @@ class BookWorkDto extends TypedMetadataResponse {
   @override
   DateTime? get releaseDate => firstPublicationDate ?? originalPublicationDate;
   @override
-  String? get coverImageUrl => null;
+  String? get coverImageUrl => _nullableString(raw['cover_image_url']);
   @override
-  String? get thumbnailImageUrl => null;
+  String? get thumbnailImageUrl =>
+      _nullableString(raw['thumbnail_image_url']) ?? coverImageUrl;
   @override
-  String? get barcode => null;
+  String? get barcode => _nullableString(raw['barcode']);
+  String? get publisherName => _nullableString(raw['publisher']);
+  DateTime? get coverDateValue => _nullableDate(raw['cover_date']);
+  int? get releaseYearValue => _nullableInt(raw['release_year']);
+  String? get variantValue => _nullableString(raw['variant']);
+  String? get crossoverValue => _nullableString(raw['crossover']);
+  String? get plotSummaryValue => _nullableString(raw['plot_summary']);
+  String? get plotDescriptionValue => _nullableString(raw['plot_description']);
+  List<Map<String, dynamic>> get creatorValues => _mapList(raw['creators']);
+  List<String> get characterNames => _stringList(raw['characters']);
+  List<String> get storyArcNames => _stringList(raw['story_arcs']);
+  String? get countryValue => _nullableString(raw['country']);
+  String? get languageValue => _nullableString(raw['language']);
+  String? get ageRatingValue => _nullableString(raw['age_rating']);
+  String? get audienceRatingValue => _nullableString(raw['audience_rating']);
+  String? get physicalFormatLabelValue =>
+      _nullableString(raw['physical_format_label']);
 
   factory BookWorkDto.fromJson(Map<String, dynamic> json) {
     return BookWorkDto._(
@@ -119,7 +136,7 @@ class BookWorkDto extends TypedMetadataResponse {
       searchAliases: _stringList(json['search_aliases']),
       genres: _stringList(json['genres']),
       contributors: _dynamicList(json['contributors']),
-      editions: _dynamicList(json['editions']),
+      editions: _bookEditionList(json['editions']),
       series: _dynamicList(json['series']),
       firstPublicationDate: _nullableDate(json['first_publication_date']),
       originalPublicationDate: _nullableDate(
@@ -747,6 +764,26 @@ List<MusicTrackDto> _musicTrackList(dynamic value) {
   return [
     for (final entry in value)
       if (entry is Map<String, dynamic>) MusicTrackDto.fromJson(entry),
+  ];
+}
+
+List<BookEditionDto> _bookEditionList(dynamic value) {
+  if (value is! List) {
+    return const <BookEditionDto>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) BookEditionDto.fromJson(entry),
+  ];
+}
+
+List<Map<String, dynamic>> _mapList(dynamic value) {
+  if (value is! List) {
+    return const <Map<String, dynamic>>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) Map<String, dynamic>.from(entry),
   ];
 }
 

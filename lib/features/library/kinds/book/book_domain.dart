@@ -283,14 +283,46 @@ final class BookWork {
   }
 
   factory BookWork.fromDto(BookWorkDto dto) {
+    final editions = [
+      for (final edition in dto.editions) BookEdition.fromDto(edition),
+    ];
     return BookWork(
       id: dto.id,
       title: dto.title,
+      synopsis: dto.description,
+      coverImageUrl: dto.coverImageUrl,
+      thumbnailImageUrl: dto.thumbnailImageUrl,
+      publisher: dto.publisherName,
+      coverDate: dto.coverDateValue,
+      releaseDate: dto.releaseDate,
+      releaseYear: dto.releaseYearValue,
+      barcode: dto.barcode,
+      variant: dto.variantValue,
+      crossover: dto.crossoverValue,
       searchAliases: List<String>.unmodifiable(dto.searchAliases),
       genres: List<String>.unmodifiable(dto.genres),
-      series: dto.series.isEmpty
+      series: dto.series.isEmpty ? null : CatalogSeriesDetails(seriesTitle: dto.series.first),
+      publishing: editions.isEmpty && dto.physicalFormatLabelValue == null
           ? null
-          : CatalogSeriesDetails(seriesTitle: dto.series.first),
+          : CatalogPublishingDetails(
+              pageCount: dto.editions.isEmpty ? null : dto.editions.first.pageCount,
+              subtitle: dto.physicalFormatLabelValue,
+              originalLanguage: dto.languageValue,
+              originalPublicationDate: dto.releaseDate,
+              originalPublisher: dto.publisherName,
+              subjects: List<String>.unmodifiable(dto.genres),
+            ),
+      editions: editions,
+      plotSummary: dto.plotSummaryValue,
+      plotDescription: dto.plotDescriptionValue,
+      creators: dto.creatorValues.isEmpty ? null : List<Map<String, dynamic>>.unmodifiable(dto.creatorValues),
+      characters: List<String>.unmodifiable(dto.characterNames),
+      storyArcs: List<String>.unmodifiable(dto.storyArcNames),
+      country: dto.countryValue,
+      language: dto.languageValue,
+      ageRating: dto.ageRatingValue,
+      audienceRating: dto.audienceRatingValue,
+      physicalFormatLabel: dto.physicalFormatLabelValue,
     );
   }
 }
