@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class GameRelease {
   const GameRelease({
@@ -13,6 +14,7 @@ final class GameRelease {
     this.releaseStatus,
     this.language,
     this.barcode,
+    this.coverImageUrl,
   });
 
   final String id;
@@ -26,6 +28,7 @@ final class GameRelease {
   final String? releaseStatus;
   final String? language;
   final String? barcode;
+  final String? coverImageUrl;
 
   factory GameRelease.fromDto(GameReleaseDto dto) {
     return GameRelease(
@@ -40,6 +43,7 @@ final class GameRelease {
       releaseStatus: dto.releaseStatus,
       language: dto.language,
       barcode: dto.barcode,
+      coverImageUrl: dto.coverImageUrl,
     );
   }
 }
@@ -71,6 +75,55 @@ final class GameWork {
       identifiers: List<String>.unmodifiable(dto.identifiers),
       companyRoles: List<String>.unmodifiable(dto.companyRoles),
       ageRatings: List<String>.unmodifiable(dto.ageRatings),
+      releases: [
+        for (final release in dto.releases)
+          ..._gameReleasesFromDtoValue(release),
+      ],
     );
   }
+
+  factory GameWork.fromMetadataItem(LibraryMetadataItem item) {
+    final releases = [
+      for (final edition in item.editions)
+        GameRelease(
+          id: edition.id,
+          title: edition.title,
+          platform: item.game?.platforms.isNotEmpty == true
+              ? item.game!.platforms.first
+              : null,
+          releaseDate: edition.releaseDate,
+          format: edition.format,
+          publisher: edition.publisher,
+          catalogNumber: edition.upc,
+          releaseStatus: null,
+          language: edition.language,
+          barcode: edition.upc,
+          coverImageUrl: edition.variants.isNotEmpty
+              ? edition.variants.first.coverImageUrl
+              : null,
+        ),
+    ];
+    return GameWork(
+      id: item.id,
+      title: item.title,
+      platforms:
+          List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
+      identifiers: const <String>[],
+      companyRoles: const <String>[],
+      ageRatings: item.ageRating == null
+          ? const <String>[]
+          : List<String>.unmodifiable([item.ageRating!]),
+      releases: releases,
+    );
+  }
+}
+
+List<GameRelease> _gameReleasesFromDtoValue(Object? value) {
+  if (value is GameReleaseDto) {
+    return [GameRelease.fromDto(value)];
+  }
+  if (value is Map<String, dynamic>) {
+    return [GameRelease.fromDto(GameReleaseDto.fromJson(value))];
+  }
+  return const <GameRelease>[];
 }
