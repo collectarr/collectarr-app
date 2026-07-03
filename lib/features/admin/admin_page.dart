@@ -802,7 +802,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         entityId: item.id,
         limit: 8,
       );
-      final bundleReleases = await api.getItemBundleReleases(item.id);
       if (!mounted) {
         return;
       }
@@ -811,7 +810,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _inspectingItemId = null;
       });
       await _showCanonicalItemInspectionDialog(
-          fresh, auditLogs, bundleReleases);
+        fresh,
+        auditLogs,
+        const <BundleReleaseSummary>[],
+      );
     } catch (error) {
       if (!mounted) {
         return;
@@ -1506,8 +1508,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             entityId: itemId,
             limit: 8,
           );
-      final bundleReleases =
-          await ref.read(apiClientProvider).getItemBundleReleases(itemId);
       if (!mounted) {
         return;
       }
@@ -1515,7 +1515,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _lastIngest = null;
         _inspectingItemId = null;
       });
-      await _showCanonicalItemInspectionDialog(item, auditLogs, bundleReleases);
+      await _showCanonicalItemInspectionDialog(
+        item,
+        auditLogs,
+        const <BundleReleaseSummary>[],
+      );
     } catch (error) {
       if (!mounted) {
         return;

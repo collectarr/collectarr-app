@@ -184,11 +184,6 @@ class ApiClient {
     return _catalogApi.getMusicTrackDto(id);
   }
 
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(
-      String itemId) async {
-    return _catalogApi.getItemBundleReleases(itemId);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
@@ -691,10 +686,6 @@ class ApiClient {
     );
   }
 
-  Future<Map<String, dynamic>> getComic(String id) async {
-    return _catalogApi.getComic(id);
-  }
-
   Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
     return _catalogApi.getSeriesRelations(seriesId);
   }
@@ -707,14 +698,14 @@ class ApiClient {
     return _catalogApi.getSeriesItems(seriesId);
   }
 
-  Future<CatalogEdition> createBookEdition(
+  Future<BookEditionDto> createBookEdition(
     String workId, {
     required String title,
   }) {
     return _catalogApi.createBookEdition(workId, title: title);
   }
 
-  Future<CatalogEdition> createBoardGameEdition(
+  Future<BoardGameEditionDto> createBoardGameEdition(
     String workId, {
     required String title,
   }) {
@@ -733,85 +724,6 @@ class ApiClient {
     String providerItemId,
   ) async {
     return _providerApi.getProviderVolumes(provider, providerItemId);
-  }
-
-  Future<List<Season>> getItemVolumes(
-    String itemId, {
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    if (normalizedKind == 'manga') {
-      final dto = await getMangaWorkDto(itemId);
-      final chapters = dto.chapters.cast<Map<String, dynamic>>();
-      if (chapters.isEmpty) {
-        return const <Season>[];
-      }
-      return [
-        Season(
-          seasonNumber: 1,
-          title: dto.title,
-          episodeCount: chapters.length,
-          episodes: [
-            for (final chapter in chapters)
-              Episode(
-                episodeNumber:
-                    int.tryParse(chapter['chapter_number']?.toString() ?? '') ??
-                        0,
-                title: chapter['chapter_title']?.toString() ??
-                    chapter['title']?.toString() ??
-                    'Chapter',
-                airDate: chapter['publication_date']?.toString(),
-                pageCount:
-                    int.tryParse(chapter['page_count']?.toString() ?? ''),
-              ),
-          ],
-        ),
-      ];
-    }
-    return const <Season>[];
-  }
-
-  Future<List<Season>> getItemSeasons(
-    String itemId, {
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    if (normalizedKind == 'anime') {
-      final dto = await getAnimeSeriesDto(itemId);
-      final episodes = dto.episodes.cast<Map<String, dynamic>>();
-      if (episodes.isEmpty) {
-        return const <Season>[];
-      }
-      return [
-        Season(
-          seasonNumber: 1,
-          title: dto.title,
-          episodeCount: episodes.length,
-          episodes: [
-            for (final episode in episodes)
-              Episode(
-                episodeNumber:
-                    int.tryParse(episode['episode_number']?.toString() ?? '') ??
-                        0,
-                title: episode['episode_title']?.toString() ??
-                    episode['title']?.toString() ??
-                    'Episode',
-                airDate: episode['air_date']?.toString(),
-                runtimeMinutes:
-                    int.tryParse(episode['runtime_minutes']?.toString() ?? ''),
-              ),
-          ],
-        ),
-      ];
-    }
-    if (normalizedKind == 'tv') {
-      final dto = await getTvSeriesDto(itemId);
-      final seasons = dto.seasons.cast<Map<String, dynamic>>();
-      return [
-        for (final season in seasons) Season.fromJson(season),
-      ];
-    }
-    return const <Season>[];
   }
 
   Future<List<Map<String, dynamic>>> searchStoryArcs({

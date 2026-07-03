@@ -2004,47 +2004,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingBundleReleaseItemIds.contains(itemId)) {
       return;
     }
-    final searchGeneration = _coreSearchGeneration;
     setState(() {
       _pendingBundleReleaseItemIds.add(itemId);
     });
-    try {
-      final bundleReleases =
-          await ref.read(apiClientProvider).getItemBundleReleases(itemId);
-      if (!mounted || searchGeneration != _coreSearchGeneration) {
-        return;
-      }
-      setState(() {
-        _bundleReleasesByItemId[itemId] = bundleReleases;
-        _pendingBundleReleaseItemIds.remove(itemId);
-        if (_selectedResultId == itemId &&
-            _referenceType == LibraryAddReferenceType.bundleRelease &&
-            _selectedBundleReleaseId == null &&
-            bundleReleases.isNotEmpty) {
-          _selectedBundleReleaseId = bundleReleases.first.id;
-        }
-      });
-      final bundleReleaseId = _selectedResultId == itemId &&
-              _referenceType == LibraryAddReferenceType.bundleRelease
-          ? _selectedBundleReleaseId
-          : null;
-      if (bundleReleaseId != null) {
-        await _ensureBundleReleaseDetailLoaded(bundleReleaseId);
-      }
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message: 'Failed to load bundle releases for item $itemId.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      if (!mounted || searchGeneration != _coreSearchGeneration) {
-        return;
-      }
-      setState(() {
-        _pendingBundleReleaseItemIds.remove(itemId);
-      });
+    if (!mounted) {
+      return;
     }
+    setState(() {
+      _bundleReleasesByItemId[itemId] = const <BundleReleaseSummary>[];
+      _pendingBundleReleaseItemIds.remove(itemId);
+    });
   }
 
   Future<void> _ensureBundleReleaseDetailLoaded(String bundleReleaseId) async {

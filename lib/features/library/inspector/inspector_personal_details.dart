@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/api/mappers/boardgame_mapper.dart';
+import 'package:collectarr_app/core/api/mappers/book_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -865,16 +867,23 @@ class _InspectorTrackingDetailsEditorState
     try {
       final api = ref.read(apiClientProvider);
       final normalizedKind = widget.mediaType.trim().toLowerCase();
-      final edition = switch (normalizedKind) {
-        'book' => await api.createBookEdition(widget.itemId, title: title),
-        'boardgame' =>
+      if (normalizedKind == 'book') {
+        final edition = bookEditionFromDto(
+          await api.createBookEdition(widget.itemId, title: title),
+        );
+        if (!mounted) return;
+        setState(() => _selectedEditionId = edition.id);
+      } else if (normalizedKind == 'boardgame') {
+        final edition = boardGameEditionFromDto(
           await api.createBoardGameEdition(widget.itemId, title: title),
-        _ => throw UnsupportedError(
-            'Edition creation is only supported for book and boardgame items.',
-          ),
-      };
-      if (!mounted) return;
-      setState(() => _selectedEditionId = edition.id);
+        );
+        if (!mounted) return;
+        setState(() => _selectedEditionId = edition.id);
+      } else {
+        throw UnsupportedError(
+          'Edition creation is only supported for book and boardgame items.',
+        );
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Edition "$title" created')),
       );

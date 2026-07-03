@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/models/bundle_release.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
-
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
@@ -181,12 +179,6 @@ class CollectarrApiClient {
     );
   }
 
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(
-    String itemId,
-  ) async {
-    return const [];
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/metadata/bundle-releases/$bundleReleaseId',
@@ -274,12 +266,6 @@ class CollectarrApiClient {
     return data;
   }
 
-  Future<Map<String, dynamic>> getComic(String id) async {
-    final response =
-        await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
-    return _resolveImageUrls(response.data!);
-  }
-
   Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
     final response =
         await _dio.get<List<dynamic>>('/series/$seriesId/relations');
@@ -314,7 +300,7 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<CatalogEdition> createBookEdition(
+  Future<BookEditionDto> createBookEdition(
     String workId, {
     required String title,
   }) async {
@@ -328,10 +314,10 @@ class CollectarrApiClient {
         '/metadata/books/works/$workId/editions returned empty body',
       );
     }
-    return CatalogEdition.fromJson(data);
+    return BookEditionDto.fromJson(_resolveImageUrls(data));
   }
 
-  Future<CatalogEdition> createBoardGameEdition(
+  Future<BoardGameEditionDto> createBoardGameEdition(
     String workId, {
     required String title,
   }) async {
@@ -345,7 +331,7 @@ class CollectarrApiClient {
         '/metadata/boardgames/works/$workId/editions returned empty body',
       );
     }
-    return CatalogEdition.fromJson(data);
+    return BoardGameEditionDto.fromJson(_resolveImageUrls(data));
   }
 
   Future<Map<String, dynamic>> lookupBarcode(
