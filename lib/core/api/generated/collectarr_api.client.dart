@@ -111,104 +111,104 @@ class CollectarrApiClient {
     return factory(_resolveImageUrls(data));
   }
 
-  Future<BookWorkV1Response> getBookWorkDto(String id) {
+  Future<BookWorkDto> getBookWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/books/works/${Uri.encodeComponent(id)}',
-      BookWorkV1Response.fromJson,
+      BookWorkDto.fromJson,
     );
   }
 
-  Future<ComicWorkV1Response> getComicWorkDto(String id) {
+  Future<ComicWorkDto> getComicWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/comics/works/${Uri.encodeComponent(id)}',
-      ComicWorkV1Response.fromJson,
+      ComicWorkDto.fromJson,
     );
   }
 
-  Future<MangaWorkV1Response> getMangaWorkDto(String id) {
+  Future<MangaWorkDto> getMangaWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/manga/works/${Uri.encodeComponent(id)}',
-      MangaWorkV1Response.fromJson,
+      MangaWorkDto.fromJson,
     );
   }
 
-  Future<AnimeSeriesV1Response> getAnimeSeriesDto(String id) {
+  Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/anime/series/${Uri.encodeComponent(id)}',
-      AnimeSeriesV1Response.fromJson,
+      AnimeSeriesDto.fromJson,
     );
   }
 
-  Future<MovieWorkV1Response> getMovieWorkDto(String id) {
+  Future<MovieWorkDto> getMovieWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/movies/works/${Uri.encodeComponent(id)}',
-      MovieWorkV1Response.fromJson,
+      MovieWorkDto.fromJson,
     );
   }
 
-  Future<TVSeriesV1Response> getTvSeriesDto(String id) {
+  Future<TvSeriesDto> getTvSeriesDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/tv/series/${Uri.encodeComponent(id)}',
-      TVSeriesV1Response.fromJson,
+      TvSeriesDto.fromJson,
     );
   }
 
-  Future<GameWorkV1Response> getGameWorkDto(String id) {
+  Future<GameWorkDto> getGameWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/games/works/${Uri.encodeComponent(id)}',
-      GameWorkV1Response.fromJson,
+      GameWorkDto.fromJson,
     );
   }
 
-  Future<GameReleaseV1Response> getGameReleaseDto(String id) {
+  Future<GameReleaseDto> getGameReleaseDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/games/releases/${Uri.encodeComponent(id)}',
-      GameReleaseV1Response.fromJson,
+      GameReleaseDto.fromJson,
     );
   }
 
-  Future<BoardGameWorkV1Response> getBoardGameWorkDto(String id) {
+  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/boardgames/works/${Uri.encodeComponent(id)}',
-      BoardGameWorkV1Response.fromJson,
+      BoardGameWorkDto.fromJson,
     );
   }
 
-  Future<BoardGameEditionV1Response> getBoardGameEditionDto(String id) {
+  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/boardgames/editions/${Uri.encodeComponent(id)}',
-      BoardGameEditionV1Response.fromJson,
+      BoardGameEditionDto.fromJson,
     );
   }
 
-  Future<MusicReleaseV1Response> getMusicReleaseDto(String id) {
+  Future<MusicReleaseDto> getMusicReleaseDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/releases/${Uri.encodeComponent(id)}',
-      MusicReleaseV1Response.fromJson,
+      MusicReleaseDto.fromJson,
     );
   }
 
-  Future<MusicMediaV1Response> getMusicMediaDto(String id) {
+  Future<MusicMediaDto> getMusicMediaDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/media/${Uri.encodeComponent(id)}',
-      MusicMediaV1Response.fromJson,
+      MusicMediaDto.fromJson,
     );
   }
 
-  Future<MusicTrackV1Response> getMusicTrackDto(String id) {
+  Future<MusicTrackDto> getMusicTrackDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/tracks/${Uri.encodeComponent(id)}',
-      MusicTrackV1Response.fromJson,
+      MusicTrackDto.fromJson,
     );
   }
 
   TypedMetadataResponse _legacyTypedDtoFromJson(Map<String, dynamic> json) {
     final kind = json['kind']?.toString().toLowerCase();
     return switch (kind) {
-      'book' => BookWorkV1Response.fromJson(json),
-      'game' => GameWorkV1Response.fromJson(json),
-      'boardgame' => BoardGameWorkV1Response.fromJson(json),
-      'music' => MusicReleaseV1Response.fromJson(json),
+      'book' => BookWorkDto.fromJson(json),
+      'game' => GameWorkDto.fromJson(json),
+      'boardgame' => BoardGameWorkDto.fromJson(json),
+      'music' => MusicReleaseDto.fromJson(json),
       _ => _FallbackTypedResponse(json),
     };
   }
@@ -443,7 +443,7 @@ class CollectarrApiClient {
     return CatalogMetadataDto.fromJson(_resolveImageUrls(data));
   }
 
-  List<Season> _seasonsFromMangaChapters(MangaWorkV1Response dto) {
+  List<Season> _seasonsFromMangaChapters(MangaWorkDto dto) {
     if (dto.chapters.isEmpty) {
       return const [];
     }
@@ -467,7 +467,7 @@ class CollectarrApiClient {
     ];
   }
 
-  List<Season> _seasonsFromAnimeEpisodes(AnimeSeriesV1Response dto) {
+  List<Season> _seasonsFromAnimeEpisodes(AnimeSeriesDto dto) {
     if (dto.episodes.isEmpty) {
       return const [];
     }

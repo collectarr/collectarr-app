@@ -20,6 +20,7 @@ abstract class TypedMetadataResponse {
   Map<String, dynamic> toJson() => Map<String, dynamic>.from(raw);
 }
 
+
 String _stringValue(dynamic value, {String fallback = ''}) =>
     value?.toString() ?? fallback;
 
@@ -50,15 +51,23 @@ List<String> _stringList(dynamic value) {
   if (value is! List) {
     return const <String>[];
   }
-  return [
-    for (final entry in value)
-      if (entry != null && entry.toString().trim().isNotEmpty)
-        entry.toString().trim(),
-  ];
+  final result = <String>[];
+  final seen = <String>{};
+  for (final entry in value) {
+    final text = entry?.toString().trim();
+    if (text == null || text.isEmpty) {
+      continue;
+    }
+    final marker = text.toLowerCase();
+    if (seen.add(marker)) {
+      result.add(text);
+    }
+  }
+  return result;
 }
 
-class BookWorkV1Response extends TypedMetadataResponse {
-  BookWorkV1Response._(
+class BookWorkDto extends TypedMetadataResponse {
+  BookWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -102,8 +111,8 @@ class BookWorkV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory BookWorkV1Response.fromJson(Map<String, dynamic> json) {
-    return BookWorkV1Response._(
+  factory BookWorkDto.fromJson(Map<String, dynamic> json) {
+    return BookWorkDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -125,8 +134,8 @@ class BookWorkV1Response extends TypedMetadataResponse {
   }
 }
 
-class BookEditionV1Response extends TypedMetadataResponse {
-  BookEditionV1Response._(
+class BookEditionDto extends TypedMetadataResponse {
+  BookEditionDto._(
     super.raw, {
     required this.id,
     required this.workId,
@@ -188,8 +197,8 @@ class BookEditionV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory BookEditionV1Response.fromJson(Map<String, dynamic> json) {
-    return BookEditionV1Response._(
+  factory BookEditionDto.fromJson(Map<String, dynamic> json) {
+    return BookEditionDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       workId: _stringValue(json['work_id']),
@@ -217,8 +226,8 @@ class BookEditionV1Response extends TypedMetadataResponse {
   }
 }
 
-class GameWorkV1Response extends TypedMetadataResponse {
-  GameWorkV1Response._(
+class GameWorkDto extends TypedMetadataResponse {
+  GameWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -266,8 +275,8 @@ class GameWorkV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory GameWorkV1Response.fromJson(Map<String, dynamic> json) {
-    return GameWorkV1Response._(
+  factory GameWorkDto.fromJson(Map<String, dynamic> json) {
+    return GameWorkDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -289,8 +298,8 @@ class GameWorkV1Response extends TypedMetadataResponse {
   }
 }
 
-class GameReleaseV1Response extends TypedMetadataResponse {
-  GameReleaseV1Response._(
+class GameReleaseDto extends TypedMetadataResponse {
+  GameReleaseDto._(
     super.raw, {
     required this.id,
     required this.workId,
@@ -334,8 +343,8 @@ class GameReleaseV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => barcodeValue;
 
-  factory GameReleaseV1Response.fromJson(Map<String, dynamic> json) {
-    return GameReleaseV1Response._(
+  factory GameReleaseDto.fromJson(Map<String, dynamic> json) {
+    return GameReleaseDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       workId: _stringValue(json['work_id']),
@@ -356,8 +365,8 @@ class GameReleaseV1Response extends TypedMetadataResponse {
   }
 }
 
-class BoardGameWorkV1Response extends TypedMetadataResponse {
-  BoardGameWorkV1Response._(
+class BoardGameWorkDto extends TypedMetadataResponse {
+  BoardGameWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -409,8 +418,8 @@ class BoardGameWorkV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory BoardGameWorkV1Response.fromJson(Map<String, dynamic> json) {
-    return BoardGameWorkV1Response._(
+  factory BoardGameWorkDto.fromJson(Map<String, dynamic> json) {
+    return BoardGameWorkDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -434,11 +443,12 @@ class BoardGameWorkV1Response extends TypedMetadataResponse {
   }
 }
 
-class BoardGameEditionV1Response extends TypedMetadataResponse {
-  BoardGameEditionV1Response._(
+class BoardGameEditionDto extends TypedMetadataResponse {
+  BoardGameEditionDto._(
     super.raw, {
     required this.id,
     required this.workId,
+    required this.titleValue,
     required this.ageRating,
     required this.audienceRating,
     required this.barcodeValue,
@@ -461,6 +471,7 @@ class BoardGameEditionV1Response extends TypedMetadataResponse {
   @override
   final String id;
   final String workId;
+  final String titleValue;
   final String? ageRating;
   final String? audienceRating;
   final String? barcodeValue;
@@ -479,7 +490,7 @@ class BoardGameEditionV1Response extends TypedMetadataResponse {
   final DateTime? releaseDateValue;
   final String? releaseStatus;
   @override
-  String get title => editionTitle ?? 'Edition';
+  String get title => editionTitle ?? titleValue;
   @override
   String? get kind => CollectarrItemKind.boardgame.apiValue;
   @override
@@ -491,11 +502,12 @@ class BoardGameEditionV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => barcodeValue;
 
-  factory BoardGameEditionV1Response.fromJson(Map<String, dynamic> json) {
-    return BoardGameEditionV1Response._(
+  factory BoardGameEditionDto.fromJson(Map<String, dynamic> json) {
+    return BoardGameEditionDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       workId: _stringValue(json['work_id']),
+      titleValue: _stringValue(json['title'], fallback: 'Edition'),
       ageRating: _nullableString(json['age_rating']),
       audienceRating: _nullableString(json['audience_rating']),
       barcodeValue: _nullableString(json['barcode']),
@@ -517,8 +529,8 @@ class BoardGameEditionV1Response extends TypedMetadataResponse {
   }
 }
 
-class MusicReleaseV1Response extends TypedMetadataResponse {
-  MusicReleaseV1Response._(
+class MusicReleaseDto extends TypedMetadataResponse {
+  MusicReleaseDto._(
     super.raw, {
     required this.id,
     required this.titleValue,
@@ -547,7 +559,7 @@ class MusicReleaseV1Response extends TypedMetadataResponse {
   final String titleValue;
   final List<dynamic> contributions;
   final List<dynamic> identifiers;
-  final List<dynamic> media;
+  final List<MusicMediaDto> media;
   final String? countryCode;
   final String? extras;
   final String? publisher;
@@ -575,14 +587,14 @@ class MusicReleaseV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => barcodeValue;
 
-  factory MusicReleaseV1Response.fromJson(Map<String, dynamic> json) {
-    return MusicReleaseV1Response._(
+  factory MusicReleaseDto.fromJson(Map<String, dynamic> json) {
+    return MusicReleaseDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       titleValue: _stringValue(json['title'], fallback: 'Untitled item'),
       contributions: _dynamicList(json['contributions']),
       identifiers: _dynamicList(json['identifiers']),
-      media: _dynamicList(json['media']),
+      media: _musicMediaList(json['media']),
       countryCode: _nullableString(json['country_code']),
       extras: _nullableString(json['extras']),
       publisher: _nullableString(json['publisher']),
@@ -602,8 +614,8 @@ class MusicReleaseV1Response extends TypedMetadataResponse {
   }
 }
 
-class MusicMediaV1Response extends TypedMetadataResponse {
-  MusicMediaV1Response._(
+class MusicMediaDto extends TypedMetadataResponse {
+  MusicMediaDto._(
     super.raw, {
     required this.id,
     required this.releaseId,
@@ -633,7 +645,7 @@ class MusicMediaV1Response extends TypedMetadataResponse {
   final String? spars;
   final String? titleValue;
   final int? trackCount;
-  final List<dynamic> tracks;
+  final List<MusicTrackDto> tracks;
   final String? vinylColor;
   final String? vinylWeight;
   @override
@@ -649,8 +661,8 @@ class MusicMediaV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory MusicMediaV1Response.fromJson(Map<String, dynamic> json) {
-    return MusicMediaV1Response._(
+  factory MusicMediaDto.fromJson(Map<String, dynamic> json) {
+    return MusicMediaDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       releaseId: _stringValue(json['release_id']),
@@ -663,15 +675,16 @@ class MusicMediaV1Response extends TypedMetadataResponse {
       spars: _nullableString(json['spars']),
       titleValue: _nullableString(json['title']),
       trackCount: _nullableInt(json['track_count']),
-      tracks: _dynamicList(json['tracks']),
+      tracks: _musicTrackList(json['tracks']),
       vinylColor: _nullableString(json['vinyl_color']),
       vinylWeight: _nullableString(json['vinyl_weight']),
     );
   }
+
 }
 
-class MusicTrackV1Response extends TypedMetadataResponse {
-  MusicTrackV1Response._(
+class MusicTrackDto extends TypedMetadataResponse {
+  MusicTrackDto._(
     super.raw, {
     required this.id,
     required this.mediaId,
@@ -703,8 +716,8 @@ class MusicTrackV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory MusicTrackV1Response.fromJson(Map<String, dynamic> json) {
-    return MusicTrackV1Response._(
+  factory MusicTrackDto.fromJson(Map<String, dynamic> json) {
+    return MusicTrackDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       mediaId: _stringValue(json['media_id']),
@@ -717,8 +730,28 @@ class MusicTrackV1Response extends TypedMetadataResponse {
   }
 }
 
-class ComicWorkV1Response extends TypedMetadataResponse {
-  ComicWorkV1Response._(
+List<MusicMediaDto> _musicMediaList(dynamic value) {
+  if (value is! List) {
+    return const <MusicMediaDto>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) MusicMediaDto.fromJson(entry),
+  ];
+}
+
+List<MusicTrackDto> _musicTrackList(dynamic value) {
+  if (value is! List) {
+    return const <MusicTrackDto>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) MusicTrackDto.fromJson(entry),
+  ];
+}
+
+class ComicWorkDto extends TypedMetadataResponse {
+  ComicWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -754,8 +787,8 @@ class ComicWorkV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory ComicWorkV1Response.fromJson(Map<String, dynamic> json) {
-    return ComicWorkV1Response._(
+  factory ComicWorkDto.fromJson(Map<String, dynamic> json) {
+    return ComicWorkDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -771,8 +804,8 @@ class ComicWorkV1Response extends TypedMetadataResponse {
   }
 }
 
-class MangaWorkV1Response extends TypedMetadataResponse {
-  MangaWorkV1Response._(
+class MangaWorkDto extends TypedMetadataResponse {
+  MangaWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -818,8 +851,8 @@ class MangaWorkV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory MangaWorkV1Response.fromJson(Map<String, dynamic> json) {
-    return MangaWorkV1Response._(
+  factory MangaWorkDto.fromJson(Map<String, dynamic> json) {
+    return MangaWorkDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -842,8 +875,8 @@ class MangaWorkV1Response extends TypedMetadataResponse {
   }
 }
 
-class AnimeSeriesV1Response extends TypedMetadataResponse {
-  AnimeSeriesV1Response._(
+class AnimeSeriesDto extends TypedMetadataResponse {
+  AnimeSeriesDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -887,8 +920,8 @@ class AnimeSeriesV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory AnimeSeriesV1Response.fromJson(Map<String, dynamic> json) {
-    return AnimeSeriesV1Response._(
+  factory AnimeSeriesDto.fromJson(Map<String, dynamic> json) {
+    return AnimeSeriesDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -908,8 +941,8 @@ class AnimeSeriesV1Response extends TypedMetadataResponse {
   }
 }
 
-class MovieWorkV1Response extends TypedMetadataResponse {
-  MovieWorkV1Response._(
+class MovieWorkDto extends TypedMetadataResponse {
+  MovieWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -959,8 +992,8 @@ class MovieWorkV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory MovieWorkV1Response.fromJson(Map<String, dynamic> json) {
-    return MovieWorkV1Response._(
+  factory MovieWorkDto.fromJson(Map<String, dynamic> json) {
+    return MovieWorkDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
@@ -983,8 +1016,8 @@ class MovieWorkV1Response extends TypedMetadataResponse {
   }
 }
 
-class TVSeriesV1Response extends TypedMetadataResponse {
-  TVSeriesV1Response._(
+class TvSeriesDto extends TypedMetadataResponse {
+  TvSeriesDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -1034,8 +1067,8 @@ class TVSeriesV1Response extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory TVSeriesV1Response.fromJson(Map<String, dynamic> json) {
-    return TVSeriesV1Response._(
+  factory TvSeriesDto.fromJson(Map<String, dynamic> json) {
+    return TvSeriesDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       title: _stringValue(json['title'], fallback: 'Untitled item'),
