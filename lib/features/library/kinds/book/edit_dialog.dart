@@ -9,19 +9,20 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_section_tab.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
@@ -172,6 +173,11 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Color get _accent => widget.request.accent;
 
+  List<BookEdition> get _bookEditions =>
+      widget.request.item is BookWorkspaceEntry
+          ? (widget.request.item as BookWorkspaceEntry).bookEditions
+          : const <BookEdition>[];
+
   LibraryEditPresentationContext get _tabPresentationContext {
     return LibraryEditPresentationContext(
       isOwned: _isOwned,
@@ -180,7 +186,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       hasWishlistContext: _hasWishlistContext,
       isDigitalFormat: false,
       hasPhysicalFormats: false,
-      hasEditionAnchors: widget.request.item.editions.isNotEmpty,
+      hasEditionAnchors: _bookEditions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
       scope: widget.request.scope,
@@ -1342,12 +1348,12 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  CatalogEdition? _selectedEdition() {
+  BookEdition? _selectedEdition() {
     final selectedId = _selectedEditionId;
     if (selectedId == null) {
       return null;
     }
-    for (final edition in widget.request.item.editions) {
+    for (final edition in _bookEditions) {
       if (edition.id == selectedId) {
         return edition;
       }
@@ -1367,20 +1373,26 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           value: '',
           child: Text('Primary / unspecified edition'),
         ),
-        for (final edition in widget.request.item.editions)
+        for (final edition in _bookEditions)
           DropdownMenuItem<String>(
             value: edition.id,
             child: Text(edition.title),
           ),
       ],
       onChanged: (value) {
-        final edition = resolveLibraryEditionSelection(
-          widget.request.item.editions,
-          editionId: emptyToNull(value ?? ''),
-        ).edition;
+        BookEdition? edition;
+        final selectedId = emptyToNull(value ?? '');
+        if (selectedId != null) {
+          for (final candidate in _bookEditions) {
+            if (candidate.id == selectedId) {
+              edition = candidate;
+              break;
+            }
+          }
+        }
         setState(() {
           _selectedEditionId = edition?.id;
-          _selectedVariantId = resolveVariantForEdition(edition)?.id;
+          _selectedVariantId = _resolvePrimaryVariantId(edition);
         });
       },
     );
@@ -1388,7 +1400,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _variantSelectionField() {
     final edition = _selectedEdition();
-    final variants = edition?.variants ?? const <CatalogVariant>[];
+    final variants = edition?.variants ?? const <BookVariant>[];
     return DropdownButtonFormField<String>(
       initialValue: _selectedVariantId,
       isExpanded: true,
@@ -1414,6 +1426,18 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               });
             },
     );
+  }
+
+  String? _resolvePrimaryVariantId(BookEdition? edition) {
+    if (edition == null) {
+      return null;
+    }
+    for (final variant in edition.variants) {
+      if (variant.isPrimary) {
+        return variant.id;
+      }
+    }
+    return edition.variants.isEmpty ? null : edition.variants.first.id;
   }
 }
 

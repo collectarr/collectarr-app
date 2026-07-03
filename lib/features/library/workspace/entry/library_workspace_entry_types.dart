@@ -213,11 +213,14 @@ final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
+    this.bookEditions = const <BookEdition>[],
   }) : super._(
           common: common,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
         );
+
+  final List<BookEdition> bookEditions;
 }
 
 final class MovieWorkspaceEntry extends _TypedLibraryWorkspaceEntry {

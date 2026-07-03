@@ -1,7 +1,9 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -620,7 +622,7 @@ const booksLibrarySortColumnDefinitions = [
   ),
 ];
 
-const booksLibraryMediaPresentation = LibraryMediaPresentation(
+final booksLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -639,7 +641,19 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     showSummary: true,
     showVolumeHierarchy: true,
   ),
-  workspaceEntryBuilder: buildBookWorkspaceEntryFromShelf,
+  workspaceEntryBuilder: (ShelfEntry source) => buildBookWorkspaceEntry(
+    BookWork.fromCatalogItem(source.catalogItem!),
+    BookPersonalOverlay(
+      ownedItem: source.ownedItem,
+      trackingEntry: source.trackingEntry,
+      wishlistItem: source.wishlistItem,
+      locationPath: source.locationPath,
+      watchSessions: source.watchSessions,
+      itemImages: source.itemImages,
+      updatedAt: source.updatedAt,
+      fallbackOwnerLabel: source.fallbackOwnerLabel,
+    ),
+  ),
   releaseEntryBuilder: buildBookReleaseWorkspaceEntry,
   bucketLabelBuilder: booksLibraryBucketLabelBuilder,
   previewLabels: booksPreviewLabels,

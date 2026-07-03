@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -83,16 +83,15 @@ void main() {
   });
 
   test('book media falls back to primary release cover and reference ids', () {
-    final item = CatalogItem(
+    final item = BookWork(
       id: 'book-1',
-      kind: 'book',
       title: 'Example Book',
       editions: [
-        CatalogEdition(
+        BookEdition(
           id: 'edition-1',
           title: 'Hardcover',
           variants: [
-            CatalogVariant(
+            BookVariant(
               id: 'variant-1',
               name: 'Hardcover',
               coverImageUrl: 'https://example.test/release-cover.jpg',
@@ -104,13 +103,13 @@ void main() {
       ],
     );
 
-    final entry = buildBookWorkspaceEntryFromShelf(
-      ShelfEntry(itemId: 'book-1', catalogItem: item),
-    );
+    final entry = buildBookWorkspaceEntry(item, const BookPersonalOverlay())
+        as BookWorkspaceEntry;
 
     expect(entry.displayCoverUrl, 'https://example.test/release-thumb.jpg');
     expect(entry.referenceEditionId, 'edition-1');
     expect(entry.referenceVariantId, 'variant-1');
+    expect(entry.bookEditions, hasLength(1));
   });
 
   test('builds media-specific workspace entry subtypes', () {

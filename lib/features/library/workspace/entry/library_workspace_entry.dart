@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 part 'library_workspace_entry_facets.dart';

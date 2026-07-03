@@ -37,7 +37,7 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const booksLibraryConfig = LibraryTypeConfig(
+final booksLibraryConfig = LibraryTypeConfig(
   workspace: booksWorkspaceConfig,
   singularLabel: 'Book',
   pluralLabel: 'Books',

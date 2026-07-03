@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
@@ -24,19 +23,6 @@ final class BookPersonalOverlay {
     this.updatedAt,
     this.fallbackOwnerLabel,
   });
-
-  factory BookPersonalOverlay.fromShelfEntry(ShelfEntry source) {
-    return BookPersonalOverlay(
-      ownedItem: source.ownedItem,
-      trackingEntry: source.trackingEntry,
-      wishlistItem: source.wishlistItem,
-      locationPath: source.locationPath,
-      watchSessions: source.watchSessions,
-      itemImages: source.itemImages,
-      updatedAt: source.updatedAt,
-      fallbackOwnerLabel: source.fallbackOwnerLabel,
-    );
-  }
 
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
@@ -57,9 +43,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
   BookWork work,
   BookPersonalOverlay overlay,
 ) {
-  final editions = [
-    for (final edition in work.editions) _bookEditionToCatalogEdition(edition),
-  ];
+  final bookEditions = _copyBookEditionList(work.editions);
   final primaryRelease = _resolvePrimaryBookRelease(work.editions);
   final primaryReleaseCoverUrl =
       _primaryBookReleaseCover(primaryRelease.edition) ??
@@ -112,7 +96,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       referenceFormatLabel: libraryReferenceFormatLabel(
         ownedItem: overlay.ownedItem,
         wishlistItem: overlay.wishlistItem,
-        editions: editions,
+        editions: const <CatalogEdition>[],
         fallbackFormatLabel: work.physicalFormatLabel,
       ),
       referenceEditionId: overlay.ownedItem?.editionId ??
@@ -131,7 +115,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,
       addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
-      editions: _copyEditionList(editions),
+      editions: const <CatalogEdition>[],
       updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
       trailerUrls: _copyTrailerList(work.trailerUrls),
       plotSummary: work.plotSummary,
@@ -147,32 +131,27 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
     ),
     series: work.series,
     publishing: work.publishing,
-  );
-}
-
-LibraryWorkspaceEntry buildBookWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  return buildBookWorkspaceEntry(
-    _bookWorkFromCatalogItem(source.catalogItem!),
-    BookPersonalOverlay.fromShelfEntry(source),
+    bookEditions: bookEditions,
   );
 }
 
 LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
   LibraryReleaseEntryRequest request,
 ) {
-  final book = _bookWorkFromWorkspaceEntry(request.titleEntry);
+  final book = request.titleEntry;
+  final bookEditions =
+      book is BookWorkspaceEntry ? book.bookEditions : const <BookEdition>[];
   return BookWorkspaceEntry(
     common: _buildReleaseEntryData(request, book),
     series: book.series,
     publishing: book.publishing,
+    bookEditions: bookEditions,
   );
 }
 
 LibraryWorkspaceEntryData _buildReleaseEntryData(
   LibraryReleaseEntryRequest request,
-  BookWork book,
+  LibraryWorkspaceEntry book,
 ) {
   CatalogVariant? primaryVariant;
   for (final variant in request.edition.variants) {
@@ -248,52 +227,6 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
   );
 }
 
-BookWork _bookWorkFromWorkspaceEntry(LibraryWorkspaceEntry entry) {
-  return BookWork(
-    id: entry.id,
-    title: entry.title,
-    displayTitle: entry.displayTitle,
-    localizedTitle: entry.localizedTitle,
-    originalTitle: entry.originalTitle,
-    searchAliases:
-        List<String>.unmodifiable(entry.searchAliases ?? const <String>[]),
-    itemNumber: entry.itemNumber,
-    synopsis: entry.synopsis,
-    coverImageUrl: entry.coverImageUrl,
-    thumbnailImageUrl: entry.thumbnailImageUrl,
-    publisher: entry.publisher,
-    coverDate: entry.coverDate,
-    releaseDate: entry.releaseDate,
-    releaseYear: entry.releaseYear,
-    barcode: entry.barcode,
-    variant: entry.variant,
-    crossover: entry.crossover,
-    series: entry.series,
-    publishing: entry.publishing,
-    editions: [
-      for (final edition in entry.editions)
-        BookEdition.fromCatalogEdition(edition),
-    ],
-    trailerUrls: List<TrailerLink>.unmodifiable(entry.trailerUrls),
-    plotSummary: entry.plotSummary,
-    plotDescription: entry.plotDescription,
-    creators: entry.creators == null
-        ? null
-        : List<Map<String, dynamic>>.unmodifiable(
-            entry.creators!
-                .map((value) => Map<String, dynamic>.unmodifiable(value)),
-          ),
-    characters: List<String>.unmodifiable(entry.characters ?? const <String>[]),
-    storyArcs: List<String>.unmodifiable(entry.storyArcs ?? const <String>[]),
-    genres: List<String>.unmodifiable(entry.genres ?? const <String>[]),
-    country: entry.country,
-    language: entry.language,
-    ageRating: entry.ageRating,
-    audienceRating: entry.audienceRating,
-    physicalFormatLabel: entry.referenceFormatLabel,
-  );
-}
-
 ({BookEdition? edition, BookVariant? variant}) _resolvePrimaryBookRelease(
   List<BookEdition> editions,
 ) {
@@ -353,6 +286,10 @@ bool _hasMissingCoreMetadata(BookWork book) {
       book.displayEditionLabel == null;
 }
 
+List<BookEdition> _copyBookEditionList(List<BookEdition> values) {
+  return List<BookEdition>.unmodifiable(values);
+}
+
 List<String>? _copyStringList(List<String>? values) {
   if (values == null) return null;
   return List<String>.unmodifiable(values);
@@ -373,87 +310,4 @@ List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
 
 List<TrailerLink> _copyTrailerList(List<TrailerLink> values) {
   return List<TrailerLink>.unmodifiable(values);
-}
-
-BookWork _bookWorkFromCatalogItem(CatalogItem item) {
-  return BookWork(
-    id: item.id,
-    title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
-    searchAliases: List<String>.unmodifiable(item.searchAliases ?? const <String>[]),
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
-    publisher: item.publisher,
-    coverDate: item.coverDate,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.variant,
-    crossover: item.crossover,
-    series: item.series,
-    publishing: item.publishing,
-    editions: [
-      for (final edition in item.editions)
-        BookEdition.fromCatalogEdition(edition),
-    ],
-    trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
-    plotSummary: item.plotSummary,
-    plotDescription: item.plotDescription,
-    creators: item.creators == null
-        ? null
-        : List<Map<String, dynamic>>.unmodifiable(
-            item.creators!
-                .map((value) => Map<String, dynamic>.unmodifiable(value)),
-          ),
-    characters: List<String>.unmodifiable(item.characters ?? const <String>[]),
-    storyArcs: List<String>.unmodifiable(item.storyArcs ?? const <String>[]),
-    genres: List<String>.unmodifiable(item.genres ?? const <String>[]),
-    country: item.country,
-    language: item.language,
-    ageRating: item.ageRating,
-    audienceRating: item.audienceRating,
-    physicalFormatLabel: item.physicalFormatLabel,
-  );
-}
-
-CatalogEdition _bookEditionToCatalogEdition(BookEdition edition) {
-  return CatalogEdition(
-    id: edition.id,
-    title: edition.title,
-    format: edition.format,
-    publisher: edition.publisher,
-    isbn: edition.isbn,
-    upc: edition.upc,
-    language: edition.language,
-    region: edition.region,
-    releaseDate: edition.releaseDate,
-    physicalFormat: edition.physicalFormat,
-    physicalFormatLabel: edition.physicalFormatLabel,
-    variants: [
-      for (final variant in edition.variants)
-        _bookVariantToCatalogVariant(variant),
-    ],
-  );
-}
-
-CatalogVariant _bookVariantToCatalogVariant(BookVariant variant) {
-  return CatalogVariant(
-    id: variant.id,
-    name: variant.name,
-    variantType: variant.variantType,
-    sku: variant.sku,
-    barcode: variant.barcode,
-    isbn: variant.isbn,
-    region: variant.region,
-    coverImageUrl: variant.coverImageUrl,
-    thumbnailImageUrl: variant.thumbnailImageUrl,
-    description: variant.description,
-    physicalFormat: variant.physicalFormat,
-    physicalFormatLabel: variant.physicalFormatLabel,
-    isPrimary: variant.isPrimary,
-  );
 }

@@ -184,6 +184,54 @@ class ApiClient {
     return _catalogApi.getMusicTrackDto(id);
   }
 
+  Future<List<Season>> getItemSeasons(
+    String itemId, {
+    String? kind,
+  }) async {
+    final normalizedKind = kind?.trim().toLowerCase();
+    final encodedId = Uri.encodeComponent(itemId);
+    if (normalizedKind == 'tv') {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/metadata/tv/series/$encodedId',
+      );
+      return _seasonsFromRaw(response.data?['seasons']);
+    }
+    if (normalizedKind == 'anime') {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/metadata/anime/series/$encodedId',
+      );
+      final episodes = _episodesFromRaw(response.data?['episodes']);
+      final title = response.data?['title']?.toString().trim();
+      return [
+        Season(
+          seasonNumber: 1,
+          title: title == null || title.isEmpty ? 'Anime' : title,
+          episodeCount: episodes.isEmpty ? null : episodes.length,
+          episodes: episodes,
+        ),
+      ];
+    }
+    return const [];
+  }
+
+  Future<List<Season>> getItemVolumes(
+    String itemId, {
+    String? kind,
+  }) async {
+    final normalizedKind = kind?.trim().toLowerCase();
+    final encodedId = Uri.encodeComponent(itemId);
+    if (normalizedKind == 'manga') {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/metadata/manga/works/$encodedId',
+      );
+      return _volumesFromMangaRaw(response.data?['chapters']);
+    }
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/metadata/books/works/$encodedId',
+    );
+    return _volumesFromBookRaw(response.data?['editions']);
+  }
+
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
@@ -478,6 +526,114 @@ class ApiClient {
       throw StateError('$path returned an empty response body');
     }
     return AdminProviderPreview.fromJson(data);
+  }
+
+  List<Season> _seasonsFromRaw(dynamic raw) {
+    if (raw is! List) {
+      return const <Season>[];
+    }
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(Season.fromJson)
+        .toList(growable: false);
+  }
+
+  List<Episode> _episodesFromRaw(dynamic raw) {
+    if (raw is! List) {
+      return const <Episode>[];
+    }
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (json) => Episode(
+            episodeNumber: json['episode_number'] as int? ?? 1,
+            title: _seasonStringValue(
+                json['title'] ?? json['episode_title'], 'Episode'),
+            providerItemId: json['provider_item_id']?.toString(),
+            overview: json['overview']?.toString(),
+            airDate: json['air_date']?.toString(),
+            runtimeMinutes: json['runtime_minutes'] as int?,
+            pageCount: json['page_count'] as int?,
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  List<Season> _volumesFromBookRaw(dynamic raw) {
+    if (raw is! List) {
+      return const <Season>[];
+    }
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .toList(growable: false)
+        .asMap()
+        .entries
+        .map(
+      (entry) {
+        final edition = entry.value;
+        return Season(
+          seasonNumber: edition['volume_number'] as int? ?? entry.key + 1,
+          title: _seasonStringValue(
+            edition['title'],
+            'Edition ${entry.key + 1}',
+          ),
+          providerItemId: edition['id']?.toString(),
+          overview: edition['description']?.toString(),
+          airDate: edition['release_date']?.toString(),
+          episodeCount: (edition['variants'] as List<dynamic>?)?.length,
+          posterUrl: edition['cover_image_url']?.toString() ??
+              edition['thumbnail_image_url']?.toString(),
+        );
+      },
+    ).toList(growable: false);
+  }
+
+  List<Season> _volumesFromMangaRaw(dynamic raw) {
+    if (raw is! List) {
+      return const <Season>[];
+    }
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .toList(growable: false)
+        .asMap()
+        .entries
+        .map(
+      (entry) {
+        final chapter = entry.value;
+        final chapterNumber =
+            chapter['chapter_number'] as int? ?? entry.key + 1;
+        final chapterTitle = _seasonStringValue(
+          chapter['chapter_title'],
+          'Chapter $chapterNumber',
+        );
+        return Season(
+          seasonNumber: chapter['volume_number'] as int? ?? chapterNumber,
+          title: _seasonStringValue(
+            chapter['volume_title'],
+            'Volume $chapterNumber',
+          ),
+          providerItemId: chapter['id']?.toString(),
+          overview: chapter['summary']?.toString(),
+          airDate: chapter['release_date']?.toString(),
+          episodeCount: 1,
+          episodes: [
+            Episode(
+              episodeNumber: chapterNumber,
+              title: chapterTitle,
+              providerItemId: chapter['id']?.toString(),
+              overview: chapter['summary']?.toString(),
+              airDate: chapter['release_date']?.toString(),
+              pageCount: chapter['page_count'] as int?,
+            ),
+          ],
+        );
+      },
+    ).toList(growable: false);
+  }
+
+  String _seasonStringValue(dynamic value, String fallback) {
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? fallback : text;
   }
 
   Future<AdminProviderIngestResult> adminProviderIngest({

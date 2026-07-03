@@ -223,8 +223,14 @@ class BookLibraryMediaPresentationBuilder
 
     final printingFacts = <LibraryInspectorFactData>[
       if (entry.publishing?.pageCount != null)
-        LibraryInspectorFactData('Pages', entry.publishing!.pageCount.toString()),
-      LibraryInspectorFactData('Printings', entry.editions.length.toString()),
+        LibraryInspectorFactData(
+            'Pages', entry.publishing!.pageCount.toString()),
+      LibraryInspectorFactData(
+        'Printings',
+        entry is BookWorkspaceEntry
+            ? entry.bookEditions.length.toString()
+            : entry.editions.length.toString(),
+      ),
       if (entry.barcode?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Identifier', entry.barcode!.trim()),
     ];
@@ -278,11 +284,13 @@ class BookLibraryMediaPresentationBuilder
       if (entry.grade?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Grade', entry.grade!.trim()),
       if (entry.collectionStatus?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Collection Status', entry.collectionStatus!.trim()),
+        LibraryInspectorFactData(
+            'Collection Status', entry.collectionStatus!.trim()),
       if (entry.locationPath?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Location', entry.locationPath!.trim()),
       if (entry.pricePaidCents != null)
-        LibraryInspectorFactData('Price Paid', entry.pricePaidCents!.toString()),
+        LibraryInspectorFactData(
+            'Price Paid', entry.pricePaidCents!.toString()),
       if (entry.notes?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Notes', entry.notes!.trim()),
       if (entry.tags?.trim().isNotEmpty == true)

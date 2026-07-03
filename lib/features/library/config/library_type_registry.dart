@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
 class LibraryTypeRegistry {
-  const LibraryTypeRegistry(this.types);
+  LibraryTypeRegistry(this.types);
 
   final List<LibraryTypeConfig> types;
 

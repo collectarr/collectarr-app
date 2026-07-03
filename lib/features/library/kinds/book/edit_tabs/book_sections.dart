@@ -564,7 +564,7 @@ extension _BookSections on _BookLibraryEditDialogState {
           accent: _accent,
           child: Column(
             children: [
-              if (widget.request.item.editions.isNotEmpty) ...[
+              if (_bookEditions.isNotEmpty) ...[
                 _responsiveFields([
                   _editionSelectionField(),
                   _variantSelectionField(),

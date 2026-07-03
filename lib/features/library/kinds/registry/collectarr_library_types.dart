@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
     as movie_add;
 
-const collectarrLibraryTypes = LibraryTypeRegistry([
+final collectarrLibraryTypes = LibraryTypeRegistry([
   comicsLibraryConfig,
   mangaLibraryConfig,
   booksLibraryConfig,
