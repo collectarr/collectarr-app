@@ -1,13 +1,13 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class GameLibraryMediaPresentationBuilder
-  extends LibraryMediaPresentationBuilder {
+    extends LibraryMediaPresentationBuilder {
   const GameLibraryMediaPresentationBuilder({
     this.metadataLabels = const LibraryMetadataLabels(),
   });
@@ -23,9 +23,10 @@ class GameLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final referenceRelease = resolveLibraryEntryReferenceRelease(entry);
-    final referenceVariant = referenceRelease.variant;
-    final referencePlatforms = libraryReferencePlatforms(entry);
+    final gameEntry = entry as GameWorkspaceEntry;
+    final referenceRelease = _resolvePrimaryGameRelease(gameEntry.gameReleases);
+    final referencePlatforms =
+        _gameReferencePlatforms(gameEntry, referenceRelease);
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -46,11 +47,6 @@ class GameLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
       ],
       contextFacts: [
-        if (referenceVariant?.variantType case final variantType?
-            when variantType.trim().isNotEmpty)
-          LibraryInspectorFactData('Variant Type', variantType.trim()),
-        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
-          LibraryInspectorFactData('SKU', sku.trim()),
         if (referencePlatforms.isNotEmpty)
           LibraryInspectorFactData(
             referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
@@ -75,7 +71,8 @@ class GameLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Language', entry.language!),
         if (entry.audienceRating != null)
           LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
-        LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryInspectorFactData(
+            'Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',
           entry.hasMissingMetadata ? 'Missing' : 'Ready',
@@ -87,4 +84,33 @@ class GameLibraryMediaPresentationBuilder
       genres: entry.genres ?? const <String>[],
     );
   }
+}
+
+GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
+  for (final release in releases) {
+    if (release.isPrimary) {
+      return release;
+    }
+  }
+  return releases.isEmpty ? null : releases.first;
+}
+
+List<String> _gameReferencePlatforms(
+  GameWorkspaceEntry entry,
+  GameRelease? referenceRelease,
+) {
+  final values = <String>[];
+  for (final platform in entry.game?.platforms ?? const <String>[]) {
+    final normalized = platform.trim();
+    if (normalized.isNotEmpty && !values.contains(normalized)) {
+      values.add(normalized);
+    }
+  }
+  final releasePlatform = referenceRelease?.platform?.trim();
+  if (releasePlatform != null &&
+      releasePlatform.isNotEmpty &&
+      !values.contains(releasePlatform)) {
+    values.add(releasePlatform);
+  }
+  return values;
 }

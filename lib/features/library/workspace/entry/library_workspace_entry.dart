@@ -2,6 +2,7 @@
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 part 'library_workspace_entry_facets.dart';
@@ -67,6 +68,7 @@ sealed class LibraryWorkspaceEntry {
     this.ageRating,
     this.audienceRating,
     this.rawPlatforms,
+    this.gameReleases = const <GameRelease>[],
   });
 
   factory LibraryWorkspaceEntry({
@@ -136,6 +138,7 @@ sealed class LibraryWorkspaceEntry {
     String? ageRating,
     String? audienceRating,
     List<CatalogEdition> editions = const <CatalogEdition>[],
+    List<GameRelease> gameReleases = const <GameRelease>[],
     required DateTime updatedAt,
     List<TrailerLink>? trailerUrls,
   }) {
@@ -218,6 +221,7 @@ sealed class LibraryWorkspaceEntry {
       video: video,
       music: music,
       game: game,
+      gameReleases: _copyGameReleaseList(gameReleases),
     );
   }
 
@@ -389,6 +393,7 @@ sealed class LibraryWorkspaceEntry {
   final String? locationPath;
   final DateTime? addedAt;
   final List<CatalogEdition> editions;
+  final List<GameRelease> gameReleases;
   final DateTime updatedAt;
   final List<TrailerLink> trailerUrls;
 

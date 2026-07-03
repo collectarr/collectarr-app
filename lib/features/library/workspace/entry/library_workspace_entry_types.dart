@@ -11,6 +11,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
   VideoCatalogDetails? video,
   MusicCatalogDetails? music,
   GameCatalogDetails? game,
+  List<GameRelease> gameReleases = const <GameRelease>[],
 }) {
   switch (mediaType.trim().toLowerCase()) {
     case 'comic':
@@ -66,6 +67,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
         series: series,
         publishing: publishing,
         game: game,
+        gameReleases: gameReleases,
       );
     case 'boardgame':
       return BoardGameWorkspaceEntry(
@@ -95,6 +97,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
     this.videoDetails,
     this.musicDetails,
     this.gameDetails,
+    List<GameRelease> gameReleases = const <GameRelease>[],
   }) : super._(
           id: common.id,
           browseScope: common.browseScope,
@@ -154,6 +157,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           ageRating: common.ageRating,
           audienceRating: common.audienceRating,
           rawPlatforms: common.rawPlatforms,
+          gameReleases: gameReleases,
         );
 
   final ComicWorkspaceDetails? comicDetails;
@@ -285,11 +289,13 @@ final class GameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     GameCatalogDetails? game,
+    List<GameRelease> gameReleases = const <GameRelease>[],
   }) : super._(
           common: common,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           gameDetails: _gameOrNull(game),
+          gameReleases: gameReleases,
         );
 }
 

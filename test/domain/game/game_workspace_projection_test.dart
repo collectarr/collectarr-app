@@ -28,5 +28,7 @@ void main() {
     expect(entry.game?.platforms, ['Switch']);
     expect(entry.rawPlatforms, isNull);
     expect(entry.referenceFormatLabel, 'Physical');
+    expect(entry.gameReleases, hasLength(1));
+    expect(entry.gameReleases.first.title, 'Standard');
   });
 }

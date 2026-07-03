@@ -100,3 +100,10 @@ List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
   }
   return values.toList(growable: false);
 }
+
+List<GameRelease> _copyGameReleaseList(List<GameRelease> values) {
+  if (values.isEmpty) {
+    return const <GameRelease>[];
+  }
+  return values.toList(growable: false);
+}

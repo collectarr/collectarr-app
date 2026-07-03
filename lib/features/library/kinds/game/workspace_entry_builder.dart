@@ -43,8 +43,7 @@ LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
   return buildGameWorkspaceEntry(
-    _gameWorkFromCatalogItem(source.catalogItem!),
-    source.catalogItem!,
+    GameWork.fromCatalogItem(source.catalogItem!),
     GamePersonalOverlay.fromShelfEntry(source),
   );
 }
@@ -52,28 +51,99 @@ LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
 LibraryWorkspaceEntry buildGamesLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {
-  final work = _gameWorkFromWorkspaceEntry(request.titleEntry);
+  final entry = request.titleEntry as GameWorkspaceEntry;
+  final selectedRelease = _gameReleaseById(
+        entry.gameReleases,
+        request.referenceEditionId ?? request.edition.id,
+      ) ??
+      _resolvePrimaryGameRelease(entry.gameReleases);
+  final releasePlatform = selectedRelease?.platform?.trim().isNotEmpty == true
+      ? selectedRelease!.platform!.trim()
+      : entry.game?.platforms.isNotEmpty == true
+          ? entry.game!.platforms.first
+          : null;
   return GameWorkspaceEntry(
-    common: _buildReleaseEntryData(request, work),
-    game: GameCatalogDetails(platforms: work.platforms),
+    common: LibraryWorkspaceEntryData(
+      id: '${entry.id}:release:${request.edition.id}',
+      browseScope: LibraryBrowserScope.release,
+      titleItemId: entry.id,
+      releaseId: request.edition.id,
+      copyId: null,
+      ownedItemId: null,
+      mediaType: 'game',
+      title: entry.title,
+      displayTitle: entry.displayTitle,
+      localizedTitle: entry.localizedTitle,
+      originalTitle: entry.originalTitle,
+      searchAliases: _copyStringList(entry.searchAliases),
+      itemNumber: null,
+      synopsis: entry.synopsis,
+      coverImageUrl: selectedRelease?.coverImageUrl ?? entry.coverImageUrl,
+      thumbnailImageUrl: selectedRelease?.coverImageUrl ??
+          entry.thumbnailImageUrl ??
+          entry.coverImageUrl,
+      publisher: selectedRelease?.publisher ?? entry.publisher,
+      coverDate: entry.coverDate,
+      releaseDate: selectedRelease?.releaseDate ?? request.edition.releaseDate,
+      releaseYear:
+          (selectedRelease?.releaseDate ?? request.edition.releaseDate)?.year ??
+              entry.releaseYear,
+      barcode: selectedRelease?.barcode ?? request.edition.upc,
+      variant: selectedRelease?.title ?? request.edition.title,
+      crossover: entry.crossover,
+      isOwned: request.isOwned,
+      isTracked: request.isTracked,
+      isWishlisted: request.isWishlisted,
+      hasMissingCover: false,
+      hasMissingMetadata: false,
+      condition: null,
+      grade: null,
+      primaryReferenceLabel: null,
+      referenceScopeLabel: null,
+      referenceFormatLabel:
+          releasePlatform ?? request.edition.physicalFormatLabel,
+      referenceEditionId: request.referenceEditionId ?? request.edition.id,
+      referenceVariantId: request.referenceVariantId,
+      referenceBundleReleaseId: request.referenceBundleReleaseId,
+      notes: null,
+      tags: null,
+      collectionStatus: null,
+      lastBagBoardDate: null,
+      pricePaidCents: null,
+      currency: null,
+      locationPath: null,
+      addedAt: null,
+      editions: const <CatalogEdition>[],
+      updatedAt: request.updatedAt,
+      trailerUrls: const <TrailerLink>[],
+      plotSummary: null,
+      plotDescription: null,
+      creators: null,
+      characters: null,
+      storyArcs: null,
+      genres: null,
+      country: null,
+      language: selectedRelease?.language ?? request.edition.language,
+      ageRating: null,
+      audienceRating: null,
+    ),
+    game: entry.game,
+    gameReleases: entry.gameReleases,
   );
 }
 
 LibraryWorkspaceEntry buildGameWorkspaceEntry(
   GameWork work,
-  CatalogItem metadata,
   GamePersonalOverlay overlay,
 ) {
-  final editions = [
-    for (final release in work.releases) _gameReleaseToCatalogEdition(release),
-  ];
-  final referenceRelease = _resolvePrimaryGameRelease(work.releases);
+  final releases = _copyGameReleaseList(work.releases);
+  final referenceRelease = _resolvePrimaryGameRelease(releases);
   final referenceFormatLabel =
       referenceRelease?.format?.trim().isNotEmpty == true
           ? referenceRelease!.format!.trim()
           : referenceRelease?.title.trim().isNotEmpty == true
               ? referenceRelease!.title.trim()
-              : metadata.physicalFormatLabel;
+              : work.physicalFormatLabel;
   return GameWorkspaceEntry(
     common: LibraryWorkspaceEntryData(
       id: work.id,
@@ -84,29 +154,29 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
       ownedItemId: overlay.ownedItem?.id,
       mediaType: 'game',
       title: work.title,
-      displayTitle: metadata.displayTitle,
-      localizedTitle: metadata.localizedTitle,
-      originalTitle: metadata.originalTitle,
-      searchAliases: _copyStringList(metadata.searchAliases),
-      itemNumber: metadata.itemNumber,
-      synopsis: metadata.synopsis,
-      coverImageUrl: metadata.coverImageUrl ?? referenceRelease?.coverImageUrl,
-      thumbnailImageUrl: metadata.thumbnailImageUrl ??
+      displayTitle: work.displayTitle,
+      localizedTitle: work.localizedTitle,
+      originalTitle: work.originalTitle,
+      searchAliases: _copyStringList(work.searchAliases),
+      itemNumber: work.itemNumber,
+      synopsis: work.synopsis,
+      coverImageUrl: work.coverImageUrl ?? referenceRelease?.coverImageUrl,
+      thumbnailImageUrl: work.thumbnailImageUrl ??
           referenceRelease?.coverImageUrl ??
-          metadata.coverImageUrl,
-      publisher: metadata.publisher,
-      coverDate: metadata.coverDate,
-      releaseDate: metadata.releaseDate,
-      releaseYear: metadata.releaseYear,
-      barcode: metadata.barcode,
+          work.coverImageUrl,
+      publisher: work.publisher ?? referenceRelease?.publisher,
+      coverDate: work.coverDate,
+      releaseDate: work.releaseDate ?? referenceRelease?.releaseDate,
+      releaseYear: work.releaseYear ?? referenceRelease?.releaseDate?.year,
+      barcode: work.barcode ?? referenceRelease?.barcode,
       variant: referenceFormatLabel,
-      crossover: metadata.crossover,
+      crossover: work.crossover,
       isOwned: overlay.isOwned,
       isTracked: overlay.isTracked,
       isWishlisted: overlay.isWishlisted,
-      hasMissingCover: metadata.coverImageUrl == null &&
-          referenceRelease?.coverImageUrl == null,
-      hasMissingMetadata: _hasMissingCoreMetadata(metadata),
+      hasMissingCover:
+          work.coverImageUrl == null && referenceRelease?.coverImageUrl == null,
+      hasMissingMetadata: work.hasMissingCoreMetadata,
       condition: overlay.ownedItem?.condition,
       grade: overlay.ownedItem?.grade,
       primaryReferenceLabel: libraryPrimaryReferenceLabel(
@@ -135,169 +205,31 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,
       addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
-      editions: _copyEditionList(editions),
+      editions: const <CatalogEdition>[],
       updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-      trailerUrls: const <TrailerLink>[],
-      plotSummary: metadata.plotSummary,
-      plotDescription: metadata.plotDescription,
-      creators: _copyCreatorList(metadata.creators),
-      characters: _copyStringList(metadata.characters),
-      storyArcs: _copyStringList(metadata.storyArcs),
-      genres: _copyStringList(metadata.genres),
-      country: metadata.country,
-      language: metadata.language,
-      ageRating: metadata.ageRating,
-      audienceRating: metadata.audienceRating,
+      trailerUrls: _copyTrailerList(work.trailerUrls),
+      plotSummary: work.plotSummary,
+      plotDescription: work.plotDescription,
+      creators: _copyCreatorList(work.creators),
+      characters: _copyStringList(work.characters),
+      storyArcs: _copyStringList(work.storyArcs),
+      genres: _copyStringList(work.genres),
+      country: work.country,
+      language: work.language ?? referenceRelease?.language,
+      ageRating: work.ageRating,
+      audienceRating: work.audienceRating,
     ),
     game: GameCatalogDetails(platforms: work.platforms),
-  );
-}
-
-LibraryWorkspaceEntryData _buildReleaseEntryData(
-  LibraryReleaseEntryRequest request,
-  GameWork work,
-) {
-  final referenceRelease = _resolvePrimaryGameRelease(work.releases);
-  final selectedRelease = _gameReleaseById(
-        work.releases,
-        request.referenceEditionId ?? request.edition.id,
-      ) ??
-      referenceRelease;
-  final releasePlatform = selectedRelease?.platform?.trim().isNotEmpty == true
-      ? selectedRelease!.platform!.trim()
-      : work.platforms.isNotEmpty
-          ? work.platforms.first
-          : null;
-  return LibraryWorkspaceEntryData(
-    id: '${request.titleEntry.id}:release:${request.edition.id}',
-    browseScope: LibraryBrowserScope.release,
-    titleItemId: request.titleEntry.id,
-    releaseId: request.edition.id,
-    copyId: null,
-    ownedItemId: null,
-    mediaType: 'game',
-    title: request.titleEntry.title,
-    displayTitle: request.titleEntry.displayTitle,
-    localizedTitle: request.titleEntry.localizedTitle,
-    originalTitle: request.titleEntry.originalTitle,
-    searchAliases: _copyStringList(request.titleEntry.searchAliases),
-    itemNumber: null,
-    synopsis: request.titleEntry.synopsis,
-    coverImageUrl:
-        selectedRelease?.coverImageUrl ?? request.titleEntry.coverImageUrl,
-    thumbnailImageUrl: selectedRelease?.coverImageUrl ??
-        request.titleEntry.thumbnailImageUrl ??
-        request.titleEntry.coverImageUrl,
-    publisher: selectedRelease?.publisher ?? request.titleEntry.publisher,
-    coverDate: request.titleEntry.coverDate,
-    releaseDate: selectedRelease?.releaseDate ?? request.edition.releaseDate,
-    releaseYear:
-        (selectedRelease?.releaseDate ?? request.edition.releaseDate)?.year ??
-            request.titleEntry.releaseYear,
-    barcode: selectedRelease?.barcode ?? request.edition.upc,
-    variant: selectedRelease?.title ?? request.edition.title,
-    crossover: request.titleEntry.crossover,
-    isOwned: request.isOwned,
-    isTracked: request.isTracked,
-    isWishlisted: request.isWishlisted,
-    hasMissingCover: false,
-    hasMissingMetadata: false,
-    condition: null,
-    grade: null,
-    primaryReferenceLabel: null,
-    referenceScopeLabel: null,
-    referenceFormatLabel:
-        releasePlatform ?? request.edition.physicalFormatLabel,
-    referenceEditionId: request.referenceEditionId ?? request.edition.id,
-    referenceVariantId: request.referenceVariantId,
-    referenceBundleReleaseId: request.referenceBundleReleaseId,
-    notes: null,
-    tags: null,
-    collectionStatus: null,
-    lastBagBoardDate: null,
-    pricePaidCents: null,
-    currency: null,
-    locationPath: null,
-    addedAt: null,
-    editions: _copyEditionList(
-      request.editions.isEmpty ? [request.edition] : request.editions,
-    ),
-    updatedAt: request.updatedAt,
-    trailerUrls: const <TrailerLink>[],
-    creators: null,
-    characters: null,
-    storyArcs: null,
-    genres: null,
-    country: null,
-    language: selectedRelease?.language ?? request.edition.language,
-    ageRating: null,
-    audienceRating: null,
-  );
-}
-
-GameWork _gameWorkFromWorkspaceEntry(LibraryWorkspaceEntry entry) {
-  return GameWork(
-    id: entry.id,
-    title: entry.title,
-    platforms:
-        List<String>.unmodifiable(entry.game?.platforms ?? const <String>[]),
-    identifiers: const <String>[],
-    companyRoles: const <String>[],
-    ageRatings: const <String>[],
-    releases: [
-      for (final edition in entry.editions)
-        GameRelease(
-          id: edition.id,
-          title: edition.title,
-          platform: edition.variants.isNotEmpty
-              ? edition.variants.first.platform
-              : null,
-          releaseDate: edition.releaseDate,
-          format: edition.physicalFormatLabel ?? edition.physicalFormat,
-          publisher: edition.publisher,
-          catalogNumber: edition.upc,
-          releaseStatus: null,
-          language: edition.language,
-          barcode: edition.upc,
-        ),
-    ],
-  );
-}
-
-GameWork _gameWorkFromCatalogItem(CatalogItem item) {
-  return GameWork(
-    id: item.id,
-    title: item.title,
-    platforms: List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
-    identifiers: const <String>[],
-    companyRoles: const <String>[],
-    ageRatings: item.ageRating == null
-        ? const <String>[]
-        : List<String>.unmodifiable([item.ageRating!]),
-    releases: [
-      for (final edition in item.editions)
-        GameRelease(
-          id: edition.id,
-          title: edition.title,
-          platform: item.game?.platforms.isNotEmpty == true
-              ? item.game!.platforms.first
-              : null,
-          releaseDate: edition.releaseDate,
-          format: edition.format,
-          publisher: edition.publisher,
-          catalogNumber: edition.upc,
-          releaseStatus: null,
-          language: edition.language,
-          barcode: edition.upc,
-          coverImageUrl: edition.variants.isNotEmpty
-              ? edition.variants.first.coverImageUrl
-              : null,
-        ),
-    ],
+    gameReleases: releases,
   );
 }
 
 GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
+  for (final release in releases) {
+    if (release.isPrimary) {
+      return release;
+    }
+  }
   return releases.isEmpty ? null : releases.first;
 }
 
@@ -314,6 +246,10 @@ GameRelease? _gameReleaseById(List<GameRelease> releases, String? releaseId) {
   return null;
 }
 
+List<GameRelease> _copyGameReleaseList(List<GameRelease> values) {
+  return List<GameRelease>.unmodifiable(values);
+}
+
 List<String>? _copyStringList(List<String>? values) {
   if (values == null) return null;
   return List<String>.unmodifiable(values);
@@ -328,31 +264,6 @@ List<Map<String, dynamic>>? _copyCreatorList(
   );
 }
 
-List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
-  return List<CatalogEdition>.unmodifiable(values);
-}
-
-CatalogEdition _gameReleaseToCatalogEdition(GameRelease release) {
-  return CatalogEdition(
-    id: release.id,
-    title: release.title,
-    format: release.format,
-    publisher: release.publisher,
-    isbn: null,
-    upc: release.catalogNumber,
-    language: release.language,
-    region: release.regionCode,
-    releaseDate: release.releaseDate,
-    physicalFormat: release.platform,
-    physicalFormatLabel: release.format ?? release.platform,
-    variants: const <CatalogVariant>[],
-  );
-}
-
-bool _hasMissingCoreMetadata(CatalogItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-      item.coverImageUrl == null &&
-      item.physicalFormatLabel == null;
+List<TrailerLink> _copyTrailerList(List<TrailerLink> values) {
+  return List<TrailerLink>.unmodifiable(values);
 }
