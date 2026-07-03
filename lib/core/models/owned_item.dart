@@ -6,8 +6,8 @@ const Object _ownedItemUnset = Object();
 class OwnedItem {
   OwnedItem({
     required this.id,
-    String? itemId,
     CatalogEntityRef? catalogRef,
+    String? itemId,
     this.createdAt,
     this.isDigital,
     PersonalItemAnchor? anchor,
@@ -68,18 +68,21 @@ class OwnedItem {
     this.gamePriceChartingId,
     this.gameCoreRegion,
     this.gameValueIsLocked,
-  })  : itemId = itemId ?? catalogRef?.id ?? '',
+  })  : catalogRef = catalogRef ??
+            CatalogEntityRef(
+              kind: 'unknown',
+              entityType: CatalogEntityType.unknown,
+              id: itemId ?? '',
+            ),
         anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
               editionId: editionId,
               variantId: variantId,
               bundleReleaseId: bundleReleaseId,
-            ),
-        catalogRef = catalogRef ?? _legacyCatalogRef(itemId);
+            );
 
   final String id;
-  final String itemId;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
@@ -138,6 +141,8 @@ class OwnedItem {
   final String? gameCoreRegion;
   final bool? gameValueIsLocked;
 
+  String get itemId => catalogRef.id;
+
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;
   String? get variantId => anchor?.variantId;
@@ -150,7 +155,6 @@ class OwnedItem {
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      if (itemId.isNotEmpty) 'item_id': itemId,
       'catalog_ref': catalogRef.toJson(),
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (isDigital != null) 'is_digital': isDigital,
@@ -212,13 +216,14 @@ class OwnedItem {
   }
 
   factory OwnedItem.fromJson(Map<String, dynamic> json) {
+    final catalogRefJson = json['catalog_ref'];
+    if (catalogRefJson is! Map<String, dynamic>) {
+      throw StateError('OwnedItem payload missing catalog_ref');
+    }
     return OwnedItem(
       id: json['id'] as String,
+      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
       itemId: json['item_id'] as String?,
-      catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(
-              json['catalog_ref'] as Map<String, dynamic>)
-          : _legacyCatalogRef(json['item_id'] as String?),
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -376,7 +381,6 @@ class OwnedItem {
 
     return OwnedItem(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
       catalogRef: catalogRef ?? this.catalogRef,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
@@ -436,12 +440,4 @@ class OwnedItem {
       gameValueIsLocked: gameValueIsLocked ?? this.gameValueIsLocked,
     );
   }
-}
-
-CatalogEntityRef _legacyCatalogRef(String? itemId) {
-  return CatalogEntityRef(
-    kind: 'unknown',
-    entityType: CatalogEntityType.unknown,
-    id: itemId ?? '',
-  );
 }

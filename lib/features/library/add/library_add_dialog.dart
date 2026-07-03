@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/season.dart';
@@ -1601,6 +1602,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
       itemId: item.id,
+      catalogRef: CatalogEntityRef(
+        kind: item.kind,
+        entityType: CatalogEntityType.work,
+        id: item.id,
+      ),
       condition: _defaultCondition,
       grade: _defaultGrade,
       purchaseDate: purchaseDate,

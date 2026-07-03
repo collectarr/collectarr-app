@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -56,6 +57,11 @@ void main() {
             ownedItem: OwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
+              catalogRef: CatalogEntityRef(
+                kind: 'comic',
+                entityType: CatalogEntityType.work,
+                id: 'comic-1',
+              ),
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
             ),
@@ -70,6 +76,11 @@ void main() {
             ownedItem: OwnedItem(
               id: 'owned-2',
               itemId: 'comic-2',
+              catalogRef: CatalogEntityRef(
+                kind: 'comic',
+                entityType: CatalogEntityType.work,
+                id: 'comic-2',
+              ),
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
             ),

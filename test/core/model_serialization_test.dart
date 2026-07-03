@@ -454,6 +454,11 @@ void main() {
     final item = OwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
+      catalogRef: CatalogEntityRef(
+        kind: 'comic',
+        entityType: CatalogEntityType.work,
+        id: 'comic-1',
+      ),
       createdAt: DateTime.utc(2026, 5, 10),
       isDigital: true,
       condition: 'Near Mint',
@@ -477,7 +482,11 @@ void main() {
 
     final payload = item.toSyncPayload();
 
-    expect(payload['item_id'], 'comic-1');
+    expect(payload['catalog_ref'], {
+      'kind': 'comic',
+      'entity_type': 'work',
+      'id': 'comic-1',
+    });
     expect(payload['created_at'], '2026-05-10T00:00:00.000Z');
     expect(payload['is_digital'], isTrue);
     expect(payload['grade'], '9.8');
@@ -501,6 +510,11 @@ void main() {
     final item = WishlistItem(
       id: 'wish-1',
       itemId: 'comic-1',
+      catalogRef: CatalogEntityRef(
+        kind: 'comic',
+        entityType: CatalogEntityType.work,
+        id: 'comic-1',
+      ),
       targetPriceCents: 999,
       currency: 'USD',
       createdAt: DateTime.utc(2026, 5, 11),
@@ -509,7 +523,11 @@ void main() {
 
     final payload = item.toSyncPayload();
 
-    expect(payload['item_id'], 'comic-1');
+    expect(payload['catalog_ref'], {
+      'kind': 'comic',
+      'entity_type': 'work',
+      'id': 'comic-1',
+    });
     expect(payload['target_price_cents'], 999);
     expect(payload['created_at'], '2026-05-11T00:00:00.000Z');
   });

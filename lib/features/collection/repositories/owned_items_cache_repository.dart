@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:drift/drift.dart';
 
@@ -90,6 +91,7 @@ class OwnedItemsCacheRepository {
   OwnedItem _fromCache(OwnedItemsCacheData row) {
     return OwnedItem(
       id: row.id,
+      catalogRef: _catalogRefFromRow(row.itemId),
       itemId: row.itemId,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
@@ -218,6 +220,14 @@ class OwnedItemsCacheRepository {
       gamePriceChartingId: Value(item.gamePriceChartingId),
       gameCoreRegion: Value(item.gameCoreRegion),
       gameValueIsLocked: Value(item.gameValueIsLocked),
+    );
+  }
+
+  CatalogEntityRef _catalogRefFromRow(String itemId) {
+    return CatalogEntityRef(
+      kind: 'unknown',
+      entityType: CatalogEntityType.unknown,
+      id: itemId,
     );
   }
 

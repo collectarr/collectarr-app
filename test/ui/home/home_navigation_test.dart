@@ -52,7 +52,7 @@ void main() {
 
     final config = libraryConfigForCatalogType(
       type,
-      const LibraryTypeRegistry([]),
+      LibraryTypeRegistry([]),
     );
 
     expect(config.workspace.kind, CatalogMediaKind.unknown);
@@ -84,7 +84,7 @@ void main() {
 
     final config = libraryConfigForCatalogType(
       type,
-      const LibraryTypeRegistry([]),
+      LibraryTypeRegistry([]),
     );
 
     expect(config.defaultMetadataProvider, 'openlibrary');

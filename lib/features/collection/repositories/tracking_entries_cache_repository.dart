@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:drift/drift.dart';
 
 class TrackingEntriesCacheRepository {
@@ -78,6 +80,7 @@ class TrackingEntriesCacheRepository {
   TrackingEntry _fromCache(TrackingEntriesCacheData row) {
     return TrackingEntry(
       id: row.id,
+      catalogRef: _catalogRefForRow(row),
       itemId: row.itemId,
       ownedItemId: row.ownedItemId,
       editionId: row.editionId,
@@ -122,6 +125,28 @@ class TrackingEntriesCacheRepository {
       episodeRatings: Value(_encodeEpisodeRatings(item.episodeRatings)),
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
+    );
+  }
+
+  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row) {
+    final anchor = PersonalItemAnchor.fromRaw(
+      anchorType: row.sourceType,
+      editionId: row.editionId,
+      variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
+    );
+    final entityType = row.seasonNumber != null || row.episodeNumber != null
+        ? CatalogEntityType.episode
+        : switch (anchor?.type) {
+            PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
+            PersonalItemAnchorType.variant => CatalogEntityType.release,
+            PersonalItemAnchorType.edition => CatalogEntityType.edition,
+            _ => CatalogEntityType.work,
+          };
+    return CatalogEntityRef(
+      kind: 'unknown',
+      entityType: entityType,
+      id: row.itemId,
     );
   }
 

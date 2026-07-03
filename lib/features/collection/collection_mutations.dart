@@ -271,6 +271,7 @@ class CollectionMutations {
     final updated = OwnedItem(
       id: item.id,
       itemId: item.itemId,
+      catalogRef: item.catalogRef,
       createdAt: item.createdAt ?? now,
       isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
@@ -365,6 +366,15 @@ class CollectionMutations {
     final entry = TrackingEntry(
       id: _trackingEntryIdForOwnedItem(ownedItem.id),
       itemId: ownedItem.itemId,
+      catalogRef: _trackingCatalogRefForItemId(
+        ownedItem.itemId,
+        sourceType: TrackingSourceType.physical.apiValue,
+        editionId: editionId ?? ownedItem.editionId,
+        variantId: variantId ?? ownedItem.variantId,
+        bundleReleaseId: ownedItem.bundleReleaseId,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+      ),
       ownedItemId: ownedItem.id,
       editionId: editionId ?? ownedItem.editionId,
       variantId: variantId ?? ownedItem.variantId,
@@ -432,6 +442,15 @@ class CollectionMutations {
     final entry = TrackingEntry(
       id: entryId,
       itemId: itemId,
+      catalogRef: _trackingCatalogRefForItemId(
+        itemId,
+        sourceType: normalizedSourceType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+      ),
       ownedItemId: ownedItemId,
       editionId: editionId,
       variantId: variantId,
@@ -1401,7 +1420,12 @@ class CollectionMutations {
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
-      catalogRef: existing?.catalogRef,
+      catalogRef: existing?.catalogRef ??
+          CatalogEntityRef(
+            kind: 'unknown',
+            entityType: CatalogEntityType.work,
+            id: row.itemId,
+          ),
       isDigital: _csvOwnedItemIsDigital(row, existing: existing),
       anchorType: existing?.anchorType,
       editionId: existing?.editionId,
@@ -1439,7 +1463,7 @@ class CollectionMutations {
     );
   }
 
-  CatalogEntityRef? _catalogRefForItem(
+  CatalogEntityRef _catalogRefForItem(
     CatalogItem? item, {
     String? anchorType,
     String? editionId,
@@ -1447,7 +1471,11 @@ class CollectionMutations {
     String? bundleReleaseId,
   }) {
     if (item == null) {
-      return null;
+      return CatalogEntityRef(
+        kind: 'unknown',
+        entityType: CatalogEntityType.unknown,
+        id: '',
+      );
     }
     final resolvedAnchorType = resolvePersonalItemAnchorType(
       anchorType: anchorType,
@@ -1464,6 +1492,38 @@ class CollectionMutations {
       kind: item.kind,
       entityType: entityType,
       id: item.id,
+    );
+  }
+
+  CatalogEntityRef _trackingCatalogRefForItemId(
+    String itemId, {
+    String? sourceType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    int? seasonNumber,
+    int? episodeNumber,
+  }) {
+    final anchorType = _normalizedPersonalAnchorType(
+      sourceType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      fallbackEditionId: editionId,
+      fallbackVariantId: variantId,
+      fallbackBundleReleaseId: bundleReleaseId,
+    );
+    final entityType = (seasonNumber != null || episodeNumber != null)
+        ? CatalogEntityType.episode
+        : switch (anchorType) {
+            'edition' => CatalogEntityType.edition,
+            'variant' || 'bundle_release' => CatalogEntityType.release,
+            _ => CatalogEntityType.work,
+          };
+    return CatalogEntityRef(
+      kind: 'unknown',
+      entityType: entityType,
+      id: itemId,
     );
   }
 
@@ -1958,6 +2018,7 @@ class CollectionMutations {
         TrackingEntry(
           id: summaryEntry.id,
           itemId: summaryEntry.itemId,
+          catalogRef: summaryEntry.catalogRef,
           ownedItemId: summaryEntry.ownedItemId,
           editionId: summaryEntry.editionId,
           variantId: summaryEntry.variantId,
@@ -1991,6 +2052,15 @@ class CollectionMutations {
               sourceType: trackingSourceTypeApiValue(normalizedSourceType),
             ),
         itemId: itemId,
+        catalogRef: _trackingCatalogRefForItemId(
+          itemId,
+          sourceType: trackingSourceTypeApiValue(normalizedSourceType),
+          editionId: summaryEntry?.editionId,
+          variantId: summaryEntry?.variantId,
+          bundleReleaseId: summaryEntry?.bundleReleaseId,
+          seasonNumber: latestEpisode.seasonNumber,
+          episodeNumber: latestEpisode.episodeNumber,
+        ),
         ownedItemId: summaryEntry?.ownedItemId,
         editionId: summaryEntry?.editionId,
         variantId: summaryEntry?.variantId,

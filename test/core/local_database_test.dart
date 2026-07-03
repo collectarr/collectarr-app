@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -54,7 +55,7 @@ void main() {
   test('reports the reset v1 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 3);
   });
 
   test('destructively rebuilds a higher-versioned cache to the v1 schema',
@@ -85,7 +86,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 1);
+    expect(version.data.values.first, 3);
   });
 
   test('stores personal collection and wishlist data locally', () async {
@@ -170,6 +171,11 @@ void main() {
       OwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
+        catalogRef: CatalogEntityRef(
+          kind: 'comic',
+          entityType: CatalogEntityType.work,
+          id: 'comic-1',
+        ),
         createdAt: DateTime.utc(2026, 5, 21),
         ownerUserId: 'user-1',
         ownerLabel: 'user@example.com',
@@ -200,6 +206,11 @@ void main() {
       OwnedItem(
         id: 'owned-digital-1',
         itemId: 'movie-1',
+        catalogRef: CatalogEntityRef(
+          kind: 'movie',
+          entityType: CatalogEntityType.work,
+          id: 'movie-1',
+        ),
         isDigital: true,
         updatedAt: DateTime.utc(2026, 5, 22),
       ),
@@ -221,6 +232,11 @@ void main() {
       TrackingEntry(
         id: 'track-1',
         itemId: 'music-1',
+        catalogRef: CatalogEntityRef(
+          kind: 'music',
+          entityType: CatalogEntityType.work,
+          id: 'music-1',
+        ),
         editionId: 'edition-cd',
         variantId: 'variant-deluxe',
         sourceType: 'physical',

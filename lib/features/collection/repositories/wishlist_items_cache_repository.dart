@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:drift/drift.dart';
@@ -136,6 +137,7 @@ class WishlistItemsCacheRepository {
   WishlistItem _fromCache(WishlistItemsCacheData row) {
     return WishlistItem(
       id: row.id,
+      catalogRef: _catalogRefForRow(row),
       itemId: row.itemId,
       anchorType: row.anchorType,
       editionId: row.editionId,
@@ -164,6 +166,26 @@ class WishlistItemsCacheRepository {
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
+    );
+  }
+
+  CatalogEntityRef _catalogRefForRow(WishlistItemsCacheData row) {
+    final anchor = PersonalItemAnchor.fromRaw(
+      anchorType: row.anchorType,
+      editionId: row.editionId,
+      variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
+    );
+    final entityType = switch (anchor?.type) {
+      PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
+      PersonalItemAnchorType.variant => CatalogEntityType.release,
+      PersonalItemAnchorType.edition => CatalogEntityType.edition,
+      _ => CatalogEntityType.work,
+    };
+    return CatalogEntityRef(
+      kind: 'unknown',
+      entityType: entityType,
+      id: row.itemId,
     );
   }
 
