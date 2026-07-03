@@ -12,8 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../helpers/test_constants.dart';
-import '../../../helpers/secure_storage_mock.dart';
+import '../../helpers/test_constants.dart';
+import '../../helpers/secure_storage_mock.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -119,6 +119,7 @@ void main() {
           home: Scaffold(
             body: InspectorTrackingDetailsEditor(
               itemId: 'movie-1',
+              mediaType: 'movie',
               trackingEntry: TrackingEntry(
                 id: 'tracking-1',
                 itemId: 'movie-1',

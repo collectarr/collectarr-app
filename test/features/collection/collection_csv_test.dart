@@ -363,14 +363,16 @@ void main() {
       'owned-1': [
         CustomFieldValue(
           id: 'v1',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'Shelf A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'v2',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: '9',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -433,7 +435,8 @@ void main() {
       'owned-1': [
         CustomFieldValue(
           id: 'v1',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'Special note, with comma',
           updatedAt: DateTime.utc(2026, 1, 1),

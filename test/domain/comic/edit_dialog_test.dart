@@ -22,7 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../helpers/test_constants.dart';
+import '../../helpers/test_constants.dart';
 
 void main() {
   setUp(() {
@@ -170,7 +170,8 @@ void main() {
     );
     final customValue = CustomFieldValue(
       id: 'cfv-1',
-      ownedItemId: 'owned-1',
+      targetId: 'owned-1',
+      targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'cf-1',
       value: 'First print',
       updatedAt: DateTime.utc(2026, 5, 30),

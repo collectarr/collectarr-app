@@ -545,6 +545,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return items.where((item) => !item.isDeleted).toList(growable: false);
   }
 
+  LibrarySelectionCallbacks _selectionCallbacksForProjection(
+    LibraryProjection? projection,
+  ) {
+    return _LibraryPageShellPresenter._selectionCallbacksForProjection(
+      this,
+      projection,
+    );
+  }
+
   Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
     final mode = _activeGroupMode;
     if (!supportsBucketManagement(mode)) {

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('context menu shows bulk actions for multi-selection', (

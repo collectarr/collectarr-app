@@ -263,7 +263,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           query: entry.title,
           year: entry.releaseYear,
           limit: 10,
-        );
+      ).then((items) => [for (final item in items) item.toCatalogItem()]);
       },
     );
 

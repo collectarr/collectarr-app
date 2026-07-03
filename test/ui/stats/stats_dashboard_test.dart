@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('music stats dashboard uses artist and label metadata alerts', (

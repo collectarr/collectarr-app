@@ -90,37 +90,6 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
-    lastSearchQuery = query;
-    return const [
-      {
-        'id': 'comic-search-1',
-        'kind': 'comic',
-        'title': 'Batman',
-        'item_number': '1',
-      },
-    ];
-  }
-
-  @override
-  Future<Map<String, dynamic>> lookupBarcode(
-    String barcode, {
-    String? kind,
-  }) async {
-    if (barcode.contains('missing')) {
-      throw Exception('missing barcode');
-    }
-    return {
-      'id': 'comic-$barcode',
-      'kind': kind ?? 'comic',
-      'title': 'Batman',
-      'barcode': barcode,
-    };
-  }
-
-  @override
   Future<Map<String, dynamic>> lookupBarcode(
     String barcode, {
     String? kind,

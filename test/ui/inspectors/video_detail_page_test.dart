@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('double tap on a video card opens the release browser',

@@ -119,20 +119,6 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
-    lastSearchQuery = query;
-    return const [
-      {
-        'id': 'comic-1',
-        'kind': 'comic',
-        'title': 'Batman',
-      },
-    ];
-  }
-
-  @override
   Future<Map<String, dynamic>> lookupBarcode(
     String barcode, {
     String? kind,

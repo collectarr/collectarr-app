@@ -5,7 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('folder section keeps current folders when picker is cancelled', (

@@ -59,7 +59,7 @@ void main() {
     );
 
     expect(candidate.kind, 'book');
-    final item = candidate.placeholderCatalogItem();
+    final item = candidate.placeholderItem();
     expect(item.id, 'provider:openlibrary:book:book-1');
     expect(item.kind, 'book');
     expect(item.title, 'Legacy Book Candidate');
@@ -104,7 +104,7 @@ void main() {
       'is_variant': false,
     });
 
-    final item = candidate.placeholderCatalogItem();
+    final item = candidate.placeholderItem();
 
     expect(item.itemNumber, '1');
     expect(item.releaseYear, 2024);
