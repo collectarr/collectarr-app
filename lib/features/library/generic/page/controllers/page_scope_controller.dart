@@ -148,6 +148,7 @@ abstract final class _LibraryScopeControllerOps {
   static LibrarySidebarScopeSnapshot captureSidebarScope(
     GenericLibraryPageState state,
   ) {
+    final searchState = _LibraryPageSearchControllerOps.thisState(state);
     return LibrarySidebarScopeSnapshot(
       groupMode: state._activeGroupMode,
       selectedBucket: state._selectedBucket,
@@ -159,7 +160,7 @@ abstract final class _LibraryScopeControllerOps {
       filterSelection: state._filterSelection,
       activeSmartListId: state._activeSmartListId,
       activeSmartListName: state._activeSmartListName,
-      searchQuery: state._appliedSearchQuery.trim(),
+      searchQuery: searchState.query.trim(),
     );
   }
 
@@ -182,8 +183,7 @@ abstract final class _LibraryScopeControllerOps {
       selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
       composing: TextRange.empty,
     );
-    state._appliedSearchQuery = snapshot.searchQuery;
-    state._searchPinnedItemId = null;
+    _LibraryPageSearchControllerOps.setQuery(state, snapshot.searchQuery);
   }
 
   static void navigateSidebarBack(GenericLibraryPageState state) {
@@ -230,10 +230,9 @@ abstract final class _LibraryScopeControllerOps {
       state._activeSmartListName = null;
       state._scopeHistory = const [];
       state._searchController.clear();
-      state._appliedSearchQuery = '';
-      state._searchPinnedItemId = null;
       state._selectionAnchorId = null;
     });
+    _LibraryPageSearchControllerOps.clearSearch(state);
     state._syncRouteState();
   }
 
@@ -246,12 +245,11 @@ abstract final class _LibraryScopeControllerOps {
       state._quickView = smartList.quickView;
       if (smartList.searchQuery != null) {
         state._searchController.text = smartList.searchQuery!;
-        state._appliedSearchQuery = smartList.searchQuery!.trim();
+        _LibraryPageSearchControllerOps.setQuery(state, smartList.searchQuery!);
       } else {
         state._searchController.clear();
-        state._appliedSearchQuery = '';
+        _LibraryPageSearchControllerOps.clearSearch(state);
       }
-      state._searchPinnedItemId = null;
       if (state._viewState != null) {
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._viewState = state._viewState!.withSortRules(
@@ -284,13 +282,12 @@ abstract final class _LibraryScopeControllerOps {
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
       state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
       state._searchController.clear();
-      state._appliedSearchQuery = '';
-      state._searchPinnedItemId = null;
       state._selectedBucket = null;
       state._selectedLetter = null;
       state._linkedMetadataFilter = null;
       state._scopeHistory = const [];
     });
+    _LibraryPageSearchControllerOps.clearSearch(state);
     state._syncRouteState();
   }
 

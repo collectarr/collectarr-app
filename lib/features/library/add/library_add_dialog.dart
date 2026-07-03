@@ -1958,7 +1958,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             kind: selected.kind,
             id: itemId,
           )
-          .then((dto) => dto.toCatalogItem());
+          .then(
+            (dto) => CatalogItem.fromJson({
+              ...dto.raw,
+              'id': dto.id,
+              'title': dto.title,
+              'kind': dto.kind,
+            }),
+          );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -2269,7 +2276,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 kind: item.kind,
                 id: item.id,
               )
-              .then((dto) => dto.toCatalogItem());
+              .then(
+                (dto) => CatalogItem.fromJson({
+                  ...dto.raw,
+                  'id': dto.id,
+                  'title': dto.title,
+                  'kind': dto.kind,
+                }),
+              );
           final fullItem = LibraryMetadataItem.fromCatalogItem(full);
           final hasCover = fullItem.displayCoverUrl != null;
           return hasCover

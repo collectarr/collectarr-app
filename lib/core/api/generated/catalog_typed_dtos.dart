@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'collectarr_api.enums.dart';
 
 abstract class CatalogTypedDto {
   CatalogTypedDto(this.raw);
@@ -13,13 +13,6 @@ abstract class CatalogTypedDto {
   String? get thumbnailImageUrl;
   String? get barcode;
 
-  CatalogItem toCatalogItem() {
-    final payload = Map<String, dynamic>.from(raw);
-    payload.putIfAbsent('id', () => id);
-    payload.putIfAbsent('title', () => title);
-    payload.putIfAbsent('kind', () => kind);
-    return CatalogItem.fromJson(payload);
-  }
 }
 
 class BookWorkDto extends CatalogTypedDto {
@@ -37,7 +30,7 @@ class BookWorkDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'book';
+  final String? kind = CollectarrItemKind.book.apiValue;
   @override
   final DateTime? releaseDate = null;
   @override
@@ -81,7 +74,7 @@ class BookEditionDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'book';
+  final String? kind = CollectarrItemKind.book.apiValue;
   @override
   final DateTime? releaseDate;
   @override
@@ -129,7 +122,7 @@ class GameWorkDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'game';
+  final String? kind = CollectarrItemKind.game.apiValue;
   @override
   final DateTime? releaseDate = null;
   @override
@@ -177,7 +170,7 @@ class GameReleaseDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'game';
+  final String? kind = CollectarrItemKind.game.apiValue;
   @override
   final DateTime? releaseDate;
   @override
@@ -234,7 +227,7 @@ class BoardGameWorkDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'boardgame';
+  final String? kind = CollectarrItemKind.boardgame.apiValue;
   @override
   final DateTime? releaseDate = null;
   @override
@@ -296,7 +289,7 @@ class BoardGameEditionDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'boardgame';
+  final String? kind = CollectarrItemKind.boardgame.apiValue;
   @override
   final DateTime? releaseDate;
   @override
@@ -373,7 +366,7 @@ class MusicReleaseDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'music';
+  final String? kind = CollectarrItemKind.music.apiValue;
   @override
   final DateTime? releaseDate;
   @override
@@ -443,7 +436,7 @@ class MusicMediaDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'music';
+  final String? kind = CollectarrItemKind.music.apiValue;
   @override
   final DateTime? releaseDate = null;
   @override
@@ -498,7 +491,7 @@ class MusicTrackDto extends CatalogTypedDto {
   @override
   final String title;
   @override
-  final String? kind = 'music';
+  final String? kind = CollectarrItemKind.music.apiValue;
   @override
   final DateTime? releaseDate = null;
   @override
@@ -525,6 +518,176 @@ class MusicTrackDto extends CatalogTypedDto {
   }
 }
 
+class ComicWorkDto extends CatalogTypedDto {
+  ComicWorkDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.issues,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = CollectarrItemKind.comic.apiValue;
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final List<Map<String, dynamic>> issues;
+
+  factory ComicWorkDto.fromJson(Map<String, dynamic> json) {
+    return ComicWorkDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Untitled item',
+      issues: _mapList(json['issues']),
+    );
+  }
+}
+
+class MangaWorkDto extends CatalogTypedDto {
+  MangaWorkDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.chapters,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = CollectarrItemKind.manga.apiValue;
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final List<Map<String, dynamic>> chapters;
+
+  factory MangaWorkDto.fromJson(Map<String, dynamic> json) {
+    return MangaWorkDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Untitled item',
+      chapters: _mapList(json['chapters']),
+    );
+  }
+}
+
+class AnimeSeriesDto extends CatalogTypedDto {
+  AnimeSeriesDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.episodes,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = CollectarrItemKind.anime.apiValue;
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final List<Map<String, dynamic>> episodes;
+
+  factory AnimeSeriesDto.fromJson(Map<String, dynamic> json) {
+    return AnimeSeriesDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Untitled item',
+      episodes: _mapList(json['episodes']),
+    );
+  }
+}
+
+class MovieWorkDto extends CatalogTypedDto {
+  MovieWorkDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.releases,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = CollectarrItemKind.movie.apiValue;
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final List<Map<String, dynamic>> releases;
+
+  factory MovieWorkDto.fromJson(Map<String, dynamic> json) {
+    return MovieWorkDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Untitled item',
+      releases: _mapList(json['releases']),
+    );
+  }
+}
+
+class TvSeriesDto extends CatalogTypedDto {
+  TvSeriesDto._(
+    super.raw, {
+    required this.id,
+    required this.title,
+    required this.seasons,
+  });
+
+  @override
+  final String id;
+  @override
+  final String title;
+  @override
+  final String? kind = CollectarrItemKind.tv.apiValue;
+  @override
+  final DateTime? releaseDate = null;
+  @override
+  final String? coverImageUrl = null;
+  @override
+  final String? thumbnailImageUrl = null;
+  @override
+  final String? barcode = null;
+  final List<Map<String, dynamic>> seasons;
+
+  factory TvSeriesDto.fromJson(Map<String, dynamic> json) {
+    return TvSeriesDto._(
+      Map<String, dynamic>.from(json),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Untitled item',
+      seasons: _mapList(json['seasons']),
+    );
+  }
+}
+
 List<String> _stringList(Object? value) {
   if (value is! List<dynamic>) {
     return const [];
@@ -542,6 +705,16 @@ List<String> _stringList(Object? value) {
     }
   }
   return result;
+}
+
+List<Map<String, dynamic>> _mapList(Object? value) {
+  if (value is! List<dynamic>) {
+    return const [];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) Map<String, dynamic>.from(entry),
+  ];
 }
 
 List<MusicMediaDto> _musicMediaList(Object? value) {

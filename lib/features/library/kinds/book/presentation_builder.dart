@@ -181,7 +181,7 @@ class BookLibraryMediaPresentationBuilder
     final sections = <Widget>[];
     final resolvedItemId = entry.titleItemId ?? entry.id;
     if (showVolumeHierarchy) {
-      sections.add(VolumesSection(itemId: resolvedItemId));
+      sections.add(VolumesSection(itemId: resolvedItemId, kind: 'book'));
     }
     final workFacts = <LibraryInspectorFactData>[
       if (entry.series?.seriesTitle?.trim().isNotEmpty == true)

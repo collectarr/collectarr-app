@@ -4,10 +4,10 @@ abstract final class _LibrarySelectionControllerOps {
   static void selectItem(GenericLibraryPageState state, String id) {
     state._mutateState(() {
       state._selectedId = id;
-      if (state._videoShelfDrilldownTitleItemId != null &&
-          state._videoShelfDrilldownTitleItemId != id) {
-        state._videoShelfDrilldownTitleItemId = null;
-        state._videoShelfDrilldownReleaseId = null;
+      if (state._kindBrowserDelegate.videoShelfDrilldownTitleItemId != null &&
+          state._kindBrowserDelegate.videoShelfDrilldownTitleItemId != id) {
+        state._kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
+        state._kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
       }
     });
     state._selectionHydrationDebounce?.cancel();

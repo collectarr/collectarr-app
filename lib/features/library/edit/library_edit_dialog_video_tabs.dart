@@ -659,6 +659,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
         if (_showsEpisodeTrackingFields)
           VideoSeasonTrackingSection(
             itemId: widget.item.id,
+            kind: widget.type.workspace.kind.apiValue,
             accent: widget.accent,
           ),
         if (_showsEpisodeTrackingFields)
@@ -666,6 +667,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
             padding: const EdgeInsets.only(top: 12),
             child: VideoEpisodeRatingSection(
               itemId: widget.item.id,
+              kind: widget.type.workspace.kind.apiValue,
               accent: widget.accent,
               trackingEntry: widget.trackingEntry?.copyWith(
                 episodeRatings: _episodeRatings,

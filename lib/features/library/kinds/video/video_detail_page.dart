@@ -191,11 +191,13 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             const SizedBox(height: 16),
             VideoSeasonTrackingSection(
               itemId: request.entry.id,
+              kind: request.type.workspace.kind.apiValue,
               accent: request.accent,
             ),
             const SizedBox(height: 16),
             VideoEpisodeRatingDisplaySection(
               itemId: request.entry.id,
+              kind: request.type.workspace.kind.apiValue,
               accent: request.accent,
             ),
             if (selectedRelease != null)

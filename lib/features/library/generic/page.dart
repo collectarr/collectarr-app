@@ -38,6 +38,7 @@ import 'package:collectarr_app/features/library/generic/collection_actions.dart'
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/generic/page_search_state.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
@@ -106,6 +107,7 @@ part 'page/controllers/page_scope_controller.dart';
 part 'page/controllers/page_view_state_controller.dart';
 part 'page/controllers/page_projection_controller.dart';
 part 'page/controllers/page_projection_provider.dart';
+part 'page/controllers/page_search_controller.dart';
 part 'page/controllers/page_toolbar_controller.dart';
 part 'page/controllers/page_toolbar_presenter.dart';
 part 'page/controllers/page_toolbar_builder.dart';
@@ -133,6 +135,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
   static bool _viewStateCacheWarmupStarted = false;
 
+  final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
   String? _selectedId;
@@ -150,8 +153,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final _detailHydrationInFlight = <String>{};
   Set<String> _activeLoanOwnedItemIds = const {};
   List<LibraryFolderPreset> _pinnedFolderPresets = const [];
-  String? _videoShelfDrilldownTitleItemId;
-  String? _videoShelfDrilldownReleaseId;
   String? _activeSmartListId;
   String? _activeSmartListName;
   Set<LibraryWorkspacePreset> _pinnedViewPresets = const {};
@@ -165,20 +166,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   int _viewPreferenceLoadToken = 0;
   int _columnFavoritesLoadToken = 0;
   int _activeLoanIdsLoadToken = 0;
-  int _customFieldLoadToken = 0;
   Timer? _viewStateSaveDebounce;
-  Timer? _searchDebounce;
   Timer? _selectionHydrationDebounce;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   String? _lastFacetEnsureSignature;
   LibraryGroupMode? _lastFacetEnsureMode;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
       LibraryNoopBrowserDelegate();
-
-  String _appliedSearchQuery = '';
-  String? _searchPinnedItemId;
-
-  LibrarySearchTarget _searchTarget = LibrarySearchTarget.all;
 
   bool get ownsKindReleaseFolderState => true;
 
@@ -203,7 +197,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _shelfSubscription = ref.listenManual<AsyncValue<ShelfState>>(
       shelfProvider,
       (_, next) {
-        unawaited(_loadCustomFieldValuesForCurrentKind());
         final shelfState = next.asData?.value;
         if (shelfState != null) {
           _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
@@ -362,12 +355,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _savedColumnFavoritePresets = const [];
       _scopeHistory = const [];
       _selectionAnchorId = null;
-      _videoShelfDrilldownTitleItemId = null;
-      _videoShelfDrilldownReleaseId = null;
       setActiveReleaseFolderTitleItemId(null);
-      _searchTarget = LibrarySearchTarget.all;
-      _appliedSearchQuery = '';
-      _searchPinnedItemId = null;
       ref
           .read(
             libraryFacetControllerProvider(
@@ -385,6 +373,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _lastFacetEnsureSignature = null;
       _lastFacetEnsureMode = null;
       _searchController.clear();
+      _LibraryPageSearchControllerOps.clearSearch(this);
       _primeCachedViewPreferences();
       // Start from the next kind's own cached defaults/chrome to avoid
       // a one-frame layout jump (e.g. right -> bottom details panel).
@@ -392,7 +381,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       unawaited(_loadViewState());
       unawaited(_loadViewPreferences());
       unawaited(_loadColumnFavoritePresets());
-      unawaited(_loadCustomFieldValuesForCurrentKind());
       unawaited(_loadActiveLoanIds());
     } else if (oldWidget.routeUri.toString() != widget.routeUri.toString()) {
       _applyRouteStateFromUri(widget.routeUri);
@@ -428,42 +416,36 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void dispose() {
     _viewStateSaveDebounce?.cancel();
-    _searchDebounce?.cancel();
     _selectionHydrationDebounce?.cancel();
     _shelfSubscription?.close();
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged(String _) {
-    final trimmed = _searchController.text.trim();
-    if (_appliedSearchQuery == trimmed && _searchPinnedItemId == null) {
+  void _onSearchChanged(String value) {
+    final trimmed = value.trim();
+    final searchState = ref.watch(
+      libraryPageSearchStateProvider(_searchStateKey),
+    );
+    if (searchState.query == trimmed && searchState.pinnedItemId == null) {
       return;
     }
+    _LibraryPageSearchControllerOps.setQuery(this, trimmed);
     setState(() {
-      _appliedSearchQuery = trimmed;
-      _searchPinnedItemId = null;
       _activeSmartListId = null;
       _activeSmartListName = null;
     });
     _syncRouteState();
   }
 
-  void _onSearchInputChanged(String _) {
-    _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 60), () {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
+  void _onSearchInputChanged(String value) {
+    _onSearchChanged(value);
   }
 
   void _clearSearch() {
+    _searchController.clear();
+    _LibraryPageSearchControllerOps.clearSearch(this);
     setState(() {
-      _searchController.clear();
-      _appliedSearchQuery = '';
-      _searchPinnedItemId = null;
       _activeSmartListId = null;
       _activeSmartListName = null;
     });
@@ -471,14 +453,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) {
+    _searchController.value = _searchController.value.copyWith(
+      text: suggestion.title,
+      selection: TextSelection.collapsed(offset: suggestion.title.length),
+      composing: TextRange.empty,
+    );
+    _LibraryPageSearchControllerOps.applySuggestion(this, suggestion);
     setState(() {
-      _searchController.value = _searchController.value.copyWith(
-        text: suggestion.title,
-        selection: TextSelection.collapsed(offset: suggestion.title.length),
-        composing: TextRange.empty,
-      );
-      _appliedSearchQuery = suggestion.title.trim();
-      _searchPinnedItemId = suggestion.id;
       _activeSmartListId = null;
       _activeSmartListName = null;
     });
@@ -486,11 +467,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _onSearchTargetChanged(LibrarySearchTarget target) {
-    if (!_supportsMusicTrackSearch || _searchTarget == target) {
+    final searchState = _LibraryPageSearchControllerOps.thisState(this);
+    if (!_supportsMusicTrackSearch || searchState.target == target) {
       return;
     }
+    _LibraryPageSearchControllerOps.setTarget(this, target);
     setState(() {
-      _searchTarget = target;
       _activeSmartListId = null;
       _activeSmartListName = null;
     });
@@ -657,7 +639,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         });
       }
     }
-    final trimmedSearchQuery = _appliedSearchQuery.trim();
+    final searchState = _LibraryPageSearchControllerOps.thisState(this);
+    final trimmedSearchQuery = searchState.query.trim();
     final seriesStatusSummary = _seriesStatusSummaryForProjection(projection);
     if (kDebugMode &&
         kIsWeb &&
@@ -1269,9 +1252,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _activeSmartListId = null;
       _activeSmartListName = null;
       _searchController.clear();
-      _appliedSearchQuery = '';
-      _searchPinnedItemId = null;
     });
+    _LibraryPageSearchControllerOps.clearSearch(this);
     _selectItem(match.entry.id);
   }
 
@@ -1553,19 +1535,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return _LibraryViewStateControllerOps.loadViewState(this);
   }
 
-  Future<void> _loadCustomFieldValuesForCurrentKind() {
-    final loadToken = ++_customFieldLoadToken;
-    final expectedKind = widget.type.workspace.kind.apiValue;
-    return loadCustomFieldValues(
-      mediaKind: expectedKind,
-      canApply: () {
-        return mounted &&
-            loadToken == _customFieldLoadToken &&
-            widget.type.workspace.kind.apiValue == expectedKind;
-      },
-    );
-  }
-
   Future<void> _warmViewStateCachesOnce() {
     return _LibraryViewStateControllerOps.warmViewStateCachesOnce(this);
   }
@@ -1597,11 +1566,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> showAddDialogFlow({String? barcode}) async {
+    final searchState = _LibraryPageSearchControllerOps.thisState(this);
     final added = await showLibraryAddDialog(
       context: context,
       type: widget.type,
       accent: widget.accent,
-      initialQuery: _searchController.text,
+      initialQuery: searchState.query,
       initialBarcode: barcode,
     );
     if (added != null && mounted) {
@@ -1636,9 +1606,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _activeSmartListName = null;
       _scopeHistory = const [];
       _searchController.clear();
-      _appliedSearchQuery = '';
-      _searchPinnedItemId = null;
     });
+    _LibraryPageSearchControllerOps.clearSearch(this);
     _syncRouteState();
   }
 
@@ -1684,10 +1653,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _closeReleaseFolder();
       return;
     }
-    if (_videoShelfDrilldownTitleItemId != null) {
+    if (_kindBrowserDelegate.videoShelfDrilldownTitleItemId != null) {
       setState(() {
-        _videoShelfDrilldownTitleItemId = null;
-        _videoShelfDrilldownReleaseId = null;
+        _kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
+        _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
       });
       return;
     }
@@ -1759,7 +1728,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             kind: widget.type.workspace.kind.apiValue,
             id: itemId,
           )
-          .then((dto) => dto.toCatalogItem());
+          .then(
+            (dto) => CatalogItem.fromJson({
+              ...dto.raw,
+              'id': dto.id,
+              'title': dto.title,
+              'kind': dto.kind,
+            }),
+          );
       await CatalogCacheRepository(ref.read(localDatabaseProvider)).upsertAll([
         item,
       ]);

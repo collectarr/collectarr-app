@@ -229,7 +229,9 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
         return;
       }
       ref.invalidate(shelfProvider);
-      unawaited(_loadCustomFieldValuesForCurrentKind());
+      ref.invalidate(
+        libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${widget.type.singularLabel} updated')),
       );

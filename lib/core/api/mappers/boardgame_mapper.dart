@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 
-CatalogItem boardGameCatalogItemFromDto(BoardGameWorkDto dto) => dto.toCatalogItem();
-CatalogItem boardGameEditionCatalogItemFromDto(BoardGameEditionDto dto) => dto.toCatalogItem();
+BoardGameWork boardGameWorkFromDto(BoardGameWorkDto dto) =>
+    BoardGameWork.fromDto(dto);
+
+BoardGameEdition boardGameEditionFromDto(BoardGameEditionDto dto) =>
+    BoardGameEdition.fromDto(dto);

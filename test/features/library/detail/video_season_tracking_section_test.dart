@@ -101,7 +101,10 @@ void main() {
 
 class _VideoSeasonApiClient extends ApiClient {
   @override
-  Future<List<Season>> getItemSeasons(String itemId) async {
+  Future<List<Season>> getItemSeasons(
+    String itemId, {
+    String? kind,
+  }) async {
     return [
       Season(
         seasonNumber: 1,

@@ -12,9 +12,10 @@ abstract final class _LibraryProjectionControllerOps {
         (state._usesExternalFacetBuckets(mode) && state._selectedBucket != null)
             ? facetBuckets?.itemIdsByBucket[state._selectedBucket!]
             : null;
-    final searchPinnedItemIds = state._searchPinnedItemId == null
+    final searchState = _LibraryPageSearchControllerOps.thisState(state);
+    final searchPinnedItemIds = searchState.pinnedItemId == null
         ? null
-        : <String>{state._searchPinnedItemId!};
+        : <String>{searchState.pinnedItemId!};
     final effectiveConstrainedItemIds = _mergeConstrainedItemIds(
       constrainedItemIds,
       searchPinnedItemIds,
@@ -28,11 +29,16 @@ abstract final class _LibraryProjectionControllerOps {
     final quickView = state._quickView;
     final collectionStatusScope = state._collectionStatusScope;
     final filterSelection = state._filterSelection;
-    final customFieldValues = state.customFieldValuesByItem;
+    final customFieldCache = state.ref.watch(
+      libraryCustomFieldCacheProvider(state.widget.type.workspace.kind.apiValue),
+    );
+    final customFieldValues =
+        customFieldCache.asData?.value.valuesByItem ?? const <String, List<String>>{};
     final customFieldValuesByDefinition =
-        state.customFieldValuesByDefinitionByItem;
+        customFieldCache.asData?.value.valuesByDefinitionByItem ??
+            const <String, Map<String, String>>{};
     final activeLoanOwnedItemIds = state._activeLoanOwnedItemIds;
-    final query = state._appliedSearchQuery;
+    final query = searchState.query;
     final searchTarget = state._effectiveSearchTarget;
     final browserMode = state._activeBrowserMode;
     final releaseFolderTitleItemId = state.activeReleaseFolderTitleItemId;
@@ -51,7 +57,7 @@ abstract final class _LibraryProjectionControllerOps {
       collectionStatusScope: collectionStatusScope,
       filterSelection: filterSelection,
       constrainedItemIds: constrainedItemIds,
-      searchPinnedItemId: state._searchPinnedItemId,
+      searchPinnedItemId: searchState.pinnedItemId,
       customFieldValuesByItem: customFieldValues,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,

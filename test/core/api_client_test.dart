@@ -198,7 +198,7 @@ void main() {
         expect(dto.raw['tracks'], hasLength(1));
         expect(dto.raw['barcode'], '1234567890');
 
-        final item = dto.toCatalogItem();
+        final item = CatalogItem.fromJson(dto.raw);
         expect(item, isA<CatalogItem>());
         expect(dto.kind, 'book');
         expect(dto.title, 'The Sample Book');
@@ -242,6 +242,93 @@ void main() {
         expect(results, hasLength(2));
         expect(results.first.kind, 'comic');
         expect(results.first.title, 'Batman #1');
+      });
+
+      test('uses typed routes for comic manga anime movie and tv', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/metadata/comics/works/comic-1', {
+          'id': 'comic-1',
+          'title': 'Saga',
+          'issues': [],
+        });
+        interceptor.onGet('/metadata/manga/works/manga-1', {
+          'id': 'manga-1',
+          'title': 'Berserk',
+          'chapters': [],
+        });
+        interceptor.onGet('/metadata/anime/series/anime-1', {
+          'id': 'anime-1',
+          'title': 'Naruto',
+          'episodes': [],
+        });
+        interceptor.onGet('/metadata/movies/works/movie-1', {
+          'id': 'movie-1',
+          'title': 'Alien',
+          'releases': [],
+        });
+        interceptor.onGet('/metadata/tv/series/tv-1', {
+          'id': 'tv-1',
+          'title': 'Breaking Bad',
+          'seasons': [],
+        });
+        final client = _createTestClient(interceptor);
+
+        expect(await client.getTypedMetadataItemDto(kind: 'comic', id: 'comic-1'),
+            isA<ComicWorkDto>());
+        expect(await client.getTypedMetadataItemDto(kind: 'manga', id: 'manga-1'),
+            isA<MangaWorkDto>());
+        expect(await client.getTypedMetadataItemDto(kind: 'anime', id: 'anime-1'),
+            isA<AnimeSeriesDto>());
+        expect(await client.getTypedMetadataItemDto(kind: 'movie', id: 'movie-1'),
+            isA<MovieWorkDto>());
+        expect(await client.getTypedMetadataItemDto(kind: 'tv', id: 'tv-1'),
+            isA<TvSeriesDto>());
+      });
+
+      test('uses typed volume and season routes when kind is known', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/metadata/manga/works/manga-1', {
+          'id': 'manga-1',
+          'title': 'Berserk',
+          'chapters': [
+            {'chapter_number': 1, 'chapter_title': 'Black Swordsman'},
+          ],
+        });
+        interceptor.onGet('/metadata/tv/series/tv-1', {
+          'id': 'tv-1',
+          'title': 'Breaking Bad',
+          'seasons': [
+            {
+              'season_number': 1,
+              'title': 'Season 1',
+              'episodes': [],
+            }
+          ],
+        });
+        interceptor.onGet('/metadata/anime/series/anime-1', {
+          'id': 'anime-1',
+          'title': 'Naruto',
+          'episodes': [
+            {
+              'episode_number': 1,
+              'episode_title': 'Enter Naruto Uzumaki!',
+            }
+          ],
+        });
+        final client = _createTestClient(interceptor);
+
+        expect(
+          await client.getItemVolumes('manga-1', kind: 'manga'),
+          hasLength(1),
+        );
+        expect(
+          await client.getItemSeasons('tv-1', kind: 'tv'),
+          hasLength(1),
+        );
+        expect(
+          await client.getItemSeasons('anime-1', kind: 'anime'),
+          hasLength(1),
+        );
       });
     });
 

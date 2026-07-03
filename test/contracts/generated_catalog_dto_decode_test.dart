@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -62,8 +63,17 @@ void main() {
     expect(boardgame.contributors, ['Klaus Teuber']);
     expect(boardgame.rankings, ['BGG Rank #1']);
     expect(music.media.first.tracks.first.title, 'Speak to Me');
-    expect(game.toCatalogItem().title, 'Zelda');
-    expect(boardgame.toCatalogItem().title, 'Catan');
-    expect(music.toCatalogItem().title, 'The Dark Side of the Moon');
+    expect(
+      CatalogItem.fromJson({...game.raw, 'kind': game.kind}).title,
+      'Zelda',
+    );
+    expect(
+      CatalogItem.fromJson({...boardgame.raw, 'kind': boardgame.kind}).title,
+      'Catan',
+    );
+    expect(
+      CatalogItem.fromJson({...music.raw, 'kind': music.kind}).title,
+      'The Dark Side of the Moon',
+    );
   });
 }

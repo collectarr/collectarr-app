@@ -17,9 +17,11 @@ final _uuidPattern = RegExp(
   caseSensitive: false,
 );
 
-final itemSeasonsProvider =
-    FutureProvider.autoDispose.family<List<Season>, String>((ref, itemId) async {
+final itemSeasonsProvider = FutureProvider.autoDispose.family<
+    List<Season>,
+    ({String itemId, String? kind})>((ref, params) async {
   final api = ref.watch(apiClientProvider);
+  final itemId = params.itemId;
   final localMatch = _tmdbLocalIdPattern.firstMatch(itemId);
   if (localMatch != null) {
     final kind = localMatch.group(1)!;
@@ -31,5 +33,7 @@ final itemSeasonsProvider =
   if (!_uuidPattern.hasMatch(itemId)) {
     return const <Season>[];
   }
-  return api.getItemSeasons(itemId).timeout(const Duration(seconds: 60));
+  return api
+      .getItemSeasons(itemId, kind: params.kind)
+      .timeout(const Duration(seconds: 60));
 });

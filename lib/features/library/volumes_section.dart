@@ -10,6 +10,7 @@ class VolumesSection extends ConsumerWidget {
     this.provider,
     this.providerItemId,
     this.itemId,
+    this.kind,
   })  : assert(
           itemId != null || (provider != null && providerItemId != null),
           'Provide itemId or provider + providerItemId.',
@@ -22,11 +23,12 @@ class VolumesSection extends ConsumerWidget {
   final String? provider;
   final String? providerItemId;
   final String? itemId;
+  final String? kind;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final volumesAsync = itemId != null
-        ? ref.watch(itemVolumesProvider(itemId!))
+        ? ref.watch(itemVolumesProvider((itemId: itemId!, kind: kind)))
         : ref.watch(
             volumesProvider(
               (provider: provider!, providerItemId: providerItemId!),

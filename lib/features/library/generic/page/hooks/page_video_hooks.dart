@@ -15,8 +15,8 @@ extension _PageVideoHooks on GenericLibraryPageState {
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {
     setState(() {
       _selectedId = item.entry.id;
-      _videoShelfDrilldownTitleItemId = item.entry.id;
-      _videoShelfDrilldownReleaseId = null;
+      _kindBrowserDelegate.videoShelfDrilldownTitleItemId = item.entry.id;
+      _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
     });
   }
 
@@ -51,7 +51,7 @@ extension _PageVideoHooks on GenericLibraryPageState {
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    final titleItemId = _videoShelfDrilldownTitleItemId;
+    final titleItemId = _kindBrowserDelegate.videoShelfDrilldownTitleItemId;
     if (titleItemId == null) {
       return null;
     }
@@ -60,14 +60,14 @@ extension _PageVideoHooks on GenericLibraryPageState {
     };
     final titleItem = itemsById[titleItemId];
     if (titleItem == null || !_canOpenVideoShelfDrilldown(titleItem)) {
-      if (_videoShelfDrilldownTitleItemId != null) {
+      if (_kindBrowserDelegate.videoShelfDrilldownTitleItemId != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) {
             return;
           }
           setState(() {
-            _videoShelfDrilldownTitleItemId = null;
-            _videoShelfDrilldownReleaseId = null;
+            _kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
+            _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
           });
         });
       }
@@ -93,28 +93,31 @@ extension _PageVideoHooks on GenericLibraryPageState {
       releaseEntryBuilder: widget.type.presentation.releaseEntryBuilder,
     );
 
-    if (_videoShelfDrilldownReleaseId == null && drilldownItems.isNotEmpty) {
+    if (_kindBrowserDelegate.videoShelfDrilldownReleaseId == null &&
+        drilldownItems.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _videoShelfDrilldownReleaseId != null) {
+        if (!mounted ||
+            _kindBrowserDelegate.videoShelfDrilldownReleaseId != null) {
           return;
         }
-        setState(() => _videoShelfDrilldownReleaseId = drilldownItems.first.entry.id);
+        setState(() => _kindBrowserDelegate.videoShelfDrilldownReleaseId =
+            drilldownItems.first.entry.id);
       });
     }
 
     return VideoShelfReleaseDrilldown(
       titleItem: titleItem,
       items: drilldownItems,
-      selectedReleaseId: _videoShelfDrilldownReleaseId,
+      selectedReleaseId: _kindBrowserDelegate.videoShelfDrilldownReleaseId,
       coverSize: viewState.coverSize,
       accent: widget.accent,
       onBack: () => setState(() {
-        _videoShelfDrilldownTitleItemId = null;
-        _videoShelfDrilldownReleaseId = null;
+        _kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
+        _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
       }),
       onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem),
       onSelectRelease: (releaseId) =>
-          setState(() => _videoShelfDrilldownReleaseId = releaseId),
+          setState(() => _kindBrowserDelegate.videoShelfDrilldownReleaseId = releaseId),
       onOpenTitleDetails: () => showLibraryDetailPage(
         context: context,
         request: LibraryDetailPageRequest(

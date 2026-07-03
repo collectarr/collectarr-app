@@ -1264,12 +1264,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       children: [
         VideoSeasonTrackingSection(
           itemId: widget.item.id,
+          kind: widget.type.workspace.kind.apiValue,
           accent: widget.accent,
         ),
         Padding(
           padding: const EdgeInsets.only(top: 12),
           child: VideoEpisodeRatingSection(
             itemId: widget.item.id,
+            kind: widget.type.workspace.kind.apiValue,
             accent: widget.accent,
             trackingEntry: widget.trackingEntry?.copyWith(
               episodeRatings: _episodeRatings,

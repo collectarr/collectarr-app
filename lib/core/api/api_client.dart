@@ -7,11 +7,11 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 part 'api_client_admin.dart';
-part 'api_client_catalog.dart';
 part 'api_client_provider.dart';
 part 'api_client_browse.dart';
 part 'api_client_assets.dart';
@@ -31,7 +31,8 @@ class ApiClient {
 
   final Dio _dio;
   late final _AdminApiClient _adminApi = _AdminApiClient(this);
-  late final _CatalogApiClient _catalogApi = _CatalogApiClient(this);
+  late final CollectarrApiClient _catalogApi =
+      CollectarrApiClient(_dio, _resolveImageUrls);
   late final _ProviderApiClient _providerApi = _ProviderApiClient(this);
   late final _BrowseApiClient _browseApi = _BrowseApiClient(this);
   late final _AssetsApiClient _assetsApi = _AssetsApiClient(this);
@@ -138,6 +139,26 @@ class ApiClient {
     required String id,
   }) async {
     return _catalogApi.getTypedMetadataItemDto(kind: kind, id: id);
+  }
+
+  Future<ComicWorkDto> getComicWorkDto(String id) {
+    return _catalogApi.getComicWorkDto(id);
+  }
+
+  Future<MangaWorkDto> getMangaWorkDto(String id) {
+    return _catalogApi.getMangaWorkDto(id);
+  }
+
+  Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
+    return _catalogApi.getAnimeSeriesDto(id);
+  }
+
+  Future<MovieWorkDto> getMovieWorkDto(String id) {
+    return _catalogApi.getMovieWorkDto(id);
+  }
+
+  Future<TvSeriesDto> getTvSeriesDto(String id) {
+    return _catalogApi.getTvSeriesDto(id);
   }
 
   Future<BookWorkDto> getBookWorkDto(String id) {
@@ -709,14 +730,23 @@ class ApiClient {
     return _providerApi.getProviderVolumes(provider, providerItemId);
   }
 
-  Future<List<Season>> getItemVolumes(String itemId) async {
-    return _catalogApi.getItemVolumes(itemId);
+  @Deprecated('Use kind-specific typed routes instead.')
+  Future<List<Season>> getItemVolumes(
+    String itemId, {
+    String? kind,
+  }) async {
+    return _catalogApi.getItemVolumes(itemId, kind: kind);
   }
 
-  Future<List<Season>> getItemSeasons(String itemId) async {
-    return _catalogApi.getItemSeasons(itemId);
+  @Deprecated('Use kind-specific typed routes instead.')
+  Future<List<Season>> getItemSeasons(
+    String itemId, {
+    String? kind,
+  }) async {
+    return _catalogApi.getItemSeasons(itemId, kind: kind);
   }
 
+  @Deprecated('Use kind-specific edition/release creation routes instead.')
   Future<CatalogEdition> createEdition(String itemId,
       {required String title}) async {
     return _catalogApi.createEdition(itemId, title: title);

@@ -15,10 +15,12 @@ class VideoSeasonTrackingSection extends ConsumerStatefulWidget {
   const VideoSeasonTrackingSection({
     super.key,
     required this.itemId,
+    required this.kind,
     required this.accent,
   });
 
   final String itemId;
+  final String kind;
   final Color accent;
 
   @override
@@ -35,7 +37,9 @@ class _VideoSeasonTrackingSectionState
 
   @override
   Widget build(BuildContext context) {
-    final seasonsAsync = ref.watch(itemSeasonsProvider(widget.itemId));
+    final seasonsAsync = ref.watch(
+      itemSeasonsProvider((itemId: widget.itemId, kind: widget.kind)),
+    );
     final trackedUnits =
         ref.watch(trackingUnitsByCatalogItemProvider)[widget.itemId] ??
             const <TrackingUnit>[];

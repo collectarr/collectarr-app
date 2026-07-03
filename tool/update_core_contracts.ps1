@@ -1,7 +1,17 @@
 param(
-  [string]$CoreRepo = "C:\Users\andrvoicu\Desktop\repos\collectarr-core",
-  [string]$TargetDir = "C:\Users\andrvoicu\Desktop\repos\collectarr-app\tool\core_contracts"
+  [string]$CoreRepo,
+  [string]$TargetDir
 )
+
+$AppRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+
+if (-not $CoreRepo) {
+  $CoreRepo = (Resolve-Path (Join-Path $AppRoot "..\collectarr-core")).Path
+}
+
+if (-not $TargetDir) {
+  $TargetDir = Join-Path $AppRoot "tool\core_contracts"
+}
 
 $coreContracts = Join-Path $CoreRepo "contracts"
 if (-not (Test-Path $coreContracts)) {

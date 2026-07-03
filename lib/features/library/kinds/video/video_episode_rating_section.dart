@@ -12,19 +12,23 @@ class VideoEpisodeRatingSection extends ConsumerWidget {
   const VideoEpisodeRatingSection({
     super.key,
     required this.itemId,
+    required this.kind,
     required this.accent,
     required this.trackingEntry,
     required this.onEpisodeRatingsChanged,
   });
 
   final String itemId;
+  final String kind;
   final Color accent;
   final TrackingEntry? trackingEntry;
   final ValueChanged<Map<String, int>> onEpisodeRatingsChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(itemSeasonsProvider(itemId));
+    final seasonsAsync = ref.watch(
+      itemSeasonsProvider((itemId: itemId, kind: kind)),
+    );
     final ratings = trackingEntry?.episodeRatings ?? const {};
 
     return seasonsAsync.when(
@@ -106,15 +110,19 @@ class VideoEpisodeRatingDisplaySection extends ConsumerWidget {
   const VideoEpisodeRatingDisplaySection({
     super.key,
     required this.itemId,
+    required this.kind,
     required this.accent,
   });
 
   final String itemId;
+  final String kind;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(itemSeasonsProvider(itemId));
+    final seasonsAsync = ref.watch(
+      itemSeasonsProvider((itemId: itemId, kind: kind)),
+    );
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[itemId] ??
             const <TrackingEntry>[];

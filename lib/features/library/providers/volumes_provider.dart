@@ -15,11 +15,14 @@ final _uuidPattern = RegExp(
   caseSensitive: false,
 );
 
-final itemVolumesProvider =
-    FutureProvider.autoDispose.family<List<Season>, String>((ref, itemId) async {
-  if (!_uuidPattern.hasMatch(itemId)) {
+final itemVolumesProvider = FutureProvider.autoDispose.family<
+    List<Season>,
+    ({String itemId, String? kind})>((ref, params) async {
+  if (!_uuidPattern.hasMatch(params.itemId)) {
     return const <Season>[];
   }
   final api = ref.watch(apiClientProvider);
-  return api.getItemVolumes(itemId).timeout(const Duration(seconds: 60));
+  return api
+      .getItemVolumes(params.itemId, kind: params.kind)
+      .timeout(const Duration(seconds: 60));
 });

@@ -68,7 +68,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       LibraryFolderPreset.single(_activeGroupMode);
 
   bool get _hasActiveFilter =>
-      _appliedSearchQuery.trim().isNotEmpty ||
+      _LibraryPageSearchControllerOps.thisState(this).query.trim().isNotEmpty ||
       _linkedMetadataFilter != null ||
       _selectedBucket != null ||
       _selectedLetter != null ||
@@ -119,9 +119,10 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       for (final rule in viewState.sortRules)
         if (allowedSortColumns.contains(rule.column)) rule,
     ];
+    final searchState = _LibraryPageSearchControllerOps.thisState(this);
     return LibraryRouteState(
       kind: widget.type.workspace.kind.apiValue,
-      searchQuery: _trimmedQuery(_appliedSearchQuery),
+      searchQuery: _trimmedQuery(searchState.query),
       groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
       folderPreset: viewState.isSidebarVisible ? _activeFolderPreset : null,
       selectedBucket: _selectedBucket,
@@ -209,8 +210,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       selection: TextSelection.collapsed(offset: routeQuery.length),
       composing: TextRange.empty,
     );
-    _appliedSearchQuery = routeQuery;
-    _searchPinnedItemId = null;
+    _LibraryPageSearchControllerOps.setQuery(this, routeQuery);
     final shelfState = ref.read(shelfProvider).asData?.value;
     if (shelfState != null) {
       _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);

@@ -6,10 +6,13 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
     required LibraryWorkspaceViewState viewState,
     required ShelfState? shelfState,
   }) {
+    final searchState = ref.watch(
+      libraryPageSearchStateProvider(_searchStateKey),
+    );
     final searchSuggestions = ref.watch(
       libraryToolbarSearchSuggestionsProvider((
         projection: projection,
-        query: _searchController.text,
+        query: searchState.query,
       )),
     );
     final showReleaseFolderBack = widget.type.shouldShowReleaseFolderBack(
@@ -35,7 +38,7 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
             ]
           : const <LibrarySearchTarget>[],
       searchActive:
-          _appliedSearchQuery.isNotEmpty || _searchPinnedItemId != null,
+          searchState.query.isNotEmpty || searchState.pinnedItemId != null,
       searchSuggestions: searchSuggestions,
       selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
       collectionStatusScope: _collectionStatusScope,

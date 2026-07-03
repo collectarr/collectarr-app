@@ -27,28 +27,6 @@ class FacetBuckets {
 /// Shared utilities for library pages (comics and generic).
 mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     on ConsumerState<T> {
-  Map<String, List<String>> customFieldValuesByItem = const {};
-  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
-      const {};
-  List<CustomFieldDefinition> customFieldDefinitions = const [];
-
-  Future<void> loadCustomFieldValues({
-    String? mediaKind,
-    bool Function()? canApply,
-  }) async {
-    final snapshot = await ref.read(
-      libraryCustomFieldCacheProvider(mediaKind).future,
-    );
-    if (mounted && (canApply?.call() ?? true)) {
-      setState(() {
-        customFieldValuesByItem = snapshot.valuesByItem;
-        customFieldValuesByDefinitionByItem =
-            snapshot.valuesByDefinitionByItem;
-        customFieldDefinitions = snapshot.definitions;
-      });
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // Row parsing helpers
   // ---------------------------------------------------------------------------

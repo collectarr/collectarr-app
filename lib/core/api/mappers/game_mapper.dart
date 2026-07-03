@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 
-CatalogItem gameCatalogItemFromDto(GameWorkDto dto) => dto.toCatalogItem();
-CatalogItem gameReleaseCatalogItemFromDto(GameReleaseDto dto) => dto.toCatalogItem();
+GameWork gameWorkFromDto(GameWorkDto dto) => GameWork.fromDto(dto);
+
+GameRelease gameReleaseFromDto(GameReleaseDto dto) => GameRelease.fromDto(dto);

@@ -10,14 +10,18 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     if (!mounted) {
       return;
     }
+    final customFieldCache = await ref.read(
+      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    );
     final allEntries =
         projection?.allItems.map((i) => i.entry).toList(growable: false) ??
             const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
       adapter: _adapter,
-      customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+      customFieldDefinitions: customFieldCache.definitions,
+      customFieldValuesByDefinitionByItem:
+          customFieldCache.valuesByDefinitionByItem,
     );
     final result = await showLibraryFilterDialog(
       context: context,
@@ -36,6 +40,10 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
 
   Future<void> showSmartListsFlow(ShelfState? shelfState) async {
     final db = ref.read(localDatabaseProvider);
+    final customFieldCache = await ref.read(
+      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    );
+    final searchState = _LibraryPageSearchControllerOps.thisState(this);
     final result = await showSmartListsDialog(
       context: context,
       db: db,
@@ -46,8 +54,8 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       currentSortColumn: _viewState?.sortColumn,
       currentSortAscending: _viewState?.sortAscending,
       currentSearchQuery:
-          _searchController.text.isNotEmpty ? _searchController.text : null,
-      customFieldDefinitions: customFieldDefinitions,
+          searchState.query.isNotEmpty ? searchState.query : null,
+      customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && mounted) {
       _rebuild(() {
@@ -55,8 +63,10 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
         _quickView = result.quickView;
         if (result.searchQuery != null) {
           _searchController.text = result.searchQuery!;
+          _LibraryPageSearchControllerOps.setQuery(this, result.searchQuery!);
         } else {
           _searchController.clear();
+          _LibraryPageSearchControllerOps.clearSearch(this);
         }
         if (_viewState != null) {
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
@@ -72,6 +82,7 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
           }
         }
       });
+      _syncRouteState();
     }
   }
 
@@ -284,6 +295,9 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
   ) async {
     if (projection == null) return;
     final db = ref.read(localDatabaseProvider);
+    final customFieldCache = await ref.read(
+      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    );
     final ownedItems = await ref.read(collectionProvider.future);
     // Intersect with currently visible items.
     final visibleIds = <String>{
@@ -302,11 +316,13 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       type: widget.type,
       items: items,
       mutations: mutations,
-      customFieldDefinitions: customFieldDefinitions,
+      customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && mounted) {
       ref.invalidate(shelfProvider);
-      unawaited(_loadCustomFieldValuesForCurrentKind());
+      ref.invalidate(
+        libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -323,6 +339,9 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
   ) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final db = ref.read(localDatabaseProvider);
+    final customFieldCache = await ref.read(
+      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    );
     final ownedItems = await ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
@@ -342,11 +361,13 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       type: widget.type,
       items: items,
       mutations: mutations,
-      customFieldDefinitions: customFieldDefinitions,
+      customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && mounted) {
       ref.invalidate(shelfProvider);
-      unawaited(_loadCustomFieldValuesForCurrentKind());
+      ref.invalidate(
+        libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
