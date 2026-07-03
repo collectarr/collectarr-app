@@ -75,10 +75,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     catalog: catalog,
     input: input,
   ).timeout(timeout);
-  final mappedItems = [
-    for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-  ];
-  final rankedItems = rerankLibraryMetadataItems(mappedItems, rerankHints);
+  final rankedItems = rerankLibraryMetadataItems(items, rerankHints);
   return LibraryAddCoreSearchResult(
     items: rankedItems,
     shouldSearchProvider: providerSearchAvailable &&
@@ -103,11 +100,8 @@ Future<List<LibraryMetadataItem>> fetchLibraryAddSuggestions({
       limit: limit,
     ),
   ).timeout(timeout);
-  final mappedItems = [
-    for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-  ];
   return filterAndRerankLibraryMetadataItems(
-    mappedItems,
+    items,
     LibraryAddLocalRerankHints(query: query),
   );
 }
@@ -129,7 +123,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
   final foundItems = [
     for (final result in results)
       if (result.item != null)
-        LibraryMetadataItem.fromCatalogItem(result.item!),
+        result.item!,
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

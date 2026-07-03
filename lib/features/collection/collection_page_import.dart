@@ -148,7 +148,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   }
 
   Future<void> _resolveRow(CollectionCsvRow row) async {
-    final item = await showDialog<CatalogItem>(
+    final item = await showDialog<LibraryMetadataItem>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
         type: comicsLibraryConfig,
@@ -158,8 +158,9 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     if (item == null || !mounted || _preview == null) {
       return;
     }
+    final catalogItem = item.toCatalogItem();
     await CatalogCacheRepository(ref.read(localDatabaseProvider))
-        .upsertAll([item]);
+        .upsertAll([catalogItem]);
     final resolvedRow = row.copyWith(itemId: item.id);
     setState(() {
       final preview = _preview!;
@@ -203,7 +204,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
           continue;
         }
         resolvedRows.add(row.copyWith(itemId: match.id));
-        resolvedItems.add(match);
+        resolvedItems.add(match.toCatalogItem());
       }
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll(resolvedItems);
@@ -657,7 +658,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
 class _ResolveImportRowDialogState
     extends ConsumerState<_ResolveImportRowDialog> {
   late final TextEditingController _queryController;
-  var _results = const <CatalogItem>[];
+  var _results = const <LibraryMetadataItem>[];
   String? _error;
   bool _isSearching = false;
 
@@ -996,7 +997,7 @@ class _ImportProposalDraft {
 class _CatalogThumb extends StatelessWidget {
   const _CatalogThumb({required this.item});
 
-  final CatalogItem item;
+  final LibraryMetadataItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -1032,7 +1033,7 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(CatalogItem item) {
+String _catalogTitle(LibraryMetadataItem item) {
   final issue = item.itemNumber;
   if (issue == null || issue.isEmpty) {
     return item.title;
@@ -1040,7 +1041,7 @@ String _catalogTitle(CatalogItem item) {
   return '${item.title} #$issue';
 }
 
-String _catalogSubtitle(CatalogItem item) {
+String _catalogSubtitle(LibraryMetadataItem item) {
   return [
     if (item.variant != null) item.variant,
     if (item.publisher != null) item.publisher,
@@ -1063,7 +1064,7 @@ String _friendlyImportError(Object error) {
   return 'Search failed: $error';
 }
 
-Future<List<CatalogItem>> _searchCoreForRow(
+Future<List<LibraryMetadataItem>> _searchCoreForRow(
   WidgetRef ref,
   LibraryTypeConfig type,
   CollectionCsvRow row, {
@@ -1071,16 +1072,14 @@ Future<List<CatalogItem>> _searchCoreForRow(
   int limit = 20,
 }) async {
   final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
-  return (await searchLibraryMetadata(
+  return await searchLibraryMetadata(
     ref.read(apiClientProvider),
     resolvedType,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
     barcode: row.barcode,
     issueNumber: row.itemNumber,
     limit: limit,
-  ))
-      .map((item) => item.toCatalogItem())
-      .toList(growable: false);
+  );
 }
 
 String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
@@ -1095,9 +1094,9 @@ String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
   return null;
 }
 
-CatalogItem? _confidentImportMatch(
+LibraryMetadataItem? _confidentImportMatch(
   CollectionCsvRow row,
-  List<CatalogItem> results,
+  List<LibraryMetadataItem> results,
 ) {
   if (results.isEmpty) {
     return null;
