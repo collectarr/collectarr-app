@@ -12,6 +12,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
   MusicCatalogDetails? music,
   GameCatalogDetails? game,
   List<GameRelease> gameReleases = const <GameRelease>[],
+  BoardGameWork? boardGameWork,
 }) {
   switch (mediaType.trim().toLowerCase()) {
     case 'comic':
@@ -75,6 +76,7 @@ LibraryWorkspaceEntry _buildTypedWorkspaceEntry({
         series: series,
         publishing: publishing,
         game: game,
+        boardGameWork: boardGameWork,
       );
     default:
       return GenericWorkspaceEntry(
@@ -98,6 +100,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
     this.musicDetails,
     this.gameDetails,
     List<GameRelease> gameReleases = const <GameRelease>[],
+    this.boardGameWork,
   }) : super._(
           id: common.id,
           browseScope: common.browseScope,
@@ -166,6 +169,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
   final VideoCatalogDetails? videoDetails;
   final MusicCatalogDetails? musicDetails;
   final GameCatalogDetails? gameDetails;
+  final BoardGameWork? boardGameWork;
 
   @override
   ComicWorkspaceDetails? get comic => comicDetails;
@@ -305,11 +309,13 @@ final class BoardGameWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     GameCatalogDetails? game,
+    BoardGameWork? boardGameWork,
   }) : super._(
           common: common,
           seriesDetails: _seriesOrNull(series),
           publishingDetails: _publishingOrNull(publishing),
           gameDetails: _gameOrNull(game),
+          boardGameWork: boardGameWork,
         );
 }
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -24,14 +24,13 @@ class BoardGameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final series = entry.series;
-    final publishing = entry.publishing;
-    final music = entry.music;
-    final referenceRelease = resolveLibraryEntryReferenceRelease(entry);
-    final referenceVariant = referenceRelease.variant;
-    final referencePlatforms = libraryReferencePlatforms(entry);
-    final hasVolume = series?.hasVolume ?? false;
-    final hasSeason = series?.hasSeason ?? false;
-    final hasEpisode = series?.hasEpisode ?? false;
+    final boardGameWork = entry is BoardGameWorkspaceEntry
+        ? entry.boardGameWork
+        : null;
+    final selectedEdition =
+        boardGameWork == null || boardGameWork.editions.isEmpty
+            ? null
+            : boardGameWork.editions.first;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -46,20 +45,6 @@ class BoardGameLibraryMediaPresentationBuilder
             series!.seriesTitle!,
             onTap: tapFor(series.seriesTitle),
           ),
-        if (hasVolume && !hasSeason)
-          LibraryInspectorFactData(
-            'Volume',
-            series!.volumeName ?? libraryVolumeLabel(series.volumeNumber),
-          ),
-        if (hasSeason && hasEpisode)
-          LibraryInspectorFactData(
-            'Season / Episode',
-            'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}',
-          ),
-        if (hasSeason && !hasEpisode)
-          LibraryInspectorFactData('Season', 'Season ${series!.seasonNumber}'),
-        if (hasEpisode && !hasSeason)
-          LibraryInspectorFactData('Episode', 'Ep. ${series!.episodeNumber}'),
         LibraryInspectorFactData(
           mediaFields.numberLabel,
           genericLibraryDash(entry.itemNumber),
@@ -88,52 +73,55 @@ class BoardGameLibraryMediaPresentationBuilder
                 entry.releaseYear?.toString(),
           ),
         ),
-        if (publishing?.pageCount != null)
-          LibraryInspectorFactData('Pages', publishing!.pageCount.toString()),
-        if (music?.catalogNumber != null)
-          LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
-        if (publishing?.coverPriceCents != null)
+        if (selectedEdition?.minPlayers != null ||
+            selectedEdition?.maxPlayers != null)
           LibraryInspectorFactData(
-            'Cover Price',
-            formatPresentationMoney(
-              publishing!.coverPriceCents,
-              publishing.currency,
-            ),
+            'Players',
+            _playersLabel(selectedEdition),
           ),
-        if (publishing?.imprint != null)
+        if (selectedEdition?.playingTimeMinutes != null)
           LibraryInspectorFactData(
-            'Imprint',
-            publishing!.imprint!,
-            onTap: tapFor(publishing.imprint),
+            'Playing Time',
+            '${selectedEdition!.playingTimeMinutes} min',
           ),
-        if (publishing?.seriesGroup != null)
+        if (selectedEdition?.minAge != null)
+          LibraryInspectorFactData('Age', '${selectedEdition!.minAge}+'),
+        if (selectedEdition?.country != null)
+          LibraryInspectorFactData('Country', selectedEdition!.country!),
+        if (selectedEdition?.language != null)
+          LibraryInspectorFactData('Language', selectedEdition!.language!),
+        if (selectedEdition?.releaseStatus != null)
           LibraryInspectorFactData(
-            'Series Group',
-            publishing!.seriesGroup!,
-            onTap: tapFor(publishing.seriesGroup),
+            'Release Status',
+            selectedEdition!.releaseStatus!,
           ),
-        if (publishing?.subtitle != null)
-          LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
-        if (entry.country != null)
-          LibraryInspectorFactData('Country', entry.country!),
-        if (music?.releaseStatus != null)
-          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
-        if (entry.language != null)
-          LibraryInspectorFactData('Language', entry.language!),
-        if (entry.ageRating != null)
-          LibraryInspectorFactData('Age Rating', entry.ageRating!),
-        if (entry.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
-        if (referenceVariant?.variantType case final variantType?
-            when variantType.trim().isNotEmpty)
-          LibraryInspectorFactData('Variant Type', variantType.trim()),
-        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
-          LibraryInspectorFactData('SKU', sku.trim()),
-        if (referencePlatforms.isNotEmpty)
+        if (boardGameWork?.contributors.isNotEmpty == true)
           LibraryInspectorFactData(
-            referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
-            referencePlatforms.join(', '),
+            'Designers',
+            boardGameWork!.contributors.join(', '),
           ),
+        if (boardGameWork?.categories.isNotEmpty == true)
+          LibraryInspectorFactData(
+            boardGameWork!.categories.length == 1 ? 'Category' : 'Categories',
+            boardGameWork.categories.join(', '),
+          ),
+        if (boardGameWork?.mechanics.isNotEmpty == true)
+          LibraryInspectorFactData(
+            boardGameWork!.mechanics.length == 1 ? 'Mechanic' : 'Mechanics',
+            boardGameWork.mechanics.join(', '),
+          ),
+        if (boardGameWork?.expansions.isNotEmpty == true)
+          LibraryInspectorFactData(
+            boardGameWork!.expansions.length == 1 ? 'Expansion' : 'Expansions',
+            boardGameWork.expansions.join(', '),
+          ),
+        if (selectedEdition?.audienceRating != null)
+          LibraryInspectorFactData(
+            'Audience Rating',
+            selectedEdition!.audienceRating!,
+          ),
+        if (entry.barcode?.trim().isNotEmpty == true)
+          LibraryInspectorFactData('Barcode', entry.barcode!),
         LibraryInspectorFactData(
           'Cover',
           entry.hasMissingCover ? 'Missing' : 'Ready',
@@ -149,4 +137,22 @@ class BoardGameLibraryMediaPresentationBuilder
       genres: entry.genres ?? const <String>[],
     );
   }
+}
+
+String _playersLabel(BoardGameEdition? edition) {
+  if (edition == null) {
+    return 'Players';
+  }
+  final minPlayers = edition.minPlayers;
+  final maxPlayers = edition.maxPlayers;
+  if (minPlayers != null && maxPlayers != null && minPlayers != maxPlayers) {
+    return '$minPlayers-$maxPlayers';
+  }
+  if (minPlayers != null) {
+    return '$minPlayers';
+  }
+  if (maxPlayers != null) {
+    return '$maxPlayers';
+  }
+  return 'Players';
 }

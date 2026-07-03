@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
@@ -160,14 +161,19 @@ class _BoardGameInspectorMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = inspector.entry;
+    final boardGameEntry =
+        entry is BoardGameWorkspaceEntry ? entry : null;
+    final boardGameWork = boardGameEntry?.boardGameWork;
     final palette = appPalette(context);
     final releaseYear = entry.releaseYear?.toString();
-    final genreText = entry.genres == null || entry.genres!.isEmpty
-        ? null
-        : entry.genres!.join(' | ');
-    final platforms = entry.game?.platforms.isNotEmpty == true
-        ? entry.game!.platforms
-        : entry.rawPlatforms ?? const <String>[];
+    final selectedEdition = _primaryBoardGameEdition(boardGameWork);
+    final genreText = _joinNonEmpty([
+      if (boardGameWork != null) ...boardGameWork.categories,
+      if (boardGameWork != null) ...boardGameWork.mechanics,
+    ]);
+    final designerText = _joinNonEmpty(boardGameWork?.contributors ?? const <String>[]);
+    final expansionText =
+        _joinNonEmpty(boardGameWork?.expansions ?? const <String>[]);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -227,20 +233,41 @@ class _BoardGameInspectorMain extends StatelessWidget {
                       icon: Icons.casino_outlined,
                       text: entry.referenceFormatLabel ?? entry.variant ?? '-',
                     ),
-                  if (platforms.isNotEmpty)
+                  if (selectedEdition?.minPlayers != null ||
+                      selectedEdition?.maxPlayers != null)
+                    _BoardGameInspectorInfoLine(
+                      icon: Icons.groups_outlined,
+                      text: _playersLabel(selectedEdition),
+                    ),
+                  if (selectedEdition?.playingTimeMinutes != null)
+                    _BoardGameInspectorInfoLine(
+                      icon: Icons.timer_outlined,
+                      text: '${selectedEdition!.playingTimeMinutes} min',
+                    ),
+                  if (selectedEdition?.minAge != null)
+                    _BoardGameInspectorInfoLine(
+                      icon: Icons.numbers_outlined,
+                      text: 'Age ${selectedEdition!.minAge}+',
+                    ),
+                  if (designerText != null)
+                    _BoardGameInspectorInfoLine(
+                      icon: Icons.design_services_outlined,
+                      text: designerText,
+                    ),
+                  if (expansionText != null)
                     _BoardGameInspectorInfoLine(
                       icon: Icons.extension_outlined,
-                      text: platforms.join(' | '),
-                    ),
-                  if (entry.audienceRating?.trim().isNotEmpty == true)
-                    _BoardGameInspectorInfoLine(
-                      icon: Icons.shield_outlined,
-                      text: 'Audience: ${entry.audienceRating!}',
+                      text: expansionText,
                     ),
                   if (entry.barcode?.trim().isNotEmpty == true)
                     _BoardGameInspectorInfoLine(
                       icon: Icons.qr_code_2,
                       text: entry.barcode!,
+                    ),
+                  if (selectedEdition?.audienceRating?.trim().isNotEmpty == true)
+                    _BoardGameInspectorInfoLine(
+                      icon: Icons.shield_outlined,
+                      text: 'Audience: ${selectedEdition!.audienceRating!}',
                     ),
                   if (_ebayUri(entry) case final uri?) ...[
                     const SizedBox(height: 8),
@@ -335,4 +362,40 @@ Uri? _ebayUri(LibraryWorkspaceEntry entry) {
     return null;
   }
   return buildEbaySearchUri(query: title);
+}
+
+BoardGameEdition? _primaryBoardGameEdition(BoardGameWork? work) {
+  if (work == null || work.editions.isEmpty) {
+    return null;
+  }
+  return work.editions.first;
+}
+
+String? _joinNonEmpty(Iterable<String> values) {
+  final normalized = [
+    for (final value in values)
+      if (value.trim().isNotEmpty) value.trim(),
+  ];
+  if (normalized.isEmpty) {
+    return null;
+  }
+  return normalized.join(' | ');
+}
+
+String _playersLabel(BoardGameEdition? edition) {
+  if (edition == null) {
+    return 'Players';
+  }
+  final minPlayers = edition.minPlayers;
+  final maxPlayers = edition.maxPlayers;
+  if (minPlayers != null && maxPlayers != null && minPlayers != maxPlayers) {
+    return '$minPlayers-$maxPlayers players';
+  }
+  if (minPlayers != null) {
+    return '$minPlayers players';
+  }
+  if (maxPlayers != null) {
+    return '$maxPlayers players';
+  }
+  return 'Players';
 }

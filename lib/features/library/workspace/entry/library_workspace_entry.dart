@@ -2,6 +2,7 @@
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
@@ -139,6 +140,7 @@ sealed class LibraryWorkspaceEntry {
     String? audienceRating,
     List<CatalogEdition> editions = const <CatalogEdition>[],
     List<GameRelease> gameReleases = const <GameRelease>[],
+    BoardGameWork? boardGameWork,
     required DateTime updatedAt,
     List<TrailerLink>? trailerUrls,
   }) {
@@ -222,6 +224,7 @@ sealed class LibraryWorkspaceEntry {
       music: music,
       game: game,
       gameReleases: _copyGameReleaseList(gameReleases),
+      boardGameWork: boardGameWork,
     );
   }
 

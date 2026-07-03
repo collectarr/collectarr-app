@@ -1,5 +1,7 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -281,3 +283,13 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
   groupModes: boardGamesLibraryGroupModes,
 );
+
+LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
+  ShelfEntry source,
+) {
+  final catalogItem = source.catalogItem!;
+  return buildBoardGameWorkspaceEntry(
+    BoardGameWork.fromCatalogItem(catalogItem),
+    BoardGamePersonalOverlay.fromShelfEntry(source),
+  );
+}

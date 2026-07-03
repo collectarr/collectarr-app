@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -21,13 +22,16 @@ void main() {
       genres: ['strategy'],
     );
 
-    final entry = buildBoardGamesLibraryWorkspaceEntryFromShelf(
-      ShelfEntry(itemId: 'boardgame-1', catalogItem: item),
+    final entry = buildBoardGameWorkspaceEntry(
+      BoardGameWork.fromCatalogItem(item),
+      BoardGamePersonalOverlay.fromShelfEntry(
+        ShelfEntry(itemId: 'boardgame-1', catalogItem: item),
+      ),
     );
 
     expect(entry, isA<BoardGameWorkspaceEntry>());
-    expect(entry.rawPlatforms, isNull);
-    expect(entry.editions, isEmpty);
+    expect((entry as BoardGameWorkspaceEntry).boardGameWork, isNotNull);
+    expect(entry.boardGameWork!.editions, hasLength(1));
     expect(entry.referenceFormatLabel, 'Deluxe');
   });
 }

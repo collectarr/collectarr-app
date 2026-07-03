@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -39,43 +38,30 @@ final class BoardGamePersonalOverlay {
   bool get isWishlisted => wishlistItem != null;
 }
 
-LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  return buildBoardGameWorkspaceEntry(
-    _boardGameWorkFromCatalogItem(source.catalogItem!),
-    source.catalogItem!,
-    BoardGamePersonalOverlay.fromShelfEntry(source),
-  );
-}
-
 LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {
-  final work = _boardGameWorkFromWorkspaceEntry(request.titleEntry);
+  final titleEntry = request.titleEntry;
+  if (titleEntry is! BoardGameWorkspaceEntry || titleEntry.boardGameWork == null) {
+    throw StateError('BoardGame release entry requires a typed boardGameWork');
+  }
+  final work = titleEntry.boardGameWork!;
   return BoardGameWorkspaceEntry(
     common: _buildReleaseEntryData(request, work),
     series: request.titleEntry.series,
     publishing: request.titleEntry.publishing,
     game: null,
+    boardGameWork: work,
   );
 }
 
 LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
   BoardGameWork work,
-  CatalogItem metadata,
   BoardGamePersonalOverlay overlay,
 ) {
-  final selectedEdition = work.editions.isEmpty ? null : work.editions.first;
-  final referenceFormatLabel = selectedEdition == null
-      ? metadata.physicalFormatLabel
-      : selectedEdition.format?.trim().isNotEmpty == true
-          ? selectedEdition.format!.trim()
-          : selectedEdition.editionTitle?.trim().isNotEmpty == true
-              ? selectedEdition.editionTitle!.trim()
-              : metadata.physicalFormatLabel;
+  final selectedEdition = _primaryBoardGameEdition(work);
+  final referenceFormatLabel = _boardGameReleaseLabel(selectedEdition);
   final genres = <String>[
-    ...?metadata.genres,
     ...work.categories,
     ...work.mechanics,
   ];
@@ -89,29 +75,26 @@ LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
       ownedItemId: overlay.ownedItem?.id,
       mediaType: 'boardgame',
       title: work.title,
-      displayTitle: metadata.displayTitle,
-      localizedTitle: metadata.localizedTitle,
-      originalTitle: metadata.originalTitle,
-      searchAliases: _copyStringList(metadata.searchAliases),
-      itemNumber: metadata.itemNumber,
-      synopsis: metadata.synopsis,
-      coverImageUrl: metadata.coverImageUrl ?? selectedEdition?.coverImageUrl,
-      thumbnailImageUrl: metadata.thumbnailImageUrl ??
-          selectedEdition?.coverImageUrl ??
-          metadata.coverImageUrl,
-      publisher: metadata.publisher,
-      coverDate: metadata.coverDate,
-      releaseDate: metadata.releaseDate,
-      releaseYear: metadata.releaseYear,
-      barcode: metadata.barcode,
+      displayTitle: work.title,
+      localizedTitle: null,
+      originalTitle: null,
+      searchAliases: const <String>[],
+      itemNumber: null,
+      synopsis: null,
+      coverImageUrl: selectedEdition?.coverImageUrl,
+      thumbnailImageUrl: selectedEdition?.coverImageUrl,
+      publisher: selectedEdition?.publisher,
+      coverDate: null,
+      releaseDate: selectedEdition?.releaseDate,
+      releaseYear: selectedEdition?.releaseDate?.year,
+      barcode: selectedEdition?.barcode,
       variant: referenceFormatLabel,
-      crossover: metadata.crossover,
+      crossover: null,
       isOwned: overlay.isOwned,
       isTracked: overlay.isTracked,
       isWishlisted: overlay.isWishlisted,
-      hasMissingCover: metadata.coverImageUrl == null &&
-          selectedEdition?.coverImageUrl == null,
-      hasMissingMetadata: _hasMissingCoreMetadata(metadata),
+      hasMissingCover: selectedEdition?.coverImageUrl == null,
+      hasMissingMetadata: _hasMissingCoreMetadata(work, selectedEdition),
       condition: overlay.ownedItem?.condition,
       grade: overlay.ownedItem?.grade,
       primaryReferenceLabel: libraryPrimaryReferenceLabel(
@@ -140,23 +123,24 @@ LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,
       addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
-      editions: const <CatalogEdition>[],
+      editions: const [],
       updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-      trailerUrls: const <TrailerLink>[],
-      plotSummary: metadata.plotSummary,
-      plotDescription: metadata.plotDescription,
-      creators: _copyCreatorList(metadata.creators),
-      characters: _copyStringList(metadata.characters),
-      storyArcs: _copyStringList(metadata.storyArcs),
+      trailerUrls: const [],
+      plotSummary: null,
+      plotDescription: null,
+      creators: _copyCreatorListFromStrings(work.contributors),
+      characters: const <String>[],
+      storyArcs: const <String>[],
       genres: _copyStringList(genres),
-      country: metadata.country,
-      language: metadata.language,
-      ageRating: metadata.ageRating,
-      audienceRating: metadata.audienceRating,
+      country: selectedEdition?.country,
+      language: selectedEdition?.language,
+      ageRating: null,
+      audienceRating: null,
     ),
-    series: metadata.series,
-    publishing: metadata.publishing,
+    series: null,
+    publishing: null,
     game: null,
+    boardGameWork: work,
   );
 }
 
@@ -164,18 +148,14 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
   LibraryReleaseEntryRequest request,
   BoardGameWork work,
 ) {
-  final selectedEdition = work.editions.isEmpty
-      ? null
-      : _boardGameEditionById(work.editions,
-              request.referenceEditionId ?? request.edition.id) ??
-          work.editions.first;
-  final referenceFormatLabel = selectedEdition == null
-      ? request.edition.physicalFormatLabel
-      : selectedEdition.format?.trim().isNotEmpty == true
-          ? selectedEdition.format!.trim()
-          : selectedEdition.editionTitle?.trim().isNotEmpty == true
-              ? selectedEdition.editionTitle!.trim()
-              : request.edition.physicalFormatLabel;
+  final selectedEdition = _boardGameEditionById(
+        work.editions,
+        request.referenceEditionId ?? request.edition.id,
+      ) ??
+      _primaryBoardGameEdition(work);
+  final referenceFormatLabel = _boardGameReleaseLabel(selectedEdition) ??
+      request.edition.physicalFormatLabel ??
+      request.edition.physicalFormat;
   return LibraryWorkspaceEntryData(
     id: '${request.titleEntry.id}:release:${request.edition.id}',
     browseScope: LibraryBrowserScope.release,
@@ -192,10 +172,9 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     itemNumber: null,
     synopsis: request.titleEntry.synopsis,
     coverImageUrl:
-        request.titleEntry.coverImageUrl ?? selectedEdition?.coverImageUrl,
-    thumbnailImageUrl: request.titleEntry.thumbnailImageUrl ??
-        selectedEdition?.coverImageUrl ??
-        request.titleEntry.coverImageUrl,
+        selectedEdition?.coverImageUrl ?? request.titleEntry.coverImageUrl,
+    thumbnailImageUrl:
+        selectedEdition?.coverImageUrl ?? request.titleEntry.thumbnailImageUrl,
     publisher: selectedEdition?.publisher ?? request.titleEntry.publisher,
     coverDate: request.titleEntry.coverDate,
     releaseDate: selectedEdition?.releaseDate ?? request.edition.releaseDate,
@@ -226,13 +205,18 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     currency: null,
     locationPath: null,
     addedAt: null,
-    editions: const <CatalogEdition>[],
+    editions: const [],
     updatedAt: request.updatedAt,
-    trailerUrls: const <TrailerLink>[],
-    creators: null,
+    trailerUrls: const [],
+    plotSummary: null,
+    plotDescription: null,
+    creators: _copyCreatorListFromStrings(work.contributors),
     characters: null,
     storyArcs: null,
-    genres: null,
+    genres: _copyStringList([
+      ...work.categories,
+      ...work.mechanics,
+    ]),
     country: null,
     language: selectedEdition?.language ?? request.edition.language,
     ageRating: null,
@@ -240,47 +224,14 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
   );
 }
 
-BoardGameWork _boardGameWorkFromWorkspaceEntry(LibraryWorkspaceEntry entry) {
-  return BoardGameWork(
-    id: entry.id,
-    title: entry.title,
-    platforms:
-        List<String>.unmodifiable(entry.game?.platforms ?? const <String>[]),
-    identifiers: const <String>[],
-    contributors: const <String>[],
-    mechanics: const <String>[],
-    categories: List<String>.unmodifiable(entry.genres ?? const <String>[]),
-    families: const <String>[],
-    expansions: const <String>[],
-    rankings: const <String>[],
-    editions: [
-      for (final edition in entry.editions)
-        BoardGameEdition(
-          id: edition.id,
-          title: edition.title,
-          editionTitle: edition.title,
-          format: edition.physicalFormatLabel ?? edition.physicalFormat,
-          publisher: edition.publisher,
-          catalogNumber: edition.upc,
-          barcode: edition.upc,
-          releaseStatus: null,
-          releaseDate: edition.releaseDate,
-          language: edition.language,
-          country: edition.region,
-          ageRating: null,
-          audienceRating: null,
-          minPlayers: null,
-          maxPlayers: null,
-          playingTimeMinutes: null,
-          minAge: null,
-          coverImageUrl: null,
-        ),
-    ],
-  );
+BoardGameEdition? _primaryBoardGameEdition(BoardGameWork work) {
+  return work.editions.isEmpty ? null : work.editions.first;
 }
 
 BoardGameEdition? _boardGameEditionById(
-    List<BoardGameEdition> editions, String? editionId) {
+  List<BoardGameEdition> editions,
+  String? editionId,
+) {
   final normalized = editionId?.trim();
   if (normalized == null || normalized.isEmpty) {
     return null;
@@ -293,73 +244,40 @@ BoardGameEdition? _boardGameEditionById(
   return null;
 }
 
+String? _boardGameReleaseLabel(BoardGameEdition? edition) {
+  if (edition == null) return null;
+  final format = edition.format?.trim();
+  if (format != null && format.isNotEmpty) {
+    return format;
+  }
+  final editionTitle = edition.editionTitle?.trim();
+  if (editionTitle != null && editionTitle.isNotEmpty) {
+    return editionTitle;
+  }
+  return null;
+}
+
 List<String>? _copyStringList(List<String>? values) {
   if (values == null) return null;
   return List<String>.unmodifiable(values);
 }
 
-List<Map<String, dynamic>>? _copyCreatorList(
-  List<Map<String, dynamic>>? values,
-) {
-  if (values == null) return null;
+List<Map<String, dynamic>>? _copyCreatorListFromStrings(List<String> values) {
+  if (values.isEmpty) return null;
   return List<Map<String, dynamic>>.unmodifiable(
-    values.map((value) => Map<String, dynamic>.unmodifiable(value)),
+    values.map((value) => <String, dynamic>{'name': value}),
   );
 }
 
-bool _hasMissingCoreMetadata(CatalogItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-      item.coverImageUrl == null &&
-      item.physicalFormatLabel == null;
-}
-
-BoardGameWork _boardGameWorkFromCatalogItem(CatalogItem item) {
-  final editions = [
-    for (final edition in item.editions)
-      BoardGameEdition(
-        id: edition.id,
-        title: edition.title,
-        editionTitle: edition.title,
-        format: edition.format,
-        publisher: edition.publisher,
-        catalogNumber: edition.upc,
-        barcode: edition.upc,
-        releaseStatus: null,
-        releaseDate: edition.releaseDate,
-        language: edition.language,
-        country: edition.region,
-        ageRating: item.ageRating,
-        audienceRating: item.audienceRating,
-        minPlayers: null,
-        maxPlayers: null,
-        playingTimeMinutes: null,
-        minAge: null,
-        coverImageUrl: edition.variants.isNotEmpty
-            ? edition.variants.first.coverImageUrl
-            : null,
-      ),
-  ];
-  return BoardGameWork(
-    id: item.id,
-    title: item.title,
-    platforms: List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
-    identifiers: const <String>[],
-    contributors: item.creators == null
-        ? const <String>[]
-        : List<String>.unmodifiable(
-            item.creators!
-                .map((creator) => creator['name']?.toString() ?? '')
-                .where((name) => name.isNotEmpty),
-          ),
-    mechanics: const <String>[],
-    categories: item.genres == null
-        ? const <String>[]
-        : List<String>.unmodifiable(item.genres!),
-    families: const <String>[],
-    expansions: const <String>[],
-    rankings: const <String>[],
-    editions: editions,
-  );
+bool _hasMissingCoreMetadata(
+  BoardGameWork work,
+  BoardGameEdition? edition,
+) {
+  return work.contributors.isEmpty &&
+      work.categories.isEmpty &&
+      work.mechanics.isEmpty &&
+      work.editions.isEmpty &&
+      edition?.publisher == null &&
+      edition?.releaseDate == null &&
+      edition?.coverImageUrl == null;
 }
