@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/api/mappers/catalog_typed_mapper.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -56,12 +55,16 @@ class _LibraryMetadataCompareDialogState
     });
     try {
       final api = ref.read(apiClientProvider);
-      final item = await api
-          .getTypedMetadataItemDto(
-            kind: widget.localItem.kind,
-            id: widget.localItem.id,
-          )
-          .then(catalogItemFromTypedDto);
+      final dto = await api.getTypedMetadataItemDto(
+        kind: widget.localItem.kind,
+        id: widget.localItem.id,
+      );
+      final item = CatalogItem.fromJson({
+        ...dto.raw,
+        'id': dto.id,
+        'title': dto.title,
+        'kind': dto.kind,
+      });
       if (!mounted) {
         return;
       }
