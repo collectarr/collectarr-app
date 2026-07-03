@@ -51,21 +51,6 @@ class _CatalogApiClient {
         .toList(growable: false);
   }
 
-  Future<CatalogItem> getMetadataItem({
-    required String kind,
-    required String id,
-  }) async {
-    return (await getTypedMetadataItemDto(kind: kind, id: id)).toCatalogItem();
-  }
-
-  Future<CatalogMetadataDto> getMetadataItemDto({
-    required String kind,
-    required String id,
-  }) async {
-    final typed = await getTypedMetadataItemDto(kind: kind, id: id);
-    return CatalogMetadataDto.fromJson(typed.raw);
-  }
-
   Future<CatalogTypedDto> getTypedMetadataItemDto({
     required String kind,
     required String id,

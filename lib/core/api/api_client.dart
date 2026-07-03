@@ -133,21 +133,6 @@ class ApiClient {
     return _catalogApi.searchMetadataDtos(query);
   }
 
-  Future<CatalogItem> getMetadataItem({
-    required String kind,
-    required String id,
-  }) async {
-    return (await _catalogApi.getTypedMetadataItemDto(kind: kind, id: id))
-        .toCatalogItem();
-  }
-
-  Future<CatalogMetadataDto> getMetadataItemDto({
-    required String kind,
-    required String id,
-  }) async {
-    return _catalogApi.getMetadataItemDto(kind: kind, id: id);
-  }
-
   Future<CatalogTypedDto> getTypedMetadataItemDto({
     required String kind,
     required String id,

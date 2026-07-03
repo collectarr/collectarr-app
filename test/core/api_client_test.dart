@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
+import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
@@ -190,21 +190,18 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final dto = await client.getMetadataItemDto(kind: 'book', id: 'item-1');
+        final dto = await client.getTypedMetadataItemDto(kind: 'book', id: 'item-1');
 
-        expect(dto, isA<CatalogMetadataDto>());
         expect(dto.id, 'item-1');
         expect(dto.title, 'The Sample Book');
-        expect(dto.releaseDate, isNotNull);
-        expect(dto.tracks, hasLength(1));
+        expect(dto, isA<BookWorkDto>());
+        expect(dto.raw['tracks'], hasLength(1));
         expect(dto.raw['barcode'], '1234567890');
 
-        final item = await client.getMetadataItem(kind: 'book', id: 'item-1');
+        final item = dto.toCatalogItem();
         expect(item, isA<CatalogItem>());
-        final typed =
-            await client.getTypedMetadataItemDto(kind: 'book', id: 'item-1');
-        expect(typed.kind, 'book');
-        expect(typed.title, 'The Sample Book');
+        expect(dto.kind, 'book');
+        expect(dto.title, 'The Sample Book');
       });
 
       test('returns kind-specific typed metadata dto helpers', () async {
