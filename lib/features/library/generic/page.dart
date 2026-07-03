@@ -108,6 +108,7 @@ part 'page/controllers/page_view_state_controller.dart';
 part 'page/controllers/page_projection_controller.dart';
 part 'page/controllers/page_projection_provider.dart';
 part 'page/controllers/page_search_controller.dart';
+part 'page/controllers/page_lifecycle_controller.dart';
 part 'page/controllers/page_toolbar_controller.dart';
 part 'page/controllers/page_toolbar_presenter.dart';
 part 'page/controllers/page_toolbar_builder.dart';
@@ -193,291 +194,31 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
-    _kindBrowserDelegate = widget.type.kindBrowserDelegateBuilder?.call() ??
-        LibraryNoopBrowserDelegate();
-    _shelfSubscription = ref.listenManual<AsyncValue<ShelfState>>(
-      shelfProvider,
-      (_, next) {
-        final shelfState = next.asData?.value;
-        if (shelfState != null) {
-          _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
-        }
-      },
-    );
-    unawaited(_warmViewStateCachesOnce());
-    _viewState = _adapter.viewProfile.defaults();
-    _primeCachedViewPreferences();
-    _applyRouteStateFromUri(widget.routeUri);
-    unawaited(_loadViewState());
-    unawaited(_loadViewPreferences());
-    unawaited(_loadColumnFavoritePresets());
-    unawaited(_loadActiveLoanIds());
-  }
-
-  Future<void> _loadViewPreferences() async {
-    try {
-      final loadToken = ++_viewPreferenceLoadToken;
-      final expectedKind = widget.type.workspace.kind;
-      final allowedGroupModes = _scopeAvailableGroupModes;
-      final quickViewFuture = _viewPrefs.readQuickView();
-      final groupModeFuture = _viewPrefs.readGroupMode(
-        allowedModes: allowedGroupModes,
-      );
-      final folderPresetFuture = _viewPrefs.readFolderPreset(
-        allowedModes: allowedGroupModes,
-      );
-      final pinnedPresetsFuture = _viewPrefs.readPinnedFolderPresets(
-        allowedModes: allowedGroupModes,
-      );
-      final pinnedViewPresetsFuture = _viewPrefs.readPinnedViewPresets(
-        fallback: libraryDefaultPinnedViewPresetsForType(widget.type),
-      );
-      final pinnedSortFavoriteIdsFuture = _viewPrefs.readPinnedSortFavoriteIds(
-        fallback: libraryDefaultPinnedSortFavoriteIdsForType(widget.type),
-      );
-      final pinnedColumnFavoriteKeysFuture =
-          _viewPrefs.readPinnedColumnFavoriteKeys(
-        fallback: libraryDefaultPinnedColumnFavoriteKeysForType(widget.type),
-      );
-
-      final (
-        quickView,
-        groupMode,
-        folderPreset,
-        pinnedPresets,
-        pinnedViewPresets,
-        pinnedSortFavoriteIds,
-        pinnedColumnFavoriteKeys,
-      ) = await (
-        quickViewFuture,
-        groupModeFuture,
-        folderPresetFuture,
-        pinnedPresetsFuture,
-        pinnedViewPresetsFuture,
-        pinnedSortFavoriteIdsFuture,
-        pinnedColumnFavoriteKeysFuture,
-      ).wait;
-      if (!mounted ||
-          loadToken != _viewPreferenceLoadToken ||
-          widget.type.workspace.kind != expectedKind) {
-        return;
-      }
-
-      final nextGroupMode = folderPreset?.primaryMode ?? groupMode;
-      final preferencesChanged = _quickView !=
-              sanitizeLibraryQuickViewForType(quickView, widget.type) ||
-          _folderPreset != folderPreset ||
-          _groupMode != nextGroupMode ||
-          !listEquals(_pinnedFolderPresets, pinnedPresets) ||
-          !setEquals(_pinnedViewPresets, pinnedViewPresets) ||
-          !setEquals(_pinnedSortFavoriteIds, pinnedSortFavoriteIds) ||
-          !setEquals(_pinnedColumnFavoriteKeys, pinnedColumnFavoriteKeys);
-
-      if (!preferencesChanged) {
-        return;
-      }
-
-      setState(() {
-        _quickView = sanitizeLibraryQuickViewForType(quickView, widget.type);
-        _folderPreset = folderPreset;
-        _groupMode = nextGroupMode;
-        _pinnedFolderPresets = pinnedPresets;
-        _pinnedViewPresets = pinnedViewPresets;
-        _pinnedSortFavoriteIds = pinnedSortFavoriteIds;
-        _pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
-        _applyRouteStateFromUri(widget.routeUri);
-      });
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_page',
-        message: 'Failed to load view preferences.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-  }
-
-  void _primeCachedViewPreferences() {
-    final allowedGroupModes = _scopeAvailableGroupModes.toSet();
-    _quickView = sanitizeLibraryQuickViewForType(
-      _viewPrefs.cachedQuickView,
-      widget.type,
-    );
-    final cachedGroupMode =
-        allowedGroupModes.contains(_viewPrefs.cachedGroupMode)
-            ? _viewPrefs.cachedGroupMode
-            : null;
-    _folderPreset = sanitizeLibraryFolderPreset(
-          _viewPrefs.cachedFolderPreset,
-          allowedModes: allowedGroupModes,
-        ) ??
-        (cachedGroupMode == null
-            ? null
-            : LibraryFolderPreset.single(cachedGroupMode));
-    _groupMode = _folderPreset?.primaryMode ?? cachedGroupMode;
-    _pinnedFolderPresets = _viewPrefs.cachedPinnedFolderPresets
-        .map(
-          (preset) => sanitizeLibraryFolderPreset(
-            preset,
-            allowedModes: allowedGroupModes,
-          ),
-        )
-        .whereType<LibraryFolderPreset>()
-        .toList(growable: false);
-    _pinnedViewPresets = _viewPrefs.cachedPinnedViewPresets.isNotEmpty
-        ? _viewPrefs.cachedPinnedViewPresets
-        : libraryDefaultPinnedViewPresetsForType(widget.type);
-    _pinnedSortFavoriteIds = _viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
-        ? _viewPrefs.cachedPinnedSortFavoriteIds
-        : libraryDefaultPinnedSortFavoriteIdsForType(widget.type);
-    _pinnedColumnFavoriteKeys =
-        _viewPrefs.cachedPinnedColumnFavoriteKeys.isNotEmpty
-            ? _viewPrefs.cachedPinnedColumnFavoriteKeys
-            : libraryDefaultPinnedColumnFavoriteKeysForType(widget.type);
+    _LibraryPageLifecycleControllerOps.initState(this);
   }
 
   @override
   void didUpdateWidget(covariant GenericLibraryPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.type.workspace.kind != widget.type.workspace.kind) {
-      _selectedId = null;
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _selection = LibrarySelectionState.empty();
-      _filterSelection = LibraryFilterSelection.none;
-      _collectionStatusScope = LibraryCollectionStatusScope.all;
-      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _pinnedViewPresets = const {};
-      _pinnedSortFavoriteIds = const {};
-      _pinnedColumnFavoriteKeys = const {};
-      _savedColumnFavoritePresets = const [];
-      _scopeHistory = const [];
-      _selectionAnchorId = null;
-      setActiveReleaseFolderTitleItemId(null);
-      ref
-          .read(
-            libraryFacetControllerProvider(
-              oldWidget.type.workspace.kind.apiValue,
-            ).notifier,
-          )
-          .clearAll();
-      ref
-          .read(
-            libraryFacetControllerProvider(
-              widget.type.workspace.kind.apiValue,
-            ).notifier,
-          )
-          .clearAll();
-      _lastFacetEnsureSignature = null;
-      _lastFacetEnsureMode = null;
-      _searchController.clear();
-      _LibraryPageSearchControllerOps.clearSearch(this);
-      _primeCachedViewPreferences();
-      // Start from the next kind's own cached defaults/chrome to avoid
-      // a one-frame layout jump (e.g. right -> bottom details panel).
-      _viewState = _adapter.viewProfile.defaults();
-      unawaited(_loadViewState());
-      unawaited(_loadViewPreferences());
-      unawaited(_loadColumnFavoritePresets());
-      unawaited(_loadActiveLoanIds());
-    } else if (oldWidget.routeUri.toString() != widget.routeUri.toString()) {
-      _applyRouteStateFromUri(widget.routeUri);
-    }
-  }
-
-  Future<void> _loadActiveLoanIds() async {
-    try {
-      final loadToken = ++_activeLoanIdsLoadToken;
-      final expectedKind = widget.type.workspace.kind;
-      final db = ref.read(localDatabaseProvider);
-      final repo = LoanRepository(db);
-      final activeLoans = await repo.getActiveLoans();
-      final next = <String>{
-        for (final loan in activeLoans) loan.ownedItemId,
-      };
-      if (!mounted ||
-          loadToken != _activeLoanIdsLoadToken ||
-          widget.type.workspace.kind != expectedKind) {
-        return;
-      }
-      setState(() => _activeLoanOwnedItemIds = next);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_page',
-        message: 'Failed to load active loan IDs.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    _LibraryPageLifecycleControllerOps.didUpdateWidget(this, oldWidget);
   }
 
   @override
   void dispose() {
-    _viewStateSaveDebounce?.cancel();
-    _selectionHydrationDebounce?.cancel();
-    _shelfSubscription?.close();
-    _searchController.dispose();
+    _LibraryPageLifecycleControllerOps.dispose(this);
     super.dispose();
   }
 
-  void _onSearchChanged(String value) {
-    final trimmed = value.trim();
-    final searchState = ref.watch(
-      libraryPageSearchStateProvider(_searchStateKey),
-    );
-    if (searchState.query == trimmed && searchState.pinnedItemId == null) {
-      return;
-    }
-    _LibraryPageSearchControllerOps.setQuery(this, trimmed);
-    setState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
+  void _primeCachedViewPreferences() {
+    _LibraryPageLifecycleControllerOps.primeCachedViewPreferences(this);
   }
 
-  void _onSearchInputChanged(String value) {
-    _onSearchChanged(value);
+  Future<void> _loadViewPreferences() {
+    return _LibraryPageLifecycleControllerOps.loadViewPreferences(this);
   }
 
-  void _clearSearch() {
-    _searchController.clear();
-    _LibraryPageSearchControllerOps.clearSearch(this);
-    setState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
-  }
-
-  void _applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) {
-    _searchController.value = _searchController.value.copyWith(
-      text: suggestion.title,
-      selection: TextSelection.collapsed(offset: suggestion.title.length),
-      composing: TextRange.empty,
-    );
-    _LibraryPageSearchControllerOps.applySuggestion(this, suggestion);
-    setState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
-  }
-
-  void _onSearchTargetChanged(LibrarySearchTarget target) {
-    final searchState = _LibraryPageSearchControllerOps.thisState(this);
-    if (!_supportsMusicTrackSearch || searchState.target == target) {
-      return;
-    }
-    searchState.setTarget(target);
-    setState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
+  Future<void> _loadActiveLoanIds() {
+    return _LibraryPageLifecycleControllerOps.loadActiveLoanIds(this);
   }
 
   void _mutateState(VoidCallback mutate) {
