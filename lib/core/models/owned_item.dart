@@ -150,7 +150,7 @@ class OwnedItem {
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      if (itemId != null) 'item_id': itemId,
+      if (itemId.isNotEmpty) 'item_id': itemId,
       'catalog_ref': catalogRef.toJson(),
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (isDigital != null) 'is_digital': isDigital,

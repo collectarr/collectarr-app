@@ -472,7 +472,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (!_supportsMusicTrackSearch || searchState.target == target) {
       return;
     }
-    _LibraryPageSearchControllerOps.setTarget(this, target);
+    searchState.setTarget(target);
     setState(() {
       _activeSmartListId = null;
       _activeSmartListName = null;

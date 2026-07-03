@@ -49,8 +49,9 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
           (db: db, ownedItemId: ownedItemId, mediaKind: mediaKind),
         ))
         .value;
-    if (data == null || data.definitions.isEmpty)
+    if (data == null || data.definitions.isEmpty) {
       return const SizedBox.shrink();
+    }
     final resolved = <_ResolvedField>[];
     for (final def in data.definitions) {
       final value = data.valueMap[def.id];

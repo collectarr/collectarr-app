@@ -54,7 +54,6 @@ class CollectarrApiClient {
     required String kind,
     required String id,
   }) async {
-    final encodedId = Uri.encodeComponent(id);
     switch (kind.trim().toLowerCase()) {
       case 'comic':
         return getComicWorkDto(id);

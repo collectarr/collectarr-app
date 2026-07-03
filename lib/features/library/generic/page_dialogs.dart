@@ -13,6 +13,9 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     final customFieldCache = await ref.read(
       libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
     );
+    if (!mounted) {
+      return;
+    }
     final allEntries =
         projection?.allItems.map((i) => i.entry).toList(growable: false) ??
             const [];
@@ -43,6 +46,9 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     final customFieldCache = await ref.read(
       libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
     );
+    if (!mounted) {
+      return;
+    }
     final searchState = _LibraryPageSearchControllerOps.thisState(this);
     final result = await showSmartListsDialog(
       context: context,

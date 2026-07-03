@@ -51,7 +51,7 @@ class WishlistItem {
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      if (itemId != null) 'item_id': itemId,
+      if (itemId.isNotEmpty) 'item_id': itemId,
       'catalog_ref': catalogRef.toJson(),
       ...?anchor?.toSyncPayload(),
       'target_price_cents': targetPriceCents,

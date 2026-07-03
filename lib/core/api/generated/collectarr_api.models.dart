@@ -67,7 +67,7 @@ List<String> _stringList(dynamic value) {
 }
 
 class BookWorkDto extends TypedMetadataResponse {
-  BookWorkDto._(
+  const BookWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -152,7 +152,7 @@ class BookWorkDto extends TypedMetadataResponse {
 }
 
 class BookEditionDto extends TypedMetadataResponse {
-  BookEditionDto._(
+  const BookEditionDto._(
     super.raw, {
     required this.id,
     required this.workId,
@@ -244,7 +244,7 @@ class BookEditionDto extends TypedMetadataResponse {
 }
 
 class GameWorkDto extends TypedMetadataResponse {
-  GameWorkDto._(
+  const GameWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -316,7 +316,7 @@ class GameWorkDto extends TypedMetadataResponse {
 }
 
 class GameReleaseDto extends TypedMetadataResponse {
-  GameReleaseDto._(
+  const GameReleaseDto._(
     super.raw, {
     required this.id,
     required this.workId,
@@ -383,7 +383,7 @@ class GameReleaseDto extends TypedMetadataResponse {
 }
 
 class BoardGameWorkDto extends TypedMetadataResponse {
-  BoardGameWorkDto._(
+  const BoardGameWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -461,7 +461,7 @@ class BoardGameWorkDto extends TypedMetadataResponse {
 }
 
 class BoardGameEditionDto extends TypedMetadataResponse {
-  BoardGameEditionDto._(
+  const BoardGameEditionDto._(
     super.raw, {
     required this.id,
     required this.workId,
@@ -547,7 +547,7 @@ class BoardGameEditionDto extends TypedMetadataResponse {
 }
 
 class MusicReleaseDto extends TypedMetadataResponse {
-  MusicReleaseDto._(
+  const MusicReleaseDto._(
     super.raw, {
     required this.id,
     required this.titleValue,
@@ -632,7 +632,7 @@ class MusicReleaseDto extends TypedMetadataResponse {
 }
 
 class MusicMediaDto extends TypedMetadataResponse {
-  MusicMediaDto._(
+  const MusicMediaDto._(
     super.raw, {
     required this.id,
     required this.releaseId,
@@ -701,7 +701,7 @@ class MusicMediaDto extends TypedMetadataResponse {
 }
 
 class MusicTrackDto extends TypedMetadataResponse {
-  MusicTrackDto._(
+  const MusicTrackDto._(
     super.raw, {
     required this.id,
     required this.mediaId,
@@ -788,7 +788,7 @@ List<Map<String, dynamic>> _mapList(dynamic value) {
 }
 
 class ComicWorkDto extends TypedMetadataResponse {
-  ComicWorkDto._(
+  const ComicWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -842,7 +842,7 @@ class ComicWorkDto extends TypedMetadataResponse {
 }
 
 class MangaWorkDto extends TypedMetadataResponse {
-  MangaWorkDto._(
+  const MangaWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -913,7 +913,7 @@ class MangaWorkDto extends TypedMetadataResponse {
 }
 
 class AnimeSeriesDto extends TypedMetadataResponse {
-  AnimeSeriesDto._(
+  const AnimeSeriesDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -979,7 +979,7 @@ class AnimeSeriesDto extends TypedMetadataResponse {
 }
 
 class MovieWorkDto extends TypedMetadataResponse {
-  MovieWorkDto._(
+  const MovieWorkDto._(
     super.raw, {
     required this.id,
     required this.title,
@@ -1054,7 +1054,7 @@ class MovieWorkDto extends TypedMetadataResponse {
 }
 
 class TvSeriesDto extends TypedMetadataResponse {
-  TvSeriesDto._(
+  const TvSeriesDto._(
     super.raw, {
     required this.id,
     required this.title,
