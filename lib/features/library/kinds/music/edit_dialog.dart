@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/mappers/music_mapper.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -1505,7 +1506,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     });
     try {
       final api = ref.read(apiClientProvider);
-      final snapshot = (await api.getMusicReleaseDto(_item.id)).toCatalogItem();
+      final snapshot = musicCatalogItemFromDto(await api.getMusicReleaseDto(_item.id));
       if (!mounted) {
         return;
       }

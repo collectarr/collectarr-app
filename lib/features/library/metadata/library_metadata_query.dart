@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/api/mappers/catalog_typed_mapper.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
@@ -51,7 +52,7 @@ Future<List<CatalogItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  return rows.map((dto) => dto.toCatalogItem()).toList(growable: false);
+  return rows.map(catalogItemFromMetadataDto).toList(growable: false);
 }
 
 Future<List<CatalogMetadataDto>> searchLibraryMetadataDtos(
@@ -66,7 +67,9 @@ Future<CatalogItem> lookupLibraryBarcode(
   LibraryTypeConfig type,
   String barcode,
 ) async {
-  return (await lookupLibraryBarcodeTyped(api, type, barcode)).toCatalogItem();
+  return catalogItemFromMetadataDto(
+    await lookupLibraryBarcodeTyped(api, type, barcode),
+  );
 }
 
 Future<CatalogMetadataDto> lookupLibraryBarcodeTyped(
