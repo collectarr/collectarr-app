@@ -443,13 +443,8 @@ class _AdminApiClient {
     required String kind,
     required String id,
   }) async {
-    final response =
-        await _client._dio.get<Map<String, dynamic>>('/metadata/$kind/$id');
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/metadata/$kind/$id returned an empty response body');
-    }
-    return AdminMetadataItem.fromJson(_client._resolveImageUrls(data));
+    final typed = await _client.getTypedMetadataItem(kind: kind, id: id);
+    return AdminMetadataItem.fromJson(_client._resolveImageUrls(typed.raw));
   }
 
   Future<List<Map<String, dynamic>>> adminProviderSearch({

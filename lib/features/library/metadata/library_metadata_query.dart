@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
@@ -27,7 +26,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   );
 }
 
-Future<List<CatalogItem>> searchLibraryMetadata(
+Future<List<LibraryMetadataItem>> searchLibraryMetadata(
   ApiClient api,
   LibraryTypeConfig type, {
   String? query,
@@ -38,8 +37,7 @@ Future<List<CatalogItem>> searchLibraryMetadata(
   String? barcode,
   int? limit,
 }) async {
-  final rows = await searchLibraryMetadataDtos(
-    api,
+  final rows = await api.searchMetadata(
     libraryMetadataSearchQuery(
       type,
       query: query,
@@ -51,41 +49,20 @@ Future<List<CatalogItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  return rows.map((dto) => dto.toCatalogItem()).toList(growable: false);
+  return rows.map(LibraryMetadataItem.fromMetadataMap).toList(growable: false);
 }
 
-Future<List<CatalogMetadataDto>> searchLibraryMetadataDtos(
-  ApiClient api,
-  MetadataSearchQuery query,
-) async {
-  return api.searchMetadataDtos(query);
-}
-
-Future<CatalogItem> lookupLibraryBarcode(
+Future<LibraryMetadataItem> lookupLibraryBarcode(
   ApiClient api,
   LibraryTypeConfig type,
   String barcode,
 ) async {
-  return (await lookupLibraryBarcodeTyped(api, type, barcode)).toCatalogItem();
-}
-
-Future<CatalogMetadataDto> lookupLibraryBarcodeTyped(
-  ApiClient api,
-  LibraryTypeConfig type,
-  String barcode,
-) async {
-  return api.lookupBarcodeDto(
-    barcode,
-    kind: type.workspace.kind.apiValue,
+  return LibraryMetadataItem.fromMetadataMap(
+    await api.lookupBarcode(
+      barcode,
+      kind: type.workspace.kind.apiValue,
+    ),
   );
-}
-
-Future<CatalogMetadataDto> lookupLibraryBarcodeDto(
-  ApiClient api,
-  LibraryTypeConfig type,
-  String barcode,
-) async {
-  return lookupLibraryBarcodeTyped(api, type, barcode);
 }
 
 Future<List<ProviderCandidate>> searchLibraryProviderCandidates(

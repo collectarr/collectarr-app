@@ -632,7 +632,7 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
         title: proposalItem.title,
         summary: proposalItem.synopsis ?? currentCandidate.summary,
         imageUrl: proposalItem.displayCoverUrl,
-        metadataPayload: proposalItem.toCatalogItem().toSyncPayload(),
+        metadataPayload: proposalItem.toSyncPayload(),
         source: 'Add ${widget.type.pluralLabel} provider result',
       );
       if (!mounted) {

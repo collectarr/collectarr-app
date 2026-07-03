@@ -183,7 +183,10 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
                 : CustomFieldTargetScope.media,
           );
           final cfValuesFuture = owned != null
-              ? customFieldRepo.listValuesForTarget(owned.id)
+              ? customFieldRepo.listValuesForTarget(
+                  targetId: owned.id,
+                  targetScope: CustomFieldTargetScope.ownedCopy,
+                )
               : Future.value(const <CustomFieldValue>[]);
           final imagesFuture = owned != null
               ? itemImageRepo.listForItem(owned.id)
@@ -342,7 +345,9 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
       final cfList = result.customFieldEdits.entries.map((e) {
         return CustomFieldValue(
           id: const Uuid().v4(),
-          ownedItemId: owned.id,
+          targetId: owned.id,
+          targetScope: CustomFieldTargetScope.ownedCopy,
+          catalogRef: owned.catalogRef,
           fieldDefinitionId: e.key,
           value: e.value,
           updatedAt: now,

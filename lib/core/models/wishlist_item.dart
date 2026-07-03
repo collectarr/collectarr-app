@@ -6,8 +6,8 @@ const Object _wishlistItemUnset = Object();
 class WishlistItem {
   WishlistItem({
     required this.id,
-    required this.itemId,
-    this.catalogRef,
+    String? itemId,
+    CatalogEntityRef? catalogRef,
     PersonalItemAnchor? anchor,
     String? anchorType,
     String? editionId,
@@ -19,7 +19,9 @@ class WishlistItem {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-  }) : anchor = anchor ??
+  })  : itemId = itemId ?? catalogRef?.id ?? '',
+        catalogRef = catalogRef ?? _legacyCatalogRef(itemId),
+        anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
               editionId: editionId,
@@ -29,7 +31,7 @@ class WishlistItem {
 
   final String id;
   final String itemId;
-  final CatalogEntityRef? catalogRef;
+  final CatalogEntityRef catalogRef;
   final PersonalItemAnchor? anchor;
   final int? targetPriceCents;
   final String? currency;
@@ -43,15 +45,14 @@ class WishlistItem {
   String? get variantId => anchor?.variantId;
   String? get bundleReleaseId => anchor?.bundleReleaseId;
 
-  PersonalItemAnchorType? get personalAnchor =>
-      anchor?.type;
+  PersonalItemAnchorType? get personalAnchor => anchor?.type;
 
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      'item_id': itemId,
-      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
+      if (itemId != null) 'item_id': itemId,
+      'catalog_ref': catalogRef.toJson(),
       ...?anchor?.toSyncPayload(),
       'target_price_cents': targetPriceCents,
       'currency': currency,
@@ -63,10 +64,11 @@ class WishlistItem {
   factory WishlistItem.fromJson(Map<String, dynamic> json) {
     return WishlistItem(
       id: json['id'] as String,
-      itemId: json['item_id'] as String,
+      itemId: json['item_id'] as String?,
       catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
-          : null,
+          ? CatalogEntityRef.fromJson(
+              json['catalog_ref'] as Map<String, dynamic>)
+          : _legacyCatalogRef(json['item_id'] as String?),
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: json['anchor_type'] as String?,
         editionId: json['edition_id'] as String?,
@@ -122,4 +124,12 @@ class WishlistItem {
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
+}
+
+CatalogEntityRef _legacyCatalogRef(String? itemId) {
+  return CatalogEntityRef(
+    kind: 'unknown',
+    entityType: CatalogEntityType.unknown,
+    id: itemId ?? '',
+  );
 }

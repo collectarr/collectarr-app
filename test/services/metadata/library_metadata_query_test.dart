@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -120,27 +119,24 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
   }
 
   @override
-  Future<List<CatalogMetadataDto>> searchMetadataDtos(
+  Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
     lastSearchQuery = query;
     return const [
-      CatalogMetadataDto(
-        raw: {
-          'id': 'comic-1',
-          'kind': 'comic',
-          'title': 'Batman',
-        },
-        id: 'comic-1',
-        title: 'Batman',
-        kind: 'comic',
-      ),
+      {
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Batman',
+      },
     ];
   }
 
   @override
-  Future<Map<String, dynamic>> lookupBarcode(String barcode,
-      {String? kind}) async {
+  Future<Map<String, dynamic>> lookupBarcode(
+    String barcode, {
+    String? kind,
+  }) async {
     lastBarcode = barcode;
     lastBarcodeKind = kind;
     return const {
@@ -148,25 +144,6 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
       'kind': 'comic',
       'title': 'Batman',
     };
-  }
-
-  @override
-  Future<CatalogMetadataDto> lookupBarcodeDto(
-    String barcode, {
-    String? kind,
-  }) async {
-    lastBarcode = barcode;
-    lastBarcodeKind = kind;
-    return CatalogMetadataDto(
-      raw: const {
-        'id': 'comic-1',
-        'kind': 'comic',
-        'title': 'Batman',
-      },
-      id: 'comic-1',
-      title: 'Batman',
-      kind: kind ?? 'comic',
-    );
   }
 
   @override

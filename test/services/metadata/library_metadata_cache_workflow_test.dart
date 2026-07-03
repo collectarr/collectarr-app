@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
@@ -91,22 +90,17 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
   }
 
   @override
-  Future<List<CatalogMetadataDto>> searchMetadataDtos(
+  Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
     lastSearchQuery = query;
     return const [
-      CatalogMetadataDto(
-        raw: {
-          'id': 'comic-search-1',
-          'kind': 'comic',
-          'title': 'Batman',
-          'item_number': '1',
-        },
-        id: 'comic-search-1',
-        title: 'Batman',
-        kind: 'comic',
-      ),
+      {
+        'id': 'comic-search-1',
+        'kind': 'comic',
+        'title': 'Batman',
+        'item_number': '1',
+      },
     ];
   }
 
@@ -127,24 +121,18 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
   }
 
   @override
-  Future<CatalogMetadataDto> lookupBarcodeDto(
+  Future<Map<String, dynamic>> lookupBarcode(
     String barcode, {
     String? kind,
   }) async {
     if (barcode.contains('missing')) {
       throw Exception('missing barcode');
     }
-    return CatalogMetadataDto(
-      raw: {
-        'id': 'comic-$barcode',
-        'kind': kind ?? 'comic',
-        'title': 'Batman',
-        'barcode': barcode,
-      },
-      id: 'comic-$barcode',
-      title: 'Batman',
-      kind: kind ?? 'comic',
-      barcode: barcode,
-    );
+    return {
+      'id': 'comic-$barcode',
+      'kind': kind ?? 'comic',
+      'title': 'Batman',
+      'barcode': barcode,
+    };
   }
 }

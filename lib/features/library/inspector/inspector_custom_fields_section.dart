@@ -11,12 +11,16 @@ typedef _InspectorCustomFieldsRequest = ({
   String mediaKind,
 });
 
-final _inspectorCustomFieldsProvider =
-    FutureProvider.autoDispose.family<_CustomFieldData, _InspectorCustomFieldsRequest>(
+final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
+    .family<_CustomFieldData, _InspectorCustomFieldsRequest>(
   (ref, request) async {
     final repo = CustomFieldRepository(request.db);
-    final definitions = await repo.listDefinitions(mediaKind: request.mediaKind);
-    final values = await repo.listValuesForItem(request.ownedItemId);
+    final definitions =
+        await repo.listDefinitions(mediaKind: request.mediaKind);
+    final values = await repo.listValuesForTarget(
+      targetId: request.ownedItemId,
+      targetScope: CustomFieldTargetScope.ownedCopy,
+    );
     return _CustomFieldData(
       definitions: definitions,
       valueMap: {for (final v in values) v.fieldDefinitionId: v.value ?? ''},
@@ -40,10 +44,13 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final data = ref.watch(_inspectorCustomFieldsProvider(
-      (db: db, ownedItemId: ownedItemId, mediaKind: mediaKind),
-    )).value;
-    if (data == null || data.definitions.isEmpty) return const SizedBox.shrink();
+    final data = ref
+        .watch(_inspectorCustomFieldsProvider(
+          (db: db, ownedItemId: ownedItemId, mediaKind: mediaKind),
+        ))
+        .value;
+    if (data == null || data.definitions.isEmpty)
+      return const SizedBox.shrink();
     final resolved = <_ResolvedField>[];
     for (final def in data.definitions) {
       final value = data.valueMap[def.id];
@@ -58,7 +65,8 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
       children: [
         LibraryInspectorFactGrid(
           facts: [
-            for (final f in resolved) LibraryInspectorFactData(f.label, f.value),
+            for (final f in resolved)
+              LibraryInspectorFactData(f.label, f.value),
           ],
         ),
       ],

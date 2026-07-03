@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
@@ -41,14 +40,6 @@ class CollectarrApiClient {
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
-    return (await searchMetadataDtos(query))
-        .map((dto) => dto.toJson())
-        .toList(growable: false);
-  }
-
-  Future<List<CatalogMetadataDto>> searchMetadataDtos(
-    MetadataSearchQuery query,
-  ) async {
     final response = await _dio.get<List<dynamic>>(
       '/search',
       queryParameters: query.toQueryParameters(),
@@ -56,11 +47,10 @@ class CollectarrApiClient {
     return response.data!
         .cast<Map<String, dynamic>>()
         .map(_resolveImageUrls)
-        .map(CatalogMetadataDto.fromJson)
         .toList(growable: false);
   }
 
-  Future<TypedMetadataResponse> getTypedMetadataItemDto({
+  Future<TypedMetadataResponse> getTypedMetadataItem({
     required String kind,
     required String id,
   }) async {
@@ -85,17 +75,7 @@ class CollectarrApiClient {
       case 'music':
         return getMusicReleaseDto(id);
       default:
-        final encodedKind = Uri.encodeComponent(kind);
-        final response = await _dio.get<Map<String, dynamic>>(
-          '/metadata/$encodedKind/$encodedId',
-        );
-        final data = response.data;
-        if (data == null) {
-          throw StateError(
-            '/metadata/$encodedKind/$encodedId returned an empty response body',
-          );
-        }
-        return _legacyTypedDtoFromJson(_resolveImageUrls(data));
+        throw UnsupportedError('Unsupported metadata kind: $kind');
     }
   }
 
@@ -202,32 +182,10 @@ class CollectarrApiClient {
     );
   }
 
-  TypedMetadataResponse _legacyTypedDtoFromJson(Map<String, dynamic> json) {
-    final kind = json['kind']?.toString().toLowerCase();
-    return switch (kind) {
-      'book' => BookWorkDto.fromJson(json),
-      'game' => GameWorkDto.fromJson(json),
-      'boardgame' => BoardGameWorkDto.fromJson(json),
-      'music' => MusicReleaseDto.fromJson(json),
-      _ => _FallbackTypedResponse(json),
-    };
-  }
-
   Future<List<BundleReleaseSummary>> getItemBundleReleases(
     String itemId,
   ) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/metadata/items/$itemId/bundle-releases',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .whereType<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .map(BundleReleaseSummary.fromJson)
-        .toList(growable: false);
+    return const [];
   }
 
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
@@ -318,12 +276,14 @@ class CollectarrApiClient {
   }
 
   Future<Map<String, dynamic>> getComic(String id) async {
-    final response = await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
+    final response =
+        await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
     return _resolveImageUrls(response.data!);
   }
 
   Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
-    final response = await _dio.get<List<dynamic>>('/series/$seriesId/relations');
+    final response =
+        await _dio.get<List<dynamic>>('/series/$seriesId/relations');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -389,38 +349,7 @@ class CollectarrApiClient {
     return CatalogEdition.fromJson(data);
   }
 
-  @Deprecated('Use kind-specific typed edition creation endpoints when available.')
-  Future<CatalogEdition> createEdition(
-    String itemId, {
-    required String title,
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    if (normalizedKind == 'book') {
-      return createBookEdition(itemId, title: title);
-    }
-    if (normalizedKind == 'boardgame') {
-      return createBoardGameEdition(itemId, title: title);
-    }
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/metadata/items/${Uri.encodeComponent(itemId)}/editions',
-      data: {'title': title},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/metadata/items/$itemId/editions returned empty body');
-    }
-    return CatalogEdition.fromJson(data);
-  }
-
   Future<Map<String, dynamic>> lookupBarcode(
-    String barcode, {
-    String? kind,
-  }) async {
-    return (await lookupBarcodeDto(barcode, kind: kind)).toJson();
-  }
-
-  Future<CatalogMetadataDto> lookupBarcodeDto(
     String barcode, {
     String? kind,
   }) async {
@@ -432,33 +361,6 @@ class CollectarrApiClient {
     if (data == null) {
       throw StateError('/barcode returned an empty response body');
     }
-    return CatalogMetadataDto.fromJson(_resolveImageUrls(data));
+    return _resolveImageUrls(data);
   }
-
-}
-
-class _FallbackTypedResponse extends TypedMetadataResponse {
-  _FallbackTypedResponse(super.raw)
-      : id = raw['id']?.toString() ?? '',
-        title = raw['title']?.toString() ?? 'Untitled item',
-        kind = raw['kind']?.toString(),
-        releaseDate = null,
-        coverImageUrl = raw['cover_image_url']?.toString(),
-        thumbnailImageUrl = raw['thumbnail_image_url']?.toString(),
-        barcode = raw['barcode']?.toString();
-
-  @override
-  final String id;
-  @override
-  final String title;
-  @override
-  final String? kind;
-  @override
-  final DateTime? releaseDate;
-  @override
-  final String? coverImageUrl;
-  @override
-  final String? thumbnailImageUrl;
-  @override
-  final String? barcode;
 }

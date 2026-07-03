@@ -1071,14 +1071,16 @@ Future<List<CatalogItem>> _searchCoreForRow(
   int limit = 20,
 }) async {
   final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
-  return searchLibraryMetadata(
+  return (await searchLibraryMetadata(
     ref.read(apiClientProvider),
     resolvedType,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
     barcode: row.barcode,
     issueNumber: row.itemNumber,
     limit: limit,
-  );
+  ))
+      .map((item) => item.toCatalogItem())
+      .toList(growable: false);
 }
 
 String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
@@ -1133,4 +1135,3 @@ class _PreviewChip extends StatelessWidget {
     );
   }
 }
-

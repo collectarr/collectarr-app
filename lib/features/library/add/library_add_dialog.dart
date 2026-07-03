@@ -1433,7 +1433,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final customFieldValuesForEdit = _manualCustomFieldValues.entries
         .map((e) => CustomFieldValue(
               id: 'local-${e.key}-${_uuid.v4()}',
-              ownedItemId: '',
+              targetId: 'local-${e.key}',
+              targetScope: CustomFieldTargetScope.ownedCopy,
               fieldDefinitionId: e.key,
               value: e.value,
               updatedAt: DateTime.now().toUtc(),
@@ -1954,7 +1955,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     try {
       final hydrated = await ref
           .read(apiClientProvider)
-          .getTypedMetadataItemDto(
+          .getTypedMetadataItem(
             kind: selected.kind,
             id: itemId,
           )
@@ -2272,7 +2273,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         }
         try {
           final full = await api
-              .getTypedMetadataItemDto(
+              .getTypedMetadataItem(
                 kind: item.kind,
                 id: item.id,
               )

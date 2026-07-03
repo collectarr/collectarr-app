@@ -73,11 +73,13 @@ void main() {
       ));
 
       final comicDefs = await repo.listDefinitions(mediaKind: 'comic');
-      expect(comicDefs.map((d) => d.name), containsAll(['CGC Grade', 'Favourite']));
+      expect(comicDefs.map((d) => d.name),
+          containsAll(['CGC Grade', 'Favourite']));
       expect(comicDefs.map((d) => d.name), isNot(contains('Platform')));
 
       final gameDefs = await repo.listDefinitions(mediaKind: 'game');
-      expect(gameDefs.map((d) => d.name), containsAll(['Platform', 'Favourite']));
+      expect(
+          gameDefs.map((d) => d.name), containsAll(['Platform', 'Favourite']));
     });
 
     test('listDefinitions filters by editScope', () async {
@@ -146,20 +148,30 @@ void main() {
   });
 
   group('values', () {
-    test('listValuesForItem returns empty initially', () async {
-      expect(await repo.listValuesForItem('owned-1'), isEmpty);
+    test('listValuesForTarget returns empty initially', () async {
+      expect(
+        await repo.listValuesForTarget(
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
+        ),
+        isEmpty,
+      );
     });
 
     test('upsertValue inserts and retrieves', () async {
       final value = CustomFieldValue(
         id: 'val-1',
-        ownedItemId: 'owned-1',
+        targetId: 'owned-1',
+        targetScope: CustomFieldTargetScope.ownedCopy,
         fieldDefinitionId: 'def-1',
         value: 'Shelf A',
         updatedAt: DateTime.utc(2026, 1, 1),
       );
       await repo.upsertValue(value);
-      final values = await repo.listValuesForItem('owned-1');
+      final values = await repo.listValuesForTarget(
+        targetId: 'owned-1',
+        targetScope: CustomFieldTargetScope.ownedCopy,
+      );
       expect(values, hasLength(1));
       expect(values.single.value, 'Shelf A');
       expect(values.single.fieldDefinitionId, 'def-1');
@@ -169,42 +181,50 @@ void main() {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-2',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
       ]);
-      final values = await repo.listValuesForItem('owned-1');
+      final values = await repo.listValuesForTarget(
+        targetId: 'owned-1',
+        targetScope: CustomFieldTargetScope.ownedCopy,
+      );
       expect(values, hasLength(2));
     });
 
-    test('listAllValues groups by ownedItemId', () async {
+    test('listAllValues groups by target id', () async {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-2',
-          ownedItemId: 'owned-2',
+          targetId: 'owned-2',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-3',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: 'C',
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -219,7 +239,6 @@ void main() {
     test('upsertValueForTarget preserves explicit target id', () async {
       final value = CustomFieldValue(
         id: 'val-1',
-        ownedItemId: 'owned-1',
         targetId: 'target-99',
         targetScope: CustomFieldTargetScope.trackingEntry,
         fieldDefinitionId: 'def-1',
@@ -227,32 +246,52 @@ void main() {
         updatedAt: DateTime.utc(2026, 1, 1),
       );
       await repo.upsertValueForTarget(value);
-      final values = await repo.listValuesForTarget('target-99');
+      final values = await repo.listValuesForTarget(
+        targetId: 'target-99',
+        targetScope: CustomFieldTargetScope.trackingEntry,
+      );
       expect(values, hasLength(1));
       expect(values.single.targetId, 'target-99');
-      expect(values.single.targetScope, CustomFieldTargetScope.ownedCopy);
+      expect(values.single.targetScope, CustomFieldTargetScope.trackingEntry);
     });
 
-    test('deleteValuesForItem removes all values for item', () async {
+    test('deleteValuesForTarget removes all values for target', () async {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          ownedItemId: 'owned-1',
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-2',
-          ownedItemId: 'owned-2',
+          targetId: 'owned-2',
+          targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
       ]);
-      await repo.deleteValuesForItem('owned-1');
-      expect(await repo.listValuesForItem('owned-1'), isEmpty);
-      expect(await repo.listValuesForItem('owned-2'), hasLength(1));
+      await repo.deleteValuesForTarget(
+        targetId: 'owned-1',
+        targetScope: CustomFieldTargetScope.ownedCopy,
+      );
+      expect(
+        await repo.listValuesForTarget(
+          targetId: 'owned-1',
+          targetScope: CustomFieldTargetScope.ownedCopy,
+        ),
+        isEmpty,
+      );
+      expect(
+        await repo.listValuesForTarget(
+          targetId: 'owned-2',
+          targetScope: CustomFieldTargetScope.ownedCopy,
+        ),
+        hasLength(1),
+      );
     });
 
     test('upsertValues with empty list is no-op', () async {

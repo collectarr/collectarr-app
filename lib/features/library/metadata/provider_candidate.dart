@@ -85,8 +85,6 @@ class ProviderCandidate {
     );
   }
 
-  CatalogItem placeholderCatalogItem() => placeholderItem().toCatalogItem();
-
   bool get isStub {
     return providerItemId.startsWith('stub-') ||
         title.toLowerCase().contains(' stub)');

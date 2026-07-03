@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
 final class MusicTrack {
@@ -20,7 +20,8 @@ final class MusicTrack {
     return MusicTrack(
       title: dto.title,
       position: _parseInt(dto.position),
-      durationSeconds: dto.durationMs == null ? null : (dto.durationMs! ~/ 1000),
+      durationSeconds:
+          dto.durationMs == null ? null : (dto.durationMs! ~/ 1000),
     );
   }
 }
@@ -197,14 +198,19 @@ final class MusicRelease {
       language: dto.language,
       countryCode: dto.countryCode,
       extras: dto.extras,
-      mediaCondition: _stringOrNull(dto.media.isEmpty ? null : dto.media.first.mediaCondition),
+      mediaCondition: _stringOrNull(
+          dto.media.isEmpty ? null : dto.media.first.mediaCondition),
       instrument: null,
       composition: null,
-      rpm: _stringOrNull(dto.media.isEmpty ? null : dto.media.first.rpm?.toString()),
+      rpm: _stringOrNull(
+          dto.media.isEmpty ? null : dto.media.first.rpm?.toString()),
       spars: _stringOrNull(dto.media.isEmpty ? null : dto.media.first.spars),
-      soundType: _stringOrNull(dto.media.isEmpty ? null : dto.media.first.soundType),
-      vinylColor: _stringOrNull(dto.media.isEmpty ? null : dto.media.first.vinylColor),
-      vinylWeight: _stringOrNull(dto.media.isEmpty ? null : dto.media.first.vinylWeight),
+      soundType:
+          _stringOrNull(dto.media.isEmpty ? null : dto.media.first.soundType),
+      vinylColor:
+          _stringOrNull(dto.media.isEmpty ? null : dto.media.first.vinylColor),
+      vinylWeight:
+          _stringOrNull(dto.media.isEmpty ? null : dto.media.first.vinylWeight),
       genres: _stringList(dto.raw['genres']),
       creators: contributors,
       identifiers: List<dynamic>.unmodifiable(dto.identifiers),

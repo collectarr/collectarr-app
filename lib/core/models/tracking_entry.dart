@@ -5,8 +5,8 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 class TrackingEntry {
   TrackingEntry({
     required this.id,
-    required this.itemId,
-    this.catalogRef,
+    String? itemId,
+    CatalogEntityRef? catalogRef,
     this.ownedItemId,
     this.editionId,
     this.variantId,
@@ -25,13 +25,15 @@ class TrackingEntry {
     Map<String, int>? episodeRatings,
     required this.updatedAt,
     this.deletedAt,
-  })  : sourceType = trackingSourceTypeFromValue(sourceType),
+  })  : itemId = itemId ?? catalogRef?.id ?? '',
+        catalogRef = catalogRef ?? _legacyCatalogRef(itemId),
+        sourceType = trackingSourceTypeFromValue(sourceType),
         status = mediaTrackingStatusFromValue(status),
         episodeRatings = episodeRatings ?? const {};
 
   final String id;
   final String itemId;
-  final CatalogEntityRef? catalogRef;
+  final CatalogEntityRef catalogRef;
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
@@ -61,8 +63,8 @@ class TrackingEntry {
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      'item_id': itemId,
-      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
+      if (itemId != null) 'item_id': itemId,
+      'catalog_ref': catalogRef.toJson(),
       'owned_item_id': ownedItemId,
       'edition_id': editionId,
       'variant_id': variantId,
@@ -85,10 +87,11 @@ class TrackingEntry {
   factory TrackingEntry.fromJson(Map<String, dynamic> json) {
     return TrackingEntry(
       id: json['id'] as String,
-      itemId: json['item_id'] as String,
+      itemId: json['item_id'] as String?,
       catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
-          : null,
+          ? CatalogEntityRef.fromJson(
+              json['catalog_ref'] as Map<String, dynamic>)
+          : _legacyCatalogRef(json['item_id'] as String?),
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
@@ -163,6 +166,14 @@ class TrackingEntry {
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
+}
+
+CatalogEntityRef _legacyCatalogRef(String? itemId) {
+  return CatalogEntityRef(
+    kind: 'unknown',
+    entityType: CatalogEntityType.unknown,
+    id: itemId ?? '',
+  );
 }
 
 Map<String, int> _parseEpisodeRatings(Object? raw) {

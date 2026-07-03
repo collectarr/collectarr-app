@@ -46,7 +46,8 @@ class CustomFieldDefinition {
   final String name;
   final String fieldType; // text, number, date, bool, select
   final String? mediaKind; // null = all media types
-  final String? editScope; // legacy column; now stores custom field target scope
+  final String?
+      editScope; // legacy column; now stores custom field target scope
   final int sortOrder;
   final String? options; // JSON array for select type
   final DateTime createdAt;
@@ -105,21 +106,18 @@ class CustomFieldDefinition {
 class CustomFieldValue {
   const CustomFieldValue({
     required this.id,
-    required this.ownedItemId,
+    required this.targetId,
+    required this.targetScope,
     this.catalogRef,
-    String? targetId,
-    CustomFieldTargetScope? targetScope,
     required this.fieldDefinitionId,
     this.value,
     required this.updatedAt,
-  })  : targetId = targetId ?? ownedItemId,
-        targetScope = targetScope ?? CustomFieldTargetScope.ownedCopy;
+  });
 
   final String id;
-  final String ownedItemId;
-  final CatalogEntityRef? catalogRef;
   final String targetId;
   final CustomFieldTargetScope targetScope;
+  final CatalogEntityRef? catalogRef;
   final String fieldDefinitionId;
   final String? value;
   final DateTime updatedAt;
@@ -127,13 +125,13 @@ class CustomFieldValue {
   factory CustomFieldValue.fromJson(Map<String, dynamic> json) {
     return CustomFieldValue(
       id: json['id'] as String,
-      ownedItemId: json['owned_item_id'] as String,
-      catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
-          : null,
-      targetId: json['target_id'] as String?,
+      targetId: json['target_id'] as String,
       targetScope:
           CustomFieldTargetScope.fromApiValue(json['target_scope'] as String?),
+      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(
+              json['catalog_ref'] as Map<String, dynamic>)
+          : null,
       fieldDefinitionId: json['field_definition_id'] as String,
       value: json['value'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -142,7 +140,6 @@ class CustomFieldValue {
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      'owned_item_id': ownedItemId,
       'target_id': targetId,
       'target_scope': targetScope.apiValue,
       if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
@@ -153,20 +150,18 @@ class CustomFieldValue {
 
   CustomFieldValue copyWith({
     String? id,
-    String? ownedItemId,
-    CatalogEntityRef? catalogRef,
     String? targetId,
     CustomFieldTargetScope? targetScope,
+    CatalogEntityRef? catalogRef,
     String? fieldDefinitionId,
     String? value,
     DateTime? updatedAt,
   }) {
     return CustomFieldValue(
       id: id ?? this.id,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      catalogRef: catalogRef ?? this.catalogRef,
       targetId: targetId ?? this.targetId,
       targetScope: targetScope ?? this.targetScope,
+      catalogRef: catalogRef ?? this.catalogRef,
       fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
       value: value ?? this.value,
       updatedAt: updatedAt ?? this.updatedAt,

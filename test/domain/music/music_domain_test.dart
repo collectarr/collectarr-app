@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/mappers/music_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 

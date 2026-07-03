@@ -5,8 +5,7 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
-import 'package:collectarr_app/core/api/generated/catalog_metadata_dto.dart';
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -123,22 +122,14 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
-    return (await _catalogApi.searchMetadataDtos(query))
-        .map((dto) => dto.toJson())
-        .toList(growable: false);
+    return _catalogApi.searchMetadata(query);
   }
 
-  Future<List<CatalogMetadataDto>> searchMetadataDtos(
-    MetadataSearchQuery query,
-  ) async {
-    return _catalogApi.searchMetadataDtos(query);
-  }
-
-  Future<CatalogTypedDto> getTypedMetadataItemDto({
+  Future<TypedMetadataResponse> getTypedMetadataItem({
     required String kind,
     required String id,
   }) async {
-    return _catalogApi.getTypedMetadataItemDto(kind: kind, id: id);
+    return _catalogApi.getTypedMetadataItem(kind: kind, id: id);
   }
 
   Future<ComicWorkDto> getComicWorkDto(String id) {
@@ -716,6 +707,20 @@ class ApiClient {
     return _catalogApi.getSeriesItems(seriesId);
   }
 
+  Future<CatalogEdition> createBookEdition(
+    String workId, {
+    required String title,
+  }) {
+    return _catalogApi.createBookEdition(workId, title: title);
+  }
+
+  Future<CatalogEdition> createBoardGameEdition(
+    String workId, {
+    required String title,
+  }) {
+    return _catalogApi.createBoardGameEdition(workId, title: title);
+  }
+
   Future<List<Season>> getProviderSeasons(
     String provider,
     String providerItemId,
@@ -730,7 +735,6 @@ class ApiClient {
     return _providerApi.getProviderVolumes(provider, providerItemId);
   }
 
-  @Deprecated('Use kind-specific typed routes instead.')
   Future<List<Season>> getItemVolumes(
     String itemId, {
     String? kind,
@@ -750,12 +754,15 @@ class ApiClient {
           episodes: [
             for (final chapter in chapters)
               Episode(
-                episodeNumber: int.tryParse(chapter['chapter_number']?.toString() ?? '') ?? 0,
+                episodeNumber:
+                    int.tryParse(chapter['chapter_number']?.toString() ?? '') ??
+                        0,
                 title: chapter['chapter_title']?.toString() ??
                     chapter['title']?.toString() ??
                     'Chapter',
                 airDate: chapter['publication_date']?.toString(),
-                pageCount: int.tryParse(chapter['page_count']?.toString() ?? ''),
+                pageCount:
+                    int.tryParse(chapter['page_count']?.toString() ?? ''),
               ),
           ],
         ),
@@ -764,7 +771,6 @@ class ApiClient {
     return const <Season>[];
   }
 
-  @Deprecated('Use kind-specific typed routes instead.')
   Future<List<Season>> getItemSeasons(
     String itemId, {
     String? kind,
@@ -784,12 +790,15 @@ class ApiClient {
           episodes: [
             for (final episode in episodes)
               Episode(
-                episodeNumber: int.tryParse(episode['episode_number']?.toString() ?? '') ?? 0,
+                episodeNumber:
+                    int.tryParse(episode['episode_number']?.toString() ?? '') ??
+                        0,
                 title: episode['episode_title']?.toString() ??
                     episode['title']?.toString() ??
                     'Episode',
                 airDate: episode['air_date']?.toString(),
-                runtimeMinutes: int.tryParse(episode['runtime_minutes']?.toString() ?? ''),
+                runtimeMinutes:
+                    int.tryParse(episode['runtime_minutes']?.toString() ?? ''),
               ),
           ],
         ),
@@ -803,15 +812,6 @@ class ApiClient {
       ];
     }
     return const <Season>[];
-  }
-
-  @Deprecated('Use kind-specific edition/release creation routes instead.')
-  Future<CatalogEdition> createEdition(
-    String itemId, {
-    required String title,
-    String? kind,
-  }) async {
-    return _catalogApi.createEdition(itemId, title: title, kind: kind);
   }
 
   Future<List<Map<String, dynamic>>> searchStoryArcs({
@@ -871,12 +871,7 @@ class ApiClient {
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
-    return (await lookupBarcodeDto(barcode, kind: kind)).toJson();
-  }
-
-  Future<CatalogMetadataDto> lookupBarcodeDto(String barcode,
-      {String? kind}) async {
-    return _catalogApi.lookupBarcodeDto(barcode, kind: kind);
+    return _catalogApi.lookupBarcode(barcode, kind: kind);
   }
 
   Future<Map<String, dynamic>> health() async {

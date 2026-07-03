@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/generated/catalog_typed_dtos.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -174,7 +173,8 @@ void main() {
     });
 
     group('catalog transport dtos', () {
-      test('returns typed metadata dto and preserves raw payload', () async {
+      test('returns typed metadata response and preserves raw payload',
+          () async {
         final interceptor = _FakeApiInterceptor();
         interceptor.onGet('/metadata/books/works/item-1', {
           'id': 'item-1',
@@ -190,7 +190,8 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final dto = await client.getTypedMetadataItemDto(kind: 'book', id: 'item-1');
+        final dto =
+            await client.getTypedMetadataItem(kind: 'book', id: 'item-1');
 
         expect(dto.id, 'item-1');
         expect(dto.title, 'The Sample Book');
@@ -198,8 +199,6 @@ void main() {
         expect(dto.raw['tracks'], hasLength(1));
         expect(dto.raw['barcode'], '1234567890');
 
-        final item = CatalogItem.fromJson(dto.raw);
-        expect(item, isA<CatalogItem>());
         expect(dto.kind, 'book');
         expect(dto.title, 'The Sample Book');
       });
@@ -235,13 +234,13 @@ void main() {
         ]);
         final client = _createTestClient(interceptor);
 
-        final results = await client.searchMetadataDtos(
+        final results = await client.searchMetadata(
           const MetadataSearchQuery(query: 'Batman'),
         );
 
         expect(results, hasLength(2));
-        expect(results.first.kind, 'comic');
-        expect(results.first.title, 'Batman #1');
+        expect(results.first['kind'], 'comic');
+        expect(results.first['title'], 'Batman #1');
       });
 
       test('uses typed routes for comic manga anime movie and tv', () async {
@@ -273,15 +272,15 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        expect(await client.getTypedMetadataItemDto(kind: 'comic', id: 'comic-1'),
+        expect(await client.getTypedMetadataItem(kind: 'comic', id: 'comic-1'),
             isA<ComicWorkDto>());
-        expect(await client.getTypedMetadataItemDto(kind: 'manga', id: 'manga-1'),
+        expect(await client.getTypedMetadataItem(kind: 'manga', id: 'manga-1'),
             isA<MangaWorkDto>());
-        expect(await client.getTypedMetadataItemDto(kind: 'anime', id: 'anime-1'),
+        expect(await client.getTypedMetadataItem(kind: 'anime', id: 'anime-1'),
             isA<AnimeSeriesDto>());
-        expect(await client.getTypedMetadataItemDto(kind: 'movie', id: 'movie-1'),
+        expect(await client.getTypedMetadataItem(kind: 'movie', id: 'movie-1'),
             isA<MovieWorkDto>());
-        expect(await client.getTypedMetadataItemDto(kind: 'tv', id: 'tv-1'),
+        expect(await client.getTypedMetadataItem(kind: 'tv', id: 'tv-1'),
             isA<TvSeriesDto>());
       });
 
@@ -340,10 +339,9 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final edition = await client.createEdition(
+        final edition = await client.createBookEdition(
           'book-1',
           title: 'Paperback',
-          kind: 'book',
         );
 
         expect(edition.id, 'edition-1');

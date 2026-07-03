@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:drift/drift.dart';
 
@@ -28,8 +31,8 @@ class CustomFieldRepository {
     }
     if (targetScope != null && targetScope != CustomFieldTargetScope.all) {
       query.where(
-        (row) => row.editScope.isNull() |
-            row.editScope.equals(targetScope.apiValue),
+        (row) =>
+            row.editScope.isNull() | row.editScope.equals(targetScope.apiValue),
       );
     }
     final rows = await query.get();
@@ -63,18 +66,28 @@ class CustomFieldRepository {
 
   // --- Values ---
 
-  Future<List<CustomFieldValue>> listValuesForItem(String ownedItemId) async {
-    return listValuesForTarget(ownedItemId);
-  }
-
-  Future<List<CustomFieldValue>> listValuesForTarget(String targetId) async {
+  Future<List<CustomFieldValue>> listValuesForTarget({
+    CatalogEntityRef? catalogRef,
+    String? targetId,
+    CustomFieldTargetScope? targetScope,
+  }) async {
+    final resolvedTargetId = targetId ?? catalogRef?.id;
+    final resolvedTargetScope =
+        targetScope ?? _targetScopeForCatalogRef(catalogRef);
+    if (resolvedTargetId == null || resolvedTargetScope == null) {
+      throw ArgumentError(
+        'listValuesForTarget requires either catalogRef or targetId + targetScope',
+      );
+    }
     final rows = await (_db.select(_db.customFieldValuesCache)
-          ..where((row) => row.ownedItemId.equals(targetId)))
+          ..where((row) =>
+              row.targetId.equals(resolvedTargetId) &
+              row.targetScope.equals(resolvedTargetScope.apiValue)))
         .get();
     return rows.map(_valueFromRow).toList(growable: false);
   }
 
-  /// Returns all custom field values grouped by owned item id.
+  /// Returns all custom field values grouped by target id.
   Future<Map<String, List<CustomFieldValue>>> listAllValues() async {
     final rows = await _db.select(_db.customFieldValuesCache).get();
     final map = <String, List<CustomFieldValue>>{};
@@ -93,7 +106,11 @@ class CustomFieldRepository {
     return _db.into(_db.customFieldValuesCache).insert(
           CustomFieldValuesCacheCompanion.insert(
             id: fieldValue.id,
-            ownedItemId: fieldValue.targetId,
+            targetId: fieldValue.targetId,
+            targetScope: fieldValue.targetScope.apiValue,
+            catalogRefJson: Value(fieldValue.catalogRef == null
+                ? null
+                : jsonEncode(fieldValue.catalogRef!.toJson())),
             fieldDefinitionId: fieldValue.fieldDefinitionId,
             value: Value(fieldValue.value),
             updatedAt: fieldValue.updatedAt,
@@ -110,7 +127,11 @@ class CustomFieldRepository {
         values.map(
           (v) => CustomFieldValuesCacheCompanion.insert(
             id: v.id,
-            ownedItemId: v.targetId,
+            targetId: v.targetId,
+            targetScope: v.targetScope.apiValue,
+            catalogRefJson: Value(v.catalogRef == null
+                ? null
+                : jsonEncode(v.catalogRef!.toJson())),
             fieldDefinitionId: v.fieldDefinitionId,
             value: Value(v.value),
             updatedAt: v.updatedAt,
@@ -121,17 +142,28 @@ class CustomFieldRepository {
     });
   }
 
-  Future<void> deleteValuesForItem(String ownedItemId) {
-    return deleteValuesForTarget(ownedItemId);
-  }
-
-  Future<void> deleteValuesForTarget(String targetId) {
-    return (_db.delete(_db.customFieldValuesCache)
-          ..where((row) => row.ownedItemId.equals(targetId)))
+  Future<void> deleteValuesForTarget({
+    CatalogEntityRef? catalogRef,
+    String? targetId,
+    CustomFieldTargetScope? targetScope,
+  }) async {
+    final resolvedTargetId = targetId ?? catalogRef?.id;
+    final resolvedTargetScope =
+        targetScope ?? _targetScopeForCatalogRef(catalogRef);
+    if (resolvedTargetId == null || resolvedTargetScope == null) {
+      throw ArgumentError(
+        'deleteValuesForTarget requires either catalogRef or targetId + targetScope',
+      );
+    }
+    await (_db.delete(_db.customFieldValuesCache)
+          ..where((row) =>
+              row.targetId.equals(resolvedTargetId) &
+              row.targetScope.equals(resolvedTargetScope.apiValue)))
         .go();
   }
 
-  CustomFieldDefinition _definitionFromRow(CustomFieldDefinitionsCacheData row) {
+  CustomFieldDefinition _definitionFromRow(
+      CustomFieldDefinitionsCacheData row) {
     return CustomFieldDefinition(
       id: row.id,
       name: row.name,
@@ -147,10 +179,35 @@ class CustomFieldRepository {
   CustomFieldValue _valueFromRow(CustomFieldValuesCacheData row) {
     return CustomFieldValue(
       id: row.id,
-      ownedItemId: row.ownedItemId,
+      targetId: row.targetId,
+      targetScope: CustomFieldTargetScope.fromApiValue(row.targetScope),
+      catalogRef: row.catalogRefJson == null
+          ? null
+          : CatalogEntityRef.fromJson(
+              jsonDecode(row.catalogRefJson!) as Map<String, dynamic>,
+            ),
       fieldDefinitionId: row.fieldDefinitionId,
       value: row.value,
       updatedAt: row.updatedAt,
     );
+  }
+
+  CustomFieldTargetScope? _targetScopeForCatalogRef(CatalogEntityRef? ref) {
+    if (ref == null) {
+      return null;
+    }
+    return switch (ref.entityType) {
+      CatalogEntityType.work => CustomFieldTargetScope.work,
+      CatalogEntityType.edition => CustomFieldTargetScope.edition,
+      CatalogEntityType.release => CustomFieldTargetScope.release,
+      CatalogEntityType.issue => CustomFieldTargetScope.issue,
+      CatalogEntityType.episode => CustomFieldTargetScope.episode,
+      CatalogEntityType.track => CustomFieldTargetScope.track,
+      CatalogEntityType.ownedCopy ||
+      CatalogEntityType.copy =>
+        CustomFieldTargetScope.ownedCopy,
+      CatalogEntityType.trackingEntry => CustomFieldTargetScope.trackingEntry,
+      CatalogEntityType.bundleRelease || CatalogEntityType.unknown => null,
+    };
   }
 }

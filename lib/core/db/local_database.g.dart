@@ -10468,12 +10468,24 @@ class $CustomFieldValuesCacheTable extends CustomFieldValuesCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _targetIdMeta =
+      const VerificationMeta('targetId');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, false,
+  late final GeneratedColumn<String> targetId = GeneratedColumn<String>(
+      'target_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetScopeMeta =
+      const VerificationMeta('targetScope');
+  @override
+  late final GeneratedColumn<String> targetScope = GeneratedColumn<String>(
+      'target_scope', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _fieldDefinitionIdMeta =
       const VerificationMeta('fieldDefinitionId');
   @override
@@ -10492,8 +10504,15 @@ class $CustomFieldValuesCacheTable extends CustomFieldValuesCache
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, ownedItemId, fieldDefinitionId, value, updatedAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetId,
+        targetScope,
+        catalogRefJson,
+        fieldDefinitionId,
+        value,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -10510,13 +10529,25 @@ class $CustomFieldValuesCacheTable extends CustomFieldValuesCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('owned_item_id')) {
-      context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+    if (data.containsKey('target_id')) {
+      context.handle(_targetIdMeta,
+          targetId.isAcceptableOrUnknown(data['target_id']!, _targetIdMeta));
     } else if (isInserting) {
-      context.missing(_ownedItemIdMeta);
+      context.missing(_targetIdMeta);
+    }
+    if (data.containsKey('target_scope')) {
+      context.handle(
+          _targetScopeMeta,
+          targetScope.isAcceptableOrUnknown(
+              data['target_scope']!, _targetScopeMeta));
+    } else if (isInserting) {
+      context.missing(_targetScopeMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
     }
     if (data.containsKey('field_definition_id')) {
       context.handle(
@@ -10548,8 +10579,12 @@ class $CustomFieldValuesCacheTable extends CustomFieldValuesCache
     return CustomFieldValuesCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      targetId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_id'])!,
+      targetScope: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_scope'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json']),
       fieldDefinitionId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}field_definition_id'])!,
       value: attachedDatabase.typeMapping
@@ -10568,13 +10603,17 @@ class $CustomFieldValuesCacheTable extends CustomFieldValuesCache
 class CustomFieldValuesCacheData extends DataClass
     implements Insertable<CustomFieldValuesCacheData> {
   final String id;
-  final String ownedItemId;
+  final String targetId;
+  final String targetScope;
+  final String? catalogRefJson;
   final String fieldDefinitionId;
   final String? value;
   final DateTime updatedAt;
   const CustomFieldValuesCacheData(
       {required this.id,
-      required this.ownedItemId,
+      required this.targetId,
+      required this.targetScope,
+      this.catalogRefJson,
       required this.fieldDefinitionId,
       this.value,
       required this.updatedAt});
@@ -10582,7 +10621,11 @@ class CustomFieldValuesCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['target_id'] = Variable<String>(targetId);
+    map['target_scope'] = Variable<String>(targetScope);
+    if (!nullToAbsent || catalogRefJson != null) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    }
     map['field_definition_id'] = Variable<String>(fieldDefinitionId);
     if (!nullToAbsent || value != null) {
       map['value'] = Variable<String>(value);
@@ -10594,7 +10637,11 @@ class CustomFieldValuesCacheData extends DataClass
   CustomFieldValuesCacheCompanion toCompanion(bool nullToAbsent) {
     return CustomFieldValuesCacheCompanion(
       id: Value(id),
-      ownedItemId: Value(ownedItemId),
+      targetId: Value(targetId),
+      targetScope: Value(targetScope),
+      catalogRefJson: catalogRefJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogRefJson),
       fieldDefinitionId: Value(fieldDefinitionId),
       value:
           value == null && nullToAbsent ? const Value.absent() : Value(value),
@@ -10607,7 +10654,9 @@ class CustomFieldValuesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CustomFieldValuesCacheData(
       id: serializer.fromJson<String>(json['id']),
-      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      targetId: serializer.fromJson<String>(json['targetId']),
+      targetScope: serializer.fromJson<String>(json['targetScope']),
+      catalogRefJson: serializer.fromJson<String?>(json['catalogRefJson']),
       fieldDefinitionId: serializer.fromJson<String>(json['fieldDefinitionId']),
       value: serializer.fromJson<String?>(json['value']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -10618,7 +10667,9 @@ class CustomFieldValuesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'targetId': serializer.toJson<String>(targetId),
+      'targetScope': serializer.toJson<String>(targetScope),
+      'catalogRefJson': serializer.toJson<String?>(catalogRefJson),
       'fieldDefinitionId': serializer.toJson<String>(fieldDefinitionId),
       'value': serializer.toJson<String?>(value),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -10627,13 +10678,18 @@ class CustomFieldValuesCacheData extends DataClass
 
   CustomFieldValuesCacheData copyWith(
           {String? id,
-          String? ownedItemId,
+          String? targetId,
+          String? targetScope,
+          Value<String?> catalogRefJson = const Value.absent(),
           String? fieldDefinitionId,
           Value<String?> value = const Value.absent(),
           DateTime? updatedAt}) =>
       CustomFieldValuesCacheData(
         id: id ?? this.id,
-        ownedItemId: ownedItemId ?? this.ownedItemId,
+        targetId: targetId ?? this.targetId,
+        targetScope: targetScope ?? this.targetScope,
+        catalogRefJson:
+            catalogRefJson.present ? catalogRefJson.value : this.catalogRefJson,
         fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
         value: value.present ? value.value : this.value,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -10642,8 +10698,12 @@ class CustomFieldValuesCacheData extends DataClass
       CustomFieldValuesCacheCompanion data) {
     return CustomFieldValuesCacheData(
       id: data.id.present ? data.id.value : this.id,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      targetId: data.targetId.present ? data.targetId.value : this.targetId,
+      targetScope:
+          data.targetScope.present ? data.targetScope.value : this.targetScope,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
       fieldDefinitionId: data.fieldDefinitionId.present
           ? data.fieldDefinitionId.value
           : this.fieldDefinitionId,
@@ -10656,7 +10716,9 @@ class CustomFieldValuesCacheData extends DataClass
   String toString() {
     return (StringBuffer('CustomFieldValuesCacheData(')
           ..write('id: $id, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('targetId: $targetId, ')
+          ..write('targetScope: $targetScope, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('fieldDefinitionId: $fieldDefinitionId, ')
           ..write('value: $value, ')
           ..write('updatedAt: $updatedAt')
@@ -10665,14 +10727,16 @@ class CustomFieldValuesCacheData extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, ownedItemId, fieldDefinitionId, value, updatedAt);
+  int get hashCode => Object.hash(id, targetId, targetScope, catalogRefJson,
+      fieldDefinitionId, value, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CustomFieldValuesCacheData &&
           other.id == this.id &&
-          other.ownedItemId == this.ownedItemId &&
+          other.targetId == this.targetId &&
+          other.targetScope == this.targetScope &&
+          other.catalogRefJson == this.catalogRefJson &&
           other.fieldDefinitionId == this.fieldDefinitionId &&
           other.value == this.value &&
           other.updatedAt == this.updatedAt);
@@ -10681,14 +10745,18 @@ class CustomFieldValuesCacheData extends DataClass
 class CustomFieldValuesCacheCompanion
     extends UpdateCompanion<CustomFieldValuesCacheData> {
   final Value<String> id;
-  final Value<String> ownedItemId;
+  final Value<String> targetId;
+  final Value<String> targetScope;
+  final Value<String?> catalogRefJson;
   final Value<String> fieldDefinitionId;
   final Value<String?> value;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const CustomFieldValuesCacheCompanion({
     this.id = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.targetId = const Value.absent(),
+    this.targetScope = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
     this.fieldDefinitionId = const Value.absent(),
     this.value = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -10696,18 +10764,23 @@ class CustomFieldValuesCacheCompanion
   });
   CustomFieldValuesCacheCompanion.insert({
     required String id,
-    required String ownedItemId,
+    required String targetId,
+    required String targetScope,
+    this.catalogRefJson = const Value.absent(),
     required String fieldDefinitionId,
     this.value = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        ownedItemId = Value(ownedItemId),
+        targetId = Value(targetId),
+        targetScope = Value(targetScope),
         fieldDefinitionId = Value(fieldDefinitionId),
         updatedAt = Value(updatedAt);
   static Insertable<CustomFieldValuesCacheData> custom({
     Expression<String>? id,
-    Expression<String>? ownedItemId,
+    Expression<String>? targetId,
+    Expression<String>? targetScope,
+    Expression<String>? catalogRefJson,
     Expression<String>? fieldDefinitionId,
     Expression<String>? value,
     Expression<DateTime>? updatedAt,
@@ -10715,7 +10788,9 @@ class CustomFieldValuesCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (targetId != null) 'target_id': targetId,
+      if (targetScope != null) 'target_scope': targetScope,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
       if (fieldDefinitionId != null) 'field_definition_id': fieldDefinitionId,
       if (value != null) 'value': value,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -10725,14 +10800,18 @@ class CustomFieldValuesCacheCompanion
 
   CustomFieldValuesCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? ownedItemId,
+      Value<String>? targetId,
+      Value<String>? targetScope,
+      Value<String?>? catalogRefJson,
       Value<String>? fieldDefinitionId,
       Value<String?>? value,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
     return CustomFieldValuesCacheCompanion(
       id: id ?? this.id,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      targetId: targetId ?? this.targetId,
+      targetScope: targetScope ?? this.targetScope,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
       fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
       value: value ?? this.value,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -10746,8 +10825,14 @@ class CustomFieldValuesCacheCompanion
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (targetId.present) {
+      map['target_id'] = Variable<String>(targetId.value);
+    }
+    if (targetScope.present) {
+      map['target_scope'] = Variable<String>(targetScope.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
     if (fieldDefinitionId.present) {
       map['field_definition_id'] = Variable<String>(fieldDefinitionId.value);
@@ -10768,7 +10853,9 @@ class CustomFieldValuesCacheCompanion
   String toString() {
     return (StringBuffer('CustomFieldValuesCacheCompanion(')
           ..write('id: $id, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('targetId: $targetId, ')
+          ..write('targetScope: $targetScope, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('fieldDefinitionId: $fieldDefinitionId, ')
           ..write('value: $value, ')
           ..write('updatedAt: $updatedAt, ')
@@ -18320,7 +18407,9 @@ typedef $$CustomFieldDefinitionsCacheTableProcessedTableManager
 typedef $$CustomFieldValuesCacheTableCreateCompanionBuilder
     = CustomFieldValuesCacheCompanion Function({
   required String id,
-  required String ownedItemId,
+  required String targetId,
+  required String targetScope,
+  Value<String?> catalogRefJson,
   required String fieldDefinitionId,
   Value<String?> value,
   required DateTime updatedAt,
@@ -18329,7 +18418,9 @@ typedef $$CustomFieldValuesCacheTableCreateCompanionBuilder
 typedef $$CustomFieldValuesCacheTableUpdateCompanionBuilder
     = CustomFieldValuesCacheCompanion Function({
   Value<String> id,
-  Value<String> ownedItemId,
+  Value<String> targetId,
+  Value<String> targetScope,
+  Value<String?> catalogRefJson,
   Value<String> fieldDefinitionId,
   Value<String?> value,
   Value<DateTime> updatedAt,
@@ -18348,8 +18439,15 @@ class $$CustomFieldValuesCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetId => $composableBuilder(
+      column: $table.targetId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetScope => $composableBuilder(
+      column: $table.targetScope, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get fieldDefinitionId => $composableBuilder(
       column: $table.fieldDefinitionId,
@@ -18374,8 +18472,15 @@ class $$CustomFieldValuesCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get targetId => $composableBuilder(
+      column: $table.targetId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetScope => $composableBuilder(
+      column: $table.targetScope, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get fieldDefinitionId => $composableBuilder(
       column: $table.fieldDefinitionId,
@@ -18400,8 +18505,14 @@ class $$CustomFieldValuesCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get targetId =>
+      $composableBuilder(column: $table.targetId, builder: (column) => column);
+
+  GeneratedColumn<String> get targetScope => $composableBuilder(
+      column: $table.targetScope, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get fieldDefinitionId => $composableBuilder(
       column: $table.fieldDefinitionId, builder: (column) => column);
@@ -18445,7 +18556,9 @@ class $$CustomFieldValuesCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> ownedItemId = const Value.absent(),
+            Value<String> targetId = const Value.absent(),
+            Value<String> targetScope = const Value.absent(),
+            Value<String?> catalogRefJson = const Value.absent(),
             Value<String> fieldDefinitionId = const Value.absent(),
             Value<String?> value = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -18453,7 +18566,9 @@ class $$CustomFieldValuesCacheTableTableManager extends RootTableManager<
           }) =>
               CustomFieldValuesCacheCompanion(
             id: id,
-            ownedItemId: ownedItemId,
+            targetId: targetId,
+            targetScope: targetScope,
+            catalogRefJson: catalogRefJson,
             fieldDefinitionId: fieldDefinitionId,
             value: value,
             updatedAt: updatedAt,
@@ -18461,7 +18576,9 @@ class $$CustomFieldValuesCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String ownedItemId,
+            required String targetId,
+            required String targetScope,
+            Value<String?> catalogRefJson = const Value.absent(),
             required String fieldDefinitionId,
             Value<String?> value = const Value.absent(),
             required DateTime updatedAt,
@@ -18469,7 +18586,9 @@ class $$CustomFieldValuesCacheTableTableManager extends RootTableManager<
           }) =>
               CustomFieldValuesCacheCompanion.insert(
             id: id,
-            ownedItemId: ownedItemId,
+            targetId: targetId,
+            targetScope: targetScope,
+            catalogRefJson: catalogRefJson,
             fieldDefinitionId: fieldDefinitionId,
             value: value,
             updatedAt: updatedAt,

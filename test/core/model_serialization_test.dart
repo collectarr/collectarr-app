@@ -214,7 +214,8 @@ void main() {
     );
     final customValue = CustomFieldValue(
       id: 'cf-1',
-      ownedItemId: owned.id,
+      targetId: owned.id,
+      targetScope: CustomFieldTargetScope.ownedCopy,
       catalogRef: ref,
       fieldDefinitionId: 'field-1',
       value: 'Shelf A',

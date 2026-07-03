@@ -55,7 +55,7 @@ class _LibraryMetadataCompareDialogState
     });
     try {
       final api = ref.read(apiClientProvider);
-      final dto = await api.getTypedMetadataItemDto(
+      final dto = await api.getTypedMetadataItem(
         kind: widget.localItem.kind,
         id: widget.localItem.id,
       );

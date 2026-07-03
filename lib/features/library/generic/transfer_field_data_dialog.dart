@@ -200,7 +200,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             .firstOrNull;
         await cfRepo.upsertValue(CustomFieldValue(
           id: existing?.id ?? const Uuid().v4(),
-          ownedItemId: item.id,
+          targetId: item.id,
+          targetScope: CustomFieldTargetScope.ownedCopy,
+          catalogRef: item.catalogRef,
           fieldDefinitionId: tgt.customFieldId!,
           value: newTargetValue,
           updatedAt: now,
@@ -255,7 +257,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           if (existing != null) {
             await cfRepo.upsertValue(CustomFieldValue(
               id: existing.id,
-              ownedItemId: item.id,
+              targetId: item.id,
+              targetScope: CustomFieldTargetScope.ownedCopy,
+              catalogRef: item.catalogRef,
               fieldDefinitionId: src.customFieldId!,
               value: null,
               updatedAt: now,
@@ -277,8 +281,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             graderNotes: src.key == 'graderNotes' ? null : item.graderNotes,
             signedBy: src.key == 'signedBy' ? null : item.signedBy,
             labelType: src.key == 'labelType' ? null : item.labelType,
-            certificationNumber:
-                src.key == 'certificationNumber' ? null : item.certificationNumber,
+            certificationNumber: src.key == 'certificationNumber'
+                ? null
+                : item.certificationNumber,
             keyReason: src.key == 'keyReason' ? null : item.keyReason,
             readStatus: src.key == 'readStatus' ? null : item.readStatus,
             soldTo: src.key == 'soldTo' ? null : item.soldTo,
@@ -379,15 +384,19 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                     const SizedBox(height: 4),
                     RadioGroup<TransferMode>(
                       groupValue: _mode,
-                      onChanged: (v) => setState(() { if (v != null) _mode = v; }),
+                      onChanged: (v) => setState(() {
+                        if (v != null) _mode = v;
+                      }),
                       child: Column(
-                        children: TransferMode.values.map((m) => RadioListTile<TransferMode>(
-                              title: Text(m.label),
-                              subtitle: Text(m.description),
-                              value: m,
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            )).toList(),
+                        children: TransferMode.values
+                            .map((m) => RadioListTile<TransferMode>(
+                                  title: Text(m.label),
+                                  subtitle: Text(m.description),
+                                  value: m,
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ))
+                            .toList(),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -397,16 +406,19 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                     const SizedBox(height: 4),
                     RadioGroup<TransferConflict>(
                       groupValue: _conflict,
-                      onChanged: (v) => setState(() { if (v != null) _conflict = v; }),
+                      onChanged: (v) => setState(() {
+                        if (v != null) _conflict = v;
+                      }),
                       child: Column(
-                        children: TransferConflict.values.map(
-                            (c) => RadioListTile<TransferConflict>(
+                        children: TransferConflict.values
+                            .map((c) => RadioListTile<TransferConflict>(
                                   title: Text(c.label),
                                   subtitle: Text(c.description),
                                   value: c,
                                   dense: true,
                                   contentPadding: EdgeInsets.zero,
-                                )).toList(),
+                                ))
+                            .toList(),
                       ),
                     ),
                   ],

@@ -864,11 +864,15 @@ class _InspectorTrackingDetailsEditorState
     if (title == null || title.isEmpty || !mounted) return;
     try {
       final api = ref.read(apiClientProvider);
-      final edition = await api.createEdition(
-        widget.itemId,
-        title: title,
-        kind: widget.mediaType,
-      );
+      final normalizedKind = widget.mediaType.trim().toLowerCase();
+      final edition = switch (normalizedKind) {
+        'book' => await api.createBookEdition(widget.itemId, title: title),
+        'boardgame' =>
+          await api.createBoardGameEdition(widget.itemId, title: title),
+        _ => throw UnsupportedError(
+            'Edition creation is only supported for book and boardgame items.',
+          ),
+      };
       if (!mounted) return;
       setState(() => _selectedEditionId = edition.id);
       ScaffoldMessenger.of(context).showSnackBar(

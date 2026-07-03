@@ -308,7 +308,7 @@ class CollectionMutations {
       soldTo: soldTo,
       ownerUserId: item.ownerUserId ?? auth.userId,
       ownerLabel: ownerLabel ?? item.ownerLabel ?? auth.email,
-        locationId: identical(locationId, _updateItemUnset)
+      locationId: identical(locationId, _updateItemUnset)
           ? item.locationId
           : locationId as String?,
       updatedAt: now,
@@ -1299,7 +1299,8 @@ class CollectionMutations {
         if (def == null || entry.value == null) continue;
         cfValuesToSave.add(CustomFieldValue(
           id: _uuid.v4(),
-          ownedItemId: ownedId,
+          targetId: ownedId,
+          targetScope: CustomFieldTargetScope.ownedCopy,
           catalogRef: _catalogRefForItem(catalogItems[row.itemId]),
           fieldDefinitionId: def.id,
           value: entry.value,
@@ -1413,7 +1414,7 @@ class CollectionMutations {
       currency: row.currency ?? existing?.currency,
       personalNotes: row.notes ?? existing?.personalNotes,
       quantity: row.quantity ?? existing?.quantity ?? 1,
-        locationId: hasLocationId ? row.locationId : existing?.locationId,
+      locationId: hasLocationId ? row.locationId : existing?.locationId,
       indexNumber: row.indexNumber ?? existing?.indexNumber,
       coverPriceCents: row.coverPriceCents ?? existing?.coverPriceCents,
       rawOrSlabbed: row.rawOrSlabbed ?? existing?.rawOrSlabbed,

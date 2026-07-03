@@ -29,8 +29,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 /// Returns `true` if the local catalog cache is empty.
 Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
   final countExpr = countAll();
-  final count = await (db.selectOnly(db.catalogCache)
-        ..addColumns([countExpr]))
+  final count = await (db.selectOnly(db.catalogCache)..addColumns([countExpr]))
       .getSingle();
   return (count.read(countExpr) ?? 0) == 0;
 }
@@ -228,7 +227,8 @@ List<CatalogItem> _movieItems() => [
           seriesTitle: 'Blade Runner',
           tags: ['sci-fi', 'noir', 'dystopia', 'cyberpunk'],
         ),
-        video: const VideoCatalogDetails(runtimeMinutes: 117, screenRatio: '2.39:1'),
+        video: const VideoCatalogDetails(
+            runtimeMinutes: 117, screenRatio: '2.39:1'),
         creators: [
           {'name': 'Ridley Scott', 'role': 'director'},
           {'name': 'Vangelis', 'role': 'composer'},
@@ -738,8 +738,7 @@ List<CatalogItem> _musicItems() => [
                 title: 'Exit Music (For a Film)',
                 position: 4,
                 durationSeconds: 261),
-            CatalogTrack(
-                title: 'Let Down', position: 5, durationSeconds: 298),
+            CatalogTrack(title: 'Let Down', position: 5, durationSeconds: 298),
             CatalogTrack(
                 title: 'Karma Police', position: 6, durationSeconds: 264),
           ],
@@ -1120,8 +1119,7 @@ List<CatalogItem> _gameItems() => [
         id: 'seed-game-08',
         kind: 'game',
         title: 'Outer Wilds',
-        synopsis:
-            'An astronaut explores a solar system stuck in a time loop.',
+        synopsis: 'An astronaut explores a solar system stuck in a time loop.',
         publisher: 'Mobius Digital',
         releaseYear: 2019,
         releaseDate: DateTime.utc(2019, 5, 28),
@@ -1225,8 +1223,7 @@ List<CatalogItem> _boardgameItems() => [
         id: 'seed-boardgame-02',
         kind: 'boardgame',
         title: 'Gloomhaven: Jaws of the Lion',
-        synopsis:
-            'A standalone prequel to Gloomhaven with simplified rules.',
+        synopsis: 'A standalone prequel to Gloomhaven with simplified rules.',
         publisher: 'Cephalofair Games',
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 6, 18),
@@ -1245,8 +1242,7 @@ List<CatalogItem> _boardgameItems() => [
         id: 'seed-boardgame-03',
         kind: 'boardgame',
         title: 'Wingspan',
-        synopsis:
-            'A competitive bird-collection engine-building board game.',
+        synopsis: 'A competitive bird-collection engine-building board game.',
         publisher: 'Stonemaier Games',
         releaseYear: 2019,
         releaseDate: DateTime.utc(2019, 3, 8),
@@ -1716,8 +1712,7 @@ List<CatalogItem> _tvItems() {
         releaseDate: DateTime.utc(2008 + i, ((i % 12) + 1), 1 + (i % 20)),
         coverImageUrl:
             'https://placehold.co/300x450?text=${Uri.encodeComponent(titles[i])}+TV',
-        thumbnailImageUrl:
-            'https://placehold.co/100x150?text=TV${i + 1}',
+        thumbnailImageUrl: 'https://placehold.co/100x150?text=TV${i + 1}',
         editionTitle: 'Complete Season ${i + 1}',
         physicalFormat: 'Blu-ray',
         variant: 'Collector',
@@ -1750,7 +1745,11 @@ List<CatalogItem> _tvItems() {
           {'name': 'Seed Showrunner ${i + 1}', 'role': 'creator'},
           {'name': 'Seed Director ${i + 1}', 'role': 'director'},
         ],
-        characters: ['Lead ${i + 1}', 'Support ${i + 1}', 'Antagonist ${i + 1}'],
+        characters: [
+          'Lead ${i + 1}',
+          'Support ${i + 1}',
+          'Antagonist ${i + 1}'
+        ],
         storyArcs: ['Season ${i + 1} Arc'],
         genres: const ['drama', 'thriller'],
       ),
@@ -1787,8 +1786,7 @@ List<CatalogItem> _animeItems() {
         releaseDate: DateTime.utc(1998 + i, ((i % 12) + 1), 3 + (i % 20)),
         coverImageUrl:
             'https://placehold.co/300x450?text=${Uri.encodeComponent(titles[i])}+Anime',
-        thumbnailImageUrl:
-            'https://placehold.co/100x150?text=AN${i + 1}',
+        thumbnailImageUrl: 'https://placehold.co/100x150?text=AN${i + 1}',
         editionTitle: 'Blu-ray Box ${i + 1}',
         physicalFormat: 'Blu-ray',
         variant: 'Limited',
@@ -1858,8 +1856,7 @@ List<CatalogItem> _mangaItems() {
         releaseDate: DateTime.utc(1999 + i, ((i % 12) + 1), 5 + (i % 20)),
         coverImageUrl:
             'https://placehold.co/300x450?text=${Uri.encodeComponent(titles[i])}+Manga',
-        thumbnailImageUrl:
-            'https://placehold.co/100x150?text=MG${i + 1}',
+        thumbnailImageUrl: 'https://placehold.co/100x150?text=MG${i + 1}',
         editionTitle: 'Tankobon ${i + 1}',
         physicalFormat: 'Tankobon',
         variant: 'Standard',
@@ -2521,35 +2518,40 @@ Future<void> _seedCustomFields(CustomFieldRepository repo) async {
   final values = [
     CustomFieldValue(
       id: 'seed-cf-val-01',
-      ownedItemId: 'seed-owned-comic-01',
+      targetId: 'seed-owned-comic-01',
+      targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'seed-cf-def-01',
       value: 'Purchase',
       updatedAt: now,
     ),
     CustomFieldValue(
       id: 'seed-cf-val-02',
-      ownedItemId: 'seed-owned-comic-01',
+      targetId: 'seed-owned-comic-01',
+      targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'seed-cf-def-02',
       value: 'First print, great condition for the price',
       updatedAt: now,
     ),
     CustomFieldValue(
       id: 'seed-cf-val-03',
-      ownedItemId: 'seed-owned-comic-03',
+      targetId: 'seed-owned-comic-03',
+      targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'seed-cf-def-03',
       value: '350',
       updatedAt: now,
     ),
     CustomFieldValue(
       id: 'seed-cf-val-04',
-      ownedItemId: 'seed-owned-book-01',
+      targetId: 'seed-owned-book-01',
+      targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'seed-cf-def-04',
       value: '2020-03-16',
       updatedAt: now,
     ),
     CustomFieldValue(
       id: 'seed-cf-val-05',
-      ownedItemId: 'seed-owned-book-07',
+      targetId: 'seed-owned-book-07',
+      targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'seed-cf-def-05',
       value: 'true',
       updatedAt: now,
