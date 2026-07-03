@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
@@ -155,7 +156,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   String _rpmSelection = '';
   bool _isFetchingServerSnapshot = false;
   String? _serverSnapshotError;
-  CatalogItem? _serverSnapshotItem;
+  MusicRelease? _serverSnapshotItem;
   bool _didAutoOpenMetadataCompare = false;
 
   bool get _isOwned => widget.request.ownedItem != null;
@@ -1506,7 +1507,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     });
     try {
       final api = ref.read(apiClientProvider);
-      final snapshot = musicCatalogItemFromDto(await api.getMusicReleaseDto(_item.id));
+      final snapshot = musicReleaseFromDto(await api.getMusicReleaseDto(_item.id));
       if (!mounted) {
         return;
       }
@@ -1551,11 +1552,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<Map<String, dynamic>> get _serverCreators =>
-      _serverSnapshotItem?.creators?.cast<Map<String, dynamic>>() ??
-      const <Map<String, dynamic>>[];
+      _serverSnapshotItem?.creators ?? const <Map<String, dynamic>>[];
 
   List<CatalogDisc> get _serverDiscs =>
-      _serverSnapshotItem?.music?.discs ?? const <CatalogDisc>[];
+      _serverSnapshotItem?.discs ?? const <CatalogDisc>[];
 
   List<String> _creatorsForRoleFromSource(
     List<Map<String, dynamic>> source,
@@ -1680,8 +1680,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return normalized.join(', ');
   }
 
-  List<MetadataDiffEntry> _musicMetadataDiffEntries(CatalogItem serverItem) {
-    final serverMusic = serverItem.music;
+  List<MetadataDiffEntry> _musicMetadataDiffEntries(MusicRelease serverItem) {
     return [
       MetadataDiffEntry(
         label: 'Title',
@@ -1691,17 +1690,17 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       MetadataDiffEntry(
         label: 'Sort title',
         localValue: _diffText(_sortKeyController.text),
-        serverValue: _diffText(serverItem.sortKey),
+        serverValue: _diffText(serverItem.sortTitle),
       ),
       MetadataDiffEntry(
         label: 'Artist',
         localValue: _diffText(_artistController.text),
-        serverValue: _diffText(serverItem.series?.seriesTitle),
+        serverValue: _diffText(serverItem.artist),
       ),
       MetadataDiffEntry(
         label: 'Subtitle',
         localValue: _diffText(_subtitleController.text),
-        serverValue: _diffText(serverItem.publishing?.subtitle),
+        serverValue: _diffText(serverItem.subtitle),
       ),
       MetadataDiffEntry(
         label: 'Label',
@@ -1716,27 +1715,27 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       MetadataDiffEntry(
         label: 'Original release date',
         localValue: _diffText(_originalReleaseDateController.text),
-        serverValue: _diffDate(serverMusic?.originalReleaseDate),
+        serverValue: _diffDate(serverItem.originalReleaseDate),
       ),
       MetadataDiffEntry(
         label: 'Recording date',
         localValue: _diffText(_recordingDateController.text),
-        serverValue: _diffDate(serverMusic?.recordingDate),
+        serverValue: _diffDate(serverItem.recordingDate),
       ),
       MetadataDiffEntry(
         label: 'Release status',
         localValue: _diffText(_releaseStatusController.text),
-        serverValue: _diffText(serverMusic?.releaseStatus),
+        serverValue: _diffText(serverItem.releaseStatus),
       ),
       MetadataDiffEntry(
         label: 'Catalog number',
         localValue: _diffText(_catalogNumberController.text),
-        serverValue: _diffText(serverMusic?.catalogNumber),
+        serverValue: _diffText(serverItem.catalogNumber),
       ),
       MetadataDiffEntry(
         label: 'Country',
         localValue: _diffText(_countryController.text),
-        serverValue: _diffText(serverItem.country),
+        serverValue: _diffText(serverItem.countryCode),
       ),
       MetadataDiffEntry(
         label: 'Language',
@@ -1751,42 +1750,42 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       MetadataDiffEntry(
         label: 'Instrument',
         localValue: _diffText(_instrumentController.text),
-        serverValue: _diffText(serverMusic?.instrument),
+        serverValue: _diffText(serverItem.instrument),
       ),
       MetadataDiffEntry(
         label: 'Composition',
         localValue: _diffText(_compositionController.text),
-        serverValue: _diffText(serverMusic?.composition),
+        serverValue: _diffText(serverItem.composition),
       ),
       MetadataDiffEntry(
         label: 'RPM',
         localValue: _diffText(_rpmController.text),
-        serverValue: _diffText(serverMusic?.rpm),
+        serverValue: _diffText(serverItem.rpm),
       ),
       MetadataDiffEntry(
         label: 'SPARS',
         localValue: _diffText(_sparsController.text),
-        serverValue: _diffText(serverMusic?.spars),
+        serverValue: _diffText(serverItem.spars),
       ),
       MetadataDiffEntry(
         label: 'Sound',
         localValue: _diffList(_soundValues),
-        serverValue: _diffList(_splitCommaList(serverMusic?.soundType ?? '')),
+        serverValue: _diffText(serverItem.soundType),
       ),
       MetadataDiffEntry(
         label: 'Vinyl color',
         localValue: _diffText(_vinylColorController.text),
-        serverValue: _diffText(serverMusic?.vinylColor),
+        serverValue: _diffText(serverItem.vinylColor),
       ),
       MetadataDiffEntry(
         label: 'Vinyl weight',
         localValue: _diffText(_vinylWeightController.text),
-        serverValue: _diffText(serverMusic?.vinylWeight),
+        serverValue: _diffText(serverItem.vinylWeight),
       ),
       MetadataDiffEntry(
         label: 'Media condition',
         localValue: _diffText(_mediaConditionController.text),
-        serverValue: _diffText(serverMusic?.mediaCondition),
+        serverValue: _diffText(serverItem.mediaCondition),
       ),
       MetadataDiffEntry(
         label: 'Packaging',
@@ -1801,7 +1800,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       MetadataDiffEntry(
         label: 'Live recording',
         localValue: _isLive ? 'Yes' : 'No',
-        serverValue: (serverMusic?.isLive ?? false) ? 'Yes' : 'No',
+        serverValue: serverItem.isLive ? 'Yes' : 'No',
       ),
     ];
   }
