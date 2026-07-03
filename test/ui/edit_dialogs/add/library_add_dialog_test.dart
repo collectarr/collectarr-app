@@ -2121,7 +2121,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
     return const [];
   }
 
-  @override
   Future<List<BundleReleaseSummary>> getItemBundleReleases(
       String itemId) async {
     if (itemId == 'comic-423') {

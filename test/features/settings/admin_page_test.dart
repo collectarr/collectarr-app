@@ -1423,7 +1423,6 @@ class _FakeAdminApiClient extends ApiClient {
     );
   }
 
-  @override
   Future<List<BundleReleaseSummary>> getItemBundleReleases(
       String itemId) async {
     if (itemId != 'item-1') {
