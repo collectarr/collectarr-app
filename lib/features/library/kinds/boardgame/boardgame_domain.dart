@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BoardGameEdition {
   const BoardGameEdition({
@@ -108,50 +107,4 @@ final class BoardGameWork {
     );
   }
 
-  factory BoardGameWork.fromMetadataItem(LibraryMetadataItem item) {
-    return BoardGameWork(
-      id: item.id,
-      title: item.title,
-      platforms:
-          List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
-      identifiers: const <String>[],
-      contributors: item.creators == null
-          ? const <String>[]
-          : List<String>.unmodifiable(
-              item.creators!
-                  .map((creator) => creator['name']?.toString() ?? '')
-                  .where((name) => name.isNotEmpty),
-            ),
-      mechanics: const <String>[],
-      categories: item.genres == null
-          ? const <String>[]
-          : List<String>.unmodifiable(item.genres!),
-      families: const <String>[],
-      expansions: const <String>[],
-      rankings: const <String>[],
-      editions: [
-        for (final edition in item.editions)
-          BoardGameEdition(
-            id: edition.id,
-            title: edition.title,
-            editionTitle: edition.title,
-            format: edition.format,
-            publisher: edition.publisher,
-            catalogNumber: edition.upc,
-            barcode: edition.upc,
-            releaseStatus: null,
-            releaseDate: edition.releaseDate,
-            language: edition.language,
-            country: edition.region,
-            ageRating: item.ageRating,
-            audienceRating: item.audienceRating,
-            minPlayers: null,
-            maxPlayers: null,
-            playingTimeMinutes: null,
-            minAge: null,
-            coverImageUrl: null,
-          ),
-      ],
-    );
-  }
 }

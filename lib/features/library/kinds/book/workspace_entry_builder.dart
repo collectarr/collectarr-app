@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -154,9 +153,8 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
 LibraryWorkspaceEntry buildBookWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
-  final metadataItem = LibraryMetadataItem.fromCatalogItem(source.catalogItem!);
   return buildBookWorkspaceEntry(
-    BookWork.fromMetadataItem(metadataItem),
+    _bookWorkFromCatalogItem(source.catalogItem!),
     BookPersonalOverlay.fromShelfEntry(source),
   );
 }
@@ -375,6 +373,51 @@ List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
 
 List<TrailerLink> _copyTrailerList(List<TrailerLink> values) {
   return List<TrailerLink>.unmodifiable(values);
+}
+
+BookWork _bookWorkFromCatalogItem(CatalogItem item) {
+  return BookWork(
+    id: item.id,
+    title: item.title,
+    displayTitle: item.displayTitle,
+    localizedTitle: item.localizedTitle,
+    originalTitle: item.originalTitle,
+    searchAliases: List<String>.unmodifiable(item.searchAliases ?? const <String>[]),
+    itemNumber: item.itemNumber,
+    synopsis: item.synopsis,
+    coverImageUrl: item.coverImageUrl,
+    thumbnailImageUrl: item.thumbnailImageUrl,
+    publisher: item.publisher,
+    coverDate: item.coverDate,
+    releaseDate: item.releaseDate,
+    releaseYear: item.releaseYear,
+    barcode: item.barcode,
+    variant: item.variant,
+    crossover: item.crossover,
+    series: item.series,
+    publishing: item.publishing,
+    editions: [
+      for (final edition in item.editions)
+        BookEdition.fromCatalogEdition(edition),
+    ],
+    trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
+    plotSummary: item.plotSummary,
+    plotDescription: item.plotDescription,
+    creators: item.creators == null
+        ? null
+        : List<Map<String, dynamic>>.unmodifiable(
+            item.creators!
+                .map((value) => Map<String, dynamic>.unmodifiable(value)),
+          ),
+    characters: List<String>.unmodifiable(item.characters ?? const <String>[]),
+    storyArcs: List<String>.unmodifiable(item.storyArcs ?? const <String>[]),
+    genres: List<String>.unmodifiable(item.genres ?? const <String>[]),
+    country: item.country,
+    language: item.language,
+    ageRating: item.ageRating,
+    audienceRating: item.audienceRating,
+    physicalFormatLabel: item.physicalFormatLabel,
+  );
 }
 
 CatalogEdition _bookEditionToCatalogEdition(BookEdition edition) {

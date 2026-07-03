@@ -1,44 +1,62 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('book metadata item maps into book domain', () {
-    final metadata = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'book-1',
-        kind: 'book',
-        title: 'Guards! Guards!',
-        searchAliases: ['Guards Guards'],
-        series: const CatalogSeriesDetails(seriesTitle: 'Discworld'),
-        publishing: const CatalogPublishingDetails(pageCount: 288),
-        coverImageUrl: 'https://example.com/book.jpg',
-        thumbnailImageUrl: 'https://example.com/book-thumb.jpg',
-        publisher: 'Victor Gollancz Ltd',
-        coverDate: DateTime.parse('1989-03-16T00:00:00Z'),
-        releaseDate: DateTime.parse('1989-03-16T00:00:00Z'),
-        releaseYear: 1989,
-        barcode: '9780062225729',
-        variant: 'First edition',
-        crossover: 'City Watch',
-        plotSummary: 'The city needs a dragon.',
-        plotDescription: 'A dragon threatens Ankh-Morpork.',
-        creators: const [
-          {'name': 'Terry Pratchett', 'role': 'author'},
-        ],
-        characters: const ['Vimes'],
-        storyArcs: const ['Ankh-Morpork'],
-        genres: const ['fantasy'],
-        country: 'GB',
-        language: 'en',
-        ageRating: 'PG',
-        audienceRating: 'Teen',
-        physicalFormatLabel: 'Paperback',
-      ),
-    );
+  test('book dto maps rich metadata into book domain', () {
+    final dto = BookWorkDto.fromJson({
+      'id': 'book-1',
+      'title': 'Guards! Guards!',
+      'search_aliases': ['Guards Guards'],
+      'genres': ['fantasy'],
+      'contributors': [
+        {'name': 'Terry Pratchett', 'role': 'author'},
+      ],
+      'series': ['Discworld'],
+      'first_publication_date': '1989-03-16T00:00:00Z',
+      'original_publication_date': '1989-03-16T00:00:00Z',
+      'original_language': 'en',
+      'sort_title': 'Guards Guards',
+      'subtitle': 'A Discworld Novel',
+      'description': 'The city needs a dragon.',
+      'cover_image_url': 'https://example.com/book.jpg',
+      'thumbnail_image_url': 'https://example.com/book-thumb.jpg',
+      'publisher': 'Victor Gollancz Ltd',
+      'cover_date': '1989-03-16T00:00:00Z',
+      'release_date': '1989-03-16T00:00:00Z',
+      'release_year': 1989,
+      'barcode': '9780062225729',
+      'variant': 'First edition',
+      'crossover': 'City Watch',
+      'plot_summary': 'The city needs a dragon.',
+      'plot_description': 'A dragon threatens Ankh-Morpork.',
+      'creators': [
+        {'name': 'Terry Pratchett', 'role': 'author'},
+      ],
+      'characters': ['Vimes'],
+      'story_arcs': ['Ankh-Morpork'],
+      'country': 'GB',
+      'language': 'en',
+      'age_rating': 'PG',
+      'audience_rating': 'Teen',
+      'physical_format_label': 'Paperback',
+      'editions': [
+        {
+          'id': 'book-edition-1',
+          'work_id': 'book-1',
+          'display_title': 'Paperback',
+          'format': 'paperback',
+          'publisher': 'Victor Gollancz Ltd',
+          'isbn': '9780062225729',
+          'page_count': 288,
+          'publication_date': '1989-03-16T00:00:00Z',
+          'language': 'en',
+          'release_status': 'published',
+        },
+      ],
+    });
 
-    final book = BookWork.fromMetadataItem(metadata);
+    final book = BookWork.fromDto(dto);
 
     expect(book.title, 'Guards! Guards!');
     expect(book.series?.seriesTitle, 'Discworld');
@@ -50,6 +68,8 @@ void main() {
     expect(book.creators, hasLength(1));
     expect(book.characters, ['Vimes']);
     expect(book.storyArcs, ['Ankh-Morpork']);
+    expect(book.editions, hasLength(1));
+    expect(book.editions.first.title, 'Paperback');
     expect(book.physicalFormatLabel, 'Paperback');
   });
 }

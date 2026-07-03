@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -43,10 +42,9 @@ final class BoardGamePersonalOverlay {
 LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
-  final metadataItem = LibraryMetadataItem.fromCatalogItem(source.catalogItem!);
   return buildBoardGameWorkspaceEntry(
-    BoardGameWork.fromMetadataItem(metadataItem),
-    metadataItem,
+    _boardGameWorkFromCatalogItem(source.catalogItem!),
+    source.catalogItem!,
     BoardGamePersonalOverlay.fromShelfEntry(source),
   );
 }
@@ -65,7 +63,7 @@ LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
 
 LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
   BoardGameWork work,
-  LibraryMetadataItem metadata,
+  CatalogItem metadata,
   BoardGamePersonalOverlay overlay,
 ) {
   final selectedEdition = work.editions.isEmpty ? null : work.editions.first;
@@ -309,10 +307,59 @@ List<Map<String, dynamic>>? _copyCreatorList(
   );
 }
 
-bool _hasMissingCoreMetadata(LibraryMetadataItem item) {
+bool _hasMissingCoreMetadata(CatalogItem item) {
   return item.publisher == null &&
       item.releaseDate == null &&
       item.releaseYear == null &&
       item.coverImageUrl == null &&
       item.physicalFormatLabel == null;
+}
+
+BoardGameWork _boardGameWorkFromCatalogItem(CatalogItem item) {
+  final editions = [
+    for (final edition in item.editions)
+      BoardGameEdition(
+        id: edition.id,
+        title: edition.title,
+        editionTitle: edition.title,
+        format: edition.format,
+        publisher: edition.publisher,
+        catalogNumber: edition.upc,
+        barcode: edition.upc,
+        releaseStatus: null,
+        releaseDate: edition.releaseDate,
+        language: edition.language,
+        country: edition.region,
+        ageRating: item.ageRating,
+        audienceRating: item.audienceRating,
+        minPlayers: null,
+        maxPlayers: null,
+        playingTimeMinutes: null,
+        minAge: null,
+        coverImageUrl: edition.variants.isNotEmpty
+            ? edition.variants.first.coverImageUrl
+            : null,
+      ),
+  ];
+  return BoardGameWork(
+    id: item.id,
+    title: item.title,
+    platforms: List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
+    identifiers: const <String>[],
+    contributors: item.creators == null
+        ? const <String>[]
+        : List<String>.unmodifiable(
+            item.creators!
+                .map((creator) => creator['name']?.toString() ?? '')
+                .where((name) => name.isNotEmpty),
+          ),
+    mechanics: const <String>[],
+    categories: item.genres == null
+        ? const <String>[]
+        : List<String>.unmodifiable(item.genres!),
+    families: const <String>[],
+    expansions: const <String>[],
+    rankings: const <String>[],
+    editions: editions,
+  );
 }

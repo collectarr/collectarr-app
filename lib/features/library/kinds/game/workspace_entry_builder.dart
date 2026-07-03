@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -43,10 +42,9 @@ final class GamePersonalOverlay {
 LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
-  final metadataItem = LibraryMetadataItem.fromCatalogItem(source.catalogItem!);
   return buildGameWorkspaceEntry(
-    GameWork.fromMetadataItem(metadataItem),
-    metadataItem,
+    _gameWorkFromCatalogItem(source.catalogItem!),
+    source.catalogItem!,
     GamePersonalOverlay.fromShelfEntry(source),
   );
 }
@@ -63,7 +61,7 @@ LibraryWorkspaceEntry buildGamesLibraryReleaseEntry(
 
 LibraryWorkspaceEntry buildGameWorkspaceEntry(
   GameWork work,
-  LibraryMetadataItem metadata,
+  CatalogItem metadata,
   GamePersonalOverlay overlay,
 ) {
   final editions = [
@@ -266,6 +264,39 @@ GameWork _gameWorkFromWorkspaceEntry(LibraryWorkspaceEntry entry) {
   );
 }
 
+GameWork _gameWorkFromCatalogItem(CatalogItem item) {
+  return GameWork(
+    id: item.id,
+    title: item.title,
+    platforms: List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
+    identifiers: const <String>[],
+    companyRoles: const <String>[],
+    ageRatings: item.ageRating == null
+        ? const <String>[]
+        : List<String>.unmodifiable([item.ageRating!]),
+    releases: [
+      for (final edition in item.editions)
+        GameRelease(
+          id: edition.id,
+          title: edition.title,
+          platform: item.game?.platforms.isNotEmpty == true
+              ? item.game!.platforms.first
+              : null,
+          releaseDate: edition.releaseDate,
+          format: edition.format,
+          publisher: edition.publisher,
+          catalogNumber: edition.upc,
+          releaseStatus: null,
+          language: edition.language,
+          barcode: edition.upc,
+          coverImageUrl: edition.variants.isNotEmpty
+              ? edition.variants.first.coverImageUrl
+              : null,
+        ),
+    ],
+  );
+}
+
 GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
   return releases.isEmpty ? null : releases.first;
 }
@@ -318,7 +349,7 @@ CatalogEdition _gameReleaseToCatalogEdition(GameRelease release) {
   );
 }
 
-bool _hasMissingCoreMetadata(LibraryMetadataItem item) {
+bool _hasMissingCoreMetadata(CatalogItem item) {
   return item.publisher == null &&
       item.releaseDate == null &&
       item.releaseYear == null &&
