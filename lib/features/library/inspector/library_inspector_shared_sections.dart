@@ -38,6 +38,7 @@ List<Widget> buildLibraryInspectorEditorSections({
     if (trackingEntry != null)
       InspectorTrackingDetailsEditor(
         itemId: entry.id,
+        mediaType: entry.mediaType,
         trackingEntry: trackingEntry,
         profile: type.trackingProfile,
         editions: entry.editions,

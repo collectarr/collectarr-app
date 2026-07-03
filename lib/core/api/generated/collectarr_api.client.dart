@@ -405,11 +405,53 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
+  Future<CatalogEdition> createBookEdition(
+    String workId, {
+    required String title,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/metadata/books/works/${Uri.encodeComponent(workId)}/editions',
+      data: {'title': title},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/metadata/books/works/$workId/editions returned empty body',
+      );
+    }
+    return CatalogEdition.fromJson(data);
+  }
+
+  Future<CatalogEdition> createBoardGameEdition(
+    String workId, {
+    required String title,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/metadata/boardgames/works/${Uri.encodeComponent(workId)}/editions',
+      data: {'title': title},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/metadata/boardgames/works/$workId/editions returned empty body',
+      );
+    }
+    return CatalogEdition.fromJson(data);
+  }
+
   @Deprecated('Use kind-specific typed edition creation endpoints when available.')
   Future<CatalogEdition> createEdition(
     String itemId, {
     required String title,
+    String? kind,
   }) async {
+    final normalizedKind = kind?.trim().toLowerCase();
+    if (normalizedKind == 'book') {
+      return createBookEdition(itemId, title: title);
+    }
+    if (normalizedKind == 'boardgame') {
+      return createBoardGameEdition(itemId, title: title);
+    }
     final response = await _dio.post<Map<String, dynamic>>(
       '/metadata/items/${Uri.encodeComponent(itemId)}/editions',
       data: {'title': title},

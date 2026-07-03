@@ -747,9 +747,12 @@ class ApiClient {
   }
 
   @Deprecated('Use kind-specific edition/release creation routes instead.')
-  Future<CatalogEdition> createEdition(String itemId,
-      {required String title}) async {
-    return _catalogApi.createEdition(itemId, title: title);
+  Future<CatalogEdition> createEdition(
+    String itemId, {
+    required String title,
+    String? kind,
+  }) async {
+    return _catalogApi.createEdition(itemId, title: title, kind: kind);
   }
 
   Future<List<Map<String, dynamic>>> searchStoryArcs({

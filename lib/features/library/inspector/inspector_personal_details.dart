@@ -449,6 +449,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
   const InspectorTrackingDetailsEditor({
     super.key,
     required this.itemId,
+    required this.mediaType,
     required this.trackingEntry,
     required this.profile,
     required this.accent,
@@ -456,6 +457,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
   });
 
   final String itemId;
+  final String mediaType;
   final TrackingEntry trackingEntry;
   final MediaTrackingProfile profile;
   final Color accent;
@@ -862,7 +864,11 @@ class _InspectorTrackingDetailsEditorState
     if (title == null || title.isEmpty || !mounted) return;
     try {
       final api = ref.read(apiClientProvider);
-      final edition = await api.createEdition(widget.itemId, title: title);
+      final edition = await api.createEdition(
+        widget.itemId,
+        title: title,
+        kind: widget.mediaType,
+      );
       if (!mounted) return;
       setState(() => _selectedEditionId = edition.id);
       ScaffoldMessenger.of(context).showSnackBar(
