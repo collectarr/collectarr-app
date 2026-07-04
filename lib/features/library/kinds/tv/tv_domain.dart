@@ -53,6 +53,30 @@ final class TvEpisode {
       metadata: _metadataMap(json),
     );
   }
+
+  factory TvEpisode.fromDto(TvEpisodeDto dto) {
+    return TvEpisode(
+      id: dto.id,
+      seriesId: _stringOrEmpty(
+        dto.raw['series_id'] ?? dto.raw['seriesId'] ?? dto.raw['series_id'],
+      ),
+      seasonId: dto.seasonId,
+      seasonNumber: _intOrZero(
+        dto.raw['season_number'] ?? dto.raw['seasonNumber'],
+      ),
+      episodeNumber: _intOrZero(dto.episodeNumber),
+      title: _stringOrNull(dto.episodeTitle),
+      originalTitle:
+          _stringOrNull(dto.raw['original_title'] ?? dto.raw['originalTitle']),
+      overview: _stringOrNull(dto.description),
+      airDate: dto.releaseDate,
+      runtimeMinutes: dto.runtimeMinutes,
+      stillUrl: _stringOrNull(dto.coverImageUrl),
+      productionCode:
+          _stringOrNull(dto.raw['production_code'] ?? dto.raw['productionCode']),
+      metadata: _metadataMap(dto.raw),
+    );
+  }
 }
 
 final class TvSeason {
@@ -108,6 +132,25 @@ final class TvSeason {
       metadata: _metadataMap(json),
     );
   }
+
+  factory TvSeason.fromDto(TvSeasonDto dto) {
+    return TvSeason(
+      id: dto.id,
+      seriesId: dto.seriesId,
+      seasonNumber: dto.seasonNumber ?? 0,
+      title: _stringOrNull(dto.raw['title']) ?? dto.title,
+      originalTitle:
+          _stringOrNull(dto.raw['original_title'] ?? dto.raw['originalTitle']),
+      overview: _stringOrNull(dto.description),
+      airDate: dto.releaseDate,
+      episodeCount: dto.episodeCount,
+      posterUrl: _stringOrNull(dto.coverImageUrl),
+      episodes: [
+        for (final episode in dto.episodes) TvEpisode.fromDto(episode),
+      ],
+      metadata: _metadataMap(dto.raw),
+    );
+  }
 }
 
 final class TvReleaseMedia {
@@ -150,6 +193,70 @@ final class TvReleaseMedia {
       metadata: _metadataMap(json),
     );
   }
+
+  factory TvReleaseMedia.fromDto(TvReleaseMediaDto dto) {
+    return TvReleaseMedia(
+      id: dto.id,
+      releaseId: dto.releaseId,
+      title: _stringOrNull(dto.title),
+      formatLabel: _stringOrNull(dto.mediaType) ?? _stringOrNull(dto.title),
+      discNumber:
+          _intOrNull(dto.raw['disc_number'] ?? dto.raw['discNumber'] ?? dto.mediaNumber),
+      sequenceNumber: _intOrNull(
+        dto.raw['sequence_number'] ?? dto.raw['sequenceNumber'] ?? dto.mediaNumber,
+      ),
+      features: _stringList(dto.raw['features']),
+      episodes: [
+        for (final entry in _mapList(dto.raw['episodes'])) TvEpisode.fromJson(entry),
+      ],
+      metadata: _metadataMap(dto.raw),
+    );
+  }
+}
+
+final class TvReleaseEpisodeMap {
+  const TvReleaseEpisodeMap({
+    required this.id,
+    required this.releaseId,
+    required this.mediaId,
+    required this.episodeId,
+    this.discNumber,
+    this.sequenceNumber,
+    this.metadata = const <String, dynamic>{},
+  });
+
+  final String id;
+  final String releaseId;
+  final String mediaId;
+  final String episodeId;
+  final int? discNumber;
+  final int? sequenceNumber;
+  final Map<String, dynamic> metadata;
+
+  factory TvReleaseEpisodeMap.fromJson(Map<String, dynamic> json) {
+    return TvReleaseEpisodeMap(
+      id: _stringOrEmpty(json['id']),
+      releaseId: _stringOrEmpty(json['release_id'] ?? json['releaseId']),
+      mediaId: _stringOrEmpty(json['media_id'] ?? json['mediaId']),
+      episodeId: _stringOrEmpty(json['episode_id'] ?? json['episodeId']),
+      discNumber: _intOrNull(json['disc_number'] ?? json['discNumber']),
+      sequenceNumber:
+          _intOrNull(json['sequence_number'] ?? json['sequenceNumber']),
+      metadata: _metadataMap(json),
+    );
+  }
+
+  factory TvReleaseEpisodeMap.fromDto(TvReleaseEpisodeMapDto dto) {
+    return TvReleaseEpisodeMap(
+      id: dto.id,
+      releaseId: dto.releaseId,
+      mediaId: dto.mediaId,
+      episodeId: dto.episodeId,
+      discNumber: dto.discNumber,
+      sequenceNumber: dto.sequenceNumber,
+      metadata: _metadataMap(dto.raw),
+    );
+  }
 }
 
 final class TvRelease {
@@ -161,6 +268,7 @@ final class TvRelease {
     this.country,
     this.language,
     this.media = const <TvReleaseMedia>[],
+    this.episodeMappings = const <TvReleaseEpisodeMap>[],
     this.metadata = const <String, dynamic>{},
   });
 
@@ -171,6 +279,7 @@ final class TvRelease {
   final String? country;
   final String? language;
   final List<TvReleaseMedia> media;
+  final List<TvReleaseEpisodeMap> episodeMappings;
   final Map<String, dynamic> metadata;
 
   factory TvRelease.fromJson(Map<String, dynamic> json) {
@@ -185,7 +294,33 @@ final class TvRelease {
         for (final entry in _mapList(json['media']))
           TvReleaseMedia.fromJson(entry),
       ],
+      episodeMappings: [
+        for (final entry in _mapList(
+          json['episode_mappings'] ?? json['episodeMappings'],
+        ))
+          TvReleaseEpisodeMap.fromJson(entry),
+      ],
       metadata: _metadataMap(json),
+    );
+  }
+
+  factory TvRelease.fromDto(TvReleaseDto dto) {
+    return TvRelease(
+      id: dto.id,
+      seriesId: dto.seriesId,
+      title: _stringOrNull(dto.title),
+      releaseDate: dto.releaseDate,
+      country: _stringOrNull(dto.raw['country'] ?? dto.regionCode),
+      language: _stringOrNull(dto.raw['language']) ??
+          _firstStringOrNull(dto.languageAudio),
+      media: [
+        for (final media in dto.media) TvReleaseMedia.fromDto(media),
+      ],
+      episodeMappings: [
+        for (final mapping in dto.episodeMappings)
+          TvReleaseEpisodeMap.fromDto(mapping),
+      ],
+      metadata: _metadataMap(dto.raw),
     );
   }
 }
@@ -210,6 +345,7 @@ final class TvSeries {
     this.backdropUrl,
     this.seasons = const <TvSeason>[],
     this.media = const <TvReleaseMedia>[],
+    this.releaseEpisodeMaps = const <TvReleaseEpisodeMap>[],
     this.contributions = const <Map<String, dynamic>>[],
     this.identifiers = const <Map<String, dynamic>>[],
     this.characterAppearances = const <Map<String, dynamic>>[],
@@ -234,6 +370,7 @@ final class TvSeries {
   final String? backdropUrl;
   final List<TvSeason> seasons;
   final List<TvReleaseMedia> media;
+  final List<TvReleaseEpisodeMap> releaseEpisodeMaps;
   final List<Map<String, dynamic>> contributions;
   final List<Map<String, dynamic>> identifiers;
   final List<Map<String, dynamic>> characterAppearances;
@@ -260,12 +397,15 @@ final class TvSeries {
       backdropUrl:
           _stringOrNull(dto.raw['backdrop_url'] ?? dto.raw['backdropUrl']),
       seasons: [
-        for (final entry in dto.seasons)
-          TvSeason.fromJson(_asJsonMap(entry)),
+        for (final season in dto.seasons) TvSeason.fromDto(season),
       ],
       media: [
-        for (final entry in dto.media)
-          TvReleaseMedia.fromJson(_asJsonMap(entry)),
+        for (final releaseMedia in dto.media)
+          TvReleaseMedia.fromDto(releaseMedia),
+      ],
+      releaseEpisodeMaps: [
+        for (final entry in _mapList(dto.raw['episode_mappings']))
+          TvReleaseEpisodeMap.fromJson(entry),
       ],
       contributions: _mapList(dto.raw['contributions']),
       identifiers: _mapList(dto.raw['identifiers']),
@@ -331,13 +471,6 @@ final class TvWorkspaceNode {
   final String? formatLabel;
 }
 
-Map<String, dynamic> _asJsonMap(Object? value) {
-  if (value is Map<String, dynamic>) {
-    return Map<String, dynamic>.from(value);
-  }
-  return <String, dynamic>{};
-}
-
 List<Map<String, dynamic>> _mapList(Object? value) {
   if (value is! List) {
     return const <Map<String, dynamic>>[];
@@ -373,6 +506,16 @@ List<String> _stringList(Object? value) {
     }
   }
   return result;
+}
+
+String? _firstStringOrNull(List<String> values) {
+  for (final value in values) {
+    final text = value.trim();
+    if (text.isNotEmpty) {
+      return text;
+    }
+  }
+  return null;
 }
 
 String _stringOrEmpty(Object? value) {
