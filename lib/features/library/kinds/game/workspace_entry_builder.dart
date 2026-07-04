@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';

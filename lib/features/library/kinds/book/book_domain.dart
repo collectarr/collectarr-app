@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BookVariant {
@@ -292,7 +292,4 @@ final class BookWork {
     );
   }
 
-  factory BookWork.fromCatalogItem(CatalogItem item) {
-    return BookWork.fromLibraryMetadataItem(LibraryMetadataItem.fromCatalogItem(item));
-  }
 }

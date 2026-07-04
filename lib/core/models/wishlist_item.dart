@@ -6,7 +6,7 @@ const Object _wishlistItemUnset = Object();
 class WishlistItem {
   WishlistItem({
     required this.id,
-    CatalogEntityRef? catalogRef,
+    required this.catalogRef,
     String? itemId,
     PersonalItemAnchor? anchor,
     String? anchorType,
@@ -19,13 +19,7 @@ class WishlistItem {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-  })  : catalogRef = catalogRef ??
-            CatalogEntityRef(
-              kind: 'unknown',
-              entityType: CatalogEntityType.unknown,
-              id: itemId ?? '',
-            ),
-        anchor = anchor ??
+  }) : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
               editionId: editionId,
@@ -66,17 +60,10 @@ class WishlistItem {
   }
 
   factory WishlistItem.fromJson(Map<String, dynamic> json) {
-    final catalogRefJson = json['catalog_ref'];
-    final catalogRef = catalogRefJson is Map<String, dynamic>
-        ? CatalogEntityRef.fromJson(catalogRefJson)
-        : CatalogEntityRef(
-            kind: 'unknown',
-            entityType: CatalogEntityType.unknown,
-            id: json['item_id'] as String? ?? '',
-          );
+    final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
     return WishlistItem(
       id: json['id'] as String,
-      catalogRef: catalogRef,
+      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: json['anchor_type'] as String?,
         editionId: json['edition_id'] as String?,
@@ -121,8 +108,7 @@ class WishlistItem {
 
     return WishlistItem(
       id: id ?? this.id,
-      catalogRef: catalogRef ??
-          (itemId != null ? this.catalogRef.copyWith(id: itemId) : this.catalogRef),
+      catalogRef: catalogRef ?? this.catalogRef,
       anchor: resolvedAnchor,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,

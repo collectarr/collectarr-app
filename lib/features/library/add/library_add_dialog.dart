@@ -1601,7 +1601,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final soldAt = _soldAt;
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
-      itemId: item.id,
       catalogRef: CatalogEntityRef(
         kind: item.kind,
         entityType: CatalogEntityType.work,

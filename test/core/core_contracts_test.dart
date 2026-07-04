@@ -31,6 +31,13 @@ void main() {
       manifest['providerSupportHash'],
       _fileHash('tool/core_contracts/provider-support.json'),
     );
+    expect(
+      manifest,
+      jsonDecode(
+        File(r'..\collectarr-core\contracts\contract-manifest.json')
+            .readAsStringSync(),
+      ),
+    );
 
     expect(
       Set<String>.from(activeKinds['kinds'] as List<dynamic>),

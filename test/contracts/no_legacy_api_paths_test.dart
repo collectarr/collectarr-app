@@ -46,4 +46,23 @@ void main() {
       isNot(contains('Future<CatalogEdition> createBoardGameEdition')),
     );
   });
+
+  test('book game and boardgame domain files do not import CatalogItem', () async {
+    const files = <String>[
+      'lib/features/library/kinds/book/book_domain.dart',
+      'lib/features/library/kinds/game/game_domain.dart',
+      'lib/features/library/kinds/game/workspace_entry_builder.dart',
+      'lib/features/library/kinds/boardgame/boardgame_domain.dart',
+      'lib/features/library/kinds/boardgame/workspace_entry_builder.dart',
+    ];
+
+    for (final path in files) {
+      final content = await File(path).readAsString();
+      expect(
+        content,
+        isNot(contains("core/models/catalog_item.dart")),
+        reason: '$path still imports CatalogItem',
+      );
+    }
+  });
 }

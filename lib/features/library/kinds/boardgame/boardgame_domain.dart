@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BoardGameEdition {
@@ -161,9 +161,4 @@ final class BoardGameWork {
     );
   }
 
-  factory BoardGameWork.fromCatalogItem(CatalogItem item) {
-    return BoardGameWork.fromLibraryMetadataItem(
-      LibraryMetadataItem.fromCatalogItem(item),
-    );
-  }
 }

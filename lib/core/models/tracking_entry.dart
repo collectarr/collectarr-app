@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 class TrackingEntry {
   TrackingEntry({
     required this.id,
-    CatalogEntityRef? catalogRef,
+    required this.catalogRef,
     String? itemId,
     this.ownedItemId,
     this.editionId,
@@ -25,13 +25,7 @@ class TrackingEntry {
     Map<String, int>? episodeRatings,
     required this.updatedAt,
     this.deletedAt,
-  })  : catalogRef = catalogRef ??
-            CatalogEntityRef(
-              kind: 'unknown',
-              entityType: CatalogEntityType.unknown,
-              id: itemId ?? '',
-            ),
-        sourceType = trackingSourceTypeFromValue(sourceType),
+  })  : sourceType = trackingSourceTypeFromValue(sourceType),
         status = mediaTrackingStatusFromValue(status),
         episodeRatings = episodeRatings ?? const {};
 
@@ -89,17 +83,10 @@ class TrackingEntry {
   }
 
   factory TrackingEntry.fromJson(Map<String, dynamic> json) {
-    final catalogRefJson = json['catalog_ref'];
-    final catalogRef = catalogRefJson is Map<String, dynamic>
-        ? CatalogEntityRef.fromJson(catalogRefJson)
-        : CatalogEntityRef(
-            kind: 'unknown',
-            entityType: CatalogEntityType.unknown,
-            id: json['item_id'] as String? ?? '',
-          );
+    final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
     return TrackingEntry(
       id: json['id'] as String,
-      catalogRef: catalogRef,
+      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
@@ -152,8 +139,7 @@ class TrackingEntry {
   }) {
     return TrackingEntry(
       id: id ?? this.id,
-      catalogRef: catalogRef ??
-          (itemId != null ? this.catalogRef.copyWith(id: itemId) : this.catalogRef),
+      catalogRef: catalogRef ?? this.catalogRef,
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,

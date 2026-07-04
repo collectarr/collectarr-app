@@ -108,7 +108,6 @@ class CollectionMutations {
     );
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
-      itemId: itemId,
       catalogRef: _catalogRefForItem(
         itemId,
         catalogItem,
@@ -271,7 +270,6 @@ class CollectionMutations {
     );
     final updated = OwnedItem(
       id: item.id,
-      itemId: item.itemId,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt ?? now,
       isDigital: resolvedIsDigital,
@@ -442,7 +440,6 @@ class CollectionMutations {
     }
     final entry = TrackingEntry(
       id: entryId,
-      itemId: itemId,
       catalogRef: _trackingCatalogRefForItemId(
         itemId,
         sourceType: normalizedSourceType,
@@ -625,7 +622,6 @@ class CollectionMutations {
     final entry = TrackingEntry(
       id: existingEntry?.id ??
           _trackingEntryIdForItem(item.id, sourceType: normalizedSourceType),
-      itemId: item.id,
       catalogRef: _catalogRefForItem(item.id, item),
       sourceType: normalizedSourceType,
       status: _normalizeTrackingStatusValue(status),

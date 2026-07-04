@@ -6,7 +6,7 @@ const Object _ownedItemUnset = Object();
 class OwnedItem {
   OwnedItem({
     required this.id,
-    CatalogEntityRef? catalogRef,
+    required this.catalogRef,
     String? itemId,
     this.createdAt,
     this.isDigital,
@@ -68,13 +68,7 @@ class OwnedItem {
     this.gamePriceChartingId,
     this.gameCoreRegion,
     this.gameValueIsLocked,
-  })  : catalogRef = catalogRef ??
-            CatalogEntityRef(
-              kind: 'unknown',
-              entityType: CatalogEntityType.unknown,
-              id: itemId ?? '',
-            ),
-        anchor = anchor ??
+  }) : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
               editionId: editionId,
@@ -216,17 +210,10 @@ class OwnedItem {
   }
 
   factory OwnedItem.fromJson(Map<String, dynamic> json) {
-    final catalogRefJson = json['catalog_ref'];
-    final catalogRef = catalogRefJson is Map<String, dynamic>
-        ? CatalogEntityRef.fromJson(catalogRefJson)
-        : CatalogEntityRef(
-            kind: 'unknown',
-            entityType: CatalogEntityType.unknown,
-            id: json['item_id'] as String? ?? '',
-          );
+    final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
     return OwnedItem(
       id: json['id'] as String,
-      catalogRef: catalogRef,
+      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -384,8 +371,7 @@ class OwnedItem {
 
     return OwnedItem(
       id: id ?? this.id,
-      catalogRef: catalogRef ??
-          (itemId != null ? this.catalogRef.copyWith(id: itemId) : this.catalogRef),
+      catalogRef: catalogRef ?? this.catalogRef,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
       anchor: resolvedAnchor,
