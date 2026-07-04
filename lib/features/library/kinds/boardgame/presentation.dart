@@ -289,7 +289,7 @@ LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
 ) {
   final catalogItem = source.catalogItem!;
   return buildBoardGameWorkspaceEntry(
-    BoardGameWork.fromCatalogItem(catalogItem),
+    BoardGameWork.fromLibraryMetadataItem(catalogItem),
     BoardGamePersonalOverlay.fromShelfEntry(source),
   );
 }

@@ -1965,25 +1965,44 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             kind: selected.kind,
             id: itemId,
           )
-          .then(
-            (dto) => CatalogItem.fromJson({
+          .then((dto) {
+            final sourceSelection = selected!;
+            final raw = <String, dynamic>{
               ...dto.raw,
               'id': dto.id,
               'title': dto.title,
               'kind': dto.kind,
-            }),
-          );
+              if (!dto.raw.containsKey('editions') &&
+                  sourceSelection.editions.isNotEmpty)
+                'editions': [
+                  for (final edition in sourceSelection.editions) edition.toJson(),
+                ],
+              if (!dto.raw.containsKey('track_count') &&
+                  sourceSelection.music?.trackCount != null)
+                'track_count': sourceSelection.music!.trackCount,
+              if (!dto.raw.containsKey('tracks') &&
+                  (sourceSelection.music?.tracks.isNotEmpty ?? false))
+                'tracks': [
+                  for (final track in sourceSelection.music!.tracks) track.toJson(),
+                ],
+            };
+            return CatalogItem.fromJson(raw);
+          });
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
       final hydratedItem = LibraryMetadataItem.fromCatalogItem(hydrated);
-      final mergedItem = hydratedItem.displayCoverUrl != null
-          ? hydratedItem
-          : hydratedItem.copyWith(
-              coverImageUrl: selected.coverImageUrl,
-              thumbnailImageUrl:
-                  selected.thumbnailImageUrl ?? selected.coverImageUrl,
-            );
+      final mergedItem = hydratedItem.copyWith(
+        editions: hydratedItem.editions.isNotEmpty
+            ? hydratedItem.editions
+            : selected.editions,
+        coverImageUrl: hydratedItem.displayCoverUrl != null
+            ? hydratedItem.coverImageUrl
+            : selected.coverImageUrl,
+        thumbnailImageUrl: hydratedItem.displayCoverUrl != null
+            ? hydratedItem.thumbnailImageUrl
+            : selected.thumbnailImageUrl ?? selected.coverImageUrl,
+      );
       setState(() {
         _hydratedResults[itemId] = mergedItem;
         _pendingHydratedResultIds.remove(itemId);
@@ -2010,16 +2029,44 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingBundleReleaseItemIds.contains(itemId)) {
       return;
     }
+    final searchGeneration = _coreSearchGeneration;
     setState(() {
       _pendingBundleReleaseItemIds.add(itemId);
     });
-    if (!mounted) {
-      return;
+    try {
+      final bundleReleases =
+          await ref.read(apiClientProvider).getItemBundleReleases(itemId);
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      final firstBundleId =
+          _selectedBundleReleaseId ?? (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
+      setState(() {
+        _bundleReleasesByItemId[itemId] = bundleReleases;
+        _pendingBundleReleaseItemIds.remove(itemId);
+        if (_referenceType == LibraryAddReferenceType.bundleRelease) {
+          _selectedBundleReleaseId = firstBundleId;
+        }
+      });
+      if (_referenceType == LibraryAddReferenceType.bundleRelease &&
+          firstBundleId != null) {
+        unawaited(_ensureBundleReleaseDetailLoaded(firstBundleId));
+      }
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to load bundle releases for $itemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _bundleReleasesByItemId[itemId] = const <BundleReleaseSummary>[];
+        _pendingBundleReleaseItemIds.remove(itemId);
+      });
     }
-    setState(() {
-      _bundleReleasesByItemId[itemId] = const <BundleReleaseSummary>[];
-      _pendingBundleReleaseItemIds.remove(itemId);
-    });
   }
 
   Future<void> _ensureBundleReleaseDetailLoaded(String bundleReleaseId) async {
@@ -2260,7 +2307,48 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   'kind': dto.kind,
                 }),
               );
-          final fullItem = LibraryMetadataItem.fromCatalogItem(full);
+          var fullItem = LibraryMetadataItem.fromCatalogItem(full);
+          if (fullItem.editions.isEmpty && item.editions.isNotEmpty) {
+            fullItem = fullItem.copyWith(editions: item.editions);
+          }
+          final fallbackMusic = item.music;
+          final currentMusic = fullItem.music;
+          if (fallbackMusic != null && currentMusic != null) {
+            final mergedMusic = MusicCatalogDetails(
+              trackCount: currentMusic.trackCount ?? fallbackMusic.trackCount,
+              tracks: currentMusic.tracks.isNotEmpty
+                  ? currentMusic.tracks
+                  : fallbackMusic.tracks,
+              discs: currentMusic.discs.isNotEmpty
+                  ? currentMusic.discs
+                  : fallbackMusic.discs,
+              catalogNumber:
+                  currentMusic.catalogNumber ?? fallbackMusic.catalogNumber,
+              releaseStatus:
+                  currentMusic.releaseStatus ?? fallbackMusic.releaseStatus,
+              originalReleaseDate: currentMusic.originalReleaseDate ??
+                  fallbackMusic.originalReleaseDate,
+              recordingDate:
+                  currentMusic.recordingDate ?? fallbackMusic.recordingDate,
+              studio: currentMusic.studio ?? fallbackMusic.studio,
+              rpm: currentMusic.rpm ?? fallbackMusic.rpm,
+              spars: currentMusic.spars ?? fallbackMusic.spars,
+              soundType: currentMusic.soundType ?? fallbackMusic.soundType,
+              vinylColor: currentMusic.vinylColor ?? fallbackMusic.vinylColor,
+              vinylWeight:
+                  currentMusic.vinylWeight ?? fallbackMusic.vinylWeight,
+              mediaCondition:
+                  currentMusic.mediaCondition ?? fallbackMusic.mediaCondition,
+              instrument: currentMusic.instrument ?? fallbackMusic.instrument,
+              isLive: currentMusic.isLive ?? fallbackMusic.isLive,
+              composition: currentMusic.composition ?? fallbackMusic.composition,
+            );
+            if (mergedMusic.hasData) {
+              fullItem = fullItem.copyWith(music: mergedMusic);
+            }
+          } else if (currentMusic == null && fallbackMusic != null) {
+            fullItem = fullItem.copyWith(music: fallbackMusic);
+          }
           final hasCover = fullItem.displayCoverUrl != null;
           return hasCover
               ? fullItem

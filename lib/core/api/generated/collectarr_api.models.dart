@@ -156,6 +156,7 @@ class BookEditionDto extends TypedMetadataResponse {
     super.raw, {
     required this.id,
     required this.workId,
+    required this.titleValue,
     required this.ageRating,
     required this.audioLengthMinutes,
     required this.binding,
@@ -181,6 +182,7 @@ class BookEditionDto extends TypedMetadataResponse {
   @override
   final String id;
   final String workId;
+  final String titleValue;
   final String? ageRating;
   final int? audioLengthMinutes;
   final String? binding;
@@ -202,7 +204,7 @@ class BookEditionDto extends TypedMetadataResponse {
   final String? releaseStatus;
   final String? upc;
   @override
-  String get title => displayTitle ?? 'Edition';
+  String get title => displayTitle ?? titleValue;
   @override
   String? get kind => CollectarrItemKind.book.apiValue;
   @override
@@ -219,6 +221,7 @@ class BookEditionDto extends TypedMetadataResponse {
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       workId: _stringValue(json['work_id']),
+      titleValue: _stringValue(json['title'], fallback: 'Edition'),
       ageRating: _nullableString(json['age_rating']),
       audioLengthMinutes: _nullableInt(json['audio_length_minutes']),
       binding: _nullableString(json['binding']),

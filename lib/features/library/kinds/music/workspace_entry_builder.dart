@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -229,7 +230,7 @@ List<TrailerLink> _copyTrailerList(List<TrailerLink>? values) {
   return List<TrailerLink>.unmodifiable(values);
 }
 
-bool _hasMissingCoreMetadata(CatalogItem item) {
+bool _hasMissingCoreMetadata(LibraryMetadataItem item) {
   return item.publisher == null &&
       item.releaseDate == null &&
       item.releaseYear == null &&

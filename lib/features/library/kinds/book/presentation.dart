@@ -642,7 +642,7 @@ final booksLibraryMediaPresentation = LibraryMediaPresentation(
     showVolumeHierarchy: true,
   ),
   workspaceEntryBuilder: (ShelfEntry source) => buildBookWorkspaceEntry(
-    BookWork.fromCatalogItem(source.catalogItem!),
+    BookWork.fromLibraryMetadataItem(source.catalogItem!),
     BookPersonalOverlay(
       ownedItem: source.ownedItem,
       trackingEntry: source.trackingEntry,

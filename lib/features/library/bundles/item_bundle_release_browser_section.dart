@@ -69,14 +69,34 @@ class _ItemBundleReleaseBrowserSectionState
       _summariesLoading = true;
       _summariesError = null;
     });
-    if (!mounted) {
-      return;
+    try {
+      final summaries = await ref.read(apiClientProvider).getItemBundleReleases(
+            widget.itemId,
+          );
+      if (!mounted) {
+        return;
+      }
+      final firstBundleId =
+          _selectedBundleReleaseId ?? (summaries.isNotEmpty ? summaries.first.id : null);
+      setState(() {
+        _summaries = summaries;
+        _summariesLoading = false;
+        _selectedBundleReleaseId = firstBundleId;
+      });
+      if (firstBundleId != null) {
+        unawaited(_ensureDetailLoaded(firstBundleId));
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _summariesError = error;
+        _summariesLoading = false;
+        _summaries = const <BundleReleaseSummary>[];
+        _selectedBundleReleaseId = null;
+      });
     }
-    setState(() {
-      _summaries = const <BundleReleaseSummary>[];
-      _summariesLoading = false;
-      _selectedBundleReleaseId = null;
-    });
   }
 
   Future<void> _ensureDetailLoaded(String bundleReleaseId) async {

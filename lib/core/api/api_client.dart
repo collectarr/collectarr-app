@@ -236,6 +236,10 @@ class ApiClient {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
 
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    return const <BundleReleaseSummary>[];
+  }
+
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     return _catalogApi.metadataMediaTypes();
   }

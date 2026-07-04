@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BookVariant {
   const BookVariant({
@@ -245,7 +246,7 @@ final class BookWork {
     );
   }
 
-  factory BookWork.fromCatalogItem(CatalogItem item) {
+  factory BookWork.fromLibraryMetadataItem(LibraryMetadataItem item) {
     final editions = [
       for (final edition in item.editions)
         BookEdition.fromCatalogEdition(edition),
@@ -289,5 +290,9 @@ final class BookWork {
       audienceRating: item.audienceRating,
       physicalFormatLabel: item.physicalFormatLabel,
     );
+  }
+
+  factory BookWork.fromCatalogItem(CatalogItem item) {
+    return BookWork.fromLibraryMetadataItem(LibraryMetadataItem.fromCatalogItem(item));
   }
 }

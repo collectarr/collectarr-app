@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
@@ -7,7 +7,7 @@ class ComicInfoXml {
   const ComicInfoXml();
 
   /// Build a ComicInfo.xml string from catalog + owned data.
-  String serialize(CatalogItem catalog, [OwnedItem? owned]) {
+  String serialize(LibraryMetadataItem catalog, [OwnedItem? owned]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {
@@ -64,7 +64,7 @@ class ComicInfoXml {
     return builder.buildDocument().toXmlString(pretty: true);
   }
 
-  /// Parse a ComicInfo.xml string into a partial CatalogItem + notes map.
+  /// Parse a ComicInfo.xml string into a partial metadata item + notes map.
   ComicInfoData deserialize(String xmlString) {
     final document = XmlDocument.parse(xmlString);
     final root = document.rootElement;

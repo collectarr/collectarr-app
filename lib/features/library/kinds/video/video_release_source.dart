@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 const _videoReleaseSourceKey = 'release_source';
@@ -26,7 +27,7 @@ class VideoReleaseAnchor {
 }
 
 List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
-  CatalogItem item, {
+  LibraryMetadataItem item, {
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {

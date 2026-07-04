@@ -90,12 +90,16 @@ class TrackingEntry {
 
   factory TrackingEntry.fromJson(Map<String, dynamic> json) {
     final catalogRefJson = json['catalog_ref'];
-    if (catalogRefJson is! Map<String, dynamic>) {
-      throw StateError('TrackingEntry payload missing catalog_ref');
-    }
+    final catalogRef = catalogRefJson is Map<String, dynamic>
+        ? CatalogEntityRef.fromJson(catalogRefJson)
+        : CatalogEntityRef(
+            kind: 'unknown',
+            entityType: CatalogEntityType.unknown,
+            id: json['item_id'] as String? ?? '',
+          );
     return TrackingEntry(
       id: json['id'] as String,
-      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
+      catalogRef: catalogRef,
       itemId: json['item_id'] as String?,
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
@@ -149,7 +153,8 @@ class TrackingEntry {
   }) {
     return TrackingEntry(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
+      catalogRef: catalogRef ??
+          (itemId != null ? this.catalogRef.copyWith(id: itemId) : this.catalogRef),
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,

@@ -43,7 +43,7 @@ LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
   return buildGameWorkspaceEntry(
-    GameWork.fromCatalogItem(source.catalogItem!),
+    GameWork.fromLibraryMetadataItem(source.catalogItem!),
     GamePersonalOverlay.fromShelfEntry(source),
   );
 }

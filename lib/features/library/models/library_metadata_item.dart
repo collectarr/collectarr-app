@@ -94,6 +94,9 @@ class LibraryMetadataItem {
 
   String get kind => mediaKind.apiValue;
 
+  String get resolvedDisplayTitle =>
+      displayTitle ?? localizedTitle ?? originalTitle ?? title;
+
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     return LibraryMetadataItem(
       id: item.id,

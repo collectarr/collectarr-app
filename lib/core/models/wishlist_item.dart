@@ -67,12 +67,16 @@ class WishlistItem {
 
   factory WishlistItem.fromJson(Map<String, dynamic> json) {
     final catalogRefJson = json['catalog_ref'];
-    if (catalogRefJson is! Map<String, dynamic>) {
-      throw StateError('WishlistItem payload missing catalog_ref');
-    }
+    final catalogRef = catalogRefJson is Map<String, dynamic>
+        ? CatalogEntityRef.fromJson(catalogRefJson)
+        : CatalogEntityRef(
+            kind: 'unknown',
+            entityType: CatalogEntityType.unknown,
+            id: json['item_id'] as String? ?? '',
+          );
     return WishlistItem(
       id: json['id'] as String,
-      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
+      catalogRef: catalogRef,
       itemId: json['item_id'] as String?,
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: json['anchor_type'] as String?,
@@ -118,7 +122,8 @@ class WishlistItem {
 
     return WishlistItem(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
+      catalogRef: catalogRef ??
+          (itemId != null ? this.catalogRef.copyWith(id: itemId) : this.catalogRef),
       anchor: resolvedAnchor,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,

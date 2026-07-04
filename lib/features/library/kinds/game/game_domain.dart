@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class GameRelease {
   const GameRelease({
@@ -179,7 +180,7 @@ final class GameWork {
     );
   }
 
-  factory GameWork.fromCatalogItem(CatalogItem item) {
+  factory GameWork.fromLibraryMetadataItem(LibraryMetadataItem item) {
     return GameWork(
       id: item.id,
       title: item.title,
@@ -230,6 +231,10 @@ final class GameWork {
       audienceRating: item.audienceRating,
       physicalFormatLabel: item.physicalFormatLabel,
     );
+  }
+
+  factory GameWork.fromCatalogItem(CatalogItem item) {
+    return GameWork.fromLibraryMetadataItem(LibraryMetadataItem.fromCatalogItem(item));
   }
 }
 

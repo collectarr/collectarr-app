@@ -110,6 +110,7 @@ class CollectionMutations {
       id: _uuid.v4(),
       itemId: itemId,
       catalogRef: _catalogRefForItem(
+        itemId,
         catalogItem,
         anchorType: normalizedAnchorType,
         editionId: editionId,
@@ -625,7 +626,7 @@ class CollectionMutations {
       id: existingEntry?.id ??
           _trackingEntryIdForItem(item.id, sourceType: normalizedSourceType),
       itemId: item.id,
-      catalogRef: _catalogRefForItem(item),
+      catalogRef: _catalogRefForItem(item.id, item),
       sourceType: normalizedSourceType,
       status: _normalizeTrackingStatusValue(status),
       rating: rating,
@@ -852,6 +853,7 @@ class CollectionMutations {
         id: _uuid.v4(),
         itemId: itemId,
         catalogRef: _catalogRefForItem(
+          itemId,
           catalogItem,
           anchorType: normalizedAnchorType,
           editionId: editionId,
@@ -903,6 +905,7 @@ class CollectionMutations {
           id: _uuid.v4(),
           itemId: item.id,
           catalogRef: _catalogRefForItem(
+            item.id,
             item,
             anchorType: normalizedAnchorType,
             editionId: editionId,
@@ -1272,7 +1275,10 @@ class CollectionMutations {
         final wishlistItem = WishlistItem(
           id: _uuid.v4(),
           itemId: row.itemId,
-          catalogRef: _catalogRefForItem(catalogItems[row.itemId]),
+          catalogRef: _catalogRefForItem(
+            row.itemId,
+            catalogItems[row.itemId],
+          ),
           anchorType: PersonalItemAnchorType.item.apiValue,
           createdAt: now,
           updatedAt: now,
@@ -1320,7 +1326,10 @@ class CollectionMutations {
           id: _uuid.v4(),
           targetId: ownedId,
           targetScope: CustomFieldTargetScope.ownedCopy,
-          catalogRef: _catalogRefForItem(catalogItems[row.itemId]),
+          catalogRef: _catalogRefForItem(
+            row.itemId,
+            catalogItems[row.itemId],
+          ),
           fieldDefinitionId: def.id,
           value: entry.value,
           updatedAt: now,
@@ -1464,6 +1473,7 @@ class CollectionMutations {
   }
 
   CatalogEntityRef _catalogRefForItem(
+    String itemId,
     CatalogItem? item, {
     String? anchorType,
     String? editionId,
@@ -1474,7 +1484,7 @@ class CollectionMutations {
       return CatalogEntityRef(
         kind: 'unknown',
         entityType: CatalogEntityType.unknown,
-        id: '',
+        id: itemId,
       );
     }
     final resolvedAnchorType = resolvePersonalItemAnchorType(
@@ -1491,7 +1501,7 @@ class CollectionMutations {
     return CatalogEntityRef(
       kind: item.kind,
       entityType: entityType,
-      id: item.id,
+      id: item.id.isNotEmpty ? item.id : itemId,
     );
   }
 

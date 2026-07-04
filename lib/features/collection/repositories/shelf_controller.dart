@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -11,6 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +27,10 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     for (final item in trackingEntries) item.catalogRef.id,
   };
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
+  final libraryCatalogItems = {
+    for (final entry in catalogItems.entries)
+      entry.key: LibraryMetadataItem.fromCatalogItem(entry.value),
+  };
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
   final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedItemIds(
@@ -37,7 +41,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     wishlistItems: wishlist,
     trackingEntries: trackingEntries,
     watchSessions: watchSessions,
-    catalogItems: catalogItems,
+    catalogItems: libraryCatalogItems,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
     fallbackOwnerLabel: auth.email,
@@ -77,7 +81,7 @@ class ShelfState {
     required List<WishlistItem> wishlistItems,
     List<TrackingEntry> trackingEntries = const [],
     List<WatchSession> watchSessions = const [],
-    required Map<String, CatalogItem> catalogItems,
+    required Map<String, LibraryMetadataItem> catalogItems,
     List<StorageLocation> locations = const [],
     Map<String, List<ItemImage>> itemImagesByOwnedItem =
         const <String, List<ItemImage>>{},

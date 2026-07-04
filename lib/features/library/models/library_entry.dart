@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class LibraryEntry {
   const LibraryEntry({
@@ -14,7 +14,7 @@ class LibraryEntry {
   });
 
   final String itemId;
-  final CatalogItem? catalogItem;
+  final LibraryMetadataItem? catalogItem;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;

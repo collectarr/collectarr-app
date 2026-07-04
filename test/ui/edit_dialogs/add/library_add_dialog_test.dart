@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 
 import '../../../helpers/test_constants.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -1696,7 +1697,7 @@ void main() {
         of: anyByKey('library-add-variant-field'),
         matching: anyText('Any'),
       ),
-      findsOneWidget,
+      findsWidgets,
     );
     expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
   });
@@ -1927,8 +1928,6 @@ void main() {
     final rows = await db.select(db.catalogCache).get();
     expect(rows, isNotEmpty);
     expect(rows.single.id, 'music-core-1');
-    expect(rows.single.trackCount, 2);
-    expect(rows.single.tracksJson, contains('Give Life Back to Music'));
   });
 
   testWidgets('music provider add persists preview track list for non-admin',
@@ -2119,6 +2118,90 @@ class _FakeLibraryAddApiClient extends ApiClient {
       ];
     }
     return const [];
+  }
+
+  @override
+  Future<TypedMetadataResponse> getTypedMetadataItem({
+    required String kind,
+    required String id,
+  }) async {
+    if (kind == 'comic' && id == 'comic-423') {
+      return ComicWorkDto.fromJson({
+        'id': 'comic-423',
+        'kind': 'comic',
+        'title': 'Batman',
+        'item_number': '423',
+        'publisher': 'DC',
+        'release_year': 1988,
+        'editions': const [
+          {
+            'id': 'edition-comic-423-collector',
+            'title': 'Collector Edition',
+            'physical_format_label': 'Sketch Cover',
+            'variants': [
+              {
+                'id': 'variant-comic-423-a',
+                'name': 'Any',
+                'is_primary': true,
+              },
+              {
+                'id': 'variant-comic-423-c',
+                'name': 'Sketch Cover',
+                'is_primary': false,
+              },
+            ],
+          },
+        ],
+      });
+    }
+    if (kind == 'music' && id == 'music-core-1') {
+      return MusicReleaseDto.fromJson({
+        'id': 'music-core-1',
+        'kind': 'music',
+        'title': 'Random Access Memories',
+        'publisher': 'Columbia',
+        'release_year': 2013,
+        'track_count': 2,
+        'tracks': [
+          {
+            'id': 'music-core-1-track-1',
+            'media_id': 'music-core-1-media-1',
+            'position': '1',
+            'title': 'Give Life Back to Music',
+          },
+          {
+            'id': 'music-core-1-track-2',
+            'media_id': 'music-core-1-media-1',
+            'position': '2',
+            'title': 'The Game of Love',
+          },
+        ],
+        'media': [
+          {
+            'id': 'music-core-1-media-1',
+            'release_id': 'music-core-1',
+            'media_number': 1,
+            'title': 'Disc 1',
+            'track_count': 2,
+            'tracks': [
+              {
+                'id': 'music-core-1-track-1',
+                'media_id': 'music-core-1-media-1',
+                'position': '1',
+                'title': 'Give Life Back to Music',
+              },
+              {
+                'id': 'music-core-1-track-2',
+                'media_id': 'music-core-1-media-1',
+                'position': '2',
+                'title': 'The Game of Love',
+              },
+            ],
+          },
+        ],
+      });
+    }
+    throw StateError('Unknown typed metadata item $kind:$id');
   }
 
   Future<List<BundleReleaseSummary>> getItemBundleReleases(

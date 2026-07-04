@@ -217,12 +217,16 @@ class OwnedItem {
 
   factory OwnedItem.fromJson(Map<String, dynamic> json) {
     final catalogRefJson = json['catalog_ref'];
-    if (catalogRefJson is! Map<String, dynamic>) {
-      throw StateError('OwnedItem payload missing catalog_ref');
-    }
+    final catalogRef = catalogRefJson is Map<String, dynamic>
+        ? CatalogEntityRef.fromJson(catalogRefJson)
+        : CatalogEntityRef(
+            kind: 'unknown',
+            entityType: CatalogEntityType.unknown,
+            id: json['item_id'] as String? ?? '',
+          );
     return OwnedItem(
       id: json['id'] as String,
-      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
+      catalogRef: catalogRef,
       itemId: json['item_id'] as String?,
       createdAt: json['created_at'] == null
           ? null
@@ -381,7 +385,8 @@ class OwnedItem {
 
     return OwnedItem(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
+      catalogRef: catalogRef ??
+          (itemId != null ? this.catalogRef.copyWith(id: itemId) : this.catalogRef),
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
       anchor: resolvedAnchor,

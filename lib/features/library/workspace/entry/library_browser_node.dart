@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -22,7 +23,7 @@ class LibraryBrowserNode {
   final String? releaseId;
   final String? copyId;
   final LibraryWorkspaceEntry entry;
-  final CatalogItem? catalogItem;
+  final LibraryMetadataItem? catalogItem;
   final CatalogEdition? edition;
   final ShelfEntry? source;
 }
