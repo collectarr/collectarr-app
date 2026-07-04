@@ -1,12 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_panel.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart'
-    as video_sections;
 import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,8 +19,8 @@ List<Widget> buildTvInspectorSections(
     id: request.entry.id,
   );
   return [
-    ...video_sections.buildVideoInspectorSections(context, request),
-    VideoSeasonTrackingSection(
+    TvSeriesMetadataSection(request: request),
+    TvSeasonsEpisodesSection(
       seriesRef: seriesRef,
       kind: request.type.workspace.kind.apiValue,
       accent: request.accent,
@@ -32,11 +30,12 @@ List<Widget> buildTvInspectorSections(
       kind: request.type.workspace.kind.apiValue,
       accent: request.accent,
     ),
-    _TvWatchHistorySection(request: request, seriesRef: seriesRef),
-    _TvReleaseDiscsSection(request: request),
-    _TvCastCrewSection(request: request),
-    _TvTrailersLinksSection(request: request),
-    _TvPersonalCustomSection(request: request),
+    TvWatchHistorySection(
+      request: request,
+      seriesRef: seriesRef,
+    ),
+    TvReleasesDiscsSection(request: request),
+    TvCastCrewSection(request: request),
   ];
 }
 
@@ -47,8 +46,108 @@ Widget buildTvInspectorPanel(
   return buildVideoInspectorPanel(context, request);
 }
 
-class _TvWatchHistorySection extends ConsumerWidget {
-  const _TvWatchHistorySection({
+class TvSeriesMetadataSection extends StatelessWidget {
+  const TvSeriesMetadataSection({super.key, required this.request});
+
+  final LibraryInspectorRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = request.entry;
+    final ownedItem = request.ownedItem;
+    final trackingEntry = request.trackingEntry;
+    final aliases = <String>{
+      if (entry.originalTitle?.trim().isNotEmpty == true)
+        entry.originalTitle!.trim(),
+      if (entry.localizedTitle?.trim().isNotEmpty == true &&
+          entry.localizedTitle!.trim() != entry.resolvedTitle.trim())
+        entry.localizedTitle!.trim(),
+      ...?entry.searchAliases,
+    }.toList(growable: false);
+    final genreValues = entry.genres ?? const <String>[];
+    final creatorNames = <String>[
+      for (final credit in entry.creators ?? const <Map<String, dynamic>>[])
+        if (credit['name']?.toString().trim().isNotEmpty == true)
+          credit['name'].toString().trim(),
+    ];
+    final facts = <LibraryInspectorFactData>[
+      LibraryInspectorFactData('Display title', entry.resolvedTitle),
+      if (entry.originalTitle?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Original title', entry.originalTitle!),
+      if (entry.publisher?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Studio', entry.publisher!),
+      LibraryInspectorFactData('Releases', entry.editions.length.toString()),
+      if (entry.video?.nrDiscs != null)
+        LibraryInspectorFactData('Discs', entry.video!.nrDiscs.toString()),
+      if (entry.video?.runtimeMinutes != null)
+        LibraryInspectorFactData('Runtime', '${entry.video!.runtimeMinutes} min'),
+      if (ownedItem?.condition?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Condition', ownedItem!.condition!),
+      if (trackingEntry?.episodeRatings.isNotEmpty == true)
+        LibraryInspectorFactData(
+          'Rated episodes',
+          trackingEntry!.episodeRatings.length.toString(),
+        ),
+    ];
+    return LibraryInspectorSection(
+      title: 'Series metadata',
+      accentColor: request.accent,
+      children: [
+        LibraryInspectorFactGrid(facts: facts),
+        if (genreValues.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Genres',
+            values: genreValues,
+            onValueTap: request.onFilterByValue,
+          ),
+        ],
+        if (creatorNames.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Cast / credits',
+            values: creatorNames,
+            onValueTap: request.onFilterByValue,
+          ),
+        ],
+        if (aliases.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Search aliases',
+            values: aliases,
+            onValueTap: request.onFilterByValue,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class TvSeasonsEpisodesSection extends StatelessWidget {
+  const TvSeasonsEpisodesSection({
+    super.key,
+    required this.seriesRef,
+    required this.kind,
+    required this.accent,
+  });
+
+  final CatalogEntityRef seriesRef;
+  final String kind;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return VideoSeasonTrackingSection(
+      seriesRef: seriesRef,
+      kind: kind,
+      accent: accent,
+    );
+  }
+}
+
+class TvWatchHistorySection extends ConsumerWidget {
+  const TvWatchHistorySection({
+    super.key,
     required this.request,
     required this.seriesRef,
   });
@@ -107,8 +206,8 @@ class _TvWatchHistorySection extends ConsumerWidget {
   }
 }
 
-class _TvReleaseDiscsSection extends StatelessWidget {
-  const _TvReleaseDiscsSection({required this.request});
+class TvReleasesDiscsSection extends StatelessWidget {
+  const TvReleasesDiscsSection({super.key, required this.request});
 
   final LibraryInspectorRequest request;
 
@@ -203,8 +302,8 @@ class _TvReleaseDiscsSection extends StatelessWidget {
   }
 }
 
-class _TvCastCrewSection extends StatelessWidget {
-  const _TvCastCrewSection({required this.request});
+class TvCastCrewSection extends StatelessWidget {
+  const TvCastCrewSection({super.key, required this.request});
 
   final LibraryInspectorRequest request;
 
@@ -234,89 +333,6 @@ class _TvCastCrewSection extends StatelessWidget {
             onValueTap: request.onFilterByValue,
           ),
           if (i != entries.length - 1) const SizedBox(height: 8),
-        ],
-      ],
-    );
-  }
-}
-
-class _TvTrailersLinksSection extends StatelessWidget {
-  const _TvTrailersLinksSection({required this.request});
-
-  final LibraryInspectorRequest request;
-
-  @override
-  Widget build(BuildContext context) {
-    final trailers = request.entry.trailerUrls;
-    if (trailers.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return LibraryInspectorSection(
-      title: 'Trailers / links',
-      accentColor: request.accent,
-      children: [
-        LibraryInspectorChipWrap(
-          label: 'Links',
-          values: [
-            for (final trailer in trailers)
-              trailer.title?.trim().isNotEmpty == true
-                  ? trailer.title!.trim()
-                  : trailer.url,
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _TvPersonalCustomSection extends StatelessWidget {
-  const _TvPersonalCustomSection({required this.request});
-
-  final LibraryInspectorRequest request;
-
-  @override
-  Widget build(BuildContext context) {
-    final entry = request.entry;
-    final ownedItem = request.ownedItem;
-    final trackingEntry = request.trackingEntry;
-    final tags = entry.tags?.trim().isNotEmpty == true
-        ? entry.tags!
-            .split(RegExp(r'[,\n\r]+'))
-            .map((value) => value.trim())
-            .where((value) => value.isNotEmpty)
-            .toList(growable: false)
-        : const <String>[];
-    final facts = <LibraryInspectorFactData>[
-      if (ownedItem?.condition?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Condition', ownedItem!.condition!),
-      if (ownedItem?.grade?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Grade', ownedItem!.grade!),
-      if (ownedItem?.collectionStatus?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Status', ownedItem!.collectionStatus!),
-      if (ownedItem?.personalNotes?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Notes', ownedItem!.personalNotes!),
-      if (trackingEntry?.notes?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Tracking notes', trackingEntry!.notes!),
-      if (entry.ageRating?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Age rating', entry.ageRating!),
-      if (entry.audienceRating?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Audience rating', entry.audienceRating!),
-    ];
-    if (facts.isEmpty && tags.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return LibraryInspectorSection(
-      title: 'Personal / custom fields',
-      accentColor: request.accent,
-      children: [
-        if (facts.isNotEmpty) LibraryInspectorFactGrid(facts: facts),
-        if (tags.isNotEmpty) ...[
-          if (facts.isNotEmpty) const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Tags',
-            values: tags,
-            onValueTap: request.onFilterByValue,
-          ),
         ],
       ],
     );
