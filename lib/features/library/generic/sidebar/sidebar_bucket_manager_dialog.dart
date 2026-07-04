@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -40,7 +41,7 @@ String libraryBucketManagerListLabel(
 }
 
 CatalogItem? renameLibraryGroupBucketValue(
-  CatalogItem item,
+  LibraryMetadataItem item,
   LibraryGroupMode mode,
   String currentLabel,
   String nextLabel,
@@ -50,7 +51,7 @@ CatalogItem? renameLibraryGroupBucketValue(
     return null;
   }
   return _updatedCatalogItemForBucket(
-    item,
+    item.toCatalogItem(),
     mode,
     currentLabel,
     replacement: normalizedNext,
@@ -58,11 +59,11 @@ CatalogItem? renameLibraryGroupBucketValue(
 }
 
 CatalogItem? deleteLibraryGroupBucketValue(
-  CatalogItem item,
+  LibraryMetadataItem item,
   LibraryGroupMode mode,
   String currentLabel,
 ) {
-  return _updatedCatalogItemForBucket(item, mode, currentLabel);
+  return _updatedCatalogItemForBucket(item.toCatalogItem(), mode, currentLabel);
 }
 
 Future<void> showLibraryBucketManagerDialog({

@@ -107,7 +107,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     }
     await showLibraryMetadataCompareDialog(
       context: context,
-      localItem: localItem,
+      localItem: localItem.toCatalogItem(),
       accent: widget.accent,
     );
   }

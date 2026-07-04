@@ -49,7 +49,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
     final missingCovers =
-        state.entries.where((e) => e.catalogItem?.displayCoverUrl == null).length;
+        state.entries.where((e) => e.catalogItem?.coverImageUrl == null).length;
     final missingMetadata = _missingMetadataCount(state.entries);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;

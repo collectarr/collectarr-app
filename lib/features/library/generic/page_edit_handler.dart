@@ -52,7 +52,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
     if (_isEditDialogInFlight) {
       return;
     }
-    final catalogItem = item.source.catalogItem;
+    final LibraryMetadataItem? catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
     }
@@ -66,7 +66,10 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
     final itemImageRepo = ItemImageRepository(db);
     final freshCatalogItem = (await CatalogCacheRepository(db)
             .findByIds({catalogItem.id}))[catalogItem.id] ??
-        catalogItem;
+        catalogItem.toCatalogItem();
+    final freshMetadataItem = LibraryMetadataItem.fromCatalogItem(
+      freshCatalogItem,
+    );
     final ownedItems = ref.read(collectionProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <OwnedItem>[],
@@ -152,7 +155,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
 
     final baseRequest = LibraryEditDialogRequest(
       type: widget.type,
-      item: LibraryMetadataItem.fromCatalogItem(freshCatalogItem),
+      item: freshMetadataItem,
       ownedItem: owned,
       scope: scope ??
           (_activeBrowserMode == LibraryWorkspaceBrowserMode.releases

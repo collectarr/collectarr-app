@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,11 +35,11 @@ class LibraryOwnedItemResolution {
   }
 }
 
-bool itemHasMissingCover(CatalogItem item) {
-  return item.displayCoverUrl == null || item.displayCoverUrl!.trim().isEmpty;
+bool itemHasMissingCover(LibraryMetadataItem item) {
+  return item.coverImageUrl == null || item.coverImageUrl!.trim().isEmpty;
 }
 
-bool itemHasMissingDetails(CatalogItem item) {
+bool itemHasMissingDetails(LibraryMetadataItem item) {
   return (item.publisher == null || item.publisher!.trim().isEmpty) ||
       item.releaseDate == null ||
       (item.synopsis == null || item.synopsis!.trim().isEmpty);

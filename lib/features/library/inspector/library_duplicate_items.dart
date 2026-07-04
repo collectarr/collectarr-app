@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -450,7 +450,7 @@ bool _allShareValue(Iterable<String?> values) {
   return normalized.length == 1 && normalized.isNotEmpty;
 }
 
-String? _releaseYearToken(CatalogItem item) {
+String? _releaseYearToken(LibraryMetadataItem item) {
   return item.releaseYear?.toString() ?? item.releaseDate?.year.toString();
 }
 
