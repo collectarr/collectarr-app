@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -52,6 +53,8 @@ import 'package:url_launcher/url_launcher.dart';
 part 'library_edit_dialog_anchor_widgets.dart';
 part 'library_edit_dialog_video_models.dart';
 part 'library_edit_dialog_video_tabs.dart';
+part '../kinds/tv/edit_tabs/tv_release_media_tab.dart';
+part '../kinds/tv/edit_tabs/tv_episode_disc_map_tab.dart';
 part '../kinds/comic/library_edit_dialog_comic_tabs.dart';
 part 'library_edit_dialog_comic_models.dart';
 
@@ -252,6 +255,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   final List<Map<String, TextEditingController>> _comicLinks = [];
   final List<EditableVideoCredit> _videoCastCredits = [];
   final List<EditableVideoCredit> _videoCrewCredits = [];
+  Future<TvSeries?>? _tvSeriesFuture;
+  TvSeries? _tvSeriesSnapshot;
+  List<TvReleaseMedia> _tvReleaseMediaDraft = const <TvReleaseMedia>[];
+  Map<String, int> _tvEpisodeDiscAssignments = <String, int>{};
   final TextEditingController _comicCharacterDraftController =
       TextEditingController();
   List<StorageLocation> get _availableLocations => _draft.availableLocations;
@@ -523,6 +530,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
     _initializeKindSpecificEditors();
 
+    if (_isTvKind) {
+      _tvSeriesFuture = _loadTvSeriesSnapshot().then((series) {
+        if (!mounted || series == null) {
+          return series;
+        }
+        setState(() => _primeTvSeriesDraft(series));
+        return series;
+      });
+    }
+
     unawaited(_loadCatalogVocabularyOptions());
 
     if (_isOwned) {
@@ -593,6 +610,87 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _initializeGameChipEditors();
     _initializeComicEditors();
     _initializeVideoEditors();
+  }
+
+  bool get _isTvKind => _isVideoKind && widget.type.workspace.kind.apiValue == 'tv';
+
+  Future<TvSeries?> _loadTvSeriesSnapshot() async {
+    final api = ref.read(apiClientProvider);
+    final dto = await api.getTvSeriesDto(widget.item.id);
+    return TvSeries.fromDto(dto);
+  }
+
+  void _primeTvSeriesDraft(TvSeries series) {
+    _tvSeriesSnapshot = series;
+    _tvReleaseMediaDraft = series.media.isEmpty
+        ? _buildFallbackTvReleaseMedia(series)
+        : List<TvReleaseMedia>.from(series.media);
+    _tvEpisodeDiscAssignments = {
+      for (final media in _tvReleaseMediaDraft)
+        for (final episode in media.episodes) episode.id: media.discNumber ?? 1,
+    };
+    if (_tvEpisodeDiscAssignments.isEmpty) {
+      final fallbackDisc = _tvReleaseMediaDraft.isEmpty ? 1 : (_tvReleaseMediaDraft.first.discNumber ?? 1);
+      for (final episode in _flattenTvEpisodes(series)) {
+        _tvEpisodeDiscAssignments[episode.id] = fallbackDisc;
+      }
+    }
+  }
+
+  void _updateTvEpisodeDiscAssignment(String episodeId, int discNumber) {
+    setState(() {
+      _tvEpisodeDiscAssignments[episodeId] = discNumber;
+    });
+  }
+
+  List<TvReleaseMedia> _buildFallbackTvReleaseMedia(TvSeries series) {
+    final episodeCount = _flattenTvEpisodes(series).length;
+    final discCount = (widget.item.video?.nrDiscs ?? episodeCount).clamp(1, 20).toInt();
+    final episodes = _flattenTvEpisodes(series);
+    if (discCount == 1) {
+      return [
+        TvReleaseMedia(
+          id: '${series.id}:media:1',
+          releaseId: series.id,
+          title: 'Disc 1',
+          formatLabel: widget.item.physicalFormatLabel,
+          discNumber: 1,
+          sequenceNumber: 1,
+          features: const <String>[],
+          episodes: episodes,
+        ),
+      ];
+    }
+    final media = <TvReleaseMedia>[];
+    for (var i = 1; i <= discCount; i++) {
+      media.add(
+        TvReleaseMedia(
+          id: '${series.id}:media:$i',
+          releaseId: series.id,
+          title: 'Disc $i',
+          formatLabel: widget.item.physicalFormatLabel,
+          discNumber: i,
+          sequenceNumber: i,
+          features: const <String>[],
+          episodes: const <TvEpisode>[],
+        ),
+      );
+    }
+    return media;
+  }
+
+  List<TvEpisode> _flattenTvEpisodes(TvSeries series) {
+    final episodes = <TvEpisode>[];
+    for (final season in series.seasons) {
+      episodes.addAll(season.episodes);
+    }
+    if (episodes.isNotEmpty) {
+      return episodes;
+    }
+    for (final media in series.media) {
+      episodes.addAll(media.episodes);
+    }
+    return episodes;
   }
 
   Map<String, TextEditingController> _createComicLinkControllers({
@@ -677,6 +775,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _mainTab();
       case 'media':
         return _mediaTab();
+      case 'release_media':
+        return _tvReleaseMediaTab();
+      case 'episode_map':
+        return _tvEpisodeDiscMapTab();
       case 'value':
         return _valueTabForKind();
       case 'personal':
