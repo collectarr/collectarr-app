@@ -162,6 +162,49 @@ LibraryWorkspaceEntry buildTvReleaseWorkspaceEntry({
   );
 }
 
+LibraryWorkspaceEntry buildTvReleaseMediaWorkspaceEntry({
+  required TvRelease release,
+  required TvReleaseMedia media,
+}) {
+  return LibraryWorkspaceEntry(
+    id: '${release.id}:media:${media.id}',
+    mediaType: 'tv',
+    title: release.title ?? 'TV release',
+    browseScope: LibraryBrowserScope.release,
+    titleItemId: release.seriesId,
+    releaseId: release.id,
+    displayTitle: media.title ?? release.title ?? 'Disc ${media.discNumber ?? 1}',
+    originalTitle: release.title,
+    itemNumber: media.discNumber == null ? null : 'Disc ${media.discNumber}',
+    synopsis: null,
+    coverImageUrl: null,
+    thumbnailImageUrl: null,
+    publisher: null,
+    releaseDate: release.releaseDate,
+    releaseYear: release.releaseDate?.year,
+    barcode: null,
+    variant: media.formatLabel ?? media.title,
+    isOwned: false,
+    isTracked: false,
+    isWishlisted: false,
+    hasMissingCover: true,
+    hasMissingMetadata: false,
+    referenceEditionId: release.id,
+    referenceVariantId: media.id,
+    referenceFormatLabel: media.formatLabel,
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    editions: const <CatalogEdition>[],
+    video: VideoCatalogDetails(
+      nrDiscs: 1,
+      runtimeMinutes: media.episodes.fold<int>(
+        0,
+        (total, episode) => total + (episode.runtimeMinutes ?? 0),
+      ),
+    ),
+    creators: const <Map<String, dynamic>>[],
+  );
+}
+
 LibraryWorkspaceEntry buildTvLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
