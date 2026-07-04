@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/models/catalog_item_types.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BoardGameEdition {
   const BoardGameEdition({
@@ -66,37 +64,12 @@ final class BoardGameEdition {
     );
   }
 
-  factory BoardGameEdition.fromCatalogEdition(CatalogEdition edition) {
-    return BoardGameEdition(
-      id: edition.id,
-      title: edition.title,
-      editionTitle: edition.title,
-      format: edition.format,
-      publisher: edition.publisher,
-      catalogNumber: edition.upc,
-      barcode: edition.upc,
-      releaseStatus: null,
-      releaseDate: edition.releaseDate,
-      language: edition.language,
-      country: edition.region,
-      ageRating: null,
-      audienceRating: null,
-      minPlayers: null,
-      maxPlayers: null,
-      playingTimeMinutes: null,
-      minAge: null,
-      coverImageUrl: edition.variants.isNotEmpty
-          ? edition.variants.first.coverImageUrl
-          : null,
-    );
-  }
 }
 
 final class BoardGameWork {
   const BoardGameWork({
     required this.id,
     required this.title,
-    this.platforms = const <String>[],
     this.identifiers = const <String>[],
     this.contributors = const <String>[],
     this.mechanics = const <String>[],
@@ -106,10 +79,8 @@ final class BoardGameWork {
     this.rankings = const <String>[],
     this.editions = const <BoardGameEdition>[],
   });
-
   final String id;
   final String title;
-  final List<String> platforms;
   final List<String> identifiers;
   final List<String> contributors;
   final List<String> mechanics;
@@ -123,7 +94,6 @@ final class BoardGameWork {
     return BoardGameWork(
       id: dto.id,
       title: dto.title,
-      platforms: List<String>.unmodifiable(dto.platforms),
       identifiers: List<String>.unmodifiable(dto.identifiers),
       contributors: List<String>.unmodifiable(dto.contributors),
       mechanics: List<String>.unmodifiable(dto.mechanics),
@@ -133,32 +103,4 @@ final class BoardGameWork {
       rankings: List<String>.unmodifiable(dto.rankings),
     );
   }
-
-  factory BoardGameWork.fromLibraryMetadataItem(LibraryMetadataItem item) {
-    return BoardGameWork(
-      id: item.id,
-      title: item.title,
-      platforms:
-          List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
-      identifiers: const <String>[],
-      contributors: item.creators == null
-          ? const <String>[]
-          : List<String>.unmodifiable(
-              item.creators!
-                  .map((creator) => creator['name']?.toString() ?? '')
-                  .where((name) => name.isNotEmpty),
-            ),
-      mechanics: const <String>[],
-      categories: item.genres == null
-          ? const <String>[]
-          : List<String>.unmodifiable(item.genres!),
-      families: const <String>[],
-      expansions: const <String>[],
-      rankings: const <String>[],
-      editions: [
-        for (final edition in item.editions) BoardGameEdition.fromCatalogEdition(edition),
-      ],
-    );
-  }
-
 }

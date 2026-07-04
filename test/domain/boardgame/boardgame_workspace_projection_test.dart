@@ -32,5 +32,15 @@ void main() {
     expect((entry as BoardGameWorkspaceEntry).boardGameWork, isNotNull);
     expect(entry.boardGameWork!.editions, hasLength(1));
     expect(entry.referenceFormatLabel, 'Deluxe');
+
+    final editionEntry = buildBoardGameEditionWorkspaceEntry(
+      titleEntry: entry,
+      edition: work.editions.first,
+      overlay: const BoardGamePersonalOverlay(),
+    );
+    expect(editionEntry, isA<BoardGameWorkspaceEntry>());
+    expect((editionEntry as BoardGameWorkspaceEntry).boardGameWork, isNotNull);
+    expect(editionEntry.releaseId, 'edition-1');
+    expect(editionEntry.referenceEditionId, 'edition-1');
   });
 }

@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -38,18 +37,83 @@ final class BoardGamePersonalOverlay {
   bool get isWishlisted => wishlistItem != null;
 }
 
-LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final titleEntry = request.titleEntry;
-  if (titleEntry is! BoardGameWorkspaceEntry || titleEntry.boardGameWork == null) {
-    throw StateError('BoardGame release entry requires a typed boardGameWork');
+LibraryWorkspaceEntry buildBoardGameEditionWorkspaceEntry({
+  required BoardGameWorkspaceEntry titleEntry,
+  required BoardGameEdition edition,
+  required BoardGamePersonalOverlay overlay,
+}) {
+  final work = titleEntry.boardGameWork;
+  if (work == null) {
+    throw StateError('BoardGame edition entry requires a typed boardGameWork');
   }
-  final work = titleEntry.boardGameWork!;
+  final referenceFormatLabel = _boardGameReleaseLabel(edition);
   return BoardGameWorkspaceEntry(
-    common: _buildReleaseEntryData(request, work),
-    series: request.titleEntry.series,
-    publishing: request.titleEntry.publishing,
+    common: LibraryWorkspaceEntryData(
+      id: '${titleEntry.id}:release:${edition.id}',
+      browseScope: LibraryBrowserScope.release,
+      titleItemId: titleEntry.id,
+      releaseId: edition.id,
+      copyId: null,
+      ownedItemId: null,
+      mediaType: 'boardgame',
+      title: titleEntry.title,
+      displayTitle: titleEntry.displayTitle,
+      localizedTitle: titleEntry.localizedTitle,
+      originalTitle: titleEntry.originalTitle,
+      searchAliases: _copyStringList(titleEntry.searchAliases),
+      itemNumber: null,
+      synopsis: titleEntry.synopsis,
+      coverImageUrl: edition.coverImageUrl ?? titleEntry.coverImageUrl,
+      thumbnailImageUrl: edition.coverImageUrl ??
+          titleEntry.thumbnailImageUrl ??
+          titleEntry.coverImageUrl,
+      publisher: edition.publisher ?? titleEntry.publisher,
+      coverDate: titleEntry.coverDate,
+      releaseDate: edition.releaseDate,
+      releaseYear: edition.releaseDate?.year ?? titleEntry.releaseYear,
+      barcode: edition.barcode ?? edition.catalogNumber,
+      variant: referenceFormatLabel,
+      crossover: titleEntry.crossover,
+      isOwned: titleEntry.isOwned,
+      isTracked: titleEntry.isTracked,
+      isWishlisted: titleEntry.isWishlisted,
+      hasMissingCover: false,
+      hasMissingMetadata: false,
+      condition: null,
+      grade: null,
+      primaryReferenceLabel: null,
+      referenceScopeLabel: null,
+      referenceFormatLabel: referenceFormatLabel,
+      referenceEditionId: edition.id,
+      referenceVariantId: null,
+      referenceBundleReleaseId: null,
+      notes: null,
+      tags: null,
+      collectionStatus: null,
+      lastBagBoardDate: null,
+      pricePaidCents: null,
+      currency: null,
+      locationPath: null,
+      addedAt: null,
+      editions: const [],
+      updatedAt: overlay.updatedAt ?? titleEntry.updatedAt,
+      trailerUrls: const [],
+      plotSummary: null,
+      plotDescription: null,
+      creators: _copyCreatorListFromStrings(work.contributors),
+      characters: const <String>[],
+      storyArcs: const <String>[],
+      genres: _copyStringList([
+        ...work.categories,
+        ...work.mechanics,
+      ]),
+      country: edition.country,
+      language: edition.language,
+      ageRating: null,
+      audienceRating: null,
+    ),
+    series: null,
+    publishing: null,
     game: null,
     boardGameWork: work,
   );
@@ -144,104 +208,8 @@ LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
   );
 }
 
-LibraryWorkspaceEntryData _buildReleaseEntryData(
-  LibraryReleaseEntryRequest request,
-  BoardGameWork work,
-) {
-  final selectedEdition = _boardGameEditionById(
-        work.editions,
-        request.referenceEditionId ?? request.edition.id,
-      ) ??
-      _primaryBoardGameEdition(work);
-  final referenceFormatLabel = _boardGameReleaseLabel(selectedEdition) ??
-      request.edition.physicalFormatLabel ??
-      request.edition.physicalFormat;
-  return LibraryWorkspaceEntryData(
-    id: '${request.titleEntry.id}:release:${request.edition.id}',
-    browseScope: LibraryBrowserScope.release,
-    titleItemId: request.titleEntry.id,
-    releaseId: request.edition.id,
-    copyId: null,
-    ownedItemId: null,
-    mediaType: 'boardgame',
-    title: request.titleEntry.title,
-    displayTitle: request.titleEntry.displayTitle,
-    localizedTitle: request.titleEntry.localizedTitle,
-    originalTitle: request.titleEntry.originalTitle,
-    searchAliases: _copyStringList(request.titleEntry.searchAliases),
-    itemNumber: null,
-    synopsis: request.titleEntry.synopsis,
-    coverImageUrl:
-        selectedEdition?.coverImageUrl ?? request.titleEntry.coverImageUrl,
-    thumbnailImageUrl:
-        selectedEdition?.coverImageUrl ?? request.titleEntry.thumbnailImageUrl,
-    publisher: selectedEdition?.publisher ?? request.titleEntry.publisher,
-    coverDate: request.titleEntry.coverDate,
-    releaseDate: selectedEdition?.releaseDate ?? request.edition.releaseDate,
-    releaseYear:
-        (selectedEdition?.releaseDate ?? request.edition.releaseDate)?.year ??
-            request.titleEntry.releaseYear,
-    barcode: selectedEdition?.barcode ?? request.edition.upc,
-    variant: referenceFormatLabel,
-    crossover: request.titleEntry.crossover,
-    isOwned: request.isOwned,
-    isTracked: request.isTracked,
-    isWishlisted: request.isWishlisted,
-    hasMissingCover: false,
-    hasMissingMetadata: false,
-    condition: null,
-    grade: null,
-    primaryReferenceLabel: null,
-    referenceScopeLabel: null,
-    referenceFormatLabel: referenceFormatLabel,
-    referenceEditionId: request.referenceEditionId ?? request.edition.id,
-    referenceVariantId: request.referenceVariantId,
-    referenceBundleReleaseId: request.referenceBundleReleaseId,
-    notes: null,
-    tags: null,
-    collectionStatus: null,
-    lastBagBoardDate: null,
-    pricePaidCents: null,
-    currency: null,
-    locationPath: null,
-    addedAt: null,
-    editions: const [],
-    updatedAt: request.updatedAt,
-    trailerUrls: const [],
-    plotSummary: null,
-    plotDescription: null,
-    creators: _copyCreatorListFromStrings(work.contributors),
-    characters: null,
-    storyArcs: null,
-    genres: _copyStringList([
-      ...work.categories,
-      ...work.mechanics,
-    ]),
-    country: null,
-    language: selectedEdition?.language ?? request.edition.language,
-    ageRating: null,
-    audienceRating: null,
-  );
-}
-
 BoardGameEdition? _primaryBoardGameEdition(BoardGameWork work) {
   return work.editions.isEmpty ? null : work.editions.first;
-}
-
-BoardGameEdition? _boardGameEditionById(
-  List<BoardGameEdition> editions,
-  String? editionId,
-) {
-  final normalized = editionId?.trim();
-  if (normalized == null || normalized.isEmpty) {
-    return null;
-  }
-  for (final edition in editions) {
-    if (edition.id == normalized) {
-      return edition;
-    }
-  }
-  return null;
 }
 
 String? _boardGameReleaseLabel(BoardGameEdition? edition) {

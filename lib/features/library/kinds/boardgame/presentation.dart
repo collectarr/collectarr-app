@@ -1,8 +1,14 @@
+import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_builder.dart'
+    show
+        BoardGamePersonalOverlay,
+        buildBoardGameEditionWorkspaceEntry,
+        buildBoardGameWorkspaceEntry;
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -289,7 +295,105 @@ LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(
 ) {
   final catalogItem = source.catalogItem!;
   return buildBoardGameWorkspaceEntry(
-    BoardGameWork.fromLibraryMetadataItem(catalogItem),
+    _boardGameWorkFromMetadataItem(catalogItem),
     BoardGamePersonalOverlay.fromShelfEntry(source),
   );
+}
+
+LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
+  LibraryReleaseEntryRequest request,
+) {
+  final titleEntry = request.titleEntry;
+  if (titleEntry is! BoardGameWorkspaceEntry || titleEntry.boardGameWork == null) {
+    throw StateError('BoardGame release entry requires a typed boardGameWork');
+  }
+  final work = titleEntry.boardGameWork!;
+  final edition = _boardGameEditionById(
+        work.editions,
+        request.referenceEditionId,
+      ) ??
+      _primaryBoardGameEdition(work) ??
+      BoardGameEdition(
+        id: request.referenceEditionId ?? request.edition.id,
+        title: request.edition.title,
+        format: request.edition.format,
+        publisher: request.edition.publisher,
+        catalogNumber: request.edition.upc,
+        barcode: request.edition.upc,
+        releaseDate: request.edition.releaseDate,
+        language: request.edition.language,
+        country: request.edition.region,
+        coverImageUrl: request.edition.variants.isNotEmpty
+            ? request.edition.variants.first.coverImageUrl
+            : null,
+      );
+  return buildBoardGameEditionWorkspaceEntry(
+    titleEntry: titleEntry,
+    edition: edition,
+    overlay: BoardGamePersonalOverlay(updatedAt: request.updatedAt),
+  );
+}
+
+BoardGameWork _boardGameWorkFromMetadataItem(LibraryMetadataItem item) {
+  return BoardGameWork(
+    id: item.id,
+    title: item.title,
+    identifiers: const <String>[],
+    contributors: item.creators == null
+        ? const <String>[]
+        : List<String>.unmodifiable(
+            item.creators!
+                .map((creator) => creator['name']?.toString() ?? '')
+                .where((name) => name.isNotEmpty),
+          ),
+    mechanics: const <String>[],
+    categories: item.genres == null
+        ? const <String>[]
+        : List<String>.unmodifiable(item.genres!),
+    families: const <String>[],
+    expansions: const <String>[],
+    rankings: const <String>[],
+    editions: [
+      for (final edition in item.editions)
+        _boardGameEditionFromCatalogEdition(edition),
+    ],
+  );
+}
+
+BoardGameEdition _boardGameEditionFromCatalogEdition(CatalogEdition edition) {
+  return BoardGameEdition(
+    id: edition.id,
+    title: edition.title,
+    editionTitle: edition.title,
+    format: edition.format,
+    publisher: edition.publisher,
+    catalogNumber: edition.upc,
+    barcode: edition.upc,
+    releaseDate: edition.releaseDate,
+    language: edition.language,
+    country: edition.region,
+    coverImageUrl: edition.variants.isNotEmpty
+        ? edition.variants.first.coverImageUrl
+        : null,
+  );
+}
+
+BoardGameEdition? _boardGameEditionById(
+  List<BoardGameEdition> editions,
+  String? editionId,
+) {
+  final normalized = editionId?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return null;
+  }
+  for (final edition in editions) {
+    if (edition.id == normalized) {
+      return edition;
+    }
+  }
+  return null;
+}
+
+BoardGameEdition? _primaryBoardGameEdition(BoardGameWork work) {
+  return work.editions.isEmpty ? null : work.editions.first;
 }
