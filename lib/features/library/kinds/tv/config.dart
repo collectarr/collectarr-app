@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_inspector_panel.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -41,9 +41,10 @@ const tvLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
-  presentation: moviesLibraryMediaPresentation,
-  editDialogBuilder: buildMovieLibraryEditDialog,
-  inspectorPanelBuilder: buildVideoInspectorPanel,
+  presentation: tvLibraryMediaPresentation,
+  editDialogBuilder: buildTvLibraryEditDialog,
+  inspectorPanelBuilder: buildTvInspectorPanel,
+  inspectorSectionsBuilder: buildTvInspectorSections,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [
       LibraryAddVideoKindFilterOption(
