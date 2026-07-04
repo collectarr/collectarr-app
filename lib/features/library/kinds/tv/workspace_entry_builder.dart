@@ -162,6 +162,20 @@ LibraryWorkspaceEntry buildTvReleaseWorkspaceEntry({
   );
 }
 
+List<LibraryWorkspaceEntry> buildTvReleaseWorkspaceEntries({
+  required TvSeries series,
+  required TvPersonalOverlay overlay,
+}) {
+  return [
+    for (final release in series.releases)
+      buildTvReleaseWorkspaceEntry(
+        series: series,
+        release: release,
+        overlay: overlay,
+      ),
+  ];
+}
+
 LibraryWorkspaceEntry buildTvReleaseMediaWorkspaceEntry({
   required TvRelease release,
   required TvReleaseMedia media,
@@ -200,6 +214,47 @@ LibraryWorkspaceEntry buildTvReleaseMediaWorkspaceEntry({
         0,
         (total, episode) => total + (episode.runtimeMinutes ?? 0),
       ),
+    ),
+    creators: const <Map<String, dynamic>>[],
+  );
+}
+
+LibraryWorkspaceEntry buildTvReleaseEpisodeMapWorkspaceEntry({
+  required TvRelease release,
+  required TvReleaseMedia media,
+  required TvReleaseEpisodeMap episodeMap,
+}) {
+  return LibraryWorkspaceEntry(
+    id: '${release.id}:media:${media.id}:map:${episodeMap.id}',
+    mediaType: 'tv',
+    title: release.title ?? 'TV release',
+    browseScope: LibraryBrowserScope.release,
+    titleItemId: release.seriesId,
+    releaseId: release.id,
+    displayTitle: 'Episode map ${episodeMap.sequenceNumber ?? episodeMap.discNumber ?? 1}',
+    originalTitle: media.title ?? release.title,
+    itemNumber: episodeMap.discNumber == null ? null : 'Disc ${episodeMap.discNumber}',
+    synopsis: null,
+    coverImageUrl: null,
+    thumbnailImageUrl: null,
+    publisher: null,
+    releaseDate: release.releaseDate,
+    releaseYear: release.releaseDate?.year,
+    barcode: null,
+    variant: media.formatLabel ?? media.title,
+    isOwned: false,
+    isTracked: false,
+    isWishlisted: false,
+    hasMissingCover: true,
+    hasMissingMetadata: false,
+    referenceEditionId: release.id,
+    referenceVariantId: media.id,
+    referenceFormatLabel: media.formatLabel,
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    editions: const <CatalogEdition>[],
+    video: VideoCatalogDetails(
+      nrDiscs: 1,
+      runtimeMinutes: null,
     ),
     creators: const <Map<String, dynamic>>[],
   );

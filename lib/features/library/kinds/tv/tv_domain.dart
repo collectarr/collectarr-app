@@ -344,6 +344,7 @@ final class TvSeries {
     this.posterUrl,
     this.backdropUrl,
     this.seasons = const <TvSeason>[],
+    this.releases = const <TvRelease>[],
     this.media = const <TvReleaseMedia>[],
     this.releaseEpisodeMaps = const <TvReleaseEpisodeMap>[],
     this.contributions = const <Map<String, dynamic>>[],
@@ -369,6 +370,7 @@ final class TvSeries {
   final String? posterUrl;
   final String? backdropUrl;
   final List<TvSeason> seasons;
+  final List<TvRelease> releases;
   final List<TvReleaseMedia> media;
   final List<TvReleaseEpisodeMap> releaseEpisodeMaps;
   final List<Map<String, dynamic>> contributions;
@@ -398,6 +400,10 @@ final class TvSeries {
           _stringOrNull(dto.raw['backdrop_url'] ?? dto.raw['backdropUrl']),
       seasons: [
         for (final season in dto.seasons) TvSeason.fromDto(season),
+      ],
+      releases: [
+        for (final entry in _mapList(dto.raw['releases']))
+          TvRelease.fromJson(entry),
       ],
       media: [
         for (final releaseMedia in dto.media)
