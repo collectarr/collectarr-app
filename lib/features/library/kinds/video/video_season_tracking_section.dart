@@ -263,7 +263,7 @@ class _VideoSeasonTrackingSectionState
     });
     try {
       await ref.read(collectionMutationsProvider).setTrackingEpisodeCompleted(
-            widget.seriesRef.id,
+            widget.seriesRef,
             seasonNumber: seasonNumber,
             episodeNumber: episode.episodeNumber,
             completed: !watchedEpisodeKeys.contains(key),
@@ -289,7 +289,7 @@ class _VideoSeasonTrackingSectionState
     });
     try {
       await ref.read(collectionMutationsProvider).setSeasonEpisodesCompleted(
-            widget.seriesRef.id,
+            widget.seriesRef,
             seasonNumber: season.seasonNumber,
             episodeNumbers: season.episodes.map((episode) => episode.episodeNumber),
             completed: completed,
@@ -520,7 +520,6 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   ) async {
     for (final episode in providerSeason.episodes) {
       await ref.read(collectionMutationsProvider).upsertCustomEpisode(
-            itemId: catalogRef.id,
             catalogRef: catalogRef,
             seasonNumber: providerSeason.seasonNumber,
             episodeNumber: episode.episodeNumber,
@@ -559,7 +558,6 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     if (result == null || !context.mounted) return;
     await ref.read(collectionMutationsProvider).upsertCustomEpisode(
           id: existing?.id,
-          itemId: catalogRef.id,
           catalogRef: catalogRef,
           seasonNumber: seasonNumber,
           episodeNumber: result.episodeNumber,
@@ -578,7 +576,6 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   ) async {
     await ref.read(collectionMutationsProvider).upsertCustomEpisode(
           id: episode.id,
-          itemId: catalogRef.id,
           catalogRef: catalogRef,
           seasonNumber: episode.seasonNumber,
           episodeNumber: newEpisodeNumber < 1 ? 1 : newEpisodeNumber,

@@ -1,9 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 /// A user-created episode entry for a series that lacks provider data.
-///
-/// Stored locally by item id for compatibility, but the logical anchor is now
-/// the catalog reference.
 final class CustomEpisode {
   CustomEpisode({
     required this.id,
@@ -36,7 +33,6 @@ final class CustomEpisode {
   Map<String, dynamic> toSyncPayload() {
     return {
       'catalog_ref': seriesRef.toJson(),
-      'item_id': itemId,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
       'title': title,

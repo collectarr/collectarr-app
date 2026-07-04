@@ -73,7 +73,7 @@ final trackingUnitsByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.itemId, () => <TrackingUnit>[]).add(item);
+        grouped.putIfAbsent(item.targetRef.id, () => <TrackingUnit>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) {
@@ -159,7 +159,7 @@ final watchSessionsByItemProvider =
       final grouped = <String, List<WatchSession>>{};
       for (final session in items) {
         if (session.isDeleted) continue;
-        grouped.putIfAbsent(session.itemId, () => <WatchSession>[]).add(session);
+        grouped.putIfAbsent(session.targetRef.id, () => <WatchSession>[]).add(session);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));

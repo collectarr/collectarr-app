@@ -250,9 +250,8 @@ class WatchHistorySection extends ConsumerWidget {
       return;
     }
     await ref.read(collectionMutationsProvider).addWatchSession(
-          itemId,
+          result.target.ref,
           id: existing?.id,
-          targetRef: result.target.ref,
           watchedAt: result.watchedAt,
           seenWhere: result.seenWhere,
           rating: result.rating,

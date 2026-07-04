@@ -87,7 +87,6 @@ class WatchSessionsCacheRepository {
   WatchSession _toModel(WatchSessionsCacheData row) {
     return WatchSession(
       id: row.id,
-      itemId: row.itemId,
       targetRef: row.targetRefJson == null
           ? CatalogEntityRef(
               kind: 'unknown',

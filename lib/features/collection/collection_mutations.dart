@@ -474,7 +474,7 @@ class CollectionMutations {
   }
 
   Future<void> setTrackingEpisodeCompleted(
-    String itemId, {
+    CatalogEntityRef seriesRef, {
     required int seasonNumber,
     required int episodeNumber,
     required bool completed,
@@ -482,19 +482,23 @@ class CollectionMutations {
   }) async {
     final now = DateTime.now().toUtc();
     final unitId = _trackingUnitIdForEpisode(
-      itemId,
+      seriesRef.id,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+    );
+    final episodeRef = _episodeTrackingRef(
+      seriesRef,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
     );
     final existingUnit = await _trackingUnitsCache().findById(unitId);
     if (completed) {
       final trackingEntries =
-          await _trackingCache().findActiveByItemIds([itemId]);
+          await _trackingCache().findActiveByItemIds([seriesRef.id]);
       final summaryEntry = _summaryTrackingEntryForItem(trackingEntries);
-      await _trackingUnitsCache().upsert(
-        TrackingUnit(
+      final unit = TrackingUnit(
           id: unitId,
-          itemId: itemId,
+          targetRef: episodeRef,
           trackingEntryId: summaryEntry?.id,
           ownedItemId: summaryEntry?.ownedItemId,
           editionId: summaryEntry?.editionId,
@@ -505,17 +509,13 @@ class CollectionMutations {
           episodeNumber: episodeNumber,
           completedAt: now,
           updatedAt: now,
-        ),
-      );
+        );
+      await _trackingUnitsCache().upsert(unit);
+      await _enqueueTrackingUnit(unit, 'upsert', now);
       // T6: Record a watch session for this episode.
       final session = WatchSession(
         id: _uuid.v4(),
-        itemId: itemId,
-        targetRef: CatalogEntityRef(
-          kind: 'unknown',
-          entityType: CatalogEntityType.episode,
-          id: unitId,
-        ),
+        targetRef: episodeRef,
         trackingEntryId: summaryEntry?.id,
         seasonNumber: seasonNumber,
         episodeNumber: episodeNumber,
@@ -526,15 +526,16 @@ class CollectionMutations {
       await _enqueueWatchSession(session, 'upsert', now);
     } else if (existingUnit != null && !existingUnit.isDeleted) {
       await _trackingUnitsCache().markDeleted(existingUnit, now);
+      await _enqueueTrackingUnit(existingUnit.copyWith(deletedAt: now, updatedAt: now), 'delete', now);
     }
-    await _reconcileTrackingEntryFromUnits(itemId, changedAt: now);
+    await _reconcileTrackingEntryFromUnits(seriesRef.id, changedAt: now);
     if (notify) {
       await _notifyCollectionChanged();
     }
   }
 
   Future<void> setSeasonEpisodesCompleted(
-    String itemId, {
+    CatalogEntityRef seriesRef, {
     required int seasonNumber,
     required Iterable<int> episodeNumbers,
     required bool completed,
@@ -551,17 +552,21 @@ class CollectionMutations {
     final now = DateTime.now().toUtc();
     if (completed) {
       final trackingEntries =
-          await _trackingCache().findActiveByItemIds([itemId]);
+          await _trackingCache().findActiveByItemIds([seriesRef.id]);
       final summaryEntry = _summaryTrackingEntryForItem(trackingEntries);
-      await _trackingUnitsCache().upsertAll(
-        normalizedEpisodes.map(
-          (episodeNumber) => TrackingUnit(
+      final units = [
+        for (final episodeNumber in normalizedEpisodes)
+          TrackingUnit(
             id: _trackingUnitIdForEpisode(
-              itemId,
+              seriesRef.id,
               seasonNumber: seasonNumber,
               episodeNumber: episodeNumber,
             ),
-            itemId: itemId,
+            targetRef: _episodeTrackingRef(
+              seriesRef,
+              seasonNumber: seasonNumber,
+              episodeNumber: episodeNumber,
+            ),
             trackingEntryId: summaryEntry?.id,
             ownedItemId: summaryEntry?.ownedItemId,
             editionId: summaryEntry?.editionId,
@@ -573,21 +578,40 @@ class CollectionMutations {
             completedAt: now,
             updatedAt: now,
           ),
-        ),
-      );
+      ];
+      await _trackingUnitsCache().upsertAll(units);
+      for (final unit in units) {
+        await _enqueueTrackingUnit(unit, 'upsert', now);
+      }
     } else {
+      final deletedUnits = <TrackingUnit>[];
+      for (final episodeNumber in normalizedEpisodes) {
+        final unit = await _trackingUnitsCache().findById(
+          _trackingUnitIdForEpisode(
+            seriesRef.id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+          ),
+        );
+        if (unit != null && !unit.isDeleted) {
+          deletedUnits.add(unit.copyWith(deletedAt: now, updatedAt: now));
+        }
+      }
       await _trackingUnitsCache().markDeletedByIds(
         normalizedEpisodes.map(
           (episodeNumber) => _trackingUnitIdForEpisode(
-            itemId,
+            seriesRef.id,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
           ),
         ),
         now,
       );
+      for (final unit in deletedUnits) {
+        await _enqueueTrackingUnit(unit, 'delete', now);
+      }
     }
-    await _reconcileTrackingEntryFromUnits(itemId, changedAt: now);
+    await _reconcileTrackingEntryFromUnits(seriesRef.id, changedAt: now);
     if (notify) {
       await _notifyCollectionChanged();
     }
@@ -704,9 +728,8 @@ class CollectionMutations {
   // ─── Watch Sessions ─────────────────────────────────────────────────
 
   Future<WatchSession> addWatchSession(
-    String itemId, {
+    CatalogEntityRef targetRef, {
     String? id,
-    CatalogEntityRef? targetRef,
     String? trackingEntryId,
     int? seasonNumber,
     int? episodeNumber,
@@ -719,13 +742,7 @@ class CollectionMutations {
     final now = DateTime.now().toUtc();
     final session = WatchSession(
       id: id ?? _uuid.v4(),
-      itemId: itemId,
-      targetRef: targetRef ??
-          CatalogEntityRef(
-            kind: 'unknown',
-            entityType: CatalogEntityType.work,
-            id: itemId,
-          ),
+      targetRef: targetRef,
       trackingEntryId: trackingEntryId,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
@@ -801,8 +818,7 @@ class CollectionMutations {
   /// Create or update a custom episode for a series.
   Future<CustomEpisode> upsertCustomEpisode({
     String? id,
-    required String itemId,
-    CatalogEntityRef? catalogRef,
+    required CatalogEntityRef catalogRef,
     required int seasonNumber,
     required int episodeNumber,
     required String title,
@@ -813,12 +829,7 @@ class CollectionMutations {
     final now = DateTime.now().toUtc();
     final episode = CustomEpisode(
       id: id ?? _uuid.v4(),
-      seriesRef: catalogRef ??
-          CatalogEntityRef(
-            kind: 'tv',
-            entityType: CatalogEntityType.work,
-            id: itemId,
-          ),
+      seriesRef: catalogRef,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
       title: title,
@@ -938,6 +949,7 @@ class CollectionMutations {
         ),
       );
     }
+
     if (notify) {
       await _notifyWishlistChanged();
     }
@@ -1039,9 +1051,20 @@ class CollectionMutations {
         seasonNumber: localUnit.seasonNumber ?? 0,
         episodeNumber: localUnit.episodeNumber ?? 0,
       );
+      final targetRef = localUnit.unitType == TrackingUnitType.episode
+          ? _episodeTrackingRef(
+              CatalogEntityRef(kind: item.kind, entityType: CatalogEntityType.work, id: item.id),
+              seasonNumber: localUnit.seasonNumber ?? 0,
+              episodeNumber: localUnit.episodeNumber ?? 0,
+            )
+          : CatalogEntityRef(
+              kind: item.kind,
+              entityType: CatalogEntityType.work,
+              id: item.id,
+            );
       trackingUnitUpserts.add(TrackingUnit(
         id: newUnitId,
-        itemId: item.id,
+        targetRef: targetRef,
         trackingEntryId: localUnit.trackingEntryId,
         ownedItemId: localUnit.ownedItemId,
         editionId: localUnit.editionId,
@@ -1613,6 +1636,21 @@ class CollectionMutations {
     );
   }
 
+  SyncChange _syncChangeForTrackingUnit(
+    TrackingUnit item,
+    String action,
+    DateTime changedAt,
+  ) {
+    return SyncChange(
+      id: _uuid.v4(),
+      entityType: 'tracking_unit',
+      entityId: item.id,
+      action: action,
+      payload: item.toSyncPayload(),
+      clientChangedAt: changedAt,
+    );
+  }
+
   SyncChange _syncChangeForWishlistItem(
     WishlistItem item,
     String action,
@@ -1763,6 +1801,16 @@ class CollectionMutations {
   ) {
     return _syncQueue().enqueue(
       _syncChangeForTrackingEntry(item, action, changedAt),
+    );
+  }
+
+  Future<void> _enqueueTrackingUnit(
+    TrackingUnit item,
+    String action,
+    DateTime changedAt,
+  ) {
+    return _syncQueue().enqueue(
+      _syncChangeForTrackingUnit(item, action, changedAt),
     );
   }
 
@@ -1975,6 +2023,22 @@ class CollectionMutations {
     return _uuid.v5(
       Namespace.url.value,
       'tracking-unit:episode:$itemId:$seasonNumber:$episodeNumber',
+    );
+  }
+
+  CatalogEntityRef _episodeTrackingRef(
+    CatalogEntityRef seriesRef, {
+    required int seasonNumber,
+    required int episodeNumber,
+  }) {
+    return CatalogEntityRef(
+      kind: seriesRef.kind,
+      entityType: CatalogEntityType.episode,
+      id: _trackingUnitIdForEpisode(
+        seriesRef.id,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+      ),
     );
   }
 

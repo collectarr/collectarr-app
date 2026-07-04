@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:drift/drift.dart';
 
@@ -122,7 +123,13 @@ class TrackingUnitsCacheRepository {
   TrackingUnit _toModel(TrackingUnitsCacheData row) {
     return TrackingUnit(
       id: row.id,
-      itemId: row.itemId,
+      targetRef: CatalogEntityRef(
+        kind: 'unknown',
+        entityType: row.seasonNumber != null || row.episodeNumber != null
+            ? CatalogEntityType.episode
+            : CatalogEntityType.work,
+        id: row.itemId,
+      ),
       trackingEntryId: row.trackingEntryId,
       ownedItemId: row.ownedItemId,
       editionId: row.editionId,
