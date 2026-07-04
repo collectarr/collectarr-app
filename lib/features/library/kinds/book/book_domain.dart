@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class BookVariant {
   const BookVariant({
@@ -33,23 +32,6 @@ final class BookVariant {
   final String? physicalFormatLabel;
   final bool isPrimary;
 
-  factory BookVariant.fromCatalogVariant(CatalogVariant variant) {
-    return BookVariant(
-      id: variant.id,
-      name: variant.name,
-      variantType: variant.variantType,
-      sku: variant.sku,
-      barcode: variant.barcode,
-      isbn: variant.isbn,
-      region: variant.region,
-      coverImageUrl: variant.coverImageUrl,
-      thumbnailImageUrl: variant.thumbnailImageUrl,
-      description: variant.description,
-      physicalFormat: variant.physicalFormat,
-      physicalFormatLabel: variant.physicalFormatLabel,
-      isPrimary: variant.isPrimary,
-    );
-  }
 }
 
 final class BookEdition {
@@ -80,26 +62,6 @@ final class BookEdition {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final List<BookVariant> variants;
-
-  factory BookEdition.fromCatalogEdition(CatalogEdition edition) {
-    return BookEdition(
-      id: edition.id,
-      title: edition.title,
-      format: edition.format,
-      publisher: edition.publisher,
-      isbn: edition.isbn,
-      upc: edition.upc,
-      language: edition.language,
-      region: edition.region,
-      releaseDate: edition.releaseDate,
-      physicalFormat: edition.physicalFormat,
-      physicalFormatLabel: edition.physicalFormatLabel,
-      variants: [
-        for (final variant in edition.variants)
-          BookVariant.fromCatalogVariant(variant),
-      ],
-    );
-  }
 
   factory BookEdition.fromDto(BookEditionDto dto) {
     return BookEdition(
@@ -243,52 +205,6 @@ final class BookWork {
       ageRating: dto.ageRatingValue,
       audienceRating: dto.audienceRatingValue,
       physicalFormatLabel: dto.physicalFormatLabelValue,
-    );
-  }
-
-  factory BookWork.fromLibraryMetadataItem(LibraryMetadataItem item) {
-    final editions = [
-      for (final edition in item.editions)
-        BookEdition.fromCatalogEdition(edition),
-    ];
-    return BookWork(
-      id: item.id,
-      title: item.title,
-      displayTitle: item.displayTitle,
-      localizedTitle: item.localizedTitle,
-      originalTitle: item.originalTitle,
-      searchAliases: List<String>.unmodifiable(item.searchAliases ?? const []),
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      publisher: item.publisher,
-      coverDate: item.coverDate,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      barcode: item.barcode,
-      variant: item.variant,
-      crossover: item.crossover,
-      series: item.series,
-      publishing: item.publishing,
-      editions: editions,
-      trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
-      plotSummary: item.plotSummary,
-      plotDescription: item.plotDescription,
-      creators: item.creators == null
-          ? null
-          : List<Map<String, dynamic>>.unmodifiable(
-              item.creators!
-                  .map((value) => Map<String, dynamic>.unmodifiable(value)),
-            ),
-      characters: List<String>.unmodifiable(item.characters ?? const []),
-      storyArcs: List<String>.unmodifiable(item.storyArcs ?? const []),
-      genres: List<String>.unmodifiable(item.genres ?? const []),
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-      audienceRating: item.audienceRating,
-      physicalFormatLabel: item.physicalFormatLabel,
     );
   }
 

@@ -1,9 +1,11 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -642,7 +644,7 @@ final booksLibraryMediaPresentation = LibraryMediaPresentation(
     showVolumeHierarchy: true,
   ),
   workspaceEntryBuilder: (ShelfEntry source) => buildBookWorkspaceEntry(
-    BookWork.fromLibraryMetadataItem(source.catalogItem!),
+    _bookWorkFromMetadataItem(source.catalogItem!),
     BookPersonalOverlay(
       ownedItem: source.ownedItem,
       trackingEntry: source.trackingEntry,
@@ -661,3 +663,84 @@ final booksLibraryMediaPresentation = LibraryMediaPresentation(
   groupModeDefinitions: booksLibraryGroupModeDefinitions,
   groupModes: booksLibraryGroupModes,
 );
+
+BookWork _bookWorkFromMetadataItem(LibraryMetadataItem item) {
+  return BookWork(
+    id: item.id,
+    title: item.title,
+    displayTitle: item.displayTitle,
+    localizedTitle: item.localizedTitle,
+    originalTitle: item.originalTitle,
+    searchAliases: List<String>.unmodifiable(item.searchAliases ?? const []),
+    itemNumber: item.itemNumber,
+    synopsis: item.synopsis,
+    coverImageUrl: item.coverImageUrl,
+    thumbnailImageUrl: item.thumbnailImageUrl,
+    publisher: item.publisher,
+    coverDate: item.coverDate,
+    releaseDate: item.releaseDate,
+    releaseYear: item.releaseYear,
+    barcode: item.barcode,
+    variant: item.variant,
+    crossover: item.crossover,
+    series: item.series,
+    publishing: item.publishing,
+    editions: [
+      for (final edition in item.editions) _bookEditionFromCatalogEdition(edition),
+    ],
+    trailerUrls: List.unmodifiable(item.trailerUrls),
+    plotSummary: item.plotSummary,
+    plotDescription: item.plotDescription,
+    creators: item.creators == null
+        ? null
+        : List<Map<String, dynamic>>.unmodifiable(
+            item.creators!
+                .map((value) => Map<String, dynamic>.unmodifiable(value)),
+          ),
+    characters: List<String>.unmodifiable(item.characters ?? const []),
+    storyArcs: List<String>.unmodifiable(item.storyArcs ?? const []),
+    genres: List<String>.unmodifiable(item.genres ?? const []),
+    country: item.country,
+    language: item.language,
+    ageRating: item.ageRating,
+    audienceRating: item.audienceRating,
+    physicalFormatLabel: item.physicalFormatLabel,
+  );
+}
+
+BookEdition _bookEditionFromCatalogEdition(CatalogEdition edition) {
+  return BookEdition(
+    id: edition.id,
+    title: edition.title,
+    format: edition.format,
+    publisher: edition.publisher,
+    isbn: edition.isbn,
+    upc: edition.upc,
+    language: edition.language,
+    region: edition.region,
+    releaseDate: edition.releaseDate,
+    physicalFormat: edition.physicalFormat,
+    physicalFormatLabel: edition.physicalFormatLabel,
+    variants: [
+      for (final variant in edition.variants) _bookVariantFromCatalogVariant(variant),
+    ],
+  );
+}
+
+BookVariant _bookVariantFromCatalogVariant(CatalogVariant variant) {
+  return BookVariant(
+    id: variant.id,
+    name: variant.name,
+    variantType: variant.variantType,
+    sku: variant.sku,
+    barcode: variant.barcode,
+    isbn: variant.isbn,
+    region: variant.region,
+    coverImageUrl: variant.coverImageUrl,
+    thumbnailImageUrl: variant.thumbnailImageUrl,
+    description: variant.description,
+    physicalFormat: variant.physicalFormat,
+    physicalFormatLabel: variant.physicalFormatLabel,
+    isPrimary: variant.isPrimary,
+  );
+}
