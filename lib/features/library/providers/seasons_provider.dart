@@ -18,33 +18,11 @@ final tvSeriesSeasonsProvider = FutureProvider.autoDispose.family<List<TvSeasonD
   },
 );
 
-/// Matches local-synthetic item IDs created by TMDB import
-/// (e.g. `tmdb-local:tv:12345`).
-final _tmdbLocalIdPattern = RegExp(r'^tmdb-local:(\w+):(\d+)$');
-final _uuidPattern = RegExp(
-  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-  caseSensitive: false,
-);
-
-final itemSeasonsProvider = FutureProvider.autoDispose.family<
+final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose.family<
     List<Season>,
-    ({String itemId, String? kind})>((ref, params) async {
-  final itemId = params.itemId;
-  final localMatch = _tmdbLocalIdPattern.firstMatch(itemId);
-  if (localMatch != null) {
-    final kind = localMatch.group(1)!;
-    final tmdbId = localMatch.group(2)!;
-    final api = ref.watch(apiClientProvider);
-    return api
-        .getProviderSeasons('tmdb', '$kind:$tmdbId')
-        .timeout(const Duration(seconds: 60));
-  }
-  final normalizedKind = params.kind?.trim().toLowerCase();
-  if (normalizedKind == 'tv' && _uuidPattern.hasMatch(itemId)) {
-    final seasons = await ref.watch(tvSeriesSeasonsProvider(itemId).future);
-    return _seasonDtosToSeasonModels(seasons);
-  }
-  return const <Season>[];
+    String>((ref, seriesId) async {
+  final seasons = await ref.watch(tvSeriesSeasonsProvider(seriesId).future);
+  return _seasonDtosToSeasonModels(seasons);
 });
 
 final seasonsByCatalogRefProvider =
@@ -52,8 +30,7 @@ final seasonsByCatalogRefProvider =
   (ref, catalogRef) async {
     final kind = catalogRef.kind.trim().toLowerCase();
     if (kind == 'tv') {
-      final seasons = await ref.watch(tvSeriesSeasonsProvider(catalogRef.id).future);
-      return _seasonDtosToSeasonModels(seasons);
+      return ref.watch(tvSeasonsBySeriesRefProvider(catalogRef.id).future);
     }
     return const <Season>[];
   },

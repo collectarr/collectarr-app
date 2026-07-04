@@ -56,6 +56,7 @@ class WatchSession {
 
   factory WatchSession.fromJson(Map<String, dynamic> json) {
     final targetRefJson = json['target_ref'] ?? json['catalog_ref'];
+    // Legacy read fallback only; writes now always use catalog_ref.
     final fallbackItemId = json['item_id'] as String? ?? '';
     return WatchSession(
       id: json['id'] as String,

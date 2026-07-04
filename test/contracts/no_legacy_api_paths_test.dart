@@ -61,4 +61,27 @@ void main() {
       );
     }
   });
+
+  test('kind configs import catalog media kind directly', () async {
+    final kindsDir = Directory('lib/features/library/kinds');
+    final configFiles = kindsDir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith(r'config.dart'))
+        .toList(growable: false);
+
+    for (final file in configFiles) {
+      final content = await file.readAsString();
+      expect(
+        content,
+        contains("core/models/catalog_media_kind.dart"),
+        reason: '${file.path} should import catalog_media_kind.dart',
+      );
+      expect(
+        content,
+        isNot(contains("core/models/catalog_item.dart")),
+        reason: '${file.path} should not import CatalogItem for kind enums',
+      );
+    }
+  });
 }

@@ -6,7 +6,6 @@ class TrackingEntry {
   TrackingEntry({
     required this.id,
     required this.catalogRef,
-    String? itemId,
     this.ownedItemId,
     this.editionId,
     this.variantId,
@@ -116,7 +115,6 @@ class TrackingEntry {
 
   TrackingEntry copyWith({
     String? id,
-    String? itemId,
     CatalogEntityRef? catalogRef,
     String? ownedItemId,
     String? editionId,

@@ -37,6 +37,29 @@ Remaining work is implementation-detail cleanup, not a fresh architecture
 proposal: keep moving behavior out of `generic/page.dart` into kind-local page
 states until the fallback shell is only a thin shared baseline.
 
+## Kind module contract
+
+Each mature kind should own the same local surface so the implementation stays
+predictable:
+
+- `config.dart`
+- `page.dart`
+- `domain.dart`
+- `workspace_entry_builder.dart`
+- `presentation.dart`
+- `presentation_builder.dart`
+- `inspector_sections.dart`
+- `edit_dialog.dart`
+- `add_dialog.dart`
+- `test/<kind>_domain_mapper_test.dart`
+- `test/<kind>_workspace_projection_test.dart`
+- `test/<kind>_inspector_sections_test.dart`
+
+If a kind still uses shared or generic surfaces, that must be explicit in the
+local adapter:
+
+`// intentional shared adapter, not canonical domain path`
+
 ## Why This Needs A Restructure
 
 The generic library stack currently mixes three different scopes in the same surfaces:

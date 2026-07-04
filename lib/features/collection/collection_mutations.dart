@@ -364,7 +364,6 @@ class CollectionMutations {
     final now = DateTime.now().toUtc();
     final entry = TrackingEntry(
       id: _trackingEntryIdForOwnedItem(ownedItem.id),
-      itemId: ownedItem.itemId,
       catalogRef: _trackingCatalogRefForItemId(
         ownedItem.itemId,
         sourceType: TrackingSourceType.physical.apiValue,
@@ -879,7 +878,6 @@ class CollectionMutations {
       );
       final item = WishlistItem(
         id: _uuid.v4(),
-        itemId: itemId,
         catalogRef: _catalogRefForItem(
           itemId,
           catalogItem,
@@ -931,7 +929,6 @@ class CollectionMutations {
       await _wishlistCache().upsert(
         WishlistItem(
           id: _uuid.v4(),
-          itemId: item.id,
           catalogRef: _catalogRefForItem(
             item.id,
             item,
@@ -1007,7 +1004,7 @@ class CollectionMutations {
         trackingDeletes.add(_trackingDeletion(localEntry, now));
       } else {
         final promoted = localEntry.copyWith(
-          itemId: item.id,
+            catalogRef: _catalogRefForItem(item.id, item),
           updatedAt: now,
           deletedAt: null,
         );
@@ -1034,7 +1031,7 @@ class CollectionMutations {
             .add(localWishlist.copyWith(updatedAt: now, deletedAt: now));
       } else {
         final promoted = localWishlist.copyWith(
-          itemId: item.id,
+          catalogRef: _catalogRefForItem(item.id, item),
           updatedAt: now,
           deletedAt: null,
         );
@@ -1124,7 +1121,6 @@ class CollectionMutations {
     );
     final updated = WishlistItem(
       id: item.id,
-      itemId: item.itemId,
       catalogRef: item.catalogRef,
       anchorType: normalizedAnchorType,
       editionId: editionId,
@@ -1971,7 +1967,6 @@ class CollectionMutations {
     }
     return TrackingEntry(
       id: _trackingEntryIdForOwnedItem(ownedItem.id),
-      itemId: ownedItem.itemId,
       catalogRef: ownedItem.catalogRef,
       ownedItemId: ownedItem.id,
       editionId: ownedItem.editionId,
@@ -1990,7 +1985,6 @@ class CollectionMutations {
   TrackingEntry _trackingDeletion(TrackingEntry entry, DateTime changedAt) {
     return TrackingEntry(
       id: entry.id,
-      itemId: entry.itemId,
       catalogRef: entry.catalogRef,
       ownedItemId: entry.ownedItemId,
       editionId: entry.editionId,
@@ -2108,7 +2102,6 @@ class CollectionMutations {
       await _syncTrackingEntry(
         TrackingEntry(
           id: summaryEntry.id,
-          itemId: summaryEntry.itemId,
           catalogRef: summaryEntry.catalogRef,
           ownedItemId: summaryEntry.ownedItemId,
           editionId: summaryEntry.editionId,
@@ -2142,7 +2135,6 @@ class CollectionMutations {
               itemId,
               sourceType: trackingSourceTypeApiValue(normalizedSourceType),
             ),
-        itemId: itemId,
         catalogRef: _trackingCatalogRefForItemId(
           itemId,
           sourceType: trackingSourceTypeApiValue(normalizedSourceType),
@@ -2244,7 +2236,6 @@ class CollectionMutations {
     required DateTime changedAt,
   }) {
     return target.copyWith(
-      itemId: itemId,
       status: local.status ?? target.status,
       rating: local.rating ?? target.rating,
       startedAt: local.startedAt ?? target.startedAt,
@@ -2271,7 +2262,6 @@ class CollectionMutations {
     required DateTime changedAt,
   }) {
     return target.copyWith(
-      itemId: itemId,
       anchor: local.anchor ?? target.anchor,
       targetPriceCents: local.targetPriceCents ?? target.targetPriceCents,
       currency: local.currency ?? target.currency,

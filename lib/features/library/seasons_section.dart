@@ -28,7 +28,9 @@ class SeasonsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = itemId != null
-        ? ref.watch(itemSeasonsProvider((itemId: itemId!, kind: kind)))
+        ? (kind?.trim().toLowerCase() == 'tv'
+            ? ref.watch(tvSeasonsBySeriesRefProvider(itemId!))
+            : const AsyncValue<List<Season>>.data(<Season>[]))
         : ref.watch(
             seasonsProvider(
               (provider: provider!, providerItemId: providerItemId!),

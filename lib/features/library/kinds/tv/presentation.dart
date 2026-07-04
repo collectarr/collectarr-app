@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_workspace_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -266,8 +266,10 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: tvLibraryGroupLabels,
   builder: TvLibraryMediaPresentationBuilder(),
-  workspaceEntryBuilder: buildTvLibraryWorkspaceEntryFromShelf,
-  releaseEntryBuilder: buildTvLibraryReleaseEntry,
+  // intentional shared adapter, not canonical domain path
+  workspaceEntryBuilder: buildGenericLibraryWorkspaceEntryFromShelf,
+  // intentional shared adapter, not canonical domain path
+  releaseEntryBuilder: buildGenericLibraryReleaseEntry,
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,

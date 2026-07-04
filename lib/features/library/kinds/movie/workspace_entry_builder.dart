@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/video/video_release_source
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
+// intentional shared adapter, not canonical domain path
 LibraryWorkspaceEntry buildMoviesLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
@@ -36,6 +37,7 @@ LibraryWorkspaceEntry buildMoviesLibraryWorkspaceEntryFromShelf(
   };
 }
 
+// intentional shared adapter, not canonical domain path
 LibraryWorkspaceEntry buildMoviesLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {

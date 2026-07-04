@@ -8918,6 +8918,60 @@
         "title": "TVIdentifierResponse",
         "type": "object"
       },
+      "TVReleaseEpisodeMapV1Response": {
+        "properties": {
+          "disc_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disc Number"
+          },
+          "episode_id": {
+            "format": "uuid",
+            "title": "Episode Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "media_id": {
+            "format": "uuid",
+            "title": "Media Id",
+            "type": "string"
+          },
+          "release_id": {
+            "format": "uuid",
+            "title": "Release Id",
+            "type": "string"
+          },
+          "sequence_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence Number"
+          }
+        },
+        "required": [
+          "id",
+          "release_id",
+          "media_id",
+          "episode_id"
+        ],
+        "title": "TVReleaseEpisodeMapV1Response",
+        "type": "object"
+      },
       "TVReleaseMediaResponse": {
         "properties": {
           "aspect_ratio": {
@@ -9112,6 +9166,237 @@
           "release_id"
         ],
         "title": "TVReleaseMediaResponse",
+        "type": "object"
+      },
+      "TVReleaseV1Response": {
+        "properties": {
+          "case_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Type"
+          },
+          "content_rating": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Rating"
+          },
+          "cover_image_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Image Key"
+          },
+          "cover_image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Image Url"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "episode_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Episode Count"
+          },
+          "episode_mappings": {
+            "items": {
+              "$ref": "#/components/schemas/TVReleaseEpisodeMapV1Response"
+            },
+            "title": "Episode Mappings",
+            "type": "array"
+          },
+          "format": {
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ItemKind",
+            "default": "tv"
+          },
+          "language_audio": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language Audio"
+          },
+          "language_subtitles": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language Subtitles"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/TVReleaseMediaResponse"
+            },
+            "title": "Media",
+            "type": "array"
+          },
+          "media_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Count"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "region_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region Code"
+          },
+          "release_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Date"
+          },
+          "runtime_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Minutes"
+          },
+          "season_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season Count"
+          },
+          "series_id": {
+            "format": "uuid",
+            "title": "Series Id",
+            "type": "string"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "sort_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort Title"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "series_id",
+          "title",
+          "format"
+        ],
+        "title": "TVReleaseV1Response",
         "type": "object"
       },
       "TVSeasonV1Response": {
@@ -14708,6 +14993,282 @@
         ]
       }
     },
+    "/metadata/tv/media/{media_id}": {
+      "get": {
+        "operationId": "get_tv_release_media_item_metadata_tv_media__media_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "media_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Media Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TVReleaseMediaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Release Media Item",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/metadata/tv/releases/{release_id}": {
+      "get": {
+        "operationId": "get_tv_release_metadata_tv_releases__release_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "release_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Release Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TVReleaseV1Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Release",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/metadata/tv/releases/{release_id}/episode-map": {
+      "get": {
+        "operationId": "get_tv_release_episode_map_metadata_tv_releases__release_id__episode_map_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "release_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Release Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TVReleaseEpisodeMapV1Response"
+                  },
+                  "title": "Response Get Tv Release Episode Map Metadata Tv Releases  Release Id  Episode Map Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Release Episode Map",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/metadata/tv/releases/{release_id}/media": {
+      "get": {
+        "operationId": "get_tv_release_media_metadata_tv_releases__release_id__media_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "release_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Release Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TVReleaseMediaResponse"
+                  },
+                  "title": "Response Get Tv Release Media Metadata Tv Releases  Release Id  Media Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Release Media",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/metadata/tv/seasons/{season_id}": {
+      "get": {
+        "operationId": "get_tv_season_metadata_tv_seasons__season_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Season Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TVSeasonV1Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Season",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/metadata/tv/seasons/{season_id}/episodes": {
+      "get": {
+        "operationId": "get_tv_season_episodes_metadata_tv_seasons__season_id__episodes_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Season Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TVEpisodeV1Response"
+                  },
+                  "title": "Response Get Tv Season Episodes Metadata Tv Seasons  Season Id  Episodes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Season Episodes",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
     "/metadata/tv/series/{series_id}": {
       "get": {
         "operationId": "get_tv_series_metadata_tv_series__series_id__get",
@@ -14746,6 +15307,54 @@
           }
         },
         "summary": "Get Tv Series",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/metadata/tv/series/{series_id}/releases": {
+      "get": {
+        "operationId": "get_tv_series_releases_metadata_tv_series__series_id__releases_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "series_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Series Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TVReleaseV1Response"
+                  },
+                  "title": "Response Get Tv Series Releases Metadata Tv Series  Series Id  Releases Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tv Series Releases",
         "tags": [
           "metadata",
           "metadata"

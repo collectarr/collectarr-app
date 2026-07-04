@@ -7,7 +7,6 @@ class WishlistItem {
   WishlistItem({
     required this.id,
     required this.catalogRef,
-    String? itemId,
     PersonalItemAnchor? anchor,
     String? anchorType,
     String? editionId,
@@ -83,7 +82,6 @@ class WishlistItem {
 
   WishlistItem copyWith({
     String? id,
-    String? itemId,
     CatalogEntityRef? catalogRef,
     Object? anchor = _wishlistItemUnset,
     String? anchorType,

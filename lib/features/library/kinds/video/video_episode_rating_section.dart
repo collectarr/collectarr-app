@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/widgets/episode_rating_grid.dart';
 import 'package:collectarr_app/features/library/widgets/episode_rating_picker.dart';
@@ -26,9 +27,9 @@ class VideoEpisodeRatingSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(
-      itemSeasonsProvider((itemId: itemId, kind: kind)),
-    );
+    final seasonsAsync = kind.trim().toLowerCase() == 'tv'
+        ? ref.watch(tvSeasonsBySeriesRefProvider(itemId))
+        : AsyncValue<List<Season>>.data(<Season>[]);
     final ratings = trackingEntry?.episodeRatings ?? const {};
 
     return seasonsAsync.when(
@@ -120,9 +121,9 @@ class VideoEpisodeRatingDisplaySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(
-      itemSeasonsProvider((itemId: itemId, kind: kind)),
-    );
+    final seasonsAsync = kind.trim().toLowerCase() == 'tv'
+        ? ref.watch(tvSeasonsBySeriesRefProvider(itemId))
+        : AsyncValue<List<Season>>.data(<Season>[]);
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[itemId] ??
             const <TrackingEntry>[];

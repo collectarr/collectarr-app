@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
