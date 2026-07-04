@@ -1,4 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 
 final class TvEpisode {
   const TvEpisode({
@@ -270,6 +273,32 @@ final class TvSeries {
       metadata: _metadataMap(dto.raw),
     );
   }
+}
+
+final class TvPersonalOverlay {
+  const TvPersonalOverlay({
+    this.ownedItem,
+    this.trackingEntry,
+    this.wishlistItem,
+    this.locationPath,
+    this.updatedAt,
+    this.isOwnedOverride = false,
+    this.isTrackedOverride = false,
+    this.isWishlistedOverride = false,
+  });
+
+  final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
+  final WishlistItem? wishlistItem;
+  final String? locationPath;
+  final DateTime? updatedAt;
+  final bool isOwnedOverride;
+  final bool isTrackedOverride;
+  final bool isWishlistedOverride;
+
+  bool get isOwned => ownedItem != null || isOwnedOverride;
+  bool get isTracked => trackingEntry != null || isTrackedOverride;
+  bool get isWishlisted => wishlistItem != null || isWishlistedOverride;
 }
 
 enum TvWorkspaceNodeType {
