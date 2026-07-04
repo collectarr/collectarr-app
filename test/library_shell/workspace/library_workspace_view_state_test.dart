@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  const config = LibraryWorkspaceConfig(
+  final config = LibraryWorkspaceConfig(
     kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,

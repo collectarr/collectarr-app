@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  const config = LibraryWorkspaceConfig(
+  final config = LibraryWorkspaceConfig(
     kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
@@ -20,7 +20,7 @@ void main() {
       LibraryTableColumn.grade,
     },
   );
-  const mangaConfig = LibraryWorkspaceConfig(
+  final mangaConfig = LibraryWorkspaceConfig(
     kind: CatalogMediaKind.comic,
     title: 'Manga',
     icon: Icons.auto_stories,
@@ -40,7 +40,7 @@ void main() {
 
   test('library workspace preferences persist reusable view settings',
       () async {
-    const store = LibraryWorkspacePreferences(config);
+    final store = LibraryWorkspacePreferences(config);
 
     await store.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -112,8 +112,8 @@ void main() {
 
   test('workspace chrome size and position are retained per library',
       () async {
-    const comicsStore = LibraryWorkspacePreferences(config);
-    const mangaStore = LibraryWorkspacePreferences(mangaConfig);
+    final comicsStore = LibraryWorkspacePreferences(config);
+    final mangaStore = LibraryWorkspacePreferences(mangaConfig);
 
     await comicsStore.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -157,7 +157,7 @@ void main() {
 
   test('library workspace preferences keep pane widths beyond the old caps',
       () async {
-    const store = LibraryWorkspacePreferences(config);
+    final store = LibraryWorkspacePreferences(config);
 
     await store.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -190,8 +190,8 @@ void main() {
   });
 
   test('sort and chrome preferences stay isolated between libraries', () async {
-    const comicsStore = LibraryWorkspacePreferences(config);
-    const mangaStore = LibraryWorkspacePreferences(mangaConfig);
+    final comicsStore = LibraryWorkspacePreferences(config);
+    final mangaStore = LibraryWorkspacePreferences(mangaConfig);
 
     await comicsStore.write(
       const LibraryWorkspacePreferenceSnapshot(

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
@@ -423,7 +424,7 @@ class LibraryTableColumnPreset {
 }
 
 class LibraryWorkspaceConfig {
-  const LibraryWorkspaceConfig({
+  LibraryWorkspaceConfig({
     required this.kind,
     required this.title,
     required this.icon,
@@ -433,7 +434,9 @@ class LibraryWorkspaceConfig {
     required this.defaultVisibleColumns,
     this.availableSortColumns = kAllLibrarySortColumns,
     this.availableTableColumns = kAllLibraryTableColumns,
-  });
+    LibraryColumnRegistry? columnRegistry,
+  }) : columnRegistry =
+            columnRegistry ?? LibraryColumnRegistry(const []);
 
   final CatalogMediaKind kind;
   final String title;
@@ -444,6 +447,7 @@ class LibraryWorkspaceConfig {
   final Set<LibraryTableColumn> defaultVisibleColumns;
   final List<LibrarySortColumn> availableSortColumns;
   final List<LibraryTableColumn> availableTableColumns;
+  final LibraryColumnRegistry columnRegistry;
 
   bool supportsSortColumn(LibrarySortColumn column) {
     return availableSortColumns.contains(column);

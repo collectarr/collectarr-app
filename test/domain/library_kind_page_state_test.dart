@@ -233,7 +233,7 @@ void main() {
 }
 
 final _unknownLibraryConfig = LibraryTypeConfig(
-  workspace: const LibraryWorkspaceConfig(
+  workspace: LibraryWorkspaceConfig(
     kind: CatalogMediaKind.unknown,
     title: 'Unknown',
     icon: Icons.category_outlined,
