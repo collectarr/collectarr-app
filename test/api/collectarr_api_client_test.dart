@@ -284,7 +284,8 @@ void main() {
             isA<TvSeriesDto>());
       });
 
-      test('uses typed volume and season routes when kind is known', () async {
+      test('uses typed volume and TV season routes when kind is known',
+          () async {
         final interceptor = _FakeApiInterceptor();
         interceptor.onGet('/metadata/manga/works/manga-1', {
           'id': 'manga-1',
@@ -293,17 +294,31 @@ void main() {
             {'chapter_number': 1, 'chapter_title': 'Black Swordsman'},
           ],
         });
-        interceptor.onGet('/metadata/tv/series/tv-1', {
-          'id': 'tv-1',
-          'title': 'Breaking Bad',
-          'seasons': [
-            {
-              'season_number': 1,
-              'title': 'Season 1',
-              'episodes': [],
-            }
-          ],
-        });
+        interceptor.onGet('/metadata/tv/series/tv-1/seasons', [
+          {
+            'id': 'season-1',
+            'series_id': 'tv-1',
+            'season_number': 1,
+            'episode_count': 1,
+            'description': 'Season 1',
+            'episodes': [
+              {
+                'id': 'episode-1',
+                'season_id': 'season-1',
+                'episode_number': 1,
+                'episode_title': 'Pilot',
+              }
+            ],
+          }
+        ]);
+        interceptor.onGet('/metadata/tv/seasons/season-1/episodes', [
+          {
+            'id': 'episode-1',
+            'season_id': 'season-1',
+            'episode_number': 1,
+            'episode_title': 'Pilot',
+          }
+        ]);
         interceptor.onGet('/metadata/anime/series/anime-1', {
           'id': 'anime-1',
           'title': 'Naruto',
@@ -321,11 +336,11 @@ void main() {
           hasLength(1),
         );
         expect(
-          await client.getItemSeasons('tv-1', kind: 'tv'),
+          await client.getTvSeriesSeasonsDto('tv-1'),
           hasLength(1),
         );
         expect(
-          await client.getItemSeasons('anime-1', kind: 'anime'),
+          await client.getTvSeasonEpisodesDto('season-1'),
           hasLength(1),
         );
       });

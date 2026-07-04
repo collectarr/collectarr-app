@@ -244,37 +244,6 @@ class ApiClient {
     return _catalogApi.getMusicTrackDto(id);
   }
 
-  @Deprecated('Use getTvSeriesSeasons for TV or typed model-specific flows.')
-  Future<List<Season>> getItemSeasons(
-    String itemId, {
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    final encodedId = Uri.encodeComponent(itemId);
-    if (normalizedKind == 'tv') {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/metadata/tv/series/$encodedId',
-      );
-      return _seasonsFromRaw(response.data?['seasons']);
-    }
-    if (normalizedKind == 'anime') {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/metadata/anime/series/$encodedId',
-      );
-      final episodes = _episodesFromRaw(response.data?['episodes']);
-      final title = response.data?['title']?.toString().trim();
-      return [
-        Season(
-          seasonNumber: 1,
-          title: title == null || title.isEmpty ? 'Anime' : title,
-          episodeCount: episodes.isEmpty ? null : episodes.length,
-          episodes: episodes,
-        ),
-      ];
-    }
-    return const [];
-  }
-
   @Deprecated('Use typed model-specific flows instead of legacy item volume lookups.')
   Future<List<Season>> getItemVolumes(
     String itemId, {
@@ -592,37 +561,6 @@ class ApiClient {
       throw StateError('$path returned an empty response body');
     }
     return AdminProviderPreview.fromJson(data);
-  }
-
-  List<Season> _seasonsFromRaw(dynamic raw) {
-    if (raw is! List) {
-      return const <Season>[];
-    }
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(Season.fromJson)
-        .toList(growable: false);
-  }
-
-  List<Episode> _episodesFromRaw(dynamic raw) {
-    if (raw is! List) {
-      return const <Episode>[];
-    }
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(
-          (json) => Episode(
-            episodeNumber: json['episode_number'] as int? ?? 1,
-            title: _seasonStringValue(
-                json['title'] ?? json['episode_title'], 'Episode'),
-            providerItemId: json['provider_item_id']?.toString(),
-            overview: json['overview']?.toString(),
-            airDate: json['air_date']?.toString(),
-            runtimeMinutes: json['runtime_minutes'] as int?,
-            pageCount: json['page_count'] as int?,
-          ),
-        )
-        .toList(growable: false);
   }
 
   List<Season> _volumesFromBookRaw(dynamic raw) {
