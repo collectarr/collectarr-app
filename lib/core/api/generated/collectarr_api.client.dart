@@ -130,6 +130,77 @@ class CollectarrApiClient {
     );
   }
 
+  Future<List<TvSeasonDto>> getTvSeriesSeasonsDto(String id) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/tv/series/${Uri.encodeComponent(id)}/seasons',
+    );
+    return (response.data ?? const <dynamic>[])
+        .cast<Map<String, dynamic>>()
+        .map((value) => TvSeasonDto.fromJson(_resolveImageUrls(value)))
+        .toList(growable: false);
+  }
+
+  Future<List<TvReleaseDto>> getTvSeriesReleasesDto(String id) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/tv/series/${Uri.encodeComponent(id)}/releases',
+    );
+    return (response.data ?? const <dynamic>[])
+        .cast<Map<String, dynamic>>()
+        .map((value) => TvReleaseDto.fromJson(_resolveImageUrls(value)))
+        .toList(growable: false);
+  }
+
+  Future<TvSeasonDto> getTvSeasonDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/tv/seasons/${Uri.encodeComponent(id)}',
+      TvSeasonDto.fromJson,
+    );
+  }
+
+  Future<List<TvEpisodeDto>> getTvSeasonEpisodesDto(String id) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/tv/seasons/${Uri.encodeComponent(id)}/episodes',
+    );
+    return (response.data ?? const <dynamic>[])
+        .cast<Map<String, dynamic>>()
+        .map((value) => TvEpisodeDto.fromJson(_resolveImageUrls(value)))
+        .toList(growable: false);
+  }
+
+  Future<TvReleaseDto> getTvReleaseDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/tv/releases/${Uri.encodeComponent(id)}',
+      TvReleaseDto.fromJson,
+    );
+  }
+
+  Future<List<TvReleaseMediaDto>> getTvReleaseMediaDto(String id) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/tv/releases/${Uri.encodeComponent(id)}/media',
+    );
+    return (response.data ?? const <dynamic>[])
+        .cast<Map<String, dynamic>>()
+        .map((value) => TvReleaseMediaDto.fromJson(_resolveImageUrls(value)))
+        .toList(growable: false);
+  }
+
+  Future<List<TvReleaseEpisodeMapDto>> getTvReleaseEpisodeMapDto(String id) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/tv/releases/${Uri.encodeComponent(id)}/episode-map',
+    );
+    return (response.data ?? const <dynamic>[])
+        .cast<Map<String, dynamic>>()
+        .map((value) => TvReleaseEpisodeMapDto.fromJson(_resolveImageUrls(value)))
+        .toList(growable: false);
+  }
+
+  Future<TvReleaseMediaDto> getTvReleaseMediaItemDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/tv/media/${Uri.encodeComponent(id)}',
+      TvReleaseMediaDto.fromJson,
+    );
+  }
+
   Future<GameWorkDto> getGameWorkDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/games/works/${Uri.encodeComponent(id)}',

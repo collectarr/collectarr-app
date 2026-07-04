@@ -152,9 +152,64 @@ class ApiClient {
     return _catalogApi.getTvSeriesDto(id);
   }
 
+  Future<List<TvSeasonDto>> getTvSeriesSeasonsDto(String id) {
+    return _catalogApi.getTvSeriesSeasonsDto(id);
+  }
+
+  Future<List<TvReleaseDto>> getTvSeriesReleasesDto(String id) {
+    return _catalogApi.getTvSeriesReleasesDto(id);
+  }
+
+  Future<TvSeasonDto> getTvSeasonDto(String id) {
+    return _catalogApi.getTvSeasonDto(id);
+  }
+
+  Future<List<TvEpisodeDto>> getTvSeasonEpisodesDto(String id) {
+    return _catalogApi.getTvSeasonEpisodesDto(id);
+  }
+
+  Future<TvReleaseDto> getTvReleaseDto(String id) {
+    return _catalogApi.getTvReleaseDto(id);
+  }
+
+  Future<List<TvReleaseMediaDto>> getTvReleaseMediaDto(String id) {
+    return _catalogApi.getTvReleaseMediaDto(id);
+  }
+
+  Future<List<TvReleaseEpisodeMapDto>> getTvReleaseEpisodeMapDto(String id) {
+    return _catalogApi.getTvReleaseEpisodeMapDto(id);
+  }
+
+  Future<TvReleaseMediaDto> getTvReleaseMediaItemDto(String id) {
+    return _catalogApi.getTvReleaseMediaItemDto(id);
+  }
+
   Future<List<Season>> getTvSeriesSeasons(String seriesId) async {
-    final series = await getTvSeriesDto(seriesId);
-    return _seasonsFromRaw(series.seasons);
+    final seasons = await getTvSeriesSeasonsDto(seriesId);
+    return seasons
+        .map(
+          (season) => Season(
+            seasonNumber: season.seasonNumber ?? 0,
+            title: season.title,
+            providerItemId: season.id,
+            overview: season.description,
+            airDate: season.releaseDate?.toIso8601String(),
+            episodeCount: season.episodeCount,
+            posterUrl: season.coverImageUrl,
+            episodes: [
+              for (final episode in season.episodes)
+                Episode(
+                  episodeNumber: episode.episodeNumber?.toInt() ?? 0,
+                  title: episode.title,
+                  providerItemId: episode.id,
+                  overview: episode.description,
+                  airDate: episode.releaseDate?.toIso8601String(),
+                  runtimeMinutes: episode.runtimeMinutes,
+                ),
+            ],
+          ),
+        )
+        .toList(growable: false);
   }
 
   Future<BookWorkDto> getBookWorkDto(String id) {
