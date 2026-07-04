@@ -658,7 +658,11 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
         ),
         if (_showsEpisodeTrackingFields)
           VideoSeasonTrackingSection(
-            itemId: widget.item.id,
+            seriesRef: CatalogEntityRef(
+              kind: widget.type.workspace.kind.apiValue,
+              entityType: CatalogEntityType.work,
+              id: widget.item.id,
+            ),
             kind: widget.type.workspace.kind.apiValue,
             accent: widget.accent,
           ),

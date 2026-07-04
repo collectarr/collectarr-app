@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -190,7 +191,11 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             ),
             const SizedBox(height: 16),
             VideoSeasonTrackingSection(
-              itemId: request.entry.id,
+              seriesRef: CatalogEntityRef(
+                kind: request.type.workspace.kind.apiValue,
+                entityType: CatalogEntityType.work,
+                id: request.entry.id,
+              ),
               kind: request.type.workspace.kind.apiValue,
               accent: request.accent,
             ),

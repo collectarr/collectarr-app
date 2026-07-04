@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,3 +44,19 @@ final itemSeasonsProvider = FutureProvider.autoDispose.family<
       .getItemSeasons(itemId, kind: params.kind)
       .timeout(const Duration(seconds: 60));
 });
+
+final seasonsByCatalogRefProvider =
+    FutureProvider.autoDispose.family<List<Season>, CatalogEntityRef>(
+  (ref, catalogRef) async {
+    final api = ref.watch(apiClientProvider);
+    final kind = catalogRef.kind.trim().toLowerCase();
+    if (kind == 'tv') {
+      return api
+          .getTvSeriesSeasons(catalogRef.id)
+          .timeout(const Duration(seconds: 60));
+    }
+    return api
+        .getItemSeasons(catalogRef.id, kind: kind)
+        .timeout(const Duration(seconds: 60));
+  },
+);

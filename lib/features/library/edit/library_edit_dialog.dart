@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -1263,7 +1264,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return Column(
       children: [
         VideoSeasonTrackingSection(
-          itemId: widget.item.id,
+          seriesRef: CatalogEntityRef(
+            kind: widget.type.workspace.kind.apiValue,
+            entityType: CatalogEntityType.work,
+            id: widget.item.id,
+          ),
           kind: widget.type.workspace.kind.apiValue,
           accent: widget.accent,
         ),

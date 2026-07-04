@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -105,6 +106,12 @@ final trackingUnitsByCatalogItemProvider =
   );
 });
 
+final trackingUnitsByCatalogRefProvider =
+    Provider.family<List<TrackingUnit>, CatalogEntityRef>((ref, catalogRef) {
+  return ref.watch(trackingUnitsByCatalogItemProvider)[catalogRef.id] ??
+      const <TrackingUnit>[];
+});
+
 final wishlistByCatalogItemProvider =
     Provider<Map<String, List<WishlistItem>>>((ref) {
   final wishlist = ref.watch(wishlistProvider);
@@ -163,6 +170,12 @@ final watchSessionsByItemProvider =
   );
 });
 
+final watchSessionsByCatalogRefProvider =
+    Provider.family<List<WatchSession>, CatalogEntityRef>((ref, catalogRef) {
+  return ref.watch(watchSessionsByItemProvider)[catalogRef.id] ??
+      const <WatchSession>[];
+});
+
 final metadataOverridesProvider =
     FutureProvider<List<UserMetadataOverride>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
@@ -190,6 +203,13 @@ final customEpisodesByItemProvider =
         (ref, itemId) async {
   final db = ref.watch(localDatabaseProvider);
   return CustomEpisodesCacheRepository(db).listByItemIdGrouped(itemId);
+});
+
+final customEpisodesByCatalogRefProvider = FutureProvider.family<
+    Map<int, List<CustomEpisode>>,
+    CatalogEntityRef>((ref, catalogRef) async {
+  final db = ref.watch(localDatabaseProvider);
+  return CustomEpisodesCacheRepository(db).listByItemIdGrouped(catalogRef.id);
 });
 
 /// Groups owned items by box set name for summary display.

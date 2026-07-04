@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
@@ -14,12 +15,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class VideoSeasonTrackingSection extends ConsumerStatefulWidget {
   const VideoSeasonTrackingSection({
     super.key,
-    required this.itemId,
+    required this.seriesRef,
     required this.kind,
     required this.accent,
   });
 
-  final String itemId;
+  final CatalogEntityRef seriesRef;
   final String kind;
   final Color accent;
 
@@ -38,16 +39,14 @@ class _VideoSeasonTrackingSectionState
   @override
   Widget build(BuildContext context) {
     final seasonsAsync = ref.watch(
-      itemSeasonsProvider((itemId: widget.itemId, kind: widget.kind)),
+      seasonsByCatalogRefProvider(widget.seriesRef),
     );
     final trackedUnits =
-        ref.watch(trackingUnitsByCatalogItemProvider)[widget.itemId] ??
-            const <TrackingUnit>[];
+        ref.watch(trackingUnitsByCatalogRefProvider(widget.seriesRef));
     final watchSessions =
-        ref.watch(watchSessionsByItemProvider)[widget.itemId] ??
-            const <WatchSession>[];
+        ref.watch(watchSessionsByCatalogRefProvider(widget.seriesRef));
     final customEpisodesAsync =
-        ref.watch(customEpisodesByItemProvider(widget.itemId));
+        ref.watch(customEpisodesByCatalogRefProvider(widget.seriesRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
@@ -156,7 +155,7 @@ class _VideoSeasonTrackingSectionState
                 if (selectedSeason.episodes.isEmpty) ...[
                   const SizedBox(height: 12),
                   _CustomEpisodesPanel(
-                    itemId: widget.itemId,
+                    catalogRef: widget.seriesRef,
                     seasonNumber: selectedSeason.seasonNumber,
                     accent: widget.accent,
                     customEpisodesAsync: customEpisodesAsync,
@@ -200,7 +199,7 @@ class _VideoSeasonTrackingSectionState
                   ),
                   if (_showCustomEpisodes) ...[
                     _CustomEpisodesPanel(
-                      itemId: widget.itemId,
+                      catalogRef: widget.seriesRef,
                       seasonNumber: selectedSeason.seasonNumber,
                       accent: widget.accent,
                       customEpisodesAsync: customEpisodesAsync,
@@ -329,7 +328,7 @@ class _VideoSeasonTrackingSectionState
     });
     try {
       await ref.read(collectionMutationsProvider).setTrackingEpisodeCompleted(
-            widget.itemId,
+            widget.seriesRef.id,
             seasonNumber: seasonNumber,
             episodeNumber: episode.episodeNumber,
             completed: !watchedEpisodeKeys.contains(key),
@@ -355,7 +354,7 @@ class _VideoSeasonTrackingSectionState
     });
     try {
       await ref.read(collectionMutationsProvider).setSeasonEpisodesCompleted(
-            widget.itemId,
+            widget.seriesRef.id,
             seasonNumber: season.seasonNumber,
             episodeNumbers: season.episodes.map((episode) => episode.episodeNumber),
             completed: completed,
@@ -458,7 +457,7 @@ class _VideoEpisodeTile extends StatelessWidget {
 /// Panel for displaying and managing custom episodes within a season.
 class _CustomEpisodesPanel extends ConsumerWidget {
   const _CustomEpisodesPanel({
-    required this.itemId,
+    required this.catalogRef,
     required this.seasonNumber,
     required this.accent,
     required this.customEpisodesAsync,
@@ -468,7 +467,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     required this.onToggleEpisode,
   });
 
-  final String itemId;
+  final CatalogEntityRef catalogRef;
   final int seasonNumber;
   final Color accent;
   final AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync;
@@ -561,7 +560,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     );
     if (result == null || !context.mounted) return;
     await ref.read(collectionMutationsProvider).upsertCustomEpisode(
-          itemId: itemId,
+          itemId: catalogRef.id,
           seasonNumber: seasonNumber,
           episodeNumber: result.episodeNumber,
           title: result.title,
