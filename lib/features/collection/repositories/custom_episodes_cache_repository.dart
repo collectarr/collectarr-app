@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:drift/drift.dart';
@@ -106,7 +107,11 @@ class CustomEpisodesCacheRepository {
   CustomEpisode _fromRow(CustomEpisodesCacheData row) {
     return CustomEpisode(
       id: row.id,
-      itemId: row.itemId,
+      seriesRef: CatalogEntityRef(
+        kind: 'tv',
+        entityType: CatalogEntityType.work,
+        id: row.itemId,
+      ),
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
       title: row.title,

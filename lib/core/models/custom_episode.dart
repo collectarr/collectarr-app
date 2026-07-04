@@ -1,12 +1,13 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+
 /// A user-created episode entry for a series that lacks provider data.
 ///
-/// Custom episodes live locally and sync like other personal data. They
-/// supplement (or replace) provider-supplied episodes when the user toggles
-/// the episode source to "custom".
-class CustomEpisode {
+/// Stored locally by item id for compatibility, but the logical anchor is now
+/// the catalog reference.
+final class CustomEpisode {
   CustomEpisode({
     required this.id,
-    required this.itemId,
+    required this.seriesRef,
     required this.seasonNumber,
     required this.episodeNumber,
     required this.title,
@@ -18,7 +19,7 @@ class CustomEpisode {
   });
 
   final String id;
-  final String itemId;
+  final CatalogEntityRef seriesRef;
   final int seasonNumber;
   final int episodeNumber;
   final String title;
@@ -28,10 +29,13 @@ class CustomEpisode {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  String get itemId => seriesRef.id;
+
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
+      'catalog_ref': seriesRef.toJson(),
       'item_id': itemId,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
@@ -43,9 +47,18 @@ class CustomEpisode {
   }
 
   factory CustomEpisode.fromJson(Map<String, dynamic> json) {
+    final catalogRefJson = json['catalog_ref'];
+    final fallbackItemId = json['item_id'] as String? ?? '';
+    final seriesRef = catalogRefJson is Map<String, dynamic>
+        ? CatalogEntityRef.fromJson(catalogRefJson)
+        : CatalogEntityRef(
+            kind: 'tv',
+            entityType: CatalogEntityType.work,
+            id: fallbackItemId,
+          );
     return CustomEpisode(
       id: json['id'] as String,
-      itemId: json['item_id'] as String,
+      seriesRef: seriesRef,
       seasonNumber: json['season_number'] as int,
       episodeNumber: json['episode_number'] as int,
       title: json['title'] as String,
@@ -60,6 +73,7 @@ class CustomEpisode {
   }
 
   CustomEpisode copyWith({
+    CatalogEntityRef? seriesRef,
     String? title,
     String? overview,
     String? airDate,
@@ -71,7 +85,7 @@ class CustomEpisode {
   }) {
     return CustomEpisode(
       id: id,
-      itemId: itemId,
+      seriesRef: seriesRef ?? this.seriesRef,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
       title: title ?? this.title,

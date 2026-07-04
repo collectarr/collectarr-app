@@ -152,100 +152,35 @@ class _VideoSeasonTrackingSectionState
                     ),
                   ],
                 ),
-                if (selectedSeason.episodes.isEmpty) ...[
-                  const SizedBox(height: 12),
-                  _CustomEpisodesPanel(
-                    catalogRef: widget.seriesRef,
-                    seasonNumber: selectedSeason.seasonNumber,
-                    accent: widget.accent,
-                    customEpisodesAsync: customEpisodesAsync,
+                const SizedBox(height: 12),
+                _CustomEpisodesPanel(
+                  catalogRef: widget.seriesRef,
+                  providerSeason: selectedSeason,
+                  showCustomEpisodes:
+                      selectedSeason.episodes.isEmpty || _showCustomEpisodes,
+                  onShowCustomEpisodesChanged: (value) {
+                    if (_showCustomEpisodes == value) {
+                      return;
+                    }
+                    setState(() {
+                      _showCustomEpisodes = value;
+                    });
+                  },
+                  seasonNumber: selectedSeason.seasonNumber,
+                  accent: widget.accent,
+                  customEpisodesAsync: customEpisodesAsync,
+                  watchedEpisodeKeys: watchedEpisodeKeys,
+                  watchSessions: watchSessions,
+                  pendingEpisodeKeys: _pendingEpisodeKeys,
+                  onToggleEpisode: (epNum) => _toggleEpisode(
+                    selectedSeason.seasonNumber,
+                    Episode(
+                      episodeNumber: epNum,
+                      title: '',
+                    ),
                     watchedEpisodeKeys: watchedEpisodeKeys,
-                    watchSessions: watchSessions,
-                    pendingEpisodeKeys: _pendingEpisodeKeys,
-                    onToggleEpisode: (epNum) => _toggleEpisode(
-                      selectedSeason.seasonNumber,
-                      Episode(
-                        episodeNumber: epNum,
-                        title: '',
-                      ),
-                      watchedEpisodeKeys: watchedEpisodeKeys,
-                    ),
                   ),
-                ] else ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Spacer(),
-                      TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _showCustomEpisodes = !_showCustomEpisodes;
-                          });
-                        },
-                        icon: Icon(
-                          _showCustomEpisodes
-                              ? Icons.cloud_outlined
-                              : Icons.edit_note,
-                          size: 16,
-                        ),
-                        label: Text(
-                          _showCustomEpisodes
-                              ? 'Show provider episodes'
-                              : 'Show custom episodes',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_showCustomEpisodes) ...[
-                    _CustomEpisodesPanel(
-                      catalogRef: widget.seriesRef,
-                      seasonNumber: selectedSeason.seasonNumber,
-                      accent: widget.accent,
-                      customEpisodesAsync: customEpisodesAsync,
-                      watchedEpisodeKeys: watchedEpisodeKeys,
-                      watchSessions: watchSessions,
-                      pendingEpisodeKeys: _pendingEpisodeKeys,
-                      onToggleEpisode: (epNum) => _toggleEpisode(
-                        selectedSeason.seasonNumber,
-                        Episode(
-                          episodeNumber: epNum,
-                          title: '',
-                        ),
-                        watchedEpisodeKeys: watchedEpisodeKeys,
-                      ),
-                    ),
-                  ] else ...[
-                    const SizedBox(height: 4),
-                    for (final episode in selectedSeason.episodes)
-                    _VideoEpisodeTile(
-                      accent: widget.accent,
-                      episode: episode,
-                      watched: watchedEpisodeKeys.contains(
-                        _episodeKey(
-                          selectedSeason.seasonNumber,
-                          episode.episodeNumber,
-                        ),
-                      ),
-                      watchCount: _episodeWatchCount(
-                        watchSessions,
-                        selectedSeason.seasonNumber,
-                        episode.episodeNumber,
-                      ),
-                      busy: _pendingEpisodeKeys.contains(
-                        _episodeKey(
-                          selectedSeason.seasonNumber,
-                          episode.episodeNumber,
-                        ),
-                      ),
-                      onPressed: () => _toggleEpisode(
-                        selectedSeason.seasonNumber,
-                        episode,
-                        watchedEpisodeKeys: watchedEpisodeKeys,
-                      ),
-                    ),
-                  ],
-                ],
+                ),
               ],
             ),
           ),
@@ -375,89 +310,15 @@ class _VideoSeasonTrackingSectionState
   String _episodeKeyForUnit(TrackingUnit unit) {
     return _episodeKey(unit.seasonNumber ?? 0, unit.episodeNumber ?? 0);
   }
-
-  int _episodeWatchCount(
-    List<WatchSession> sessions,
-    int seasonNumber,
-    int episodeNumber,
-  ) {
-    return sessions
-        .where(
-          (s) => s.seasonNumber == seasonNumber && s.episodeNumber == episodeNumber,
-        )
-        .length;
-  }
-}
-
-class _VideoEpisodeTile extends StatelessWidget {
-  const _VideoEpisodeTile({
-    required this.accent,
-    required this.episode,
-    required this.watched,
-    required this.watchCount,
-    required this.busy,
-    required this.onPressed,
-  });
-
-  final Color accent;
-  final Episode episode;
-  final bool watched;
-  final int watchCount;
-  final bool busy;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: palette.surfaceSubtle.withValues(alpha: 0.82),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: accent.withValues(alpha: 0.14)),
-        ),
-        child: ListTile(
-            leading: busy
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : IconButton(
-                    tooltip: watched ? 'Mark unwatched' : 'Mark watched',
-                    onPressed: onPressed,
-                    icon: Icon(
-                      watched
-                          ? Icons.check_box
-                          : Icons.check_box_outline_blank,
-                      color: watched ? accent : palette.textMuted,
-                    ),
-                  ),
-            title: Text(
-              'E${episode.episodeNumber} • ${episode.title}',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            subtitle: Text(
-              [
-                if (episode.runtimeMinutes != null) '${episode.runtimeMinutes} min',
-                if (episode.airDate != null && episode.airDate!.trim().isNotEmpty)
-                  episode.airDate!,
-                if (watchCount > 0) '🎬 $watchCount',
-              ].join(' • '),
-              style: TextStyle(color: palette.textMuted, fontSize: 12),
-            ),
-            onTap: busy ? null : onPressed,
-          ),
-        ),
-      );
-  }
 }
 
 /// Panel for displaying and managing custom episodes within a season.
 class _CustomEpisodesPanel extends ConsumerWidget {
   const _CustomEpisodesPanel({
     required this.catalogRef,
+    required this.providerSeason,
+    required this.showCustomEpisodes,
+    required this.onShowCustomEpisodesChanged,
     required this.seasonNumber,
     required this.accent,
     required this.customEpisodesAsync,
@@ -468,6 +329,9 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   });
 
   final CatalogEntityRef catalogRef;
+  final Season providerSeason;
+  final bool showCustomEpisodes;
+  final ValueChanged<bool> onShowCustomEpisodesChanged;
   final int seasonNumber;
   final Color accent;
   final AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync;
@@ -483,84 +347,220 @@ class _CustomEpisodesPanel extends ConsumerWidget {
       data: (grouped) => grouped[seasonNumber] ?? const <CustomEpisode>[],
       orElse: () => const <CustomEpisode>[],
     );
+    final providerEpisodes = providerSeason.episodes;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.edit_note, size: 16, color: palette.textMuted),
-            const SizedBox(width: 4),
-            Text(
-              'Custom episodes',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.edit_note, size: 16, color: palette.textMuted),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      'Custom episodes',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: palette.textMuted,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
                   ),
+                ],
+              ),
             ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.add, size: 18),
-              color: accent,
-              tooltip: 'Add custom episode',
-              onPressed: () => _showAddDialog(context, ref, customEpisodes),
+            const SizedBox(width: 8),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (providerEpisodes.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () => _importProviderSeason(context, ref),
+                    icon: const Icon(Icons.file_download_outlined, size: 16),
+                    label: const Text('Import provider season'),
+                  ),
+                if (providerEpisodes.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () =>
+                        onShowCustomEpisodesChanged(!showCustomEpisodes),
+                    icon: Icon(
+                      showCustomEpisodes
+                          ? Icons.cloud_outlined
+                          : Icons.edit_note,
+                      size: 16,
+                    ),
+                    label: Text(
+                      showCustomEpisodes
+                          ? 'Show provider episodes'
+                          : 'Show custom episodes',
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.add, size: 18),
+                  color: accent,
+                  tooltip: 'Add custom episode',
+                  onPressed: () => _showCustomEpisodeDialog(
+                    context,
+                    ref,
+                    seasonNumber: seasonNumber,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        if (customEpisodes.isEmpty)
+        if (!showCustomEpisodes && providerEpisodes.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(top: 4, bottom: 4),
-            child: Text(
-              'No custom episodes — tap + to add one.',
-              style: TextStyle(color: palette.textMuted, fontSize: 12),
+            padding: const EdgeInsets.only(bottom: 6),
+            child: TextButton.icon(
+              onPressed: () => onShowCustomEpisodesChanged(true),
+              icon: const Icon(Icons.layers_outlined, size: 16),
+              label: const Text('Replace provider season with custom list'),
             ),
           ),
-        for (final ep in customEpisodes)
-          _CustomEpisodeTile(
-            accent: accent,
-            episode: ep,
-            watched: watchedEpisodeKeys
-                .contains('$seasonNumber:${ep.episodeNumber}'),
-            watchCount: watchSessions
-                .where(
-                  (s) =>
-                      s.seasonNumber == seasonNumber &&
-                      s.episodeNumber == ep.episodeNumber,
-                )
-                .length,
-            busy: pendingEpisodeKeys
-                .contains('$seasonNumber:${ep.episodeNumber}'),
-            onPressed: () => onToggleEpisode(ep.episodeNumber),
-            onDelete: () async {
-              await ref
-                  .read(collectionMutationsProvider)
-                  .removeCustomEpisode(ep);
-            },
-          ),
+        if (showCustomEpisodes) ...[
+          if (customEpisodes.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 4),
+              child: Text(
+                'No custom episodes — tap + to add one.',
+                style: TextStyle(color: palette.textMuted, fontSize: 12),
+              ),
+            )
+          else
+            for (final ep in _sortedCustomEpisodes(customEpisodes))
+              _CustomEpisodeTile(
+                accent: accent,
+                episode: ep,
+                watched: watchedEpisodeKeys
+                    .contains('$seasonNumber:${ep.episodeNumber}'),
+                watchCount: watchSessions
+                    .where(
+                      (s) =>
+                          s.seasonNumber == seasonNumber &&
+                          s.episodeNumber == ep.episodeNumber,
+                    )
+                    .length,
+                busy: pendingEpisodeKeys
+                    .contains('$seasonNumber:${ep.episodeNumber}'),
+                onWatchToggle: () => onToggleEpisode(ep.episodeNumber),
+                onEdit: () => _showCustomEpisodeDialog(
+                  context,
+                  ref,
+                  seasonNumber: seasonNumber,
+                  existing: ep,
+                ),
+                onMoveUp: ep.episodeNumber <= 1
+                    ? null
+                    : () => _renumberCustomEpisode(
+                          context,
+                          ref,
+                          ep,
+                          ep.episodeNumber - 1,
+                        ),
+                onMoveDown: () => _renumberCustomEpisode(
+                  context,
+                  ref,
+                  ep,
+                  ep.episodeNumber + 1,
+                ),
+                onDelete: () async {
+                  await ref.read(collectionMutationsProvider).removeCustomEpisode(ep);
+                },
+              ),
+        ] else ...[
+          if (providerEpisodes.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 4),
+              child: Text(
+                'No provider episodes found for this season.',
+                style: TextStyle(color: palette.textMuted, fontSize: 12),
+              ),
+            )
+          else ...[
+            const SizedBox(height: 4),
+            for (final episode in providerEpisodes)
+              _ProviderEpisodeTile(
+                accent: accent,
+                episode: episode,
+                watched: watchedEpisodeKeys
+                    .contains('$seasonNumber:${episode.episodeNumber}'),
+                watchCount: watchSessions
+                    .where(
+                      (s) =>
+                          s.seasonNumber == seasonNumber &&
+                          s.episodeNumber == episode.episodeNumber,
+                    )
+                    .length,
+                busy: pendingEpisodeKeys
+                    .contains('$seasonNumber:${episode.episodeNumber}'),
+                onWatchToggle: () => onToggleEpisode(episode.episodeNumber),
+                onDuplicate: () => _showCustomEpisodeDialog(
+                  context,
+                  ref,
+                  seasonNumber: seasonNumber,
+                  providerEpisode: episode,
+                ),
+              ),
+          ],
+        ],
       ],
     );
   }
 
-  Future<void> _showAddDialog(
+  Future<void> _importProviderSeason(
     BuildContext context,
     WidgetRef ref,
-    List<CustomEpisode> existing,
   ) async {
-    final nextEpisodeNumber = existing.isEmpty
-        ? 1
-        : existing
-                .map((e) => e.episodeNumber)
-                .reduce((a, b) => a > b ? a : b) +
-            1;
+    for (final episode in providerSeason.episodes) {
+      await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+            itemId: catalogRef.id,
+            catalogRef: catalogRef,
+            seasonNumber: providerSeason.seasonNumber,
+            episodeNumber: episode.episodeNumber,
+            title: episode.title,
+            overview: episode.overview,
+            airDate: episode.airDate,
+            runtimeMinutes: episode.runtimeMinutes,
+          );
+    }
+    onShowCustomEpisodesChanged(true);
+  }
+
+  Future<void> _showCustomEpisodeDialog(
+    BuildContext context,
+    WidgetRef ref, {
+    required int seasonNumber,
+    CustomEpisode? existing,
+    Episode? providerEpisode,
+  }) async {
     final result = await showDialog<_CustomEpisodeFormResult>(
       context: context,
       builder: (_) => _CustomEpisodeFormDialog(
         accent: accent,
-        initialEpisodeNumber: nextEpisodeNumber,
+        title: existing == null ? 'Add custom episode' : 'Edit custom episode',
+        confirmLabel: existing == null ? 'Add' : 'Save',
+        initialEpisodeNumber:
+            existing?.episodeNumber ?? providerEpisode?.episodeNumber ?? 1,
+        initialTitle: existing?.title ?? providerEpisode?.title ?? '',
+        initialOverview:
+            existing?.overview ?? providerEpisode?.overview ?? '',
+        initialAirDate: existing?.airDate ?? providerEpisode?.airDate ?? '',
+        initialRuntimeMinutes:
+            existing?.runtimeMinutes ?? providerEpisode?.runtimeMinutes,
       ),
     );
     if (result == null || !context.mounted) return;
     await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+          id: existing?.id,
           itemId: catalogRef.id,
+          catalogRef: catalogRef,
           seasonNumber: seasonNumber,
           episodeNumber: result.episodeNumber,
           title: result.title,
@@ -568,6 +568,102 @@ class _CustomEpisodesPanel extends ConsumerWidget {
           airDate: result.airDate,
           runtimeMinutes: result.runtimeMinutes,
         );
+  }
+
+  Future<void> _renumberCustomEpisode(
+    BuildContext context,
+    WidgetRef ref,
+    CustomEpisode episode,
+    int newEpisodeNumber,
+  ) async {
+    await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+          id: episode.id,
+          itemId: catalogRef.id,
+          catalogRef: catalogRef,
+          seasonNumber: episode.seasonNumber,
+          episodeNumber: newEpisodeNumber < 1 ? 1 : newEpisodeNumber,
+          title: episode.title,
+          overview: episode.overview,
+          airDate: episode.airDate,
+          runtimeMinutes: episode.runtimeMinutes,
+        );
+  }
+
+  List<CustomEpisode> _sortedCustomEpisodes(List<CustomEpisode> episodes) {
+    final sorted = [...episodes];
+    sorted.sort((a, b) => a.episodeNumber.compareTo(b.episodeNumber));
+    return sorted;
+  }
+}
+
+class _ProviderEpisodeTile extends StatelessWidget {
+  const _ProviderEpisodeTile({
+    required this.accent,
+    required this.episode,
+    required this.watched,
+    required this.watchCount,
+    required this.busy,
+    required this.onWatchToggle,
+    required this.onDuplicate,
+  });
+
+  final Color accent;
+  final Episode episode;
+  final bool watched;
+  final int watchCount;
+  final bool busy;
+  final VoidCallback onWatchToggle;
+  final VoidCallback onDuplicate;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: palette.surfaceSubtle.withValues(alpha: 0.82),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: accent.withValues(alpha: 0.14)),
+        ),
+        child: ListTile(
+          leading: busy
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : IconButton(
+                  tooltip: watched ? 'Mark unwatched' : 'Mark watched',
+                  onPressed: onWatchToggle,
+                  icon: Icon(
+                    watched ? Icons.check_box : Icons.check_box_outline_blank,
+                    color: watched ? accent : palette.textMuted,
+                  ),
+                ),
+          title: Text(
+            'E${episode.episodeNumber} • ${episode.title}',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          subtitle: Text(
+            [
+              if (episode.runtimeMinutes != null) '${episode.runtimeMinutes} min',
+              if (episode.airDate != null && episode.airDate!.trim().isNotEmpty)
+                episode.airDate!,
+              if (watchCount > 0) '🎬 $watchCount',
+            ].join(' • '),
+            style: TextStyle(color: palette.textMuted, fontSize: 12),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.copy_outlined, size: 18),
+            color: palette.textMuted,
+            tooltip: 'Duplicate into custom episode',
+            onPressed: onDuplicate,
+          ),
+          onTap: busy ? null : onWatchToggle,
+        ),
+      ),
+    );
   }
 }
 
@@ -578,7 +674,10 @@ class _CustomEpisodeTile extends StatelessWidget {
     required this.watched,
     required this.watchCount,
     required this.busy,
-    required this.onPressed,
+    required this.onWatchToggle,
+    required this.onEdit,
+    required this.onMoveUp,
+    required this.onMoveDown,
     required this.onDelete,
   });
 
@@ -587,7 +686,10 @@ class _CustomEpisodeTile extends StatelessWidget {
   final bool watched;
   final int watchCount;
   final bool busy;
-  final VoidCallback onPressed;
+  final VoidCallback onWatchToggle;
+  final VoidCallback onEdit;
+  final VoidCallback? onMoveUp;
+  final VoidCallback? onMoveDown;
   final VoidCallback onDelete;
 
   @override
@@ -610,7 +712,7 @@ class _CustomEpisodeTile extends StatelessWidget {
                 )
               : IconButton(
                   tooltip: watched ? 'Mark unwatched' : 'Mark watched',
-                  onPressed: onPressed,
+                  onPressed: onWatchToggle,
                   icon: Icon(
                     watched ? Icons.check_box : Icons.check_box_outline_blank,
                     color: watched ? accent : palette.textMuted,
@@ -630,13 +732,36 @@ class _CustomEpisodeTile extends StatelessWidget {
             ].join(' • '),
             style: TextStyle(color: palette.textMuted, fontSize: 12),
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete_outline, size: 18),
-            color: palette.textMuted,
-            tooltip: 'Delete custom episode',
-            onPressed: onDelete,
+          trailing: Wrap(
+            spacing: 0,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                color: palette.textMuted,
+                tooltip: 'Edit custom episode',
+                onPressed: onEdit,
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_upward, size: 18),
+                color: palette.textMuted,
+                tooltip: 'Move up',
+                onPressed: onMoveUp,
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_downward, size: 18),
+                color: palette.textMuted,
+                tooltip: 'Move down',
+                onPressed: onMoveDown,
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, size: 18),
+                color: palette.textMuted,
+                tooltip: 'Delete custom episode',
+                onPressed: onDelete,
+              ),
+            ],
           ),
-          onTap: busy ? null : onPressed,
+          onTap: busy ? null : onWatchToggle,
         ),
       ),
     );
@@ -662,11 +787,23 @@ class _CustomEpisodeFormResult {
 class _CustomEpisodeFormDialog extends StatefulWidget {
   const _CustomEpisodeFormDialog({
     required this.accent,
+    required this.title,
+    required this.confirmLabel,
     required this.initialEpisodeNumber,
+    required this.initialTitle,
+    required this.initialOverview,
+    required this.initialAirDate,
+    required this.initialRuntimeMinutes,
   });
 
   final Color accent;
+  final String title;
+  final String confirmLabel;
   final int initialEpisodeNumber;
+  final String initialTitle;
+  final String? initialOverview;
+  final String? initialAirDate;
+  final int? initialRuntimeMinutes;
 
   @override
   State<_CustomEpisodeFormDialog> createState() =>
@@ -675,10 +812,10 @@ class _CustomEpisodeFormDialog extends StatefulWidget {
 
 class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
   late final TextEditingController _episodeNumberController;
-  final _titleController = TextEditingController();
-  final _overviewController = TextEditingController();
-  final _airDateController = TextEditingController();
-  final _runtimeController = TextEditingController();
+  late final TextEditingController _titleController;
+  late final TextEditingController _overviewController;
+  late final TextEditingController _airDateController;
+  late final TextEditingController _runtimeController;
 
   bool get _isValid =>
       _titleController.text.trim().isNotEmpty &&
@@ -689,6 +826,13 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
     super.initState();
     _episodeNumberController = TextEditingController(
       text: widget.initialEpisodeNumber.toString(),
+    );
+    _titleController = TextEditingController(text: widget.initialTitle);
+    _overviewController =
+        TextEditingController(text: widget.initialOverview ?? '');
+    _airDateController = TextEditingController(text: widget.initialAirDate ?? '');
+    _runtimeController = TextEditingController(
+      text: widget.initialRuntimeMinutes?.toString() ?? '',
     );
   }
 
@@ -707,7 +851,7 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
     return AccentAlertDialog(
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
-        title: 'Add custom episode',
+        title: widget.title,
         accent: widget.accent,
         icon: Icons.playlist_add,
       ),
@@ -778,7 +922,7 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
                     ),
                   )
               : null,
-          child: const Text('Add'),
+          child: Text(widget.confirmLabel),
         ),
       ],
     );

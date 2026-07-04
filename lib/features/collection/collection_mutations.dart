@@ -787,6 +787,7 @@ class CollectionMutations {
   Future<CustomEpisode> upsertCustomEpisode({
     String? id,
     required String itemId,
+    CatalogEntityRef? catalogRef,
     required int seasonNumber,
     required int episodeNumber,
     required String title,
@@ -797,7 +798,12 @@ class CollectionMutations {
     final now = DateTime.now().toUtc();
     final episode = CustomEpisode(
       id: id ?? _uuid.v4(),
-      itemId: itemId,
+      seriesRef: catalogRef ??
+          CatalogEntityRef(
+            kind: 'tv',
+            entityType: CatalogEntityType.work,
+            id: itemId,
+          ),
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
       title: title,
@@ -2316,4 +2322,3 @@ class CollectionImportPreview {
 final collectionMutationsProvider = Provider<CollectionMutations>((ref) {
   return CollectionMutations(ref);
 });
-
