@@ -81,7 +81,6 @@ class TrackingEntriesCacheRepository {
     return TrackingEntry(
       id: row.id,
       catalogRef: _catalogRefForRow(row),
-      itemId: row.itemId,
       ownedItemId: row.ownedItemId,
       editionId: row.editionId,
       variantId: row.variantId,

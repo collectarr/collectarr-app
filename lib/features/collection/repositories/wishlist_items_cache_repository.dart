@@ -138,7 +138,6 @@ class WishlistItemsCacheRepository {
     return WishlistItem(
       id: row.id,
       catalogRef: _catalogRefForRow(row),
-      itemId: row.itemId,
       anchorType: row.anchorType,
       editionId: row.editionId,
       variantId: row.variantId,

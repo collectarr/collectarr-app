@@ -227,7 +227,6 @@ class OwnedItem {
     return OwnedItem(
       id: json['id'] as String,
       catalogRef: catalogRef,
-      itemId: json['item_id'] as String?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),

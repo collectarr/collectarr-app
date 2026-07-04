@@ -77,7 +77,6 @@ class WishlistItem {
     return WishlistItem(
       id: json['id'] as String,
       catalogRef: catalogRef,
-      itemId: json['item_id'] as String?,
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: json['anchor_type'] as String?,
         editionId: json['edition_id'] as String?,

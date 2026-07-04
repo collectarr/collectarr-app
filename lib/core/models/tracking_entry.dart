@@ -100,7 +100,6 @@ class TrackingEntry {
     return TrackingEntry(
       id: json['id'] as String,
       catalogRef: catalogRef,
-      itemId: json['item_id'] as String?,
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,

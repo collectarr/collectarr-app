@@ -92,7 +92,6 @@ class OwnedItemsCacheRepository {
     return OwnedItem(
       id: row.id,
       catalogRef: _catalogRefFromRow(row.itemId),
-      itemId: row.itemId,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
       anchorType: row.anchorType,
