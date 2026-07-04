@@ -1,56 +1,155 @@
-class TvWork {
-  const TvWork({
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+
+final class TvEpisode {
+  const TvEpisode({
     required this.id,
-    required this.title,
+    required this.seriesId,
+    required this.seasonId,
+    required this.seasonNumber,
+    required this.episodeNumber,
+    this.title,
     this.originalTitle,
-    this.synopsis,
-    this.genres = const <String>[],
+    this.overview,
+    this.airDate,
+    this.runtimeMinutes,
+    this.stillUrl,
+    this.productionCode,
+    this.metadata = const <String, dynamic>{},
   });
 
   final String id;
-  final String title;
+  final String seriesId;
+  final String seasonId;
+  final int seasonNumber;
+  final int episodeNumber;
+  final String? title;
   final String? originalTitle;
-  final String? synopsis;
-  final List<String> genres;
+  final String? overview;
+  final DateTime? airDate;
+  final int? runtimeMinutes;
+  final String? stillUrl;
+  final String? productionCode;
+  final Map<String, dynamic> metadata;
+
+  factory TvEpisode.fromJson(Map<String, dynamic> json) {
+    return TvEpisode(
+      id: _stringOrEmpty(json['id']),
+      seriesId: _stringOrEmpty(json['series_id'] ?? json['seriesId']),
+      seasonId: _stringOrEmpty(json['season_id'] ?? json['seasonId']),
+      seasonNumber: _intOrZero(json['season_number'] ?? json['seasonNumber']),
+      episodeNumber:
+          _intOrZero(json['episode_number'] ?? json['episodeNumber']),
+      title: _stringOrNull(json['title']),
+      originalTitle: _stringOrNull(json['original_title'] ?? json['originalTitle']),
+      overview: _stringOrNull(json['overview']),
+      airDate: _dateOrNull(json['air_date'] ?? json['airDate']),
+      runtimeMinutes: _intOrNull(json['runtime_minutes'] ?? json['runtimeMinutes']),
+      stillUrl: _stringOrNull(json['still_url'] ?? json['stillUrl']),
+      productionCode:
+          _stringOrNull(json['production_code'] ?? json['productionCode']),
+      metadata: _metadataMap(json),
+    );
+  }
 }
 
-class TvSeason {
+final class TvSeason {
   const TvSeason({
     required this.id,
     required this.seriesId,
     required this.seasonNumber,
     this.title,
-    this.synopsis,
+    this.originalTitle,
+    this.overview,
+    this.airDate,
+    this.episodeCount,
+    this.posterUrl,
+    this.episodes = const <TvEpisode>[],
+    this.metadata = const <String, dynamic>{},
   });
 
   final String id;
   final String seriesId;
   final int seasonNumber;
   final String? title;
-  final String? synopsis;
+  final String? originalTitle;
+  final String? overview;
+  final DateTime? airDate;
+  final int? episodeCount;
+  final String? posterUrl;
+  final List<TvEpisode> episodes;
+  final Map<String, dynamic> metadata;
+
+  factory TvSeason.fromJson(Map<String, dynamic> json) {
+    final seasonId = _stringOrEmpty(
+      json['id'] ?? json['season_id'] ?? json['seasonId'],
+    );
+    final seriesId = _stringOrEmpty(
+      json['series_id'] ?? json['seriesId'] ?? json['tv_series_id'],
+    );
+    return TvSeason(
+      id: seasonId,
+      seriesId: seriesId,
+      seasonNumber: _intOrZero(json['season_number'] ?? json['seasonNumber']),
+      title: _stringOrNull(json['title']),
+      originalTitle:
+          _stringOrNull(json['original_title'] ?? json['originalTitle']),
+      overview: _stringOrNull(json['overview']),
+      airDate: _dateOrNull(json['air_date'] ?? json['airDate']),
+      episodeCount:
+          _intOrNull(json['episode_count'] ?? json['episodeCount']),
+      posterUrl: _stringOrNull(json['poster_url'] ?? json['posterUrl']),
+      episodes: [
+        for (final entry in _mapList(json['episodes']))
+          TvEpisode.fromJson(entry),
+      ],
+      metadata: _metadataMap(json),
+    );
+  }
 }
 
-class TvEpisode {
-  const TvEpisode({
+final class TvReleaseMedia {
+  const TvReleaseMedia({
     required this.id,
-    required this.seriesId,
-    required this.seasonId,
-    required this.episodeNumber,
+    required this.releaseId,
     this.title,
-    this.synopsis,
-    this.runtimeMinutes,
+    this.formatLabel,
+    this.discNumber,
+    this.sequenceNumber,
+    this.features = const <String>[],
+    this.episodes = const <TvEpisode>[],
+    this.metadata = const <String, dynamic>{},
   });
 
   final String id;
-  final String seriesId;
-  final String seasonId;
-  final int episodeNumber;
+  final String releaseId;
   final String? title;
-  final String? synopsis;
-  final int? runtimeMinutes;
+  final String? formatLabel;
+  final int? discNumber;
+  final int? sequenceNumber;
+  final List<String> features;
+  final List<TvEpisode> episodes;
+  final Map<String, dynamic> metadata;
+
+  factory TvReleaseMedia.fromJson(Map<String, dynamic> json) {
+    return TvReleaseMedia(
+      id: _stringOrEmpty(json['id']),
+      releaseId: _stringOrEmpty(json['release_id'] ?? json['releaseId']),
+      title: _stringOrNull(json['title']),
+      formatLabel: _stringOrNull(json['format_label'] ?? json['formatLabel']),
+      discNumber: _intOrNull(json['disc_number'] ?? json['discNumber']),
+      sequenceNumber:
+          _intOrNull(json['sequence_number'] ?? json['sequenceNumber']),
+      features: _stringList(json['features']),
+      episodes: [
+        for (final entry in _mapList(json['episodes']))
+          TvEpisode.fromJson(entry),
+      ],
+      metadata: _metadataMap(json),
+    );
+  }
 }
 
-class TvRelease {
+final class TvRelease {
   const TvRelease({
     required this.id,
     required this.seriesId,
@@ -58,6 +157,8 @@ class TvRelease {
     this.releaseDate,
     this.country,
     this.language,
+    this.media = const <TvReleaseMedia>[],
+    this.metadata = const <String, dynamic>{},
   });
 
   final String id;
@@ -66,32 +167,109 @@ class TvRelease {
   final DateTime? releaseDate;
   final String? country;
   final String? language;
+  final List<TvReleaseMedia> media;
+  final Map<String, dynamic> metadata;
+
+  factory TvRelease.fromJson(Map<String, dynamic> json) {
+    return TvRelease(
+      id: _stringOrEmpty(json['id']),
+      seriesId: _stringOrEmpty(json['series_id'] ?? json['seriesId']),
+      title: _stringOrNull(json['title']),
+      releaseDate: _dateOrNull(json['release_date'] ?? json['releaseDate']),
+      country: _stringOrNull(json['country']),
+      language: _stringOrNull(json['language']),
+      media: [
+        for (final entry in _mapList(json['media']))
+          TvReleaseMedia.fromJson(entry),
+      ],
+      metadata: _metadataMap(json),
+    );
+  }
 }
 
-class TvReleaseMedia {
-  const TvReleaseMedia({
+final class TvSeries {
+  const TvSeries({
     required this.id,
-    required this.releaseId,
-    this.title,
-    this.formatLabel,
+    required this.title,
+    this.originalTitle,
+    this.overview,
+    this.firstAirDate,
+    this.lastAirDate,
+    this.status,
+    this.type,
+    this.network,
+    this.originalLanguage,
+    this.country,
+    this.runtimeMinutes,
+    this.seasonCount,
+    this.episodeCount,
+    this.posterUrl,
+    this.backdropUrl,
+    this.seasons = const <TvSeason>[],
+    this.media = const <TvReleaseMedia>[],
+    this.contributions = const <Map<String, dynamic>>[],
+    this.identifiers = const <Map<String, dynamic>>[],
+    this.characterAppearances = const <Map<String, dynamic>>[],
+    this.metadata = const <String, dynamic>{},
   });
 
   final String id;
-  final String releaseId;
-  final String? title;
-  final String? formatLabel;
-}
+  final String title;
+  final String? originalTitle;
+  final String? overview;
+  final DateTime? firstAirDate;
+  final DateTime? lastAirDate;
+  final String? status;
+  final String? type;
+  final String? network;
+  final String? originalLanguage;
+  final String? country;
+  final int? runtimeMinutes;
+  final int? seasonCount;
+  final int? episodeCount;
+  final String? posterUrl;
+  final String? backdropUrl;
+  final List<TvSeason> seasons;
+  final List<TvReleaseMedia> media;
+  final List<Map<String, dynamic>> contributions;
+  final List<Map<String, dynamic>> identifiers;
+  final List<Map<String, dynamic>> characterAppearances;
+  final Map<String, dynamic> metadata;
 
-class TvPersonalOverlay {
-  const TvPersonalOverlay({
-    this.isOwned = false,
-    this.isWishlisted = false,
-    this.isTracked = false,
-  });
-
-  final bool isOwned;
-  final bool isWishlisted;
-  final bool isTracked;
+  factory TvSeries.fromDto(TvSeriesDto dto) {
+    return TvSeries(
+      id: dto.id,
+      title: dto.title,
+      originalTitle:
+          _stringOrNull(dto.raw['original_title'] ?? dto.raw['originalTitle']),
+      overview: dto.description,
+      firstAirDate: dto.releaseDate,
+      lastAirDate: _dateOrNull(dto.raw['end_date'] ?? dto.raw['last_air_date']),
+      status: dto.status,
+      type: _stringOrNull(dto.raw['type']),
+      network: dto.network,
+      originalLanguage: _stringOrNull(dto.raw['original_language']),
+      country: _stringOrNull(dto.raw['country']),
+      runtimeMinutes: _intOrNull(dto.raw['runtime_minutes']),
+      seasonCount: dto.seasonCount,
+      episodeCount: dto.episodeCount,
+      posterUrl: _stringOrNull(dto.raw['poster_url'] ?? dto.raw['posterUrl']),
+      backdropUrl:
+          _stringOrNull(dto.raw['backdrop_url'] ?? dto.raw['backdropUrl']),
+      seasons: [
+        for (final entry in dto.seasons)
+          TvSeason.fromJson(_asJsonMap(entry)),
+      ],
+      media: [
+        for (final entry in dto.media)
+          TvReleaseMedia.fromJson(_asJsonMap(entry)),
+      ],
+      contributions: _mapList(dto.raw['contributions']),
+      identifiers: _mapList(dto.raw['identifiers']),
+      characterAppearances: _mapList(dto.raw['character_appearances']),
+      metadata: _metadataMap(dto.raw),
+    );
+  }
 }
 
 enum TvWorkspaceNodeType {
@@ -102,7 +280,7 @@ enum TvWorkspaceNodeType {
   releaseMedia,
 }
 
-class TvWorkspaceNode {
+final class TvWorkspaceNode {
   const TvWorkspaceNode({
     required this.id,
     required this.title,
@@ -122,4 +300,75 @@ class TvWorkspaceNode {
   final int? episodeNumber;
   final DateTime? releaseDate;
   final String? formatLabel;
+}
+
+Map<String, dynamic> _asJsonMap(Object? value) {
+  if (value is Map<String, dynamic>) {
+    return Map<String, dynamic>.from(value);
+  }
+  return <String, dynamic>{};
+}
+
+List<Map<String, dynamic>> _mapList(Object? value) {
+  if (value is! List) {
+    return const <Map<String, dynamic>>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) Map<String, dynamic>.from(entry),
+  ];
+}
+
+Map<String, dynamic> _metadataMap(Map<String, dynamic> json) {
+  final metadata = json['metadata_json'];
+  if (metadata is Map<String, dynamic>) {
+    return Map<String, dynamic>.from(metadata);
+  }
+  return const <String, dynamic>{};
+}
+
+List<String> _stringList(Object? value) {
+  if (value is! List) {
+    return const <String>[];
+  }
+  final result = <String>[];
+  final seen = <String>{};
+  for (final entry in value) {
+    final text = entry?.toString().trim();
+    if (text == null || text.isEmpty) {
+      continue;
+    }
+    final marker = text.toLowerCase();
+    if (seen.add(marker)) {
+      result.add(text);
+    }
+  }
+  return result;
+}
+
+String _stringOrEmpty(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? '' : text;
+}
+
+String? _stringOrNull(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+int? _intOrNull(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.toInt();
+  }
+  return int.tryParse(value?.toString() ?? '');
+}
+
+int _intOrZero(Object? value) => _intOrNull(value) ?? 0;
+
+DateTime? _dateOrNull(Object? value) {
+  final text = _stringOrNull(value);
+  return text == null ? null : DateTime.tryParse(text);
 }
