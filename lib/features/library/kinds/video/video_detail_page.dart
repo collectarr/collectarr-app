@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
@@ -138,6 +139,61 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
     );
+    final seriesRef = CatalogEntityRef(
+      kind: request.type.workspace.kind.apiValue,
+      entityType: CatalogEntityType.work,
+      id: request.entry.id,
+    );
+    final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
+    final watchHistoryTargets = <WatchHistoryTargetOption>[
+      WatchHistoryTargetOption(
+        ref: seriesRef,
+        label: 'Series',
+        subtitle: request.entry.resolvedTitle,
+      ),
+      ...seasonsAsync.maybeWhen(
+        data: (seasons) => [
+          for (final season in seasons) ...[
+            WatchHistoryTargetOption(
+              ref: CatalogEntityRef(
+                kind: seriesRef.kind,
+                entityType: CatalogEntityType.season,
+                id: '${seriesRef.id}:season:${season.seasonNumber}',
+              ),
+              label: season.title,
+              subtitle: 'Season ${season.seasonNumber}',
+              seasonNumber: season.seasonNumber,
+            ),
+            for (final episode in season.episodes)
+              WatchHistoryTargetOption(
+                ref: CatalogEntityRef(
+                  kind: seriesRef.kind,
+                  entityType: CatalogEntityType.episode,
+                  id:
+                      '${seriesRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
+                ),
+                label: episode.title,
+                subtitle:
+                    'Season ${season.seasonNumber} • Episode ${episode.episodeNumber}',
+                seasonNumber: season.seasonNumber,
+                episodeNumber: episode.episodeNumber,
+              ),
+          ],
+        ],
+        orElse: () => const <WatchHistoryTargetOption>[],
+      ),
+      ...releases.map(
+        (release) => WatchHistoryTargetOption(
+          ref: CatalogEntityRef(
+            kind: seriesRef.kind,
+            entityType: CatalogEntityType.release,
+            id: release.node.id,
+          ),
+          label: release.node.entry.displayTitle ?? release.node.entry.title,
+          subtitle: release.node.entry.itemNumber ?? release.node.entry.variant,
+        ),
+      ),
+    ];
     _ResolvedVideoRelease? selectedRelease;
     for (final release in releases) {
       if (release.node.id == _selectedReleaseNodeId) {
@@ -279,6 +335,8 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             WatchHistorySection(
               itemId: request.entry.id,
               accent: request.accent,
+              defaultTargetRef: seriesRef,
+              targetOptions: watchHistoryTargets,
             ),
             VideoMetadataCorrectionsSection(
               itemId: request.entry.id,

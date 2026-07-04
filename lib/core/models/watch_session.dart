@@ -1,9 +1,11 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 
 class WatchSession {
   WatchSession({
     required this.id,
     required this.itemId,
+    required this.targetRef,
     required this.watchedAt,
     required this.updatedAt,
     this.trackingEntryId,
@@ -20,6 +22,7 @@ class WatchSession {
 
   final String id;
   final String itemId;
+  final CatalogEntityRef targetRef;
   final String? trackingEntryId;
   final int? seasonNumber;
   final int? episodeNumber;
@@ -40,6 +43,8 @@ class WatchSession {
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
+      'catalog_ref': targetRef.toJson(),
+      'target_ref': targetRef.toJson(),
       'tracking_entry_id': trackingEntryId,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
@@ -52,9 +57,18 @@ class WatchSession {
   }
 
   factory WatchSession.fromJson(Map<String, dynamic> json) {
+    final targetRefJson = json['target_ref'] ?? json['catalog_ref'];
+    final fallbackItemId = json['item_id'] as String? ?? '';
     return WatchSession(
       id: json['id'] as String,
-      itemId: json['item_id'] as String,
+      itemId: fallbackItemId,
+      targetRef: targetRefJson is Map<String, dynamic>
+          ? CatalogEntityRef.fromJson(targetRefJson)
+          : CatalogEntityRef(
+              kind: 'unknown',
+              entityType: CatalogEntityType.work,
+              id: fallbackItemId,
+            ),
       trackingEntryId: json['tracking_entry_id'] as String?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
@@ -73,6 +87,7 @@ class WatchSession {
   WatchSession copyWith({
     String? id,
     String? itemId,
+    CatalogEntityRef? targetRef,
     String? trackingEntryId,
     int? seasonNumber,
     int? episodeNumber,
@@ -87,6 +102,7 @@ class WatchSession {
     return WatchSession(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,

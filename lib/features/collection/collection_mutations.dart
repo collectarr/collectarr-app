@@ -511,6 +511,11 @@ class CollectionMutations {
       final session = WatchSession(
         id: _uuid.v4(),
         itemId: itemId,
+        targetRef: CatalogEntityRef(
+          kind: 'unknown',
+          entityType: CatalogEntityType.episode,
+          id: unitId,
+        ),
         trackingEntryId: summaryEntry?.id,
         seasonNumber: seasonNumber,
         episodeNumber: episodeNumber,
@@ -700,23 +705,33 @@ class CollectionMutations {
 
   Future<WatchSession> addWatchSession(
     String itemId, {
+    String? id,
+    CatalogEntityRef? targetRef,
     String? trackingEntryId,
     int? seasonNumber,
     int? episodeNumber,
     TrackingSourceType? sourceType,
     DateTime? watchedAt,
+    String? seenWhere,
     int? rating,
     String? notes,
   }) async {
     final now = DateTime.now().toUtc();
     final session = WatchSession(
-      id: _uuid.v4(),
+      id: id ?? _uuid.v4(),
       itemId: itemId,
+      targetRef: targetRef ??
+          CatalogEntityRef(
+            kind: 'unknown',
+            entityType: CatalogEntityType.work,
+            id: itemId,
+          ),
       trackingEntryId: trackingEntryId,
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
       sourceType: sourceType,
       watchedAt: watchedAt ?? now,
+      seenWhere: seenWhere,
       rating: rating,
       notes: notes,
       updatedAt: now,

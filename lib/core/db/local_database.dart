@@ -251,6 +251,7 @@ class TrackingUnitsCache extends Table {
 class WatchSessionsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get targetRefJson => text().nullable()();
   TextColumn get trackingEntryId => text().nullable()();
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
@@ -427,7 +428,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {

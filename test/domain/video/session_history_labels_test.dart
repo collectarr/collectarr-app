@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +58,11 @@ void main() {
     final session = WatchSession(
       id: 'session-1',
       itemId: 'book-1',
+      targetRef: const CatalogEntityRef(
+        kind: 'book',
+        entityType: CatalogEntityType.work,
+        id: 'book-1',
+      ),
       watchedAt: DateTime.utc(2026, 5, 14),
       updatedAt: DateTime.utc(2026, 5, 14),
       rating: 8,

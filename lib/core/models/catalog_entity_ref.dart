@@ -1,5 +1,6 @@
 enum CatalogEntityType {
   work('work'),
+  season('season'),
   edition('edition'),
   release('release'),
   issue('issue'),

@@ -8053,6 +8053,12 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _trackingEntryIdMeta =
       const VerificationMeta('trackingEntryId');
   @override
@@ -8115,6 +8121,7 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        targetRefJson,
         trackingEntryId,
         seasonNumber,
         episodeNumber,
@@ -8147,6 +8154,12 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
           itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
     } else if (isInserting) {
       context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('tracking_entry_id')) {
       context.handle(
@@ -8213,6 +8226,8 @@ class $WatchSessionsCacheTable extends WatchSessionsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
       seasonNumber: attachedDatabase.typeMapping
@@ -8246,6 +8261,7 @@ class WatchSessionsCacheData extends DataClass
     implements Insertable<WatchSessionsCacheData> {
   final String id;
   final String itemId;
+  final String? targetRefJson;
   final String? trackingEntryId;
   final int? seasonNumber;
   final int? episodeNumber;
@@ -8259,6 +8275,7 @@ class WatchSessionsCacheData extends DataClass
   const WatchSessionsCacheData(
       {required this.id,
       required this.itemId,
+      this.targetRefJson,
       this.trackingEntryId,
       this.seasonNumber,
       this.episodeNumber,
@@ -8274,6 +8291,9 @@ class WatchSessionsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
+    }
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
@@ -8307,6 +8327,9 @@ class WatchSessionsCacheData extends DataClass
     return WatchSessionsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      targetRefJson: targetRefJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetRefJson),
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
@@ -8340,6 +8363,7 @@ class WatchSessionsCacheData extends DataClass
     return WatchSessionsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
@@ -8358,6 +8382,7 @@ class WatchSessionsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
@@ -8374,6 +8399,7 @@ class WatchSessionsCacheData extends DataClass
   WatchSessionsCacheData copyWith(
           {String? id,
           String? itemId,
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> trackingEntryId = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
@@ -8387,6 +8413,8 @@ class WatchSessionsCacheData extends DataClass
       WatchSessionsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
@@ -8406,6 +8434,9 @@ class WatchSessionsCacheData extends DataClass
     return WatchSessionsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
@@ -8431,6 +8462,7 @@ class WatchSessionsCacheData extends DataClass
     return (StringBuffer('WatchSessionsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
@@ -8449,6 +8481,7 @@ class WatchSessionsCacheData extends DataClass
   int get hashCode => Object.hash(
       id,
       itemId,
+      targetRefJson,
       trackingEntryId,
       seasonNumber,
       episodeNumber,
@@ -8465,6 +8498,7 @@ class WatchSessionsCacheData extends DataClass
       (other is WatchSessionsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
@@ -8481,6 +8515,7 @@ class WatchSessionsCacheCompanion
     extends UpdateCompanion<WatchSessionsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<String?> targetRefJson;
   final Value<String?> trackingEntryId;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
@@ -8495,6 +8530,7 @@ class WatchSessionsCacheCompanion
   const WatchSessionsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
@@ -8510,6 +8546,7 @@ class WatchSessionsCacheCompanion
   WatchSessionsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
@@ -8528,6 +8565,7 @@ class WatchSessionsCacheCompanion
   static Insertable<WatchSessionsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
@@ -8543,6 +8581,7 @@ class WatchSessionsCacheCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
@@ -8560,6 +8599,7 @@ class WatchSessionsCacheCompanion
   WatchSessionsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<String?>? targetRefJson,
       Value<String?>? trackingEntryId,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
@@ -8574,6 +8614,7 @@ class WatchSessionsCacheCompanion
     return WatchSessionsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
@@ -8596,6 +8637,9 @@ class WatchSessionsCacheCompanion
     }
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
@@ -8638,6 +8682,7 @@ class WatchSessionsCacheCompanion
     return (StringBuffer('WatchSessionsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
@@ -17210,6 +17255,7 @@ typedef $$WatchSessionsCacheTableCreateCompanionBuilder
     = WatchSessionsCacheCompanion Function({
   required String id,
   required String itemId,
+  Value<String?> targetRefJson,
   Value<String?> trackingEntryId,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
@@ -17226,6 +17272,7 @@ typedef $$WatchSessionsCacheTableUpdateCompanionBuilder
     = WatchSessionsCacheCompanion Function({
   Value<String> id,
   Value<String> itemId,
+  Value<String?> targetRefJson,
   Value<String?> trackingEntryId,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
@@ -17253,6 +17300,9 @@ class $$WatchSessionsCacheTableFilterComposer
 
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId,
@@ -17300,6 +17350,10 @@ class $$WatchSessionsCacheTableOrderingComposer
 
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId,
@@ -17349,6 +17403,9 @@ class $$WatchSessionsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
@@ -17412,6 +17469,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
@@ -17427,6 +17485,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
               WatchSessionsCacheCompanion(
             id: id,
             itemId: itemId,
+            targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
@@ -17442,6 +17501,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
@@ -17457,6 +17517,7 @@ class $$WatchSessionsCacheTableTableManager extends RootTableManager<
               WatchSessionsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,

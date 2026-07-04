@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -540,6 +541,11 @@ void main() {
         WatchSession(
           id: 'watch-2',
           itemId: 'movie-1',
+          targetRef: const CatalogEntityRef(
+            kind: 'movie',
+            entityType: CatalogEntityType.work,
+            id: 'movie-1',
+          ),
           watchedAt: DateTime.utc(2026, 4, 10),
           sourceType: TrackingSourceType.streaming,
           updatedAt: DateTime.utc(2026, 4, 10),
@@ -547,6 +553,11 @@ void main() {
         WatchSession(
           id: 'watch-1',
           itemId: 'movie-1',
+          targetRef: const CatalogEntityRef(
+            kind: 'movie',
+            entityType: CatalogEntityType.work,
+            id: 'movie-1',
+          ),
           watchedAt: DateTime.utc(2026, 4, 9),
           sourceType: TrackingSourceType.physical,
           updatedAt: DateTime.utc(2026, 4, 9),

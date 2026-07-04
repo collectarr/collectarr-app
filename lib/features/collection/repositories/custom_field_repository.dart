@@ -198,6 +198,7 @@ class CustomFieldRepository {
     }
     return switch (ref.entityType) {
       CatalogEntityType.work => CustomFieldTargetScope.work,
+      CatalogEntityType.season => CustomFieldTargetScope.work,
       CatalogEntityType.edition => CustomFieldTargetScope.edition,
       CatalogEntityType.release => CustomFieldTargetScope.release,
       CatalogEntityType.issue => CustomFieldTargetScope.issue,

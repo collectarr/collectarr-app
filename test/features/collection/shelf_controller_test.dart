@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -48,6 +49,11 @@ void main() {
         WatchSession(
           id: 'watch-1',
           itemId: 'comic-1',
+          targetRef: const CatalogEntityRef(
+            kind: 'comic',
+            entityType: CatalogEntityType.work,
+            id: 'comic-1',
+          ),
           watchedAt: DateTime.utc(2026, 5, 8),
           sourceType: TrackingSourceType.streaming,
           updatedAt: DateTime.utc(2026, 5, 8),

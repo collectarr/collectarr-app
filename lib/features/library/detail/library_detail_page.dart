@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
@@ -242,6 +243,11 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     accent: widget.accent,
                     labels: sessionHistoryLabelsForKind(
                       widget.type.workspace.kind.apiValue,
+                    ),
+                    defaultTargetRef: CatalogEntityRef(
+                      kind: widget.type.workspace.kind.apiValue,
+                      entityType: CatalogEntityType.work,
+                      id: widget.entry.id,
                     ),
                   ),
                   const SizedBox(height: 12),

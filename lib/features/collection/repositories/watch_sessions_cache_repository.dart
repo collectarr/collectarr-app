@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:drift/drift.dart';
@@ -67,6 +70,7 @@ class WatchSessionsCacheRepository {
     return WatchSessionsCacheCompanion(
       id: Value(session.id),
       itemId: Value(session.itemId),
+      targetRefJson: Value(jsonEncode(session.targetRef.toJson())),
       trackingEntryId: Value(session.trackingEntryId),
       seasonNumber: Value(session.seasonNumber),
       episodeNumber: Value(session.episodeNumber),
@@ -84,6 +88,15 @@ class WatchSessionsCacheRepository {
     return WatchSession(
       id: row.id,
       itemId: row.itemId,
+      targetRef: row.targetRefJson == null
+          ? CatalogEntityRef(
+              kind: 'unknown',
+              entityType: CatalogEntityType.work,
+              id: row.itemId,
+            )
+          : CatalogEntityRef.fromJson(
+              jsonDecode(row.targetRefJson!) as Map<String, dynamic>,
+            ),
       trackingEntryId: row.trackingEntryId,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
