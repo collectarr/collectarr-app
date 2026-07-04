@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class GameRelease {
   const GameRelease({
@@ -179,82 +178,6 @@ final class GameWork {
       physicalFormatLabel: _stringOrNull(dto.raw['physical_format_label']),
     );
   }
-
-  factory GameWork.fromLibraryMetadataItem(LibraryMetadataItem item) {
-    return GameWork(
-      id: item.id,
-      title: item.title,
-      displayTitle: item.displayTitle,
-      localizedTitle: item.localizedTitle,
-      originalTitle: item.originalTitle,
-      searchAliases:
-          List<String>.unmodifiable(item.searchAliases ?? const <String>[]),
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      publisher: item.publisher,
-      coverDate: item.coverDate,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      barcode: item.barcode,
-      variant: item.variant,
-      crossover: item.crossover,
-      platforms:
-          List<String>.unmodifiable(item.game?.platforms ?? const <String>[]),
-      identifiers: const <String>[],
-      companyRoles: const <String>[],
-      ageRatings: item.ageRating == null
-          ? const <String>[]
-          : List<String>.unmodifiable([item.ageRating!]),
-      releases: [
-        for (var index = 0; index < item.editions.length; index++)
-          _releaseFromCatalogEdition(item.editions[index],
-              isPrimary: index == 0),
-      ],
-      trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
-      plotSummary: item.plotSummary,
-      plotDescription: item.plotDescription,
-      creators: item.creators == null
-          ? null
-          : List<Map<String, dynamic>>.unmodifiable(
-              item.creators!
-                  .map((value) => Map<String, dynamic>.unmodifiable(value)),
-            ),
-      characters:
-          List<String>.unmodifiable(item.characters ?? const <String>[]),
-      storyArcs: List<String>.unmodifiable(item.storyArcs ?? const <String>[]),
-      genres: List<String>.unmodifiable(item.genres ?? const <String>[]),
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-      audienceRating: item.audienceRating,
-      physicalFormatLabel: item.physicalFormatLabel,
-    );
-  }
-
-}
-
-GameRelease _releaseFromCatalogEdition(
-  CatalogEdition edition, {
-  bool isPrimary = false,
-}) {
-  return GameRelease(
-    id: edition.id,
-    title: edition.title,
-    platform: edition.physicalFormatLabel ?? edition.physicalFormat,
-    releaseDate: edition.releaseDate,
-    format: edition.format ?? edition.physicalFormatLabel,
-    publisher: edition.publisher,
-    catalogNumber: edition.upc,
-    releaseStatus: null,
-    language: edition.language,
-    barcode: edition.upc,
-    coverImageUrl: edition.variants.isNotEmpty
-        ? edition.variants.first.coverImageUrl
-        : null,
-    isPrimary: isPrimary,
-  );
 }
 
 List<GameRelease> _gameReleasesFromDtoValue(Object? value) {

@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -16,6 +15,9 @@ final class GamePersonalOverlay {
     this.wishlistItem,
     this.locationPath,
     this.updatedAt,
+    this.isOwnedOverride = false,
+    this.isTrackedOverride = false,
+    this.isWishlistedOverride = false,
   });
 
   factory GamePersonalOverlay.fromShelfEntry(ShelfEntry source) {
@@ -33,102 +35,99 @@ final class GamePersonalOverlay {
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final DateTime? updatedAt;
+  final bool isOwnedOverride;
+  final bool isTrackedOverride;
+  final bool isWishlistedOverride;
 
-  bool get isOwned => ownedItem != null;
-  bool get isTracked => trackingEntry != null;
-  bool get isWishlisted => wishlistItem != null;
+  bool get isOwned => ownedItem != null || isOwnedOverride;
+  bool get isTracked => trackingEntry != null || isTrackedOverride;
+  bool get isWishlisted => wishlistItem != null || isWishlistedOverride;
 }
 
-LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
-  ShelfEntry source,
-) {
-  return buildGameWorkspaceEntry(
-    GameWork.fromLibraryMetadataItem(source.catalogItem!),
-    GamePersonalOverlay.fromShelfEntry(source),
-  );
-}
-
-LibraryWorkspaceEntry buildGamesLibraryReleaseEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final entry = request.titleEntry as GameWorkspaceEntry;
-  final selectedRelease = _gameReleaseById(
-        entry.gameReleases,
-        request.referenceEditionId ?? request.edition.id,
-      ) ??
-      _resolvePrimaryGameRelease(entry.gameReleases);
-  final releasePlatform = selectedRelease?.platform?.trim().isNotEmpty == true
-      ? selectedRelease!.platform!.trim()
-      : entry.game?.platforms.isNotEmpty == true
-          ? entry.game!.platforms.first
+LibraryWorkspaceEntry buildGameReleaseWorkspaceEntry({
+  required GameWorkspaceEntry titleEntry,
+  required GameRelease release,
+  required GamePersonalOverlay overlay,
+}) {
+  final releasePlatform = release.platform?.trim().isNotEmpty == true
+      ? release.platform!.trim()
+      : titleEntry.game?.platforms.isNotEmpty == true
+          ? titleEntry.game!.platforms.first
           : null;
   return GameWorkspaceEntry(
     common: LibraryWorkspaceEntryData(
-      id: '${entry.id}:release:${request.edition.id}',
+      id: '${titleEntry.id}:release:${release.id}',
       browseScope: LibraryBrowserScope.release,
-      titleItemId: entry.id,
-      releaseId: request.edition.id,
+      titleItemId: titleEntry.id,
+      releaseId: release.id,
       copyId: null,
-      ownedItemId: null,
+      ownedItemId: overlay.ownedItem?.id,
       mediaType: 'game',
-      title: entry.title,
-      displayTitle: entry.displayTitle,
-      localizedTitle: entry.localizedTitle,
-      originalTitle: entry.originalTitle,
-      searchAliases: _copyStringList(entry.searchAliases),
+      title: titleEntry.title,
+      displayTitle: titleEntry.displayTitle,
+      localizedTitle: titleEntry.localizedTitle,
+      originalTitle: titleEntry.originalTitle,
+      searchAliases: _copyStringList(titleEntry.searchAliases),
       itemNumber: null,
-      synopsis: entry.synopsis,
-      coverImageUrl: selectedRelease?.coverImageUrl ?? entry.coverImageUrl,
-      thumbnailImageUrl: selectedRelease?.coverImageUrl ??
-          entry.thumbnailImageUrl ??
-          entry.coverImageUrl,
-      publisher: selectedRelease?.publisher ?? entry.publisher,
-      coverDate: entry.coverDate,
-      releaseDate: selectedRelease?.releaseDate ?? request.edition.releaseDate,
-      releaseYear:
-          (selectedRelease?.releaseDate ?? request.edition.releaseDate)?.year ??
-              entry.releaseYear,
-      barcode: selectedRelease?.barcode ?? request.edition.upc,
-      variant: selectedRelease?.title ?? request.edition.title,
-      crossover: entry.crossover,
-      isOwned: request.isOwned,
-      isTracked: request.isTracked,
-      isWishlisted: request.isWishlisted,
+      synopsis: titleEntry.synopsis,
+      coverImageUrl: release.coverImageUrl ?? titleEntry.coverImageUrl,
+      thumbnailImageUrl: release.coverImageUrl ??
+          titleEntry.thumbnailImageUrl ??
+          titleEntry.coverImageUrl,
+      publisher: release.publisher ?? titleEntry.publisher,
+      coverDate: titleEntry.coverDate,
+      releaseDate: release.releaseDate,
+      releaseYear: release.releaseDate?.year ?? titleEntry.releaseYear,
+      barcode: release.barcode,
+      variant: release.title,
+      crossover: titleEntry.crossover,
+      isOwned: overlay.isOwned,
+      isTracked: overlay.isTracked,
+      isWishlisted: overlay.isWishlisted,
       hasMissingCover: false,
       hasMissingMetadata: false,
-      condition: null,
-      grade: null,
-      primaryReferenceLabel: null,
-      referenceScopeLabel: null,
-      referenceFormatLabel:
-          releasePlatform ?? request.edition.physicalFormatLabel,
-      referenceEditionId: request.referenceEditionId ?? request.edition.id,
-      referenceVariantId: request.referenceVariantId,
-      referenceBundleReleaseId: request.referenceBundleReleaseId,
-      notes: null,
-      tags: null,
-      collectionStatus: null,
-      lastBagBoardDate: null,
-      pricePaidCents: null,
-      currency: null,
-      locationPath: null,
-      addedAt: null,
+      condition: overlay.ownedItem?.condition,
+      grade: overlay.ownedItem?.grade,
+      primaryReferenceLabel: libraryPrimaryReferenceLabel(
+        ownedItem: overlay.ownedItem,
+        wishlistItem: overlay.wishlistItem,
+        mediaType: 'game',
+      ),
+      referenceScopeLabel: libraryReferenceScopeLabel(
+        ownedItem: overlay.ownedItem,
+        wishlistItem: overlay.wishlistItem,
+        mediaType: 'game',
+      ),
+      referenceFormatLabel: releasePlatform,
+      referenceEditionId: release.id,
+      referenceVariantId:
+          overlay.ownedItem?.variantId ?? overlay.wishlistItem?.variantId,
+      referenceBundleReleaseId: overlay.ownedItem?.bundleReleaseId ??
+          overlay.wishlistItem?.bundleReleaseId,
+      notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
+      tags: overlay.ownedItem?.tags,
+      collectionStatus: overlay.ownedItem?.collectionStatus,
+      lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
+      pricePaidCents: overlay.ownedItem?.pricePaidCents,
+      currency: overlay.ownedItem?.currency,
+      locationPath: overlay.locationPath,
+      addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
       editions: const <CatalogEdition>[],
-      updatedAt: request.updatedAt,
-      trailerUrls: const <TrailerLink>[],
-      plotSummary: null,
-      plotDescription: null,
-      creators: null,
-      characters: null,
-      storyArcs: null,
-      genres: null,
-      country: null,
-      language: selectedRelease?.language ?? request.edition.language,
-      ageRating: null,
-      audienceRating: null,
+      updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+      trailerUrls: _copyTrailerList(titleEntry.trailerUrls),
+      plotSummary: titleEntry.plotSummary,
+      plotDescription: titleEntry.plotDescription,
+      creators: _copyCreatorList(titleEntry.creators),
+      characters: _copyStringList(titleEntry.characters),
+      storyArcs: _copyStringList(titleEntry.storyArcs),
+      genres: _copyStringList(titleEntry.genres),
+      country: titleEntry.country,
+      language: release.language ?? titleEntry.language,
+      ageRating: titleEntry.ageRating,
+      audienceRating: titleEntry.audienceRating,
     ),
-    game: entry.game,
-    gameReleases: entry.gameReleases,
+    game: titleEntry.game,
+    gameReleases: titleEntry.gameReleases,
   );
 }
 
@@ -231,19 +230,6 @@ GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
     }
   }
   return releases.isEmpty ? null : releases.first;
-}
-
-GameRelease? _gameReleaseById(List<GameRelease> releases, String? releaseId) {
-  final normalized = releaseId?.trim();
-  if (normalized == null || normalized.isEmpty) {
-    return null;
-  }
-  for (final release in releases) {
-    if (release.id == normalized) {
-      return release;
-    }
-  }
-  return null;
 }
 
 List<GameRelease> _copyGameReleaseList(List<GameRelease> values) {
