@@ -419,7 +419,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: TextButton.icon(
-              onPressed: () => onShowCustomEpisodesChanged(true),
+              onPressed: () => _importProviderSeason(context, ref),
               icon: const Icon(Icons.layers_outlined, size: 16),
               label: const Text('Replace provider season with custom list'),
             ),

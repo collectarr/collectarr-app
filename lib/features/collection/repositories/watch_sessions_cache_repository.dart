@@ -11,6 +11,14 @@ class WatchSessionsCacheRepository {
 
   final LocalDatabase _db;
 
+  Future<List<WatchSession>> listActive() async {
+    final rows = await (_db.select(_db.watchSessionsCache)
+          ..where((tbl) => tbl.deletedAt.isNull())
+          ..orderBy([(tbl) => OrderingTerm.desc(tbl.watchedAt)]))
+        .get();
+    return rows.map(_toModel).toList(growable: false);
+  }
+
   Future<List<WatchSession>> listActiveByItemId(String itemId) async {
     final rows = await (_db.select(_db.watchSessionsCache)
           ..where(

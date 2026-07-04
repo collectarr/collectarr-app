@@ -18,6 +18,22 @@ List<Widget> buildTvInspectorSections(
     entityType: CatalogEntityType.work,
     id: request.entry.id,
   );
+  final releaseOptions = [
+    for (final edition in request.entry.editions)
+      WatchHistoryTargetOption(
+        ref: CatalogEntityRef(
+          kind: seriesRef.kind,
+          entityType: CatalogEntityType.release,
+          id: '${seriesRef.id}:release:${edition.id}',
+        ),
+        label: edition.title,
+        subtitle: [
+          if (edition.format?.trim().isNotEmpty == true) edition.format!,
+          if (edition.releaseDate != null)
+            edition.releaseDate!.toLocal().toIso8601String().split('T').first,
+        ].join(' • '),
+      ),
+  ];
   return [
     TvSeriesMetadataSection(request: request),
     TvSeasonsEpisodesSection(
@@ -33,6 +49,7 @@ List<Widget> buildTvInspectorSections(
     TvWatchHistorySection(
       request: request,
       seriesRef: seriesRef,
+      releaseOptions: releaseOptions,
     ),
     TvReleasesDiscsSection(request: request),
     TvCastCrewSection(request: request),
@@ -150,10 +167,12 @@ class TvWatchHistorySection extends ConsumerWidget {
     super.key,
     required this.request,
     required this.seriesRef,
+    required this.releaseOptions,
   });
 
   final LibraryInspectorRequest request;
   final CatalogEntityRef seriesRef;
+  final List<WatchHistoryTargetOption> releaseOptions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -195,11 +214,13 @@ class TvWatchHistorySection extends ConsumerWidget {
         ],
         orElse: () => const <WatchHistoryTargetOption>[],
       ),
+      ...releaseOptions,
     ];
 
     return WatchHistorySection(
       itemId: request.entry.id,
       accent: request.accent,
+      catalogRef: seriesRef,
       defaultTargetRef: seriesRef,
       targetOptions: targetOptions,
     );

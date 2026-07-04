@@ -57,7 +57,6 @@ void main() {
   testWidgets('populated read history shows the read count', (tester) async {
     final session = WatchSession(
       id: 'session-1',
-      itemId: 'book-1',
       targetRef: const CatalogEntityRef(
         kind: 'book',
         entityType: CatalogEntityType.work,

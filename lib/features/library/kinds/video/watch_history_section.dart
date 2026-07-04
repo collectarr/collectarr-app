@@ -100,6 +100,7 @@ class WatchHistorySection extends ConsumerWidget {
     super.key,
     required this.itemId,
     required this.accent,
+    this.catalogRef,
     this.labels = SessionHistoryLabels.watch,
     this.defaultTargetRef,
     this.targetOptions = const <WatchHistoryTargetOption>[],
@@ -107,14 +108,16 @@ class WatchHistorySection extends ConsumerWidget {
 
   final String itemId;
   final Color accent;
+  final CatalogEntityRef? catalogRef;
   final SessionHistoryLabels labels;
   final CatalogEntityRef? defaultTargetRef;
   final List<WatchHistoryTargetOption> targetOptions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sessions =
-        ref.watch(watchSessionsByItemProvider)[itemId] ?? const <WatchSession>[];
+    final sessions = catalogRef == null
+        ? ref.watch(watchSessionsByItemProvider)[itemId] ?? const <WatchSession>[]
+        : ref.watch(watchSessionsByCatalogRefProvider(catalogRef!));
     final palette = appPalette(context);
     final resolvedTargets = _resolvedTargetOptions();
     return DecoratedBox(
@@ -193,6 +196,7 @@ class WatchHistorySection extends ConsumerWidget {
       return targetOptions;
     }
     final fallbackRef = defaultTargetRef ??
+        catalogRef ??
         CatalogEntityRef(
           kind: 'unknown',
           entityType: CatalogEntityType.work,
@@ -458,7 +462,7 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.targetOptions.length > 1) ...[
+            if (widget.targetOptions.isNotEmpty) ...[
               DropdownButtonFormField<WatchHistoryTargetOption>(
                 initialValue: _selectedTarget,
                 decoration: const InputDecoration(labelText: 'Target'),

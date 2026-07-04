@@ -145,10 +145,7 @@ final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
 final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
   final cache = WatchSessionsCacheRepository(db);
-  // Load all active watch sessions — lightweight enough for typical libraries.
-  final allItems = await OwnedItemsCacheRepository(db).listActive();
-  final itemIds = allItems.map((e) => e.catalogRef.id).toSet();
-  return cache.listActiveByItemIds(itemIds);
+  return cache.listActive();
 });
 
 final watchSessionsByItemProvider =
@@ -172,9 +169,33 @@ final watchSessionsByItemProvider =
 
 final watchSessionsByCatalogRefProvider =
     Provider.family<List<WatchSession>, CatalogEntityRef>((ref, catalogRef) {
-  return ref.watch(watchSessionsByItemProvider)[catalogRef.id] ??
-      const <WatchSession>[];
+  final sessions = ref.watch(watchSessionsProvider);
+  return sessions.maybeWhen(
+    data: (items) {
+      final rootPrefix = _catalogRefSessionPrefix(catalogRef);
+      final matched = items.where((session) {
+        final targetId = session.targetRef.id;
+        return targetId == catalogRef.id ||
+            targetId.startsWith(rootPrefix) ||
+            (catalogRef.entityType == CatalogEntityType.work &&
+                targetId.startsWith('${catalogRef.id}:release:'));
+      }).toList(growable: false);
+      matched.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
+      return matched;
+    },
+    orElse: () => const <WatchSession>[],
+  );
 });
+
+String _catalogRefSessionPrefix(CatalogEntityRef catalogRef) {
+  return switch (catalogRef.entityType) {
+    CatalogEntityType.work => '${catalogRef.id}:season:',
+    CatalogEntityType.season => '${catalogRef.id}:episode:',
+    CatalogEntityType.episode => '${catalogRef.id}:',
+    CatalogEntityType.release => '${catalogRef.id}:',
+    _ => '${catalogRef.id}:',
+  };
+}
 
 final metadataOverridesProvider =
     FutureProvider<List<UserMetadataOverride>>((ref) async {
