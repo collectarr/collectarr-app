@@ -152,6 +152,11 @@ class ApiClient {
     return _catalogApi.getTvSeriesDto(id);
   }
 
+  Future<List<Season>> getTvSeriesSeasons(String seriesId) async {
+    final series = await getTvSeriesDto(seriesId);
+    return _seasonsFromRaw(series.seasons);
+  }
+
   Future<BookWorkDto> getBookWorkDto(String id) {
     return _catalogApi.getBookWorkDto(id);
   }
@@ -184,6 +189,7 @@ class ApiClient {
     return _catalogApi.getMusicTrackDto(id);
   }
 
+  @Deprecated('Use getTvSeriesSeasons for TV or typed model-specific flows.')
   Future<List<Season>> getItemSeasons(
     String itemId, {
     String? kind,
@@ -214,6 +220,7 @@ class ApiClient {
     return const [];
   }
 
+  @Deprecated('Use typed model-specific flows instead of legacy item volume lookups.')
   Future<List<Season>> getItemVolumes(
     String itemId, {
     String? kind,

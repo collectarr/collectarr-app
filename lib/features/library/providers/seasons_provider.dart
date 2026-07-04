@@ -30,6 +30,12 @@ final itemSeasonsProvider = FutureProvider.autoDispose.family<
         .getProviderSeasons('tmdb', '$kind:$tmdbId')
         .timeout(const Duration(seconds: 60));
   }
+  final normalizedKind = params.kind?.trim().toLowerCase();
+  if (normalizedKind == 'tv' && _uuidPattern.hasMatch(itemId)) {
+    return api
+        .getTvSeriesSeasons(itemId)
+        .timeout(const Duration(seconds: 60));
+  }
   if (!_uuidPattern.hasMatch(itemId)) {
     return const <Season>[];
   }
