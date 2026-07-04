@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('non-comic libraries use the generic workspace', (tester) async {
@@ -36,7 +37,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
           condition: 'New',
@@ -105,7 +106,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        OwnedItem(id: 'owned-1', itemId: game.id, updatedAt: now),
+        testOwnedItem(id: 'owned-1', itemId: game.id, updatedAt: now),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -168,7 +169,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        OwnedItem(id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
+        testOwnedItem(id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
       ],
       wishlistItems: const [],
       catalogItems: {podcast.id: podcast},
@@ -231,7 +232,7 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        OwnedItem(id: 'owned-game-rail-1', itemId: game.id, updatedAt: now),
+        testOwnedItem(id: 'owned-game-rail-1', itemId: game.id, updatedAt: now),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -280,7 +281,7 @@ void main() {
       publisher: 'Jump Over the Age',
       releaseYear: 2022,
     );
-    final owned = OwnedItem(
+    final owned = testOwnedItem(
       id: 'owned-overdue-1',
       itemId: game.id,
       updatedAt: now,

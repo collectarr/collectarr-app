@@ -7,7 +7,6 @@ class OwnedItem {
   OwnedItem({
     required this.id,
     required this.catalogRef,
-    String? itemId,
     this.createdAt,
     this.isDigital,
     PersonalItemAnchor? anchor,
@@ -297,7 +296,6 @@ class OwnedItem {
 
   OwnedItem copyWith({
     String? id,
-    String? itemId,
     CatalogEntityRef? catalogRef,
     DateTime? createdAt,
     bool? isDigital,

@@ -1,13 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-/// Builds a [CatalogItem] with sensible defaults for testing.
-///
-/// Only [id] and [title] are required. Override any field via named parameters.
 CatalogItem testCatalogItem({
   String id = 'test-item-1',
   String kind = 'comic',
@@ -70,7 +67,6 @@ CatalogItem testCatalogItem({
   );
 }
 
-/// Builds an [OwnedItem] with sensible defaults for testing.
 OwnedItem testOwnedItem({
   String id = 'owned-1',
   String itemId = 'test-item-1',
@@ -208,10 +204,6 @@ OwnedItem testOwnedItem({
   );
 }
 
-/// Builds a [ShelfEntry] with sensible defaults for testing.
-///
-/// If [catalogItem] is omitted, a default one is created from [itemId] and
-/// [kind].
 ShelfEntry testShelfEntry({
   String itemId = 'test-item-1',
   String kind = 'comic',

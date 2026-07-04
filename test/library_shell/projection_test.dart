@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 LibraryProjectionItem _projectionItem({
   required ShelfEntry source,
@@ -67,7 +68,7 @@ void main() {
             title: 'Owned later issue',
             itemNumber: '10',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,
@@ -91,7 +92,7 @@ void main() {
             title: 'Owned earlier issue',
             itemNumber: '2',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-3',
             itemId: 'comic-3',
             quantity: 1,
@@ -142,7 +143,7 @@ void main() {
             title: 'Merged issue',
             itemNumber: '1',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             condition: 'Near Mint',
@@ -342,7 +343,7 @@ void main() {
     final item = _projectionItem(
       source: ShelfEntry(
         itemId: 'movie-main-1',
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-main-1',
           itemId: 'movie-main-1',
           updatedAt: DateTime.utc(2026, 5, 1),
@@ -500,7 +501,7 @@ void main() {
     final source = ShelfEntry(
       itemId: 'movie-1',
       locationPath: 'Living Room › Shelf 2',
-      ownedItem: OwnedItem(
+      ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',
         editionId: 'edition-4k',
@@ -786,7 +787,7 @@ void main() {
     final item = _projectionItem(
       source: ShelfEntry(
         itemId: 'movie-credits-1',
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-credits-1',
           itemId: 'movie-credits-1',
           updatedAt: DateTime.utc(2026, 5, 1),

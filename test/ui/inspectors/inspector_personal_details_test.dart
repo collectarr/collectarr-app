@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/secure_storage_mock.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,7 @@ void main() {
           ),
         );
 
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
       locationId: 'loc-a',

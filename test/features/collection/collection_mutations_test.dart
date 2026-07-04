@@ -14,6 +14,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -378,7 +379,7 @@ void main() {
     final original = await db.select(db.ownedItemsCache).getSingle();
 
     await container.read(collectionMutationsProvider).updateItem(
-          OwnedItem(
+          testOwnedItem(
             id: original.id,
             itemId: original.itemId,
             condition: original.condition,
@@ -415,7 +416,7 @@ void main() {
     final original = await db.select(db.ownedItemsCache).getSingle();
 
     await container.read(collectionMutationsProvider).updateItem(
-          OwnedItem(
+          testOwnedItem(
             id: original.id,
             itemId: original.itemId,
             locationId: original.locationId,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('prefers catalog editions from core over local anchor synthesis', () {
@@ -31,7 +32,7 @@ void main() {
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
       ownedItems: [
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
           variantId: 'variant-local-only',
@@ -59,7 +60,7 @@ void main() {
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
       ownedItems: [
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-2',
           itemId: 'movie-2',
           variantId: 'variant-4k',
@@ -86,7 +87,7 @@ void main() {
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
       ownedItems: [
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-tv-2',
           itemId: 'tv-2',
           variantId: 'variant-bluray',

@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('media catalog parses provider defaults and physical formats', () {
@@ -206,7 +207,7 @@ void main() {
       entityType: CatalogEntityType.edition,
       id: 'edition-1',
     );
-    final owned = OwnedItem(
+    final owned = testOwnedItem(
       id: 'owned-1',
       itemId: 'book-1',
       catalogRef: ref,
@@ -451,7 +452,7 @@ void main() {
   });
 
   test('owned item builds sync payload', () {
-    final item = OwnedItem(
+    final item = testOwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
       catalogRef: CatalogEntityRef(

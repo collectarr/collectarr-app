@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   setUp(() {
@@ -136,7 +137,7 @@ void main() {
         ],
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
       editionId: 'edition-1',
@@ -363,7 +364,7 @@ void main() {
         itemNumber: '1',
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-restore-order',
       itemId: 'comic-restore-order',
       editionId: 'edition-restore-order',
@@ -449,7 +450,7 @@ void main() {
         itemNumber: '2',
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-2',
       itemId: 'comic-2',
       editionId: 'edition-2',

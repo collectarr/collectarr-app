@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -135,76 +134,96 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
   );
 }
 
-LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
-  LibraryReleaseEntryRequest request,
-) {
-  final book = request.titleEntry;
-  final bookEditions =
-      book is BookWorkspaceEntry ? book.bookEditions : const <BookEdition>[];
+LibraryWorkspaceEntry buildBookEditionWorkspaceEntry({
+  required BookWorkspaceEntry titleEntry,
+  required BookEdition edition,
+  required BookVariant? variant,
+  required BookPersonalOverlay overlay,
+  required bool isOwned,
+  required bool isTracked,
+  required bool isWishlisted,
+  required String? referenceEditionId,
+  required String? referenceVariantId,
+  required String? referenceBundleReleaseId,
+  required DateTime updatedAt,
+}) {
+  final bookEditions = titleEntry.bookEditions;
   return BookWorkspaceEntry(
-    common: _buildReleaseEntryData(request, book),
-    series: book.series,
-    publishing: book.publishing,
+    common: _buildEditionEntryData(
+      titleEntry: titleEntry,
+      edition: edition,
+      variant: variant,
+      overlay: overlay,
+      isOwned: isOwned,
+      isTracked: isTracked,
+      isWishlisted: isWishlisted,
+      referenceEditionId: referenceEditionId,
+      referenceVariantId: referenceVariantId,
+      referenceBundleReleaseId: referenceBundleReleaseId,
+      updatedAt: updatedAt,
+    ),
+    series: titleEntry.series,
+    publishing: titleEntry.publishing,
     bookEditions: bookEditions,
   );
 }
 
-LibraryWorkspaceEntryData _buildReleaseEntryData(
-  LibraryReleaseEntryRequest request,
-  LibraryWorkspaceEntry book,
-) {
-  CatalogVariant? primaryVariant;
-  for (final variant in request.edition.variants) {
-    if (variant.isPrimary) {
-      primaryVariant = variant;
-      break;
-    }
-  }
-  primaryVariant ??=
-      request.edition.variants.isEmpty ? null : request.edition.variants.first;
-  final editions =
-      request.editions.isEmpty ? request.titleEntry.editions : request.editions;
+LibraryWorkspaceEntryData _buildEditionEntryData({
+  required BookWorkspaceEntry titleEntry,
+  required BookEdition edition,
+  required BookVariant? variant,
+  required BookPersonalOverlay overlay,
+  required bool isOwned,
+  required bool isTracked,
+  required bool isWishlisted,
+  required String? referenceEditionId,
+  required String? referenceVariantId,
+  required String? referenceBundleReleaseId,
+  required DateTime updatedAt,
+}) {
+  final resolvedVariant = variant ??
+      (edition.variants.isEmpty ? null : edition.variants.first);
   return LibraryWorkspaceEntryData(
-    id: '${book.id}:release:${request.edition.id}',
+    id: '${titleEntry.id}:release:${edition.id}',
     browseScope: LibraryBrowserScope.release,
-    titleItemId: book.id,
-    releaseId: request.edition.id,
+    titleItemId: titleEntry.id,
+    releaseId: edition.id,
     copyId: null,
     ownedItemId: null,
     mediaType: 'book',
-    title: book.title,
-    displayTitle: book.displayTitle,
-    localizedTitle: book.localizedTitle,
-    originalTitle: book.originalTitle,
-    searchAliases: _copyStringList(book.searchAliases),
+    title: titleEntry.title,
+    displayTitle: titleEntry.displayTitle,
+    localizedTitle: titleEntry.localizedTitle,
+    originalTitle: titleEntry.originalTitle,
+    searchAliases: _copyStringList(titleEntry.searchAliases),
     itemNumber: null,
-    synopsis: book.synopsis,
-    coverImageUrl: primaryVariant?.coverImageUrl ?? book.coverImageUrl,
-    thumbnailImageUrl: primaryVariant?.thumbnailImageUrl ??
-        primaryVariant?.coverImageUrl ??
-        book.thumbnailImageUrl ??
-        book.coverImageUrl,
-    publisher: request.edition.publisher ?? book.publisher,
-    coverDate: book.coverDate,
-    releaseDate: request.edition.releaseDate,
-    releaseYear: request.edition.releaseDate?.year ?? book.releaseYear,
-    barcode: primaryVariant?.barcode ?? request.edition.upc,
-    variant: primaryVariant?.name ?? request.edition.title,
-    crossover: book.crossover,
-    isOwned: request.isOwned,
-    isTracked: request.isTracked,
-    isWishlisted: request.isWishlisted,
+    synopsis: titleEntry.synopsis,
+    coverImageUrl: resolvedVariant?.coverImageUrl ?? titleEntry.coverImageUrl,
+    thumbnailImageUrl: resolvedVariant?.thumbnailImageUrl ??
+        resolvedVariant?.coverImageUrl ??
+        titleEntry.thumbnailImageUrl ??
+        titleEntry.coverImageUrl,
+    publisher: edition.publisher ?? titleEntry.publisher,
+    coverDate: titleEntry.coverDate,
+    releaseDate: edition.releaseDate,
+    releaseYear: edition.releaseDate?.year ?? titleEntry.releaseYear,
+    barcode: resolvedVariant?.barcode ?? edition.upc,
+    variant: resolvedVariant?.name ?? edition.title,
+    crossover: titleEntry.crossover,
+    isOwned: isOwned,
+    isTracked: isTracked,
+    isWishlisted: isWishlisted,
     hasMissingCover: false,
     hasMissingMetadata: false,
     condition: null,
     grade: null,
     primaryReferenceLabel: null,
     referenceScopeLabel: null,
-    referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
-        request.edition.physicalFormatLabel,
-    referenceEditionId: request.referenceEditionId ?? request.edition.id,
-    referenceVariantId: request.referenceVariantId ?? primaryVariant?.id,
-    referenceBundleReleaseId: request.referenceBundleReleaseId,
+    referenceFormatLabel: resolvedVariant?.physicalFormatLabel ??
+        edition.physicalFormatLabel,
+    referenceEditionId: referenceEditionId ?? edition.id,
+    referenceVariantId: referenceVariantId ?? resolvedVariant?.id,
+    referenceBundleReleaseId: referenceBundleReleaseId,
     notes: null,
     tags: null,
     collectionStatus: null,
@@ -213,17 +232,17 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     currency: null,
     locationPath: null,
     addedAt: null,
-    editions: _copyEditionList(editions),
-    updatedAt: request.updatedAt,
-    trailerUrls: _copyTrailerList(book.trailerUrls),
-    creators: _copyCreatorList(book.creators),
-    characters: _copyStringList(book.characters),
-    storyArcs: _copyStringList(book.storyArcs),
-    genres: _copyStringList(book.genres),
-    country: book.country,
-    language: request.edition.language ?? book.language,
-    ageRating: book.ageRating,
-    audienceRating: book.audienceRating,
+    editions: const <CatalogEdition>[],
+    updatedAt: overlay.updatedAt ?? updatedAt,
+    trailerUrls: _copyTrailerList(titleEntry.trailerUrls),
+    creators: _copyCreatorList(titleEntry.creators),
+    characters: _copyStringList(titleEntry.characters),
+    storyArcs: _copyStringList(titleEntry.storyArcs),
+    genres: _copyStringList(titleEntry.genres),
+    country: titleEntry.country,
+    language: edition.language ?? titleEntry.language,
+    ageRating: titleEntry.ageRating,
+    audienceRating: titleEntry.audienceRating,
   );
 }
 
@@ -302,10 +321,6 @@ List<Map<String, dynamic>>? _copyCreatorList(
   return List<Map<String, dynamic>>.unmodifiable(
     values.map((value) => Map<String, dynamic>.unmodifiable(value)),
   );
-}
-
-List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
-  return List<CatalogEdition>.unmodifiable(values);
 }
 
 List<TrailerLink> _copyTrailerList(List<TrailerLink> values) {

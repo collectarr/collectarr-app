@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('detail page shows copy selector when multiple copies exist', (
@@ -54,7 +55,7 @@ void main() {
               isOwned: true,
               updatedAt: DateTime.utc(2026, 5, 23),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'book-1',
               condition: 'Near Mint',
@@ -130,7 +131,7 @@ void main() {
               isOwned: true,
               updatedAt: DateTime.utc(2026, 5, 23),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'book-1',
               condition: 'Near Mint',

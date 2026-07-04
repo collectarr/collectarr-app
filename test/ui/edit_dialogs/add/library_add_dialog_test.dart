@@ -42,6 +42,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/library_add_test_harness.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 Finder textFieldByKeyOrLabel(String keyName, String label) {
   final keyFinder = find.byKey(ValueKey(keyName));
@@ -1541,7 +1542,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           collectionByCatalogItemProvider.overrideWith(
             (ref) => {
-              'comic-423': OwnedItem(
+              'comic-423': testOwnedItem(
                 id: 'owned-comic-423',
                 itemId: 'comic-423',
                 updatedAt: DateTime.utc(2026, 6, 1, 12),

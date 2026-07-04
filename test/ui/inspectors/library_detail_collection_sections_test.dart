@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_collection
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('detail personal section shows value tracking fields', (
@@ -21,7 +22,7 @@ void main() {
               currency: 'USD',
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'movie-1',
               purchaseDate: DateTime.utc(2026, 5, 11),
@@ -33,7 +34,7 @@ void main() {
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
             ownedCopies: [
-              OwnedItem(
+              testOwnedItem(
                 id: 'owned-1',
                 itemId: 'movie-1',
                 purchaseDate: DateTime.utc(2026, 5, 11),
@@ -45,7 +46,7 @@ void main() {
                 currency: 'USD',
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
-              OwnedItem(
+              testOwnedItem(
                 id: 'owned-2',
                 itemId: 'movie-1',
                 pricePaidCents: 999,

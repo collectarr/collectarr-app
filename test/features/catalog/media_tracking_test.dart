@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('maps media tracking status aliases from storage strings', () {
@@ -23,7 +24,7 @@ void main() {
   });
 
   test('owned item exposes reusable media tracking view', () {
-    final item = OwnedItem(
+    final item = testOwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
       rating: 5,

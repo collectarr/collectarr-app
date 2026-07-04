@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('collection csv exports and parses owned shelf rows', () {
@@ -25,7 +26,7 @@ void main() {
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
         ),
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -102,7 +103,7 @@ void main() {
           barcode: '75960604716152011',
           variant: 'Regular Cover',
         ),
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Very Fine',
@@ -142,7 +143,7 @@ void main() {
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
         ),
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
           quantity: 1,
@@ -390,7 +391,7 @@ void main() {
             kind: 'comic',
             title: 'Test',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,
@@ -454,7 +455,7 @@ void main() {
             kind: 'comic',
             title: 'Test',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,

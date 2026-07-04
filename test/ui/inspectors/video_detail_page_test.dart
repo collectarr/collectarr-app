@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('double tap on a video card opens the release browser',
@@ -99,7 +100,7 @@ void main() {
         overrides: [
           collectionProvider.overrideWith(
             (ref) async => [
-              OwnedItem(
+              testOwnedItem(
                 id: 'owned-1',
                 itemId: 'movie-1',
                 editionId: 'edition-4k',

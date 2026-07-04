@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   late LocalDatabase db;
@@ -37,13 +38,13 @@ void main() {
                   db: db,
                   mediaKind: 'book',
                   ownedItems: [
-                    OwnedItem(
+                    testOwnedItem(
                       id: 'owned-1',
                       itemId: 'book-1',
                       readStatus: 'Reading',
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
-                    OwnedItem(
+                    testOwnedItem(
                       id: 'owned-2',
                       itemId: 'book-2',
                       personalNotes: 'Signed copy',

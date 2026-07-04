@@ -12,6 +12,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +49,7 @@ void main() {
     );
 
     final row = await db.select(db.ownedItemsCache).getSingle();
-    final owned = OwnedItem(
+    final owned = testOwnedItem(
       id: row.id,
       itemId: row.itemId,
       locationId: row.locationId,
@@ -81,7 +82,7 @@ void main() {
     await mutations.addItem('movie-1');
 
     final row = await db.select(db.ownedItemsCache).getSingle();
-    final owned = OwnedItem(
+    final owned = testOwnedItem(
       id: row.id,
       itemId: row.itemId,
       updatedAt: row.updatedAt,
@@ -127,7 +128,7 @@ void main() {
     await actions.removeSelected([
       ShelfEntry(
         itemId: 'movie-1',
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: ownedRow.id,
           itemId: ownedRow.itemId,
           updatedAt: ownedRow.updatedAt,

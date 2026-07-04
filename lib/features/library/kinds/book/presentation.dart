@@ -6,8 +6,71 @@ import 'package:collectarr_app/features/library/kinds/shared/workspace_presentat
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+
+LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
+  LibraryReleaseEntryRequest request,
+) {
+  final titleEntry = request.titleEntry as BookWorkspaceEntry;
+  final edition = BookEdition(
+    id: request.edition.id,
+    title: request.edition.title,
+    format: request.edition.format,
+    publisher: request.edition.publisher,
+    isbn: request.edition.isbn,
+    upc: request.edition.upc,
+    language: request.edition.language,
+    region: request.edition.region,
+    releaseDate: request.edition.releaseDate,
+    physicalFormat: request.edition.physicalFormat,
+    physicalFormatLabel: request.edition.physicalFormatLabel,
+    variants: request.edition.variants
+        .map(
+          (variant) => BookVariant(
+            id: variant.id,
+            name: variant.name,
+            variantType: variant.variantType,
+            sku: variant.sku,
+            barcode: variant.barcode,
+            isbn: variant.isbn,
+            region: variant.region,
+            coverImageUrl: variant.coverImageUrl,
+            thumbnailImageUrl: variant.thumbnailImageUrl,
+            description: variant.description,
+            physicalFormat: variant.physicalFormat,
+            physicalFormatLabel: variant.physicalFormatLabel,
+            isPrimary: variant.isPrimary,
+          ),
+        )
+        .toList(growable: false),
+  );
+  final primaryVariant = edition.variants.firstWhere(
+    (variant) => variant.isPrimary,
+    orElse: () => edition.variants.isNotEmpty
+        ? edition.variants.first
+        : const BookVariant(id: '', name: ''),
+  );
+  return buildBookEditionWorkspaceEntry(
+    titleEntry: titleEntry,
+    edition: edition,
+    variant: primaryVariant.id.isEmpty ? null : primaryVariant,
+    overlay: BookPersonalOverlay(
+      ownedItem: null,
+      trackingEntry: null,
+      wishlistItem: null,
+      updatedAt: request.updatedAt,
+    ),
+    isOwned: request.isOwned,
+    isTracked: request.isTracked,
+    isWishlisted: request.isWishlisted,
+    referenceEditionId: request.referenceEditionId,
+    referenceVariantId: request.referenceVariantId,
+    referenceBundleReleaseId: request.referenceBundleReleaseId,
+    updatedAt: request.updatedAt,
+  );
+}
 
 const booksPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',

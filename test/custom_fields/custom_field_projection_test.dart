@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 final _defaultViewState = LibraryWorkspaceViewState(
   viewMode: LibraryViewMode.grid,
@@ -54,7 +55,7 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
               catalogRef: CatalogEntityRef(
@@ -73,7 +74,7 @@ void main() {
               kind: 'comic',
               title: 'Superman',
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-2',
               itemId: 'comic-2',
               catalogRef: CatalogEntityRef(
@@ -212,7 +213,7 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
               quantity: 1,

@@ -10,12 +10,13 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('shelf state combines owned and wishlist records', () {
     final state = ShelfState.from(
       ownedItems: [
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -25,7 +26,7 @@ void main() {
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 11),
         ),
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-2',
           itemId: 'comic-2',
           condition: 'Fine',
@@ -92,7 +93,7 @@ void main() {
   test('shelf state keys records by catalog ref id', () {
     final state = ShelfState.from(
       ownedItems: [
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-1',
           itemId: 'legacy-owned-1',
           catalogRef: const CatalogEntityRef(

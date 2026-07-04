@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
@@ -57,7 +58,7 @@ void main() {
                   ),
                   updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
                 ),
-                ownedItem: OwnedItem(
+                ownedItem: testOwnedItem(
                   id: 'owned-music-1',
                   itemId: 'music-1',
                   indexNumber: 1,
@@ -121,7 +122,7 @@ void main() {
                   ),
                   updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
                 ),
-                ownedItem: OwnedItem(
+                ownedItem: testOwnedItem(
                   id: 'owned-music-2',
                   itemId: 'music-2',
                   createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),

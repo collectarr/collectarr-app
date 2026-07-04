@@ -1270,7 +1270,7 @@ class CollectionMutations {
       if (row.isWishlisted && !activeWishlistItemIds.contains(row.itemId)) {
         final wishlistItem = WishlistItem(
           id: _uuid.v4(),
-          itemId: row.itemId,
+
           catalogRef: _catalogRefForItem(
             row.itemId,
             catalogItems[row.itemId],
@@ -1424,7 +1424,7 @@ class CollectionMutations {
     final hasLocationId = row.locationId?.trim().isNotEmpty ?? false;
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
-      itemId: row.itemId,
+
       catalogRef: existing?.catalogRef ??
           CatalogEntityRef(
             kind: 'unknown',
@@ -2316,3 +2316,4 @@ class CollectionImportPreview {
 final collectionMutationsProvider = Provider<CollectionMutations>((ref) {
   return CollectionMutations(ref);
 });
+

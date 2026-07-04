@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('duplicate groups rank barcode matches ahead of metadata-only matches', () {
@@ -160,7 +161,7 @@ ShelfEntry _entry({
       releaseYear: releaseYear,
     ),
     ownedItem: owned
-        ? OwnedItem(
+        ? testOwnedItem(
             id: 'owned-$itemId',
             itemId: itemId,
             quantity: 1,

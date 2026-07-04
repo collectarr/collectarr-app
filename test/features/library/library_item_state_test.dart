@@ -3,11 +3,12 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('library entry resolves combined owned and wishlist state', () {
     final item = CatalogItem(id: 'comic-1', kind: 'comic', title: 'Comic');
-    final owned = OwnedItem(
+    final owned = testOwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
       updatedAt: DateTime.utc(2026),

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('stores catalog metadata needed for local filters', () async {
@@ -168,7 +169,7 @@ void main() {
     final repo = OwnedItemsCacheRepository(db);
 
     await repo.upsert(
-      OwnedItem(
+      testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         catalogRef: CatalogEntityRef(
@@ -203,7 +204,7 @@ void main() {
     final repo = OwnedItemsCacheRepository(db);
 
     await repo.upsert(
-      OwnedItem(
+      testOwnedItem(
         id: 'owned-digital-1',
         itemId: 'movie-1',
         catalogRef: CatalogEntityRef(

@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('resolveActiveTrackingEntry prefers the tracking row for the active copy', () {
@@ -21,7 +22,7 @@ void main() {
       sourceType: 'physical',
       updatedAt: DateTime.utc(2026, 5, 24, 11),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-2',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 24, 11),
@@ -36,18 +37,18 @@ void main() {
   });
 
   test('resolveActiveOwnedItem picks the newest copy and requests selection sync', () {
-    final older = OwnedItem(
+    final older = testOwnedItem(
       id: 'owned-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 24, 10),
     );
-    final newer = OwnedItem(
+    final newer = testOwnedItem(
       id: 'owned-2',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 24, 11),
     );
 
-    final resolution = resolveActiveOwnedItem(
+    final resolution = resolveActivetestOwnedItem(
       [newer, older],
       fallback: older,
       selectedOwnedItemId: null,

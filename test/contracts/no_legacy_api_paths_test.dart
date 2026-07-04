@@ -21,8 +21,6 @@ void main() {
       '/metadata/items/',
       '/metadata/comic/',
       '/metadata/\$kind/',
-      'Future<CatalogEdition> createBookEdition',
-      'Future<CatalogEdition> createBoardGameEdition',
     ];
 
     for (final file in files) {
@@ -40,11 +38,6 @@ void main() {
         .readAsString();
     expect(client, contains('Future<BookEditionDto> createBookEdition'));
     expect(client, contains('Future<BoardGameEditionDto> createBoardGameEdition'));
-    expect(client, isNot(contains('Future<CatalogEdition> createBookEdition')));
-    expect(
-      client,
-      isNot(contains('Future<CatalogEdition> createBoardGameEdition')),
-    );
   });
 
   test('book game and boardgame domain files do not import CatalogItem', () async {

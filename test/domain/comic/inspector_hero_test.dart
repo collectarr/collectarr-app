@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 LibraryWorkspaceEntry _entryFixture() {
   return LibraryWorkspaceEntry(
@@ -53,7 +54,7 @@ void main() {
   testWidgets('renders key comic metadata block', (tester) async {
     await tester.pumpWidget(
       _heroHost(
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-comic-hero-metadata',
           itemId: 'comic-hero-fixture',
           isDigital: false,
@@ -74,7 +75,7 @@ void main() {
   testWidgets('shows slab overlay for slabbed copies', (tester) async {
     await tester.pumpWidget(
       _heroHost(
-        OwnedItem(
+        testOwnedItem(
           id: 'owned-comic-hero-slabbed',
           itemId: 'comic-hero-fixture',
           isDigital: false,

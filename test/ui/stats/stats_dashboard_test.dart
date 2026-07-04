@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('music stats dashboard uses artist and label metadata alerts', (
@@ -83,7 +84,7 @@ void main() {
             series: const CatalogSeriesDetails(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'game-1',
             pricePaidCents: 4000,
@@ -101,7 +102,7 @@ void main() {
             series: const CatalogSeriesDetails(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ),
-          ownedItem: OwnedItem(
+          ownedItem: testOwnedItem(
             id: 'owned-2',
             itemId: 'game-2',
             pricePaidCents: 2500,
@@ -175,7 +176,7 @@ void main() {
               itemNumber: itemNumber,
               series: const CatalogSeriesDetails(seriesTitle: 'Saga'),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-$itemNumber',
               itemId: 'comic-$itemNumber',
               updatedAt: DateTime.utc(2026, 5, 1),
@@ -232,7 +233,7 @@ void main() {
                 volumeNumber: volume.toDouble(),
               ),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-comic-volume-$volume',
               itemId: 'comic-volume-$volume',
               updatedAt: DateTime.utc(2026, 5, 1),
@@ -289,7 +290,7 @@ void main() {
                 seasonNumber: season,
               ),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-movie-season-$season',
               itemId: 'movie-season-$season',
               updatedAt: DateTime.utc(2026, 5, 1),

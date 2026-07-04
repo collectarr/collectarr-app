@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('library projection prefers structured location path', () {
@@ -16,7 +17,7 @@ void main() {
           kind: 'comic',
           title: 'Batman',
         ),
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           locationId: 'loc-1',
@@ -49,7 +50,7 @@ void main() {
           kind: 'comic',
           title: 'Batman',
         ),
-        ownedItem: OwnedItem(
+        ownedItem: testOwnedItem(
           id: 'owned-2',
           itemId: 'comic-2',
           anchorType: 'bundle_release',

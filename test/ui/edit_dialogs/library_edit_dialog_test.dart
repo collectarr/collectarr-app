@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   setUp(() {
@@ -78,7 +79,7 @@ void main() {
         ),
       ],
     ));
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
       editionId: 'edition-standard',
@@ -218,7 +219,7 @@ void main() {
         ),
       ],
     ));
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-edition-1',
       itemId: 'movie-edition-1',
       quantity: 1,
@@ -485,7 +486,7 @@ void main() {
         characters: const ['Wirt', 'Greg'],
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-comic-1',
       itemId: 'comic-1',
       locationId: 'comic-box-a',
@@ -794,7 +795,7 @@ void main() {
         ],
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-book-preserve-1',
       itemId: 'book-preserve-1',
       quantity: 1,
@@ -1077,7 +1078,7 @@ void main() {
         ),
       ],
     ));
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-bundle-1',
       itemId: 'movie-bundle-1',
       quantity: 1,
@@ -1164,7 +1165,7 @@ void main() {
         title: 'Alien',
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-bundle-existing-1',
       itemId: 'movie-bundle-existing-1',
       anchorType: 'bundle_release',
@@ -1243,7 +1244,7 @@ void main() {
         physicalFormatLabel: 'Digital',
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-digital-1',
       itemId: 'movie-digital-1',
       condition: 'Mint',
@@ -1449,7 +1450,7 @@ void main() {
         genres: ['Rock', 'Progressive Rock'],
       ),
     );
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-music-1',
       itemId: 'music-1',
       quantity: 1,

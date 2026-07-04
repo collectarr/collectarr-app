@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('import export wizard exposes collectarr and CLZ flows', (
@@ -33,7 +34,7 @@ void main() {
                     publisher: 'Marvel Comics',
                     releaseDate: DateTime.utc(2005, 7, 1),
                   ),
-                  ownedItem: OwnedItem(
+                  ownedItem: testOwnedItem(
                     id: 'owned-1',
                     itemId: 'comic-1',
                     quantity: 1,

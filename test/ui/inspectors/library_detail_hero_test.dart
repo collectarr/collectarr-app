@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('detail hero keeps a back cover affordance when the back image is missing', (
@@ -47,7 +48,7 @@ void main() {
                 ownedItemId: 'owned-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
@@ -107,7 +108,7 @@ void main() {
                 ownedItemId: 'owned-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
@@ -180,7 +181,7 @@ void main() {
                 primaryReferenceLabel: 'Owned as bundle',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 anchorType: 'bundle_release',
@@ -216,7 +217,7 @@ void main() {
                 title: 'The Hobbit',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 pricePaidCents: 1299,
@@ -225,7 +226,7 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedCopies: [
-                OwnedItem(
+                testOwnedItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   pricePaidCents: 1299,
@@ -233,7 +234,7 @@ void main() {
                   currency: 'USD',
                   updatedAt: DateTime.utc(2026, 5, 23),
                 ),
-                OwnedItem(
+                testOwnedItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   pricePaidCents: 999,

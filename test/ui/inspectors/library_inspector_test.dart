@@ -25,6 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   testWidgets(
@@ -98,7 +99,7 @@ void main() {
                   genres: const ['Action', 'Dystopian'],
                   updatedAt: DateTime.utc(2026, 5, 23),
                 ),
-                ownedItem: OwnedItem(
+                ownedItem: testOwnedItem(
                   id: 'owned-comic-hero-1',
                   itemId: 'comic-hero-1',
                   isDigital: false,
@@ -162,7 +163,7 @@ void main() {
                         isOwned: true,
                         updatedAt: DateTime.utc(2026, 5, 23),
                       ),
-                      ownedItem: OwnedItem(
+                      ownedItem: testOwnedItem(
                         id: 'owned-comic-hero-narrow-1',
                         itemId: 'comic-hero-narrow-1',
                         isDigital: false,
@@ -227,7 +228,7 @@ void main() {
                 isOwned: true,
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-comic-hero-2',
                 itemId: 'comic-hero-2',
                 isDigital: false,
@@ -311,7 +312,7 @@ void main() {
                 isOwned: true,
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-comic-1',
                 itemId: 'comic-multi-1',
                 condition: 'Near Mint',
@@ -442,7 +443,7 @@ void main() {
               currency: 'USD',
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'movie-1',
               purchaseDate: DateTime.utc(2026, 5, 11),
@@ -479,7 +480,7 @@ void main() {
               variant: 'Digital',
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
-            ownedItem: OwnedItem(
+            ownedItem: testOwnedItem(
               id: 'owned-1',
               itemId: 'movie-1',
               isDigital: true,
@@ -575,7 +576,7 @@ void main() {
                 ],
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
@@ -684,7 +685,7 @@ void main() {
                 ownedItemId: 'owned-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
@@ -747,7 +748,7 @@ void main() {
                 isOwned: true,
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
@@ -834,7 +835,7 @@ void main() {
                 isOwned: true,
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              ownedItem: OwnedItem(
+              ownedItem: testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
