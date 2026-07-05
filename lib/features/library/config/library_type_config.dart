@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -536,6 +537,26 @@ class LibraryKindUiAdapter {
     );
   }
 
+  bool canJumpToIssue(
+    LibraryTypeConfig type,
+    LibraryProjection? projection, {
+    required LibraryGroupMode activeGroupMode,
+    required String? selectedBucket,
+  }) {
+    if (projection == null ||
+        !type.supportsSeriesIssueJump ||
+        activeGroupMode != LibraryGroupMode.series ||
+        selectedBucket == null) {
+      return false;
+    }
+    return projection.allItems.any(
+      (item) =>
+          genericBucketForItemMode(item, type, LibraryGroupMode.series) ==
+              selectedBucket &&
+          _issueSortNumber(item.entry.itemNumber) != null,
+    );
+  }
+
   bool shouldOpenReleaseFolderOnOpen(
     LibraryTypeConfig type, {
     required LibraryWorkspaceBrowserMode browserMode,
@@ -714,6 +735,13 @@ class LibraryKindUiAdapter {
   ) {
     return groupModeCategories(type, modes);
   }
+}
+
+int? _issueSortNumber(String? raw) {
+  if (raw == null) {
+    return null;
+  }
+  return int.tryParse(raw.trim());
 }
 
 class LibraryTypeConfig {

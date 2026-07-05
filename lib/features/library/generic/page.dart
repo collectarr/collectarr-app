@@ -543,14 +543,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   bool _canJumpToIssue(LibraryProjection? projection) {
-    if (projection == null ||
-        !widget.type.supportsSeriesIssueJump ||
-        _activeGroupMode != LibraryGroupMode.series ||
-        _selectedBucket == null) {
-      return false;
-    }
-    return _seriesBucketItems(projection).any(
-      (item) => _issueSortNumber(item.entry.itemNumber) != null,
+    return widget.type.kindUiAdapter.canJumpToIssue(
+      widget.type,
+      projection,
+      activeGroupMode: _activeGroupMode,
+      selectedBucket: _selectedBucket,
     );
   }
 

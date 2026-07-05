@@ -56,4 +56,17 @@ void main() {
       equals(booksLibraryConfig.browserModeForViewState(state)),
     );
   });
+
+  test('issue jump gating stays in the kind adapter', () {
+    final adapter = comicsLibraryConfig.kindUiAdapter;
+    expect(
+      adapter.canJumpToIssue(
+        comicsLibraryConfig,
+        null,
+        activeGroupMode: LibraryGroupMode.series,
+        selectedBucket: 'Series A',
+      ),
+      isFalse,
+    );
+  });
 }
